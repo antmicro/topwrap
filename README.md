@@ -6,17 +6,17 @@ This is a Python package for generating HDL wrappers and top modules for your HD
 
 ## Install
 
-1. Get python3 and pip with your package manager.
+Get python3 and pip with your package manager.
 
-1. Install package requirements:
+### Install package requirements:
 
-    ```
-    pip3 install -r requirements.txt
-    ```
+```
+pip3 install -r requirements.txt
+```
 
-1. Build and install the Topwrap package:
+### Build and install the Topwrap package:
 
-    ```
-    python3 setup.py build
-    sudo python3 setup.py install
-    ```
+```
+python3 setup.py build
+python3 setup.py install
+```
