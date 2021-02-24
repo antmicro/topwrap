@@ -220,8 +220,9 @@ class IPWrapper(Elaboratable):
                                         + [Signal(diff)]
                                         + ports_sorted[i+1:])
 
+            diff = ports_sorted[0].bounds[3]
             # insert signal in front, if the first doesn't start from 0
-            if diff := ports_sorted[0].bounds[3] > 0:
+            if diff > 0:
                 ports_sorted = [Signal(diff)] + ports_sorted
 
             instance_args[prefix + internal_name] = Cat(*ports_sorted)
