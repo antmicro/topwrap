@@ -1,6 +1,7 @@
 setuptools
 wheel
 PyYAML
+click
 pytest
 nmigen-yosys
 edalize==0.2.3
