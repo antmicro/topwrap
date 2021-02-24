@@ -1,0 +1,222 @@
+# S_COUNT = 1
+# M_COUNT = 3
+# ID_WIDTH = 12
+# {ADDR,DATA}_WIDTH=32
+# STRB_WIDTH=4
+#
+# 1 slave
+s_axi_0:
+    interface: AXI4
+    mode: slave
+    signals:
+        in:
+            AWID: [s_axi_awid, 11, 0]
+            AWADDR: [s_axi_awaddr, 31, 0]
+            # AWLEN in PS7 has only 4 bits
+            AWLEN: [s_axi_awlen, 7, 0, 3, 0]
+            # [2] is not used (doc DS871)
+            AWSIZE: [s_axi_awsize, 2, 0, 1, 0]
+            AWBURST: [s_axi_awburst, 1, 0]
+            AWLOCK: s_axi_awlock
+            AWCACHE: [s_axi_awcache, 3, 0]
+            AWPROT: [s_axi_awprot, 2, 0]
+            AWQOS: [s_axi_awqos, 3, 0]
+            AWUSER: s_axi_awuser
+            AWVALID: s_axi_awvalid
+            WDATA: [s_axi_wdata, 31, 0]
+            WSTRB: [s_axi_wstrb, 3, 0]
+            WLAST: s_axi_wlast
+            WUSER: s_axi_wuser
+            WVALID: s_axi_wvalid
+            BREADY: s_axi_bready
+            ARID: [s_axi_arid, 11, 0]
+            ARADDR: [s_axi_araddr, 31, 0]
+            ARLEN: [s_axi_arlen, 7, 0, 3, 0]
+            # [2] is not used (doc DS871)
+            ARSIZE: [s_axi_arsize, 2, 0, 1, 0]
+            ARBURST: [s_axi_arburst, 1, 0]
+            ARLOCK: s_axi_arlock
+            ARCACHE: [s_axi_arcache, 3, 0]
+            ARPROT: [s_axi_arprot, 2, 0]
+            ARQOS: [s_axi_arqos, 3, 0]
+            ARUSER: s_axi_aruser
+            ARVALID: s_axi_arvalid
+            RREADY: s_axi_rready
+        out:
+            AWREADY: s_axi_awready
+            WREADY: s_axi_wready
+            BID: [s_axi_bid, 11, 0]
+            BRESP: [s_axi_bresp, 1, 0]
+            BUSER: s_axi_buser
+            BVALID: s_axi_bvalid
+            ARREADY: s_axi_arready
+            RID: [s_axi_rid, 11, 0]
+            RDATA: [s_axi_rdata, 31, 0]
+            RRESP: [s_axi_rresp, 1, 0]
+            RLAST: s_axi_rlast
+            RUSER: s_axi_ruser
+            RVALID: s_axi_rvalid
+
+# 3 masters
+m_axi_0:
+    interface: AXI4
+    mode: master
+    signals:
+        in:
+            AWREADY: [m_axi_awready, 2, 0, 2, 2]
+            WREADY: [m_axi_wready, 2, 0, 2, 2]
+            BID: [m_axi_bid, 35, 0, 35, 24]
+            BRESP: [m_axi_bresp, 5, 0, 5, 4]
+            BUSER: [m_axi_buser, 2, 0, 2, 2]
+            BVALID: [m_axi_bvalid, 2, 0, 2, 2]
+            ARREADY: [m_axi_arready, 2, 0, 2, 2]
+            RID: [m_axi_rid, 35, 0, 35, 24]
+            RDATA: [m_axi_rdata, 95, 0, 95, 64]
+            RRESP: [m_axi_rresp, 5, 0, 5, 4]
+            RLAST: [m_axi_rlast, 2, 0, 2, 2]
+            RUSER: [m_axi_ruser, 2, 0, 2, 2]
+            RVALID: [m_axi_rvalid, 2, 0, 2, 2]
+        out:
+            # the most significant third of each port is used
+            # because there are 3 master interfaces
+            AWID: [m_axi_awid, 35, 0, 35, 24]
+            AWADDR: [m_axi_awaddr, 95, 0, 95, 64]
+            AWLEN: [m_axi_awlen, 23, 0, 23, 16]
+            AWSIZE: [m_axi_awsize, 8, 0, 8, 6]
+            AWBURST: [m_axi_awburst, 5, 0, 5, 4]
+            AWLOCK: [m_axi_awlock, 2, 0, 2, 2]
+            AWCACHE: [m_axi_awcache, 11, 0, 11, 8]
+            AWPROT: [m_axi_awprot, 8, 0, 8, 6]
+            AWQOS: [m_axi_awqos, 11, 0, 11, 8]
+            AWREGION: [m_axi_awregion, 11, 0, 11, 8]
+            AWUSER: [m_axi_awuser, 2, 0, 2, 2]
+            AWVALID: [m_axi_awvalid, 2, 0, 2, 2]
+            WDATA: [m_axi_wdata, 95, 0, 95, 64]
+            WSTRB: [m_axi_wstrb, 11, 0, 11, 8]
+            WLAST: [m_axi_wlast, 2, 0, 2, 2]
+            WUSER: [m_axi_wuser, 2, 0, 2, 2]
+            WVALID: [m_axi_wvalid, 2, 0, 2, 2]
+            BREADY: [m_axi_bready, 2, 0, 2, 2]
+            ARID: [m_axi_arid, 35, 0, 35, 24]
+            ARADDR: [m_axi_araddr, 95, 0, 95, 64]
+            ARLEN: [m_axi_arlen, 23, 0, 23, 16]
+            ARSIZE: [m_axi_arsize, 8, 0, 8, 6]
+            ARBURST: [m_axi_arburst, 5, 0, 5, 4]
+            ARLOCK: [m_axi_arlock, 2, 0, 2, 2]
+            ARCACHE: [m_axi_arcache, 11, 0, 11, 8]
+            ARPROT: [m_axi_arprot, 8, 0, 8, 6]
+            ARQOS: [m_axi_arqos, 11, 0, 11, 8]
+            ARREGION: [m_axi_arregion, 11, 0, 11, 8]
+            ARUSER: [m_axi_aruser, 2, 0, 2, 2]
+            ARVALID: [m_axi_arvalid, 2, 0, 2, 2]
+            RREADY: [m_axi_rready, 2, 0, 2, 2]
+
+
+m_axi_1:
+    interface: AXI4
+    mode: master
+    signals:
+        in:
+            AWREADY: [m_axi_awready, 2, 0, 1, 1]
+            WREADY: [m_axi_wready, 2, 0, 1, 1]
+            BID: [m_axi_bid, 35, 0, 23, 12]
+            BRESP: [m_axi_bresp, 5, 0, 3, 2]
+            BUSER: [m_axi_buser, 2, 0, 1, 1]
+            BVALID: [m_axi_bvalid, 2, 0, 1, 1]
+            ARREADY: [m_axi_arready, 2, 0, 1, 1]
+            RID: [m_axi_rid, 35, 0, 23, 12]
+            RDATA: [m_axi_rdata, 95, 0, 63, 32]
+            RRESP: [m_axi_rresp, 5, 0, 3, 2]
+            RLAST: [m_axi_rlast, 2, 0, 1, 1]
+            RUSER: [m_axi_ruser, 2, 0, 1, 1]
+            RVALID: [m_axi_rvalid, 2, 0, 1, 1]
+        out:
+            # the 2nd most significant third of each port is used
+            AWID: [m_axi_awid, 35, 0, 23, 12]
+            AWADDR: [m_axi_awaddr, 95, 0, 63, 32]
+            AWLEN: [m_axi_awlen, 23, 0, 15, 8]
+            AWSIZE: [m_axi_awsize, 8, 0, 5, 3]
+            AWBURST: [m_axi_awburst, 5, 0, 3, 2]
+            AWLOCK: [m_axi_awlock, 2, 0, 1, 1]
+            AWCACHE: [m_axi_awcache, 11, 0, 7, 4]
+            AWPROT: [m_axi_awprot, 8, 0, 5, 3]
+            AWQOS: [m_axi_awqos, 11, 0, 7, 4]
+            AWREGION: [m_axi_awregion, 11, 0, 7, 4]
+            AWUSER: [m_axi_awuser, 2, 0, 1, 1]
+            AWVALID: [m_axi_awvalid, 2, 0, 1, 1]
+            WDATA: [m_axi_wdata, 95, 0, 63, 32]
+            WSTRB: [m_axi_wstrb, 11, 0, 7, 4]
+            WLAST: [m_axi_wlast, 2, 0, 1, 1]
+            WUSER: [m_axi_wuser, 2, 0, 1, 1]
+            WVALID: [m_axi_wvalid, 2, 0, 1, 1]
+            BREADY: [m_axi_bready, 2, 0, 1, 1]
+            ARID: [m_axi_arid, 35, 0, 23, 12]
+            ARADDR: [m_axi_araddr, 95, 0, 63, 32]
+            ARLEN: [m_axi_arlen, 23, 0, 15, 8]
+            ARSIZE: [m_axi_arsize, 8, 0, 5, 3]
+            ARBURST: [m_axi_arburst, 5, 0, 3, 2]
+            ARLOCK: [m_axi_arlock, 2, 0, 1, 1]
+            ARCACHE: [m_axi_arcache, 11, 0, 7, 4]
+            ARPROT: [m_axi_arprot, 8, 0, 5, 3]
+            ARQOS: [m_axi_arqos, 11, 0, 7, 4]
+            ARREGION: [m_axi_arregion, 11, 0, 7, 4]
+            ARUSER: [m_axi_aruser, 2, 0, 1, 1]
+            ARVALID: [m_axi_arvalid, 2, 0, 1, 1]
+            RREADY: [m_axi_rready, 2, 0, 1, 1]
+
+m_axi_2:
+    interface: AXI4
+    mode: master
+    signals:
+        in:
+            AWREADY: [m_axi_awready, 2, 0, 0, 0]
+            WREADY: [m_axi_wready, 2, 0, 0, 0]
+            BID: [m_axi_bid, 35, 0, 11, 0]
+            BRESP: [m_axi_bresp, 5, 0, 1, 0]
+            BUSER: [m_axi_buser, 2, 0, 0, 0]
+            BVALID: [m_axi_bvalid, 2, 0, 0, 0]
+            ARREADY: [m_axi_arready, 2, 0, 0, 0]
+            RID: [m_axi_rid, 35, 0, 11, 0]
+            RDATA: [m_axi_rdata, 95, 0, 31, 0]
+            RRESP: [m_axi_rresp, 5, 0, 1, 0]
+            RLAST: [m_axi_rlast, 2, 0, 0, 0]
+            RUSER: [m_axi_ruser, 2, 0, 0, 0]
+            RVALID: [m_axi_rvalid, 2, 0, 0, 0]
+        out:
+            # the least significant third of each port is used
+            AWID: [m_axi_awid, 35, 0, 11, 0]
+            AWADDR: [m_axi_awaddr, 95, 0, 31, 0]
+            AWLEN: [m_axi_awlen, 23, 0, 7, 0]
+            AWSIZE: [m_axi_awsize, 8, 0, 2, 0]
+            AWBURST: [m_axi_awburst, 5, 0, 1, 0]
+            AWLOCK: [m_axi_awlock, 2, 0, 0, 0]
+            AWCACHE: [m_axi_awcache, 11, 0, 3, 0]
+            AWPROT: [m_axi_awprot, 8, 0, 2, 0]
+            AWQOS: [m_axi_awqos, 11, 0, 3, 0]
+            AWREGION: [m_axi_awregion, 11, 0, 3, 0]
+            AWUSER: [m_axi_awuser, 2, 0, 0, 0]
+            AWVALID: [m_axi_awvalid, 2, 0, 0, 0]
+            WDATA: [m_axi_wdata, 95, 0, 31, 0]
+            WSTRB: [m_axi_wstrb, 11, 0, 3, 0]
+            WLAST: [m_axi_wlast, 2, 0, 0, 0]
+            WUSER: [m_axi_wuser, 2, 0, 0, 0]
+            WVALID: [m_axi_wvalid, 2, 0, 0, 0]
+            BREADY: [m_axi_bready, 2, 0, 0, 0]
+            ARID: [m_axi_arid, 35, 0, 11, 0]
+            ARADDR: [m_axi_araddr, 95, 0, 31, 0]
+            ARLEN: [m_axi_arlen, 23, 0, 7, 0]
+            ARSIZE: [m_axi_arsize, 8, 0, 2, 0]
+            ARBURST: [m_axi_arburst, 5, 0, 1, 0]
+            ARLOCK: [m_axi_arlock, 2, 0, 0, 0]
+            ARCACHE: [m_axi_arcache, 11, 0, 3, 0]
+            ARPROT: [m_axi_arprot, 8, 0, 2, 0]
+            ARQOS: [m_axi_arqos, 11, 0, 3, 0]
+            ARREGION: [m_axi_arregion, 11, 0, 3, 0]
+            ARUSER: [m_axi_aruser, 2, 0, 0, 0]
+            ARVALID: [m_axi_arvalid, 2, 0, 0, 0]
+            RREADY: [m_axi_rready, 2, 0, 0, 0]
+
+signals:
+    in:
+        - clk
+        - rst

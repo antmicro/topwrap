@@ -1,0 +1,42 @@
+s_axis:
+    interface: AXI4Stream
+    mode: slave
+    signals:
+        in:
+            TDATA: [s_axis_tdata, 63, 0]
+            TKEEP: [s_axis_tkeep, 7, 0]
+            TVALID: s_axis_tvalid
+            TLAST: s_axis_tlast
+            TID: [s_axis_tid, 7, 0]
+            TDEST: [s_axis_tdest, 7, 0]
+            TUSER: s_axis_tuser
+        out:
+            TREADY: s_axis_tready
+
+m_axis:
+    interface: AXI4Stream
+    mode: master
+    signals:
+        in:
+            TREADY: m_axis_tready
+        out:
+            TDATA: [m_axis_tdata, 63, 0]
+            TKEEP: [m_axis_tkeep, 7, 0]
+            TVALID: m_axis_tvalid
+            TLAST: m_axis_tlast
+            TID: [m_axis_tid, 7, 0]
+            TDEST: [m_axis_tdest, 7, 0]
+            TUSER: m_axis_tuser
+
+signals:
+    in:
+        - async_rst
+        - s_clk
+        - m_clk
+    out:
+        - s_status_overflow
+        - s_status_bad_frame
+        - s_status_good_frame
+        - m_status_overflow
+        - m_status_bad_frame
+        - m_status_good_frame

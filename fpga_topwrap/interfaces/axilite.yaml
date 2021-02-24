@@ -1,0 +1,44 @@
+name: AXI4Lite
+port_prefix: AXIL
+signals:
+    required:
+        - ACLK
+        - ARESETn
+
+        - AWID
+        - AWADDR
+        - AWPROT
+        - AWQOS
+        - AWREGION
+        - AWVALID
+        - AWREADY
+        - WDATA
+        - WSTRB
+        - WVALID
+        - WREADY
+
+        - BID
+        - BRESP
+        - BVALID
+        - BREADY
+
+        - ARID
+        - ARADDR
+        - ARPROT
+        - ARQOS
+        - ARREGION
+        - ARVALID
+        - ARREADY
+
+        - RID
+        - RDATA
+        - RRESP
+        - RVALID
+        - RREADY
+
+    optional:
+        - AWUSER
+        - WUSER
+        - BUSER
+        - ARUSER
+        - RUSER

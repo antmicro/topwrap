@@ -1,0 +1,24 @@
+#width converter
+s_axis:
+    interface: AXI4Stream
+    mode: slave
+    signals:
+        in:
+            TDATA: [s_axis_tdata, 63, 0]
+            TVALID: s_axis_tvalid
+        out:
+            TREADY: s_axis_tready
+
+m_axis:
+    interface: AXI4Stream
+    mode: master
+    signals:
+        in:
+            TREADY: m_axis_tready
+        out:
+            TDATA: [m_axis_tdata, 31, 0]
+            TVALID: m_axis_tvalid
+signals:
+    in:
+        - aclk
+        - aresetn

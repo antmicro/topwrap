@@ -1,0 +1,55 @@
+AXI_s0:
+    interface: AXI
+    mode: slave
+    signals:
+        in:
+            AWADDR: [s00_axi_awaddr, 6, 0]
+            AWPROT: [s00_axi_awprot, 2, 0]
+            AWVALID: s00_axi_awvalid
+            WDATA: [s00_axi_wdata, 31, 0]
+            WSTRB: [s00_axi_wstrb, 3, 0]
+            WVALID: s00_axi_wvalid
+            BREADY: s00_axi_bready
+            ARADDR: [s00_axi_araddr, 6, 0]
+            ARPROT: [s00_axi_arprot, 2, 0]
+            ARVALID: s00_axi_arvalid
+            RREADY: s00_axi_rready
+        out:
+            AWREADY: s00_axi_awready
+            WREADY: s00_axi_wready
+            BRESP: [s00_axi_bresp, 1, 0]
+            BVALID: s00_axi_bvalid
+            ARREADY: s00_axi_arready
+            RDATA: [s00_axi_rdata, 31, 0]
+            RRESP: [s00_axi_rresp, 1, 0]
+            RVALID: s00_axi_rvalid
+
+AXIS_s0:
+    interface: AXIStream
+    mode: slave
+    signals:
+        in:
+            TVALID: S_AXIS_TVALID
+            TDATA: [S_AXIS_TDATA, 31, 0]
+            TLAST: S_AXIS_TLAST
+            TUSER: S_AXIS_TUSER
+        out:
+            TREADY: S_AXIS_TREADY
+
+signals:
+    in:
+        - S_AXIS_ACLK
+        - LOCKED_I
+        - s00_axi_aclk
+        - s00_axi_aresetn
+    out:
+        - FSYNC_O
+        - HSYNC_O
+        - VSYNC_O
+        - DE_O
+        - [DATA_O, 31, 0]
+        - [CTL_O, 3, 0]
+        - VGUARD_O
+        - DGUARD_O
+        - DIEN_O
+        - DIH_O

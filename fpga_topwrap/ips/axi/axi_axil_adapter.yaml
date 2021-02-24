@@ -1,0 +1,74 @@
+# 1 slave
+s_axi:
+    interface: AXI4
+    mode: slave
+    signals:
+        in:
+            AWID: [s_axi_awid, 11, 0]
+            AWADDR: [s_axi_awaddr, 31, 0]
+            AWLEN: [s_axi_awlen, 7, 0]
+            AWSIZE: [s_axi_awsize, 2, 0]
+            AWBURST: [s_axi_awburst, 1, 0]
+            AWLOCK: s_axi_awlock
+            AWCACHE: [s_axi_awcache, 3, 0]
+            AWPROT: [s_axi_awprot, 2, 0]
+            AWVALID: s_axi_awvalid
+            WDATA: [s_axi_wdata, 31, 0]
+            WSTRB: [s_axi_wstrb, 3, 0]
+            WLAST: s_axi_wlast
+            WVALID: s_axi_wvalid
+            BREADY: s_axi_bready
+            ARID: [s_axi_arid, 11, 0]
+            ARADDR: [s_axi_araddr, 31, 0]
+            ARLEN: [s_axi_arlen, 7, 0]
+            ARSIZE: [s_axi_arsize, 2, 0]
+            ARBURST: [s_axi_arburst, 1, 0]
+            ARLOCK: s_axi_arlock
+            ARCACHE: [s_axi_arcache, 3, 0]
+            ARPROT: [s_axi_arprot, 2, 0]
+            ARVALID: s_axi_arvalid
+            RREADY: s_axi_rready
+        out:
+            AWREADY: s_axi_awready
+            WREADY: s_axi_wready
+            BID: [s_axi_bid, 11, 0]
+            BRESP: [s_axi_bresp, 1, 0]
+            BVALID: s_axi_bvalid
+            ARREADY: s_axi_arready
+            RID: [s_axi_rid, 11, 0]
+            RDATA: [s_axi_rdata, 31, 0]
+            RRESP: [s_axi_rresp, 1, 0]
+            RLAST: s_axi_rlast
+            RVALID: s_axi_rvalid
+
+# 1 master
+m_axi:
+    interface: AXI4Lite
+    mode: master
+    signals:
+        in:
+            AWREADY: m_axil_awready
+            WREADY: m_axil_wready
+            BRESP: [m_axil_bresp, 1, 0]
+            BVALID: m_axil_bvalid
+            ARREADY: m_axil_arready
+            RDATA: [m_axil_rdata, 31, 0]
+            RRESP: [m_axil_rresp, 1, 0]
+            RVALID: m_axil_rvalid
+        out:
+            AWADDR: [m_axil_awaddr, 31, 0]
+            AWPROT: [m_axil_awprot, 2, 0]
+            AWVALID: m_axil_awvalid
+            WDATA: [m_axil_wdata, 31, 0]
+            WSTRB: [m_axil_wstrb, 3, 0]
+            WVALID: m_axil_wvalid
+            BREADY: m_axil_bready
+            ARADDR: [m_axil_araddr, 31, 0]
+            ARPROT: [m_axil_arprot, 2, 0]
+            ARVALID: m_axil_arvalid
+            RREADY: m_axil_rready
+
+signals:
+    in:
+        - clk
+        - rst

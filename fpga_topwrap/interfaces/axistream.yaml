@@ -1,0 +1,14 @@
+name: AXI4Stream
+port_prefix: AXIS
+signals:
+    required:
+        - TVALID
+        - TDATA
+        - TLAST
+        - TREADY
+    optional:
+        - TID
+        - TDEST
+        - TKEEP
+        - TSTRB
+        - TUSER

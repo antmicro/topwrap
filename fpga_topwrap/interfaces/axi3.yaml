@@ -1,0 +1,49 @@
+name: AXI3
+port_prefix: AXI3
+signals:
+    required:
+        - ACLK
+        - ARESETn
+
+        - AWADDR
+        - AWVALID
+        - AWREADY
+        - AWID
+        - AWLEN
+        - AWSIZE
+        - AWBURST
+        - AWLOCK
+        - AWCACHE
+        - AWPROT
+
+        - WID
+        - WDATA
+        - WLAST
+        - WVALID
+        - WREADY
+        - WSTRB
+
+        - BVALID
+        - BREADY
+        - BID
+        - BRESP
+
+        - ARID
+        - ARADDR
+        - ARLEN
+        - ARSIZE
+        - ARBURST
+        - ARLOCK
+        - ARCACHE
+        - ARPROT
+        - ARVALID
+        - ARREADY
+
+        - RID
+        - RDATA
+        - RRESP
+        - RLAST
+        - RVALID
+        - RREADY
+
+    optional:

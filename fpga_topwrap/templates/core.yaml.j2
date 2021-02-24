@@ -1,0 +1,21 @@
+CAPI=2:
+name : ::project_1
+description : project
+filesets:
+  rtl:
+    files:{% for file in sources %}
+      - {{file.filename}} : {file_type : {{file.type}}}{% endfor %}
+targets:
+  default:
+    default_tool : vivado
+    filesets : [rtl]
+    hooks:
+      pre_build :
+        - set_jobs
+    tools:
+      vivado:
+        part : {{part}}
+    toplevel : top
+scripts:
+  set_jobs:
+    cmd : [sed, -i, 's/launch_runs synth_1/launch_runs synth_1 -jobs {{jobs}}/g', project_1_0_synth.tcl]

@@ -1,0 +1,57 @@
+name: AXI4
+port_prefix: AXI4
+signals:
+    required:
+        - ACLK
+        - ARESETn
+
+        - AWADDR
+        - AWVALID
+        - AWREADY
+        - AWID
+        - AWREGION
+        - AWLEN
+        - AWSIZE
+        - AWBURST
+        - AWLOCK
+        - AWCACHE
+        - AWPROT
+        - AWQOS
+        - WDATA
+
+        - WVALID
+        - WREADY
+        - WSTRB
+        - WLAST
+
+        - BVALID
+        - BREADY
+        - BID
+        - BRESP
+
+        - ARID
+        - ARADDR
+        - ARLEN
+        - ARSIZE
+        - ARBURST
+        - ARLOCK
+        - ARCACHE
+        - ARPROT
+        - ARQOS
+        - ARREGION
+        - ARVALID
+        - ARREADY
+
+        - RID
+        - RDATA
+        - RRESP
+        - RLAST
+        - RVALID
+        - RREADY
+
+    optional:
+        - AWUSER
+        - WUSER
+        - BUSER
+        - ARUSER
+        - RUSER

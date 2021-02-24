@@ -1,0 +1,4 @@
+include fpga_topwrap/interfaces/*
+include fpga_topwrap/ips/*/*
+include fpga_topwrap/templates/core.yaml.j2
+include tests/data/*
