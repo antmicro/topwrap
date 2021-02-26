@@ -1,9 +1,0 @@
-setuptools
-wheel
-PyYAML
-click
-pytest
-nmigen-yosys
-edalize==0.2.3
-fusesoc==1.11.0
-git+https://github.com/nmigen/nmigen
