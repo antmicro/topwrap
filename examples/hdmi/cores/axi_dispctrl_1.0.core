@@ -1,0 +1,20 @@
+CAPI=2:
+name : ::axi_dispctrl:1.0
+description : AXI Display Controller
+
+filesets:
+  rtl:
+    files:
+      - src/axi_dispctrl_v1_0_S00_AXI.vhd : {file_type : vhdlSource}
+      - src/vdma_to_vga.vhd : {file_type : vhdlSource}
+      - src/axi_dispctrl_v1_0.vhd : {file_type : vhdlSource}
+      - component.xml : {file_type : user}
+
+targets:
+  default:
+    filesets: [rtl]
+
+provider:
+  name: git
+  repo: https://github.com/antmicro/axi-display-controller.git
+  version: master

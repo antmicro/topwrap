@@ -1,0 +1,13 @@
+signals:
+    in:
+        - slowest_sync_clk
+        - ext_reset_in
+        - aux_reset_in
+        - mb_debug_sys_rst
+        - dcm_locked
+    out:
+        - mb_reset
+        - bus_struct_reset
+        - peripheral_reset
+        - interconnect_aresetn
+        - peripheral_aresetn

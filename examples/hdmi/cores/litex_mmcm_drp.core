@@ -1,0 +1,18 @@
+CAPI=2:
+name : ::litex_mmcm_drp:1.0
+description : LiteX MMCM
+
+filesets:
+  rtl:
+    files:
+      - src/litex_core.v : {file_type : verilogSource}
+      - component.xml : {file_type : user}
+
+targets:
+  default:
+    filesets: [rtl]
+
+provider:
+  name: git
+  repo: https://github.com/antmicro/mmcm-drp.git
+  version: master
