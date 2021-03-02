@@ -1,0 +1,45 @@
+name: GH Pages
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+          sudo apt-get update
+          sudo apt-get install python3-sphinx
+          python3 -m pip install setuptools
+          python3 -m pip install git+https://github.com/antmicro/sphinx_antmicro_theme
+
+    - name: Build
+      run: |
+        make -C docs html
+
+    - name: Deploy
+      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+      run: |
+        mkdir deploy
+        cp -r docs/build/html/* deploy
+        cd deploy
+        git init
+        cp ../.git/config ./.git/config
+        git add .
+        git config --local user.email "push@gha"
+        git config --local user.name "GHA"
+        git commit -am "update ${{ github.sha }}"
+        git push -u origin +HEAD:gh-pages
+        rm -rf .git
