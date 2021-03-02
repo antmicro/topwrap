@@ -1,0 +1,23 @@
+signals:
+    in:
+        - PXLCLK_I
+        - PXLCLK_5X_I
+        - LOCKED_I
+        - VGA_HS
+        - VGA_VS
+        - VGA_DE
+        - [DATA_I, 31, 0]
+        - [CTL, 3, 0]
+        - VGUARD
+        - DGUARD
+        - DIEN
+        - DIH
+    out:
+        - HDMI_CLK_P
+        - HDMI_CLK_N
+        - HDMI_D2_P
+        - HDMI_D2_N
+        - HDMI_D1_P
+        - HDMI_D1_N
+        - HDMI_D0_P
+        - HDMI_D0_N

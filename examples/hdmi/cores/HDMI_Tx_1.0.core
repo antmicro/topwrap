@@ -1,0 +1,21 @@
+CAPI=2:
+name : ::HDMI_Tx:1.0
+description : HDMI Transmitter
+
+filesets:
+  rtl:
+    files:
+      - src/DVITransmitter.vhd : {file_type : vhdlSource}
+      - src/SerializerN_1.vhd : {file_type : vhdlSource}
+      - src/TMDSEncoder.vhd : {file_type : vhdlSource}
+      - src/HDMI_Tx_v1_0.vhd : {file_type : vhdlSource}
+      - component.xml : {file_type : user}
+
+targets:
+  default:
+    filesets: [rtl]
+
+provider:
+  name: git
+  repo: https://github.com/antmicro/hdmi-transmitter-ip.git
+  version: master

@@ -1,0 +1,90 @@
+m_axis:
+    interface: AXI4Stream
+    mode: master
+    signals:
+        in:
+            TREADY: io_write_tready
+        out:
+            TVALID: io_write_tvalid
+            TDATA: [io_write_tdata, 63, 0]
+            TLAST: io_write_tlast
+            TUSER: io_write_tuser
+
+s_axi:
+    interface: AXI4Lite
+    mode: slave
+    signals:
+        in:
+            AWADDR: [io_control_aw_awaddr, 31, 0]
+            AWPROT: [io_control_aw_awprot, 2, 0]
+            AWVALID: io_control_aw_awvalid
+            WDATA: [io_control_w_wdata, 31, 0]
+            WSTRB: [io_control_w_wstrb, 3, 0]
+            WVALID: io_control_w_wvalid
+            BREADY: io_control_b_bready
+            ARADDR: [io_control_ar_araddr, 31, 0]
+            ARPROT: [io_control_ar_arprot, 2, 0]
+            ARVALID: io_control_ar_arvalid
+            RREADY: io_control_r_rready
+        out:
+            AWREADY: io_control_aw_awready
+            WREADY: io_control_w_wready
+            BRESP: [io_control_b_bresp, 1, 0]
+            BVALID: io_control_b_bvalid
+            ARREADY: io_control_ar_arready
+            RDATA: [io_control_r_rdata, 31, 0]
+            RRESP: [io_control_r_rresp, 1, 0]
+            RVALID: io_control_r_rvalid
+
+m_axi:
+    interface: AXI4
+    mode: master
+    signals:
+        in:
+            AWREADY: io_read_aw_awready
+            WREADY: io_read_w_wready
+            BID: [io_read_b_bid, 3, 0]
+            BRESP: [io_read_b_bresp, 1, 0]
+            BVALID: io_read_b_bvalid
+            ARREADY: io_read_ar_arready
+            RID: [io_read_r_rid, 3, 0]
+            RDATA: [io_read_r_rdata, 63, 0]
+            RRESP: [io_read_r_rresp, 1, 0]
+            RLAST: io_read_r_rlast
+            RVALID: io_read_r_rvalid
+        out:
+            AWID: [io_read_aw_awid, 3, 0]
+            AWADDR: [io_read_aw_awaddr, 31, 0]
+            AWLEN: [io_read_aw_awlen, 7, 0]
+            AWSIZE: [io_read_aw_awsize, 2, 0]
+            AWBURST: [io_read_aw_awburst, 1, 0]
+            AWLOCK: io_read_aw_awlock
+            AWCACHE: [io_read_aw_awcache, 3, 0]
+            AWPROT: [io_read_aw_awprot, 2, 0]
+            AWQOS: [io_read_aw_awqos, 3, 0]
+            AWVALID: io_read_aw_awvalid
+            WDATA: [io_read_w_wdata, 63, 0]
+            WSTRB: [io_read_w_wstrb, 7, 0]
+            WLAST: io_read_w_wlast
+            WVALID: io_read_w_wvalid
+            BREADY: io_read_b_bready
+            ARID: [io_read_ar_arid, 3, 0]
+            ARADDR: [io_read_ar_araddr, 31, 0]
+            ARLEN: [io_read_ar_arlen, 7, 0]
+            ARSIZE: [io_read_ar_arsize, 2, 0]
+            ARBURST: [io_read_ar_arburst, 1, 0]
+            ARLOCK: io_read_ar_arlock
+            ARCACHE: [io_read_ar_arcache, 3, 0]
+            ARPROT: [io_read_ar_arprot, 2, 0]
+            ARQOS: [io_read_ar_arqos, 3, 0]
+            ARVALID: io_read_ar_arvalid
+            RREADY: io_read_r_rready
+signals:
+    in:
+        - clock
+        - reset
+        - io_sync_readerSync
+        - io_sync_writerSync
+    out:
+        - io_irq_readerDone
+        - io_irq_writerDone

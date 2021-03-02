@@ -1,0 +1,7 @@
+signals:
+    in:
+        - clkA
+        - A
+        - clkB
+    out:
+        - B

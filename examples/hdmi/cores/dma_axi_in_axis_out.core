@@ -1,0 +1,18 @@
+CAPI=2:
+name : ::dma_axi_in_axis_out:1.0
+description : DMA Controller
+
+filesets:
+  rtl:
+    files:
+      - src/DMATop.v : {file_type : verilogSource}
+      - component.xml : {file_type : user}
+
+targets:
+  default:
+    filesets: [rtl]
+
+provider:
+  name: git
+  repo: https://github.com/antmicro/fastvdma-verilog-axi-in-axis-out.git
+  version: master
