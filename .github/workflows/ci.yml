@@ -1,7 +1,10 @@
 name: Python package
 
 on:
-  [push, pull_request]
+  pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -27,7 +30,7 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        flake8 . --count --show-source --statistics
+        flake8 fpga_topwrap --count --show-source --statistics
 
     - name: Build
       run: |
