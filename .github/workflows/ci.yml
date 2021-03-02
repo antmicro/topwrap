@@ -23,7 +23,6 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install setuptools flake8 pytest wheel wasmtime
-        python3 -m pip install -r requirements.txt
         python3 -m pip install git+https://github.com/antmicro/tuttest
 
     - name: Lint with flake8
@@ -32,9 +31,13 @@ jobs:
 
     - name: Build
       run: |
-        python3 setup.py build
-        python3 setup.py install
+        tuttest README.md | bash -
 
     - name: Test with pytest
       run: |
         pytest
+
+    - name: Build example setup
+      run: |
+          cd examples/hdmi
+          tuttest README.md generate | bash -
