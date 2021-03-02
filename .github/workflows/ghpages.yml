@@ -28,6 +28,7 @@ jobs:
     - name: Build
       run: |
         make -C docs html
+        touch docs/build/html/.nojekyll
 
     - name: Deploy
       if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
