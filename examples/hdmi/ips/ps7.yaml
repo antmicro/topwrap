@@ -1,0 +1,138 @@
+signals:
+    in:
+        - MAXIGP0ACLK
+        - SAXIHP0ACLK
+        - IRQ_F2P_0
+        - IRQ_F2P_1
+    out:
+        - FCLK0
+        - FCLK1
+        - MAXIGP0ARESETN
+        - SAXIHP0ARESETN
+        #- [ps_reset_n, 3, 0]
+        - FCLK_RESET0_N
+        - [SAXIHP0RACOUNT, 2, 0]
+        - [SAXIHP0RCOUNT, 7, 0]
+        - [SAXIHP0WACOUNT, 5, 0]
+        - [SAXIHP0WCOUNT, 7, 0]
+    inout:
+        - [ddr_addr, 14 ,0]
+        - [ddr_bankaddr, 2 ,0]
+        - ddr_cas_n
+        - ddr_cke
+        - ddr_clk
+        - ddr_clk_n
+        - ddr_cs_n
+        - [ddr_dm, 3, 0]
+        - [ddr_dq, 31, 0]
+        - [ddr_dqs, 3, 0]
+        - [ddr_dqs_n, 3, 0]
+        - ddr_drstb
+        - ddr_odt
+        - ddr_ras_n
+        - ddr_vr_n
+        - ddr_vr
+        - ddr_web
+        - [ps_mio, 53, 0]
+        - ps_clk
+        - ps_porb
+        - ps_srstb
+
+M_AXI_GP0:
+    interface: AXI4
+    mode: master
+    signals:
+        in:
+            ARREADY: MAXIGP0ARREADY
+            RDATA: [MAXIGP0RDATA, 31, 0]
+            RLAST: MAXIGP0RLAST
+            RRESP: [MAXIGP0RRESP, 1, 0]
+            RVALID: MAXIGP0RVALID
+            RID: [MAXIGP0RID, 11, 0]
+            AWREADY: MAXIGP0AWREADY
+            WREADY: MAXIGP0WREADY
+            BID: [MAXIGP0BID, 11, 0]
+            BRESP: [MAXIGP0BRESP, 1, 0]
+            BVALID: MAXIGP0BVALID
+
+        out:
+            ARID: [MAXIGP0ARID, 11, 0]
+            ARADDR: [MAXIGP0ARADDR, 31, 0]
+            ARBURST: [MAXIGP0ARBURST, 1, 0]
+            ARLEN: [MAXIGP0ARLEN, 3, 0]
+            ARSIZE: [MAXIGP0ARSIZE, 1, 0]
+            ARLOCK: MAXIGP0ARLOCK
+            ARPROT: [MAXIGP0ARPROT, 2, 0]
+            ARCACHE: [MAXIGP0ARCACHE, 3, 0]
+            ARQOS: [MAXIGP0ARQOS, 3, 0]
+            ARVALID: MAXIGP0ARVALID
+            RREADY: MAXIGP0RREADY
+            AWID: [MAXIGP0AWID, 11, 0]
+            AWADDR: [MAXIGP0AWADDR, 31, 0]
+            AWBURST: [MAXIGP0AWBURST, 1, 0]
+            AWLEN: [MAXIGP0AWLEN, 3, 0]
+            AWSIZE: [MAXIGP0AWSIZE, 1, 0]
+            AWLOCK: MAXIGP0AWLOCK
+            AWPROT: [MAXIGP0AWPROT, 2, 0]
+            AWCACHE: [MAXIGP0AWCACHE, 3, 0]
+            AWQOS: [MAXIGP0AWQOS, 3, 0]
+            AWVALID: MAXIGP0AWVALID
+            WID: [MAXIGP0WID, 11, 0]
+            WDATA: [MAXIGP0WDATA, 31, 0]
+            WSTRB: [MAXIGP0WSTRB, 3, 0]
+            WLAST: MAXIGP0WLAST
+            WVALID: MAXIGP0WVALID
+            BREADY: MAXIGP0BREADY
+
+S_AXI_HP0:
+    interface: AXI3
+    mode: slave
+    signals:
+        in:
+            #ARID: [SAXIHP0ARID, 5, 0]
+            ARID: [SAXIHP0ARID, 3, 0]
+            ARADDR: [SAXIHP0ARADDR, 31, 0]
+            ARBURST: [SAXIHP0ARBURST, 1, 0]
+            ARLEN: [SAXIHP0ARLEN, 3, 0]
+            #ARSIZE: [SAXIHP0ARSIZE, 1, 0]
+            ARSIZE: [SAXIHP0ARSIZE, 2, 0]
+            ARLOCK: [SAXIHP0ARLOCK, 1, 0]
+            ARPROT: [SAXIHP0ARPROT, 2, 0]
+            ARCACHE: [SAXIHP0ARCACHE, 3, 0]
+            ARQOS: [SAXIHP0ARQOS, 3, 0]
+            ARVALID: SAXIHP0ARVALID
+            RREADY: SAXIHP0RREADY
+            #AWID: [SAXIHP0AWID, 5, 0]
+            AWID: [SAXIHP0AWID, 3, 0]
+            AWADDR: [SAXIHP0AWADDR, 31, 0]
+            AWBURST: [SAXIHP0AWBURST, 1, 0]
+            AWLEN: [SAXIHP0AWLEN, 3, 0]
+            #AWSIZE: [SAXIHP0AWSIZE, 1, 0]
+            AWSIZE: [SAXIHP0AWSIZE, 2, 0]
+            AWLOCK: [SAXIHP0AWLOCK, 1, 0]
+            AWPROT: [SAXIHP0AWPROT, 2, 0]
+            AWCACHE: [SAXIHP0AWCACHE, 3, 0]
+            AWQOS: [SAXIHP0AWQOS, 3, 0]
+            AWVALID: SAXIHP0AWVALID
+            #WID: [SAXIHP0WID, 5, 0]
+            WID: [SAXIHP0WID, 3, 0]
+            WDATA: [SAXIHP0WDATA, 63, 0]
+            WSTRB: [SAXIHP0WSTRB, 7, 0]
+            WLAST: SAXIHP0WLAST
+            WVALID: SAXIHP0WVALID
+            BREADY: SAXIHP0BREADY
+
+        out:
+            ARREADY: SAXIHP0ARREADY
+            #RID: [SAXIHP0RID, 5, 0]
+            RID: [SAXIHP0RID, 3, 0]
+            RDATA: [SAXIHP0RDATA, 63, 0]
+            RLAST: SAXIHP0RLAST
+            RRESP: [SAXIHP0RRESP, 1, 0]
+            RVALID: SAXIHP0RVALID
+            AWREADY: SAXIHP0AWREADY
+            WREADY: SAXIHP0WREADY
+            #BID: [SAXIHP0BID, 5, 0]
+            BID: [SAXIHP0BID, 3, 0]
+            BRESP: [SAXIHP0BRESP, 1, 0]
+            BVALID: SAXIHP0BVALID

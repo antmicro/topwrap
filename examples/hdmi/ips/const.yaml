@@ -1,0 +1,4 @@
+signals:
+    out:
+        - out0
+        - out1

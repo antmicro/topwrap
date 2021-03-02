@@ -1,0 +1,47 @@
+CAPI=2:
+name : ::project_1
+description : project
+filesets:
+  rtl:
+    files:{% for file in sources %}
+      - {{file.filename}} : {file_type : {{file.type}}}{% endfor %}
+    depend:
+      - verilog-axis
+      - verilog-axi
+      - HDMI_Tx
+      - litex_mmcm_drp
+      - dma_axi_in_axis_out
+      - axi_dispctrl
+  scr:
+    files:
+      - sources/prebuild.sh : {copyto: prebuild.sh}
+  snickerdoodle_xdc:
+    files:
+      - snickerdoodle.xdc : {file_type: xdc}
+  zynq_video_board_xdc:
+    files:
+      - zynq_video_board.xdc: {file_type: xdc}
+targets:
+  snickerdoodle:
+    default_tool : vivado
+    filesets : [rtl, scr, snickerdoodle_xdc]
+    hooks:
+      pre_build :
+        - vivado_setup
+    tools:
+      vivado:
+        part : xc7z020clg400-3
+    toplevel : project_top
+  zynq_video_board:
+    default_tool : vivado
+    filesets : [rtl, scr, zynq_video_board_xdc]
+    hooks:
+      pre_build :
+        - vivado_setup
+    tools:
+      vivado:
+        part : xc7z020clg484-2
+    toplevel : project_top
+scripts:
+    vivado_setup:
+      cmd: [bash, prebuild.sh]
