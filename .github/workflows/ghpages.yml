@@ -33,8 +33,7 @@ jobs:
     - name: Deploy
       if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
       run: |
-        mkdir deploy
-        cp -r docs/build/html/* deploy
+        cp -r docs/build/html deploy
         cd deploy
         git init
         cp ../.git/config ./.git/config
