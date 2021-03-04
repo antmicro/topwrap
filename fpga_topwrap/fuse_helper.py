@@ -30,7 +30,7 @@ class IP:
 class FuseSocBuilder:
     ''' Use this class to generate a FuseSoC .core file
     '''
-    def __init__(self, part='xc7z020clg400-3'):
+    def __init__(self, part):
         self.sources = []
         self.dependencies = []
         self.external_ips = []
