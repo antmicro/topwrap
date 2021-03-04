@@ -181,10 +181,10 @@ class IPConnect(Elaboratable):
             for _port in _ports:
                 self._set_port(self._ips[ip_name], _port)
 
-    def build(self, build_dir='build', template=None, sources_dir='None',
-              top_module_name='project_top'):
+    def build(self, build_dir='build', template=None, sources_dir=None,
+              top_module_name='project_top', part=None):
         # This class is used for generating FuseSoC Core file
-        fuse = FuseSocBuilder()
+        fuse = FuseSocBuilder(part)
 
         for ip in self._ips.values():
             filename = ip.top_name + '.v'
