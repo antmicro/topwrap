@@ -13,9 +13,12 @@ class TestIPConnect:
         from fpga_topwrap.ipwrapper import IPWrapper
         from fpga_topwrap.ipconnect import IPConnect
         # wrap IPs
-        dma = IPWrapper(yamlfile='tests/data/DMATop.yaml', ip_name='DMATop')
-        disp = IPWrapper(yamlfile='tests/data/axi_dispctrl_v1_0.yaml',
-                         ip_name='axi_dispctrl_v1_0')
+        dma = IPWrapper('tests/data/DMATop.yaml',
+                        'DMATop',
+                        'dma')
+        disp = IPWrapper('tests/data/axi_dispctrl_v1_0.yaml',
+                         'axi_dispctrl_v1_0',
+                         'disp')
 
         dma_fragment = Fragment.get(dma, None)
         disp_fragment = Fragment.get(disp, None)

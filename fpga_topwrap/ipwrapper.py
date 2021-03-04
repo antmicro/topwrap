@@ -2,10 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import List
 from itertools import groupby
+from collections.abc import Mapping
+from logging import error
+import numexpr as ex
 from amaranth import Elaboratable, Module, Instance, Signal
 from amaranth.build import Platform
 from amaranth.hdl.rec import DIR_FANIN, DIR_FANOUT, DIR_NONE
-from amaranth.hdl.ast import Cat
+from amaranth.hdl.ast import Cat, Const
 from .parsers import parse_port_map
 from .nm_helper import WrapperPort, port_direction_to_prefix
 from .interface import get_interface_by_name
@@ -23,21 +26,64 @@ def _group_by_internal_name(ports: List[WrapperPort]):
     return instances
 
 
+def _evaluate_parameters(params: dict):
+    """Evaluate parameters values: 
+    * evaluate params, which values depend on another params 
+    (e.g. 'param1': 'param2'/2)
+    * replace params with 'value' and 'width' with a Const object
+    having that specific value and width
+
+    Example:
+        'param1': {'value': 10, 'width': 8}
+        is replaced with:
+        'param1': Const(10, shape=(8))
+
+    :param params: dict of {'name': val} where val is either a number, string 
+    value, or a dict of {'value': v, 'width': w}, with value `v` of width `w`
+    """
+    for name in params.keys():
+        param = params[name]
+        if isinstance(param, Mapping):
+            params[name] = Const(param['value'], shape=(param['width']))
+        elif isinstance(param, str):
+            params[name] = int(ex.evaluate(params[name], params).take(0))
+
+
+def _eval_bounds(bounds, params):
+    """Replace parameter-dependent values with numbers"""
+    result = bounds[:]
+    for i, item in enumerate(bounds):
+        if isinstance(item, str):
+            try:
+                result[i] = int(ex.evaluate(item, params).take(0))
+            except TypeError:
+                error('Could not evaluate expression with parameter: '
+                      f'"{item}". Is the parameter defined?')
+                raise
+
+    return result
+
+
 class IPWrapper(Elaboratable):
     '''This class instantiates an IP in a wrapper to use its individual ports
     or groupped ports as interfaces.
     '''
 
-    def __init__(self, yamlfile: str, ip_name: str, top_name=None):
+    def __init__(self, yamlfile: str, ip_name: str, top_name, params={}):
         '''
         :param yamlfile: name of a file describing
             ports and interfaces of the IP
         :param ip_name: name of the module to wrap
         :param top_name: the name of the top wrapper module,
             defaults to ip_name + '_top'
+        :param params: HDL parameters of this instance
         '''
         self._ports = []
         self._parameters = {}
+
+        _evaluate_parameters(params)
+        self.set_parameters(params)
+
         self._create_ports(yamlfile)
         self.ip_name = ip_name
 
@@ -54,26 +100,45 @@ class IPWrapper(Elaboratable):
         """
         ip_yaml = parse_port_map(yamlfile)
 
+        parameters = dict()
+
+        if 'parameters' in ip_yaml.keys():
+            # those are default values of parameters
+            parameters = ip_yaml['parameters']
+            _evaluate_parameters(parameters)
+            del ip_yaml['parameters']
+
+        # Overwrite default values with explicit values
+        for key, value in self._parameters.items():
+            # trim 'p_' in the beginning
+            parameters[key[2:]] = value
+
         # generic signals that don't belong to any interface
         for port_name, *bounds in ip_yaml['signals']['in']:
+            evaluated_bounds = _eval_bounds(bounds, parameters)
             self._ports.append(
-                    WrapperPort(bounds, name=port_name,
+                    WrapperPort(bounds=evaluated_bounds,
+                                name=port_name,
                                 internal_name=port_name,
                                 direction=DIR_FANIN,
                                 interface_name='None')
                     )
 
         for port_name, *bounds in ip_yaml['signals']['out']:
+            evaluated_bounds = _eval_bounds(bounds, parameters)
             self._ports.append(
-                    WrapperPort(bounds, name=port_name,
+                    WrapperPort(bounds=evaluated_bounds,
+                                name=port_name,
                                 internal_name=port_name,
                                 direction=DIR_FANOUT,
                                 interface_name='None')
                     )
 
         for port_name, *bounds in ip_yaml['signals']['inout']:
+            evaluated_bounds = _eval_bounds(bounds, parameters)
             self._ports.append(
-                    WrapperPort(bounds, name=port_name,
+                    WrapperPort(bounds=evaluated_bounds,
+                                name=port_name,
                                 internal_name=port_name,
                                 direction=DIR_NONE,
                                 interface_name='None')
@@ -104,8 +169,10 @@ class IPWrapper(Elaboratable):
             # sig_name is the name of the signal e.g. TREADY
             for sig_name, (port_name, *bounds) in ins:
                 external_full_name = iface_name + '_' + sig_name
+                evaluated_bounds = _eval_bounds(bounds, parameters)
                 self._ports.append(
-                        WrapperPort(bounds, name=external_full_name,
+                        WrapperPort(bounds=evaluated_bounds,
+                                    name=external_full_name,
                                     internal_name=port_name,
                                     direction=DIR_FANIN,
                                     interface_name=iface_name)
@@ -113,8 +180,10 @@ class IPWrapper(Elaboratable):
 
             for sig_name, (port_name, *bounds) in outs:
                 external_full_name = iface_name + '_' + sig_name
+                evaluated_bounds = _eval_bounds(bounds, parameters)
                 self._ports.append(
-                        WrapperPort(bounds, name=external_full_name,
+                        WrapperPort(bounds=evaluated_bounds,
+                                    name=external_full_name,
                                     internal_name=port_name,
                                     direction=DIR_FANOUT,
                                     interface_name=iface_name)
@@ -122,8 +191,10 @@ class IPWrapper(Elaboratable):
 
             for sig_name, (port_name, *bounds) in inouts:
                 external_full_name = iface_name + '_' + sig_name
+                evaluated_bounds = _eval_bounds(bounds, parameters)
                 self._ports.append(
-                        WrapperPort(bounds, name=external_full_name,
+                        WrapperPort(bounds=evaluated_bounds,
+                                    name=external_full_name,
                                     internal_name=port_name,
                                     direction=DIR_NONE,
                                     interface_name=iface_name)

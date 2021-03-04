@@ -1,10 +1,13 @@
-#width converter
+parameters:
+    IN_DATA_WIDTH: 64
+    OUT_DATA_WIDTH: 32
+
 s_axis:
     interface: AXI4Stream
     mode: slave
     signals:
         in:
-            TDATA: [s_axis_tdata, 63, 0]
+            TDATA: [s_axis_tdata, IN_DATA_WIDTH-1, 0]
             TVALID: s_axis_tvalid
         out:
             TREADY: s_axis_tready
@@ -16,7 +19,7 @@ m_axis:
         in:
             TREADY: m_axis_tready
         out:
-            TDATA: [m_axis_tdata, 31, 0]
+            TDATA: [m_axis_tdata, OUT_DATA_WIDTH-1, 0]
             TVALID: m_axis_tvalid
 signals:
     in:

@@ -96,10 +96,15 @@ def parse_port_map(filename: str):
 
     if 'signals' not in ports.keys():
         ports['signals'] = dict()
+    if 'parameters' not in ports.keys():
+        ports['parameters'] = dict()
 
     # fill non-existent values with defaults
     for key, val in ports.items():
-        if key == 'signals':
+        if key == 'parameters':
+            pass
+
+        elif key == 'signals':
             try:
                 sigs = val['in']
                 for i in range(len(sigs)):

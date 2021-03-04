@@ -1,61 +1,71 @@
-# S_COUNT = 1
-# M_COUNT = 3
-# ID_WIDTH = 12
-# {ADDR,DATA}_WIDTH=32
-# STRB_WIDTH=4
-#
 # 1 slave
+parameters:
+    S_COUNT: 1
+    M_COUNT: 4
+    DATA_WIDTH: 32
+    ADDR_WIDTH: 32
+    ID_WIDTH: 12
+    M_ADDR_WIDTH:
+      value: 0x100000001000000010
+      width: 96
+    AWUSER_WIDTH: 1
+    WUSER_WIDTH: 1
+    ARUSER_WIDTH: 1
+    BUSER_WIDTH: 1
+    RUSER_WIDTH: 1
+    STRB_WIDTH: DATA_WIDTH/8
 s_axi_0:
     interface: AXI4
     mode: slave
     signals:
         in:
-            AWID: [s_axi_awid, 11, 0]
-            AWADDR: [s_axi_awaddr, 31, 0]
+            # TODO slice for the 0th slave
+            AWID: [s_axi_awid, S_COUNT*ID_WIDTH - 1, 0]
+            AWADDR: [s_axi_awaddr, S_COUNT*ADDR_WIDTH-1, 0]
             # AWLEN in PS7 has only 4 bits
-            AWLEN: [s_axi_awlen, 7, 0, 3, 0]
+            AWLEN: [s_axi_awlen, S_COUNT*8-1, 0, 3, 0]
             # [2] is not used (doc DS871)
-            AWSIZE: [s_axi_awsize, 2, 0, 1, 0]
-            AWBURST: [s_axi_awburst, 1, 0]
-            AWLOCK: s_axi_awlock
-            AWCACHE: [s_axi_awcache, 3, 0]
-            AWPROT: [s_axi_awprot, 2, 0]
-            AWQOS: [s_axi_awqos, 3, 0]
-            AWUSER: s_axi_awuser
-            AWVALID: s_axi_awvalid
-            WDATA: [s_axi_wdata, 31, 0]
-            WSTRB: [s_axi_wstrb, 3, 0]
-            WLAST: s_axi_wlast
-            WUSER: s_axi_wuser
-            WVALID: s_axi_wvalid
-            BREADY: s_axi_bready
-            ARID: [s_axi_arid, 11, 0]
-            ARADDR: [s_axi_araddr, 31, 0]
-            ARLEN: [s_axi_arlen, 7, 0, 3, 0]
+            AWSIZE: [s_axi_awsize, S_COUNT*3-1, 0, 1, 0]
+            AWBURST: [s_axi_awburst, S_COUNT*2-1, 0]
+            AWLOCK: [s_axi_awlock, S_COUNT-1, 0]
+            AWCACHE: [s_axi_awcache, S_COUNT*4-1, 0]
+            AWPROT: [s_axi_awprot, S_COUNT*3-1, 0]
+            AWQOS: [s_axi_awqos, S_COUNT*4-1, 0]
+            AWUSER: [s_axi_awuser, S_COUNT*AWUSER_WIDTH-1, 0]
+            AWVALID: [s_axi_awvalid, S_COUNT-1, 0]
+            WDATA: [s_axi_wdata, S_COUNT*DATA_WIDTH-1, 0]
+            WSTRB: [s_axi_wstrb, S_COUNT*STRB_WIDTH-1, 0]
+            WLAST: [s_axi_wlast, S_COUNT-1, 0]
+            WUSER: [s_axi_wuser, S_COUNT*WUSER_WIDTH-1, 0]
+            WVALID: [s_axi_wvalid, S_COUNT-1, 0]
+            BREADY: [s_axi_bready, S_COUNT-1, 0]
+            ARID: [s_axi_arid, S_COUNT*ID_WIDTH-1, 0]
+            ARADDR: [s_axi_araddr, S_COUNT*ADDR_WIDTH-1, 0]
+            ARLEN: [s_axi_arlen, S_COUNT*8-1, 0, 3, 0]
             # [2] is not used (doc DS871)
-            ARSIZE: [s_axi_arsize, 2, 0, 1, 0]
-            ARBURST: [s_axi_arburst, 1, 0]
-            ARLOCK: s_axi_arlock
-            ARCACHE: [s_axi_arcache, 3, 0]
-            ARPROT: [s_axi_arprot, 2, 0]
-            ARQOS: [s_axi_arqos, 3, 0]
-            ARUSER: s_axi_aruser
-            ARVALID: s_axi_arvalid
-            RREADY: s_axi_rready
+            ARSIZE: [s_axi_arsize, S_COUNT*3-1, 0, 1, 0]
+            ARBURST: [s_axi_arburst, S_COUNT*2-1, 0]
+            ARLOCK: [s_axi_arlock, S_COUNT-1, 0]
+            ARCACHE: [s_axi_arcache, S_COUNT*4-1, 0]
+            ARPROT: [s_axi_arprot, S_COUNT*3-1, 0]
+            ARQOS: [s_axi_arqos, S_COUNT*4-1, 0]
+            ARUSER: [s_axi_aruser, S_COUNT*ARUSER_WIDTH-1, 0]
+            ARVALID: [s_axi_arvalid, S_COUNT-1, 0]
+            RREADY: [s_axi_rready, S_COUNT-1, 0]
         out:
-            AWREADY: s_axi_awready
-            WREADY: s_axi_wready
-            BID: [s_axi_bid, 11, 0]
-            BRESP: [s_axi_bresp, 1, 0]
-            BUSER: s_axi_buser
-            BVALID: s_axi_bvalid
-            ARREADY: s_axi_arready
-            RID: [s_axi_rid, 11, 0]
-            RDATA: [s_axi_rdata, 31, 0]
-            RRESP: [s_axi_rresp, 1, 0]
-            RLAST: s_axi_rlast
-            RUSER: s_axi_ruser
-            RVALID: s_axi_rvalid
+            AWREADY: [s_axi_awready, S_COUNT-1, 0]
+            WREADY: [s_axi_wready, S_COUNT-1, 0]
+            BID: [s_axi_bid, S_COUNT*ID_WIDTH-1, 0]
+            BRESP: [s_axi_bresp, S_COUNT*2-1, 0]
+            BUSER: [s_axi_buser, S_COUNT*BUSER_WIDTH-1, 0]
+            BVALID: [s_axi_bvalid, S_COUNT-1, 0]
+            ARREADY: [s_axi_arready, S_COUNT-1, 0]
+            RID: [s_axi_rid, S_COUNT*ID_WIDTH-1, 0]
+            RDATA: [s_axi_rdata, S_COUNT*DATA_WIDTH-1, 0]
+            RRESP: [s_axi_rresp, S_COUNT*2-1, 0]
+            RLAST: [s_axi_rlast, S_COUNT-1, 0]
+            RUSER: [s_axi_ruser, S_COUNT*RUSER_WIDTH-1, 0]
+            RVALID: [s_axi_rvalid, S_COUNT-1, 0]
 
 # 3 masters
 m_axi_0:
@@ -63,158 +73,159 @@ m_axi_0:
     mode: master
     signals:
         in:
-            AWREADY: [m_axi_awready, 2, 0, 2, 2]
-            WREADY: [m_axi_wready, 2, 0, 2, 2]
-            BID: [m_axi_bid, 35, 0, 35, 24]
-            BRESP: [m_axi_bresp, 5, 0, 5, 4]
-            BUSER: [m_axi_buser, 2, 0, 2, 2]
-            BVALID: [m_axi_bvalid, 2, 0, 2, 2]
-            ARREADY: [m_axi_arready, 2, 0, 2, 2]
-            RID: [m_axi_rid, 35, 0, 35, 24]
-            RDATA: [m_axi_rdata, 95, 0, 95, 64]
-            RRESP: [m_axi_rresp, 5, 0, 5, 4]
-            RLAST: [m_axi_rlast, 2, 0, 2, 2]
-            RUSER: [m_axi_ruser, 2, 0, 2, 2]
-            RVALID: [m_axi_rvalid, 2, 0, 2, 2]
+            AWREADY: [m_axi_awready, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            WREADY: [m_axi_wready, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            BID: [m_axi_bid, M_COUNT*ID_WIDTH-1, 0, M_COUNT*ID_WIDTH-1, (M_COUNT-1)*ID_WIDTH]
+            BRESP: [m_axi_bresp, M_COUNT*2-1, 0, M_COUNT*2-1, (M_COUNT-1)*2]
+            BUSER: [m_axi_buser, M_COUNT*BUSER_WIDTH-1, 0, M_COUNT*BUSER_WIDTH-1, (M_COUNT-1)*BUSER_WIDTH]
+            BVALID: [m_axi_bvalid, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            ARREADY: [m_axi_arready, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            RID: [m_axi_rid, M_COUNT*ID_WIDTH-1, 0, M_COUNT*ID_WIDTH-1, (M_COUNT-1)*ID_WIDTH]
+            RDATA: [m_axi_rdata, M_COUNT*DATA_WIDTH-1, 0, M_COUNT*DATA_WIDTH-1, (M_COUNT-1)*DATA_WIDTH]
+            RRESP: [m_axi_rresp, M_COUNT*2-1, 0, M_COUNT*2-1, (M_COUNT-1)*2]
+            RLAST: [m_axi_rlast, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            RUSER: [m_axi_ruser, M_COUNT*RUSER_WIDTH-1, 0, M_COUNT*RUSER_WIDTH-1, (M_COUNT-1)*RUSER_WIDTH]
+            RVALID: [m_axi_rvalid, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
         out:
             # the most significant third of each port is used
             # because there are 3 master interfaces
-            AWID: [m_axi_awid, 35, 0, 35, 24]
-            AWADDR: [m_axi_awaddr, 95, 0, 95, 64]
-            AWLEN: [m_axi_awlen, 23, 0, 23, 16]
-            AWSIZE: [m_axi_awsize, 8, 0, 8, 6]
-            AWBURST: [m_axi_awburst, 5, 0, 5, 4]
-            AWLOCK: [m_axi_awlock, 2, 0, 2, 2]
-            AWCACHE: [m_axi_awcache, 11, 0, 11, 8]
-            AWPROT: [m_axi_awprot, 8, 0, 8, 6]
-            AWQOS: [m_axi_awqos, 11, 0, 11, 8]
-            AWREGION: [m_axi_awregion, 11, 0, 11, 8]
-            AWUSER: [m_axi_awuser, 2, 0, 2, 2]
-            AWVALID: [m_axi_awvalid, 2, 0, 2, 2]
-            WDATA: [m_axi_wdata, 95, 0, 95, 64]
-            WSTRB: [m_axi_wstrb, 11, 0, 11, 8]
-            WLAST: [m_axi_wlast, 2, 0, 2, 2]
-            WUSER: [m_axi_wuser, 2, 0, 2, 2]
-            WVALID: [m_axi_wvalid, 2, 0, 2, 2]
-            BREADY: [m_axi_bready, 2, 0, 2, 2]
-            ARID: [m_axi_arid, 35, 0, 35, 24]
-            ARADDR: [m_axi_araddr, 95, 0, 95, 64]
-            ARLEN: [m_axi_arlen, 23, 0, 23, 16]
-            ARSIZE: [m_axi_arsize, 8, 0, 8, 6]
-            ARBURST: [m_axi_arburst, 5, 0, 5, 4]
-            ARLOCK: [m_axi_arlock, 2, 0, 2, 2]
-            ARCACHE: [m_axi_arcache, 11, 0, 11, 8]
-            ARPROT: [m_axi_arprot, 8, 0, 8, 6]
-            ARQOS: [m_axi_arqos, 11, 0, 11, 8]
-            ARREGION: [m_axi_arregion, 11, 0, 11, 8]
-            ARUSER: [m_axi_aruser, 2, 0, 2, 2]
-            ARVALID: [m_axi_arvalid, 2, 0, 2, 2]
-            RREADY: [m_axi_rready, 2, 0, 2, 2]
-
+            AWID: [m_axi_awid, M_COUNT*ID_WIDTH-1, 0, M_COUNT*ID_WIDTH-1, (M_COUNT-1)*ID_WIDTH]
+            AWADDR: [m_axi_awaddr, M_COUNT*ADDR_WIDTH-1, 0, M_COUNT*ADDR_WIDTH-1, (M_COUNT-1)*ADDR_WIDTH]
+            AWLEN: [m_axi_awlen, M_COUNT*8-1, 0, M_COUNT*8-1, (M_COUNT-1)*8]
+            AWSIZE: [m_axi_awsize, M_COUNT*3-1, 0, M_COUNT*3-1, (M_COUNT-1)*3]
+            AWBURST: [m_axi_awburst, M_COUNT*2-1, 0, M_COUNT*2-1, (M_COUNT-1)*2]
+            AWLOCK: [m_axi_awlock, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            AWCACHE: [m_axi_awcache, M_COUNT*4-1, 0, M_COUNT*4-1, (M_COUNT-1)*4]
+            AWPROT: [m_axi_awprot, M_COUNT*3-1, 0, M_COUNT*3-1, (M_COUNT-1)*3]
+            AWQOS: [m_axi_awqos, M_COUNT*4-1, 0, M_COUNT*4-1, (M_COUNT-1)*4]
+            AWREGION: [m_axi_awregion, M_COUNT*4-1, 0, M_COUNT*4-1, (M_COUNT-1)*4]
+            AWUSER: [m_axi_awuser, M_COUNT*AWUSER_WIDTH-1, 0, M_COUNT*AWUSER_WIDTH-1, (M_COUNT-1)*AWUSER_WIDTH]
+            AWVALID: [m_axi_awvalid, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            WDATA: [m_axi_wdata, M_COUNT*DATA_WIDTH-1, 0, M_COUNT*DATA_WIDTH-1, (M_COUNT-1)*DATA_WIDTH]
+            WSTRB: [m_axi_wstrb, M_COUNT*STRB_WIDTH-1, 0, M_COUNT*STRB_WIDTH-1, (M_COUNT-1)*STRB_WIDTH]
+            WLAST: [m_axi_wlast, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            WUSER: [m_axi_wuser, M_COUNT*WUSER_WIDTH-1, 0, M_COUNT*WUSER_WIDTH-1, (M_COUNT-1)*WUSER_WIDTH]
+            WVALID: [m_axi_wvalid, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            BREADY: [m_axi_bready, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            ARID: [m_axi_arid, M_COUNT*ID_WIDTH-1, 0, M_COUNT*ID_WIDTH-1, (M_COUNT-1)*ID_WIDTH]
+            ARADDR: [m_axi_araddr, M_COUNT*ADDR_WIDTH-1, 0, M_COUNT*ADDR_WIDTH-1, (M_COUNT-1)*ADDR_WIDTH]
+            ARLEN: [m_axi_arlen, M_COUNT*8-1, 0, M_COUNT*8-1, (M_COUNT-1)*8]
+            ARSIZE: [m_axi_arsize, M_COUNT*3-1, 0, M_COUNT*3-1, (M_COUNT-1)*3]
+            ARBURST: [m_axi_arburst, M_COUNT*2-1, 0, M_COUNT*2-1, (M_COUNT-1)*2]
+            ARLOCK: [m_axi_arlock, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            ARCACHE: [m_axi_arcache, M_COUNT*4-1, 0, M_COUNT*4-1, (M_COUNT-1)*4]
+            ARPROT: [m_axi_arprot, M_COUNT*3-1, 0, M_COUNT*3-1, (M_COUNT-1)*3]
+            ARQOS: [m_axi_arqos, M_COUNT*4-1, 0, M_COUNT*4-1, (M_COUNT-1)*4]
+            ARREGION: [m_axi_arregion, M_COUNT*4-1, 0, M_COUNT*4-1, (M_COUNT-1)*4]
+            ARUSER: [m_axi_aruser, M_COUNT*ARUSER_WIDTH-1, 0, M_COUNT*ARUSER_WIDTH-1, (M_COUNT-1)*ARUSER_WIDTH]
+            ARVALID: [m_axi_arvalid, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
+            RREADY: [m_axi_rready, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
 
 m_axi_1:
     interface: AXI4
     mode: master
     signals:
         in:
-            AWREADY: [m_axi_awready, 2, 0, 1, 1]
-            WREADY: [m_axi_wready, 2, 0, 1, 1]
-            BID: [m_axi_bid, 35, 0, 23, 12]
-            BRESP: [m_axi_bresp, 5, 0, 3, 2]
-            BUSER: [m_axi_buser, 2, 0, 1, 1]
-            BVALID: [m_axi_bvalid, 2, 0, 1, 1]
-            ARREADY: [m_axi_arready, 2, 0, 1, 1]
-            RID: [m_axi_rid, 35, 0, 23, 12]
-            RDATA: [m_axi_rdata, 95, 0, 63, 32]
-            RRESP: [m_axi_rresp, 5, 0, 3, 2]
-            RLAST: [m_axi_rlast, 2, 0, 1, 1]
-            RUSER: [m_axi_ruser, 2, 0, 1, 1]
-            RVALID: [m_axi_rvalid, 2, 0, 1, 1]
+            AWREADY: [m_axi_awready, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            WREADY: [m_axi_wready, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            BID: [m_axi_bid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-1)*ID_WIDTH-1, (M_COUNT-2)*ID_WIDTH]
+            BRESP: [m_axi_bresp, M_COUNT*2-1, 0, (M_COUNT-1)*2-1, (M_COUNT-2)*2]
+            BUSER: [m_axi_buser, M_COUNT*BUSER_WIDTH-1, 0, (M_COUNT-1)*BUSER_WIDTH-1, (M_COUNT-2)*BUSER_WIDTH]
+            BVALID: [m_axi_bvalid, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            ARREADY: [m_axi_arready, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            RID: [m_axi_rid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-1)*ID_WIDTH-1, (M_COUNT-2)*ID_WIDTH]
+            RDATA: [m_axi_rdata, M_COUNT*DATA_WIDTH-1, 0, (M_COUNT-1)*DATA_WIDTH-1, (M_COUNT-2)*DATA_WIDTH]
+            RRESP: [m_axi_rresp, M_COUNT*2-1, 0, (M_COUNT-1)*2-1, (M_COUNT-2)*2]
+            RLAST: [m_axi_rlast, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            RUSER: [m_axi_ruser, M_COUNT*RUSER_WIDTH-1, 0, (M_COUNT-1)*RUSER_WIDTH-1, (M_COUNT-2)*RUSER_WIDTH]
+            RVALID: [m_axi_rvalid, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+
         out:
             # the 2nd most significant third of each port is used
-            AWID: [m_axi_awid, 35, 0, 23, 12]
-            AWADDR: [m_axi_awaddr, 95, 0, 63, 32]
-            AWLEN: [m_axi_awlen, 23, 0, 15, 8]
-            AWSIZE: [m_axi_awsize, 8, 0, 5, 3]
-            AWBURST: [m_axi_awburst, 5, 0, 3, 2]
-            AWLOCK: [m_axi_awlock, 2, 0, 1, 1]
-            AWCACHE: [m_axi_awcache, 11, 0, 7, 4]
-            AWPROT: [m_axi_awprot, 8, 0, 5, 3]
-            AWQOS: [m_axi_awqos, 11, 0, 7, 4]
-            AWREGION: [m_axi_awregion, 11, 0, 7, 4]
-            AWUSER: [m_axi_awuser, 2, 0, 1, 1]
-            AWVALID: [m_axi_awvalid, 2, 0, 1, 1]
-            WDATA: [m_axi_wdata, 95, 0, 63, 32]
-            WSTRB: [m_axi_wstrb, 11, 0, 7, 4]
-            WLAST: [m_axi_wlast, 2, 0, 1, 1]
-            WUSER: [m_axi_wuser, 2, 0, 1, 1]
-            WVALID: [m_axi_wvalid, 2, 0, 1, 1]
-            BREADY: [m_axi_bready, 2, 0, 1, 1]
-            ARID: [m_axi_arid, 35, 0, 23, 12]
-            ARADDR: [m_axi_araddr, 95, 0, 63, 32]
-            ARLEN: [m_axi_arlen, 23, 0, 15, 8]
-            ARSIZE: [m_axi_arsize, 8, 0, 5, 3]
-            ARBURST: [m_axi_arburst, 5, 0, 3, 2]
-            ARLOCK: [m_axi_arlock, 2, 0, 1, 1]
-            ARCACHE: [m_axi_arcache, 11, 0, 7, 4]
-            ARPROT: [m_axi_arprot, 8, 0, 5, 3]
-            ARQOS: [m_axi_arqos, 11, 0, 7, 4]
-            ARREGION: [m_axi_arregion, 11, 0, 7, 4]
-            ARUSER: [m_axi_aruser, 2, 0, 1, 1]
-            ARVALID: [m_axi_arvalid, 2, 0, 1, 1]
-            RREADY: [m_axi_rready, 2, 0, 1, 1]
+            AWID: [m_axi_awid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-1)*ID_WIDTH-1, (M_COUNT-2)*ID_WIDTH]
+            AWADDR: [m_axi_awaddr, M_COUNT*ADDR_WIDTH-1, 0, (M_COUNT-1)*ADDR_WIDTH-1, (M_COUNT-2)*ADDR_WIDTH]
+            AWLEN: [m_axi_awlen, M_COUNT*8-1, 0, (M_COUNT-1)*8-1, (M_COUNT-2)*8]
+            AWSIZE: [m_axi_awsize, M_COUNT*3-1, 0, (M_COUNT-1)*3-1, (M_COUNT-2)*3]
+            AWBURST: [m_axi_awburst, M_COUNT*2-1, 0, (M_COUNT-1)*2-1, (M_COUNT-2)*2]
+            AWLOCK: [m_axi_awlock, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            AWCACHE: [m_axi_awcache, M_COUNT*4-1, 0, (M_COUNT-1)*4-1, (M_COUNT-2)*4]
+            AWPROT: [m_axi_awprot, M_COUNT*3-1, 0, (M_COUNT-1)*3-1, (M_COUNT-2)*3]
+            AWQOS: [m_axi_awqos, M_COUNT*4-1, 0, (M_COUNT-1)*4-1, (M_COUNT-2)*4]
+            AWREGION: [m_axi_awregion, M_COUNT*4-1, 0, (M_COUNT-1)*4-1, (M_COUNT-2)*4]
+            AWUSER: [m_axi_awuser, M_COUNT*AWUSER_WIDTH-1, 0, (M_COUNT-1)*AWUSER_WIDTH-1, (M_COUNT-2)*AWUSER_WIDTH]
+            AWVALID: [m_axi_awvalid, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            WDATA: [m_axi_wdata, M_COUNT*DATA_WIDTH-1, 0, (M_COUNT-1)*DATA_WIDTH-1, (M_COUNT-2)*DATA_WIDTH]
+            WSTRB: [m_axi_wstrb, M_COUNT*STRB_WIDTH-1, 0, (M_COUNT-1)*STRB_WIDTH-1, (M_COUNT-2)*STRB_WIDTH]
+            WLAST: [m_axi_wlast, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            WUSER: [m_axi_wuser, M_COUNT*WUSER_WIDTH-1, 0, (M_COUNT-1)*WUSER_WIDTH-1, (M_COUNT-2)*WUSER_WIDTH]
+            WVALID: [m_axi_wvalid, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            BREADY: [m_axi_bready, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            ARID: [m_axi_arid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-1)*ID_WIDTH-1, (M_COUNT-2)*ID_WIDTH]
+            ARADDR: [m_axi_araddr, M_COUNT*ADDR_WIDTH-1, 0, (M_COUNT-1)*ADDR_WIDTH-1, (M_COUNT-2)*ADDR_WIDTH]
+            ARLEN: [m_axi_arlen, M_COUNT*8-1, 0, (M_COUNT-1)*8-1, (M_COUNT-2)*8]
+            ARSIZE: [m_axi_arsize, M_COUNT*3-1, 0, (M_COUNT-1)*3-1, (M_COUNT-2)*3]
+            ARBURST: [m_axi_arburst, M_COUNT*2-1, 0, (M_COUNT-1)*2-1, (M_COUNT-2)*2]
+            ARLOCK: [m_axi_arlock, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            ARCACHE: [m_axi_arcache, M_COUNT*4-1, 0, (M_COUNT-1)*4-1, (M_COUNT-2)*4]
+            ARPROT: [m_axi_arprot, M_COUNT*3-1, 0, (M_COUNT-1)*3-1, (M_COUNT-2)*3]
+            ARQOS: [m_axi_arqos, M_COUNT*4-1, 0, (M_COUNT-1)*4-1, (M_COUNT-2)*4]
+            ARREGION: [m_axi_arregion, M_COUNT*4-1, 0, (M_COUNT-1)*4-1, (M_COUNT-2)*4]
+            ARUSER: [m_axi_aruser, M_COUNT*ARUSER_WIDTH-1, 0, (M_COUNT-1)*ARUSER_WIDTH-1, (M_COUNT-2)*ARUSER_WIDTH]
+            ARVALID: [m_axi_arvalid, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
+            RREADY: [m_axi_rready, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
 
 m_axi_2:
     interface: AXI4
     mode: master
     signals:
         in:
-            AWREADY: [m_axi_awready, 2, 0, 0, 0]
-            WREADY: [m_axi_wready, 2, 0, 0, 0]
-            BID: [m_axi_bid, 35, 0, 11, 0]
-            BRESP: [m_axi_bresp, 5, 0, 1, 0]
-            BUSER: [m_axi_buser, 2, 0, 0, 0]
-            BVALID: [m_axi_bvalid, 2, 0, 0, 0]
-            ARREADY: [m_axi_arready, 2, 0, 0, 0]
-            RID: [m_axi_rid, 35, 0, 11, 0]
-            RDATA: [m_axi_rdata, 95, 0, 31, 0]
-            RRESP: [m_axi_rresp, 5, 0, 1, 0]
-            RLAST: [m_axi_rlast, 2, 0, 0, 0]
-            RUSER: [m_axi_ruser, 2, 0, 0, 0]
-            RVALID: [m_axi_rvalid, 2, 0, 0, 0]
+            AWREADY: [m_axi_awready, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            WREADY: [m_axi_wready, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            BID: [m_axi_bid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-2)*ID_WIDTH-1, (M_COUNT-3)*ID_WIDTH]
+            BRESP: [m_axi_bresp, M_COUNT*2-1, 0, (M_COUNT-2)*2-1, (M_COUNT-3)*2]
+            BUSER: [m_axi_buser, M_COUNT*BUSER_WIDTH-1, 0, (M_COUNT-2)*BUSER_WIDTH-1, (M_COUNT-3)*BUSER_WIDTH]
+            BVALID: [m_axi_bvalid, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            ARREADY: [m_axi_arready, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            RID: [m_axi_rid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-2)*ID_WIDTH-1, (M_COUNT-3)*ID_WIDTH]
+            RDATA: [m_axi_rdata, M_COUNT*DATA_WIDTH-1, 0, (M_COUNT-2)*DATA_WIDTH-1, (M_COUNT-3)*DATA_WIDTH]
+            RRESP: [m_axi_rresp, M_COUNT*2-1, 0, (M_COUNT-2)*2-1, (M_COUNT-3)*2]
+            RLAST: [m_axi_rlast, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            RUSER: [m_axi_ruser, M_COUNT*RUSER_WIDTH-1, 0, (M_COUNT-2)*RUSER_WIDTH-1, (M_COUNT-3)*RUSER_WIDTH]
+            RVALID: [m_axi_rvalid, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+
         out:
             # the least significant third of each port is used
-            AWID: [m_axi_awid, 35, 0, 11, 0]
-            AWADDR: [m_axi_awaddr, 95, 0, 31, 0]
-            AWLEN: [m_axi_awlen, 23, 0, 7, 0]
-            AWSIZE: [m_axi_awsize, 8, 0, 2, 0]
-            AWBURST: [m_axi_awburst, 5, 0, 1, 0]
-            AWLOCK: [m_axi_awlock, 2, 0, 0, 0]
-            AWCACHE: [m_axi_awcache, 11, 0, 3, 0]
-            AWPROT: [m_axi_awprot, 8, 0, 2, 0]
-            AWQOS: [m_axi_awqos, 11, 0, 3, 0]
-            AWREGION: [m_axi_awregion, 11, 0, 3, 0]
-            AWUSER: [m_axi_awuser, 2, 0, 0, 0]
-            AWVALID: [m_axi_awvalid, 2, 0, 0, 0]
-            WDATA: [m_axi_wdata, 95, 0, 31, 0]
-            WSTRB: [m_axi_wstrb, 11, 0, 3, 0]
-            WLAST: [m_axi_wlast, 2, 0, 0, 0]
-            WUSER: [m_axi_wuser, 2, 0, 0, 0]
-            WVALID: [m_axi_wvalid, 2, 0, 0, 0]
-            BREADY: [m_axi_bready, 2, 0, 0, 0]
-            ARID: [m_axi_arid, 35, 0, 11, 0]
-            ARADDR: [m_axi_araddr, 95, 0, 31, 0]
-            ARLEN: [m_axi_arlen, 23, 0, 7, 0]
-            ARSIZE: [m_axi_arsize, 8, 0, 2, 0]
-            ARBURST: [m_axi_arburst, 5, 0, 1, 0]
-            ARLOCK: [m_axi_arlock, 2, 0, 0, 0]
-            ARCACHE: [m_axi_arcache, 11, 0, 3, 0]
-            ARPROT: [m_axi_arprot, 8, 0, 2, 0]
-            ARQOS: [m_axi_arqos, 11, 0, 3, 0]
-            ARREGION: [m_axi_arregion, 11, 0, 3, 0]
-            ARUSER: [m_axi_aruser, 2, 0, 0, 0]
-            ARVALID: [m_axi_arvalid, 2, 0, 0, 0]
-            RREADY: [m_axi_rready, 2, 0, 0, 0]
+            AWID: [m_axi_awid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-2)*ID_WIDTH-1, (M_COUNT-3)*ID_WIDTH]
+            AWADDR: [m_axi_awaddr, M_COUNT*ADDR_WIDTH-1, 0, (M_COUNT-2)*ADDR_WIDTH-1, (M_COUNT-3)*ADDR_WIDTH]
+            AWLEN: [m_axi_awlen, M_COUNT*8-1, 0, (M_COUNT-2)*8-1, (M_COUNT-3)*8]
+            AWSIZE: [m_axi_awsize, M_COUNT*3-1, 0, (M_COUNT-2)*3-1, (M_COUNT-3)*3]
+            AWBURST: [m_axi_awburst, M_COUNT*2-1, 0, (M_COUNT-2)*2-1, (M_COUNT-3)*2]
+            AWLOCK: [m_axi_awlock, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            AWCACHE: [m_axi_awcache, M_COUNT*4-1, 0, (M_COUNT-2)*4-1, (M_COUNT-3)*4]
+            AWPROT: [m_axi_awprot, M_COUNT*3-1, 0, (M_COUNT-2)*3-1, (M_COUNT-3)*3]
+            AWQOS: [m_axi_awqos, M_COUNT*4-1, 0, (M_COUNT-2)*4-1, (M_COUNT-3)*4]
+            AWREGION: [m_axi_awregion, M_COUNT*4-1, 0, (M_COUNT-2)*4-1, (M_COUNT-3)*4]
+            AWUSER: [m_axi_awuser, M_COUNT*AWUSER_WIDTH-1, 0, (M_COUNT-2)*AWUSER_WIDTH-1, (M_COUNT-3)*AWUSER_WIDTH]
+            AWVALID: [m_axi_awvalid, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            WDATA: [m_axi_wdata, M_COUNT*DATA_WIDTH-1, 0, (M_COUNT-2)*DATA_WIDTH-1, (M_COUNT-3)*DATA_WIDTH]
+            WSTRB: [m_axi_wstrb, M_COUNT*STRB_WIDTH-1, 0, (M_COUNT-2)*STRB_WIDTH-1, (M_COUNT-3)*STRB_WIDTH]
+            WLAST: [m_axi_wlast, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            WUSER: [m_axi_wuser, M_COUNT*WUSER_WIDTH-1, 0, (M_COUNT-2)*WUSER_WIDTH-1, (M_COUNT-3)*WUSER_WIDTH]
+            WVALID: [m_axi_wvalid, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            BREADY: [m_axi_bready, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            ARID: [m_axi_arid, M_COUNT*ID_WIDTH-1, 0, (M_COUNT-2)*ID_WIDTH-1, (M_COUNT-3)*ID_WIDTH]
+            ARADDR: [m_axi_araddr, M_COUNT*ADDR_WIDTH-1, 0, (M_COUNT-2)*ADDR_WIDTH-1, (M_COUNT-3)*ADDR_WIDTH]
+            ARLEN: [m_axi_arlen, M_COUNT*8-1, 0, (M_COUNT-2)*8-1, (M_COUNT-3)*8]
+            ARSIZE: [m_axi_arsize, M_COUNT*3-1, 0, (M_COUNT-2)*3-1, (M_COUNT-3)*3]
+            ARBURST: [m_axi_arburst, M_COUNT*2-1, 0, (M_COUNT-2)*2-1, (M_COUNT-3)*2]
+            ARLOCK: [m_axi_arlock, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            ARCACHE: [m_axi_arcache, M_COUNT*4-1, 0, (M_COUNT-2)*4-1, (M_COUNT-3)*4]
+            ARPROT: [m_axi_arprot, M_COUNT*3-1, 0, (M_COUNT-2)*3-1, (M_COUNT-3)*3]
+            ARQOS: [m_axi_arqos, M_COUNT*4-1, 0, (M_COUNT-2)*4-1, (M_COUNT-3)*4]
+            ARREGION: [m_axi_arregion, M_COUNT*4-1, 0, (M_COUNT-2)*4-1, (M_COUNT-3)*4]
+            ARUSER: [m_axi_aruser, M_COUNT*ARUSER_WIDTH-1, 0, (M_COUNT-2)*ARUSER_WIDTH-1, (M_COUNT-3)*ARUSER_WIDTH]
+            ARVALID: [m_axi_arvalid, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
+            RREADY: [m_axi_rready, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]
 
 signals:
     in:
