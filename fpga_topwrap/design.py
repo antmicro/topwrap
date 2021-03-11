@@ -25,7 +25,7 @@ def _interpret_parameters(params):
             params[name] = Const(param['value'], shape=(param['width']))
 
 
-def build_design(yamlfile, sources_dir=None):
+def build_design(yamlfile, sources_dir=None, part=None):
     """Generate a complete project
 
     :param yamlfile: file describing the top design
@@ -60,4 +60,4 @@ def build_design(yamlfile, sources_dir=None):
     ipc.make_connections(ports, interfaces)
 
     ipc.make_external_ports(external)
-    ipc.build(sources_dir=sources_dir)
+    ipc.build(sources_dir=sources_dir, part=part)

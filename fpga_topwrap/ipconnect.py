@@ -1,6 +1,7 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from os import path
+from logging import warning, info
 from nmigen import Elaboratable, Module, Signal, Instance, Fragment
 from nmigen.build import Platform
 from nmigen.back import verilog
@@ -47,9 +48,9 @@ class IPConnect(Elaboratable):
         port2 = self._ips[ip2_name].get_port_by_name(port2_name)
 
         if len(port1) != len(port2):
-            print(f'WARNING: ports: {ip1_name}:{port1.name}({len(port1)}), '
-                  f'{ip2_name}:{port2.name}({len(port2)})'
-                  'have different widths!')
+            warning(f'ports: {ip1_name}:{port1.name}({len(port1)}), '
+                    f'{ip2_name}:{port2.name}({len(port2)})'
+                    ' have different widths!')
 
         inst1_args = getattr(self, ip1_name)
         inst2_args = getattr(self, ip2_name)
@@ -90,9 +91,6 @@ class IPConnect(Elaboratable):
                     f'No such IP in this module: {ip1_name}, {ip2_name}.'
                     ' Use add_ip method to add the IPs first')
 
-        if ip1_name == 'axi_interconnect' or ip2_name == 'axi_interconnect':
-            print(iface1, iface2)
-
         ip1_ports = self._ips[ip1_name].get_ports_of_interface(iface1)
         ip2_ports = self._ips[ip2_name].get_ports_of_interface(iface2)
 
@@ -101,11 +99,11 @@ class IPConnect(Elaboratable):
         ip1_unconnected = ip1_signames - ip2_signames
         ip2_unconnected = ip2_signames - ip1_signames
         if ip1_unconnected:
-            print('Unconnected signals of '
-                  f'{ip1_name}:{iface1}: {ip1_unconnected}')
+            info('Unconnected signals of '
+                 f'{ip1_name}:{iface1}: {ip1_unconnected}')
         if ip2_unconnected:
-            print('Unconnected signals of '
-                  f'{ip2_name}:{iface2} {ip2_unconnected}')
+            info('Unconnected signals of '
+                 f'{ip2_name}:{iface2} {ip2_unconnected}')
 
         ports_connected = 0
         for p1 in ip1_ports:
@@ -115,8 +113,8 @@ class IPConnect(Elaboratable):
                 if names_match:
                     self.connect_ports(p1.name, ip1_name, p2.name, ip2_name)
                     ports_connected += 1
-        print(f'number of ports matched: {ports_connected} for interfaces:'
-              f'{ip1_name}:{iface1} - {ip2_name}:{iface2}')
+        info(f'number of ports matched: {ports_connected} for interfaces:'
+             f'{ip1_name}:{iface1} - {ip2_name}:{iface2}')
 
     def _set_port(self, ip, port_name):
         """Set port specified by name as an external port
@@ -183,10 +181,10 @@ class IPConnect(Elaboratable):
             for _port in _ports:
                 self._set_port(self._ips[ip_name], _port)
 
-    def build(self, build_dir='build', template=None, sources_dir='None',
-              top_module_name='project_top'):
+    def build(self, build_dir='build', template=None, sources_dir=None,
+              top_module_name='project_top', part=None):
         # This class is used for generating FuseSoC Core file
-        fuse = FuseSocBuilder()
+        fuse = FuseSocBuilder(part)
 
         for ip in self._ips.values():
             filename = ip.top_name + '.v'

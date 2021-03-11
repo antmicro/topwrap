@@ -68,3 +68,13 @@ For a wider example of using the :class:`IPConnect` see :ref:`Getting Started <g
               ... }
              ...
 
+    .. py:method:: build(self, build_dir='build', template=None, sources_dir=None,
+              top_module_name='project_top', part=None):
+
+        Generate a complete synthesizable project, including all the source files and a core file.
+
+
+       :param build_dir: name of the output directory
+       :param template: name of the core file template
+       :param sources_dir: directory to be scanned for additional sources
+       :param part: FPGA part name
