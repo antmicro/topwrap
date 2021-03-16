@@ -10,7 +10,7 @@ generate: build
 
 copy_sources: build
 	cp -rf sources/ build/
-	cp -rf cores/* build/
+	cp -rf ipcores/* build/
 
 snickerdoodle: generate copy_sources
 	cp constr/snickerdoodle.xdc build/
