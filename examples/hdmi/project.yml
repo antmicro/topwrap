@@ -61,9 +61,6 @@ ips:
   ps7:
     file: ips/ps7.yaml
     module: ps7_inst
-  const1:
-    file: ips/const.yaml
-    module: constants
   axi_protocol_converter0:
     file: axi/axi_protocol_converter.yaml
     module: axi_protocol_converter
@@ -79,16 +76,16 @@ ports:
     aresetn: [reset0, interconnect_aresetn]
   reset0:
     slowest_sync_clk: [ps7, FCLK0]
-    ext_reset_in: [const1, out0]
-    dcm_locked: [const1, out1]
-    aux_reset_in: [const1, out0]
-    mb_debug_sys_rst: [const1, out0]
+    ext_reset_in: 0
+    dcm_locked: 1
+    aux_reset_in: 0
+    mb_debug_sys_rst: 0
   reset1:
     slowest_sync_clk: [mmcm, clkgen_out0]
-    ext_reset_in: [const1, out0]
-    dcm_locked: [const1, out1]
-    aux_reset_in: [const1, out0]
-    mb_debug_sys_rst: [const1, out0]
+    ext_reset_in: 0
+    dcm_locked: 1
+    aux_reset_in: 0
+    mb_debug_sys_rst: 0
   axi_interconnect0:
     clk: [ps7, FCLK0]
     rst: [reset0, bus_struct_reset]

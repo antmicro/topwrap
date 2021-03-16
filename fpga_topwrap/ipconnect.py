@@ -3,6 +3,7 @@
 from os import path
 from logging import warning, info
 from nmigen import Elaboratable, Module, Signal, Instance, Fragment
+from nmigen.hdl.ast import Const
 from nmigen.build import Platform
 from nmigen.back import verilog
 from .ipwrapper import IPWrapper
@@ -157,13 +158,38 @@ class IPConnect(Elaboratable):
                     inst_args[full_name] = sig
                     count += 1
 
+    def set_constant(self, ip_name, ip_port, target):
+        """Set a constant value on a port of an IP
+
+        :param ip_name: name of the IP
+        :param port_name: name of the port of the IP
+        :param target: int value to be assigned
+        :raises ValueError: if such IP doesn't exist
+        """
+        if ip_name not in self._ips.keys():
+            raise ValueError(
+                    f'No such IP in this module: {ip_name}.'
+                    ' Use add_ip method to add the IPs first')
+
+        port = self._ips[ip_name].get_port_by_name(ip_port)
+        inst_args = getattr(self, ip_name)
+        full_name = port_direction_to_prefix(port.direction) + port.name
+        inst_args[full_name] = Const(target)
+
     def make_connections(self, ports, interfaces):
         """Use names of port and names of ips to make connections
         """
         for ip1_name, connections in ports.items():
-            for ip1_port, (ip2_name, ip2_port) in connections.items():
-                self.connect_ports(ip1_port, ip1_name,
-                                   ip2_port, ip2_name)
+            for ip1_port, target in connections.items():
+                # target is one of:
+                #   - a number (int)
+                #   - list of (ip2_name, ip2_port)
+                if isinstance(target, int):
+                    self.set_constant(ip1_name, ip1_port, target)
+                else:
+                    (ip2_name, ip2_port) = target
+                    self.connect_ports(ip1_port, ip1_name,
+                                       ip2_port, ip2_name)
 
         for ip1_name, connections in interfaces.items():
             for ip1_iface, (ip2_name, ip2_iface) in connections.items():
