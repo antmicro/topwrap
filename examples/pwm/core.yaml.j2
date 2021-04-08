@@ -1,0 +1,38 @@
+CAPI=2:
+name : ::project_1
+description : project
+filesets:
+  rtl:
+    files:{% for file in sources %}
+      - {{file.filename}} : {file_type : {{file.type}}}{% endfor %}
+    depend:
+      - verilog-axi
+  scr_vivado:
+    files:
+      - sources/pre_vivado.sh : {copyto: prebuild.sh}
+  scr_symbiflow:
+    files:
+      - sources/pre_symbiflow.sh : {copyto: prebuild.sh}
+targets:
+  zynq:
+    default_tool: symbiflow
+    filesets:
+      - rtl
+      - "tool_vivado? (scr_vivado)"
+      - "tool_symbiflow? (scr_symbiflow)"
+    hooks:
+      pre_build:
+        - prebuild_setup
+    tools:
+      vivado:
+        part : {{part}}
+      symbiflow:
+        package: clg400-1
+        part: xc7z010
+        pnr: vtr
+        vendor: xilinx
+    toplevel : project_top
+
+scripts:
+    prebuild_setup:
+      cmd: [bash, prebuild.sh]
