@@ -81,6 +81,31 @@ If you don't create any template a default template bundled with Topwrap will be
     python -m fpga_topwrap --design project.yml --sources sources
 
 
+Example PWM design
+------------------
+
+There's an example setup in `examples/pwm`.
+
+In order to generate the top module, run::
+
+    make generate
+
+In order to generate bitstream, add Vivado to your path and run::
+
+    make
+
+
+The FPGA design utilizes an AXI-mapped PWM IP Core.
+You can access its registers starting from address ``0x4000000`` (that's the base address of ``AXI_GP0`` on ZYNQ).
+Each IP Core used in the project is declared in ``ips`` section in ``project.yml`` file.
+``ports`` section allows to connect individual ports of IP Cores, and ``interfaces`` is used analogously for connecting whole interfaces.
+Finally, you can specify which ports will be used as external I/O in ``external`` section.
+
+To connect the I/O signals to specific FPGA pins, you need proper mappings in a constraints file. See ``zynq.xdc`` used in the setup and modify it accordingly.
+
+.. image:: pwm.png
+
+
 Example HDMI design
 --------------------
 
