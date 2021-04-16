@@ -1,7 +1,7 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from os import path
-from logging import warning, info
+from logging import warning, info, error
 from nmigen import Elaboratable, Module, Signal, Instance, Fragment
 from nmigen.hdl.ast import Const
 from nmigen.build import Platform
@@ -236,7 +236,11 @@ class IPConnect(Elaboratable):
         m = Module()
         for ip_name in self._ips.keys():
             args = getattr(self, ip_name)
-            inst = Instance(ip_name, **args)
-            setattr(m.submodules, ip_name, inst)
+            try:
+                inst = Instance(ip_name, **args)
+                setattr(m.submodules, ip_name, inst)
+            except TypeError:
+                error(f"couldn't create instance of {ip_name} "
+                      f"using args: {args}")
 
         return m

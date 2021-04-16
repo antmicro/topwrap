@@ -28,6 +28,22 @@ jobs:
         python3 -m pip install setuptools flake8 pytest wheel wasmtime
         python3 -m pip install git+https://github.com/antmicro/tuttest
 
+    - name: Set up Symbiflow
+      run: |
+        sudo apt install -y wget xz-utils
+        git clone https://github.com/SymbiFlow/symbiflow-examples
+        cd symbiflow-examples
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O conda_installer.sh
+        export INSTALL_DIR=~/opt/symbiflow
+        export FPGA_FAM=xc7
+        bash conda_installer.sh -u -b -p $INSTALL_DIR/$FPGA_FAM/conda;
+        source "$INSTALL_DIR/$FPGA_FAM/conda/etc/profile.d/conda.sh";
+        conda env create -f $FPGA_FAM/environment.yml
+        mkdir -p $INSTALL_DIR/xc7/install
+        wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/201/20210325-000253/symbiflow-arch-defs-install-1c7a3d1e.tar.xz | tar -xJC $INSTALL_DIR/xc7/install
+        wget -qO- https://storage.googleapis.com/symbiflow-arch-defs/artifacts/prod/foss-fpga-tools/symbiflow-arch-defs/continuous/install/201/20210325-000253/symbiflow-arch-defs-xc7z010_test-1c7a3d1e.tar.xz | tar -xJC $INSTALL_DIR/xc7/install
+        cd -
+
     - name: Lint with flake8
       run: |
         flake8 fpga_topwrap --count --show-source --statistics
@@ -40,7 +56,26 @@ jobs:
       run: |
         pytest
 
-    - name: Build example setup
+    - name: Generate sources for example HDMI setup
       run: |
           cd examples/hdmi
           tuttest README.md generate | bash -
+          cd -
+
+    - name: Build example PWM setup
+      run: |
+          export INSTALL_DIR=~/opt/symbiflow
+          export FPGA_FAM=xc7
+          export PATH="$INSTALL_DIR/$FPGA_FAM/install/bin:$PATH";
+          source "$INSTALL_DIR/$FPGA_FAM/conda/etc/profile.d/conda.sh";
+          conda activate $FPGA_FAM
+          cd examples/pwm
+          tuttest README.md build | bash -
+          cd -
+          cp examples/pwm/build/project_1_0/zynq-symbiflow/project_top.bit ./top.bit
+
+    - name: Store bit
+      uses: actions/upload-artifact@v2
+      with:
+        name: top.bit
+        path: top.bit

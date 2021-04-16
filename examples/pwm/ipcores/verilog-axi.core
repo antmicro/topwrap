@@ -1,0 +1,24 @@
+CAPI=2:
+
+name : ::verilog-axi:0
+
+filesets:
+  rtl:
+    files:
+      - rtl/arbiter.v
+      - rtl/axi_axil_adapter_rd.v
+      - rtl/axi_axil_adapter_wr.v
+      - rtl/axi_axil_adapter.v
+      - rtl/axi_interconnect.v
+      - rtl/priority_encoder.v
+    file_type : verilogSource
+
+targets:
+  default:
+    filesets : [rtl]
+
+provider:
+  name    : github
+  user    : alexforencich
+  repo    : verilog-axi
+  version : 2c6185c0a54fe15f019bd7483b4fade03c83e407
