@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>IPConnect class &mdash; Topwrap  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Helpers" href="helpers.html" />
+    <link rel="prev" title="IPWrapper class" href="ipwrapper.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Topwrap
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_description.html">IP description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iface_description.html">Interface Description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_description.html">Design Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command-line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrapper_port.html">Wrapper Port</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipwrapper.html">IPWrapper class</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IPConnect class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fusesoc.html">FuseSoC</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+        <div class="wide-toggle">
+          <span class="wide-toggle-btn">
+            Toggle wide view
+          </span>
+        </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Topwrap</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>IPConnect class</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/ipconnect.rst.txt" rel="nofollow"> View source</a>
+          
+        
+      </li>
+      
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ipconnect-class">
+<h1>IPConnect class<a class="headerlink" href="#ipconnect-class" title="Permalink to this headline">¶</a></h1>
+<p>Topwrap uses <a class="reference internal" href="#IPConnect" title="IPConnect"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPConnect</span></code></a> to encapsulate IP Cores in a module, and connect their wires and interfaces.</p>
+<p>After the object is created, IPs can be added using <code class="code docutils literal notranslate"><span class="pre">add_ip</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a wrapper for an IP</span>
+<span class="n">dma</span> <span class="o">:=</span> <span class="n">IPWrapper</span><span class="p">(</span><span class="s1">&#39;DMATop.yaml&#39;</span><span class="p">,</span> <span class="n">ip_name</span><span class="o">=</span><span class="s1">&#39;DMATop&#39;</span><span class="p">),</span>
+
+<span class="n">ipc</span> <span class="o">=</span> <span class="n">IPConnect</span><span class="p">()</span>
+<span class="n">ip</span><span class="o">.</span><span class="n">add_ip</span><span class="p">(</span><span class="n">dma</span><span class="p">)</span>
+
+<span class="c1"># add other IPs</span>
+</pre></div>
+</div>
+<p>IPs are connected using <code class="code docutils literal notranslate"><span class="pre">make_connections</span></code> function.
+Ports can be set as external input/output with <code class="code docutils literal notranslate"><span class="pre">make_external_ports</span></code> and retrieved with <code class="code docutils literal notranslate"><span class="pre">get_ports</span></code>.
+For a wider example of using the <a class="reference internal" href="#IPConnect" title="IPConnect"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPConnect</span></code></a> see <a class="reference internal" href="start.html#getting-started"><span class="std std-ref">Getting Started</span></a></p>
+<dl class="py class">
+<dt id="IPConnect">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">IPConnect</span></code><a class="headerlink" href="#IPConnect" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="IPConnect.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="IPConnect.add_ip">
+<code class="sig-name descname"><span class="pre">add_ip</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="ipwrapper.html#IPWrapper" title="IPWrapper"><span class="pre">IPWrapper</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect.add_ip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new IPWrapper object, allowing to make connections with it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPConnect.connect_ports">
+<code class="sig-name descname"><span class="pre">connect_ports</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port1_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip1_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port2_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip2_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect.connect_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect ports of IPs that were previously added to this Connector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if any of the IPs doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPConnect.connect_interfaces">
+<code class="sig-name descname"><span class="pre">connect_interfaces</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iface1</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip1_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iface2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip2_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect.connect_interfaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make connections between all matching signals of the interfaces</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if any of the IPs doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPConnect._set_port">
+<code class="sig-name descname"><span class="pre">_set_port</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect._set_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set port specified by name as an external port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ip</strong> (<a class="reference internal" href="ipwrapper.html#IPWrapper" title="IPWrapper"><em>IPWrapper</em></a>) – IP which holds the I/O port</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if such port doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPConnect.get_ports">
+<code class="sig-name descname"><span class="pre">get_ports</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect.get_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of external ports of this module</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPConnect._set_unconnected_ports">
+<code class="sig-name descname"><span class="pre">_set_unconnected_ports</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect._set_unconnected_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create signals for unconnected ports to allow using them as external.
+This is essential since ports that haven’t been used have no signals
+assigned to them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPConnect.make_connections">
+<code class="sig-name descname"><span class="pre">make_connections</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ports</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interfaces</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPConnect.make_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make connections between IPs using the names of ports and names of interfaces matched with IPs.
+<cite>Ports</cite> and <cite>interfaces</cite> are dicts structured as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">ip_name</span><span class="p">:</span>
+  <span class="p">{</span><span class="n">port_name</span><span class="p">:</span> <span class="p">(</span><span class="n">ip_name2</span><span class="p">,</span> <span class="n">port_name2</span><span class="p">)}</span>
+  <span class="o">...</span> <span class="p">}</span>
+ <span class="o">...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt>
+<code class="sig-name descname"><span class="pre">build(self,</span> <span class="pre">build_dir='build',</span> <span class="pre">template=None,</span> <span class="pre">sources_dir=None,</span></code></dt>
+<dt>
+<code class="sig-name descname"><span class="pre">top_module_name='project_top',</span> <span class="pre">part=None):</span></code></dt>
+<dd><blockquote>
+<div><p>Generate a complete synthesizable project, including all the source files and a core file.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>build_dir</strong> – name of the output directory</p></li>
+<li><p><strong>template</strong> – name of the core file template</p></li>
+<li><p><strong>sources_dir</strong> – directory to be scanned for additional sources</p></li>
+<li><p><strong>part</strong> – FPGA part name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          
+
+
+
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="helpers.html" class="btn btn-neutral float-right" title="Helpers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ipwrapper.html" class="btn btn-neutral float-left" title="IPWrapper class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Antmicro, 2021;
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

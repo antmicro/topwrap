@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>IP description files &mdash; Topwrap  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Interface Description files" href="iface_description.html" />
+    <link rel="prev" title="Install" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Topwrap
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IP description files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#port-widths">Port widths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#port-slicing">Port slicing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="iface_description.html">Interface Description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_description.html">Design Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command-line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrapper_port.html">Wrapper Port</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipwrapper.html">IPWrapper class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipconnect.html">IPConnect class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fusesoc.html">FuseSoC</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+        <div class="wide-toggle">
+          <span class="wide-toggle-btn">
+            Toggle wide view
+          </span>
+        </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Topwrap</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>IP description files</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/ip_description.rst.txt" rel="nofollow"> View source</a>
+          
+        
+      </li>
+      
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ip-description-files">
+<span id="ip-description"></span><h1>IP description files<a class="headerlink" href="#ip-description-files" title="Permalink to this headline">¶</a></h1>
+<p>Every IP wrapped by Topwrap needs a description file in YAML format.</p>
+<p>The ports of an IP should be placed in global <cite>signals</cite> node, followed by the direction of <cite>in</cite>, <cite>out</cite> or <cite>inout</cite>.
+Here’s an example description of ports of Clock Crossing IP:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># file: clock_crossing.yaml</span>
+<span class="nt">signals</span><span class="p">:</span>
+    <span class="nt">in</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">clkA</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">A</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">clkB</span>
+    <span class="nt">out</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">B</span>
+</pre></div>
+</div>
+<p>The previous example is enough to make use of any IP. However, in order to benefit from connecting whole interfaces at once, ports must belong to a named interface like in this example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1">#file: axis_width_converter.yaml</span>
+<span class="nt">s_axis</span><span class="p">:</span>
+    <span class="nt">interface</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AXIStream</span>
+    <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">slave</span>
+    <span class="nt">signals</span><span class="p">:</span>
+        <span class="nt">in</span><span class="p">:</span>
+            <span class="nt">TDATA</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">s_axis_tdata</span><span class="p p-Indicator">,</span> <span class="nv">63</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TKEEP</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">s_axis_tkeep</span><span class="p p-Indicator">,</span> <span class="nv">7</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TVALID</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s_axis_tvalid</span>
+            <span class="nt">TLAST</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s_axis_tlast</span>
+            <span class="nt">TID</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">s_axis_tid</span><span class="p p-Indicator">,</span> <span class="nv">7</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TDEST</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">s_axis_tdest</span><span class="p p-Indicator">,</span> <span class="nv">7</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TUSER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s_axis_tuser</span>
+        <span class="nt">out</span><span class="p">:</span>
+            <span class="nt">TREADY</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s_axis_tready</span>
+
+<span class="nt">m_axis</span><span class="p">:</span>
+    <span class="nt">interface</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AXIStream</span>
+    <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
+    <span class="nt">signals</span><span class="p">:</span>
+        <span class="nt">in</span><span class="p">:</span>
+            <span class="nt">TREADY</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m_axis_tready</span>
+        <span class="nt">out</span><span class="p">:</span>
+            <span class="nt">TDATA</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m_axis_tdata</span><span class="p p-Indicator">,</span> <span class="nv">31</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TKEEP</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m_axis_tkeep</span><span class="p p-Indicator">,</span> <span class="nv">3</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TVALID</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m_axis_tvalid</span>
+            <span class="nt">TLAST</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m_axis_tlast</span>
+            <span class="nt">TID</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m_axis_tid</span><span class="p p-Indicator">,</span> <span class="nv">7</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TDEST</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m_axis_tdest</span><span class="p p-Indicator">,</span> <span class="nv">7</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span>
+            <span class="nt">TUSER</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">m_axis_tuser</span>
+<span class="nt">signals</span><span class="p">:</span> <span class="c1"># These ports don&#39;t belong to any interface</span>
+    <span class="nt">in</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">clk</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">rst</span>
+</pre></div>
+</div>
+<p>Names <cite>s_axis</cite> and <cite>m_axis</cite> will be used to group the selected ports.
+Each signal in an interface has a name which must match with the signal it’s supposed to be connected to, for example <cite>TDATA: port_name</cite> will be connected to <cite>TDATA: other_port_name</cite>.</p>
+<div class="section" id="port-widths">
+<h2>Port widths<a class="headerlink" href="#port-widths" title="Permalink to this headline">¶</a></h2>
+<p>The width of every port defaults to <cite>1</cite>.
+You can specify the width using this notation:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">s_axis</span><span class="p">:</span>
+    <span class="nt">interface</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AXIStream</span>
+    <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">slave</span>
+    <span class="nt">signals</span><span class="p">:</span>
+        <span class="nt">in</span><span class="p">:</span>
+            <span class="nt">TDATA</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">s_axis_tdata</span><span class="p p-Indicator">,</span> <span class="nv">63</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span> <span class="c1"># 64 bits</span>
+            <span class="l l-Scalar l-Scalar-Plain">...</span>
+            <span class="nt">TVALID</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s_axis_tvalid</span> <span class="c1"># defaults to 1 bit</span>
+
+<span class="nt">signals</span><span class="p">:</span>
+    <span class="nt">in</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="p p-Indicator">[</span><span class="nv">gpio_io_i</span><span class="p p-Indicator">,</span> <span class="nv">31</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">]</span> <span class="c1"># 32 bits</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="port-slicing">
+<span id="id1"></span><h2>Port slicing<a class="headerlink" href="#port-slicing" title="Permalink to this headline">¶</a></h2>
+<p>You can also slice a port, to use some bits of the port as a signal that belongs to an interface.
+The example below means:</p>
+<p><cite>Port m_axi_bid of the IP core is 36 bits wide. Use bits 23..12 as the BID signal of AXI master named m_axi_1</cite></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">m_axi_1</span><span class="p">:</span>
+    <span class="nt">interface</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">AXI</span>
+    <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">master</span>
+    <span class="nt">signals</span><span class="p">:</span>
+        <span class="nt">in</span><span class="p">:</span>
+            <span class="nt">BID</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">m_axi_bid</span><span class="p p-Indicator">,</span> <span class="nv">35</span><span class="p p-Indicator">,</span> <span class="nv">0</span><span class="p p-Indicator">,</span> <span class="nv">23</span><span class="p p-Indicator">,</span> <span class="nv">12</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          
+
+
+
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="iface_description.html" class="btn btn-neutral float-right" title="Interface Description files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="install.html" class="btn btn-neutral float-left" title="Install" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Antmicro, 2021;
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

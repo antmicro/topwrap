@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>IPWrapper class &mdash; Topwrap  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="IPConnect class" href="ipconnect.html" />
+    <link rel="prev" title="Wrapper Port" href="wrapper_port.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Topwrap
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_description.html">IP description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iface_description.html">Interface Description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_description.html">Design Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command-line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrapper_port.html">Wrapper Port</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IPWrapper class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipconnect.html">IPConnect class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fusesoc.html">FuseSoC</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+        <div class="wide-toggle">
+          <span class="wide-toggle-btn">
+            Toggle wide view
+          </span>
+        </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Topwrap</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>IPWrapper class</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/ipwrapper.rst.txt" rel="nofollow"> View source</a>
+          
+        
+      </li>
+      
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ipwrapper-class">
+<h1>IPWrapper class<a class="headerlink" href="#ipwrapper-class" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="#IPWrapper" title="IPWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPWrapper</span></code></a> is the main class used to instantiate an IP Core and generate HDL wrapper.
+It’s used to standardize names of ports that belong to interfaces to ease connecting multiple IPs.</p>
+<dl class="py class">
+<dt id="IPWrapper">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">IPWrapper</span></code><a class="headerlink" href="#IPWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="IPWrapper.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yamlfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yamlfile</strong> (<em>str</em>) – name of the file with <a class="reference internal" href="ip_description.html#ip-description"><span class="std std-ref">IP description</span></a></p></li>
+<li><p><strong>ip_name</strong> (<em>str</em>) – name of the HDL module to be wrapped</p></li>
+<li><p><strong>top_name</strong> (<em>str</em>) – name of the generated top module. Defaults to <code class="docutils literal notranslate"><span class="pre">top_name</span> <span class="pre">+</span> <span class="pre">'_top'</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper.get_ports">
+<code class="sig-name descname"><span class="pre">get_ports</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper.get_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all ports that belong to this IP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List[WrapperPort]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper.get_ports_of_interface">
+<code class="sig-name descname"><span class="pre">get_ports_of_interface</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iface_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper.get_ports_of_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of ports of specific interface</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iface_name</strong> (<em>str</em>) – name of the interface</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List[WrapperPort]</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if such interface doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper.get_port_by_name">
+<code class="sig-name descname"><span class="pre">get_port_by_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper.get_port_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the name of a port, return the port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – name of a port</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>WrapperPort</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if such port doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper.get_port_names">
+<code class="sig-name descname"><span class="pre">get_port_names</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper.get_port_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of names of all ports of this ip</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper.get_port_names_of_interface">
+<code class="sig-name descname"><span class="pre">get_port_names_of_interface</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iface_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper.get_port_names_of_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a list of names of ports that belong to specific interface</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iface_name</strong> (<em>str</em>) – name of an interface</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if such interface doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper.set_parameters">
+<code class="sig-name descname"><span class="pre">set_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set values of parameters defined in HDL source file (for example <cite>generic</cite> in VHDL)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – names and values of the parameters <code class="docutils literal notranslate"><span class="pre">{name1:</span> <span class="pre">val1,</span> <span class="pre">name2:</span> <span class="pre">val2,</span> <span class="pre">...}</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper._create_ports">
+<code class="sig-name descname"><span class="pre">_create_ports</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yamlfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper._create_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize object attributes with data found in the yamlfile describing an IP Core.
+This method fills <code class="docutils literal notranslate"><span class="pre">self._ports</span></code> with <code class="docutils literal notranslate"><span class="pre">WrapperPorts</span></code> objects for each port of the IP
+and assigns interfaces to ports which belong to them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>yamlfile</strong> (<em>str</em>) – name of a YAML file with IP description</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – when interface compliance is violated, e.g. the interfaces which
+were used don’t match the predefined interfaces</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="IPWrapper._set_parameter">
+<code class="sig-name descname"><span class="pre">_set_parameter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IPWrapper._set_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Function used by <a class="reference internal" href="#IPWrapper.set_parameters" title="IPWrapper.set_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_parameters()</span></code></a> to set a value of individual parameter</dt><dd><p>of an IP Core defined in HDL source.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – name of the parameter</p></li>
+<li><p><strong>value</strong> – value of the parameter</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          
+
+
+
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ipconnect.html" class="btn btn-neutral float-right" title="IPConnect class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="wrapper_port.html" class="btn btn-neutral float-left" title="Wrapper Port" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Antmicro, 2021;
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

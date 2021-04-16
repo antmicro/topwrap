@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; Topwrap  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Command-line Interface" href="cli.html" />
+    <link rel="prev" title="Design Description" href="design_description.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Topwrap
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_description.html">IP description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iface_description.html">Interface Description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_description.html">Design Description</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-pwm-design">Example PWM design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-hdmi-design">Example HDMI design</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command-line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrapper_port.html">Wrapper Port</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipwrapper.html">IPWrapper class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipconnect.html">IPConnect class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fusesoc.html">FuseSoC</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+        <div class="wide-toggle">
+          <span class="wide-toggle-btn">
+            Toggle wide view
+          </span>
+        </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Topwrap</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Getting started</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/start.rst.txt" rel="nofollow"> View source</a>
+          
+        
+      </li>
+      
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<span id="id1"></span><h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>This section demonstrates the basic usage of Topwrap to generate IP wrappers and a top module.</p>
+<ol class="arabic simple">
+<li><p>Create <a class="reference internal" href="ipwrapper.html#IPWrapper" title="IPWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPWrapper</span></code></a> objects for every IP Core you want to use:</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ips</span><span class="p">:</span>
+  <span class="nt">dma</span><span class="p">:</span>
+    <span class="nt">file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ips/DMATop.yaml</span>
+    <span class="nt">module</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DMATop</span>
+  <span class="nt">disp</span><span class="p">:</span>
+    <span class="nt">file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ips/axi_dispctrl_v1_0.yaml</span>
+    <span class="nt">module</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">axi_dispctrl_v1_0</span>
+</pre></div>
+</div>
+<p><cite>file</cite> and <cite>module</cite> are mandatory fields providing the IP description and the name of the HDL module.
+You can optionally set parameter values for IP cores:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">axi_interconnect0</span><span class="p">:</span>
+  <span class="nt">file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">axi_interconnect.yaml</span>
+  <span class="nt">module</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">axi_interconnect</span>
+  <span class="nt">parameters</span><span class="p">:</span>
+    <span class="nt">S_COUNT</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">M_COUNT</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="nt">ADDR_WIDTH</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">32</span>
+    <span class="nt">DATA_WIDTH</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">32</span>
+    <span class="nt">ID_WIDTH</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">12</span>
+    <span class="nt">M_BASE_ADDR</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0x43c2000043c1000043c00000</span>
+    <span class="nt">M_ADDR_WIDTH</span><span class="p">:</span>
+        <span class="nt">value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0x100000001000000010</span>
+        <span class="nt">width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">96</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Connect desired ports of the IP cores:</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ports</span><span class="p">:</span>
+  <span class="nt">dma</span><span class="p">:</span>
+    <span class="nt">clock</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">some_other_ip</span><span class="p p-Indicator">,</span> <span class="nv">clk_out</span><span class="p p-Indicator">]</span>
+    <span class="nt">reset</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">reset_core</span><span class="p p-Indicator">,</span> <span class="nv">reset0</span><span class="p p-Indicator">]</span>
+  <span class="nt">axi_interconnect0</span><span class="p">:</span>
+    <span class="nt">clk</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">some_other_ip</span><span class="p p-Indicator">,</span> <span class="nv">clk_out</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Connect desired interfaces of the IP cores:</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">interfaces</span><span class="p">:</span>
+  <span class="nt">dma</span><span class="p">:</span>
+    <span class="nt">s_axi</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">axi_interconnect0</span><span class="p p-Indicator">,</span> <span class="nv">m_axi_0</span><span class="p p-Indicator">]</span>
+  <span class="nt">axi_interconnect0</span><span class="p">:</span>
+    <span class="nt">m_axi</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">some_other_ip</span><span class="p p-Indicator">,</span> <span class="s">&#39;s_axi&#39;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Specify external ports of the top module</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">external</span><span class="p">:</span>
+  <span class="nt">dma</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">io_irq_readerDone</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">io_irq_writerDone</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Create a Core file template for FuseSoC, or use a default one bundled with Topwrap.</p></li>
+</ol>
+<p>You may want to modify the file to add dependencies, source files, or change the target board.
+The file should be named <cite>core.yaml.j2</cite>. You can find an example template in <cite>examples/hdmi</cite> directory of the project.
+If you don’t create any template a default template bundled with Topwrap will be used (stored in <cite>templates</cite> directory).</p>
+<ol class="arabic" start="7">
+<li><p>Place any additional source files in a directory, which we will be calling <cite>sources</cite> here.</p></li>
+<li><p>Run Topwrap:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">fpga_topwrap</span> <span class="o">--</span><span class="n">design</span> <span class="n">project</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">sources</span> <span class="n">sources</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="section" id="example-pwm-design">
+<h2>Example PWM design<a class="headerlink" href="#example-pwm-design" title="Permalink to this headline">¶</a></h2>
+<p>There’s an example setup in <cite>examples/pwm</cite>.</p>
+<p>In order to generate the top module, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">generate</span>
+</pre></div>
+</div>
+<p>In order to generate bitstream, add Vivado to your path and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span>
+</pre></div>
+</div>
+<p>The FPGA design utilizes an AXI-mapped PWM IP Core.
+You can access its registers starting from address <code class="docutils literal notranslate"><span class="pre">0x4000000</span></code> (that’s the base address of <code class="docutils literal notranslate"><span class="pre">AXI_GP0</span></code> on ZYNQ).
+Each IP Core used in the project is declared in <code class="docutils literal notranslate"><span class="pre">ips</span></code> section in <code class="docutils literal notranslate"><span class="pre">project.yml</span></code> file.
+<code class="docutils literal notranslate"><span class="pre">ports</span></code> section allows to connect individual ports of IP Cores, and <code class="docutils literal notranslate"><span class="pre">interfaces</span></code> is used analogously for connecting whole interfaces.
+Finally, you can specify which ports will be used as external I/O in <code class="docutils literal notranslate"><span class="pre">external</span></code> section.</p>
+<p>To connect the I/O signals to specific FPGA pins, you need proper mappings in a constraints file. See <code class="docutils literal notranslate"><span class="pre">zynq.xdc</span></code> used in the setup and modify it accordingly.</p>
+<img alt="_images/pwm.png" src="_images/pwm.png" />
+</div>
+<div class="section" id="example-hdmi-design">
+<h2>Example HDMI design<a class="headerlink" href="#example-hdmi-design" title="Permalink to this headline">¶</a></h2>
+<p>There’s an example setup stored in <cite>examples/hdmi</cite>.</p>
+<p>You can generate bitstream for desired target:</p>
+<blockquote>
+<div><ul>
+<li><p>Snickerdoodle Black:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">snickerdoodle</span>
+</pre></div>
+</div>
+</li>
+<li><p>Zynq Video Board:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">zvb</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>If you wish to generate HDL sources without running Vivado, you can use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">generate</span>
+</pre></div>
+</div>
+<p>You can find more information in README of the example setup.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          
+
+
+
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cli.html" class="btn btn-neutral float-right" title="Command-line Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="design_description.html" class="btn btn-neutral float-left" title="Design Description" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Antmicro, 2021;
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Design Description &mdash; Topwrap  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting started" href="start.html" />
+    <link rel="prev" title="Interface Description files" href="iface_description.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Topwrap
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_description.html">IP description files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iface_description.html">Interface Description files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Design Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command-line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrapper_port.html">Wrapper Port</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipwrapper.html">IPWrapper class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipconnect.html">IPConnect class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fusesoc.html">FuseSoC</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+        <div class="wide-toggle">
+          <span class="wide-toggle-btn">
+            Toggle wide view
+          </span>
+        </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Topwrap</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Design Description</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/design_description.rst.txt" rel="nofollow"> View source</a>
+          
+        
+      </li>
+      
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="design-description">
+<h1>Design Description<a class="headerlink" href="#design-description" title="Permalink to this headline">¶</a></h1>
+<p>To create a complete, fully synthesizable design, a proper design file is needed.
+It’s used to specify to choose the IP cores for the project, set their parameters’ values,
+connect the IPs, and pick external ports (those which will be connected to physical I/O).</p>
+<p>The structure is as below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ips</span><span class="p">:</span>
+  <span class="p p-Indicator">{</span><span class="nv">ip_instance_name</span><span class="p p-Indicator">}:</span>
+    <span class="nt">file</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">path_to_yaml_file_of_the_ip</span><span class="p p-Indicator">}</span>
+    <span class="nt">module</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">name_of_the_HDL_module</span><span class="p p-Indicator">}</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="p p-Indicator">{</span><span class="nv">param_name</span><span class="p p-Indicator">}:</span> <span class="p p-Indicator">{</span><span class="nv">param_value</span><span class="p p-Indicator">}</span>
+  <span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">ports</span><span class="p">:</span> <span class="c1"># specify ip1:port1 &lt;-&gt; ip2:port2 connections here</span>
+  <span class="p p-Indicator">{</span><span class="nv">ip_instance_name</span><span class="p p-Indicator">}:</span>
+    <span class="p p-Indicator">{</span><span class="nv">port_name</span><span class="p p-Indicator">}</span> <span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="nv">ip_instance_name</span><span class="p p-Indicator">},</span> <span class="p p-Indicator">{</span><span class="nv">port_name</span><span class="p p-Indicator">}]</span>
+    <span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">interfaces</span><span class="p">:</span> <span class="c1"># specify ip1:iface1 &lt;-&gt; ip2:iface2 connections here</span>
+  <span class="p p-Indicator">{</span><span class="nv">ip_instance_name</span><span class="p p-Indicator">}:</span>
+    <span class="p p-Indicator">{</span><span class="nv">iface_name</span><span class="p p-Indicator">}</span> <span class="p p-Indicator">:</span> <span class="p p-Indicator">[{</span><span class="nv">ip_instance_name</span><span class="p p-Indicator">},</span> <span class="p p-Indicator">{</span><span class="nv">iface_name</span><span class="p p-Indicator">}]</span>
+    <span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">external</span><span class="p">:</span>
+  <span class="p p-Indicator">{</span><span class="nv">ip_instance_name</span><span class="p p-Indicator">}:</span>
+    <span class="p p-Indicator">-</span> <span class="p p-Indicator">{</span><span class="nv">port_name</span><span class="p p-Indicator">}</span>
+    <span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</div>
+<p>You can see an example design file in <cite>examples</cite> directory.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          
+
+
+
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="start.html" class="btn btn-neutral float-right" title="Getting started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="iface_description.html" class="btn btn-neutral float-left" title="Interface Description files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Antmicro, 2021;
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
