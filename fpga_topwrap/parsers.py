@@ -1,6 +1,6 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-from os import listdir, system
+from os import listdir
 from os.path import join, dirname
 from yaml import load, Loader
 
@@ -59,14 +59,6 @@ def parse_interface_definitions(dir_name=DIR):
             defs.append(load(f, Loader=Loader))
 
     return defs
-
-
-def verilog_to_json(verilog_filename, json_filename):
-    """Given filenames of Verilog source and JSON target,
-    use 'write_json' function of yosys
-    """
-    system(f'yosys -p "read_verilog {verilog_filename}" '
-           '-p "write_json {json_filename}"')
 
 
 def parse_port_map(filename: str):

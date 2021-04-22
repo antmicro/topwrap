@@ -219,6 +219,7 @@ class IPConnect(Elaboratable):
             target_file = open(path.join(build_dir, filename), 'w')
 
             fragment = Fragment.get(ip, None)
+            # FIXME create build_dir if doesn't exist
             output = verilog.convert(fragment, name=ip.top_name,
                                      ports=ip.get_ports())
             target_file.write(output)

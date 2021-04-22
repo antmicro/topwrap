@@ -1,0 +1,18 @@
+parameters:{% for name, value in parameters.items() %}
+  {{name}}: {{value}}{%endfor%}
+signals:
+  in:{% for port in ports['in'] %}  
+    - [{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{%endfor%}
+  out:{% for port in ports['out'] %}  
+    - [{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{%endfor%}
+  inout:{% for port in ports['inout'] %}  
+    - [{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{%endfor%}
+{% for iface_name, iface in interfaces.items() %}
+{{iface_name}}:
+  in:{% for port in iface['in'] %}
+    - [{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{%endfor%}
+  out:{% for port in iface['out'] %}
+    - [{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{%endfor%}
+  inout:{% for port in iface['inout'] %}  
+    - [{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{%endfor%}
+{%endfor%}

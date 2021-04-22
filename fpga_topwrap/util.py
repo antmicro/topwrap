@@ -1,6 +1,5 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-from itertools import groupby
 from .interface import get_interface_by_prefix
 
 
@@ -19,8 +18,7 @@ def check_interface_compliance(iface_def, signals):
     return True
 
 
-# functions used for handling ports desribed in attributes in Verilog sources
-# currently we use per-IP-instance yamls instead of the attrs
+# This might be no longer needed
 def match_interface(ports_matches):
     '''
     :param ports_matches: a list of pairs (port_name, signal_name), where
@@ -53,33 +51,3 @@ def match_interface(ports_matches):
                              f'signal in interface definition: {iface.name}')
 
     return {'name': iface.name, 'ports': ports_matches}
-
-
-def _group_by_instance(ports):
-    """
-    :param ports: iterable of pairs (signal, port) where signal is a standard
-    name of a signal in an interface
-    """
-    instances = [list(group) for _, group
-                 in groupby(ports, lambda x: x[1].split('_')[:2])]
-    return instances
-
-
-def interface_instances_from_module(module):
-    '''
-    :param module: yosys-retrieved data describing a module implemented in HDL
-    '''
-    # this is a full list of nets, including unmapped ports and unneeded values
-    netnames = module['netnames']
-    # filter only the ports that are mapped to an interface
-    mapped_ports = list(filter(lambda x: 'I' in x[1]['attributes'],
-                               netnames.items()))
-    # extract only port and signal names from the data
-    mapped_ports = [(x[0], x[1]['attributes']['I']) for x in mapped_ports]
-
-    # group ports by interface instance
-    # each group is a list of pairs (port_name, signal_name)
-    groupped = _group_by_instance(mapped_ports)
-    instances = [match_interface(group) for group in groupped]
-
-    return instances
