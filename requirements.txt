@@ -1,7 +1,7 @@
 PyYaml
 click
-nmigen-yosys
-edalize==0.2.3
-fusesoc==1.11.0
-git+https://github.com/nmigen/nmigen@db5a981f438df7ec4f7f5b2224b5f01a36d79a44
-wasmtime
+amaranth-yosys
+edalize==0.4.0
+fusesoc==1.12.0
+git+https://github.com/amaranth-lang/amaranth
+wasmtime==1.0.1
