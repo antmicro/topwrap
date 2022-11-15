@@ -142,9 +142,9 @@ class IPConnect(Elaboratable):
         return self._ports
 
     def _set_unconnected_ports(self):
-        """Create signals for unconnected ports to allow using them as external.
-        This is essential since ports that haven't been used have no signals
-        assigned to them.
+        """Create signals for unconnected ports to allow using them as
+        external. This is essential since ports that haven't been used have
+        no signals assigned to them.
         """
         for name, ip in self._ips.items():
             count = 0
