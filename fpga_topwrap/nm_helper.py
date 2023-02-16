@@ -1,11 +1,11 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-from nmigen import Signal
-from nmigen.hdl.rec import Direction, DIR_FANIN, DIR_FANOUT
+from amaranth import Signal
+from amaranth.hdl.rec import Direction, DIR_FANIN, DIR_FANOUT
 
 
 def port_direction_to_prefix(direction: Direction) -> str:
-    """Return a port prefix that is required by Instance class in nMigen,
+    """Return a port prefix that is required by Instance class in amaranth,
 
     :rtype: str
     """
@@ -29,7 +29,7 @@ class WrapperPort(Signal):
 
         :param name: a new name for the signal
         :param internal_name: name of the port to be wrapped/sliced
-        :param direction: one of nmigen.hdl.rec.Direction, e.g. DIR_FANOUT
+        :param direction: one of amaranth.hdl.rec.Direction, e.g. DIR_FANOUT
         '''
 
         super().__init__(shape=bounds[2]-bounds[3]+1, name=name)

@@ -1,7 +1,7 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-from nmigen import Fragment
-from nmigen.back import verilog
+from amaranth import Fragment
+from amaranth.back import verilog
 
 
 class TestIPConnect:
@@ -37,4 +37,4 @@ class TestIPConnect:
                                 'HSYNC_O', disp.top_name)
 
         fragment = Fragment.get(connector, None)
-        assert verilog.convert(fragment, name='top')
+        assert verilog.convert(fragment, name='top', ports=None)

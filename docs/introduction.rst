@@ -11,11 +11,11 @@ Top modules connect IPs and/or Wrappers by either ports` names or interfaces` na
 
 .. image:: ipconnect.png
 
-nMigen
+Amaranth
 ------
 
-Topwrap uses nMigen to generate HDLs. It's a toolbox for building complex digital hardware.
-See `nMigen Github <https://github.com/nmigen/nmigen>`_ for more information.
+Topwrap uses Amaranth to generate HDLs. It's a toolbox for building complex digital hardware.
+See `Amaranth Github <https://github.com/amaranth-lang/amaranth>`_ for more information.
 
 
 FuseSoC

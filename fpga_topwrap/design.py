@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from yaml import load, Loader
 from collections.abc import Mapping
-from nmigen.hdl.ast import Const
+from amaranth.hdl.ast import Const
 from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
 

@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import List
 from itertools import groupby
-from nmigen import Elaboratable, Module, Instance, Signal
-from nmigen.build import Platform
-from nmigen.hdl.rec import DIR_FANIN, DIR_FANOUT, DIR_NONE
-from nmigen.hdl.ast import Cat
+from amaranth import Elaboratable, Module, Instance, Signal
+from amaranth.build import Platform
+from amaranth.hdl.rec import DIR_FANIN, DIR_FANOUT, DIR_NONE
+from amaranth.hdl.ast import Cat
 from .parsers import parse_port_map
 from .nm_helper import WrapperPort, port_direction_to_prefix
 from .interface import get_interface_by_name

@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 from os import path
 from logging import warning, info, error
-from nmigen import Elaboratable, Module, Signal, Instance, Fragment
-from nmigen.hdl.ast import Const
-from nmigen.build import Platform
-from nmigen.back import verilog
+from amaranth import Elaboratable, Module, Signal, Instance, Fragment
+from amaranth.hdl.ast import Const
+from amaranth.build import Platform
+from amaranth.back import verilog
 from .ipwrapper import IPWrapper
 from .nm_helper import port_direction_to_prefix
 from .fuse_helper import FuseSocBuilder

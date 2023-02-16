@@ -1,7 +1,7 @@
 Wrapper Port
 ===============
 
-Class :class:`WrapperPort` is an extension to nMigen's :class:`Signal`.
+Class :class:`WrapperPort` is an extension to Amaranth's :class:`Signal`.
 It wraps a port, adding a new name and optionally slicing the signal.
 It adds these attributes:
 
@@ -28,4 +28,4 @@ This is used in :code:`IPWrapper` class implementation and there should be no ne
 
         :param name: a new name for the signal
         :param internal_name: name of the port to be wrapped/sliced
-        :param direction: one of :py:class:`nmigen.hdl.rec.Direction`, e.g. ``DIR_FANOUT``
+        :param direction: one of :py:class:`amaranth.hdl.rec.Direction`, e.g. ``DIR_FANOUT``
