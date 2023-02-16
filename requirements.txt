@@ -5,3 +5,4 @@ edalize==0.4.0
 fusesoc==1.12.0
 git+https://github.com/amaranth-lang/amaranth
 wasmtime==1.0.1
+numexpr
