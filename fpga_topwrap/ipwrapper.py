@@ -113,34 +113,21 @@ class IPWrapper(Elaboratable):
             # trim 'p_' in the beginning
             parameters[key[2:]] = value
 
+        signals_dirs = [
+            (ip_yaml['signals']['in'], DIR_FANIN),
+            (ip_yaml['signals']['out'], DIR_FANOUT),
+            (ip_yaml['signals']['inout'], DIR_NONE)
+        ]
+
         # generic signals that don't belong to any interface
-        for port_name, *bounds in ip_yaml['signals']['in']:
-            evaluated_bounds = _eval_bounds(bounds, parameters)
-            self._ports.append(
+        for signals, direction in signals_dirs:
+            for port_name, *bounds in signals:
+                evaluated_bounds = _eval_bounds(bounds, parameters)
+                self._ports.append(
                     WrapperPort(bounds=evaluated_bounds,
                                 name=port_name,
                                 internal_name=port_name,
-                                direction=DIR_FANIN,
-                                interface_name='None')
-                    )
-
-        for port_name, *bounds in ip_yaml['signals']['out']:
-            evaluated_bounds = _eval_bounds(bounds, parameters)
-            self._ports.append(
-                    WrapperPort(bounds=evaluated_bounds,
-                                name=port_name,
-                                internal_name=port_name,
-                                direction=DIR_FANOUT,
-                                interface_name='None')
-                    )
-
-        for port_name, *bounds in ip_yaml['signals']['inout']:
-            evaluated_bounds = _eval_bounds(bounds, parameters)
-            self._ports.append(
-                    WrapperPort(bounds=evaluated_bounds,
-                                name=port_name,
-                                internal_name=port_name,
-                                direction=DIR_NONE,
+                                direction=direction,
                                 interface_name='None')
                     )
 
@@ -149,10 +136,7 @@ class IPWrapper(Elaboratable):
         del ip_yaml['signals']
 
         for iface_name in ip_yaml.keys():
-            signals = ip_yaml[iface_name]['signals']
-            ins = signals['in'].items()
-            outs = signals['out'].items()
-            inouts = signals['inout'].items()
+            iface_signals = ip_yaml[iface_name]['signals']
             iface_def_name = ip_yaml[iface_name]['interface']
             iface_def = get_interface_by_name(iface_def_name)
 
@@ -161,44 +145,29 @@ class IPWrapper(Elaboratable):
                     raise ValueError('No such interface definition: '
                                      f'{iface_def_name}')
 
-                if not check_interface_compliance(iface_def, signals):
+                if not check_interface_compliance(iface_def, iface_signals):
                     raise ValueError(f'Interface: {iface_name} is not '
                                      'compliant with interface definition: '
                                      f'{iface_def_name}')
 
+            signals_dirs = [
+                (iface_signals['in'].items(), DIR_FANIN),
+                (iface_signals['out'].items(), DIR_FANOUT),
+                (iface_signals['inout'].items(), DIR_NONE)
+            ]
+           
             # sig_name is the name of the signal e.g. TREADY
-            for sig_name, (port_name, *bounds) in ins:
-                external_full_name = iface_name + '_' + sig_name
-                evaluated_bounds = _eval_bounds(bounds, parameters)
-                self._ports.append(
-                        WrapperPort(bounds=evaluated_bounds,
-                                    name=external_full_name,
-                                    internal_name=port_name,
-                                    direction=DIR_FANIN,
-                                    interface_name=iface_name)
-                        )
-
-            for sig_name, (port_name, *bounds) in outs:
-                external_full_name = iface_name + '_' + sig_name
-                evaluated_bounds = _eval_bounds(bounds, parameters)
-                self._ports.append(
-                        WrapperPort(bounds=evaluated_bounds,
-                                    name=external_full_name,
-                                    internal_name=port_name,
-                                    direction=DIR_FANOUT,
-                                    interface_name=iface_name)
-                        )
-
-            for sig_name, (port_name, *bounds) in inouts:
-                external_full_name = iface_name + '_' + sig_name
-                evaluated_bounds = _eval_bounds(bounds, parameters)
-                self._ports.append(
-                        WrapperPort(bounds=evaluated_bounds,
-                                    name=external_full_name,
-                                    internal_name=port_name,
-                                    direction=DIR_NONE,
-                                    interface_name=iface_name)
-                        )
+            for signals, direction in signals_dirs:
+                for sig_name, (port_name, *bounds) in signals:
+                    external_full_name = iface_name + '_' + sig_name
+                    evaluated_bounds = _eval_bounds(bounds, parameters)
+                    self._ports.append(
+                            WrapperPort(bounds=evaluated_bounds,
+                                        name=external_full_name,
+                                        internal_name=port_name,
+                                        direction=direction,
+                                        interface_name=iface_name)
+                            )
 
         # create an attribute for each WrapperPort
         for port in self._ports:
