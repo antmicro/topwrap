@@ -27,8 +27,8 @@ def _group_by_internal_name(ports: List[WrapperPort]):
 
 
 def _evaluate_parameters(params: dict):
-    """Evaluate parameters values: 
-    * evaluate params, which values depend on another params 
+    """Evaluate parameters values:
+    * evaluate params, which values depend on another params
     (e.g. 'param1': 'param2'/2)
     * replace params with 'value' and 'width' with a Const object
     having that specific value and width
@@ -38,7 +38,7 @@ def _evaluate_parameters(params: dict):
         is replaced with:
         'param1': Const(10, shape=(8))
 
-    :param params: dict of {'name': val} where val is either a number, string 
+    :param params: dict of {'name': val} where val is either a number, string
     value, or a dict of {'value': v, 'width': w}, with value `v` of width `w`
     """
     for name in params.keys():
@@ -155,7 +155,7 @@ class IPWrapper(Elaboratable):
                 (iface_signals['out'].items(), DIR_FANOUT),
                 (iface_signals['inout'].items(), DIR_NONE)
             ]
-           
+
             # sig_name is the name of the signal e.g. TREADY
             for signals, direction in signals_dirs:
                 for sig_name, (port_name, *bounds) in signals:
