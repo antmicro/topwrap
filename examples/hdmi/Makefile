@@ -5,8 +5,11 @@ all: zvb
 build:
 	mkdir build
 
+parse:
+	fpga_topwrap parse --iface-deduce sources/clock_crossing.v sources/ps7.v
+
 generate: build
-	fpga_topwrap --design project.yml --sources sources
+	fpga_topwrap build --design project.yml --sources sources
 
 copy_sources: build
 	cp -rf sources/ build/
@@ -21,6 +24,7 @@ zvb: generate copy_sources
 	fusesoc --cores-root build run --build --target zynq_video_board project_1
 
 clean:
+	rm -f sources/*.json gen_*.yml
 	rm -rf build/*
 
 .PHONY: clean copy_sources generate copy_sources snickerdoodle zvb

@@ -122,7 +122,7 @@ module ps7_inst (
     assign IRQF2P[0] = IRQ_F2P_0;
     assign IRQF2P[1] = IRQ_F2P_1;
 
-    PS7 (
+    PS7 ps7 (
     .DDRA                     (ddr_addr),
     .DDRBA                    (ddr_bankaddr),
     .DDRCASB                  (ddr_cas_n),
