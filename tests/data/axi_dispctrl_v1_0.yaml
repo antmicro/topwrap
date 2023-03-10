@@ -1,16 +1,21 @@
+parameters:
+  C_S_AXIS_TDATA_WIDTH: 32
+  C_S00_AXI_DATA_WIDTH: 32
+  C_S00_AXI_ADDR_WIDTH: 7
+
 AXI_s0:
     interface: AXI
     mode: slave
     signals:
         in:
-            AWADDR: [s00_axi_awaddr, 6, 0]
+            AWADDR: [s00_axi_awaddr, C_S00_AXI_ADDR_WIDTH-1, 0]
             AWPROT: [s00_axi_awprot, 2, 0]
             AWVALID: s00_axi_awvalid
-            WDATA: [s00_axi_wdata, 31, 0]
-            WSTRB: [s00_axi_wstrb, 3, 0]
+            WDATA: [s00_axi_wdata, C_S00_AXI_DATA_WIDTH-1, 0]
+            WSTRB: [s00_axi_wstrb, (C_S00_AXI_DATA_WIDTH/8)-1, 0]
             WVALID: s00_axi_wvalid
             BREADY: s00_axi_bready
-            ARADDR: [s00_axi_araddr, 6, 0]
+            ARADDR: [s00_axi_araddr, C_S00_AXI_ADDR_WIDTH-1, 0]
             ARPROT: [s00_axi_arprot, 2, 0]
             ARVALID: s00_axi_arvalid
             RREADY: s00_axi_rready
@@ -20,7 +25,7 @@ AXI_s0:
             BRESP: [s00_axi_bresp, 1, 0]
             BVALID: s00_axi_bvalid
             ARREADY: s00_axi_arready
-            RDATA: [s00_axi_rdata, 31, 0]
+            RDATA: [s00_axi_rdata, C_S00_AXI_DATA_WIDTH-1, 0]
             RRESP: [s00_axi_rresp, 1, 0]
             RVALID: s00_axi_rvalid
 
@@ -30,7 +35,7 @@ AXIS_s0:
     signals:
         in:
             TVALID: S_AXIS_TVALID
-            TDATA: [S_AXIS_TDATA, 31, 0]
+            TDATA: [S_AXIS_TDATA, C_S_AXIS_TDATA_WIDTH-1, 0]
             TLAST: S_AXIS_TLAST
             TUSER: S_AXIS_TUSER
         out:
@@ -47,7 +52,7 @@ signals:
         - HSYNC_O
         - VSYNC_O
         - DE_O
-        - [DATA_O, 31, 0]
+        - [DATA_O, C_S_AXIS_TDATA_WIDTH-1, 0]
         - [CTL_O, 3, 0]
         - VGUARD_O
         - DGUARD_O
