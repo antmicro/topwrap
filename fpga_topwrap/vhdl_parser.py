@@ -43,7 +43,8 @@ def ipcore_desc_from_vhdl(vhdl_file, iface_names, iface_deduce):
     }
 
     for port_name in ports.keys():
-        if ports[port_name]['bounds'] == 'std_logic':
+        if ports[port_name]['bounds'] == 'std_logic' or \
+          ports[port_name]['bounds'] == 'std_ulogic':
             ports[port_name]['bounds'] = (0, 0)
         else:
             resolved_ops = resolve_ops(ports[port_name]['bounds'], params)
