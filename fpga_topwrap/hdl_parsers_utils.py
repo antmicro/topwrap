@@ -129,7 +129,7 @@ def resolve_ops(val, params: dict):
                 val['ops'][1]['__class__'] == 'str' and \
                     val['ops'][1]['val'] is None:
                 # corner case - this happens in Verilog's output/input reg
-                return '0:0'
+                return '(0:0)'
             return resolve_ops(val['ops'][1], params)
 
         elif val['fn'] == 'INDEX':
