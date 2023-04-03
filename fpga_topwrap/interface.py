@@ -31,7 +31,10 @@ interface_definitions = [InterfaceDef(x['name'],
 
 
 def get_interface_by_name(name: str):
-    '''Retrieve a predefined interface definition by its name'''
+    '''Retrieve a predefined interface definition by its name
+    
+    :return: `InterfaceDef` object, or `None` if there's no such interface
+    '''
     for definition in interface_definitions:
         if definition.name == name:
             return definition
@@ -39,7 +42,10 @@ def get_interface_by_name(name: str):
 
 
 def get_interface_by_prefix(prefix: str):
-    '''Retrieve a predefined interface definition by its prefix'''
+    '''Retrieve a predefined interface definition by its prefix
+    
+    :return: `InterfaceDef` object, or `None` if there's no such interface
+    '''
     for definition in interface_definitions:
         if definition.prefix == prefix:
             return definition

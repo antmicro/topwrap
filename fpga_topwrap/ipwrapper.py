@@ -221,6 +221,7 @@ class IPWrapper(Elaboratable):
     def set_parameters(self, params: dict):
         """Set parameters defined in HDL source file
             (for example `generic` in VHDL)
+
         :param params: the names and values of the parameters,
             a dict of {p_name: p_value}
         """

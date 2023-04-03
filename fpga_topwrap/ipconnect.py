@@ -162,7 +162,7 @@ class IPConnect(Elaboratable):
         """Set a constant value on a port of an IP
 
         :param ip_name: name of the IP
-        :param port_name: name of the port of the IP
+        :param ip_port: name of the port of the IP
         :param target: int value to be assigned
         :raises ValueError: if such IP doesn't exist
         """

@@ -5,6 +5,8 @@ from .interface import get_interface_by_prefix
 
 def check_interface_compliance(iface_def, signals):
     """Check if list of signal names matches the names in interface definition
+
+    :return: bool
     """
     required = iface_def.signals['required']
     optional = iface_def.signals['optional']
