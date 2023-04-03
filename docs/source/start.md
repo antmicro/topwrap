@@ -103,7 +103,7 @@ Finally, you can specify which ports will be used as external I/O in `external` 
 
 To connect the I/O signals to specific FPGA pins, you need proper mappings in a constraints file. See `zynq.xdc` used in the setup and modify it accordingly.
 
-```{image} pwm.png
+```{image} img/pwm.png
 ```
 
 ## Example HDMI design

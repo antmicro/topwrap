@@ -4,12 +4,12 @@ Topwrap is a generator for HDL wrappers and top modules.
 
 Wrappers are used to standardize names of ports that belong to an interfaces (e.g. UART, AXI etc.)
 
-```{image} wrapper.png
+```{image} img/wrapper.png
 ```
 
 Top modules connect IPs and/or Wrappers by either ports\` names or interfaces\` names to ease connecting multi-wire interfaces without the need to connect each wire separately.
 
-```{image} ipconnect.png
+```{image} img/ipconnect.png
 ```
 
 ## Amaranth
