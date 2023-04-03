@@ -60,7 +60,7 @@ signals: # These ports don't belong to any interface
 Names `s_axis` and `m_axis` will be used to group the selected ports.
 Each signal in an interface has a name which must match with the signal it's supposed to be connected to, for example `TDATA: port_name` will be connected to `TDATA: other_port_name`.
 
-Note that you don't have to write IP core description yamls by hand. You can use Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <_generating_ip_yamls>`) in order to generate yamls from HDL source files and then adjust the yaml to your needs.
+Note that you don't have to write IP core description yamls by hand. You can use Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <generating-ip-yamls>`) in order to generate yamls from HDL source files and then adjust the yaml to your needs.
 
 ## Port widths
 
@@ -85,7 +85,7 @@ signals:
 ## Parameterization
 
 Port widths don't have to be hardcoded - you can use parameters to describe an IP core in a generic way.
-Values specified in IP core yamls can be overriden in a design description file (see {ref}`Design Description <_design_description>`).
+Values specified in IP core yamls can be overriden in a design description file (see {ref}`Design Description <design-description>`).
 
 ```yaml
 parameters:

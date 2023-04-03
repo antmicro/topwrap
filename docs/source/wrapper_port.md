@@ -12,7 +12,7 @@ WrapperPort.bounds            # range of bits that belong to the port
                               # and range which is sliced from the port
 ```
 
-See {ref}`Port slicing <port_slicing>` to know more about `bounds`.
+See {ref}`Port slicing <port-slicing>` to know more about `bounds`.
 
 This is used in {code}`IPWrapper` class implementation and there should be no need to use {class}`WrapperPort` individually.
 
