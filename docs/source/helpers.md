@@ -1,8 +1,8 @@
-Helpers
-=======
+# Helpers
 
+```{eval-rst}
 .. py:class:: InterfaceDef
-    
+
     Representation of a predefined interface.
 
     .. py:method:: __init__(self, name, prefix, signals)
@@ -12,19 +12,25 @@ Helpers
         :param signals: lists of names of required and optional signals in a dict
         :type signals: ``{'required': [str], 'optional': [str]}``
 
+```
 
+```{eval-rst}
 .. py:function:: get_interface_by_name(name: str)
 
     Retrieve a predefined interface definition by its name
 
     :returns: ``InterfaceDef`` object, or ``None`` if there's no such interface
+```
 
+```{eval-rst}
 .. py:function:: get_interface_by_prefix(prefix: str)
 
     Retrieve a predefined interface definition by its prefix
 
     :returns: ``InterfaceDef`` object, or ``None`` if there's no such interface
+```
 
+```{eval-rst}
 .. py:class:: Config
 
     Configuration class used to store global choices for behavior of Topwrap.
@@ -41,9 +47,12 @@ Helpers
         config.force_interface_compliance = False
 
 
+```
 
+```{eval-rst}
 .. py:function:: check_interface_compliance(iface_def, signals)
 
     Check if list of signal names matches the names in interface definition
 
     :returns: bool
+```
