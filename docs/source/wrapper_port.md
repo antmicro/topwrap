@@ -19,5 +19,7 @@ This is used in {code}`IPWrapper` class implementation and there should be no ne
 ```{eval-rst}
 .. autoclass:: fpga_topwrap.nm_helper.WrapperPort
    :members:
+
+   .. automethod:: __init__
 ```
 

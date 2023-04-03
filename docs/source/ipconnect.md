@@ -21,4 +21,6 @@ For a wider example of using the {class}`IPConnect` see {ref}`Getting Started <g
 ```{eval-rst}
 .. autoclass:: fpga_topwrap.ipconnect.IPConnect
    :members:
+
+   .. automethod:: __init__
 ```

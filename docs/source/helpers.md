@@ -3,6 +3,8 @@
 ```{eval-rst}
 .. autoclass:: fpga_topwrap.interface.InterfaceDef
    :members:
+
+   .. automethod:: __init__
 ```
 
 ```{eval-rst}
@@ -16,6 +18,8 @@
 ```{eval-rst}
 .. autoclass:: fpga_topwrap.config.Config
    :members:
+
+   .. automethod:: __init__
 ```
 
 ```{eval-rst}

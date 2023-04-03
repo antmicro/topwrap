@@ -6,5 +6,7 @@ It's used to standardize names of ports that belong to interfaces to ease connec
 ```{eval-rst}
 .. autoclass:: fpga_topwrap.ipwrapper.IPWrapper
    :members:
+
+   .. automethod:: __init__
 ```
 
