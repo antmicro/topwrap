@@ -2,6 +2,32 @@
 
 # Getting started
 
+## Installation
+
+1. Get `python3` with your package manager
+
+2. Install base requirements:
+
+   ```
+   pip3 install -r requirements.txt
+   ```
+
+3. Build the Topwrap package:
+
+   ```
+   python3 setup.py build
+   ```
+
+4. Install the Topwrap package:
+
+   ```
+   sudo python3 setup.py install
+   ```
+
+(example-usage)=
+
+## Example usage
+
 This section demonstrates the basic usage of Topwrap to generate IP wrappers and a top module.
 
 1. Create {class}`IPWrapper` objects for every IP Core you want to use:
@@ -79,7 +105,7 @@ If you don't create any template a default template bundled with Topwrap will be
    python -m fpga_topwrap build --design project.yml --sources sources
    ```
 
-## Example PWM design
+### Example PWM design
 
 There's an example setup in `examples/pwm`.
 
@@ -106,7 +132,7 @@ To connect the I/O signals to specific FPGA pins, you need proper mappings in a 
 ```{image} img/pwm.png
 ```
 
-## Example HDMI design
+### Example HDMI design
 
 There's an example setup stored in `examples/hdmi`.
 

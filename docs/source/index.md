@@ -5,11 +5,9 @@
 
 introduction
 
-install
+getting_started
 
 description_files
-
-start
 
 cli
 
