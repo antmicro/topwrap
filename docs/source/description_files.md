@@ -1,6 +1,47 @@
+(description-files)=
+
+# Description files
+
+(design-description)=
+
+## Design Description
+
+To create a complete, fully synthesizable design, a proper design file is needed.
+It's used to specify to choose the IP cores for the project, set their parameters' values,
+connect the IPs, and pick external ports (those which will be connected to physical I/O).
+
+The structure is as below:
+
+```yaml
+ips:
+  {ip_instance_name}:
+    file: {path_to_yaml_file_of_the_ip}
+    module: {name_of_the_HDL_module}
+    parameters:
+      {param_name}: {param_value}
+  ...
+
+ports: # specify ip1:port1 <-> ip2:port2 connections here
+  {ip_instance_name}:
+    {port_name} : [{ip_instance_name}, {port_name}]
+    ...
+
+interfaces: # specify ip1:iface1 <-> ip2:iface2 connections here
+  {ip_instance_name}:
+    {iface_name} : [{ip_instance_name}, {iface_name}]
+    ...
+
+external:
+  {ip_instance_name}:
+    - {port_name}
+    ...
+```
+
+You can see an example design file in `examples` directory.
+
 (ip-description)=
 
-# IP description files
+## IP description files
 
 Every IP wrapped by Topwrap needs a description file in YAML format.
 
@@ -62,7 +103,7 @@ Each signal in an interface has a name which must match with the signal it's sup
 
 Note that you don't have to write IP core description yamls by hand. You can use Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <generating-ip-yamls>`) in order to generate yamls from HDL source files and then adjust the yaml to your needs.
 
-## Port widths
+### Port widths
 
 The width of every port defaults to `1`.
 You can specify the width using this notation:
@@ -82,7 +123,7 @@ signals:
         - [gpio_io_i, 31, 0] # 32 bits
 ```
 
-## Parameterization
+### Parameterization
 
 Port widths don't have to be hardcoded - you can use parameters to describe an IP core in a generic way.
 Values specified in IP core yamls can be overriden in a design description file (see {ref}`Design Description <design-description>`).
@@ -112,7 +153,7 @@ Parameters values can be integers or math expressions, which are evaluated using
 
 (port-slicing)=
 
-## Port slicing
+### Port slicing
 
 You can also slice a port, to use some bits of the port as a signal that belongs to an interface.
 The example below means:
@@ -127,3 +168,33 @@ m_axi_1:
         in:
             BID: [m_axi_bid, 35, 0, 23, 12]
 ```
+
+(interface-description-files)=
+
+## Interface Description files
+
+Topwrap can use predefined interfaces which are descibed in YAML-formatted files.
+The interfaces you use don't have to be predefined, but it's possible to perform checks
+on whether all the mandatory signals are connected, when you use an interface definition.
+
+You can see an example file below:
+
+```yaml
+name: AXI4Stream
+port_prefix: AXIS
+signals:
+    required:
+        - TVALID
+        - TDATA
+        - TLAST
+        - TREADY
+    optional:
+        - TID
+        - TDEST
+        - TKEEP
+        - TSTRB
+        - TUSER
+```
+
+The name of an interface has to be unique. We also specify a prefix which will be used as a shortened identifier.
+

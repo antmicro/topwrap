@@ -7,11 +7,7 @@ introduction
 
 install
 
-ip_description
-
-iface_description
-
-design_description
+description_files
 
 start
 
