@@ -3,7 +3,7 @@
 import click
 from logging import warning
 from .design import build_design
-from .verilog_parser import parse_verilog_sources
+from .verilog_parser import VerilogModule, ipcore_desc_from_verilog_module
 from .vhdl_parser import parse_vhdl_sources
 from .config import config
 
@@ -35,15 +35,19 @@ def build_main(sources, design, part, iface_compliance):
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")
+@click.option('--use-yosys', default=False, is_flag=True,
+              help='Use yosys\'s read_verilog_feature to parse Verilog files')
 @click.option('--iface-deduce', default=False, is_flag=True,
               help='Try to group port into interfaces automatically')
 @click.option('--iface', '-i', multiple=True,
               help='Interface name, that ports will be grouped into')
 @click.argument('files', type=click_file, nargs=-1)
-def parse_main(iface_deduce, iface, files):
-    parse_verilog_sources(
-        list(filter(lambda name: name[-2:] == ".v", files)),
-        iface, iface_deduce)
+def parse_main(use_yosys, iface_deduce, iface, files):
+    for filename in list(filter(lambda name: name[-2:] == ".v", files)):
+        verilog_mod = VerilogModule(filename)
+        ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, use_yosys, iface_deduce, iface)
+        ipcore_desc.save('gen_' + ipcore_desc.name + '.yaml')
+    
     parse_vhdl_sources(list(filter(
         lambda name: name[-4:] == ".vhd" or name[-5:] == ".vhdl", files)),
         iface, iface_deduce)

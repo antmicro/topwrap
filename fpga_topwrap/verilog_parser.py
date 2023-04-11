@@ -11,63 +11,73 @@ from .hdl_parsers_utils import resolve_ops, group_ports_by_dir
 from .hdl_parsers_interfaces import InterfaceGrouper, group_ports_to_ifaces
 
 
-def ipcore_desc_from_verilog(verilog_file, ifaces_names, iface_deduce):
-    ''' Creates IPCoreDescription object using data gathered from Verilog
-    '''
+class VerilogModule:
+    """ This class contains data describing a single Verilog module.
+    The verilog file, from which the data is collected is parsed
+    using HdlConvertor.
+    """
+    def __init__(self, verilog_file: str):
+        self.filename = verilog_file
+        c = HdlConvertor()
+        d = c.parse([self.filename], Language.VERILOG, [],
+                    hierarchyOnly=False, debug=True)
+        
+        try:
+            self.__data = ToJson().visit_HdlContext(d)[0]
 
-    # gather data from HDL
-    c = HdlConvertor()
-    d = c.parse([verilog_file], Language.VERILOG, [],
-                hierarchyOnly=False, debug=True)
+        except KeyError:
+            raise
+        except IndexError:
+            error(f'No module found in {self.filename}!')
 
-    try:
-        data = ToJson().visit_HdlContext(d)[0]
-        name = data['module_name']
-        dec = data['dec']
+    def get_module_name(self):
+        return self.__data['module_name']
+    
+    def get_parameters(self):
+        params = {}
+        for item in self.__data['dec']['params']:
+            param_val = resolve_ops(item['value'], params)
+            if param_val is not None:
+                params[item['name']['val']] = param_val
+        return params
 
-    except KeyError:
-        raise
-    except IndexError:
-        error(f'No module found in {verilog_file}!')  # TODO
-
-    params = {}
-    for item in dec['params']:
-        param_val = resolve_ops(item['value'], params)
-        if param_val is not None:
-            params[item['name']['val']] = param_val
-
-    ports = {
-        item['name']['val']: {
-            'direction': item['direction'],
-            'bounds': item['type']
+    def get_ports(self):
+        ports = {
+            item['name']['val']: {
+                'direction': item['direction'],
+                'bounds': item['type']
+            }
+            for item in self.__data['dec']['ports']
         }
-        for item in dec['ports']
-    }
 
-    for port_name in ports.keys():
-        # 1-bit wide ports:
-        # '(in|out)put port_name' or '(in|out)put wire port_name'
-        if ports[port_name]['bounds'] == 'wire' or \
-          ports[port_name]['bounds']['__class__'] == 'HdlTypeAuto':
-            ports[port_name]['bounds'] = ('0', '0')
-        else:
-            resolved_ops = resolve_ops(ports[port_name]['bounds'], params)
-            if resolved_ops is not None:
-                ids = resolved_ops[1:-1].split(':') + ['0']
-                ports[port_name]['bounds'] = (ids[0], ids[1])
-
-    iface_grouper = InterfaceGrouper(ports, verilog_file)
-    iface_mappings = iface_grouper.get_interface_mappings(True, iface_deduce, ifaces_names)
-
-    ports_by_dir = group_ports_by_dir(ports)
-
-    ifaces = group_ports_to_ifaces(iface_mappings, ports_by_dir)
-
-    return IPCoreDescription(name, params, ports_by_dir, ifaces)
+        for port_name in ports.keys():
+            # 1-bit wide ports:
+            # '(in|out)put port_name' or '(in|out)put wire port_name'
+            if ports[port_name]['bounds'] == 'wire' or \
+            ports[port_name]['bounds']['__class__'] == 'HdlTypeAuto':
+                ports[port_name]['bounds'] = ('0', '0')
+            else:
+                resolved_ops = resolve_ops(ports[port_name]['bounds'], self.get_parameters())
+                if resolved_ops is not None:
+                    ids = resolved_ops[1:-1].split(':') + ['0']
+                    ports[port_name]['bounds'] = (ids[0], ids[1])
+        return ports
 
 
-def parse_verilog_sources(sources, iface_names, iface_deduce):
-    for verilog_file in sources:
-        ip_desc = ipcore_desc_from_verilog(
-            verilog_file, iface_names, iface_deduce)
-        ip_desc.save('gen_' + ip_desc.name + '.yml')
+def ipcore_desc_from_verilog_module(
+    verilog_mod: VerilogModule,
+    use_yosys: bool,
+    iface_deduce: bool,
+    ifaces_names: tuple) -> IPCoreDescription:
+
+    mod_name = verilog_mod.get_module_name()
+    parameters = verilog_mod.get_parameters()
+    ports = verilog_mod.get_ports()
+    
+    ports_by_direction = group_ports_by_dir(ports)
+    
+    iface_grouper = InterfaceGrouper(ports, verilog_mod.filename)
+    iface_mappings = iface_grouper.get_interface_mappings(use_yosys, iface_deduce, ifaces_names)
+    ifaces = group_ports_to_ifaces(iface_mappings, ports_by_direction)
+
+    return IPCoreDescription(mod_name, parameters, ports_by_direction, ifaces)
