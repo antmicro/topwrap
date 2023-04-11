@@ -47,10 +47,10 @@ def parse_main(use_yosys, iface_deduce, iface, files):
     for filename in list(filter(lambda name: name[-2:] == ".v", files)):
         verilog_mod = VerilogModule(filename)
         iface_grouper = InterfaceGrouper(use_yosys, iface_deduce, iface)
-        ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, iface_grouper)
+        ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, iface_grouper) # noqa
         ipcore_desc.save('gen_' + ipcore_desc.name + '.yaml')
 
-    for filename in list(filter(lambda name: name[-4:] == ".vhd" or name[-5:] == ".vhdl", files)):
+    for filename in list(filter(lambda name: name[-4:] == ".vhd" or name[-5:] == ".vhdl", files)): # noqa
         vhdl_mod = VHDLModule(filename)
         iface_grouper = InterfaceGrouper(False, iface_deduce, iface)
         ipcore_desc = ipcore_desc_from_vhdl_module(vhdl_mod, iface_grouper)

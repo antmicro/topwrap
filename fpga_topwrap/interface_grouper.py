@@ -6,24 +6,27 @@ import subprocess
 
 
 class InterfaceGrouper:
-    """ This class provides a possibility to group ports of a specific HDL file 
+    """ This class provides a possibility to group ports of a specific HDL file
     into different interfaces (e.g AXI, AXILite...).
     """
 
-    def __init__(self, use_yosys: bool, iface_deduce: bool, ifaces_names: tuple):
-        """ Set configuration variables which determine, how to perform the grouping.
+    def __init__(self,
+                 use_yosys: bool,
+                 iface_deduce: bool,
+                 ifaces_names: tuple):
+        """ Set config variables which determine, how to perform grouping.
         """
         self.use_yosys = use_yosys
         self.iface_deduce = iface_deduce
         self.ifaces_names = ifaces_names
-
 
     def __find_common_prefix(self, ports: list):
         ''' Find a prefix that is the most common among ports names.
 
         :param ports: sorted list of ports names
 
-        :return: (prefix, i, j) i - first, j - last index where the prefix occurs
+        :return: (prefix, i, j) prefix, first and last index where the
+            prefix occurs
         '''
         # longest common prefix function
         def _lcp(str1: str, str2: str):
@@ -32,8 +35,8 @@ class InterfaceGrouper:
                     break
             return str1[:i]
 
-        # simple heuristic that is used to prefer less names with longer prefixes
-        # than more names with shorter prefixes
+        # simple heuristic that is used to prefer less names with
+        # longer prefixes than more names with shorter prefixes
         def _heuristic(pref_len: int, count: int):
             return pref_len * pref_len * count
 
@@ -42,7 +45,8 @@ class InterfaceGrouper:
             lcp_prev[i] = len(_lcp(ports[i], ports[i-1]))
 
         # dp_mins[i][j] - minimal value of lcp_prev[i:j+1]
-        dp_mins = [[0 for _ in range(len(lcp_prev))] for _ in range(len(lcp_prev))]
+        dp_mins = [[0 for _ in range(len(lcp_prev))]
+                   for _ in range(len(lcp_prev))]
         for i in range(len(lcp_prev)):
             for j in range(i, len(lcp_prev)):
                 if i == j:
@@ -61,7 +65,6 @@ class InterfaceGrouper:
                     best_i, best_j = i, j
                     best_heur, best_prefix = heur, ports[i][:dp_mins[i][j]]
         return (best_prefix.rstrip("_"), best_i - 1, best_j)
-    
 
     def __create_interface_mappings(self, ifaces_names, ports):
         ''' Try to create interface mappings by matching given interfaces names
@@ -87,7 +90,6 @@ class InterfaceGrouper:
 
         return iface_mappings
 
-
     def __deduce_interface_mappings(self, ports):
         ''' Try to deduce names of interfaces by looking at ports prefixes
         '''
@@ -102,7 +104,6 @@ class InterfaceGrouper:
             (prefix, i, j) = self.__find_common_prefix(ports_sorted)
 
         return self.__create_interface_mappings(ifaces_names, ports)
-    
 
     def __interface_mapping_from_yosys(self, hdl_file: str):
         """ returns a dict
@@ -110,7 +111,7 @@ class InterfaceGrouper:
         """
         json_file = hdl_file + '.json'
         subprocess.check_output(f'yosys -p "read_verilog {hdl_file}" '
-                            f'-p "write_json {json_file}"', shell=True)
+                                f'-p "write_json {json_file}"', shell=True)
 
         modules = {}
         contents = []
@@ -136,7 +137,6 @@ class InterfaceGrouper:
 
         return interfaces
 
-
     def get_interface_mappings(self, hdl_file: str, ports: dict):
         iface_mappings = {}
         if self.use_yosys:
@@ -144,6 +144,6 @@ class InterfaceGrouper:
         elif self.iface_deduce:
             iface_mappings = self.__deduce_interface_mappings(ports)
         elif self.ifaces_names:
-            iface_mappings = self.__create_interface_mappings(self.ifaces_names, ports)
+            iface_mappings = self.__create_interface_mappings(
+                self.ifaces_names, ports)
         return iface_mappings
-
