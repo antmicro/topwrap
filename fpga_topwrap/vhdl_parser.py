@@ -6,11 +6,10 @@ from hdlConvertorAst.to.json import ToJson
 from hdlConvertor import HdlConvertor
 from .ip_desc import IPCoreDescription
 from .hdl_parsers_utils import resolve_ops, group_ports_by_dir
-from .hdl_parsers_interfaces import \
-    deduce_interface_mappings, group_ports_to_ifaces, create_interface_mappings
+from .hdl_parsers_interfaces import InterfaceGrouper, group_ports_to_ifaces
 
 
-def ipcore_desc_from_vhdl(vhdl_file, iface_names, iface_deduce):
+def ipcore_desc_from_vhdl(vhdl_file, ifaces_names, iface_deduce):
     ''' Creates IPCoreDescription object using data gathered from VHDL
     '''
     # gather data from HDL
@@ -52,11 +51,8 @@ def ipcore_desc_from_vhdl(vhdl_file, iface_names, iface_deduce):
                 ids = resolved_ops[1:-1].split(':') + ['0']
                 ports[port_name]['bounds'] = (ids[0], ids[1])
 
-    iface_mappings = {}
-    if iface_deduce:
-        iface_mappings = deduce_interface_mappings(ports)
-    elif iface_names:
-        iface_mappings = create_interface_mappings(ports, iface_names)
+    iface_grouper = InterfaceGrouper(ports, vhdl_file)
+    iface_mappings = iface_grouper.get_interface_mappings(False, iface_deduce, ifaces_names)
 
     ports_by_dir = group_ports_by_dir(ports)
 
