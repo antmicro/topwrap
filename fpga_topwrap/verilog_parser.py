@@ -7,8 +7,8 @@ from hdlConvertorAst.language import Language
 from hdlConvertorAst.to.json import ToJson
 from hdlConvertor import HdlConvertor
 from .ip_desc import IPCoreDescription
-from .hdl_parsers_utils import resolve_ops, group_ports_by_dir
-from .hdl_parsers_interfaces import InterfaceGrouper, group_ports_to_ifaces
+from .hdl_parsers_utils import resolve_ops, group_ports_by_dir, group_ports_to_ifaces
+from .hdl_parsers_interfaces import InterfaceGrouper
 
 
 class VerilogModule:
