@@ -66,9 +66,7 @@ class VerilogModule:
 
 def ipcore_desc_from_verilog_module(
     verilog_mod: VerilogModule,
-    use_yosys: bool,
-    iface_deduce: bool,
-    ifaces_names: tuple) -> IPCoreDescription:
+    iface_grouper: InterfaceGrouper) -> IPCoreDescription:
 
     mod_name = verilog_mod.get_module_name()
     parameters = verilog_mod.get_parameters()
@@ -76,8 +74,7 @@ def ipcore_desc_from_verilog_module(
     
     ports_by_direction = group_ports_by_dir(ports)
     
-    iface_grouper = InterfaceGrouper(ports, verilog_mod.filename)
-    iface_mappings = iface_grouper.get_interface_mappings(use_yosys, iface_deduce, ifaces_names)
+    iface_mappings = iface_grouper.get_interface_mappings(verilog_mod.filename, ports)
     ifaces = group_ports_to_ifaces(iface_mappings, ports_by_direction)
 
     return IPCoreDescription(mod_name, parameters, ports_by_direction, ifaces)

@@ -6,13 +6,16 @@ import subprocess
 
 
 class InterfaceGrouper:
-    """ This class provides a couple of functions which goal is to group
-    ports into different interfaces (e.g AXI, AXILite...)
+    """ This class provides a possibility to group ports of a specific HDL file 
+    into different interfaces (e.g AXI, AXILite...).
     """
 
-    def __init__(self, ports: dict, hdl_file: str):
-        self.ports = ports
-        self.hdl_file = hdl_file
+    def __init__(self, use_yosys: bool, iface_deduce: bool, ifaces_names: tuple):
+        """ Set configuration variables which determine, how to perform the grouping.
+        """
+        self.use_yosys = use_yosys
+        self.iface_deduce = iface_deduce
+        self.ifaces_names = ifaces_names
 
 
     def __find_common_prefix(self, ports: list):
@@ -60,7 +63,7 @@ class InterfaceGrouper:
         return (best_prefix.rstrip("_"), best_i - 1, best_j)
     
 
-    def __create_interface_mappings(self, ifaces_names: tuple):
+    def __create_interface_mappings(self, ifaces_names, ports):
         ''' Try to create interface mappings by matching given interfaces names
         with ports names prefixes
 
@@ -72,7 +75,7 @@ class InterfaceGrouper:
         :return: a dict containing pairs { 'iface_name': [ports_names], ... }
         '''
         iface_mappings = {}
-        ports_names = self.ports.keys()
+        ports_names = ports.keys()
 
         for iface in ifaces_names:
             iface_matches = list(
@@ -85,11 +88,11 @@ class InterfaceGrouper:
         return iface_mappings
 
 
-    def __deduce_interface_mappings(self):
+    def __deduce_interface_mappings(self, ports):
         ''' Try to deduce names of interfaces by looking at ports prefixes
         '''
         # sort ports by name
-        ports_sorted = sorted(self.ports.keys())
+        ports_sorted = sorted(ports.keys())
         ifaces_names = []
 
         (prefix, i, j) = self.__find_common_prefix(ports_sorted)
@@ -98,15 +101,15 @@ class InterfaceGrouper:
             ports_sorted = ports_sorted[:i] + ports_sorted[j+1:]
             (prefix, i, j) = self.__find_common_prefix(ports_sorted)
 
-        return self.__create_interface_mappings(ifaces_names)
+        return self.__create_interface_mappings(ifaces_names, ports)
     
 
-    def __interface_mapping_from_yosys(self):
+    def __interface_mapping_from_yosys(self, hdl_file: str):
         """ returns a dict
             {interface_name: [list of ports' names]}
         """
-        json_file = self.hdl_file + '.json'
-        subprocess.check_output(f'yosys -p "read_verilog {self.hdl_file}" '
+        json_file = hdl_file + '.json'
+        subprocess.check_output(f'yosys -p "read_verilog {hdl_file}" '
                             f'-p "write_json {json_file}"', shell=True)
 
         modules = {}
@@ -134,14 +137,14 @@ class InterfaceGrouper:
         return interfaces
 
 
-    def get_interface_mappings(self, use_yosys: bool, iface_deduce: bool, ifaces_names: tuple):
+    def get_interface_mappings(self, hdl_file: str, ports: dict):
         iface_mappings = {}
-        if use_yosys:
-            iface_mappings = self.__interface_mapping_from_yosys()
-        elif iface_deduce:
-            iface_mappings = self.__deduce_interface_mappings()
-        elif ifaces_names:
-            iface_mappings = self.__create_interface_mappings(ifaces_names)
+        if self.use_yosys:
+            iface_mappings = self.__interface_mapping_from_yosys(hdl_file)
+        elif self.iface_deduce:
+            iface_mappings = self.__deduce_interface_mappings(ports)
+        elif self.ifaces_names:
+            iface_mappings = self.__create_interface_mappings(self.ifaces_names, ports)
         return iface_mappings
 
 

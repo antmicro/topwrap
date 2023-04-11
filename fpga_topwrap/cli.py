@@ -4,6 +4,7 @@ import click
 from logging import warning
 from .design import build_design
 from .verilog_parser import VerilogModule, ipcore_desc_from_verilog_module
+from .hdl_parsers_interfaces import InterfaceGrouper
 from .vhdl_parser import parse_vhdl_sources
 from .config import config
 
@@ -45,7 +46,8 @@ def build_main(sources, design, part, iface_compliance):
 def parse_main(use_yosys, iface_deduce, iface, files):
     for filename in list(filter(lambda name: name[-2:] == ".v", files)):
         verilog_mod = VerilogModule(filename)
-        ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, use_yosys, iface_deduce, iface)
+        iface_grouper = InterfaceGrouper(use_yosys, iface_deduce, iface)
+        ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, iface_grouper)
         ipcore_desc.save('gen_' + ipcore_desc.name + '.yaml')
     
     parse_vhdl_sources(list(filter(
