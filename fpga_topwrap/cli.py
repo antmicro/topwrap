@@ -4,7 +4,7 @@ import click
 from logging import warning
 from .design import build_design
 from .verilog_parser import VerilogModule, ipcore_desc_from_verilog_module
-from .hdl_parsers_interfaces import InterfaceGrouper
+from .interface_grouper import InterfaceGrouper
 from .vhdl_parser import parse_vhdl_sources
 from .config import config
 
