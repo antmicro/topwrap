@@ -1,0 +1,18 @@
+build-and-deploy:
+    image: $CI_DOCS_DOCKER_IMAGE
+    tags:
+        - docs
+    variables:
+        DOCS_DIR: 'docs'
+    before_script:
+        - pip3 install -r $DOCS_DIR/requirements.txt
+    script:
+        - echo -en "\nhtml_js_files = [ '$ANNOTANT' ]" >> $DOCS_DIR/source/conf.py
+        - cd $DOCS_DIR
+        - make html latexpdf
+        - cp build/latex/*.pdf build/html/
+        - tar cf ../$CI_DOCS_ARCHIVE -C build/html/ .
+    artifacts:
+        paths:
+            - $DOCS_DIR/build/
+            - $CI_DOCS_ARCHIVE
