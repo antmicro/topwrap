@@ -11,6 +11,8 @@ description_files
 
 cli
 
+pipeline_manager
+
 wrapper_port
 
 ipwrapper
