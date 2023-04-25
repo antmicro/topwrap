@@ -37,6 +37,10 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     ```{image} img/pwm_design.png
     ```
 
+    There are several rules, that need to be followed while creating a block desing:
+    * only connections between ports or interfaces of matching types are allowed. This is however automatically checked by the Pipeline Manager, as the types of nodes' inputs and outputs are contained in the loaded specification, so Pipeline Manager will prevent you from connecting non-matching interfaces (e.g. *AXI4* with *AXI4Lite*).
+    * parameters values can be integers of different bases (e.g. `0x28`, `40` or `0b101000`) or arithmetic expressions, that are later evaluated using [numexpr.evaluate()](https://numexpr.readthedocs.io/en/latest/api.html#numexpr.evaluate) function (e.g. `(AXI_DATA_WIDTH+1)/4` is a valid parameter value assuming that a parameter named `AXI_DATA_WIDTH` exists in the same IP core). You can also write a parameter value in a Verilog format (e.g. `8'b00011111` or `8'h1F`) - in such case it will be interpreted as a fixed-width bit vector. In order to check the validity of provided parameters values, use a {ref}`design validation <validate-design>` feature.
+
     Note, that you don't always have to create a new block design by hand - you can use a {ref}`design import <import-design>` feature to load an existing block design from a description in Topwrap's yaml format.
 
 ## Pipeline Manager features
@@ -69,4 +73,4 @@ In order to check whether a created design is valid, you can use Pipeline Manage
 
 ### Building design
 
-Once the design has been created and tested for validity, you can build design using `Run` feature. This will result in creating a top module, similarly when using Topwrap's `fpga_topwrap build` command. 
+Once the design has been created and tested for validity, you can build design using `Run` feature. If the design does not contain any errors, this will result in creating a top module, similarly when using Topwrap's `fpga_topwrap build` command.
