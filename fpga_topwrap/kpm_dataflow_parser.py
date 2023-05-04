@@ -48,6 +48,15 @@ def _kpm_properties_to_parameters(properties: dict):
     return result
 
 
+def _get_ip_nodes(nodes: list) -> list:
+    """ Return nodes, which describe some IP cores
+    (e.g. filter out external metanodes)
+    """
+    return [
+        node for node in nodes if node['type'] not in ['External Input', 'External Output']
+    ]
+
+
 def _kpm_nodes_to_ips(nodes: list, ipcore_to_yamls: dict):
     ips = {
         node['name']: {
@@ -55,7 +64,7 @@ def _kpm_nodes_to_ips(nodes: list, ipcore_to_yamls: dict):
             'module': node['type'],
             'parameters': _kpm_properties_to_parameters(node['properties'])
         }
-        for node in nodes
+        for node in _get_ip_nodes(nodes)
     }
 
     return {
@@ -70,6 +79,23 @@ def _find_spec_interface_by_name(specification: dict, ip_type: str, name: str):
         for interface in node['interfaces']:
             if interface['name'] == name:
                 return interface
+
+
+def _get_ip_connections(connections: list, nodes: list) -> list:
+    """ Return connections between two IP cores
+    (e.g. filter out connections to external metanodes)
+    """
+    ip_connections = []
+    ip_ifaces_ids = []
+    for ip_node in _get_ip_nodes(nodes):
+        for interface in ip_node['interfaces']:
+            ip_ifaces_ids.append(interface['id'])
+
+    for conn in connections:
+        if conn["from"] in ip_ifaces_ids and conn["to"] in ip_ifaces_ids:
+            ip_connections.append(conn)
+
+    return ip_connections 
 
 
 def _kpm_connections_to_pins(
@@ -107,7 +133,7 @@ def _kpm_connections_to_pins(
     ports_conns = {}
     interfaces_conns = {}
 
-    for conn in connections:
+    for conn in _get_ip_connections(connections, nodes):
         conn_from = pins_by_id["output"][conn["from"]]
         conn_to = pins_by_id["input"][conn["to"]]
 
@@ -123,10 +149,72 @@ def _kpm_connections_to_pins(
             conn_from["pin_name"]
         ]
 
-    # TODO - handle external ports
     return {
         "ports": ports_conns,
         "interfaces": interfaces_conns
+    }
+
+
+def _get_external_nodes(nodes: list) -> list:
+    """ Return metanodes respresenting external inputs and outputs
+    """
+    return [
+        node for node in nodes if node['type'] in ['External Input', 'External Output']
+    ]
+
+
+def _get_external_connections(connections: list, nodes: list):
+    """ Return connections from/to metanodes representing
+    external inputs/outputs
+    """
+    ip_connections = []
+    ext_ifaces_ids = []
+    for ip_node in _get_external_nodes(nodes):
+        for interface in ip_node['interfaces']:
+            ext_ifaces_ids.append(interface['id'])
+
+    for conn in connections:
+        if conn["from"] in ext_ifaces_ids or conn["to"] in ext_ifaces_ids:
+            ip_connections.append(conn)
+
+    return ip_connections 
+
+
+def _get_kpm_node_by_interface_id(iface_id: str, nodes: list) -> dict|None:
+    for node in nodes:
+        for interface in node['interfaces']:
+            if iface_id == interface['id']:
+                return node
+
+
+def _get_kpm_interface_name_by_id(iface_id: str, nodes: list) -> str:
+    for node in nodes:
+        for interface in node['interfaces']:
+            if iface_id == interface['id']:
+                return interface['name']
+
+
+def _kpm_connections_to_external(connections: list, nodes: list):
+    external = {
+        "in": {},
+        "out": {},
+    }
+    # TODO: add "inout" external type
+
+    for conn in _get_external_connections(connections, nodes):
+        node_to = _get_kpm_node_by_interface_id(conn["to"], nodes)
+        node_from = _get_kpm_node_by_interface_id(conn["from"], nodes)
+        if node_to['type'] == 'External Output':
+            if node_from["name"] not in external["out"].keys():
+                external["out"][node_from["name"]] = []
+            external["out"][node_from["name"]].append(_get_kpm_interface_name_by_id(conn["from"], nodes))
+        elif node_from['type'] == 'External Input':
+            if node_to["name"] not in external["in"].keys():
+                external["in"][node_to["name"]] = []
+            external["in"][node_to["name"]].append(_get_kpm_interface_name_by_id(conn["to"], nodes))
+
+    return {
+        "external": external 
     }
 
 
@@ -137,8 +225,10 @@ def kpm_dataflow_to_design(data, ipcore_to_yamls, specification):
         data["graph"]["nodes"],
         specification
     )
+    external = _kpm_connections_to_external(data["graph"]["connections"], data["graph"]["nodes"])
 
     return {
         **ips,
-        **pins
+        **pins,
+        **external
     }
