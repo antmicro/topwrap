@@ -159,6 +159,23 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
             "connectionStyle": "orthogonal"
         },
         "nodes": [
+             {
+                "name": "External Input",
+                "type": "External Input",
+                "category": "Metanode",
+                "properties": [],
+                "inputs": [],
+                "outputs": [{"name": "external", "type": ""}]
+            },
+            {
+                "name": "External Output",
+                "type": "External Output",
+                "category": "Metanode",
+                "properties": [],
+                "inputs": [{"name": "external", "type": ""}],
+                "outputs": []
+            },
+        ] + [
             _ipcore_to_kpm(yamlfile)
             for yamlfile in yamlfiles
         ]
