@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Antmicro
+# Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from os import listdir
 from os.path import join, dirname
@@ -69,7 +69,6 @@ def parse_port_map(filename: str):
         or bundled with the package.
     :return: a dict describing the ports and the interfaces of the IP.
     '''
-
     try:
         with open(filename) as f:
             ports = load(f, Loader=Loader)
@@ -77,14 +76,6 @@ def parse_port_map(filename: str):
     except FileNotFoundError:
         with open(join(IP_YAMLS_DIR, filename)) as f:
             ports = load(f, Loader=Loader)
-
-    # TODO use this container as a better structure for the data
-    # 'signals' : {'in': ..., 'out': ...} generic signals
-    # 'interfaces' : {'axi0': ..., 'axis1': ...} signals groupped by interface
-    # 'top_module' : name of the top module
-
-    result = dict()
-    result['interfaces'] = dict()
 
     if 'signals' not in ports.keys():
         ports['signals'] = dict()
@@ -116,7 +107,7 @@ def parse_port_map(filename: str):
             except KeyError:  # 'inout' doesn't exist in val
                 val['inout'] = list()
 
-        else:
+        else:  # key is an interface name
             iface = val['signals']
             try:
                 sigs = iface['in']
@@ -139,4 +130,17 @@ def parse_port_map(filename: str):
             except KeyError:
                 iface['inout'] = dict()
 
-    return ports
+    result = dict()
+
+    result['parameters'] = ports['parameters']
+    del ports['parameters']
+
+    result['signals'] = ports['signals']
+    del ports['signals']
+
+    result['interfaces'] = {
+        iface_name: ports[iface_name]
+        for iface_name in ports.keys()
+    }
+
+    return result
