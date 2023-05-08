@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Antmicro
+# Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from typing import List
 from itertools import groupby
@@ -106,7 +106,6 @@ class IPWrapper(Elaboratable):
             # those are default values of parameters
             parameters = ip_yaml['parameters']
             _evaluate_parameters(parameters)
-            del ip_yaml['parameters']
 
         # Overwrite default values with explicit values
         for key, value in self._parameters.items():
@@ -131,13 +130,9 @@ class IPWrapper(Elaboratable):
                                 interface_name='None')
                     )
 
-        # get rid of those generic signals to handle all the rest
-        # all the other keys represent interface names
-        del ip_yaml['signals']
-
-        for iface_name in ip_yaml.keys():
-            iface_signals = ip_yaml[iface_name]['signals']
-            iface_def_name = ip_yaml[iface_name]['interface']
+        for iface_name in ip_yaml['interfaces'].keys():
+            iface_signals = ip_yaml['interfaces'][iface_name]['signals']
+            iface_def_name = ip_yaml['interfaces'][iface_name]['interface']
             iface_def = get_interface_by_name(iface_def_name)
 
             if config.force_interface_compliance:
