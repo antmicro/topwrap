@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Antmicro
+# Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 import click
 from logging import warning
@@ -6,6 +6,7 @@ from .design import build_design
 from .verilog_parser import VerilogModule, ipcore_desc_from_verilog_module
 from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
 from .interface_grouper import InterfaceGrouper
+from .kpm_topwrap_client import kpm_run_client
 from .config import config
 
 
@@ -55,3 +56,14 @@ def parse_main(use_yosys, iface_deduce, iface, files):
         iface_grouper = InterfaceGrouper(False, iface_deduce, iface)
         ipcore_desc = ipcore_desc_from_vhdl_module(vhdl_mod, iface_grouper)
         ipcore_desc.save('gen_' + ipcore_desc.name + '.yaml')
+
+
+@main.command("kpm_client", help="Run a client app, that connects to"
+              "a running KPM server")
+@click.option('--host', '-h', default='127.0.0.1',
+              help='KPM server address - "127.0.0.1" is default')
+@click.option('--port', '-p', default=9000,
+              help='KPM server listening port - 9000 is default')
+@click.argument("yamlfiles", type=click_file, nargs=-1)
+def kpm_client_main(host, port, yamlfiles):
+    kpm_run_client(host, port, yamlfiles)
