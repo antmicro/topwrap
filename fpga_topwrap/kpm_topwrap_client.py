@@ -2,11 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import yaml
+import os
 import json
+import datetime
 import logging
 from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from .kpm_dataflow_validator import validate_kpm_design
+from .kpm_dataflow_parser import kpm_dataflow_to_design
+from .design import build_design
 from pipeline_manager_backend_communication. \
     communication_backend import CommunicationBackend
 from pipeline_manager_backend_communication \
@@ -27,9 +31,64 @@ def _kpm_import_handler(data: bytes, yamlfiles: list) -> str:
     return json.dumps(dataflow)
 
 
+def _ipcore_names_to_yamls_mapping(yamlfiles: list) -> dict:
+    return {
+        os.path.splitext(os.path.basename(yamlfile))[0]: yamlfile
+        for yamlfile in yamlfiles
+    }
+
+
+def _design_from_kpm_data(data: bytes, yamlfiles: list) -> dict:
+    json_data = json.loads(data.decode())
+    ipcore_to_yamls = _ipcore_names_to_yamls_mapping(yamlfiles)
+    return kpm_dataflow_to_design(json_data, ipcore_to_yamls)
+
+
+def _kpm_run_handler(data: bytes, yamlfiles: list) -> list | None:
+    """ Parse information about design from KPM dataflow format into Topwrap's
+    internal representation and build the design.
+    """
+    messages = validate_kpm_design(data, yamlfiles)
+    if not messages["errors"]:
+        design = _design_from_kpm_data(data, yamlfiles)
+        build_design(design)
+    return messages["errors"]
+
+
 def _kpm_validate_handler(data: bytes, yamlfiles: list) -> dict:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
     return validate_kpm_design(data, specification)
+
+
+def _generate_design_filename() -> str:
+    """ Return a design description YAML file name where the design
+    description will be written to.
+    """
+    timestamp = datetime.datetime.now()
+    (year, month, day, hour, minute, second) = (
+        str(timestamp.year),
+        str(timestamp.month),
+        str(timestamp.day),
+        str(timestamp.hour),
+        str(timestamp.minute),
+        str(timestamp.second)
+    )
+    return "kpm_design_" + \
+        year + month + day + "_" + hour + minute + second + ".yaml"
+
+
+def _kpm_export_handler(data: bytes, yamlfiles: list) -> str:
+    """ Save created dataflow into Topwrap's design description YAML.
+    Return value is a file name where the design is saved - it is
+    automatically generated based on current timestamp.
+    """
+    design_file = _generate_design_filename()
+    design = _design_from_kpm_data(data, yamlfiles)
+
+    with open(design_file, 'w') as f:
+        yaml.safe_dump(design, f, sort_keys=False)
+
+    return os.path.abspath(design_file)
 
 
 def kpm_run_client(host: str, port: int, yamlfiles: str):
@@ -56,10 +115,17 @@ def kpm_run_client(host: str, port: int, yamlfiles: str):
             elif message_type == MessageType.RUN:
                 logging.info(
                     f"Dataflow run request received from {host}:{port}")
-                client.send_message(
-                    MessageType.ERROR,
-                    "Not implemented".encode()
-                )
+                errors = _kpm_run_handler(data, yamlfiles)
+                if errors:
+                    client.send_message(
+                        MessageType.ERROR,
+                        errors[0].encode()
+                    )
+                else:
+                    client.send_message(
+                        MessageType.OK,
+                        "Build succeeded".encode()
+                    )
 
             elif message_type == MessageType.VALIDATE:
                 logging.info(
@@ -84,9 +150,10 @@ def kpm_run_client(host: str, port: int, yamlfiles: str):
             elif message_type == MessageType.EXPORT:
                 logging.info(
                     f"Dataflow export request received from {host}:{port}")
+                design_file = _kpm_export_handler(data, yamlfiles)
                 client.send_message(
-                    MessageType.ERROR,
-                    "Not implemented".encode()
+                    MessageType.OK,
+                    f"Design saved to {design_file}".encode()
                 )
 
             elif message_type == MessageType.IMPORT:
