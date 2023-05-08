@@ -1,11 +1,21 @@
 # Copyright (C) 2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import logging
+from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 from pipeline_manager_backend_communication. \
     communication_backend import CommunicationBackend
 from pipeline_manager_backend_communication \
     .misc_structures import MessageType, Status
+
+
+def _kpm_specification_handler(yamlfiles: list) -> str:
+    """ Return KPM specification containing info about IP cores.
+    The specification is generated from given IP core description YAMLs.
+    """
+    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
+    return json.dumps(specification)
 
 
 def kpm_run_client(host: str, port: int, yamlfiles: str):
@@ -23,9 +33,10 @@ def kpm_run_client(host: str, port: int, yamlfiles: str):
             if message_type == MessageType.SPECIFICATION:
                 logging.info(
                     f"Specification request received from {host}:{port}")
+                format_spec = _kpm_specification_handler(yamlfiles)
                 client.send_message(
-                    MessageType.ERROR,
-                    "Not implemented".encode()
+                    MessageType.OK,
+                    format_spec.encode()
                 )
 
             elif message_type == MessageType.RUN:
