@@ -6,6 +6,7 @@ from .design import build_design
 from .verilog_parser import VerilogModule, ipcore_desc_from_verilog_module
 from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
 from .interface_grouper import InterfaceGrouper
+from .design import build_design_from_yaml
 from .kpm_topwrap_client import kpm_run_client
 from .config import config
 
@@ -33,7 +34,7 @@ def build_main(sources, design, part, iface_compliance):
         warning("You didn't specify part number. "
                 "'None' will be used and thus your implamentation may fail.")
 
-    build_design(design, sources, part)
+    build_design_from_yaml(design, sources, part)
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")

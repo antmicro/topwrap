@@ -1,21 +1,24 @@
-# Copyright (C) 2021 Antmicro
+# Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from yaml import load, Loader
 from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
 
 
-def build_design(yamlfile, sources_dir=None, part=None):
+def build_design_from_yaml(yamlfile, sources_dir=None, part=None):
+    with open(yamlfile) as f:
+        design = load(f, Loader=Loader)
+    build_design(design, sources_dir, part)
+
+
+def build_design(design, sources_dir=None, part=None):
     """Generate a complete project
 
-    :param yamlfile: file describing the top design
+    :param design: dict describing the top design
     :param sources_dir: directory to scan to include additional HDL files
         to core file
     """
     ipc = IPConnect()
-
-    with open(yamlfile) as f:
-        design = load(f, Loader=Loader)
 
     ports = dict()
     interfaces = dict()

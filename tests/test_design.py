@@ -1,9 +1,9 @@
-# Copyright (C) 2021 Antmicro
+# Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
 
 class TestDesign:
     def test_design(self):
-        from fpga_topwrap.design import build_design
+        from fpga_topwrap.design import build_design_from_yaml
 
-        build_design('tests/data/design.yaml')
+        build_design_from_yaml('tests/data/design.yaml')
