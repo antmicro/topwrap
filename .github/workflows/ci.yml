@@ -15,17 +15,19 @@ jobs:
         python-version: [3.7, 3.8, 3.9]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Install requirements
       run: |
+        sudo apt-get update
+        sudo apt-get install -y antlr4 libantlr4-runtime-dev python3-dev yosys
         python3 -m pip install --upgrade pip
-        python3 -m pip install setuptools flake8 pytest wheel wasmtime
+        python3 -m pip install setuptools flake8 pytest wheel
         python3 -m pip install git+https://github.com/antmicro/tuttest
 
     - name: Set up F4PGA
@@ -34,6 +36,7 @@ jobs:
         export F4PGA_INSTALL_DIR="${HOME}/opt/f4pga"
         export F4PGA_INSTALL_DIR_FAM="${F4PGA_INSTALL_DIR}/${FPGA_FAM}"
         ./.github/scripts/prepare_environment.sh
+        source .github/scripts/activate.sh
         pip3 install https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
 
     - name: Lint with flake8
@@ -66,7 +69,7 @@ jobs:
           cp examples/pwm/build/project_1_0/zynq-symbiflow/project_top.bit ./top.bit
 
     - name: Store bit
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: top.bit
         path: top.bit
