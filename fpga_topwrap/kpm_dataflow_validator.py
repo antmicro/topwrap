@@ -24,7 +24,7 @@ def _check_duplicate_ip_names(data: bytes) -> CheckResult:
     dataflow_data = json.loads(data.decode())
     names_set = set()
     duplicates = set()
-    for node in dataflow_data['nodes']:
+    for node in dataflow_data['graph']['nodes']:
         if node['name'] in names_set:
             duplicates.add(node['name'])
         else:
@@ -41,9 +41,10 @@ def _check_parameters_values(data: bytes) -> CheckResult:
     dataflow_data = json.loads(data.decode())
     invalid_params = list()
 
-    for node in dataflow_data['nodes']:
+    for node in dataflow_data['graph']['nodes']:
         evaluated = dict()
-        for [param_name, param_val] in node['options']:
+        for param_name in node['properties'].keys():
+            param_val = node['properties'][param_name]['value']
             if not re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
                 try:
                     evaluated[param_name] = int(
@@ -74,11 +75,12 @@ def _check_unconnected_interfaces(data: bytes) -> CheckResult:
 
     dataflow_data = json.loads(data.decode())
     unconn_ifaces = []
-    for node in dataflow_data['nodes']:
-        for iface in node['interfaces']:
-            unconn_ifaces.append(Iface(node['name'], iface[0], iface[1]['id']))
+    for node in dataflow_data['graph']['nodes']:
+        interfaces = { **node['inputs'], **node['outputs'] }
+        for iface_name in interfaces.keys():
+            unconn_ifaces.append(Iface(node['name'], iface_name, interfaces[iface_name]['id']))
 
-    for conn in dataflow_data['connections']:
+    for conn in dataflow_data['graph']['connections']:
         connected_ifaces = list(filter(
             lambda x: x.iface_id == conn['from'] or x.iface_id == conn['to'], unconn_ifaces)) # noqa
         for iface in connected_ifaces:
