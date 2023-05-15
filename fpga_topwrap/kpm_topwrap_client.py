@@ -41,7 +41,8 @@ def _ipcore_names_to_yamls_mapping(yamlfiles: list) -> dict:
 def _design_from_kpm_data(data: bytes, yamlfiles: list) -> dict:
     json_data = json.loads(data.decode())
     ipcore_to_yamls = _ipcore_names_to_yamls_mapping(yamlfiles)
-    return kpm_dataflow_to_design(json_data, ipcore_to_yamls)
+    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
+    return kpm_dataflow_to_design(json_data, ipcore_to_yamls, specification)
 
 
 def _kpm_run_handler(data: bytes, yamlfiles: list) -> list | None:

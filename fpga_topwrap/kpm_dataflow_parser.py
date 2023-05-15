@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+import logging
 
 
 def _parse_value_width_parameter(param: str) -> dict:
@@ -34,11 +35,10 @@ def _maybe_to_int(string: int) -> int|str:
     return string
 
 
-def _kpm_options_to_parameters(options: list):
+def _kpm_properties_to_parameters(properties: dict):
     result = dict()
-    for option in options:
-        param_name = option[0]
-        param_val = option[1]
+    for param_name in properties.keys():
+        param_val = properties[param_name]['value']
         if re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
             param_val = _parse_value_width_parameter(param_val)
         result[param_name] = _maybe_to_int(param_val)
@@ -51,7 +51,7 @@ def _kpm_nodes_to_ips(nodes: list, ipcore_to_yamls: dict):
         node['name']: {
             'file': ipcore_to_yamls[node['type']],
             'module': node['type'],
-            'parameters': _kpm_options_to_parameters(node['options'])
+            'parameters': _kpm_properties_to_parameters(node['properties'])
         }
         for node in nodes
     }
@@ -61,25 +61,36 @@ def _kpm_nodes_to_ips(nodes: list, ipcore_to_yamls: dict):
     }
 
 
-def _kpm_connections_to_pins(connections: list, nodes: list):
+def _find_spec_interface_by_name(specification: dict, ip_type: str, name: str):
+    for node in specification['nodes']:
+        if node['type'] != ip_type:
+            continue
+        for interface in node['inputs'] + node['outputs']:
+            if interface['name'] == name:
+                return interface
+
+
+def _kpm_connections_to_pins(connections: list, nodes: list, specification: dict):
     pins_by_id = {
         "inputs":  {},
         "outputs": {}
     }
 
     for node in nodes:
-        for iface in node['interfaces']:
-            # TODO - handle inouts
-            if iface[1]['isInput'] is True:
-                dir = "inputs"
-            else:
-                dir = "outputs"
-
-            pins_by_id[dir][iface[1]['id']] = {
-                "ip_name": node['name'],
-                "pin_name": iface[0],
-                "type": iface[1]['type']
-            }
+        # TODO - handle inouts
+        for dir in ['inputs', 'outputs']:
+            for iface_name in node[dir].keys():
+                spec_iface = _find_spec_interface_by_name(specification, node['type'], iface_name)
+                if spec_iface is None:
+                    logging.warning(
+                        f'Interface {iface_name} of node {node["type"]} not found in specification')
+                    continue
+                iface_id = node[dir][iface_name]['id']
+                pins_by_id[dir][iface_id] = {
+                    "ip_name": node['name'],
+                    "pin_name": iface_name,
+                    "type": spec_iface['type']
+                }
 
     ports_conns = {}
     interfaces_conns = {}
@@ -107,9 +118,13 @@ def _kpm_connections_to_pins(connections: list, nodes: list):
     }
 
 
-def kpm_dataflow_to_design(data, ipcore_to_yamls):
-    ips = _kpm_nodes_to_ips(data["nodes"], ipcore_to_yamls)
-    pins = _kpm_connections_to_pins(data["connections"], data["nodes"])
+def kpm_dataflow_to_design(data, ipcore_to_yamls, specification):
+    ips = _kpm_nodes_to_ips(data["graph"]["nodes"], ipcore_to_yamls)
+    pins = _kpm_connections_to_pins(
+        data["graph"]["connections"], 
+        data["graph"]["nodes"], 
+        specification
+    )
 
     return {
         **ips,
