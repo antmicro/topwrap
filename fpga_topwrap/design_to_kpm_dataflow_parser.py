@@ -9,6 +9,7 @@ from yaml import safe_load
 from .design_description import \
     DesignDescription, DesignIP, Direction, \
     Interface, InterfaceConnection, Port, PortConnection
+from enum import Enum
 
 
 def design_descr_from_yaml(yamlcontent: str) -> DesignDescription:
@@ -75,41 +76,18 @@ class IDGenerator(object):
 
 
 class KPMDataflowNodeInterface:
-    def __init__(self,
-                 name: str,
-                 is_input: bool,
-                 type: str,
-                 value: int = None):
-
+    def __init__(self, name: str):
         generator = IDGenerator()
         self.id = "ni_" + generator.generate_id()
         self.name = name
-        self.is_input = is_input
-        self.type = type
-        self.value = value
-
-    def to_json_format(self) -> list:
-        return [
-            self.name,
-            {
-                "id": self.id,
-                "value": self.value,
-                "isInput": self.is_input,
-                "type": self.type
-            }
-        ]
 
 
-class KPMDataflowNodeOption:
+class KPMDataflowNodeProperty:
     def __init__(self, name: str, value: str):
+        generator = IDGenerator()
+        self.id = generator.generate_id()
         self.name = name
         self.value = value
-
-    def to_json_format(self) -> list:
-        return [
-            self.name,
-            self.value
-        ]
 
 
 class KPMDataflowNode:
@@ -118,35 +96,48 @@ class KPMDataflowNode:
     def __init__(self,
                  name: str,
                  type: str,
-                 options: List[KPMDataflowNodeOption],
-                 interfaces: List[KPMDataflowNodeInterface]) -> None:
+                 properties: List[KPMDataflowNodeProperty],
+                 inputs: List[KPMDataflowNodeInterface],
+                 outputs: List[KPMDataflowNodeInterface]) -> None:
 
         generator = IDGenerator()
         self.id = "node_" + generator.generate_id()
         self.name = name
         self.type = type
-        self.options = options
-        self.interfaces = interfaces
+        self.properties = properties
+        self.inputs = inputs
+        self.outputs = outputs
 
     def to_json_format(self) -> dict:
         return {
             "type": self.type,
             "id": self.id,
             "name": self.name,
-            "options": [
-                option.to_json_format() for option in self.options
-            ],
-            "state": {},
-            "interfaces": [
-                iface.to_json_format() for iface in self.interfaces
-            ],
+            "inputs": {
+                input.name: {
+                    "id": input.id
+                } 
+                for input in self.inputs
+            },
+            "outputs": {
+                output.name: {
+                    "id": output.id
+                } 
+                for output in self.outputs
+            },
             "position": {
                 "x": 0,  # TODO
                 "y": 0
             },
             "width": KPMDataflowNode.__default_width,
             "twoColumn": False,
-            "customClasses": ""
+            "properties": {
+                property.name: {
+                    "id": property.id,
+                    "value": property.value
+                }
+                for property in self.properties
+            }
         }
 
 
@@ -196,18 +187,18 @@ def kpm_nodes_from_design_descr(
         if spec_node is None:
             continue
 
-        options = [KPMDataflowNodeOption(
+        properties = [KPMDataflowNodeProperty(
             prop['name'], prop['default']) for prop in spec_node['properties']]
-        for option in options:  # override default values
-            if option.name in ip.parameters.keys():
-                option.value = _ipcore_param_to_kpm_value(ip.parameters[option.name]) # noqa
+        for property in properties:  # override default values
+            if property.name in ip.parameters.keys():
+                property.value = _ipcore_param_to_kpm_value(ip.parameters[property.name]) # noqa
 
-        interfaces = [KPMDataflowNodeInterface(
-            input['name'], True, input['type']) for input in spec_node['inputs']] # noqa
-        interfaces += [KPMDataflowNodeInterface(
-            output['name'], False, output['type']) for output in spec_node['outputs']] # noqa
+        inputs = [KPMDataflowNodeInterface(
+            input['name']) for input in spec_node['inputs']] # noqa
+        outputs = [KPMDataflowNodeInterface(
+            output['name']) for output in spec_node['outputs']] # noqa
 
-        nodes.append(KPMDataflowNode(ip.name, ip.module, options, interfaces))
+        nodes.append(KPMDataflowNode(ip.name, ip.module, properties, inputs, outputs))
     return nodes
 
 
@@ -225,7 +216,7 @@ def _get_dataflow_interface_by_name(
         name: str,
         node: KPMDataflowNode) -> KPMDataflowNodeInterface:
 
-    for interface in node.interfaces:
+    for interface in node.inputs + node.outputs:
         if interface.name == name:
             return interface
     logging.warning(f"Interface '{name}' not found in node {node.name}")
@@ -294,16 +285,18 @@ def kpm_dataflow_from_design_descr(
 
     nodes = kpm_nodes_from_design_descr(design_descr, specification)
     connections = kpm_connections_from_design_descr(design_descr, nodes)
+    generator = IDGenerator()
     return {
-        "nodes": [
-            node.to_json_format() for node in nodes
-        ],
-        "connections": [
-            connection.to_json_format() for connection in connections
-        ],
-        "panning": {
-            "x": 0,  # TODO
-            "y": 0
+        "graph": {
+            "id": generator.generate_id(),
+            "nodes": [
+                node.to_json_format() for node in nodes
+            ],
+            "connections": [
+                connection.to_json_format() for connection in connections
+            ],
+            "inputs": [],
+            "outputs": []
         },
-        "scaling": 1
+        "graphTemplates": []
     }
