@@ -32,8 +32,10 @@ interfaces: # specify ip1:iface1 <-> ip2:iface2 connections here
     ...
 
 external:
-  {ip_instance_name}:
-    - {port_name}
+  in:
+    {ip_instance_name}:
+      - {port_name}
+  out:
     ...
 ```
 
