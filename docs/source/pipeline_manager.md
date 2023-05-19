@@ -22,8 +22,12 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
 
 2. Establish connection with Topwrap
 
-    Once the Pipeline Manager server is running, you can now launch Topwrap's client application and connect it to the server. You need to specify IP address and listening port to which the connection will be established and choose IP core description yamls, that will be used in the block design:
+    Once the Pipeline Manager server is running, you can now launch Topwrap's client application in order to connect to the server. You need to specify:
+    * IP address (`127.0.0.1` is default)
+    * listening port (`9000` is default)
+    * yamls describing IP cores, that will be used in the block design
 
+    An example command, that runs Topwrap's client, may look like this:
     ```
     python -m fpga_topwrap kpm_client -h 127.0.0.1 -p 9000 \
         fpga_topwrap/ips/axi/axi_axil_adapter.yaml \
@@ -32,14 +36,19 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
 
 3. Create block design in Pipeline Manager
 
-    Upon successful connection to a Pipeline Manager server, Topwrap will generate and send to it a specification describing the structure of previously selected IP cores. After that, you are free to create a custom block design by linking ports and interfaces of the selected IP cores and changing their parameters:
+    Upon successful connection to a Pipeline Manager server, Topwrap will generate and send to the server a specification describing the structure of previously selected IP cores. After that, you are free to create a custom block design by means of:
+    * adding IP core instances to the block design. Note, that you can create multiple instances of the same IP core thanks to a `rename` option in a Pipeline Manager's node.
+    * adjusting IP cores' parameters values. Each node may have input boxes in which you can enter parameters' values. Default values are added while adding an IP core to the block design.
+    * connecting IP cores' ports and interfaces
+    * specifying external ports or interfaces in the top module. This can be done by creating `External Input` or `External Output` metanodes and creating connections between them and chosen ports/interfaces. 
 
     ```{image} img/pwm_design.png
     ```
 
     There are several rules, that need to be followed while creating a block desing:
-    * only connections between ports or interfaces of matching types are allowed. This is however automatically checked by the Pipeline Manager, as the types of nodes' inputs and outputs are contained in the loaded specification, so Pipeline Manager will prevent you from connecting non-matching interfaces (e.g. *AXI4* with *AXI4Lite*).
+    * only connections between ports or interfaces of matching types are allowed. This is automatically checked by the Pipeline Manager, as the types of nodes' inputs and outputs are contained in the loaded specification, so Pipeline Manager will prevent you from connecting non-matching interfaces (e.g. *AXI4* with *AXI4Lite*).
     * parameters values can be integers of different bases (e.g. `0x28`, `40` or `0b101000`) or arithmetic expressions, that are later evaluated using [numexpr.evaluate()](https://numexpr.readthedocs.io/en/latest/api.html#numexpr.evaluate) function (e.g. `(AXI_DATA_WIDTH+1)/4` is a valid parameter value assuming that a parameter named `AXI_DATA_WIDTH` exists in the same IP core). You can also write a parameter value in a Verilog format (e.g. `8'b00011111` or `8'h1F`) - in such case it will be interpreted as a fixed-width bit vector. In order to check the validity of provided parameters values, use a {ref}`design validation <validate-design>` feature.
+    * a single port or interface cannot be external and connected to another IP core at the same time
 
     Note, that you don't always have to create a new block design by hand - you can use a {ref}`design import <import-design>` feature to load an existing block design from a description in Topwrap's yaml format.
 
