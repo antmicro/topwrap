@@ -7,36 +7,41 @@ on:
       - main
 
 jobs:
-  build:
+  docs-generation:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: 3.9
 
     - name: Install dependencies
       run: |
           sudo apt-get update
-          sudo apt-get install python3-sphinx
-          python3 -m pip install setuptools
-          python3 -m pip install git+https://github.com/antmicro/sphinx_antmicro_theme
+          sudo apt-get install -y texlive-full
+          python3 -m pip install -r docs/requirements.txt
 
-    - name: Build
+    - name: Generate documentation
       run: |
-        make -C docs html
-        touch docs/build/html/.nojekyll
+        cd docs
+        make html latexpdf
+        cp build/latex/*.pdf build/html/
 
-    - name: Deploy
-      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    - uses: actions/upload-artifact@v3
+      with:
+        name: gh-page
+        path: docs/build/html
+
+    - name: Deploy to Github Pages
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
       run: |
-        cp -r docs/build/html deploy
-        cd deploy
+        cd docs/build/html
+        touch .nojekyll
         git init
-        cp ../.git/config ./.git/config
+        cp ../../../.git/config ./.git/config
         git add .
         git config --local user.email "push@gha"
         git config --local user.name "GHA"
