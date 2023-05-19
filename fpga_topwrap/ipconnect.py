@@ -199,11 +199,15 @@ class IPConnect(Elaboratable):
     def make_external_ports(self, ports):
         """Pick ports which will be used as external I/O
 
-        :param ports: dict of {ip_name: port_name}
+        :param ports: dict {'in': {ip_name: port_name}, 'out': ...}
         """
+        ext_ports = {}
+        for dir in ['in', 'out', 'inout']:
+            if dir in ports.keys():
+                ext_ports.update(ports[dir])
 
         self._set_unconnected_ports()
-        for ip_name, _ports in ports.items():
+        for ip_name, _ports in ext_ports.items():
             for _port in _ports:
                 self._set_port(self._ips[ip_name], _port)
 
