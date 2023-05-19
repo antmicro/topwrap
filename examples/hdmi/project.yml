@@ -163,12 +163,13 @@ interfaces:
     S00_AXI: [axi_bridge_disp, m_axi]
 
 external:
-  hdmi:
-    - HDMI_CLK_P
-    - HDMI_CLK_N
-    - HDMI_D0_P
-    - HDMI_D0_N
-    - HDMI_D1_P
-    - HDMI_D1_N
-    - HDMI_D2_P
-    - HDMI_D2_N
+  out:
+    hdmi:
+      - HDMI_CLK_P
+      - HDMI_CLK_N
+      - HDMI_D0_P
+      - HDMI_D0_N
+      - HDMI_D1_P
+      - HDMI_D1_N
+      - HDMI_D2_P
+      - HDMI_D2_N

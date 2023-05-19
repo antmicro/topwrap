@@ -13,10 +13,11 @@ interfaces:
   dma:
     AXIS_m0: [disp, AXIS_s0]
 external:
-  disp:
-    - FSYNC_O
-    - HSYNC_O
-    - VSYNC_O
-  dma:
-    - io_irq_readerDone
-    - io_irq_writerDone
+  out:
+    disp:
+      - FSYNC_O
+      - HSYNC_O
+      - VSYNC_O
+    dma:
+      - io_irq_readerDone
+      - io_irq_writerDone

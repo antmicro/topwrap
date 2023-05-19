@@ -28,5 +28,6 @@ interfaces:
     s_axi: [axi_bridge, m_axi]
 
 external:
-  litex_pwm_top:
-    - pwm
+  out:
+    litex_pwm_top:
+      - pwm
