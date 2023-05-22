@@ -18,7 +18,7 @@ def port_direction_to_prefix(direction: Direction) -> str:
 
 
 class WrapperPort(Signal):
-    def __init__(self, bounds, name, internal_name, direction, interface_name):
+    def __init__(self, shape=None, src_loc_at=0, **kwargs):
         '''
         Wraps a port, adding a new name and optionally slicing the signal
 
@@ -32,9 +32,12 @@ class WrapperPort(Signal):
         :param direction: one of amaranth.hdl.rec.Direction, e.g. DIR_FANOUT
         '''
 
-        super().__init__(shape=bounds[2]-bounds[3]+1, name=name)
+        super().__init__(
+            shape=kwargs["bounds"][2]-kwargs["bounds"][3]+1,
+            name=kwargs["name"]
+        )
         # port name of the wrapped IP
-        self.internal_name = internal_name
-        self.direction = direction
-        self.interface_name = interface_name
-        self.bounds = bounds
+        self.internal_name = kwargs["internal_name"]
+        self.direction = kwargs["direction"]
+        self.interface_name = kwargs["interface_name"]
+        self.bounds = kwargs["bounds"]
