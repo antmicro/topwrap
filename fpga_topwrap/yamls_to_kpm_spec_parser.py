@@ -44,36 +44,35 @@ def _ipcore_params_to_kpm(params: dict) -> list:
     ]
 
 
-def _ipcore_ports_to_kpm(ports: dict) -> dict:
+def _ipcore_ports_to_kpm(ports: dict) -> list:
     """ Returns lists of ports grouped by direction (inputs/outputs)
     in a format used in KPM specification.
 
     :param ports: a dict containing ports descriptions,
         gathered from IP core description YAML
 
-    :return: a dict containing KPM "inputs" and "outputs", which
+    :return: a dict containing KPM "interfaces", which
         correspond to given IP core ports
     """
     inputs = [
         {
             'name': port[0],
-            'type': 'port'
+            'type': 'port',
+            'direction': 'input'
         }
         for port in ports['in']
     ]
     outputs = [
         {
             'name': port[0],
-            'type': 'port'
+            'type': 'port',
+            'direction': 'output'
         }
         for port in ports['out']
     ]
     # TODO - inouts are not supported in KPM for now
 
-    return {
-        "inputs": inputs,
-        "outputs": outputs,
-    }
+    return inputs + outputs
 
 
 def _ipcore_ifaces_to_kpm(ifaces: dict):
@@ -90,22 +89,21 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
     inputs = [
         {
             'name': iface,
-            'type': 'iface_' + ifaces[iface]['interface']
+            'type': 'iface_' + ifaces[iface]['interface'],
+            'direction': 'input'
         }
         for iface in ifaces.keys() if ifaces[iface]['mode'] == 'slave'
     ]
     outputs = [
         {
             'name': iface,
-            'type': 'iface_' + ifaces[iface]['interface']
+            'type': 'iface_' + ifaces[iface]['interface'],
+            'direction': 'output'
         }
         for iface in ifaces.keys() if ifaces[iface]['mode'] == 'master'
     ]
 
-    return {
-        "inputs": inputs,
-        "outputs": outputs,
-    }
+    return inputs + outputs
 
 
 def _ipcore_to_kpm(yamlfile: str) -> dict:
@@ -128,8 +126,7 @@ def _ipcore_to_kpm(yamlfile: str) -> dict:
         'type': ip_name,
         'category': 'IPcore',
         'properties': kpm_params,
-        'inputs': kpm_ports['inputs'] + kpm_ifaces['inputs'],
-        'outputs': kpm_ports['outputs'] + kpm_ifaces['outputs']
+        'interfaces': kpm_ports + kpm_ifaces
     }
 
 
