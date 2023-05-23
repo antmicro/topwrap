@@ -164,16 +164,22 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
                 "type": "External Input",
                 "category": "Metanode",
                 "properties": [],
-                "inputs": [],
-                "outputs": [{"name": "external", "type": ""}]
+                "interfaces": [{
+                    "name": "external",
+                    "type": "",
+                    "direction": "output"
+                }]
             },
             {
                 "name": "External Output",
                 "type": "External Output",
                 "category": "Metanode",
                 "properties": [],
-                "inputs": [{"name": "external", "type": ""}],
-                "outputs": []
+                "interfaces": [{
+                    "name": "external",
+                    "type": "",
+                    "direction": "input"
+                }]
             },
         ] + [
             _ipcore_to_kpm(yamlfile)
