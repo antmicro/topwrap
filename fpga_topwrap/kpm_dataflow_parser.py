@@ -65,7 +65,7 @@ def _find_spec_interface_by_name(specification: dict, ip_type: str, name: str):
     for node in specification['nodes']:
         if node['type'] != ip_type:
             continue
-        for interface in node['inputs'] + node['outputs']:
+        for interface in node['interfaces']:
             if interface['name'] == name:
                 return interface
 
