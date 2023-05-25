@@ -194,9 +194,9 @@ def kpm_nodes_from_design_descr(
                 property.value = _ipcore_param_to_kpm_value(ip.parameters[property.name]) # noqa
 
         inputs = [KPMDataflowNodeInterface(
-            input['name']) for input in spec_node['inputs']] # noqa
+            input['name']) for input in spec_node['interfaces'] if input['direction'] == 'input'] # noqa
         outputs = [KPMDataflowNodeInterface(
-            output['name']) for output in spec_node['outputs']] # noqa
+            output['name']) for output in spec_node['interfaces'] if output['direction'] == 'output'] # noqa
 
         nodes.append(KPMDataflowNode(ip.name, ip.module, properties, inputs, outputs))
     return nodes
