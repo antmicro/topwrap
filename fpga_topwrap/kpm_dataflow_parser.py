@@ -41,7 +41,8 @@ def _kpm_properties_to_parameters(properties: dict):
         param_val = properties[param_name]['value']
         if re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
             param_val = _parse_value_width_parameter(param_val)
-        result[param_name] = _maybe_to_int(param_val)
+        else:
+            result[param_name] = _maybe_to_int(param_val)
 
     return result
 
