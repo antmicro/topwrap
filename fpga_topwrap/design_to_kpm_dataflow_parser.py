@@ -126,7 +126,7 @@ class KPMDataflowNode:
                 for output in self.outputs
             },
             "position": {
-                "x": 0,  # TODO
+                "x": 0,
                 "y": 0
             },
             "width": KPMDataflowNode.__default_width,
