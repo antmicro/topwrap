@@ -5,6 +5,7 @@ import numexpr as ex
 import json
 from enum import Enum
 from typing import NamedTuple, Union
+from .kpm_common import get_dataflow_ip_nodes, get_dataflow_externals_interfaces, get_dataflow_ips_interfaces, find_dataflow_interface_by_id, find_dataflow_node_type_by_name, find_spec_interface_by_name
 
 
 class CheckStatus(Enum):
@@ -18,65 +19,12 @@ class CheckResult(NamedTuple):
     message: Union[str, None]
 
 
-class Interface:
-    """ Helper class, representing a KPM node's interface
-    """
-    def __init__(self, node_name: str, iface_name: str, iface_id: str):
-        self.node_name = node_name
-        self.iface_name = iface_name
-        self.iface_id = iface_id
-
-    def __repr__(self) -> str:
-        return self.node_name + ":" + self.iface_name
-
-    def __eq__(self, value: object) -> bool:
-        if isinstance(value, Interface):
-            return value.iface_id == self.iface_id
-        return False
-
-
-def _get_interface_connections(dataflow_data, iface: Interface) -> list:
-    """ Return a list of connections from/to a given interface
-    """
-    return [
-        conn for conn in dataflow_data['graph']['connections'] if conn['from'] == iface.iface_id or conn['to'] == iface.iface_id
-    ]
-
-
-def _get_ips_interfaces(dataflow_data) -> list:
-    """ Return a list of all the interfaces of all the nodes representing ip cores
-    """
-    result = []
-    for node in _get_ip_nodes(dataflow_data):
-        for interface in node['interfaces']:
-            result.append(Interface(node['name'], interface['name'], interface['id']))
-    return result
-
-
-def _get_ip_nodes(dataflow_data) -> list:
-    """ Return a list of nodes which represent ip cores
-    (i.e. filter out External Outputs and Inputs)
-    """
-    return [
-        node for node in dataflow_data['graph']['nodes'] if node['type'] not in ['External Output', 'External Input']
-    ]
-
-def _get_externals_ifaces_ids(dataflow_data) -> list:
-    """ Return a list of ids, which identify metainterfaces of external metanodes
-    """
-    ext_nodes_ifaces_ids = []
-    for node in dataflow_data['graph']['nodes']:
-        if node['type'] in ['External Input', 'External Output']:
-            ext_nodes_ifaces_ids.append(node['interfaces'][0]['id'])
-    return ext_nodes_ifaces_ids
-
-
 def _check_duplicate_ip_names(dataflow_data, specification) -> CheckResult:
     """ Check for duplicate IP core names in the design.
     """
     names_set = set()
     duplicates = set()
-    for node in _get_ip_nodes(dataflow_data):
+    for node in get_dataflow_ip_nodes(dataflow_data):
         if node['name'] in names_set:
             duplicates.add(node['name'])
         else:
@@ -92,7 +40,7 @@ def _check_duplicate_ip_names(dataflow_data, specification) -> CheckResult:
 def _check_parameters_values(dataflow_data, specification) -> CheckResult:
     invalid_params = list()
 
-    for node in _get_ip_nodes(dataflow_data):
+    for node in get_dataflow_ip_nodes(dataflow_data):
         evaluated = dict()
         for property in node['properties']:
             param_name = property["name"]
@@ -108,24 +56,6 @@ def _check_parameters_values(dataflow_data, specification) -> CheckResult:
         err_msg = f"Invalid parameters values: {str(invalid_params)}"
         return CheckResult(CheckStatus.ERROR, err_msg)
     return CheckResult(CheckStatus.OK, None)
-
-
-def get_dataflow_ips_interfaces(dataflow_json) -> dict:
-    result = {}
-    for node in dataflow_json['graph']['nodes']:
-        for interface in node['interfaces']:
-            result[interface['id']] = [node['name'], interface['name']]
-    return result
-
-
-def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> list | None:
-    """ Return a list ["node_name", "iface_name"] that corresponds to
-    a given 'iface_id'
-    """
-    ip_interfaces = get_dataflow_ips_interfaces(dataflow_json)
-
-    if iface_id in ip_interfaces.keys():
-        return ip_interfaces[iface_id]
 
 
 def _check_unconnected_interfaces(dataflow_data, specification) -> CheckResult:
@@ -151,25 +81,6 @@ def _check_unconnected_interfaces(dataflow_data, specification) -> CheckResult:
             f"Unconnected interfaces: {unconn_ifaces_descrs}"
         )
     return CheckResult(CheckStatus.OK, None)
-
-
-def find_spec_interface_by_name(
-        specification,
-        node_type: str,
-        iface_name: str):
-
-    for node in specification['nodes']:
-        if node['type'] != node_type:
-            continue
-        for interface in node['interfaces']:
-            if interface['name'] == iface_name:
-                return interface
-
-
-def find_dataflow_node_type_by_name(dataflow_data, node_name: str) -> str:
-    for node in dataflow_data['graph']['nodes']:
-        if node['name'] == node_name:
-            return node["type"]
 
 
 def _check_multiple_connections_from_interfaces(dataflow_data, specification):
@@ -207,35 +118,37 @@ def _check_multiple_connections_from_interfaces(dataflow_data, specification):
 def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
     """ Check for connections between metanodes 'External Input' and 'External Output' metanodes
     """
-    ext_nodes_ifaces_ids = _get_externals_ifaces_ids(dataflow_data)
+    ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 
-    err_conns_ids = []
     for conn in dataflow_data['graph']['connections']:
-        if conn['from'] in ext_nodes_ifaces_ids and conn['to'] in ext_nodes_ifaces_ids:
-            err_conns_ids.append((conn['from'], conn['id']))
+        if conn['from'] in ext_ifaces_ids and conn['to'] in ext_ifaces_ids:
+            return CheckResult(CheckStatus.ERROR, f"Existing connections from External Inputs to External Outputs")
 
-    if not err_conns_ids:
-        return CheckResult(CheckStatus.OK, None)
-    return CheckResult(CheckStatus.ERROR, f"Existing connections from External Inputs to External Outputs")
+    return CheckResult(CheckStatus.OK, None)
 
 
 def _check_ambigous_ports_interfaces(dataflow_data, specification):
     """ Check for interfaces which are connected to another ipcore interface
     and to external metanode at the same time
     """
-    ext_nodes_ifaces_ids = _get_externals_ifaces_ids(dataflow_data)
+    ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 
     ambig_ifaces = []
-    for iface in _get_ips_interfaces(dataflow_data):
-        iface_conns = _get_interface_connections(dataflow_data, iface)
+    for iface in get_dataflow_ips_interfaces(dataflow_data).items():
+        iface_conns =  [
+            conn for conn in dataflow_data['graph']['connections'] if conn['from'] == iface[0] or conn['to'] == iface[0]
+        ]
         for conn in iface_conns:
-            if (conn['from'] in ext_nodes_ifaces_ids or conn['to'] in ext_nodes_ifaces_ids) and len(iface_conns) > 1:
+            if (conn['from'] in ext_ifaces_ids or conn['to'] in ext_ifaces_ids) and len(iface_conns) > 1:
                 ambig_ifaces.append(iface)
                 break
 
-    if not ambig_ifaces:
-        return CheckResult(CheckStatus.OK, None)
-    return CheckResult(CheckStatus.ERROR, f"External interfaces having >1 connections: {ambig_ifaces}")
+    if ambig_ifaces:
+        ambig_ifaces_descrs = [
+            f"{ambig_iface[1][0]}:{ambig_iface[1][1]}" for ambig_iface in ambig_ifaces
+        ]
+        return CheckResult(CheckStatus.ERROR, f"External ports/interfaces having >1 connections: {ambig_ifaces_descrs}")
+    return CheckResult(CheckStatus.OK, None)
 
 
 def validate_kpm_design(data: bytes, specification) -> dict:
