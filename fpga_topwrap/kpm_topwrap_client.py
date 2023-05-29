@@ -28,7 +28,8 @@ def _kpm_import_handler(data: bytes, yamlfiles: list) -> str:
 
 
 def _kpm_validate_handler(data: bytes, yamlfiles: list) -> dict:
-    return validate_kpm_design(data, yamlfiles)
+    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
+    return validate_kpm_design(data, specification)
 
 
 def kpm_run_client(host: str, port: int, yamlfiles: str):

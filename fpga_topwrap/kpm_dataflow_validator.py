@@ -18,7 +18,7 @@ class CheckResult(NamedTuple):
     message: Union[str, None]
 
 
-def _check_duplicate_ip_names(data: bytes) -> CheckResult:
+def _check_duplicate_ip_names(data: bytes, specification) -> CheckResult:
     """ Check for duplicate IP core names in the design.
     """
     dataflow_data = json.loads(data.decode())
@@ -37,7 +37,7 @@ def _check_duplicate_ip_names(data: bytes) -> CheckResult:
     return CheckResult(CheckStatus.ERROR, err_msg)
 
 
-def _check_parameters_values(data: bytes) -> CheckResult:
+def _check_parameters_values(data: bytes, specification) -> CheckResult:
     dataflow_data = json.loads(data.decode())
     invalid_params = list()
 
@@ -58,48 +58,97 @@ def _check_parameters_values(data: bytes) -> CheckResult:
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_unconnected_interfaces(data: bytes) -> CheckResult:
-    class Iface:
-        def __init__(self, node_name: str, iface_name: str, iface_id: str):
-            self.node_name = node_name
-            self.iface_name = iface_name
-            self.iface_id = iface_id
-
-        def __repr__(self) -> str:
-            return self.node_name + ":" + self.iface_name
-
-        def __eq__(self, value: object) -> bool:
-            if isinstance(value, Iface):
-                return value.iface_id == self.iface_id
-            return False
-
-    dataflow_data = json.loads(data.decode())
-    unconn_ifaces = []
-    for node in dataflow_data['graph']['nodes']:
-        interfaces = { **node['inputs'], **node['outputs'] }
+def get_dataflow_ips_interfaces(dataflow_json) -> dict:
+    result = {}
+    for node in dataflow_json['graph']['nodes']:
+        interfaces = {**node['inputs'] , **node['outputs']}
         for iface_name in interfaces.keys():
-            unconn_ifaces.append(Iface(node['name'], iface_name, interfaces[iface_name]['id']))
+            result[interfaces[iface_name]['id']] = [node['name'], iface_name]
+    return result
+
+
+def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> list|None:
+    """ Return a list ["node_name", "iface_name"] that corresponds to
+    a given 'iface_id'
+    """
+    ip_interfaces = get_dataflow_ips_interfaces(dataflow_json)
+
+    if iface_id in ip_interfaces.keys():
+        return ip_interfaces[iface_id]
+
+
+def _check_unconnected_interfaces(data: bytes, specification) -> CheckResult:
+    dataflow_data = json.loads(data.decode())
+    
+    unconn_ifaces = set([
+        interface[1]['id']
+        for node in dataflow_data['graph']['nodes'] 
+        for interface in {**node['inputs'], **node['outputs']}.items()
+    ])
 
     for conn in dataflow_data['graph']['connections']:
-        connected_ifaces = list(filter(
-            lambda x: x.iface_id == conn['from'] or x.iface_id == conn['to'], unconn_ifaces)) # noqa
-        for iface in connected_ifaces:
-            unconn_ifaces.remove(iface)
+        unconn_ifaces.discard(conn['from'])
+        unconn_ifaces.discard(conn['to'])
 
     if unconn_ifaces:
-        return CheckResult(
-            CheckStatus.WARNING, f"Unconnected interfaces: {unconn_ifaces}")
+        unconn_ifaces_descrs = []
+        for unconn_iface_id in unconn_ifaces:
+            [node_name, iface_name] = find_dataflow_interface_by_id(dataflow_data, unconn_iface_id)
+            unconn_ifaces_descrs.append(f"{node_name}:{iface_name}")
+        return CheckResult(CheckStatus.WARNING, f"Unconnected interfaces: {unconn_ifaces_descrs}")
     return CheckResult(CheckStatus.OK, None)
 
 
-def validate_kpm_design(data: bytes, yamlfiles: list) -> dict:
+def find_spec_interface_by_name(specification, node_type: str, iface_name: str):
+    for node in specification['nodes']:
+        if node['type'] != node_type:
+            continue
+        for interface in node['interfaces']:
+            if interface['name'] == iface_name:
+                return interface
+
+
+def find_dataflow_node_type_by_name(dataflow_data, node_name: str) -> str:
+    for node in dataflow_data['graph']['nodes']:
+        if node['name'] == node_name:
+            return node["type"]
+
+
+def _check_multiple_connections_from_interfaces(data: bytes, specification):
+    """ Check for multiple connections going from interfaces. A single interface
+    may have can be connected with only one other interface.
+    """
+    dataflow_data = json.loads(data.decode())
+    invalid_ifaces = []
+    
+    for iface in get_dataflow_ips_interfaces(dataflow_data).items():
+        node_type = find_dataflow_node_type_by_name(dataflow_data, iface[1][0])
+        iface_type = find_spec_interface_by_name(specification, node_type, iface[1][1])['type']
+        if iface_type == "port":
+            continue
+        iface_conns = [
+            conn for conn in dataflow_data['graph']['connections'] if conn['from'] == iface[0] or conn['to'] == iface[0]
+        ]
+        if len(iface_conns) > 1:
+            invalid_ifaces.append(iface)
+
+    if invalid_ifaces:
+        invalid_ifaces_descrs = [
+            f"{invalid_iface[1][0]}:{invalid_iface[1][1]}" for invalid_iface in invalid_ifaces
+        ]
+        return CheckResult(CheckStatus.ERROR, f"Interfaces have >1 outgoing connection: {invalid_ifaces_descrs}")
+    return CheckResult(CheckStatus.OK, None)
+
+
+def validate_kpm_design(data: bytes, specification) -> dict:
     """ Run some checks to validate user-created design in KPM.
     Return a dict of warning and error messages to be sent to the KPM.
     """
     checks = [
         _check_duplicate_ip_names,
         _check_parameters_values,
-        _check_unconnected_interfaces
+        _check_unconnected_interfaces,
+        _check_multiple_connections_from_interfaces
     ]
 
     messages = {
@@ -107,7 +156,7 @@ def validate_kpm_design(data: bytes, yamlfiles: list) -> dict:
         "warnings": []
     }
     for check in checks:
-        status, msg = check(data)
+        status, msg = check(data, specification)
         if status == CheckStatus.ERROR:
             messages["errors"].append("ERROR: " + msg)
         elif status == CheckStatus.WARNING:
