@@ -6,57 +6,6 @@ import os
 from typing import List
 from time import time
 from yaml import safe_load
-from .design_description import \
-    DesignDescription, DesignIP, Direction, \
-    Interface, InterfaceConnection, Port, PortConnection
-from enum import Enum
-
-
-def design_descr_from_yaml(yamlcontent: str) -> DesignDescription:
-    """ Parse design description YAML file into DesignDescription
-    """
-    design = safe_load(yamlcontent)
-
-    yaml_ips = design['ips'] if 'ips' in design.keys() else {}
-    yaml_ports = design['ports'] if 'ports' in design.keys() else {}
-    yaml_ifaces = design['interfaces'] if 'interfaces' in design.keys() else {}
-    yaml_external = design['external'] if 'external' in design.keys() else {}
-
-    design_ips = []
-    ports_conns = []
-    interfaces_conns = []
-    external = []
-
-    for ip_name in yaml_ips.keys():
-        descr_file = yaml_ips[ip_name]['file']
-        module = os.path.splitext(os.path.basename(descr_file))[0]
-        if 'parameters' in yaml_ips[ip_name].keys():
-            parameters = yaml_ips[ip_name]['parameters']
-        else:
-            parameters = {}
-        design_ips.append(DesignIP(ip_name, descr_file, module, parameters))
-
-    for ip_name in yaml_ports.keys():
-        for port_name in yaml_ports[ip_name].keys():
-            port_to = Port(port_name, ip_name, Direction.IN)
-            value = yaml_ports[ip_name][port_name]
-            if isinstance(value, int):
-                ports_conns.append(PortConnection(None, port_to, value))
-            elif isinstance(value, list):
-                port_from = Port(value[1], value[0], Direction.OUT)
-                ports_conns.append(PortConnection(port_from, port_to))
-
-    for ip_name in yaml_ifaces.keys():
-        for iface_name in yaml_ifaces[ip_name].keys():
-            iface_to = Interface(iface_name, ip_name, Direction.IN, None)
-            value = yaml_ifaces[ip_name][iface_name]
-            iface_from = Interface(value[1], value[0], Direction.OUT, None)
-            interfaces_conns.append(InterfaceConnection(iface_from, iface_to))
-
-    for ip_name in yaml_external.keys():
-        pass  # TODO - find a way to get external port directions
-
-    return DesignDescription(design_ips, ports_conns, interfaces_conns, external) # noqa
 
 
 class IDGenerator(object):
@@ -175,51 +124,48 @@ def _ipcore_param_to_kpm_value(param) -> str:
 
 
 def kpm_nodes_from_design_descr(
-        design_descr: DesignDescription,
+        design_descr: dict,
         specification: dict) -> List[KPMDataflowNode]:
-    """ Generate KPM dataflow nodes based on Topwrap's abstract
-    DesignDescription object (e.g. generated from YAML design description)
+    """ Generate KPM dataflow nodes based on Topwrap's design
+    description yaml (e.g. generated from YAML design description)
     and already loaded KPM specification.
     """
+    ips = design_descr['ips']
     nodes = []
-    for ip in design_descr.ips:
-        spec_node = _get_specification_node_by_type(ip.module, specification)
+
+    for ip_name in ips.keys():
+        ip = ips[ip_name]
+        ip_type = os.path.splitext(os.path.basename(ip['file']))[0]
+        spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
             continue
 
         properties = [KPMDataflowNodeProperty(
             prop['name'], prop['default']) for prop in spec_node['properties']]
-        for property in properties:  # override default values
-            if property.name in ip.parameters.keys():
-                property.value = _ipcore_param_to_kpm_value(ip.parameters[property.name]) # noqa
+        if 'parameters' in ip.keys():
+            for property in properties:  # override default values
+                if property.name in ip['parameters'].keys():
+                    property.value = _ipcore_param_to_kpm_value(ip['parameters'][property.name]) # noqa
 
         inputs = [KPMDataflowNodeInterface(
             input['name']) for input in spec_node['interfaces'] if input['direction'] == 'input'] # noqa
         outputs = [KPMDataflowNodeInterface(
             output['name']) for output in spec_node['interfaces'] if output['direction'] == 'output'] # noqa
 
-        nodes.append(KPMDataflowNode(ip.name, ip.module, properties, inputs, outputs))
+        nodes.append(KPMDataflowNode(ip_name, ip_type, properties, inputs, outputs))
     return nodes
 
 
-def _get_dataflow_node_by_name(
-        name: str,
-        nodes: List[KPMDataflowNode]) -> KPMDataflowNode:
-
+def _get_dataflow_interface_by_name(name: str, node_name: str, nodes: List[KPMDataflowNode]) -> KPMDataflowNodeInterface:
+    """ Find `name` interface of a node (representing an IP core) named `node_name`. 
+    """
     for node in nodes:
-        if node.name == name:
-            return node
-    logging.warning(f"Node '{name}' not found in the design")
-
-
-def _get_dataflow_interface_by_name(
-        name: str,
-        node: KPMDataflowNode) -> KPMDataflowNodeInterface:
-
-    for interface in node.inputs + node.outputs:
-        if interface.name == name:
-            return interface
-    logging.warning(f"Interface '{name}' not found in node {node.name}")
+        if node.name == node_name:
+            for iface in node.inputs + node.outputs:
+                if iface.name == name:
+                    return iface
+            logging.warning(f"Interface '{name}' not found in node {node_name}")
+    logging.warning(f"Node '{node_name}' not found")
 
 
 def _create_kpm_dataflow_connection(
@@ -229,58 +175,56 @@ def _create_kpm_dataflow_connection(
         ip_to: str,
         nodes: List[KPMDataflowNode]) -> KPMDataflowConnection:
 
-    node_from = _get_dataflow_node_by_name(ip_from, nodes)
-    node_to = _get_dataflow_node_by_name(ip_to, nodes)
-    if node_from is None or node_to is None:
-        return None
-    kpm_iface_from = _get_dataflow_interface_by_name(name_from, node_from)
-    kpm_iface_to = _get_dataflow_interface_by_name(name_to, node_to)
+    """ Create a KPMDataflowConnection between 2 interfaces of 2 nodes represeting IP cores
+    """    
+    kpm_iface_from = _get_dataflow_interface_by_name(name_from, ip_from, nodes)
+    kpm_iface_to = _get_dataflow_interface_by_name(name_to, ip_to, nodes)
     if kpm_iface_from is None or kpm_iface_to is None:
         return None
     return KPMDataflowConnection(kpm_iface_from.id, kpm_iface_to.id)
 
 
-def kpm_connections_from_design_descr(
-        design_descr: DesignDescription,
-        nodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
-
-    """ Generate KPM connections based on the data from DesignDescription.
-    We also need a list of previously generated KPM dataflow nodes, because the
-    connections in KPM are specified using id's of their interfaces
+def _parse_design_descr_connections(conns_dict: dict, nodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
+    """ Helper function for parsing "ports" or "interfaces" section of
+    a design description yaml into a list of KPMDataflowConnection
     """
     connections = []
-    for conn in design_descr.ports_conn:
-        if conn.port_from is None:
-            node = _get_dataflow_node_by_name(conn.port_to.ip_name, nodes)
-            if node is None:
+    for ip_conns in conns_dict.items():
+        to_ip_name = ip_conns[0]
+        for conn in ip_conns[1].items():
+            to_port_name = conn[0]
+            if not isinstance(conn[1], list):
+                # TODO - handle case where port has a default value
+                # instead of being connected with another port
                 continue
-            iface = _get_dataflow_interface_by_name(conn.port_to.name, node)
-            iface.value = conn.default
-        else:
-            connection = _create_kpm_dataflow_connection(
-                conn.port_from.name,
-                conn.port_from.ip_name,
-                conn.port_to.name,
-                conn.port_to.ip_name,
-                nodes)
+            from_ip_name = conn[1][0]
+            from_port_name = conn[1][1]
+            connection = _create_kpm_dataflow_connection(from_port_name, from_ip_name, to_port_name, to_ip_name, nodes)
             if connection is not None:
                 connections.append(connection)
-
-    for conn in design_descr.interfaces_conn:
-        connection = _create_kpm_dataflow_connection(
-            conn.interface_from.name,
-            conn.interface_from.ip_name,
-            conn.interface_to.name,
-            conn.interface_to.ip_name,
-            nodes)
-        if connection is not None:
-            connections.append(connection)
-
     return connections
 
 
+def kpm_connections_from_design_descr(
+        design_descr: dict,
+        nodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
+
+    """ Generate KPM connections based on the data from `design_descr`.
+    We also need a list of previously generated KPM dataflow nodes, because the
+    connections in KPM are specified using id's of their interfaces
+    """
+    port_conns = {}
+    if 'ports' in design_descr.keys():
+        port_conns = design_descr['ports']
+    interface_conns = {}
+    if 'interfaces' in design_descr.keys():
+        interface_conns = design_descr['interfaces']
+
+    return _parse_design_descr_connections(port_conns, nodes) + _parse_design_descr_connections(interface_conns, nodes)
+
+
 def kpm_dataflow_from_design_descr(
-        design_descr: DesignDescription,
+        design_descr: dict,
         specification: dict) -> dict:
 
     nodes = kpm_nodes_from_design_descr(design_descr, specification)
