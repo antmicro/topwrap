@@ -140,19 +140,23 @@ def kpm_nodes_from_design_descr(
         if spec_node is None:
             continue
 
-        properties = [KPMDataflowNodeProperty(
-            prop['name'], prop['default']) for prop in spec_node['properties']]
+        properties = {
+            prop['name']: KPMDataflowNodeProperty(prop['name'], prop['default']) 
+            for prop in spec_node['properties']
+        }
         if 'parameters' in ip.keys():
-            for property in properties:  # override default values
-                if property.name in ip['parameters'].keys():
-                    property.value = _ipcore_param_to_kpm_value(ip['parameters'][property.name]) # noqa
+            for (param_name, param_val) in ip['parameters'].items():
+                if param_name in properties.keys():
+                    properties[param_name].value = _ipcore_param_to_kpm_value(param_val) # noqa
+                else:
+                    logging.warning(f"Parameter '{param_name}' not found in node {ip_name}")
 
         inputs = [KPMDataflowNodeInterface(
             input['name']) for input in spec_node['interfaces'] if input['direction'] == 'input'] # noqa
         outputs = [KPMDataflowNodeInterface(
             output['name']) for output in spec_node['interfaces'] if output['direction'] == 'output'] # noqa
 
-        nodes.append(KPMDataflowNode(ip_name, ip_type, properties, inputs, outputs))
+        nodes.append(KPMDataflowNode(ip_name, ip_type, list(properties.values()), inputs, outputs)) # noqa
     return nodes
 
 
@@ -165,6 +169,7 @@ def _get_dataflow_interface_by_name(name: str, node_name: str, nodes: List[KPMDa
                 if iface.name == name:
                     return iface
             logging.warning(f"Interface '{name}' not found in node {node_name}")
+            return
     logging.warning(f"Node '{node_name}' not found")
 
 
