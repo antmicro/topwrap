@@ -5,6 +5,7 @@ parameters:
     DATA_WIDTH: 32
     ADDR_WIDTH: 32
     ID_WIDTH: 12
+    M_BASE_ADDR: 0
     M_ADDR_WIDTH:
       value: 0x100000001000000010
       width: 96

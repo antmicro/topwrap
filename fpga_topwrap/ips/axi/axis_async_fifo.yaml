@@ -4,6 +4,8 @@ parameters:
     ID_WIDTH: 8
     DEST_WIDTH: 8
     USER_WIDTH: 1
+    ID_ENABLE: 0
+    USER_ENABLE: 1
 s_axis:
     interface: AXI4Stream
     mode: slave
