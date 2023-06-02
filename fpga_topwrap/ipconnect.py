@@ -136,6 +136,24 @@ class IPConnect(Elaboratable):
         setattr(self, port_name, sig)
         self._ports.append(sig)
 
+    def _set_interface(self, ip, iface_name):
+        """Set interface specified by name as an external interface
+
+        :type ip: IPWrapper
+        :type iface_name: str
+        :raises ValueError: if such interface doesn't exist
+        """
+        inst_args = getattr(self, ip.top_name)
+        
+        iface_ports  = [key for key in inst_args.keys() if key[2:].startswith(iface_name)]
+        if not iface_ports:
+            raise ValueError(f'no ports exist for interface {iface_name} in ip: {ip.top_name}')
+
+        for iface_port in iface_ports:
+            sig = inst_args[iface_port]
+            setattr(self, iface_port, sig)
+            self._ports.append(sig)
+
     def get_ports(self):
         """Return a list of external ports of this module
         """
@@ -196,20 +214,24 @@ class IPConnect(Elaboratable):
                 self.connect_interfaces(ip1_iface, ip1_name,
                                         ip2_iface, ip2_name)
 
-    def make_external_ports(self, ports):
-        """Pick ports which will be used as external I/O
+    def make_external_ports_interfaces(self, ports_ifaces):
+        """Pick ports and interfaces which will be used as external I/O
 
-        :param ports: dict {'in': {ip_name: port_name}, 'out': ...}
+        :param ports_ifaces: dict {'in': {ip_name: port_name}, 'out': ...}
         """
-        ext_ports = {}
+        _exts = {}
         for dir in ['in', 'out', 'inout']:
-            if dir in ports.keys():
-                ext_ports.update(ports[dir])
+            if dir in ports_ifaces.keys():
+                _exts.update(ports_ifaces[dir])
 
         self._set_unconnected_ports()
-        for ip_name, _ports in ext_ports.items():
-            for _port in _ports:
-                self._set_port(self._ips[ip_name], _port)
+        for ip_name, _ip_exts in _exts.items():
+            ifaces_names = [p.interface_name for p in self._ips[ip_name].get_ports()]
+            for _ext in _ip_exts:
+                if _ext in ifaces_names:
+                    self._set_interface(self._ips[ip_name], _ext)
+                else:
+                    self._set_port(self._ips[ip_name], _ext)
 
     def build(self, build_dir='build', template=None, sources_dir=None,
               top_module_name='project_top', part=None):
