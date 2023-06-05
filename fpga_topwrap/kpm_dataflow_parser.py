@@ -37,8 +37,9 @@ def _maybe_to_int(string: int) -> int|str:
 
 def _kpm_properties_to_parameters(properties: dict):
     result = dict()
-    for param_name in properties.keys():
-        param_val = properties[param_name]['value']
+    for property in properties:
+        param_name = property['name']
+        param_val = property['value']
         if re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
             param_val = _parse_value_width_parameter(param_val)
         else:
@@ -73,32 +74,33 @@ def _find_spec_interface_by_name(specification: dict, ip_type: str, name: str):
 
 def _kpm_connections_to_pins(connections: list, nodes: list, specification: dict):
     pins_by_id = {
-        "inputs":  {},
-        "outputs": {}
+        "input":  {},
+        "output": {}
     }
 
     for node in nodes:
         # TODO - handle inouts
-        for dir in ['inputs', 'outputs']:
-            for iface_name in node[dir].keys():
-                spec_iface = _find_spec_interface_by_name(specification, node['type'], iface_name)
-                if spec_iface is None:
-                    logging.warning(
-                        f'Interface {iface_name} of node {node["type"]} not found in specification')
-                    continue
-                iface_id = node[dir][iface_name]['id']
-                pins_by_id[dir][iface_id] = {
-                    "ip_name": node['name'],
-                    "pin_name": iface_name,
-                    "type": spec_iface['type']
-                }
+        for interface in node["interfaces"]:
+            iface_name = interface["name"]
+            iface_id = interface["id"]
+            iface_dir = interface["direction"]
+            spec_iface = _find_spec_interface_by_name(specification, node['type'], iface_name)
+            if spec_iface is None:
+                logging.warning(
+                    f'Interface {iface_name} of node {node["type"]} not found in specification')
+                continue
+            pins_by_id[iface_dir][iface_id] = {
+                "ip_name": node['name'],
+                "pin_name": iface_name,
+                "type": spec_iface['type']
+            }
 
     ports_conns = {}
     interfaces_conns = {}
 
     for conn in connections:
-        conn_from = pins_by_id["outputs"][conn["from"]]
-        conn_to = pins_by_id["inputs"][conn["to"]]
+        conn_from = pins_by_id["output"][conn["from"]]
+        conn_to = pins_by_id["input"][conn["to"]]
 
         if conn_to["type"] == "port":
             pins_conns = ports_conns

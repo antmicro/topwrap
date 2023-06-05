@@ -49,7 +49,8 @@ def _kpm_run_handler(data: bytes, yamlfiles: list) -> list | None:
     """ Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """
-    messages = validate_kpm_design(data, yamlfiles)
+    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
+    messages = validate_kpm_design(data, specification)
     if not messages["errors"]:
         design = _design_from_kpm_data(data, yamlfiles)
         build_design(design)
