@@ -43,8 +43,9 @@ def _check_parameters_values(data: bytes, specification) -> CheckResult:
 
     for node in dataflow_data['graph']['nodes']:
         evaluated = dict()
-        for param_name in node['properties'].keys():
-            param_val = node['properties'][param_name]['value']
+        for property in node['properties']:
+            param_name = property["name"]
+            param_val = property["value"]
             if not re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
                 try:
                     evaluated[param_name] = int(
@@ -61,9 +62,8 @@ def _check_parameters_values(data: bytes, specification) -> CheckResult:
 def get_dataflow_ips_interfaces(dataflow_json) -> dict:
     result = {}
     for node in dataflow_json['graph']['nodes']:
-        interfaces = {**node['inputs'] , **node['outputs']}
-        for iface_name in interfaces.keys():
-            result[interfaces[iface_name]['id']] = [node['name'], iface_name]
+        for interface in node['interfaces']:
+            result[interface['id']] = [node['name'], interface['name']]
     return result
 
 
@@ -81,9 +81,9 @@ def _check_unconnected_interfaces(data: bytes, specification) -> CheckResult:
     dataflow_data = json.loads(data.decode())
     
     unconn_ifaces = set([
-        interface[1]['id']
+        interface['id']
         for node in dataflow_data['graph']['nodes'] 
-        for interface in {**node['inputs'], **node['outputs']}.items()
+        for interface in node['interfaces']
     ])
 
     for conn in dataflow_data['graph']['connections']:
