@@ -25,10 +25,11 @@ class IDGenerator(object):
 
 
 class KPMDataflowNodeInterface:
-    def __init__(self, name: str):
+    def __init__(self, name: str, direction: str):
         generator = IDGenerator()
         self.id = "ni_" + generator.generate_id()
         self.name = name
+        self.direction = direction
 
 
 class KPMDataflowNodeProperty:
@@ -46,47 +47,44 @@ class KPMDataflowNode:
                  name: str,
                  type: str,
                  properties: List[KPMDataflowNodeProperty],
-                 inputs: List[KPMDataflowNodeInterface],
-                 outputs: List[KPMDataflowNodeInterface]) -> None:
+                 interfaces: List[KPMDataflowNodeInterface]) -> None:
 
         generator = IDGenerator()
         self.id = "node_" + generator.generate_id()
         self.name = name
         self.type = type
         self.properties = properties
-        self.inputs = inputs
-        self.outputs = outputs
+        self.interfaces = interfaces
 
     def to_json_format(self) -> dict:
         return {
             "type": self.type,
             "id": self.id,
             "name": self.name,
-            "inputs": {
-                input.name: {
-                    "id": input.id
-                } 
-                for input in self.inputs
-            },
-            "outputs": {
-                output.name: {
-                    "id": output.id
-                } 
-                for output in self.outputs
-            },
+            "interfaces": [
+                {
+                    "name": interface.name,
+                    "id": interface.id,
+                    "direction": interface.direction,
+                    "connectionSide": "left" 
+                        if interface.direction == "input" 
+                        else "right"
+                } for interface in self.interfaces
+            ],
             "position": {
                 "x": 0,
                 "y": 0
             },
             "width": KPMDataflowNode.__default_width,
             "twoColumn": False,
-            "properties": {
-                property.name: {
+            "properties": [
+                {
+                    "name": property.name,
                     "id": property.id,
                     "value": property.value
                 }
                 for property in self.properties
-            }
+            ]
         }
 
 
@@ -151,12 +149,10 @@ def kpm_nodes_from_design_descr(
                 else:
                     logging.warning(f"Parameter '{param_name}' not found in node {ip_name}")
 
-        inputs = [KPMDataflowNodeInterface(
-            input['name']) for input in spec_node['interfaces'] if input['direction'] == 'input'] # noqa
-        outputs = [KPMDataflowNodeInterface(
-            output['name']) for output in spec_node['interfaces'] if output['direction'] == 'output'] # noqa
+        interfaces = [KPMDataflowNodeInterface(
+            interface['name'], interface['direction']) for interface in spec_node['interfaces']]
 
-        nodes.append(KPMDataflowNode(ip_name, ip_type, list(properties.values()), inputs, outputs)) # noqa
+        nodes.append(KPMDataflowNode(ip_name, ip_type, list(properties.values()), interfaces)) # noqa
     return nodes
 
 
@@ -165,7 +161,7 @@ def _get_dataflow_interface_by_name(name: str, node_name: str, nodes: List[KPMDa
     """
     for node in nodes:
         if node.name == node_name:
-            for iface in node.inputs + node.outputs:
+            for iface in node.interfaces:
                 if iface.name == name:
                     return iface
             logging.warning(f"Interface '{name}' not found in node {node_name}")
