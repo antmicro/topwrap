@@ -57,6 +57,9 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
     """
     inputs = [
         {
+            # In ip core yamls each port is described as a separate,
+            # one-element list. Here `port` is a one-element list containing a
+            # single string (i.e. port name), which is accessed with `port[0]`
             'name': port[0],
             'type': 'port',
             'direction': 'input'
@@ -71,9 +74,17 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
         }
         for port in ports['out']
     ]
-    # TODO - inouts are not supported in KPM for now
+    inouts = [
+        {
+            'name': port[0],
+            'type': 'port',
+            'direction': 'inout',
+            'connectionSide': 'right'
+        }
+        for port in ports['inout']
+    ]
 
-    return inputs + outputs
+    return inputs + outputs + inouts
 
 
 def _ipcore_ifaces_to_kpm(ifaces: dict):
