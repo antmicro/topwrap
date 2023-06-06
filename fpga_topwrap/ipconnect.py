@@ -7,7 +7,7 @@ from amaranth.hdl.ast import Const
 from amaranth.build import Platform
 from amaranth.back import verilog
 from .ipwrapper import IPWrapper
-from .nm_helper import port_direction_to_prefix
+from .nm_helper import port_direction_to_prefix, strip_port_prefix
 from .fuse_helper import FuseSocBuilder
 
 
@@ -128,7 +128,7 @@ class IPConnect(Elaboratable):
 
         inst_args = getattr(self, ip.top_name)
         try:
-            name = [key for key in inst_args.keys() if key[2:] == port_name][0]
+            name = [key for key in inst_args.keys() if strip_port_prefix(key) == port_name][0]
         except IndexError:
             raise ValueError(f'port: "{port_name}" does not exist in ip: '
                              f'{ip.top_name}')

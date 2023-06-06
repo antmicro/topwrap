@@ -17,6 +17,16 @@ def port_direction_to_prefix(direction: Direction) -> str:
         return 'io_'
 
 
+def strip_port_prefix(port_name: str) -> str:
+    """ Return a port name without the o_/i_/io_ prefix
+    """
+    if port_name[:2] in ['i_', 'o_']:
+        return port_name[2:]
+    if port_name[:3] == 'io_':
+        return port_name[3:]
+    return port_name
+
+
 class WrapperPort(Signal):
     def __init__(self, shape=None, src_loc_at=0, **kwargs):
         '''
