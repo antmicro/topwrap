@@ -105,7 +105,8 @@ def _check_multiple_connections_from_interfaces(dataflow_data, specification):
         )
         iface_type = find_spec_interface_by_name(
             specification, node_type, iface['iface_name'])['type']
-        if iface_type == "port":
+
+        if iface_type in ['port', 'port_inout']:
             continue
         iface_conns = [
             conn for conn in dataflow_data['graph']['connections']

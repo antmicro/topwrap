@@ -97,7 +97,7 @@ def _kpm_connections_to_ports_ifaces(
             specification, node_to_type, iface_to["iface_name"]
         )["type"]
 
-        if iface_to_type == "port":
+        if iface_to_type in ["port", "port_inout"]:
             conns_dict = ports_conns
         else:
             conns_dict = interfaces_conns

@@ -77,7 +77,7 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
     inouts = [
         {
             'name': port[0],
-            'type': 'port',
+            'type': 'port_inout',
             'direction': 'inout',
             'connectionSide': 'right'
         }
