@@ -122,20 +122,28 @@ def _kpm_connections_to_external(dataflow_data) -> dict:
     external = {
         "in": {},
         "out": {},
+        "inout": {}
     }
-    # TODO: add "inout" external type
 
     for conn in get_dataflow_external_connections(dataflow_data):
         iface_to = find_dataflow_interface_by_id(dataflow_data, conn['to'])
         iface_from = find_dataflow_interface_by_id(
             dataflow_data, conn['from']
         )
+
         if iface_to["node_name"] == EXT_OUTPUT_NAME:
-            if iface_from["node_name"] not in external["out"].keys():
-                external["out"][iface_from["node_name"]] = []
-            external["out"][iface_from["node_name"]].append(
-                iface_from["iface_name"]
-            )
+            if iface_from["iface_dir"] == "output":
+                if iface_from["node_name"] not in external["out"].keys():
+                    external["out"][iface_from["node_name"]] = []
+                external["out"][iface_from["node_name"]].append(
+                    iface_from["iface_name"]
+                )
+            elif iface_from["iface_dir"] == "inout":
+                if iface_from["node_name"] not in external["inout"].keys():
+                    external["inout"][iface_from["node_name"]] = []
+                external["inout"][iface_from["node_name"]].append(
+                    iface_from["iface_name"]
+                )
         elif iface_from["node_name"] == EXT_INPUT_NAME:
             if iface_to["node_name"] not in external["in"].keys():
                 external["in"][iface_to["node_name"]] = []
