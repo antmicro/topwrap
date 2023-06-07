@@ -125,13 +125,18 @@ class IPConnect(Elaboratable):
         :type port_name: str
         :raises ValueError: if such port doesn't exist
         """
+        self._set_unconnected_port(ip.top_name, port_name)
 
         inst_args = getattr(self, ip.top_name)
-        try:
-            name = [key for key in inst_args.keys() if strip_port_prefix(key) == port_name][0]
-        except IndexError:
+
+        name = None
+        for inst_arg in inst_args.keys():
+            if strip_port_prefix(inst_arg) == port_name:
+                name = inst_arg
+        if name is None:
             raise ValueError(f'port: "{port_name}" does not exist in ip: '
                              f'{ip.top_name}')
+
         sig = inst_args[name]
         sig.name = port_name
         setattr(self, port_name, sig)
@@ -144,10 +149,14 @@ class IPConnect(Elaboratable):
         :type iface_name: str
         :raises ValueError: if such interface doesn't exist
         """
+        for port in ip.get_ports_of_interface(iface_name):
+            self._set_unconnected_port(ip.top_name, port.name)
+
         inst_args = getattr(self, ip.top_name)
 
         iface_ports = [
-            key for key in inst_args.keys() if key[2:].startswith(iface_name)
+            key for key in inst_args.keys()
+            if strip_port_prefix(key).startswith(iface_name)
         ]
         if not iface_ports:
             raise ValueError(
@@ -157,6 +166,7 @@ class IPConnect(Elaboratable):
 
         for iface_port in iface_ports:
             sig = inst_args[iface_port]
+            sig.name = strip_port_prefix(iface_port)
             setattr(self, iface_port, sig)
             self._ports.append(sig)
 
@@ -165,22 +175,17 @@ class IPConnect(Elaboratable):
         """
         return self._ports
 
-    def _set_unconnected_ports(self):
-        """Create signals for unconnected ports to allow using them as
+    def _set_unconnected_port(self, ip_name: str, port_name: str):
+        """Create signal for unconnected port to allow using it as
         external. This is essential since ports that haven't been used have
         no signals assigned to them.
         """
-        for name, ip in self._ips.items():
-            count = 0
-            inst_args = getattr(self, name)
-            ports = ip.get_ports()
-            for port in ports:
-                full_name = (port_direction_to_prefix(port.direction)
-                             + port.name)
-                if full_name not in inst_args.keys():
-                    sig = Signal(len(port), name=full_name)
-                    inst_args[full_name] = sig
-                    count += 1
+        inst_args = getattr(self, ip_name)
+        port = self._ips[ip_name].get_port_by_name(port_name)
+        full_name = port_direction_to_prefix(port.direction) + port.name
+
+        if full_name not in inst_args.keys():
+            inst_args[full_name] = Signal(len(port), name=full_name)
 
     def set_constant(self, ip_name, ip_port, target):
         """Set a constant value on a port of an IP
@@ -233,7 +238,6 @@ class IPConnect(Elaboratable):
                 else:
                     _exts[ip_name] += externals_list
 
-        self._set_unconnected_ports()
         for ip_name, _ip_exts in _exts.items():
             ifaces_names = [
                 p.interface_name for p in self._ips[ip_name].get_ports()]
@@ -252,7 +256,7 @@ class IPConnect(Elaboratable):
             filename = ip.top_name + '.v'
             fuse.add_source(filename, 'verilogSource')
 
-            makedirs(build_dir,exist_ok=True)
+            makedirs(build_dir, exist_ok=True)
             target_file = open(path.join(build_dir, filename), 'w')
 
             fragment = Fragment.get(ip, None)
