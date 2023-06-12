@@ -5,7 +5,7 @@ import logging
 import os
 from typing import List
 from time import time
-from .kpm_common import EXT_INPUT_NAME, EXT_OUTPUT_NAME
+from .kpm_common import EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME
 
 
 class IDGenerator(object):
@@ -254,7 +254,7 @@ def kpm_metanodes_from_design_descr(
     if 'external' not in design_descr.keys():
         return []
 
-    inputs, outputs = 0, 0
+    inputs, outputs, inouts = 0, 0, 0
     if 'in' in design_descr['external'].keys():
         inputs = sum(
             [len(ports_list)
@@ -265,6 +265,11 @@ def kpm_metanodes_from_design_descr(
             [len(ports_list)
              for ports_list in design_descr['external']['out'].values()]
         )
+    if 'inout' in design_descr['external'].keys():
+        inouts = sum(
+            [len(ports_list)
+             for ports_list in design_descr['external']['inout'].values()]
+        )
 
     result = [
         KPMDataflowNode(
@@ -272,8 +277,15 @@ def kpm_metanodes_from_design_descr(
             EXT_OUTPUT_NAME,
             [],
             [KPMDataflowNodeInterface('external', 'input')]
-        )
-        for _ in range(outputs)
+        ) for _ in range(outputs)
+    ]
+    result += [
+        KPMDataflowNode(
+            EXT_INOUT_NAME,
+            EXT_INOUT_NAME,
+            [],
+            [KPMDataflowNodeInterface('external', 'inout')]
+        ) for _ in range(inouts)
     ]
     if inputs >= 1:
         result.append(KPMDataflowNode(EXT_INPUT_NAME, EXT_INPUT_NAME, [], [
@@ -294,50 +306,50 @@ def kpm_metanodes_connections_from_design_descr(
 
     ext_input_conns = []
     ext_output_conns = []
+    ext_inout_conns = []
 
     ext_input_metanodes = list(
         filter(lambda node: node.type == EXT_INPUT_NAME, metanodes))
     ext_output_metanodes = list(
         filter(lambda node: node.type == EXT_OUTPUT_NAME, metanodes))
-    ext_output_idx = 0
+    ext_inout_metanodes = list(
+        filter(lambda node: node.type == EXT_INOUT_NAME, metanodes))
+    ext_output_idx, ext_inout_idx = 0, 0
 
-    if 'in' in design_descr['external'].keys():
-        for ip_name in design_descr['external']['in'].keys():
-            for ext_name in design_descr['external']['in'][ip_name]:
+    for dir in design_descr['external'].keys():
+        for ip_name in design_descr['external'][dir].keys():
+            for ext_name in design_descr['external'][dir][ip_name]:
                 ext_interface = _get_dataflow_interface_by_name(
                     ext_name, ip_name, nodes)
                 if ext_interface is None:
                     continue
-                # Create a connection between `ext_interface` belonging to
-                # an IP core and external input metanode's interface
-                # (note that metanodes always have exactly one interface
-                # hence, we take element at index 0 from `interfaces`).
-                # For now we create a connection always to the same external
-                # input metanode hence, we take element at index 0 from
-                # `ext_input_metanodes`.
-                ext_input_conns.append(KPMDataflowConnection(
-                    ext_input_metanodes[0].interfaces[0].id, ext_interface.id))
 
-    if 'out' in design_descr['external'].keys():
-        for ip_name in design_descr['external']['out'].keys():
-            for ext_name in design_descr['external']['out'][ip_name]:
-                ext_interface = _get_dataflow_interface_by_name(
-                    ext_name, ip_name, nodes)
-                if ext_interface is None:
-                    continue
                 # Create a connection between `ext_interface` belonging to
-                # an IP core and external output metanode's interface
-                # (note that metanodes always have exactly one interface
-                # hence, we take element at index 0 from `interfaces`).
-                ext_output_conns.append(
-                    KPMDataflowConnection(
+                # an IP core and external metanode's interface (note that
+                # metanodes always have exactly one interface hence, we take
+                # element at index 0 from `interfaces`).
+                if dir == 'in':
+                    # For now we create a connection always to the same
+                    # external input metanode hence, we take element
+                    # at index 0 from `ext_input_metanodes`.
+                    ext_input_conns.append(KPMDataflowConnection(
+                        ext_input_metanodes[0].interfaces[0].id,
+                        ext_interface.id
+                    ))
+                elif dir == 'out':
+                    ext_output_conns.append(KPMDataflowConnection(
                         ext_interface.id,
                         ext_output_metanodes[ext_output_idx].interfaces[0].id
-                    )
-                )
-                ext_output_idx += 1
+                    ))
+                    ext_output_idx += 1
+                elif dir == 'inout':
+                    ext_inout_conns.append(KPMDataflowConnection(
+                        ext_interface.id,
+                        ext_inout_metanodes[ext_inout_idx].interfaces[0].id
+                    ))
+                    ext_inout_idx += 1
 
-    return ext_input_conns + ext_output_conns
+    return ext_input_conns + ext_output_conns + ext_inout_conns
 
 
 def kpm_dataflow_from_design_descr(

@@ -5,6 +5,7 @@ import re
 from .kpm_common import (
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
+    EXT_INOUT_NAME,
     get_dataflow_ip_nodes,
     get_dataflow_ip_connections,
     find_dataflow_interface_by_id,
@@ -132,22 +133,32 @@ def _kpm_connections_to_external(dataflow_data) -> dict:
         )
 
         if iface_to["node_name"] == EXT_OUTPUT_NAME:
-            if iface_from["iface_dir"] == "output":
-                if iface_from["node_name"] not in external["out"].keys():
-                    external["out"][iface_from["node_name"]] = []
-                external["out"][iface_from["node_name"]].append(
-                    iface_from["iface_name"]
-                )
-            elif iface_from["iface_dir"] == "inout":
-                if iface_from["node_name"] not in external["inout"].keys():
-                    external["inout"][iface_from["node_name"]] = []
-                external["inout"][iface_from["node_name"]].append(
-                    iface_from["iface_name"]
-                )
+            if iface_from["node_name"] not in external["out"].keys():
+                external["out"][iface_from["node_name"]] = []
+            external["out"][iface_from["node_name"]].append(
+                iface_from["iface_name"]
+            )
         elif iface_from["node_name"] == EXT_INPUT_NAME:
             if iface_to["node_name"] not in external["in"].keys():
                 external["in"][iface_to["node_name"]] = []
             external["in"][iface_to["node_name"]].append(
+                iface_to["iface_name"]
+            )
+
+        elif iface_to["node_name"] == EXT_INOUT_NAME:
+            if iface_from["node_name"] not in external["inout"].keys():
+                external["inout"][iface_from["node_name"]] = []
+            external["inout"][iface_from["node_name"]].append(
+                iface_from["iface_name"]
+            )
+
+        # In PM dataflow the direction of inout connection is not specified.
+        # conn['to'] could be id of `External Inout`'s interface, but it
+        # could also be id of some IP core's interface. Same with conn['from']
+        elif iface_from["node_name"] == EXT_INOUT_NAME:
+            if iface_to["node_name"] not in external["inout"].keys():
+                external["inout"][iface_to["node_name"]] = []
+            external["inout"][iface_to["node_name"]].append(
                 iface_to["iface_name"]
             )
 

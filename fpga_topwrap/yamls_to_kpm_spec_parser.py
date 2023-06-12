@@ -192,6 +192,18 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
                     "direction": "input"
                 }]
             },
+            {
+                "name": "External Inout",
+                "type": "External Inout",
+                "category": "Metanode",
+                "properties": [],
+                "interfaces": [{
+                    "name": "external",
+                    "type": "",
+                    "direction": "inout",
+                    "connectionSide": "left"
+                }]
+            },
         ] + [
             _ipcore_to_kpm(yamlfile)
             for yamlfile in yamlfiles

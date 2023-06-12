@@ -8,6 +8,7 @@ from typing import NamedTuple, Union
 from .kpm_common import (
     get_dataflow_ip_nodes,
     get_dataflow_externals_interfaces,
+    get_dataflow_external_connections,
     get_dataflow_ips_interfaces,
     find_dataflow_interface_by_id,
     find_dataflow_node_type_by_name,
@@ -128,8 +129,7 @@ def _check_multiple_connections_from_interfaces(dataflow_data, specification):
 
 
 def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
-    """ Check for connections between
-    'External Input' and 'External Output' metanodes
+    """ Check for connections between external metanodes
     """
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 
@@ -137,7 +137,7 @@ def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
         if conn['from'] in ext_ifaces_ids and conn['to'] in ext_ifaces_ids:
             return CheckResult(
                 CheckStatus.ERROR,
-                "Existing connections from External Inputs to External Outputs"
+                "Existing connections between external metanodes"
             )
 
     return CheckResult(CheckStatus.OK, None)
@@ -174,6 +174,43 @@ def _check_ambigous_ports_interfaces(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
+def _check_externals_metanodes_types(dataflow_data, specification):
+    """ Check for external ports/interfaces which are connected to wrong type
+    of external metanode. External outputs must be connected to
+    `External Output` metanodes, external inputs to `External Input` etc.
+    """
+    bad_exts = []
+
+    for conn in get_dataflow_external_connections(dataflow_data):
+        iface_from = find_dataflow_interface_by_id(
+            dataflow_data, conn['from'])
+        iface_to = find_dataflow_interface_by_id(dataflow_data, conn['to'])
+        if (iface_from["iface_dir"] == "inout"
+                and iface_to["node_name"] == "External Output"):
+            bad_exts.append(
+                f"{iface_from['node_name']}:{iface_from['iface_name']}")
+        elif (iface_to["iface_dir"] == "inout"
+              and iface_from["node_name"] == "External Input"):
+            bad_exts.append(
+                f"{iface_to['node_name']}:{iface_to['iface_name']}")
+        elif (iface_from["iface_dir"] == "output"
+              and iface_to["node_name"] == "External Inout"):
+            bad_exts.append(
+                f"{iface_from['node_name']}:{iface_from['iface_name']}")
+        elif (iface_to["iface_dir"] == "input"
+              and iface_from["node_name"] == "External Inout"):
+            bad_exts.append(
+                f"{iface_to['node_name']}:{iface_to['iface_name']}")
+
+    if bad_exts:
+        return CheckResult(
+            CheckStatus.ERROR,
+            "External port/interfaces"
+            f"connected to wrong type of external metanode: {bad_exts}"
+        )
+    return CheckResult(CheckStatus.OK, None)
+
+
 def validate_kpm_design(data: bytes, specification) -> dict:
     """ Run some checks to validate user-created design in KPM.
     Return a dict of warning and error messages to be sent to the KPM.
@@ -184,7 +221,8 @@ def validate_kpm_design(data: bytes, specification) -> dict:
         _check_unconnected_interfaces,
         _check_multiple_connections_from_interfaces,
         _check_ext_in_to_ext_out_connections,
-        _check_ambigous_ports_interfaces
+        _check_ambigous_ports_interfaces,
+        _check_externals_metanodes_types
     ]
 
     messages = {

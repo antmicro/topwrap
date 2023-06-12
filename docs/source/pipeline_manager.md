@@ -38,7 +38,7 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     * adding IP core instances to the block design. Note, that you can create multiple instances of the same IP core thanks to a `rename` option in a Pipeline Manager's node.
     * adjusting IP cores' parameters values. Each node may have input boxes in which you can enter parameters' values. Default values are added while adding an IP core to the block design.
     * connecting IP cores' ports and interfaces
-    * specifying external ports or interfaces in the top module. This can be done by creating `External Input` or `External Output` metanodes and creating connections between them and chosen ports/interfaces. 
+    * specifying external ports or interfaces in the top module. This can be done by creating `External Input`, `External Output` or `External Inout` metanodes and creating connections between them and chosen ports/interfaces. 
 
     ```{image} img/pwm_design.png
     ```
