@@ -10,9 +10,7 @@ from .kpm_common import (
     get_dataflow_externals_interfaces,
     get_dataflow_external_connections,
     get_dataflow_ips_interfaces,
-    find_dataflow_interface_by_id,
-    find_dataflow_node_type_by_name,
-    find_spec_interface_by_name
+    find_dataflow_interface_by_id
 )
 
 
@@ -66,7 +64,10 @@ def _check_parameters_values(dataflow_data, specification) -> CheckResult:
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_unconnected_interfaces(dataflow_data, specification) -> CheckResult:
+def _check_unconnected_ports_interfaces(
+        dataflow_data,
+        specification) -> CheckResult:
+
     unconn_ifaces = set([
         interface['id']
         for node in dataflow_data['graph']['nodes']
@@ -93,41 +94,6 @@ def _check_unconnected_interfaces(dataflow_data, specification) -> CheckResult:
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_multiple_connections_from_interfaces(dataflow_data, specification):
-    """ Check for multiple connections going from interfaces.
-    A single interfacemay have can be connected with only
-    one other interface.
-    """
-    invalid_ifaces = []
-
-    for iface_id, iface in get_dataflow_ips_interfaces(dataflow_data).items():
-        node_type = find_dataflow_node_type_by_name(
-            dataflow_data, iface['node_name']
-        )
-        iface_type = find_spec_interface_by_name(
-            specification, node_type, iface['iface_name'])['type']
-
-        if iface_type in ['port', 'port_inout']:
-            continue
-        iface_conns = [
-            conn for conn in dataflow_data['graph']['connections']
-            if conn['from'] == iface_id or conn['to'] == iface_id
-        ]
-        if len(iface_conns) > 1:
-            invalid_ifaces.append(iface)
-
-    if invalid_ifaces:
-        invalid_ifaces_descrs = [
-            f"{invalid_iface['node_name']}:{invalid_iface['iface_name']}"
-            for invalid_iface in invalid_ifaces
-        ]
-        return CheckResult(
-            CheckStatus.ERROR,
-            f"Interfaces have >1 outgoing connection: {invalid_ifaces_descrs}"
-        )
-    return CheckResult(CheckStatus.OK, None)
-
-
 def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
     """ Check for connections between external metanodes
     """
@@ -143,8 +109,8 @@ def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_ambigous_ports_interfaces(dataflow_data, specification):
-    """ Check for interfaces which are connected to another ipcore interface
+def _check_ambigous_ports(dataflow_data, specification):
+    """ Check for ports which are connected to another ipcore port
     and to external metanode at the same time
     """
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
@@ -168,8 +134,7 @@ def _check_ambigous_ports_interfaces(dataflow_data, specification):
         ]
         return CheckResult(
             CheckStatus.ERROR,
-            f"External ports/interfaces"
-            f"having >1 connections: {ambig_ifaces_descrs}"
+            f"External ports having >1 connections: {ambig_ifaces_descrs}"
         )
     return CheckResult(CheckStatus.OK, None)
 
@@ -218,10 +183,9 @@ def validate_kpm_design(data: bytes, specification) -> dict:
     checks = [
         _check_duplicate_ip_names,
         _check_parameters_values,
-        _check_unconnected_interfaces,
-        _check_multiple_connections_from_interfaces,
+        _check_unconnected_ports_interfaces,
         _check_ext_in_to_ext_out_connections,
-        _check_ambigous_ports_interfaces,
+        _check_ambigous_ports,
         _check_externals_metanodes_types
     ]
 

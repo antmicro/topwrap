@@ -110,7 +110,8 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
         {
             'name': iface,
             'type': 'iface_' + ifaces[iface]['interface'],
-            'direction': 'output'
+            'direction': 'output',
+            'maxConnectionsCount': 1
         }
         for iface in ifaces.keys() if ifaces[iface]['mode'] == 'master'
     ]
@@ -201,7 +202,8 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
                     "name": "external",
                     "type": "",
                     "direction": "inout",
-                    "connectionSide": "left"
+                    "connectionSide": "left",
+                    "maxConnectionsCount": 1
                 }]
             },
         ] + [
