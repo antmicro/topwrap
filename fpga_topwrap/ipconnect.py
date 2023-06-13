@@ -6,6 +6,7 @@ from amaranth import Elaboratable, Module, Signal, Instance, Fragment
 from amaranth.hdl.ast import Const
 from amaranth.build import Platform
 from amaranth.back import verilog
+from amaranth.hdl.rec import DIR_FANIN, DIR_FANOUT, DIR_NONE
 from .ipwrapper import IPWrapper
 from .nm_helper import port_direction_to_prefix, strip_port_prefix
 from .fuse_helper import FuseSocBuilder
@@ -118,11 +119,15 @@ class IPConnect(Elaboratable):
         info(f'number of ports matched: {ports_connected} for interfaces:'
              f'{ip1_name}:{iface1} - {ip2_name}:{iface2}')
 
-    def _set_port(self, ip: IPWrapper, port_name: str) -> None:
+    def _set_port(self,
+                  ip: IPWrapper,
+                  port_name: str,
+                  external_name: str) -> None:
         """Set port specified by name as an external port
 
         :type ip: IPWrapper
         :type port_name: str
+        :type external_name: str
         :raises ValueError: if such port doesn't exist
         """
         self._set_unconnected_port(ip.top_name, port_name)
@@ -137,10 +142,19 @@ class IPConnect(Elaboratable):
             raise ValueError(f'port: "{port_name}" does not exist in ip: '
                              f'{ip.top_name}')
 
-        sig = inst_args[name]
-        sig.name = port_name
-        setattr(self, port_name, sig)
-        self._ports.append(sig)
+        if external_name not in [port.name for port in self._ports]:
+            sig = inst_args[name]
+            sig.name = external_name
+            setattr(self, external_name, sig)
+            self._ports.append(sig)
+        elif name[:2] == 'i_':
+            ext_sig = getattr(self, external_name)
+            inst_args[name] = ext_sig
+        else:
+            # Connections between a single external and many internal ports
+            # are allowed for external inputs only
+            raise ValueError("Multiple connections to external port"
+                             f"'{external_name}', that is not external input")
 
     def _set_interface(self, ip: IPWrapper, iface_name: str) -> None:
         """Set interface specified by name as an external interface
@@ -212,40 +226,72 @@ class IPConnect(Elaboratable):
             for ip1_port, target in connections.items():
                 # target is one of:
                 #   - a number (int)
+                #   - an external port name
                 #   - list of (ip2_name, ip2_port)
                 if isinstance(target, int):
                     self.set_constant(ip1_name, ip1_port, target)
+                elif isinstance(target, str):
+                    pass
                 else:
                     (ip2_name, ip2_port) = target
                     self.connect_ports(ip1_port, ip1_name,
                                        ip2_port, ip2_name)
 
         for ip1_name, connections in interfaces.items():
-            for ip1_iface, (ip2_name, ip2_iface) in connections.items():
-                self.connect_interfaces(ip1_iface, ip1_name,
-                                        ip2_iface, ip2_name)
+            for ip1_iface, target in connections.items():
+                # target is one of:
+                #   - an external interface name
+                #   - list of (ip2_name, ip2_iface)
+                if isinstance(target, str):
+                    pass
+                else:
+                    (ip2_name, ip2_iface) = target
+                    self.connect_interfaces(ip1_iface, ip1_name,
+                                            ip2_iface, ip2_name)
 
-    def make_external_ports_interfaces(self, ports_ifaces: dict) -> None:
+    def make_external_ports_interfaces(self,
+                                       ports: dict,
+                                       interfaces: dict,
+                                       external: dict) -> None:
         """Pick ports and interfaces which will be used as external I/O
-
-        :param ports_ifaces: dict {'in': {ip_name: port_name}, 'out': ...}
         """
-        _exts = {}
-        for dir in ports_ifaces.keys():
-            for ip_name, externals_list in ports_ifaces[dir].items():
-                if ip_name not in _exts.keys():
-                    _exts[ip_name] = externals_list
-                else:
-                    _exts[ip_name] += externals_list
+        ext_ports_in = []
+        ext_ports_out = []
+        ext_ports_inout = []
+        if "ports" in external.keys():
+            if "in" in external["ports"].keys():
+                ext_ports_in = external["ports"]["in"]
+            if "out" in external["ports"].keys():
+                ext_ports_out = external["ports"]["out"]
+            if "inout" in external["ports"].keys():
+                ext_ports_inout = external["ports"]["inout"]
 
-        for ip_name, _ip_exts in _exts.items():
-            ifaces_names = [
-                p.interface_name for p in self._ips[ip_name].get_ports()]
-            for _ext in _ip_exts:
-                if _ext in ifaces_names:
-                    self._set_interface(self._ips[ip_name], _ext)
-                else:
-                    self._set_port(self._ips[ip_name], _ext)
+        for ip_name, connections in ports.items():
+            for ip_port, target in connections.items():
+                if isinstance(target, str):
+                    # check if 'target' is present in the 'externals' section
+                    if target in ext_ports_in:
+                        ext_dir = DIR_FANIN
+                    elif target in ext_ports_out:
+                        ext_dir = DIR_FANOUT
+                    elif target in ext_ports_inout:
+                        ext_dir = DIR_NONE
+                    else:
+                        raise ValueError(f"External port {target} not found"
+                                         "in the 'externals' section")
+
+                    # check if port direction matches with the user-specified
+                    # direction from the 'externals' section - 'ext_dir'
+                    port_dir = self._ips[ip_name].get_port_by_name(ip_port).direction  # noqa: E501
+                    if port_dir != ext_dir:
+                        raise ValueError(
+                            f"Direction of external port '{target}'"
+                            f"doesn't match '{ip_name}:{ip_port}' direction"
+                        )
+
+                    self._set_port(self._ips[ip_name], ip_port, target)
+
+        # TODO - handle interfaces
 
     def build(self, build_dir='build', template=None, sources_dir=None,
               top_module_name='project_top', part=None) -> None:

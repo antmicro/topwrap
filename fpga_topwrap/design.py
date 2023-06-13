@@ -43,5 +43,5 @@ def build_design(design, sources_dir=None, part=None):
 
     ipc.make_connections(ports, interfaces)
 
-    ipc.make_external_ports_interfaces(external)
+    ipc.make_external_ports_interfaces(ports, interfaces, external)
     ipc.build(sources_dir=sources_dir, part=part)
