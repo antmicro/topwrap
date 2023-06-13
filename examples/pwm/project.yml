@@ -20,6 +20,7 @@ ports:
   litex_pwm_top:
     sys_clk: [ps7, FCLK0]
     sys_rst: [ps7, FCLK_RESET0_N]
+    pwm: pwm
 
 interfaces:
   axi_bridge:
@@ -28,6 +29,6 @@ interfaces:
     s_axi: [axi_bridge, m_axi]
 
 external:
-  out:
-    litex_pwm_top:
+  ports:
+    out:
       - pwm

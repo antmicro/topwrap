@@ -136,6 +136,14 @@ ports:
     DGUARD: [disp, DGUARD_O]
     DIEN: [disp, DIEN_O]
     DIH: [disp, DIH_O]
+    HDMI_CLK_P: HDMI_CLK_P
+    HDMI_CLK_N: HDMI_CLK_N
+    HDMI_D0_P: HDMI_D0_P
+    HDMI_D0_N:  HDMI_D0_N
+    HDMI_D1_P: HDMI_D1_P
+    HDMI_D1_N: HDMI_D1_N
+    HDMI_D2_P: HDMI_D2_P
+    HDMI_D2_N: HDMI_D2_N 
 
 interfaces:
   ps7:
@@ -163,8 +171,8 @@ interfaces:
     S00_AXI: [axi_bridge_disp, m_axi]
 
 external:
-  out:
-    hdmi:
+  ports:
+    out:
       - HDMI_CLK_P
       - HDMI_CLK_N
       - HDMI_D0_P
