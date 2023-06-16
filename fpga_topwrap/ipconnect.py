@@ -156,11 +156,15 @@ class IPConnect(Elaboratable):
             raise ValueError("Multiple connections to external port"
                              f"'{external_name}', that is not external input")
 
-    def _set_interface(self, ip: IPWrapper, iface_name: str) -> None:
+    def _set_interface(self,
+                       ip: IPWrapper,
+                       iface_name: str,
+                       external_iface_name: str) -> None:
         """Set interface specified by name as an external interface
 
         :type ip: IPWrapper
         :type iface_name: str
+        :type external_iface_name: str
         :raises ValueError: if such interface doesn't exist
         """
         for port in ip.get_ports_of_interface(iface_name):
@@ -179,8 +183,20 @@ class IPConnect(Elaboratable):
             )
 
         for iface_port in iface_ports:
+            external_port_name = strip_port_prefix(iface_port).replace(
+                iface_name,
+                external_iface_name,
+                1
+            )
+            if external_port_name in [port.name for port in self._ports]:
+                warning(f"External port '{external_port_name}'"
+                        "already exists")
             sig = inst_args[iface_port]
-            sig.name = strip_port_prefix(iface_port)
+            sig.name = strip_port_prefix(iface_port).replace(
+                iface_name,
+                external_iface_name,
+                1
+            )
             setattr(self, iface_port, sig)
             self._ports.append(sig)
 
@@ -255,26 +271,20 @@ class IPConnect(Elaboratable):
                                        external: dict) -> None:
         """Pick ports and interfaces which will be used as external I/O
         """
-        ext_ports_in = []
-        ext_ports_out = []
-        ext_ports_inout = []
+        ext_ports = {"in": [], "out": [], "inout": []}
         if "ports" in external.keys():
-            if "in" in external["ports"].keys():
-                ext_ports_in = external["ports"]["in"]
-            if "out" in external["ports"].keys():
-                ext_ports_out = external["ports"]["out"]
-            if "inout" in external["ports"].keys():
-                ext_ports_inout = external["ports"]["inout"]
+            for dir in external["ports"].keys():
+                ext_ports[dir] = external["ports"][dir]
 
         for ip_name, connections in ports.items():
             for ip_port, target in connections.items():
                 if isinstance(target, str):
                     # check if 'target' is present in the 'externals' section
-                    if target in ext_ports_in:
+                    if target in ext_ports["in"]:
                         ext_dir = DIR_FANIN
-                    elif target in ext_ports_out:
+                    elif target in ext_ports["out"]:
                         ext_dir = DIR_FANOUT
-                    elif target in ext_ports_inout:
+                    elif target in ext_ports["inout"]:
                         ext_dir = DIR_NONE
                     else:
                         raise ValueError(f"External port {target} not found"
@@ -291,7 +301,18 @@ class IPConnect(Elaboratable):
 
                     self._set_port(self._ips[ip_name], ip_port, target)
 
-        # TODO - handle interfaces
+        ext_ifaces = []
+        if "interfaces" in external.keys():
+            for dir in external["interfaces"].keys():
+                ext_ifaces += external["interfaces"][dir]
+
+        for ip_name, connections in interfaces.items():
+            for ip_iface, target in connections.items():
+                if isinstance(target, str):
+                    if target not in ext_ifaces:
+                        raise ValueError(f"External interface '{target}'"
+                                         "not found in 'externals' section")
+                    self._set_interface(self._ips[ip_name], ip_iface, target)
 
     def build(self, build_dir='build', template=None, sources_dir=None,
               top_module_name='project_top', part=None) -> None:
