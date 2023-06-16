@@ -156,6 +156,41 @@ def _duplicate_ipcore_types_check(specification: str):
         logging.warning(f"Multiple IP cores of type '{dup}'")
 
 
+def _generate_external_metanode(direction: str) -> dict:
+    if direction == "input":
+        name = type = EXT_INPUT_NAME
+        iface_dir = "output"
+    elif direction == "output":
+        name = type = EXT_OUTPUT_NAME
+        iface_dir = "input"
+    elif direction == "inout":
+        name = type = EXT_INOUT_NAME
+        iface_dir = "inout"
+    else:
+        raise ValueError(f"Unknown direction: {direction}")
+
+    metanode = {
+        "name": name,
+        "type": type,
+        "category": "Metanode",
+        "properties": [{
+            "name": "External Name",
+            "type": "text",
+            "default": ""
+        }],
+        "interfaces": [{
+            "name": "external",
+            "type": "",
+            "direction": iface_dir
+        }]
+    }
+    if direction == "inout":
+        metanode["interfaces"][0]["connectionSide"] = "left"
+        metanode["interfaces"][0]["maxConnectionsCount"] = 1
+
+    return metanode
+
+
 def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
     """ Translate Topwrap's IP core description YAMLs into
     KPM specification 'nodes'.
@@ -172,40 +207,9 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
             "connectionStyle": "orthogonal"
         },
         "nodes": [
-            {
-                "name": EXT_INPUT_NAME,
-                "type": EXT_INPUT_NAME,
-                "category": "Metanode",
-                "properties": [],
-                "interfaces": [{
-                    "name": "external",
-                    "type": "",
-                    "direction": "output"
-                }]
-            }, {
-                "name": EXT_OUTPUT_NAME,
-                "type": EXT_OUTPUT_NAME,
-                "category": "Metanode",
-                "properties": [],
-                "interfaces": [{
-                    "name": "external",
-                    "type": "",
-                    "direction": "input"
-                }]
-            },
-            {
-                "name": EXT_INOUT_NAME,
-                "type": EXT_INOUT_NAME,
-                "category": "Metanode",
-                "properties": [],
-                "interfaces": [{
-                    "name": "external",
-                    "type": "",
-                    "direction": "inout",
-                    "connectionSide": "left",
-                    "maxConnectionsCount": 1
-                }]
-            },
+            _generate_external_metanode("input"),
+            _generate_external_metanode("output"),
+            _generate_external_metanode("inout"),
         ] + [
             _ipcore_to_kpm(yamlfile)
             for yamlfile in yamlfiles
