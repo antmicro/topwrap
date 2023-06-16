@@ -82,13 +82,23 @@ interfaces:
     m_axi: [some_other_ip, 's_axi']
 ```
 
-5. Specify external ports of the top module
+5. Specify external ports or interfaces of the top module and connect them with chosen IP cores' ports or interfaces:
 
 ```yaml
-external:
+ports:
   dma:
-    - io_irq_readerDone
-    - io_irq_writerDone
+    io_irq_readerDone: readerDone
+    io_irq_writerDone: writerDone
+
+...
+
+external:
+  ports:
+    out:
+    - readerDone
+    - writerDone
+  interfaces:
+    ...
 ```
 
 6. Create a Core file template for FuseSoC, or use a default one bundled with Topwrap.

@@ -25,21 +25,32 @@ ports: # specify ip1:port1 <-> ip2:port2 connections here
   {ip_instance_name}:
     {port_name} : [{ip_instance_name}, {port_name}]
     ...
+  # specify external ports connections
+  {ip_instance_name}:
+    {port_name} : ext_port_name
+  ...
 
 interfaces: # specify ip1:iface1 <-> ip2:iface2 connections here
   {ip_instance_name}:
     {iface_name} : [{ip_instance_name}, {iface_name}]
     ...
+  # specify external interfaces connections
+  {ip_instance_name}:
+    {iface_name} : ext_iface_name
+  ...
 
-external:
-  in:
-    {ip_instance_name}:
-      - {port_name}
-  out:
-    ...
+external: # specify names of top module's external ports and interfaces
+  ports:
+    out:
+      - {ext_port_name}
+    inout:
+      - {ext_port_name}
+  interfaces:
+    in:
+      - {ext_iface_name}
 ```
 
-You can see an example design file in `examples` directory.
+You can see example design files in `examples` directory.
 
 (ip-description)=
 

@@ -15,7 +15,7 @@ ip.add_ip(dma)
 ```
 
 IPs are connected using {code}`make_connections` function.
-Ports can be set as external input/output with {code}`make_external_ports` and retrieved with {code}`get_ports`.
+Ports and interfaces can be set as external input/output/inout with {code}`make_external_ports_interfaces` and retrieved with {code}`get_ports`.
 For a wider example of using the {class}`IPConnect` see {ref}`Getting Started <getting-started>`
 
 ```{eval-rst}
