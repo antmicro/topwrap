@@ -11,7 +11,8 @@ from .kpm_common import (
     find_dataflow_interface_by_id,
     find_dataflow_node_type_by_name,
     find_spec_interface_by_name,
-    get_dataflow_external_connections
+    get_dataflow_external_connections,
+    find_dataflow_node_by_interface_id
 )
 
 
@@ -64,17 +65,13 @@ def _kpm_nodes_to_ips(dataflow_data, ipcore_to_yamls: dict) -> dict:
     """ Parse dataflow nodes into Topwrap's "ips" section
     of a design description yaml
     """
-    ips = {
+    return {
         node['name']: {
             'file': ipcore_to_yamls[node['type']],
             'module': node['type'],
             'parameters': _kpm_properties_to_parameters(node['properties'])
         }
         for node in get_dataflow_ip_nodes(dataflow_data)
-    }
-
-    return {
-        "ips": ips
     }
 
 
@@ -115,56 +112,98 @@ def _kpm_connections_to_ports_ifaces(
     }
 
 
-def _kpm_connections_to_external(dataflow_data) -> dict:
+def _kpm_connections_to_external(dataflow_data, specification) -> dict:
     """ Parse dataflow connections representing external ports/interfaces
     (i.e. connections between IP cores and external metanodes) into "external"
     section of a Topwrap's design description yaml
     """
+    ports_ext_conns = {}
+    ifaces_ext_conns = {}
     external = {
-        "in": {},
-        "out": {},
-        "inout": {}
+        "ports": {
+            "in": [],
+            "out": [],
+            "inout": []
+        },
+        "interfaces": {
+            "in": [],
+            "out": [],
+            "inout": []
+        }
     }
 
     for conn in get_dataflow_external_connections(dataflow_data):
-        iface_to = find_dataflow_interface_by_id(dataflow_data, conn['to'])
+        iface_to = find_dataflow_interface_by_id(
+            dataflow_data, conn['to'])
         iface_from = find_dataflow_interface_by_id(
-            dataflow_data, conn['from']
-        )
+            dataflow_data, conn['from'])
+        node_to = find_dataflow_node_by_interface_id(
+            dataflow_data, conn['to'])
+        node_from = find_dataflow_node_by_interface_id(
+            dataflow_data, conn['from'])
 
-        if iface_to["node_name"] == EXT_OUTPUT_NAME:
-            if iface_from["node_name"] not in external["out"].keys():
-                external["out"][iface_from["node_name"]] = []
-            external["out"][iface_from["node_name"]].append(
-                iface_from["iface_name"]
-            )
-        elif iface_from["node_name"] == EXT_INPUT_NAME:
-            if iface_to["node_name"] not in external["in"].keys():
-                external["in"][iface_to["node_name"]] = []
-            external["in"][iface_to["node_name"]].append(
-                iface_to["iface_name"]
-            )
+        if node_to['name'] in [EXT_OUTPUT_NAME, EXT_INOUT_NAME]:
+            iface_from_type = find_spec_interface_by_name(
+                specification, node_from["type"], iface_from["name"]
+            )["type"]
+            external_name = node_to["properties"][0]["value"]
+            if not external_name:
+                external_name = iface_from["name"]
 
-        elif iface_to["node_name"] == EXT_INOUT_NAME:
-            if iface_from["node_name"] not in external["inout"].keys():
-                external["inout"][iface_from["node_name"]] = []
-            external["inout"][iface_from["node_name"]].append(
-                iface_from["iface_name"]
-            )
+            dir = "out" if node_to['name'] == EXT_OUTPUT_NAME else "inout"
+            if iface_from_type in ["port", "port_inout"]:
+                if node_from['name'] not in ports_ext_conns.keys():
+                    ports_ext_conns[node_from['name']] = {}
+                ports_ext_conns[node_from['name']][iface_from["name"]] = external_name  # noqa: E501
+                external["ports"][dir].append(external_name)
+            else:
+                if node_from['name'] not in ifaces_ext_conns.keys():
+                    ifaces_ext_conns[node_from['name']] = {}
+                ifaces_ext_conns[node_from['name']][iface_from["name"]] = external_name  # noqa: E501
+                external["interfaces"][dir].append(external_name)
 
-        # In PM dataflow the direction of inout connection is not specified.
-        # conn['to'] could be id of `External Inout`'s interface, but it
-        # could also be id of some IP core's interface. Same with conn['from']
-        elif iface_from["node_name"] == EXT_INOUT_NAME:
-            if iface_to["node_name"] not in external["inout"].keys():
-                external["inout"][iface_to["node_name"]] = []
-            external["inout"][iface_to["node_name"]].append(
-                iface_to["iface_name"]
-            )
+        elif node_from['name'] in [EXT_INPUT_NAME, EXT_INOUT_NAME]:
+            iface_to_type = find_spec_interface_by_name(
+                specification, node_to["type"], iface_to["name"]
+            )["type"]
+            external_name = node_from["properties"][0]["value"]
+            if not external_name:
+                external_name = iface_to["name"]
+
+            dir = "in" if node_from['name'] == EXT_INPUT_NAME else "inout"
+            if iface_to_type in ["port", "port_inout"]:
+                if node_to['name'] not in ports_ext_conns.keys():
+                    ports_ext_conns[node_to['name']] = {}
+                ports_ext_conns[node_to['name']][iface_to["name"]] = external_name  # noqa: E501
+                external["ports"][dir].append(external_name)
+            else:
+                if node_to['name'] not in ifaces_ext_conns.keys():
+                    ifaces_ext_conns[node_to['name']] = {}
+                ifaces_ext_conns[node_to['name']][iface_to["name"]] = external_name  # noqa: E501
+                external["interfaces"][dir].append(external_name)
+
+    # remove duplicates from externals section
+    for section in ['ports', 'interfaces']:
+        for dir in ['in', 'out', 'inout']:
+            external[section][dir] = list(
+                dict.fromkeys(external[section][dir]))
 
     return {
+        "ports": ports_ext_conns,
+        "interfaces": ifaces_ext_conns,
         "external": external
     }
+
+
+def _update_ports_ifaces_section(ports_ifaces: dict, externals: dict) -> dict:
+    """ Helper function to update 'ports' or 'interfaces' section of a design
+    description yaml with the collected entries describing external connections
+    """
+    for ip_name in externals.keys():
+        if ip_name not in ports_ifaces.keys():
+            ports_ifaces[ip_name] = {}
+        ports_ifaces[ip_name].update(externals[ip_name])
+    return ports_ifaces
 
 
 def kpm_dataflow_to_design(
@@ -173,11 +212,18 @@ def kpm_dataflow_to_design(
     """ Parse Pipeline Manager dataflow into Topwrap's design description yaml
     """
     ips = _kpm_nodes_to_ips(dataflow_data, ipcore_to_yamls)
-    pins = _kpm_connections_to_ports_ifaces(dataflow_data, specification)
-    external = _kpm_connections_to_external(dataflow_data)
+    ports_ifaces_dict = _kpm_connections_to_ports_ifaces(
+        dataflow_data, specification)
+    externals = _kpm_connections_to_external(dataflow_data, specification)
+
+    ports = _update_ports_ifaces_section(
+        ports_ifaces_dict['ports'], externals['ports'])
+    interfaces = _update_ports_ifaces_section(
+        ports_ifaces_dict['interfaces'], externals['interfaces'])
 
     return {
-        **ips,
-        **pins,
-        **external
+        'ips': ips,
+        'ports': ports,
+        'interfaces': interfaces,
+        'external': externals['external']
     }
