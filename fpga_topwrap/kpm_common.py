@@ -86,6 +86,15 @@ def get_dataflow_external_connections(dataflow_json) -> list:
     ]
 
 
+def find_dataflow_node_by_interface_id(dataflow_json, iface_id: str) -> dict:
+    """ Return dataflow node which has an `iface_id` interface
+    """
+    for node in dataflow_json['graph']['nodes']:
+        for interface in node['interfaces']:
+            if interface['id'] == iface_id:
+                return node
+
+
 def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> dict:
     """ Return a dict {"node_name": ..., "iface_name": ..., "iface_dir": ...}
     that corresponds to a given 'iface_id'
