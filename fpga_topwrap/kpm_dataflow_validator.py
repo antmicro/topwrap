@@ -10,6 +10,7 @@ from .kpm_common import (
     EXT_INPUT_NAME,
     EXT_INOUT_NAME,
     get_dataflow_ip_nodes,
+    get_dataflow_metanodes,
     get_dataflow_externals_interfaces,
     get_dataflow_external_connections,
     get_dataflow_ips_interfaces,
@@ -179,6 +180,20 @@ def _check_externals_metanodes_types(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
+def _check_unnamed_externals(dataflow_data, specification):
+    """ Check for external ports/interfaces
+    which don't have user-specified name.
+    """
+    for node in get_dataflow_metanodes(dataflow_data):
+        if not node["properties"][0]["value"]:
+            return CheckResult(
+                CheckStatus.WARNING,
+                "Missing external port/interface name in"
+                f"\'{node['name']}\' metanode"
+            )
+    return CheckResult(CheckStatus.OK, None)
+
+
 def validate_kpm_design(data: bytes, specification) -> dict:
     """ Run some checks to validate user-created design in KPM.
     Return a dict of warning and error messages to be sent to the KPM.
@@ -189,7 +204,8 @@ def validate_kpm_design(data: bytes, specification) -> dict:
         _check_unconnected_ports_interfaces,
         _check_ext_in_to_ext_out_connections,
         _check_ambigous_ports,
-        _check_externals_metanodes_types
+        _check_externals_metanodes_types,
+        _check_unnamed_externals
     ]
 
     messages = {
