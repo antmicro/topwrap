@@ -142,51 +142,40 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
         node_from = find_dataflow_node_by_interface_id(
             dataflow_data, conn['from'])
 
+        # Determine the name of the port/interface
+        # to be made external and its node
         if node_to['name'] in [EXT_OUTPUT_NAME, EXT_INOUT_NAME]:
-            iface_from_type = find_spec_interface_by_name(
-                specification, node_from["type"], iface_from["name"]
-            )["type"]
-            external_name = node_to["properties"][0]["value"]
-            if not external_name:
-                external_name = iface_from["name"]
-
-            dir = "out" if node_to['name'] == EXT_OUTPUT_NAME else "inout"
-            if iface_from_type in ["port", "port_inout"]:
-                if node_from['name'] not in ports_ext_conns.keys():
-                    ports_ext_conns[node_from['name']] = {}
-                ports_ext_conns[node_from['name']][iface_from["name"]] = external_name  # noqa: E501
-                external["ports"][dir].append(external_name)
-            else:
-                if node_from['name'] not in ifaces_ext_conns.keys():
-                    ifaces_ext_conns[node_from['name']] = {}
-                ifaces_ext_conns[node_from['name']][iface_from["name"]] = external_name  # noqa: E501
-                external["interfaces"][dir].append(external_name)
-
+            dir = 'out' if node_to['name'] == EXT_OUTPUT_NAME else 'inout'
+            iface_name = iface_from['iface_name']
+            ip_node, metanode = node_from, node_to
         elif node_from['name'] in [EXT_INPUT_NAME, EXT_INOUT_NAME]:
-            iface_to_type = find_spec_interface_by_name(
-                specification, node_to["type"], iface_to["name"]
-            )["type"]
-            external_name = node_from["properties"][0]["value"]
-            if not external_name:
-                external_name = iface_to["name"]
+            dir = 'in' if node_from['name'] == EXT_INPUT_NAME else 'inout'
+            iface_name = iface_to['iface_name']
+            ip_node, metanode = node_to, node_from
+        else:
+            raise ValueError("Invalid name of external metanode")
 
-            dir = "in" if node_from['name'] == EXT_INPUT_NAME else "inout"
-            if iface_to_type in ["port", "port_inout"]:
-                if node_to['name'] not in ports_ext_conns.keys():
-                    ports_ext_conns[node_to['name']] = {}
-                ports_ext_conns[node_to['name']][iface_to["name"]] = external_name  # noqa: E501
-                external["ports"][dir].append(external_name)
-            else:
-                if node_to['name'] not in ifaces_ext_conns.keys():
-                    ifaces_ext_conns[node_to['name']] = {}
-                ifaces_ext_conns[node_to['name']][iface_to["name"]] = external_name  # noqa: E501
-                external["interfaces"][dir].append(external_name)
+        # Get user-defined external name.
+        # If none - get internal name as default
+        external_name = metanode["properties"][0]["value"]
+        if not external_name:
+            external_name = iface_name
 
-    # remove duplicates from externals section
-    for section in ['ports', 'interfaces']:
-        for dir in ['in', 'out', 'inout']:
-            external[section][dir] = list(
-                dict.fromkeys(external[section][dir]))
+        # Determine whether we deal with a port or an interface
+        iface_type = find_spec_interface_by_name(
+            specification, ip_node["type"], iface_name
+        )["type"]
+        if iface_type in ['port', 'port_inout']:
+            ext_conns, ext_section = ports_ext_conns, 'ports'
+        else:
+            ext_conns, ext_section = ifaces_ext_conns, 'interfaces'
+
+        # Update 'ports'/'interfaces' and 'external' sections
+        if ip_node['name'] not in ext_conns.keys():
+            ext_conns[ip_node['name']] = {}
+        ext_conns[ip_node['name']][iface_name] = external_name
+        if external_name not in external[ext_section][dir]:
+            external[ext_section][dir].append(external_name)
 
     return {
         "ports": ports_ext_conns,
