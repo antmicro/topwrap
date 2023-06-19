@@ -225,22 +225,6 @@ def _get_dataflow_interface_by_name(
     logging.warning(f"Node '{node_name}' not found")
 
 
-def _create_kpm_dataflow_connection(
-        name_from: str,
-        ip_from: str,
-        name_to: str,
-        ip_to: str,
-        nodes: List[KPMDataflowNode]) -> KPMDataflowConnection:
-    """ Create a KPMDataflowConnection between
-    2 interfaces of 2 nodes represeting IP cores
-    """
-    kpm_iface_from = _get_dataflow_interface_by_name(name_from, ip_from, nodes)
-    kpm_iface_to = _get_dataflow_interface_by_name(name_to, ip_to, nodes)
-    if kpm_iface_from is None or kpm_iface_to is None:
-        return None
-    return KPMDataflowConnection(kpm_iface_from.id, kpm_iface_to.id)
-
-
 def _parse_design_descr_connections(
         conns_dict: dict,
         nodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
@@ -249,20 +233,18 @@ def _parse_design_descr_connections(
     """
     connections = []
     for ip_conns in conns_dict.items():
-        to_ip_name = ip_conns[0]
         for conn in ip_conns[1].items():
-            to_port_name = conn[0]
             if not isinstance(conn[1], list):
                 # TODO - handle case where port has a default value
                 # instead of being connected with another port
                 continue
-            from_ip_name = conn[1][0]
-            from_port_name = conn[1][1]
-            connection = _create_kpm_dataflow_connection(
-                from_port_name, from_ip_name, to_port_name, to_ip_name, nodes
-            )
-            if connection is not None:
-                connections.append(connection)
+            kpm_iface_from = _get_dataflow_interface_by_name(
+                conn[1][1], conn[1][0], nodes)
+            kpm_iface_to = _get_dataflow_interface_by_name(
+                conn[0], ip_conns[0], nodes)
+            if kpm_iface_from is not None and kpm_iface_to is not None:
+                connections.append(KPMDataflowConnection(
+                    kpm_iface_from.id, kpm_iface_to.id))
     return connections
 
 
