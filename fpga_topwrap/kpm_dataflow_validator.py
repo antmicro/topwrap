@@ -42,7 +42,6 @@ def _check_duplicate_ip_names(dataflow_data, specification) -> CheckResult:
 
     if not duplicates:
         return CheckResult(CheckStatus.OK, None)
-
     err_msg = f"Duplicate block names: {str(list(duplicates))}"
     return CheckResult(CheckStatus.ERROR, err_msg)
 
@@ -194,6 +193,24 @@ def _check_unnamed_externals(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
+def _check_duplicate_external_names(dataflow_data, specification):
+    """ Check for duplicate external ports/interfaces names
+    """
+    ext_names_set = set()
+    duplicates = set()
+    for node in get_dataflow_metanodes(dataflow_data):
+        external_name = node["properties"][0]["value"]
+        if external_name in ext_names_set:
+            duplicates.add(external_name)
+        else:
+            ext_names_set.add(external_name)
+
+    if not duplicates:
+        return CheckResult(CheckStatus.OK, None)
+    warning = f"Duplicate external names: {str(list(duplicates))}"
+    return CheckResult(CheckStatus.WARNING, warning)
+
+
 def validate_kpm_design(data: bytes, specification) -> dict:
     """ Run some checks to validate user-created design in KPM.
     Return a dict of warning and error messages to be sent to the KPM.
@@ -205,7 +222,8 @@ def validate_kpm_design(data: bytes, specification) -> dict:
         _check_ext_in_to_ext_out_connections,
         _check_ambigous_ports,
         _check_externals_metanodes_types,
-        _check_unnamed_externals
+        _check_unnamed_externals,
+        _check_duplicate_external_names
     ]
 
     messages = {
