@@ -35,20 +35,22 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
 3. Create block design in Pipeline Manager
 
     Upon successful connection to a Pipeline Manager server, Topwrap will generate and send to the server a specification describing the structure of previously selected IP cores. After that, you are free to create a custom block design by means of:
-    * adding IP core instances to the block design. Note, that you can create multiple instances of the same IP core thanks to a `rename` option in a Pipeline Manager's node.
-    * adjusting IP cores' parameters values. Each node may have input boxes in which you can enter parameters' values. Default values are added while adding an IP core to the block design.
-    * connecting IP cores' ports and interfaces
-    * specifying external ports or interfaces in the top module. This can be done by creating `External Input`, `External Output` or `External Inout` metanodes and creating connections between them and chosen ports/interfaces. 
+    * adding IP core instances to the block design. Each Pipeline Manager's node has `delete` and `rename` options, which make it possible to remove the selected node and change its name respectively. This means that you can create multiple instances of the same IP core.
+    * adjusting IP cores' parameters values. Each node may have input boxes in which you can enter parameters' values (default parameter values are added while adding an IP core to the block design):
+    ```{image} img/node_parameters.png
+    ```
+    * connecting IP cores' ports and interfaces. Only connections between ports or interfaces of matching types are allowed. This is automatically checked by Pipeline Manager, as the types of nodes' ports and interfaces are contained in the loaded specification, so Pipeline Manager will prevent you from connecting non-matching interfaces (e.g. *AXI4* with *AXI4Lite* or a port with an interface). A green line will be displayed if a connection is possible to create, or a red line elsewhere:
+    ```{image} img/invalid_connection.png
+    ```
+    * specifying external ports or interfaces in the top module. This can be done by adding `External Input`, `External Output` or `External Inout` metanodes and creating connections between them and chosen ports or interfaces. Note that you should adjust the name of the external port or interface in a textbox inside selected metanode. In the example below, output port `pwm` of `litex_pwm_top` IP core will be made external in the generated top module and the external port name will be set to `ext_pwm`:
+    ```{image} img/external_port.png
+    ```
+    Note, that you don't always have to create a new block design by hand - you can use a {ref}`design import <import-design>` feature to load an existing block design from a description in Topwrap's yaml format.
+
+    An example block design in Pipeline Manager for the PWM project may look like this:
 
     ```{image} img/pwm_design.png
     ```
-
-    There are several rules, that need to be followed while creating a block desing:
-    * only connections between ports or interfaces of matching types are allowed. This is automatically checked by the Pipeline Manager, as the types of nodes' inputs and outputs are contained in the loaded specification, so Pipeline Manager will prevent you from connecting non-matching interfaces (e.g. *AXI4* with *AXI4Lite*).
-    * parameters values can be integers of different bases (e.g. `0x28`, `40` or `0b101000`) or arithmetic expressions, that are later evaluated using [numexpr.evaluate()](https://numexpr.readthedocs.io/en/latest/api.html#numexpr.evaluate) function (e.g. `(AXI_DATA_WIDTH+1)/4` is a valid parameter value assuming that a parameter named `AXI_DATA_WIDTH` exists in the same IP core). You can also write a parameter value in a Verilog format (e.g. `8'b00011111` or `8'h1F`) - in such case it will be interpreted as a fixed-width bit vector. In order to check the validity of provided parameters values, use a {ref}`design validation <validate-design>` feature.
-    * a single port or interface cannot be external and connected to another IP core at the same time
-
-    Note, that you don't always have to create a new block design by hand - you can use a {ref}`design import <import-design>` feature to load an existing block design from a description in Topwrap's yaml format.
 
 ## Pipeline Manager features
 
@@ -74,7 +76,17 @@ Topwrap also supports conversion in the opposite way - block design in Pipeline 
 
 ### Design validation
 
-In order to check whether a created design is valid, you can use Pipeline Manager's `Validate` option. Topwrap will then perform some checks on the design and respond with a validity confirmation or error messages (e.g. invalid parameters values or duplicate block names).
+Pipeline Manager is capable of performing some basic checks at runtime such as interface type checking while creating a connection. However you can also run more complex tests by using Pipeline Manager's `Validate` option. Topwrap will then respond with a validity confirmation or error messages. The rules you need to follow in order to keep your block design valid are:
+* multiple IP cores with the same name are not allowed (except from external metanodes).
+* parameters values can be integers of different bases (e.g. `0x28`, `40` or `0b101000`) or arithmetic expressions, that are later evaluated using [numexpr.evaluate()](https://numexpr.readthedocs.io/en/latest/api.html#numexpr.evaluate) function (e.g. `(AXI_DATA_WIDTH+1)/4` is a valid parameter value assuming that a parameter named `AXI_DATA_WIDTH` exists in the same IP core). You can also write a parameter value in a Verilog format (e.g. `8'b00011111` or `8'h1F`) - in such case it will be interpreted as a fixed-width bit vector.
+* a single port or interface cannot be external and connected to another IP core at the same time.
+* connections between two external metanodes are not allowed.
+* all the created external output or inout ports must have unique names. Only multiple input ports of IP cores can be driven be the same external signal.
+
+Topwrap can also generate warnings if:
+* some ports or interfaces remain unconnected.
+* multiple ports are connected to an `External Input` metanode with an empty `External Name` property.
+If a block design validation returns a warning, it means that the block design can be successfully built, but it is recommended to follow the suggestion and resolve a particular issue.
 
 (build-design)=
 
