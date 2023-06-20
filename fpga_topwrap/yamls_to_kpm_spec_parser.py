@@ -204,7 +204,9 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
     specification = {
         "metadata": {
             "allowLoopbacks": True,
-            "connectionStyle": "orthogonal"
+            "connectionStyle": "orthogonal",
+            "movementStep": 15,
+            "backgroundSize": 15
         },
         "nodes": [
             _generate_external_metanode("input"),
