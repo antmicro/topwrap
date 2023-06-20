@@ -79,7 +79,7 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
             'name': port[0],
             'type': 'port_inout',
             'direction': 'inout',
-            'connectionSide': 'right'
+            'side': 'right'
         }
         for port in ports['inout']
     ]
@@ -185,7 +185,7 @@ def _generate_external_metanode(direction: str) -> dict:
         }]
     }
     if direction == "inout":
-        metanode["interfaces"][0]["connectionSide"] = "left"
+        metanode["interfaces"][0]["side"] = "left"
         metanode["interfaces"][0]["maxConnectionsCount"] = 1
 
     return metanode
