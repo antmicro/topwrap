@@ -243,24 +243,62 @@ def _get_dataflow_interface_by_name(
     logging.warning(f"Node '{node_name}' not found")
 
 
-def _parse_design_descr_connections(
-        conns_dict: dict,
-        nodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
-    """ Helper function for parsing "ports" or "interfaces" section of
-    a design description yaml into a list of KPMDataflowConnection
+def _get_flattened_connections(design_descr: dict) -> list:
+    """ Helper function to get a list of flattened connections
+    from a design description yaml.
     """
-    connections = []
-    for ip_conns in conns_dict.items():
-        for conn in ip_conns[1].items():
-            if isinstance(conn[1], list):
-                kpm_iface_from = _get_dataflow_interface_by_name(
-                    conn[1][1], conn[1][0], nodes)
-                kpm_iface_to = _get_dataflow_interface_by_name(
-                    conn[0], ip_conns[0], nodes)
-                if kpm_iface_from is not None and kpm_iface_to is not None:
-                    connections.append(KPMDataflowConnection(
-                        kpm_iface_from.id, kpm_iface_to.id))
-    return connections
+    conn_descrs = []
+    for sec in set(['ports', 'interfaces']) & set(design_descr.keys()):
+        for ip_name in design_descr[sec].keys():
+            for port_iface_name in design_descr[sec][ip_name].keys():
+                conn_descrs.append({
+                    'ip_name': ip_name,
+                    'port_iface_name': port_iface_name,
+                    'connection': design_descr[sec][ip_name][port_iface_name]
+                })
+    return conn_descrs
+
+
+def _get_external_connections(design_descr: dict) -> list:
+    """ Get connections to externals from 'ports' and 'interfaces'
+    sections of design description.
+    """
+    ext_connections = list(filter(
+        lambda conn_descr: isinstance(conn_descr['connection'], str),
+        _get_flattened_connections(design_descr)))
+
+    # `ext_connections` is now a list of all the external connections gathered
+    # from a design yaml. Each such connection is in format:
+    # `{'ip_name': str, 'port_iface_name': str, 'connection': str}`
+    # where 'connection' represents a name of the external port/interface
+
+    return [{
+        'ip_name': conn['ip_name'],
+        'port_iface_name': conn['port_iface_name'],
+        'external_name': conn['connection']
+    } for conn in ext_connections]
+
+
+def _get_ipcores_connections(design_descr: dict) -> list:
+    """ Get connections between IP cores from 'ports' and 'interfaces'
+    sections of design description.
+    """
+    ipcores_connections = list(filter(
+        lambda conn_descr: isinstance(conn_descr['connection'], list),
+        _get_flattened_connections(design_descr)))
+
+    # `ipcores_connections` is now a list of all the connections between
+    # IP cores gathered from a design yaml. Each such connection is in format:
+    # `{'ip_name': str, 'port_iface_name': str, 'connection': [str, str]}`
+    # where conn['connection'][0] is an IP name and conn['connection'][1] is
+    # a port/interface name from which the connection originates
+
+    return [{
+        'ip_to_name': conn['ip_name'],
+        'port_iface_to_name': conn['port_iface_name'],
+        'ip_from_name': conn['connection'][0],
+        'port_iface_from_name': conn['connection'][1]
+    } for conn in ipcores_connections]
 
 
 def kpm_connections_from_design_descr(
@@ -270,15 +308,19 @@ def kpm_connections_from_design_descr(
     We also need a list of previously generated KPM dataflow nodes, because the
     connections in KPM are specified using id's of their interfaces
     """
-    port_conns = {}
-    if 'ports' in design_descr.keys():
-        port_conns = design_descr['ports']
-    interface_conns = {}
-    if 'interfaces' in design_descr.keys():
-        interface_conns = design_descr['interfaces']
+    result = []
+    _conns = _get_ipcores_connections(design_descr)
 
-    return (_parse_design_descr_connections(port_conns, nodes) +
-            _parse_design_descr_connections(interface_conns, nodes))
+    for conn in _conns:
+        kpm_iface_from = _get_dataflow_interface_by_name(
+            conn['port_iface_from_name'], conn['ip_from_name'], nodes)
+        kpm_iface_to = _get_dataflow_interface_by_name(
+            conn['port_iface_to_name'], conn['ip_to_name'], nodes)
+        if kpm_iface_from is not None and kpm_iface_to is not None:
+            result.append(KPMDataflowConnection(
+                kpm_iface_from.id, kpm_iface_to.id))
+
+    return result
 
 
 def kpm_metanodes_from_design_descr(
@@ -351,24 +393,19 @@ def kpm_metanodes_connections_from_design_descr(
     appropriate  nodes' interfaces, based on the contents of "externals"
     section of Topwrap's design description
     """
-    connections = []
+    result = []
+    _external_conns = _get_external_connections(design_descr)
 
-    for conn_section in ['ports', 'interfaces']:
-        if conn_section not in design_descr.keys():
-            continue
-        for ip_name in design_descr[conn_section].keys():
-            for iface_name in design_descr[conn_section][ip_name].keys():
-                ext_name = design_descr[conn_section][ip_name][iface_name]
-                if isinstance(ext_name, str):
-                    kpm_interface = _get_dataflow_interface_by_name(
-                        iface_name, ip_name, nodes)
-                    kpm_metanode = _find_dataflow_metanode_by_external_name(
-                        metanodes, ext_name)
-                    if kpm_interface is not None and kpm_metanode is not None:
-                        connections.append(_create_external_connection(
-                            kpm_interface, kpm_metanode))
+    for ext_conn in _external_conns:
+        kpm_interface = _get_dataflow_interface_by_name(
+            ext_conn['port_iface_name'], ext_conn['ip_name'], nodes)
+        kpm_metanode = _find_dataflow_metanode_by_external_name(
+            metanodes, ext_conn['external_name'])
+        if kpm_interface is not None and kpm_metanode is not None:
+            result.append(_create_external_connection(
+                kpm_interface, kpm_metanode))
 
-    return [conn for conn in connections if conn is not None]
+    return [conn for conn in result if conn is not None]
 
 
 def kpm_dataflow_from_design_descr(
