@@ -301,6 +301,25 @@ def _get_ipcores_connections(design_descr: dict) -> list:
     } for conn in ipcores_connections]
 
 
+def _create_connection(
+        kpm_iface_from: KPMDataflowNodeInterface,
+        kpm_iface_to: KPMDataflowNodeInterface) -> KPMDataflowConnection:
+
+    dir_from = kpm_iface_from.direction
+    dir_to = kpm_iface_to.direction
+
+    if (dir_from == KPMDataflowNodeInterface.KPM_DIR_OUTPUT and
+        dir_to != KPMDataflowNodeInterface.KPM_DIR_INPUT) or \
+        (dir_from == KPMDataflowNodeInterface.KPM_DIR_INPUT and
+         dir_to != KPMDataflowNodeInterface.KPM_DIR_OUTPUT) or \
+        (dir_from == KPMDataflowNodeInterface.KPM_DIR_INOUT and
+         dir_to != KPMDataflowNodeInterface.KPM_DIR_INOUT):
+        logging.warning("Port/interface direction mismatch for connection: "
+                        f"'{kpm_iface_from.name}<->{kpm_iface_to.name}'")
+    else:
+        return KPMDataflowConnection(kpm_iface_from.id, kpm_iface_to.id)
+
+
 def kpm_connections_from_design_descr(
         design_descr: dict,
         nodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
@@ -317,10 +336,8 @@ def kpm_connections_from_design_descr(
         kpm_iface_to = _get_dataflow_interface_by_name(
             conn['port_iface_to_name'], conn['ip_to_name'], nodes)
         if kpm_iface_from is not None and kpm_iface_to is not None:
-            result.append(KPMDataflowConnection(
-                kpm_iface_from.id, kpm_iface_to.id))
-
-    return result
+            result.append(_create_connection(kpm_iface_from, kpm_iface_to))
+    return [conn for conn in result if conn is not None]
 
 
 def kpm_metanodes_from_design_descr(
@@ -359,32 +376,6 @@ def _find_dataflow_metanode_by_external_name(
                     "not found in design description")
 
 
-def _create_external_connection(
-        kpm_interface: KPMDataflowNodeInterface,
-        kpm_metanode: KPMDataflowNode) -> KPMDataflowConnection:
-
-    kpm_meta_interface = kpm_metanode.interfaces[0]
-
-    iface_dir = kpm_interface.direction
-    ext_dir = kpm_meta_interface.direction
-
-    if (iface_dir == KPMDataflowNodeInterface.KPM_DIR_OUTPUT and
-        ext_dir != KPMDataflowNodeInterface.KPM_DIR_INPUT) or \
-        (iface_dir == KPMDataflowNodeInterface.KPM_DIR_INPUT and
-         ext_dir != KPMDataflowNodeInterface.KPM_DIR_OUTPUT) or \
-        (iface_dir == KPMDataflowNodeInterface.KPM_DIR_INOUT and
-         ext_dir != KPMDataflowNodeInterface.KPM_DIR_INOUT):
-        logging.warning("Incorrect external direction for"
-                        f"'{kpm_metanode.properties[0].value}'")
-    else:
-        id_from = kpm_interface.id
-        id_to = kpm_meta_interface.id
-        if iface_dir == KPMDataflowNodeInterface.KPM_DIR_INPUT:
-            id_from, id_to = id_to, id_from
-
-        return KPMDataflowConnection(id_from, id_to)
-
-
 def kpm_metanodes_connections_from_design_descr(
         design_descr: dict,
         nodes: List[KPMDataflowNode],
@@ -402,9 +393,10 @@ def kpm_metanodes_connections_from_design_descr(
         kpm_metanode = _find_dataflow_metanode_by_external_name(
             metanodes, ext_conn['external_name'])
         if kpm_interface is not None and kpm_metanode is not None:
-            result.append(_create_external_connection(
-                kpm_interface, kpm_metanode))
-
+            # Metanodes have exactly 1 interface; hence we can take 0th index
+            # of the `interfaces` array of a metanode to access the interface.
+            result.append(_create_connection(
+                kpm_interface, kpm_metanode.interfaces[0]))
     return [conn for conn in result if conn is not None]
 
 
