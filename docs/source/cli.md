@@ -26,15 +26,25 @@ python -m fpga_topwrap build --sources src --design project.yml --part 'xc7z020c
 
 ## Connect Topwrap to Pipeline Manager
 
-If you want to use Pipeline Manager as a UI for creating block design, you need to run Topwrap's client application, that will connect to a running Pipeline Manager server:
+If you want to use Pipeline Manager as a UI for creating block design, you need to: 
+
+1. Build and run Pipeline Manager server application.
+
+```
+./build_server.sh
+cd kenning-pipeline-manager
+./run
+```
+
+2. Run Topwrap's client application, that will connect to a running Pipeline Manager server app.
 
 ```
 python -m fpga_topwrap kpm_client [-h ip_addr] [-p port] FILES
 ```
 
-Topwrap will then try to connect to a server running on `ip_addr:port` and send a specification generated from `FILES`, which should be IP core description yamls.
+Topwrap will then try to connect to the server running on `ip_addr:port` and send a specification generated from `FILES`, which should be IP core description yamls.
 
-If `-h` or `-p` options are not specified, `127.0.0.1` and `9000` will be chosen by default respectively.
+If `-h` or `-p` options are not specified, ip address `127.0.0.1` and port `9000` will be chosen by default.
 
 (generating-ip-yamls)=
 

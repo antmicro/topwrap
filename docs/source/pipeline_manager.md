@@ -11,10 +11,8 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     In order to start creating block design in Pipeline Manager, you need to first build and run a server application - here is a brief instruction on how to achieve this (the process of building and installation of Pipeline Manager is described in detail in its [documentation](https://antmicro.github.io/kenning-pipeline-manager/project-readme.html#building-and-running)):
 
     ```
-    git clone https://github.com/antmicro/kenning-pipeline-manager.git
+    ./build_server.sh
     cd kenning-pipeline-manager
-    pip install -r requirements.txt
-    ./build server-app
     ./run
     ```
 
