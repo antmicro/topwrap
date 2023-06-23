@@ -1,8 +1,11 @@
 # Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 import click
-from logging import warning
-from .verilog_parser import VerilogModule, ipcore_desc_from_verilog_module
+from logging import warning, info
+from .verilog_parser import (
+    VerilogModuleGenerator,
+    ipcore_desc_from_verilog_module
+)
 from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
 from .interface_grouper import InterfaceGrouper
 from .design import build_design_from_yaml
@@ -45,17 +48,25 @@ def build_main(sources, design, part, iface_compliance):
               help='Interface name, that ports will be grouped into')
 @click.argument('files', type=click_file, nargs=-1)
 def parse_main(use_yosys, iface_deduce, iface, files):
+    modules_generator = VerilogModuleGenerator()
     for filename in list(filter(lambda name: name[-2:] == ".v", files)):
-        verilog_mod = VerilogModule(filename)
+        modules = modules_generator.get_modules(filename)
         iface_grouper = InterfaceGrouper(use_yosys, iface_deduce, iface)
-        ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, iface_grouper) # noqa
-        ipcore_desc.save('gen_' + ipcore_desc.name + '.yaml')
+        for verilog_mod in modules:
+            ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, iface_grouper) # noqa
+            yaml_name = 'gen_' + ipcore_desc.name + '.yaml'
+            ipcore_desc.save(yaml_name)
+            info(f"Verilog module '{verilog_mod.get_module_name()}' saved in file '{yaml_name}'") # noqa
 
     for filename in list(filter(lambda name: name[-4:] == ".vhd" or name[-5:] == ".vhdl", files)): # noqa
+        # TODO - handle case with multiple VHDL modules in one file
         vhdl_mod = VHDLModule(filename)
         iface_grouper = InterfaceGrouper(False, iface_deduce, iface)
         ipcore_desc = ipcore_desc_from_vhdl_module(vhdl_mod, iface_grouper)
-        ipcore_desc.save('gen_' + ipcore_desc.name + '.yaml')
+        yaml_name = 'gen_' + ipcore_desc.name + '.yaml'
+        ipcore_desc.save(yaml_name)
+        info(f"VHDL Module '{vhdl_mod.get_module_name()}' saved in file '{yaml_name}'")
+
 
 
 @main.command("kpm_client", help="Run a client app, that connects to"

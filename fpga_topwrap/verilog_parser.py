@@ -16,19 +16,9 @@ class VerilogModule:
     using HdlConvertor.
     """
 
-    def __init__(self, verilog_file: str):
+    def __init__(self, verilog_file: str, verilog_module: dict):
         self.filename = verilog_file
-        c = HdlConvertor()
-        d = c.parse([self.filename], Language.VERILOG, [],
-                    hierarchyOnly=False, debug=True)
-
-        try:
-            self.__data = ToJson().visit_HdlContext(d)[0]
-
-        except KeyError:
-            raise
-        except IndexError:
-            error(f'No module found in {self.filename}!')
+        self.__data = verilog_module
 
     def get_module_name(self):
         return self.__data['module_name']
@@ -63,6 +53,24 @@ class VerilogModule:
                     ids = resolved_ops[1:-1].split(':') + ['0']
                     ports[port_name]['bounds'] = (ids[0], ids[1])
         return ports
+
+
+class VerilogModuleGenerator:
+
+    def __init__(self):
+        self.conv = HdlConvertor()
+
+    def get_modules(self, file: str):
+        try:
+            hdl_context = self.conv.parse(
+                [file], Language.VERILOG, [], hierarchyOnly=False, debug=True)
+        except IndexError:
+            error(f'No module found in {file}!')
+
+        modules = ToJson().visit_HdlContext(hdl_context)
+        return [
+            VerilogModule(file, module) for module in modules
+        ]
 
 
 def ipcore_desc_from_verilog_module(
