@@ -18,6 +18,14 @@ class TestHDLParse:
         for module in verilog_modules:
             ipcore_desc_from_verilog_module(module, iface_grouper)
 
+    def test_verilog_parse_multiple_modules(self):
+        from fpga_topwrap.verilog_parser import ipcore_desc_from_verilog_module, VerilogModuleGenerator
+        from fpga_topwrap.interface_grouper import InterfaceGrouper
+        verilog_modules = VerilogModuleGenerator().get_modules('tests/data/seg7_4d_ctrl.v')
+        iface_grouper = InterfaceGrouper(True, False, None)
+        for module in verilog_modules:
+            ipcore_desc_from_verilog_module(module, iface_grouper)
+
     def test_vhdl_parse(self):
         from fpga_topwrap.vhdl_parser import ipcore_desc_from_vhdl_module, VHDLModule
         from fpga_topwrap.interface_grouper import InterfaceGrouper
