@@ -1,0 +1,3 @@
+[submodule "kenning-pipeline-manager"]
+	path = kenning-pipeline-manager
+	url = https://github.com/antmicro/kenning-pipeline-manager.git
