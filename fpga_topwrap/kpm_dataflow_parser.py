@@ -48,12 +48,18 @@ def _kpm_properties_to_parameters(properties: dict):
     return result
 
 
+def _is_external_metanode(node: dict) -> bool:
+    """ Return True if a node is an external metanode, False elsewhere.
+    """
+    return (node['type'] in ['External Input', 'External Output'])
+
+
 def _get_ip_nodes(nodes: list) -> list:
     """ Return nodes, which describe some IP cores
     (e.g. filter out external metanodes)
     """
     return [
-        node for node in nodes if node['type'] not in ['External Input', 'External Output']
+        node for node in nodes if not _is_external_metanode(node)
     ]
 
 
@@ -159,7 +165,7 @@ def _get_external_nodes(nodes: list) -> list:
     """ Return metanodes respresenting external inputs and outputs
     """
     return [
-        node for node in nodes if node['type'] in ['External Input', 'External Output']
+        node for node in nodes if _is_external_metanode(node)
     ]
 
 
