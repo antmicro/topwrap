@@ -35,7 +35,10 @@ def _maybe_to_int(string: int) -> int | str:
     return string
 
 
-def _kpm_properties_to_parameters(properties: dict):
+def _kpm_properties_to_parameters(properties: dict) -> dict:
+    """ Parse `properties` taken from a dataflow node into 
+    Topwrap's IP core's parameters.
+    """
     result = dict()
     for property in properties:
         param_name = property['name']
@@ -63,7 +66,10 @@ def _get_ip_nodes(nodes: list) -> list:
     ]
 
 
-def _kpm_nodes_to_ips(nodes: list, ipcore_to_yamls: dict):
+def _kpm_nodes_to_ips(nodes: list, ipcore_to_yamls: dict) -> dict:
+    """ Parse dataflow nodes into Topwrap's "ips" section
+    of a design description yaml
+    """
     ips = {
         node['name']: {
             'file': ipcore_to_yamls[node['type']],
@@ -79,6 +85,8 @@ def _kpm_nodes_to_ips(nodes: list, ipcore_to_yamls: dict):
 
 
 def _find_spec_interface_by_name(specification: dict, ip_type: str, name: str):
+    """ Find `name` interface of `ip_type` IP core in `specification`  
+    """
     for node in specification['nodes']:
         if node['type'] != ip_type:
             continue
@@ -115,11 +123,14 @@ def _get_external_connections(connections: list, nodes: list):
     ]
 
 
+
 def _kpm_connections_to_pins(
         connections: list,
         nodes: list,
         specification: dict):
-
+    """ Parse dataflow connections between nodes representing IP cores into
+    "ports" and "interfaces" sections of a Topwrap's design description yaml
+    """
     pins_by_id = {
         "input":  {},
         "output": {}
@@ -195,6 +206,10 @@ def _get_kpm_interface_name_by_id(iface_id: str, nodes: list) -> str:
 
 
 def _kpm_connections_to_external(connections: list, nodes: list):
+    """ Parse dataflow connections representing external ports/interfaces
+    (i.e. connections between IP cores and external metanodes) into "external"
+    section of a Topwrap's design description yaml
+    """
     external = {
         "in": {},
         "out": {},
@@ -219,6 +234,8 @@ def _kpm_connections_to_external(connections: list, nodes: list):
 
 
 def kpm_dataflow_to_design(data, ipcore_to_yamls, specification):
+    """ Parse Pipeline Manager dataflow into Topwrap's design description yaml
+    """
     ips = _kpm_nodes_to_ips(data["graph"]["nodes"], ipcore_to_yamls)
     pins = _kpm_connections_to_pins(
         data["graph"]["connections"],

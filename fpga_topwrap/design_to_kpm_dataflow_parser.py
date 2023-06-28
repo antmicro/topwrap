@@ -101,6 +101,8 @@ class KPMDataflowConnection:
 
 
 def _get_specification_node_by_type(type: str, specification: dict) -> dict:
+    """ Return a node of type `type` from specification
+    """
     for node in specification['nodes']:
         if type == node['type']:
             return node
@@ -108,6 +110,9 @@ def _get_specification_node_by_type(type: str, specification: dict) -> dict:
 
 
 def _ipcore_param_to_kpm_value(param) -> str:
+    """ Return a string representing an IP core parameter,
+    that will be placed in dataflow node property textbox
+    """
     if isinstance(param, str):
         return param
     elif isinstance(param, int):
@@ -241,6 +246,9 @@ def kpm_connections_from_design_descr(
 
 
 def kpm_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]:
+    """ Generate a list of external metanodes based on the contents of
+    "externals" section of Topwrap's design description
+    """
     if 'external' not in design_descr.keys():
         return []
   
@@ -260,7 +268,10 @@ def kpm_metanodes_connections_from_design_descr(
         design_descr: dict,
         nodes: List[KPMDataflowNode],
         metanodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
-
+    """ Create a list of connections between external metanodes and
+    appropriate  nodes' interfaces, based on the contents of "externals"
+    section of Topwrap's design description
+    """
     if 'external' not in design_descr.keys():
         return []
 
@@ -294,7 +305,9 @@ def kpm_metanodes_connections_from_design_descr(
 def kpm_dataflow_from_design_descr(
         design_descr: dict,
         specification: dict) -> dict:
-
+    """ Generate Pipeline Manager dataflow from a design description
+    in Topwrap's yaml format
+    """
     nodes = kpm_nodes_from_design_descr(design_descr, specification)
     metanodes = kpm_metanodes_from_design_descr(design_descr)
     connections = kpm_connections_from_design_descr(design_descr, nodes)
