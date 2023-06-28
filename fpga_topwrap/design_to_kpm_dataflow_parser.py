@@ -5,6 +5,7 @@ import logging
 import os
 from typing import List
 from time import time
+from .kpm_common import EXT_INPUT_NAME, EXT_OUTPUT_NAME
 
 
 class IDGenerator(object):
@@ -258,9 +259,9 @@ def kpm_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]
     if 'out' in design_descr['external'].keys():
         outputs = sum([len(ports_list) for ports_list in design_descr['external']['out'].values()])
 
-    result = [KPMDataflowNode('External Output', 'External Output', [], [KPMDataflowNodeInterface('external', 'input')]) for _ in range(outputs)]
+    result = [KPMDataflowNode(EXT_OUTPUT_NAME, EXT_OUTPUT_NAME, [], [KPMDataflowNodeInterface('external', 'input')]) for _ in range(outputs)]
     if inputs >= 1:
-        result.append(KPMDataflowNode('External Input', 'External Input', [], [KPMDataflowNodeInterface('external', 'output')]))
+        result.append(KPMDataflowNode(EXT_INPUT_NAME, EXT_INPUT_NAME, [], [KPMDataflowNodeInterface('external', 'output')]))
     return result
 
 
@@ -278,8 +279,8 @@ def kpm_metanodes_connections_from_design_descr(
     ext_input_conns = []
     ext_output_conns = []
 
-    ext_input_metanodes = list(filter(lambda node: node.type == 'External Input', metanodes))
-    ext_output_metanodes = list(filter(lambda node: node.type == 'External Output', metanodes))
+    ext_input_metanodes = list(filter(lambda node: node.type == EXT_INPUT_NAME, metanodes))
+    ext_output_metanodes = list(filter(lambda node: node.type == EXT_OUTPUT_NAME, metanodes))
     ext_output_idx = 0
 
     if 'in' in design_descr['external'].keys():

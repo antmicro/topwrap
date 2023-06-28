@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-from .kpm_common import get_dataflow_ip_nodes, get_dataflow_external_connections, get_dataflow_ip_connections, find_dataflow_interface_by_id, find_spec_interface_by_name, find_dataflow_node_type_by_name
+from .kpm_common import *
 
 
 def _parse_value_width_parameter(param: str) -> dict:
@@ -99,11 +99,11 @@ def _kpm_connections_to_external(dataflow_data):
     for conn in get_dataflow_external_connections(dataflow_data):
         [node_to_name, iface_to_name, iface_to_dir] = find_dataflow_interface_by_id(dataflow_data, conn['to'])
         [node_from_name, iface_from_name, iface_from_dir] = find_dataflow_interface_by_id(dataflow_data, conn['from'])
-        if node_to_name == 'External Output':
+        if node_to_name == EXT_OUTPUT_NAME:
             if node_from_name not in external["out"].keys():
                 external["out"][node_from_name] = []
             external["out"][node_from_name].append(iface_from_name)
-        elif node_from_name == 'External Input':
+        elif node_from_name == EXT_INPUT_NAME:
             if node_to_name not in external["in"].keys():
                 external["in"][node_to_name] = []
             external["in"][node_to_name].append(iface_to_name)

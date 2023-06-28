@@ -2,10 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+EXT_INPUT_NAME = "External Input"
+EXT_OUTPUT_NAME = "External Output"
+
+
 def _is_external_metanode(node: dict) -> bool:
     """ Return True if a node is an external metanode, False elsewhere.
     """
-    return (node['type'] in ['External Input', 'External Output'])
+    return (node['type'] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME])
 
 
 def get_dataflow_ip_nodes(dataflow_json) -> list:

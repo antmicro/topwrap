@@ -4,6 +4,7 @@
 import logging
 import os
 from .parsers import parse_port_map
+from .kpm_common import EXT_INPUT_NAME, EXT_OUTPUT_NAME
 
 
 def _ipcore_param_to_kpm_value(param) -> str:
@@ -160,8 +161,8 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
         },
         "nodes": [
              {
-                "name": "External Input",
-                "type": "External Input",
+                "name": EXT_INPUT_NAME,
+                "type": EXT_INPUT_NAME,
                 "category": "Metanode",
                 "properties": [],
                 "interfaces": [{
@@ -171,8 +172,8 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
                 }]
             },
             {
-                "name": "External Output",
-                "type": "External Output",
+                "name": EXT_OUTPUT_NAME,
+                "type": EXT_OUTPUT_NAME,
                 "category": "Metanode",
                 "properties": [],
                 "interfaces": [{
