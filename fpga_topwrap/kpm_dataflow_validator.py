@@ -6,6 +6,9 @@ import json
 from enum import Enum
 from typing import NamedTuple, Union
 from .kpm_common import (
+    EXT_OUTPUT_NAME,
+    EXT_INPUT_NAME,
+    EXT_INOUT_NAME,
     get_dataflow_ip_nodes,
     get_dataflow_externals_interfaces,
     get_dataflow_external_connections,
@@ -151,19 +154,19 @@ def _check_externals_metanodes_types(dataflow_data, specification):
             dataflow_data, conn['from'])
         iface_to = find_dataflow_interface_by_id(dataflow_data, conn['to'])
         if (iface_from["iface_dir"] == "inout"
-                and iface_to["node_name"] == "External Output"):
+                and iface_to["node_name"] == EXT_OUTPUT_NAME):
             bad_exts.append(
                 f"{iface_from['node_name']}:{iface_from['iface_name']}")
         elif (iface_to["iface_dir"] == "inout"
-              and iface_from["node_name"] == "External Input"):
+              and iface_from["node_name"] == EXT_INPUT_NAME):
             bad_exts.append(
                 f"{iface_to['node_name']}:{iface_to['iface_name']}")
         elif (iface_from["iface_dir"] == "output"
-              and iface_to["node_name"] == "External Inout"):
+              and iface_to["node_name"] == EXT_INOUT_NAME):
             bad_exts.append(
                 f"{iface_from['node_name']}:{iface_from['iface_name']}")
         elif (iface_to["iface_dir"] == "input"
-              and iface_from["node_name"] == "External Inout"):
+              and iface_from["node_name"] == EXT_INOUT_NAME):
             bad_exts.append(
                 f"{iface_to['node_name']}:{iface_to['iface_name']}")
 
