@@ -87,21 +87,32 @@ def _find_spec_interface_by_name(specification: dict, ip_type: str, name: str):
                 return interface
 
 
+def _get_interfaces(nodes: list) -> list:
+    """ Return all the interfaces belonging to `nodes`
+    """
+    return [interface for node in nodes for interface in node['interfaces']]
+
+
 def _get_ip_connections(connections: list, nodes: list) -> list:
     """ Return connections between two IP cores
     (e.g. filter out connections to external metanodes)
     """
-    ip_connections = []
-    ip_ifaces_ids = []
-    for ip_node in _get_ip_nodes(nodes):
-        for interface in ip_node['interfaces']:
-            ip_ifaces_ids.append(interface['id'])
+    ifaces = _get_interfaces(_get_ip_nodes(nodes))
+    ifaces_ids = [interface['id'] for interface in ifaces]
+    return [
+        conn for conn in connections if conn["from"] in ifaces_ids and conn["to"] in ifaces_ids
+    ]
 
-    for conn in connections:
-        if conn["from"] in ip_ifaces_ids and conn["to"] in ip_ifaces_ids:
-            ip_connections.append(conn)
 
-    return ip_connections 
+def _get_external_connections(connections: list, nodes: list):
+    """ Return connections from/to metanodes representing
+    external inputs/outputs
+    """
+    ifaces = _get_interfaces(_get_external_nodes(nodes))
+    ifaces_ids = [interface['id'] for interface in ifaces]
+    return [
+        conn for conn in connections if conn["from"] in ifaces_ids or conn["to"] in ifaces_ids
+    ]
 
 
 def _kpm_connections_to_pins(
@@ -167,23 +178,6 @@ def _get_external_nodes(nodes: list) -> list:
     return [
         node for node in nodes if _is_external_metanode(node)
     ]
-
-
-def _get_external_connections(connections: list, nodes: list):
-    """ Return connections from/to metanodes representing
-    external inputs/outputs
-    """
-    ip_connections = []
-    ext_ifaces_ids = []
-    for ip_node in _get_external_nodes(nodes):
-        for interface in ip_node['interfaces']:
-            ext_ifaces_ids.append(interface['id'])
-
-    for conn in connections:
-        if conn["from"] in ext_ifaces_ids or conn["to"] in ext_ifaces_ids:
-            ip_connections.append(conn)
-
-    return ip_connections 
 
 
 def _get_kpm_node_by_interface_id(iface_id: str, nodes: list) -> dict|None:
