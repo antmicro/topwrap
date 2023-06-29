@@ -3,12 +3,14 @@
 
 import pytest
 import jsonschema
+from yaml import load, Loader
 
 from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+from fpga_topwrap.kpm_topwrap_client import _ipcore_names_to_yamls_mapping
 
 
 @pytest.fixture
-def hdmi_design_yamls() -> list:
+def hdmi_ipcores_yamls() -> list:
     _hdmi_yamls_prefix = 'examples/hdmi/ipcores/'
     _axi_yamls_prefix = 'fpga_topwrap/ips/axi/'
     return [
@@ -27,7 +29,19 @@ def hdmi_design_yamls() -> list:
     ]
 
 
-def test_hdmi_specification_generation(specification_schema, hdmi_design_yamls):
-    spec = ipcore_yamls_to_kpm_spec(hdmi_design_yamls)
+@pytest.fixture
+def hdmi_ipcores_names_to_yamls(hdmi_ipcores_yamls) -> dict:
+    return _ipcore_names_to_yamls_mapping(hdmi_ipcores_yamls)
+
+
+@pytest.fixture
+def hdmi_design_yaml() -> dict:
+    with open('examples/hdmi/project.yml', 'r') as yamlfile:
+        design = load(yamlfile, Loader=Loader)
+    return design
+
+
+def test_hdmi_specification_generation(specification_schema, hdmi_ipcores_yamls):
+    spec = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
     assert len(spec['nodes']) == 14 # 12 IP cores + 2 External metanodes
     jsonschema.validate(spec, specification_schema)
