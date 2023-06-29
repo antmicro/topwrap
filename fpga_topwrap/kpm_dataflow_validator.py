@@ -72,7 +72,7 @@ def _check_unconnected_interfaces(dataflow_data, specification) -> CheckResult:
     if unconn_ifaces:
         unconn_ifaces_descrs = []
         for unconn_iface_id in unconn_ifaces:
-            [node_name, iface_name] = find_dataflow_interface_by_id(
+            [node_name, iface_name, dir] = find_dataflow_interface_by_id(
                 dataflow_data, unconn_iface_id
             )
             unconn_ifaces_descrs.append(f"{node_name}:{iface_name}")

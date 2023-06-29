@@ -80,13 +80,9 @@ def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> list|None:
     """ Return a list ["node_name", "iface_name", "iface_dir"] that corresponds to
     a given 'iface_id'
     """
-    ip_interfaces = get_dataflow_ips_interfaces(dataflow_json)
-    ext_interfaces = get_dataflow_externals_interfaces(dataflow_json)
-
-    if iface_id in ip_interfaces.keys():
-        return ip_interfaces[iface_id]
-    if iface_id in ext_interfaces.keys():
-        return ext_interfaces[iface_id]
+    interfaces = _get_interfaces(dataflow_json['graph']['nodes'])
+    if iface_id in interfaces.keys():
+        return interfaces[iface_id]
 
 
 def find_spec_interface_by_name(specification, node_type: str, iface_name: str):
