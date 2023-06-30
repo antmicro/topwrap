@@ -26,15 +26,27 @@ def _parse_value_width_parameter(param: str) -> dict:
     }
 
 
+def _maybe_to_int(string: int) -> int|str:
+    for base in [10, 16, 2, 8]:
+        try:
+            return int(string, base)
+        except ValueError:
+            pass
+    return string
+
+
 def _kpm_properties_to_parameters(properties: dict) -> dict:
     """ Parse `properties` taken from a dataflow node into 
     Topwrap's IP core's parameters.
     """
     result = dict()
     for property in properties:
+        param_name = property['name']
         param_val = property['value']
         if re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
-            param_val = _parse_value_width_parameter(param_val)
+            result[param_name] = _parse_value_width_parameter(param_val)
+        else:
+            result[param_name] = _maybe_to_int(param_val)
     return result
 
 
