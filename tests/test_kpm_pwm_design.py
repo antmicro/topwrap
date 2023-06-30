@@ -4,10 +4,19 @@
 import pytest
 import jsonschema
 from yaml import load, Loader
+from pytest_lazy_fixtures import lf
 
 from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 from fpga_topwrap.kpm_topwrap_client import _ipcore_names_to_yamls_mapping
 from fpga_topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
+from fpga_topwrap.kpm_dataflow_validator import (
+    CheckStatus,
+    _check_duplicate_ip_names,
+    _check_ambigous_ports_interfaces,
+    _check_ext_in_to_ext_out_connections,
+    _check_parameters_values,
+    _check_unconnected_interfaces
+)
 from fpga_topwrap.kpm_common import *
 
 
@@ -124,3 +133,114 @@ class TestPWMDataflowExport:
         external = _kpm_connections_to_external(pwm_dataflow)
         assert external['external']['in'] == {}
         assert external['external']['out'] == pwm_design_yaml['external']['out']
+
+
+class TestPWMDataflowValidation:
+    @pytest.fixture
+    def dataflow_duplicate_ip_names(self, pwm_dataflow):
+        pwm_dataflow['graph']['nodes'].append({
+            "type": "litex_pwm",
+            "id": "52b5260f-9e94-41c7-95cc-5e6d08d62c3c",
+            "position": { "x": 530, "y": -92 },
+            "width": 200,
+            "twoColumn": False,
+            "interfaces": [],
+            "properties": [],
+            "name": "litex_pwm_top"
+        })
+        yield pwm_dataflow
+        pwm_dataflow['graph']['nodes'].pop()
+
+    @pytest.fixture
+    def dataflow_invalid_parameters_values(self, pwm_dataflow):
+        axi_node = [node for node in pwm_dataflow['graph']['nodes'] if node['name'] == 'axi_bridge'][0]
+        axi_node['properties'].append({
+            "name": "TEMP_PARAM",
+            "id": "9a02ee12-4fa2-425f-8bdf-526e53169d14",
+            "value": "INVALID_NAME!!!"
+        })
+        yield pwm_dataflow
+        axi_node['properties'].pop()
+
+    @pytest.fixture
+    def dataflow_ext_in_to_ext_out_connections(self, pwm_dataflow):
+        pwm_dataflow['graph']['nodes'] += [{
+            "type": "External Input",
+            "id": "9aff3f2e-0552-4ffd-8475-79a83da73ebe",
+            "position": {"x": 216,"y": 322 },
+            "width": 200,
+            "twoColumn": False,
+            "interfaces": [{
+                "name": "external",
+                "id": "4df52b77-4124-42a4-af19-b383567fb821",
+                "direction": "output",
+            }],
+            "properties": [],
+            "name": "External Input"
+        }, {
+            "type": "External Output",
+            "id": "2aef1dc2-8d3a-44cb-ab03-7ce68db41741",
+            "position": {"x": 2257, "y": 179 },
+            "width": 200,
+            "twoColumn": False,
+            "interfaces": [{
+                "name": "external",
+                "id": "d220cb31-5e99-42ee-b355-8e7f41ea03c6",
+                "direction": "input",
+            }],
+            "properties": [],
+            "name": "External Output"
+        }]
+        pwm_dataflow['graph']['connections'].append({
+            "id": "b18a3e97-ede2-4677-9e3f-6d2f7f35ea75",
+            "from": "4df52b77-4124-42a4-af19-b383567fb821",
+            "to": "d220cb31-5e99-42ee-b355-8e7f41ea03c6"
+        })
+        yield pwm_dataflow
+        pwm_dataflow['graph']['nodes'] = pwm_dataflow['graph']['nodes'][:-2]
+        pwm_dataflow['graph']['connections'].pop()
+
+    @pytest.fixture
+    def dataflow_ambigous_ports_interfaces(self, pwm_dataflow):
+        pwm_dataflow['graph']['nodes'].append({
+            "type": "External Output",
+            "id": "2aef1dc2-8d3a-44cb-ab03-7ce68db41741",
+            "position": {"x": 2257, "y": 179 },
+            "width": 200,
+            "twoColumn": False,
+            "interfaces": [{
+                "name": "external",
+                "id": "d220cb31-5e99-42ee-b355-8e7f41ea03c6",
+                "direction": "input",
+            }],
+            "properties": [],
+            "name": "External Output"
+        })
+        litex_pwm_node = [node for node in pwm_dataflow['graph']['nodes'] if node['name'] == 'litex_pwm_top'][0]
+        pwm_interface = [interface for interface in litex_pwm_node['interfaces'] if interface['name'] == 'pwm'][0]
+        pwm_dataflow['graph']['connections'].append({
+            "id": "b18a3e97-ede2-4677-9e3f-6d2f7f35ea75",
+            "from": pwm_interface['id'],
+            "to": "d220cb31-5e99-42ee-b355-8e7f41ea03c6"
+        })
+        yield pwm_dataflow
+        pwm_dataflow['graph']['nodes'].pop
+        pwm_dataflow['graph']['connections'].pop()
+
+
+    @pytest.mark.parametrize('_check_function, dataflow, expected_result', [
+        (_check_duplicate_ip_names, lf('pwm_dataflow'), CheckStatus.OK),
+        (_check_parameters_values, lf('pwm_dataflow'), CheckStatus.OK),
+        (_check_ext_in_to_ext_out_connections, lf('pwm_dataflow'), CheckStatus.OK),
+        (_check_ambigous_ports_interfaces, lf('pwm_dataflow'), CheckStatus.OK),
+
+        (_check_unconnected_interfaces, lf('pwm_dataflow'), CheckStatus.WARNING),
+
+        (_check_duplicate_ip_names, lf('dataflow_duplicate_ip_names'), CheckStatus.ERROR),
+        (_check_parameters_values, lf('dataflow_invalid_parameters_values'), CheckStatus.ERROR),
+        (_check_ext_in_to_ext_out_connections, lf('dataflow_ext_in_to_ext_out_connections'), CheckStatus.ERROR),
+        (_check_ambigous_ports_interfaces, lf('dataflow_ambigous_ports_interfaces'), CheckStatus.ERROR)
+    ])
+    def test_dataflow(self, pwm_specification, _check_function, dataflow, expected_result):
+        status, msg = _check_function(dataflow, pwm_specification)
+        assert status == expected_result

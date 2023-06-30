@@ -29,7 +29,7 @@ setuptools.setup(
         "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication",
     ],
     setup_requires=["pytest-runner"],
-    tests_require=["pytest"],
+    tests_require=["pytest", "pytest-lazy-fixtures"],
     include_package_data=True,
     zip_safe=False,
     entry_points=entry_points,

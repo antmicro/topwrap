@@ -8,6 +8,14 @@ from yaml import load, Loader
 from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 from fpga_topwrap.kpm_topwrap_client import _ipcore_names_to_yamls_mapping
 from fpga_topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
+from fpga_topwrap.kpm_dataflow_validator import (
+    CheckStatus,
+    _check_duplicate_ip_names,
+    _check_ambigous_ports_interfaces,
+    _check_ext_in_to_ext_out_connections,
+    _check_parameters_values,
+    _check_unconnected_interfaces
+)
 from fpga_topwrap.kpm_common import *
 
 
@@ -115,3 +123,16 @@ class TestHDMIDataflowExport:
         external = _kpm_connections_to_external(hdmi_dataflow)
         assert external['external']['in'] == {}
         assert external['external']['out'] == hdmi_design_yaml['external']['out']
+
+
+@pytest.mark.parametrize('_check_function, expected_result', [
+    (_check_duplicate_ip_names, CheckStatus.OK),
+    (_check_parameters_values, CheckStatus.OK),
+    (_check_ext_in_to_ext_out_connections, CheckStatus.OK),
+    (_check_ambigous_ports_interfaces, CheckStatus.OK),
+
+    (_check_unconnected_interfaces,  CheckStatus.WARNING),
+])
+def test_dataflow(hdmi_specification, hdmi_dataflow, _check_function, expected_result):
+    status, msg = _check_function(hdmi_dataflow, hdmi_specification)
+    assert status == expected_result
