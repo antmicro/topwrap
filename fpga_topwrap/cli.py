@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import click
 from logging import warning
-from .design import build_design
 from .verilog_parser import VerilogModule, ipcore_desc_from_verilog_module
 from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
 from .interface_grouper import InterfaceGrouper

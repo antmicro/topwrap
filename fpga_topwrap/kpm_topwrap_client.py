@@ -27,7 +27,10 @@ def _kpm_specification_handler(yamlfiles: list) -> str:
 
 def _kpm_import_handler(data: bytes, yamlfiles: list) -> str:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
-    dataflow = kpm_dataflow_from_design_descr(yaml.safe_load(data.decode()), specification)
+    dataflow = kpm_dataflow_from_design_descr(
+        yaml.safe_load(data.decode()),
+        specification
+    )
     return json.dumps(dataflow)
 
 

@@ -15,6 +15,7 @@ class IPConnect(Elaboratable):
     """Connector for multiple IPs, capable of connecting their interfaces
     as well as individual ports.
     """
+
     def __init__(self):
         self._signals_between_ips = []
         self._ips = dict()
@@ -42,8 +43,8 @@ class IPConnect(Elaboratable):
         if (ip1_name not in self._ips.keys() or
                 ip2_name not in self._ips.keys()):
             raise ValueError(
-                    f'No such IP in this module: {ip1_name}, {ip2_name}.'
-                    ' Use add_ip method to add the IPs first')
+                f'No such IP in this module: {ip1_name}, {ip2_name}.'
+                ' Use add_ip method to add the IPs first')
         # get the 'WrapperPort's
         port1 = self._ips[ip1_name].get_port_by_name(port1_name)
         port2 = self._ips[ip2_name].get_port_by_name(port2_name)
@@ -89,8 +90,8 @@ class IPConnect(Elaboratable):
         if (ip1_name not in self._ips.keys() or
                 ip2_name not in self._ips.keys()):
             raise ValueError(
-                    f'No such IP in this module: {ip1_name}, {ip2_name}.'
-                    ' Use add_ip method to add the IPs first')
+                f'No such IP in this module: {ip1_name}, {ip2_name}.'
+                ' Use add_ip method to add the IPs first')
 
         ip1_ports = self._ips[ip1_name].get_ports_of_interface(iface1)
         ip2_ports = self._ips[ip2_name].get_ports_of_interface(iface2)
@@ -144,10 +145,15 @@ class IPConnect(Elaboratable):
         :raises ValueError: if such interface doesn't exist
         """
         inst_args = getattr(self, ip.top_name)
-        
-        iface_ports  = [key for key in inst_args.keys() if key[2:].startswith(iface_name)]
+
+        iface_ports = [
+            key for key in inst_args.keys() if key[2:].startswith(iface_name)
+        ]
         if not iface_ports:
-            raise ValueError(f'no ports exist for interface {iface_name} in ip: {ip.top_name}')
+            raise ValueError(
+                f'no ports exist for interface {iface_name}'
+                f'in ip: {ip.top_name}'
+            )
 
         for iface_port in iface_ports:
             sig = inst_args[iface_port]
@@ -186,8 +192,8 @@ class IPConnect(Elaboratable):
         """
         if ip_name not in self._ips.keys():
             raise ValueError(
-                    f'No such IP in this module: {ip_name}.'
-                    ' Use add_ip method to add the IPs first')
+                f'No such IP in this module: {ip_name}.'
+                ' Use add_ip method to add the IPs first')
 
         port = self._ips[ip_name].get_port_by_name(ip_port)
         inst_args = getattr(self, ip_name)
@@ -226,7 +232,8 @@ class IPConnect(Elaboratable):
 
         self._set_unconnected_ports()
         for ip_name, _ip_exts in _exts.items():
-            ifaces_names = [p.interface_name for p in self._ips[ip_name].get_ports()]
+            ifaces_names = [
+                p.interface_name for p in self._ips[ip_name].get_ports()]
             for _ext in _ip_exts:
                 if _ext in ifaces_names:
                     self._set_interface(self._ips[ip_name], _ext)

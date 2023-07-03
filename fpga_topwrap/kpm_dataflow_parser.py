@@ -26,7 +26,7 @@ def _parse_value_width_parameter(param: str) -> dict:
     }
 
 
-def _maybe_to_int(string: int) -> int|str:
+def _maybe_to_int(string: int) -> int | str:
     for base in [10, 16, 2, 8]:
         try:
             return int(string, base)
@@ -72,7 +72,11 @@ def _find_spec_interface_by_name(specification: dict, ip_type: str, name: str):
                 return interface
 
 
-def _kpm_connections_to_pins(connections: list, nodes: list, specification: dict):
+def _kpm_connections_to_pins(
+        connections: list,
+        nodes: list,
+        specification: dict):
+
     pins_by_id = {
         "input":  {},
         "output": {}
@@ -84,10 +88,15 @@ def _kpm_connections_to_pins(connections: list, nodes: list, specification: dict
             iface_name = interface["name"]
             iface_id = interface["id"]
             iface_dir = interface["direction"]
-            spec_iface = _find_spec_interface_by_name(specification, node['type'], iface_name)
+            spec_iface = _find_spec_interface_by_name(
+                specification, node['type'],
+                iface_name
+            )
             if spec_iface is None:
                 logging.warning(
-                    f'Interface {iface_name} of node {node["type"]} not found in specification')
+                    f'Interface {iface_name}'
+                    f'of node {node["type"]} not found in specification'
+                )
                 continue
             pins_by_id[iface_dir][iface_id] = {
                 "ip_name": node['name'],
@@ -124,8 +133,8 @@ def _kpm_connections_to_pins(connections: list, nodes: list, specification: dict
 def kpm_dataflow_to_design(data, ipcore_to_yamls, specification):
     ips = _kpm_nodes_to_ips(data["graph"]["nodes"], ipcore_to_yamls)
     pins = _kpm_connections_to_pins(
-        data["graph"]["connections"], 
-        data["graph"]["nodes"], 
+        data["graph"]["connections"],
+        data["graph"]["nodes"],
         specification
     )
 
