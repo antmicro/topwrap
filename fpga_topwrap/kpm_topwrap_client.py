@@ -48,7 +48,7 @@ def _design_from_kpm_data(data: bytes, yamlfiles: list) -> dict:
     return kpm_dataflow_to_design(json_data, ipcore_to_yamls, specification)
 
 
-def _kpm_run_handler(data: bytes, yamlfiles: list) -> list | None:
+def _kpm_run_handler(data: bytes, yamlfiles: list) -> list:
     """ Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """

@@ -246,22 +246,38 @@ def kpm_connections_from_design_descr(
             _parse_design_descr_connections(interface_conns, nodes))
 
 
-def kpm_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]:
+def kpm_metanodes_from_design_descr(
+        design_descr: dict) -> List[KPMDataflowNode]:
     """ Generate a list of external metanodes based on the contents of
     "externals" section of Topwrap's design description
     """
     if 'external' not in design_descr.keys():
         return []
-  
+
     inputs, outputs = 0, 0
     if 'in' in design_descr['external'].keys():
-        inputs = sum([len(ports_list) for ports_list in design_descr['external']['in'].values()])
+        inputs = sum(
+            [len(ports_list)
+             for ports_list in design_descr['external']['in'].values()]
+        )
     if 'out' in design_descr['external'].keys():
-        outputs = sum([len(ports_list) for ports_list in design_descr['external']['out'].values()])
+        outputs = sum(
+            [len(ports_list)
+             for ports_list in design_descr['external']['out'].values()]
+        )
 
-    result = [KPMDataflowNode(EXT_OUTPUT_NAME, EXT_OUTPUT_NAME, [], [KPMDataflowNodeInterface('external', 'input')]) for _ in range(outputs)]
+    result = [
+        KPMDataflowNode(
+            EXT_OUTPUT_NAME,
+            EXT_OUTPUT_NAME,
+            [],
+            [KPMDataflowNodeInterface('external', 'input')]
+        )
+        for _ in range(outputs)
+    ]
     if inputs >= 1:
-        result.append(KPMDataflowNode(EXT_INPUT_NAME, EXT_INPUT_NAME, [], [KPMDataflowNodeInterface('external', 'output')]))
+        result.append(KPMDataflowNode(EXT_INPUT_NAME, EXT_INPUT_NAME, [], [
+                      KPMDataflowNodeInterface('external', 'output')]))
     return result
 
 
@@ -279,27 +295,37 @@ def kpm_metanodes_connections_from_design_descr(
     ext_input_conns = []
     ext_output_conns = []
 
-    ext_input_metanodes = list(filter(lambda node: node.type == EXT_INPUT_NAME, metanodes))
-    ext_output_metanodes = list(filter(lambda node: node.type == EXT_OUTPUT_NAME, metanodes))
+    ext_input_metanodes = list(
+        filter(lambda node: node.type == EXT_INPUT_NAME, metanodes))
+    ext_output_metanodes = list(
+        filter(lambda node: node.type == EXT_OUTPUT_NAME, metanodes))
     ext_output_idx = 0
 
     if 'in' in design_descr['external'].keys():
         for ip_name in design_descr['external']['in'].keys():
             for ext_name in design_descr['external']['in'][ip_name]:
-                ext_interface = _get_dataflow_interface_by_name(ext_name, ip_name, nodes)
+                ext_interface = _get_dataflow_interface_by_name(
+                    ext_name, ip_name, nodes)
                 if ext_interface is None:
                     continue
-                ext_input_conns.append(KPMDataflowConnection(ext_input_metanodes[0].interfaces[0].id, ext_interface.id))
+                ext_input_conns.append(KPMDataflowConnection(
+                    ext_input_metanodes[0].interfaces[0].id, ext_interface.id))
 
     if 'out' in design_descr['external'].keys():
         for ip_name in design_descr['external']['out'].keys():
             for ext_name in design_descr['external']['out'][ip_name]:
-                ext_interface = _get_dataflow_interface_by_name(ext_name, ip_name, nodes)
+                ext_interface = _get_dataflow_interface_by_name(
+                    ext_name, ip_name, nodes)
                 if ext_interface is None:
                     continue
-                ext_output_conns.append(KPMDataflowConnection(ext_interface.id, ext_output_metanodes[ext_output_idx].interfaces[0].id))
+                ext_output_conns.append(
+                    KPMDataflowConnection(
+                        ext_interface.id,
+                        ext_output_metanodes[ext_output_idx].interfaces[0].id
+                    )
+                )
                 ext_output_idx += 1
-    
+
     return ext_input_conns + ext_output_conns
 
 
@@ -312,7 +338,8 @@ def kpm_dataflow_from_design_descr(
     nodes = kpm_nodes_from_design_descr(design_descr, specification)
     metanodes = kpm_metanodes_from_design_descr(design_descr)
     connections = kpm_connections_from_design_descr(design_descr, nodes)
-    ext_connections = kpm_metanodes_connections_from_design_descr(design_descr, nodes, metanodes)
+    ext_connections = kpm_metanodes_connections_from_design_descr(
+        design_descr, nodes, metanodes)
     generator = IDGenerator()
     return {
         "graph": {
@@ -325,7 +352,8 @@ def kpm_dataflow_from_design_descr(
             "connections": [
                 connection.to_json_format() for connection in connections
             ] + [
-                ext_connection.to_json_format() for ext_connection in ext_connections
+                ext_connection.to_json_format()
+                for ext_connection in ext_connections
             ],
             "inputs": [],
             "outputs": []

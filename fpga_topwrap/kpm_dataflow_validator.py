@@ -5,10 +5,14 @@ import numexpr as ex
 import json
 from enum import Enum
 from typing import NamedTuple, Union
-from .kpm_common import (get_dataflow_ip_nodes,
-    get_dataflow_externals_interfaces, get_dataflow_ips_interfaces,
-    find_dataflow_interface_by_id, find_dataflow_node_type_by_name,
-    find_spec_interface_by_name)
+from .kpm_common import (
+    get_dataflow_ip_nodes,
+    get_dataflow_externals_interfaces,
+    get_dataflow_ips_interfaces,
+    find_dataflow_interface_by_id,
+    find_dataflow_node_type_by_name,
+    find_spec_interface_by_name
+)
 
 
 class CheckStatus(Enum):
@@ -95,8 +99,10 @@ def _check_multiple_connections_from_interfaces(dataflow_data, specification):
     """
     invalid_ifaces = []
 
-    for (iface_id, iface) in get_dataflow_ips_interfaces(dataflow_data).items():
-        node_type = find_dataflow_node_type_by_name(dataflow_data, iface['node_name'])
+    for iface_id, iface in get_dataflow_ips_interfaces(dataflow_data).items():
+        node_type = find_dataflow_node_type_by_name(
+            dataflow_data, iface['node_name']
+        )
         iface_type = find_spec_interface_by_name(
             specification, node_type, iface['iface_name'])['type']
         if iface_type == "port":
@@ -121,13 +127,17 @@ def _check_multiple_connections_from_interfaces(dataflow_data, specification):
 
 
 def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
-    """ Check for connections between metanodes 'External Input' and 'External Output' metanodes
+    """ Check for connections between
+    'External Input' and 'External Output' metanodes
     """
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 
     for conn in dataflow_data['graph']['connections']:
         if conn['from'] in ext_ifaces_ids and conn['to'] in ext_ifaces_ids:
-            return CheckResult(CheckStatus.ERROR, f"Existing connections from External Inputs to External Outputs")
+            return CheckResult(
+                CheckStatus.ERROR,
+                "Existing connections from External Inputs to External Outputs"
+            )
 
     return CheckResult(CheckStatus.OK, None)
 
@@ -139,20 +149,27 @@ def _check_ambigous_ports_interfaces(dataflow_data, specification):
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 
     ambig_ifaces = []
-    for (iface_id, iface) in get_dataflow_ips_interfaces(dataflow_data).items():
-        iface_conns =  [
-            conn for conn in dataflow_data['graph']['connections'] if conn['from'] == iface_id or conn['to'] == iface_id
+    for iface_id, iface in get_dataflow_ips_interfaces(dataflow_data).items():
+        iface_conns = [
+            conn for conn in dataflow_data['graph']['connections']
+            if conn['from'] == iface_id or conn['to'] == iface_id
         ]
         for conn in iface_conns:
-            if (conn['from'] in ext_ifaces_ids or conn['to'] in ext_ifaces_ids) and len(iface_conns) > 1:
+            if ((conn['from'] in ext_ifaces_ids
+                    or conn['to'] in ext_ifaces_ids) and len(iface_conns)) > 1:
                 ambig_ifaces.append(iface)
                 break
 
     if ambig_ifaces:
         ambig_ifaces_descrs = [
-            f"{ambig_iface['node_name']}:{ambig_iface['iface_name']}" for ambig_iface in ambig_ifaces
+            f"{ambig_iface['node_name']}:{ambig_iface['iface_name']}"
+            for ambig_iface in ambig_ifaces
         ]
-        return CheckResult(CheckStatus.ERROR, f"External ports/interfaces having >1 connections: {ambig_ifaces_descrs}")
+        return CheckResult(
+            CheckStatus.ERROR,
+            f"External ports/interfaces"
+            f"having >1 connections: {ambig_ifaces_descrs}"
+        )
     return CheckResult(CheckStatus.OK, None)
 
 

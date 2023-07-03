@@ -17,7 +17,8 @@ def get_dataflow_ip_nodes(dataflow_json) -> list:
     (i.e. filter out External Outputs and Inputs)
     """
     return [
-        node for node in dataflow_json['graph']['nodes'] if not _is_external_metanode(node)
+        node for node in dataflow_json['graph']['nodes']
+        if not _is_external_metanode(node)
     ]
 
 
@@ -25,7 +26,8 @@ def get_dataflow_metanodes(dataflow_json) -> list:
     """ Return a list of external metanodes (i.e. External Outputs and Inputs)
     """
     return [
-        node for node in dataflow_json['graph']['nodes'] if _is_external_metanode(node)
+        node for node in dataflow_json['graph']['nodes']
+        if _is_external_metanode(node)
     ]
 
 
@@ -44,10 +46,10 @@ def _get_interfaces(nodes: list) -> dict:
             }
     return result
 
-    
+
 def get_dataflow_ips_interfaces(dataflow_json) -> dict:
-    """ Return a dict of all the interfaces of all the nodes representing ip cores.
-    The resulting dict consists of items
+    """ Return a dict of all the interfaces of all the nodes representing
+    ip cores. The resulting dict consists of items
     { "iface_id": {"node_name": ..., "iface_name": ..., "iface_dir": ...} }
     """
     return _get_interfaces(get_dataflow_ip_nodes(dataflow_json))
@@ -92,8 +94,11 @@ def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> dict:
         return interfaces[iface_id]
 
 
-def find_spec_interface_by_name(specification, node_type: str, iface_name: str) -> dict:
-    """ Find `name` interface of `ip_type` IP core in `specification`  
+def find_spec_interface_by_name(
+        specification,
+        node_type: str,
+        iface_name: str) -> dict:
+    """ Find `name` interface of `ip_type` IP core in `specification`
     """
     for node in specification['nodes']:
         if node['type'] != node_type:

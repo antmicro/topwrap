@@ -160,7 +160,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
             "connectionStyle": "orthogonal"
         },
         "nodes": [
-             {
+            {
                 "name": EXT_INPUT_NAME,
                 "type": EXT_INPUT_NAME,
                 "category": "Metanode",
@@ -170,8 +170,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
                     "type": "",
                     "direction": "output"
                 }]
-            },
-            {
+            }, {
                 "name": EXT_OUTPUT_NAME,
                 "type": EXT_OUTPUT_NAME,
                 "category": "Metanode",
