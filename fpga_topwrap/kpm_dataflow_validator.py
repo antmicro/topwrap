@@ -5,7 +5,10 @@ import numexpr as ex
 import json
 from enum import Enum
 from typing import NamedTuple, Union
-from .kpm_common import get_dataflow_ip_nodes, get_dataflow_externals_interfaces, get_dataflow_ips_interfaces, find_dataflow_interface_by_id, find_dataflow_node_type_by_name, find_spec_interface_by_name
+from .kpm_common import (get_dataflow_ip_nodes,
+    get_dataflow_externals_interfaces, get_dataflow_ips_interfaces,
+    find_dataflow_interface_by_id, find_dataflow_node_type_by_name,
+    find_spec_interface_by_name)
 
 
 class CheckStatus(Enum):
@@ -72,10 +75,12 @@ def _check_unconnected_interfaces(dataflow_data, specification) -> CheckResult:
     if unconn_ifaces:
         unconn_ifaces_descrs = []
         for unconn_iface_id in unconn_ifaces:
-            [node_name, iface_name, dir] = find_dataflow_interface_by_id(
+            interface = find_dataflow_interface_by_id(
                 dataflow_data, unconn_iface_id
             )
-            unconn_ifaces_descrs.append(f"{node_name}:{iface_name}")
+            unconn_ifaces_descrs.append(
+                f"{interface['node_name']}:{interface['iface_name']}"
+            )
         return CheckResult(
             CheckStatus.WARNING,
             f"Unconnected interfaces: {unconn_ifaces_descrs}"
@@ -90,22 +95,22 @@ def _check_multiple_connections_from_interfaces(dataflow_data, specification):
     """
     invalid_ifaces = []
 
-    for iface in get_dataflow_ips_interfaces(dataflow_data).items():
-        node_type = find_dataflow_node_type_by_name(dataflow_data, iface[1][0])
+    for (iface_id, iface) in get_dataflow_ips_interfaces(dataflow_data).items():
+        node_type = find_dataflow_node_type_by_name(dataflow_data, iface['node_name'])
         iface_type = find_spec_interface_by_name(
-            specification, node_type, iface[1][1])['type']
+            specification, node_type, iface['iface_name'])['type']
         if iface_type == "port":
             continue
         iface_conns = [
             conn for conn in dataflow_data['graph']['connections']
-            if conn['from'] == iface[0] or conn['to'] == iface[0]
+            if conn['from'] == iface_id or conn['to'] == iface_id
         ]
         if len(iface_conns) > 1:
             invalid_ifaces.append(iface)
 
     if invalid_ifaces:
         invalid_ifaces_descrs = [
-            f"{invalid_iface[1][0]}:{invalid_iface[1][1]}"
+            f"{invalid_iface['node_name']}:{invalid_iface['iface_name']}"
             for invalid_iface in invalid_ifaces
         ]
         return CheckResult(
@@ -134,9 +139,9 @@ def _check_ambigous_ports_interfaces(dataflow_data, specification):
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 
     ambig_ifaces = []
-    for iface in get_dataflow_ips_interfaces(dataflow_data).items():
+    for (iface_id, iface) in get_dataflow_ips_interfaces(dataflow_data).items():
         iface_conns =  [
-            conn for conn in dataflow_data['graph']['connections'] if conn['from'] == iface[0] or conn['to'] == iface[0]
+            conn for conn in dataflow_data['graph']['connections'] if conn['from'] == iface_id or conn['to'] == iface_id
         ]
         for conn in iface_conns:
             if (conn['from'] in ext_ifaces_ids or conn['to'] in ext_ifaces_ids) and len(iface_conns) > 1:
@@ -145,7 +150,7 @@ def _check_ambigous_ports_interfaces(dataflow_data, specification):
 
     if ambig_ifaces:
         ambig_ifaces_descrs = [
-            f"{ambig_iface[1][0]}:{ambig_iface[1][1]}" for ambig_iface in ambig_ifaces
+            f"{ambig_iface['node_name']}:{ambig_iface['iface_name']}" for ambig_iface in ambig_ifaces
         ]
         return CheckResult(CheckStatus.ERROR, f"External ports/interfaces having >1 connections: {ambig_ifaces_descrs}")
     return CheckResult(CheckStatus.OK, None)

@@ -68,7 +68,7 @@ def _kpm_nodes_to_ips(dataflow_data, ipcore_to_yamls: dict) -> dict:
     }
 
 
-def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict):
+def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict) -> dict:
     """ Parse dataflow connections between nodes representing IP cores into
     "ports" and "interfaces" sections of a Topwrap's design description yaml
     """
@@ -76,20 +76,20 @@ def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict):
     interfaces_conns = {}
 
     for conn in get_dataflow_ip_connections(dataflow_data):
-        [node_from_name, iface_from_name, dir] = find_dataflow_interface_by_id(dataflow_data, conn["from"])
-        [node_to_name, iface_to_name, dir] = find_dataflow_interface_by_id(dataflow_data, conn["to"])
+        iface_from = find_dataflow_interface_by_id(dataflow_data, conn["from"])
+        iface_to = find_dataflow_interface_by_id(dataflow_data, conn["to"])
 
-        node_to_type = find_dataflow_node_type_by_name(dataflow_data, node_to_name)
-        iface_to_type = find_spec_interface_by_name(specification, node_to_type, iface_to_name)["type"]
+        node_to_type = find_dataflow_node_type_by_name(dataflow_data, iface_to["node_name"])
+        iface_to_type = find_spec_interface_by_name(specification, node_to_type, iface_to["iface_name"])["type"]
 
         if iface_to_type == "port":
             conns_dict = ports_conns
         else:
             conns_dict = interfaces_conns
 
-        if node_to_name not in conns_dict.keys():
-             conns_dict[node_to_name] = {}
-        conns_dict[node_to_name][iface_to_name] = [node_from_name, iface_from_name]
+        if iface_to["node_name"] not in conns_dict.keys():
+             conns_dict[iface_to["node_name"]] = {}
+        conns_dict[iface_to["node_name"]][iface_to["iface_name"]] = [iface_from["node_name"], iface_from["iface_name"]]
 
     return {
         "ports": ports_conns,
@@ -97,7 +97,7 @@ def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict):
     }
 
 
-def _kpm_connections_to_external(dataflow_data):
+def _kpm_connections_to_external(dataflow_data) -> dict:
     """ Parse dataflow connections representing external ports/interfaces
     (i.e. connections between IP cores and external metanodes) into "external"
     section of a Topwrap's design description yaml
@@ -109,23 +109,23 @@ def _kpm_connections_to_external(dataflow_data):
     # TODO: add "inout" external type
 
     for conn in get_dataflow_external_connections(dataflow_data):
-        [node_to_name, iface_to_name, iface_to_dir] = find_dataflow_interface_by_id(dataflow_data, conn['to'])
-        [node_from_name, iface_from_name, iface_from_dir] = find_dataflow_interface_by_id(dataflow_data, conn['from'])
-        if node_to_name == EXT_OUTPUT_NAME:
-            if node_from_name not in external["out"].keys():
-                external["out"][node_from_name] = []
-            external["out"][node_from_name].append(iface_from_name)
-        elif node_from_name == EXT_INPUT_NAME:
-            if node_to_name not in external["in"].keys():
-                external["in"][node_to_name] = []
-            external["in"][node_to_name].append(iface_to_name)
+        iface_to = find_dataflow_interface_by_id(dataflow_data, conn['to'])
+        iface_from = find_dataflow_interface_by_id(dataflow_data, conn['from'])
+        if iface_to["node_name"] == EXT_OUTPUT_NAME:
+            if iface_from["node_name"] not in external["out"].keys():
+                external["out"][iface_from["node_name"]] = []
+            external["out"][iface_from["node_name"]].append(iface_from["iface_name"])
+        elif iface_from["node_name"] == EXT_INPUT_NAME:
+            if iface_to["node_name"] not in external["in"].keys():
+                external["in"][iface_to["node_name"]] = []
+            external["in"][iface_to["node_name"]].append(iface_to["iface_name"])
 
     return {
         "external": external 
     }
 
 
-def kpm_dataflow_to_design(dataflow_data, ipcore_to_yamls, specification):
+def kpm_dataflow_to_design(dataflow_data, ipcore_to_yamls: dict, specification) -> dict:
     """ Parse Pipeline Manager dataflow into Topwrap's design description yaml
     """
     ips = _kpm_nodes_to_ips(dataflow_data, ipcore_to_yamls)

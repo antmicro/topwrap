@@ -31,18 +31,24 @@ def get_dataflow_metanodes(dataflow_json) -> list:
 
 def _get_interfaces(nodes: list) -> dict:
     """ Return a dict of all the interfaces belonging to given nodes.
-    The resulting dict consists of items { "iface_id": ["node_name", "iface_name", "iface_dir"] }
+    The resulting dict consists of items
+    { "iface_id": {"node_name": ..., "iface_name": ..., "iface_dir": ...} }
     """
     result = {}
     for node in nodes:
         for interface in node['interfaces']:
-            result[interface['id']] = [node['name'], interface['name'], interface['direction']]
+            result[interface['id']] = {
+                "node_name": node['name'],
+                "iface_name": interface['name'],
+                "iface_dir": interface['direction']
+            }
     return result
 
     
 def get_dataflow_ips_interfaces(dataflow_json) -> dict:
     """ Return a dict of all the interfaces of all the nodes representing ip cores.
-    The resulting dict consists of items { "iface_id": ["node_name", "iface_name", "iface_dir"] }
+    The resulting dict consists of items
+    { "iface_id": {"node_name": ..., "iface_name": ..., "iface_dir": ...} }
     """
     return _get_interfaces(get_dataflow_ip_nodes(dataflow_json))
 
@@ -60,7 +66,8 @@ def get_dataflow_ip_connections(dataflow_json) -> list:
 
 def get_dataflow_externals_interfaces(dataflow_json) -> dict:
     """ Return a dict of all the interfaces of all the external metanodes.
-    The resulting dict consists of items { "iface_id": ["node_name", "iface_name", "iface_dir"] }
+    The resulting dict consists of items
+    { "iface_id": {"node_name": ..., "iface_name": ..., "iface_dir": ...} }
     """
     return _get_interfaces(get_dataflow_metanodes(dataflow_json))
 
@@ -76,16 +83,16 @@ def get_dataflow_external_connections(dataflow_json) -> list:
     ]
 
 
-def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> list|None:
-    """ Return a list ["node_name", "iface_name", "iface_dir"] that corresponds to
-    a given 'iface_id'
+def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> dict:
+    """ Return a dict {"node_name": ..., "iface_name": ..., "iface_dir": ...}
+    that corresponds to a given 'iface_id'
     """
     interfaces = _get_interfaces(dataflow_json['graph']['nodes'])
     if iface_id in interfaces.keys():
         return interfaces[iface_id]
 
 
-def find_spec_interface_by_name(specification, node_type: str, iface_name: str):
+def find_spec_interface_by_name(specification, node_type: str, iface_name: str) -> dict:
     """ Find `name` interface of `ip_type` IP core in `specification`  
     """
     for node in specification['nodes']:
