@@ -308,6 +308,13 @@ def kpm_metanodes_connections_from_design_descr(
                     ext_name, ip_name, nodes)
                 if ext_interface is None:
                     continue
+                # Create a connection between `ext_interface` belonging to
+                # an IP core and external input metanode's interface
+                # (note that metanodes always have exactly one interface
+                # hence, we take element at index 0 from `interfaces`).
+                # For now we create a connection always to the same external
+                # input metanode hence, we take element at index 0 from
+                # `ext_input_metanodes`.
                 ext_input_conns.append(KPMDataflowConnection(
                     ext_input_metanodes[0].interfaces[0].id, ext_interface.id))
 
@@ -318,6 +325,10 @@ def kpm_metanodes_connections_from_design_descr(
                     ext_name, ip_name, nodes)
                 if ext_interface is None:
                     continue
+                # Create a connection between `ext_interface` belonging to
+                # an IP core and external output metanode's interface
+                # (note that metanodes always have exactly one interface
+                # hence, we take element at index 0 from `interfaces`).
                 ext_output_conns.append(
                     KPMDataflowConnection(
                         ext_interface.id,
