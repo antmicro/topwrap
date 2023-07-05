@@ -1,6 +1,6 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-from os import path
+from os import path, makedirs
 from logging import warning, info, error
 from amaranth import Elaboratable, Module, Signal, Instance, Fragment
 from amaranth.hdl.ast import Const
@@ -226,9 +226,12 @@ class IPConnect(Elaboratable):
         :param ports_ifaces: dict {'in': {ip_name: port_name}, 'out': ...}
         """
         _exts = {}
-        for dir in ['in', 'out', 'inout']:
-            if dir in ports_ifaces.keys():
-                _exts.update(ports_ifaces[dir])
+        for dir in ports_ifaces.keys():
+            for ip_name, externals_list in ports_ifaces[dir].items():
+                if ip_name not in _exts.keys():
+                    _exts[ip_name] = externals_list
+                else:
+                    _exts[ip_name] += externals_list
 
         self._set_unconnected_ports()
         for ip_name, _ip_exts in _exts.items():
@@ -249,10 +252,11 @@ class IPConnect(Elaboratable):
             filename = ip.top_name + '.v'
             fuse.add_source(filename, 'verilogSource')
 
+            makedirs(build_dir,exist_ok=True)
             target_file = open(path.join(build_dir, filename), 'w')
 
             fragment = Fragment.get(ip, None)
-            # FIXME create build_dir if doesn't exist
+
             output = verilog.convert(fragment, name=ip.top_name,
                                      ports=ip.get_ports())
             target_file.write(output)
