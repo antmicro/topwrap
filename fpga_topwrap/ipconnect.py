@@ -22,7 +22,7 @@ class IPConnect(Elaboratable):
         self._ips_by_internal_name = dict()
         self._ports = []
 
-    def add_ip(self, ip: IPWrapper):
+    def add_ip(self, ip: IPWrapper) -> None:
         """Add a new IPWrapper object, allowing to make connections with it"""
         ip_name = ip.top_name
         self._ips[ip_name] = ip
@@ -31,7 +31,7 @@ class IPConnect(Elaboratable):
         setattr(self, ip_name, dict())
 
     def connect_ports(self, port1_name: str, ip1_name: str,
-                      port2_name: str, ip2_name: str):
+                      port2_name: str, ip2_name: str) -> None:
         """Connect ports of IPs previously added to this Connector
 
         :param port1_name: name of the port of the 1st IP
@@ -78,7 +78,7 @@ class IPConnect(Elaboratable):
         inst2_args[full_name2] = sig
 
     def connect_interfaces(self, iface1: str, ip1_name: str,
-                           iface2: str, ip2_name: str):
+                           iface2: str, ip2_name: str) -> None:
         """Make connections between all matching ports of the interfaces
 
         :param iface1: name of the 1st interface
@@ -118,7 +118,7 @@ class IPConnect(Elaboratable):
         info(f'number of ports matched: {ports_connected} for interfaces:'
              f'{ip1_name}:{iface1} - {ip2_name}:{iface2}')
 
-    def _set_port(self, ip, port_name):
+    def _set_port(self, ip: IPWrapper, port_name: str) -> None:
         """Set port specified by name as an external port
 
         :type ip: IPWrapper
@@ -142,7 +142,7 @@ class IPConnect(Elaboratable):
         setattr(self, port_name, sig)
         self._ports.append(sig)
 
-    def _set_interface(self, ip, iface_name):
+    def _set_interface(self, ip: IPWrapper, iface_name: str) -> None:
         """Set interface specified by name as an external interface
 
         :type ip: IPWrapper
@@ -170,12 +170,12 @@ class IPConnect(Elaboratable):
             setattr(self, iface_port, sig)
             self._ports.append(sig)
 
-    def get_ports(self):
+    def get_ports(self) -> list:
         """Return a list of external ports of this module
         """
         return self._ports
 
-    def _set_unconnected_port(self, ip_name: str, port_name: str):
+    def _set_unconnected_port(self, ip_name: str, port_name: str) -> None:
         """Create signal for unconnected port to allow using it as
         external. This is essential since ports that haven't been used have
         no signals assigned to them.
@@ -187,7 +187,7 @@ class IPConnect(Elaboratable):
         if full_name not in inst_args.keys():
             inst_args[full_name] = Signal(len(port), name=full_name)
 
-    def set_constant(self, ip_name, ip_port, target):
+    def set_constant(self, ip_name: str, ip_port: str, target: int) -> None:
         """Set a constant value on a port of an IP
 
         :param ip_name: name of the IP
@@ -205,7 +205,7 @@ class IPConnect(Elaboratable):
         full_name = port_direction_to_prefix(port.direction) + port.name
         inst_args[full_name] = Const(target)
 
-    def make_connections(self, ports, interfaces):
+    def make_connections(self, ports: dict, interfaces: dict) -> None:
         """Use names of port and names of ips to make connections
         """
         for ip1_name, connections in ports.items():
@@ -225,7 +225,7 @@ class IPConnect(Elaboratable):
                 self.connect_interfaces(ip1_iface, ip1_name,
                                         ip2_iface, ip2_name)
 
-    def make_external_ports_interfaces(self, ports_ifaces):
+    def make_external_ports_interfaces(self, ports_ifaces: dict) -> None:
         """Pick ports and interfaces which will be used as external I/O
 
         :param ports_ifaces: dict {'in': {ip_name: port_name}, 'out': ...}
@@ -248,7 +248,7 @@ class IPConnect(Elaboratable):
                     self._set_port(self._ips[ip_name], _ext)
 
     def build(self, build_dir='build', template=None, sources_dir=None,
-              top_module_name='project_top', part=None):
+              top_module_name='project_top', part=None) -> None:
         # This class is used for generating FuseSoC Core file
         fuse = FuseSocBuilder(part)
 
