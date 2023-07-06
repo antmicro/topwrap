@@ -25,11 +25,27 @@ class IDGenerator(object):
 
 
 class KPMDataflowNodeInterface:
+    KPM_DIR_INPUT = 'input'
+    KPM_DIR_OUTPUT = 'output'
+    KPM_DIR_INOUT = 'inout'
+    __EXT_IFACE_NAME = 'external'
+
     def __init__(self, name: str, direction: str):
+        if direction not in [
+                KPMDataflowNodeInterface.KPM_DIR_INPUT,
+                KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+                KPMDataflowNodeInterface.KPM_DIR_INOUT]:
+            raise ValueError(f"Invalid interface direction: {direction}")
+
         generator = IDGenerator()
         self.id = "ni_" + generator.generate_id()
         self.name = name
         self.direction = direction
+
+    @staticmethod
+    def new_external_interface(direction: str):
+        return KPMDataflowNodeInterface(
+            KPMDataflowNodeInterface.__EXT_IFACE_NAME, direction)
 
 
 class KPMDataflowNodeProperty:
@@ -56,6 +72,25 @@ class KPMDataflowNode:
         self.properties = properties
         self.interfaces = interfaces
 
+    @staticmethod
+    def new_external_node(node_name: str):
+        if node_name not in [EXT_OUTPUT_NAME, EXT_INPUT_NAME, EXT_INOUT_NAME]:
+            raise ValueError(f"Invalid external node name: {node_name}")
+
+        interface_dir_by_node_name = {
+            EXT_OUTPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INPUT,
+            EXT_INPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+            EXT_INOUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INOUT
+        }
+        return KPMDataflowNode(
+            node_name,
+            node_name,
+            [],
+            [KPMDataflowNodeInterface.new_external_interface(
+                interface_dir_by_node_name[node_name]
+            )]
+        )
+
     def to_json_format(self) -> dict:
         return {
             "type": self.type,
@@ -66,7 +101,10 @@ class KPMDataflowNode:
                     "name": interface.name,
                     "id": interface.id,
                     "direction": interface.direction,
-                    "connectionSide": "left" if interface.direction == "input" else "right"  # noqa: E501
+                    "connectionSide": "left"
+                    if (interface.direction
+                        == KPMDataflowNodeInterface.KPM_DIR_INPUT)
+                    else "right"
                 } for interface in self.interfaces
             ],
             "position": {
@@ -272,24 +310,18 @@ def kpm_metanodes_from_design_descr(
         )
 
     result = [
-        KPMDataflowNode(
-            EXT_OUTPUT_NAME,
-            EXT_OUTPUT_NAME,
-            [],
-            [KPMDataflowNodeInterface('external', 'input')]
-        ) for _ in range(outputs)
+        KPMDataflowNode.new_external_node(EXT_OUTPUT_NAME)
+        for _ in range(outputs)
     ]
     result += [
-        KPMDataflowNode(
-            EXT_INOUT_NAME,
-            EXT_INOUT_NAME,
-            [],
-            [KPMDataflowNodeInterface('external', 'inout')]
-        ) for _ in range(inouts)
+        KPMDataflowNode.new_external_node(EXT_INOUT_NAME)
+        for _ in range(inouts)
     ]
     if inputs >= 1:
-        result.append(KPMDataflowNode(EXT_INPUT_NAME, EXT_INPUT_NAME, [], [
-                      KPMDataflowNodeInterface('external', 'output')]))
+        result.append(
+            KPMDataflowNode.new_external_node(EXT_INPUT_NAME)
+            for _ in range(outputs)
+        )
     return result
 
 
