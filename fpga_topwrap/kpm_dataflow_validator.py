@@ -14,6 +14,7 @@ from .kpm_common import (
     get_dataflow_externals_interfaces,
     get_dataflow_external_connections,
     get_dataflow_ips_interfaces,
+    get_metanode_property_value,
     find_dataflow_interface_by_id
 )
 
@@ -183,12 +184,12 @@ def _check_unnamed_externals(dataflow_data, specification):
     """ Check for external ports/interfaces
     which don't have user-specified name.
     """
-    for node in get_dataflow_metanodes(dataflow_data):
-        if not node["properties"][0]["value"]:
+    for metanode in get_dataflow_metanodes(dataflow_data):
+        if not get_metanode_property_value(metanode):
             return CheckResult(
                 CheckStatus.WARNING,
                 "Missing external port/interface name in"
-                f"\'{node['name']}\' metanode"
+                f"\'{metanode['name']}\' metanode"
             )
     return CheckResult(CheckStatus.OK, None)
 
@@ -198,8 +199,8 @@ def _check_duplicate_external_names(dataflow_data, specification):
     """
     ext_names_set = set()
     duplicates = set()
-    for node in get_dataflow_metanodes(dataflow_data):
-        external_name = node["properties"][0]["value"]
+    for metanode in get_dataflow_metanodes(dataflow_data):
+        external_name = get_metanode_property_value(metanode)
         if external_name in ext_names_set:
             duplicates.add(external_name)
         else:

@@ -86,6 +86,14 @@ def get_dataflow_external_connections(dataflow_json) -> list:
     ]
 
 
+def get_metanode_property_value(metanode: dict) -> str:
+    """ Return a value stored in an external metanode textbox.
+    Metanodes always have exactly one property, so it suffices to take
+    0th element of the "properties" array.
+    """
+    return metanode['properties'][0]['value']
+
+
 def find_dataflow_node_by_interface_id(dataflow_json, iface_id: str) -> dict:
     """ Return dataflow node which has an `iface_id` interface
     """

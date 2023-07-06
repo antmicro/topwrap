@@ -12,6 +12,7 @@ from .kpm_common import (
     find_dataflow_node_type_by_name,
     find_spec_interface_by_name,
     get_dataflow_external_connections,
+    get_metanode_property_value,
     find_dataflow_node_by_interface_id
 )
 
@@ -157,7 +158,7 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
 
         # Get user-defined external name.
         # If none - get internal name as default
-        external_name = metanode["properties"][0]["value"]
+        external_name = get_metanode_property_value(metanode)
         if not external_name:
             external_name = iface_name
 
