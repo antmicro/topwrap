@@ -15,7 +15,11 @@ from .kpm_common import (
     get_dataflow_external_connections,
     get_dataflow_ips_interfaces,
     get_metanode_property_value,
-    find_dataflow_interface_by_id
+    find_dataflow_interface_by_id,
+    find_connected_interfaces,
+    get_metanode_interface_id,
+    find_spec_interface_by_name,
+    find_dataflow_node_by_interface_id,
 )
 
 
@@ -180,36 +184,108 @@ def _check_externals_metanodes_types(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_unnamed_externals(dataflow_data, specification):
-    """ Check for external ports/interfaces
-    which don't have user-specified name.
+def _check_duplicate_external_input_interfaces(dataflow_data, specification):
+    """ Find external input interfaces which have the same name.
     """
+    ext_names_set = set()
+    duplicates = set()
+
     for metanode in get_dataflow_metanodes(dataflow_data):
-        if not get_metanode_property_value(metanode):
-            return CheckResult(
-                CheckStatus.WARNING,
-                "Missing external port/interface name in"
-                f"\'{metanode['name']}\' metanode"
-            )
+        if metanode['name'] != EXT_INPUT_NAME:
+            continue
+        for iface_id in find_connected_interfaces(
+                dataflow_data, get_metanode_interface_id(metanode)):
+
+            iface = find_dataflow_interface_by_id(dataflow_data, iface_id)
+            node = find_dataflow_node_by_interface_id(dataflow_data, iface_id)
+            iface_type = find_spec_interface_by_name(
+                specification, node['type'], iface['iface_name'])['type']
+
+            if iface_type not in ['port', 'port_inout']:
+                external_name = get_metanode_property_value(metanode)
+                if not external_name:
+                    external_name = iface['iface_name']
+                if external_name in ext_names_set:
+                    duplicates.add(external_name)
+                else:
+                    ext_names_set.add(external_name)
+
+    if duplicates:
+        return CheckResult(
+            CheckStatus.ERROR,
+            "Duplicate external input interfaces names: "
+            f"{str(list(duplicates))}"
+        )
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_duplicate_external_names(dataflow_data, specification):
+def _check_external_inputs_missing_val(dataflow_data, specification):
+    """ Check for `External Input` metanodes which are connected to >1 ports
+    and don't have user-specified name. Such cases would result in a valid
+    design (each port would be driven separately by an external input with
+    a corresponding name), but are counter intuitive, so return a warning.
+    """
+    err_ports = []
+
+    for metanode in get_dataflow_metanodes(dataflow_data):
+        if metanode['name'] != EXT_INPUT_NAME:
+            continue
+        if get_metanode_property_value(metanode):
+            continue
+
+        conn_ifaces_ids = find_connected_interfaces(
+            dataflow_data, get_metanode_interface_id(metanode))
+        if len(conn_ifaces_ids) > 1:
+            for iface_id in conn_ifaces_ids:
+                iface = find_dataflow_interface_by_id(dataflow_data, iface_id)
+                err_ports.append(f"{iface['node_name']}:{iface['iface_name']}")
+
+    if err_ports:
+        return CheckResult(
+            CheckStatus.WARNING,
+            f"External ports/interfaces {err_ports} are connected to "
+            "`External Input` metanode with unspecified external name"
+        )
+    return CheckResult(CheckStatus.OK, None)
+
+
+def _check_duplicate_external_out_inout_names(dataflow_data, specification):
     """ Check for duplicate external ports/interfaces names
     """
     ext_names_set = set()
     duplicates = set()
+
     for metanode in get_dataflow_metanodes(dataflow_data):
+        if metanode['name'] == EXT_INPUT_NAME:
+            continue
+        # Get external port/interface name. If user didn't specify external
+        # port/interface name in the textbox, let's get a corresponding
+        # IP core port/interface name as default
         external_name = get_metanode_property_value(metanode)
+        if not external_name:
+            conn_ifaces_ids = find_connected_interfaces(
+                dataflow_data,
+                get_metanode_interface_id(metanode)
+            )
+            # Here we have an Input/Inout interface, which can have only 1
+            # existing connection hence, we use index 0 to retrieve it
+            assert len(conn_ifaces_ids) == 1
+            external_name = find_dataflow_interface_by_id(
+                dataflow_data,
+                conn_ifaces_ids[0]
+            )['iface_name']
+
         if external_name in ext_names_set:
             duplicates.add(external_name)
         else:
             ext_names_set.add(external_name)
 
-    if not duplicates:
-        return CheckResult(CheckStatus.OK, None)
-    warning = f"Duplicate external names: {str(list(duplicates))}"
-    return CheckResult(CheckStatus.WARNING, warning)
+    if duplicates:
+        return CheckResult(
+            CheckStatus.ERROR,
+            f"Duplicate external output/inout names: {str(list(duplicates))}"
+        )
+    return CheckResult(CheckStatus.OK, None)
 
 
 def validate_kpm_design(data: bytes, specification) -> dict:
@@ -219,12 +295,13 @@ def validate_kpm_design(data: bytes, specification) -> dict:
     checks = [
         _check_duplicate_ip_names,
         _check_parameters_values,
-        _check_unconnected_ports_interfaces,
         _check_ext_in_to_ext_out_connections,
         _check_ambigous_ports,
         _check_externals_metanodes_types,
-        _check_unnamed_externals,
-        _check_duplicate_external_names
+        _check_duplicate_external_input_interfaces,
+        _check_external_inputs_missing_val,
+        _check_duplicate_external_out_inout_names,
+        _check_unconnected_ports_interfaces,
     ]
 
     messages = {

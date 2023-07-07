@@ -86,6 +86,13 @@ def get_dataflow_external_connections(dataflow_json) -> list:
     ]
 
 
+def get_metanode_interface_id(metanode: dict) -> str:
+    """ Return given metanode's interface id. Metanodes always have exactly 1
+    interface, so it suffices to take 0th element of the "interfaces" array.
+    """
+    return metanode['interfaces'][0]['id']
+
+
 def get_metanode_property_value(metanode: dict) -> str:
     """ Return a value stored in an external metanode textbox.
     Metanodes always have exactly one property, so it suffices to take
@@ -130,3 +137,16 @@ def find_dataflow_node_type_by_name(dataflow_data, node_name: str) -> str:
     for node in dataflow_data['graph']['nodes']:
         if node['name'] == node_name:
             return node["type"]
+
+
+def find_connected_interfaces(dataflow_json, iface_id: str) -> list:
+    """ Return an id list of all the interfaces connected to the interface
+    with id equal to `iface_id`
+    """
+    result = []
+    for conn in dataflow_json['graph']['connections']:
+        if conn['from'] == iface_id:
+            result.append(conn['to'])
+        elif conn['to'] == iface_id:
+            result.append(conn['from'])
+    return result
