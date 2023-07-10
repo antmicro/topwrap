@@ -20,7 +20,9 @@ ips:
       ADDR_WIDTH: 32
       DATA_WIDTH: 32
       ID_WIDTH: 12
-      M_BASE_ADDR: 0x43c2000043c1000043c00000
+      M_BASE_ADDR:
+          value: 0x43c2000043c1000043c00000
+          width: 118
       M_ADDR_WIDTH:
           value: 0x100000001000000010
           width: 96
