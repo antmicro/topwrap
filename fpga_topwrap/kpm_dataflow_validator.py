@@ -102,7 +102,9 @@ def _check_unconnected_ports_interfaces(
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
+def _check_ext_in_to_ext_out_connections(
+        dataflow_data,
+        specification) -> CheckResult:
     """ Check for connections between external metanodes
     """
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
@@ -117,7 +119,7 @@ def _check_ext_in_to_ext_out_connections(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_ambigous_ports(dataflow_data, specification):
+def _check_ambigous_ports(dataflow_data, specification) -> CheckResult:
     """ Check for ports which are connected to another ipcore port
     and to external metanode at the same time
     """
@@ -147,7 +149,9 @@ def _check_ambigous_ports(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_externals_metanodes_types(dataflow_data, specification):
+def _check_externals_metanodes_types(
+        dataflow_data,
+        specification) -> CheckResult:
     """ Check for external ports/interfaces which are connected to wrong type
     of external metanode. External outputs must be connected to
     `External Output` metanodes, external inputs to `External Input` etc.
@@ -184,7 +188,9 @@ def _check_externals_metanodes_types(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_duplicate_external_input_interfaces(dataflow_data, specification):
+def _check_duplicate_external_input_interfaces(
+        dataflow_data,
+        specification) -> CheckResult:
     """ Find external input interfaces which have the same name.
     """
     ext_names_set = set()
@@ -219,7 +225,9 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_external_inputs_missing_val(dataflow_data, specification):
+def _check_external_inputs_missing_val(
+        dataflow_data,
+        specification) -> CheckResult:
     """ Check for `External Input` metanodes which are connected to >1 ports
     and don't have user-specified name. Such cases would result in a valid
     design (each port would be driven separately by an external input with
@@ -249,7 +257,9 @@ def _check_external_inputs_missing_val(dataflow_data, specification):
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_duplicate_external_out_inout_names(dataflow_data, specification):
+def _check_duplicate_external_out_inout_names(
+        dataflow_data,
+        specification) -> CheckResult:
     """ Check for duplicate external ports/interfaces names
     """
     ext_names_set = set()
