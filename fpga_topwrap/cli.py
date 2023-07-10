@@ -1,7 +1,8 @@
 # Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
+import os
 import click
-from logging import warning, info
+import logging
 from .verilog_parser import (
     VerilogModuleGenerator,
     ipcore_desc_from_verilog_module
@@ -33,8 +34,8 @@ def build_main(sources, design, part, iface_compliance):
     config.force_interface_compliance = iface_compliance
 
     if part is None:
-        warning("You didn't specify part number. "
-                "'None' will be used and thus your implamentation may fail.")
+        logging.warning("You didn't specify part number. 'None' will be used"
+                        "and thus your implamentation may fail.")
 
     build_design_from_yaml(design, sources, part)
 
@@ -46,27 +47,35 @@ def build_main(sources, design, part, iface_compliance):
               help='Try to group port into interfaces automatically')
 @click.option('--iface', '-i', multiple=True,
               help='Interface name, that ports will be grouped into')
+@click.option('--dest-dir', '-d', type=click_dir, default='./',
+              help='Destination directory for generated yamls')
 @click.argument('files', type=click_file, nargs=-1)
-def parse_main(use_yosys, iface_deduce, iface, files):
-    modules_generator = VerilogModuleGenerator()
-    for filename in list(filter(lambda name: name[-2:] == ".v", files)):
-        modules = modules_generator.get_modules(filename)
+def parse_main(use_yosys, iface_deduce, iface, files, dest_dir):
+    logging.basicConfig(level=logging.INFO)
+    dest_dir = os.path.dirname(dest_dir)
+
+    for filename in list(filter(lambda name: os.path.splitext(name)[-1] == ".v", files)): # noqa
+        modules = VerilogModuleGenerator().get_modules(filename)
         iface_grouper = InterfaceGrouper(use_yosys, iface_deduce, iface)
         for verilog_mod in modules:
-            ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, iface_grouper) # noqa
-            yaml_name = 'gen_' + ipcore_desc.name + '.yaml'
-            ipcore_desc.save(yaml_name)
-            info(f"Verilog module '{verilog_mod.get_module_name()}' saved in file '{yaml_name}'") # noqa
+            ipcore_desc = ipcore_desc_from_verilog_module(
+                verilog_mod, iface_grouper)
+            yaml_path = os.path.join(dest_dir, f'gen_{ipcore_desc.name}.yaml')
+            ipcore_desc.save(yaml_path)
+            logging.info(
+                f"Verilog module '{verilog_mod.get_module_name()}'"
+                f"saved in file '{yaml_path}'")
 
-    for filename in list(filter(lambda name: name[-4:] == ".vhd" or name[-5:] == ".vhdl", files)): # noqa
+    for filename in list(filter(lambda name: os.path.splitext(name)[-1] in [".vhd", ".vhdl"], files)):  # noqa
         # TODO - handle case with multiple VHDL modules in one file
         vhdl_mod = VHDLModule(filename)
         iface_grouper = InterfaceGrouper(False, iface_deduce, iface)
         ipcore_desc = ipcore_desc_from_vhdl_module(vhdl_mod, iface_grouper)
-        yaml_name = 'gen_' + ipcore_desc.name + '.yaml'
-        ipcore_desc.save(yaml_name)
-        info(f"VHDL Module '{vhdl_mod.get_module_name()}' saved in file '{yaml_name}'")
-
+        yaml_path = os.path.join(dest_dir, f'gen_{ipcore_desc.name}.yaml')
+        ipcore_desc.save(yaml_path)
+        logging.info(
+            f"VHDL Module '{vhdl_mod.get_module_name()}'"
+            f"saved in file '{yaml_path}'")
 
 
 @main.command("kpm_client", help="Run a client app, that connects to"
