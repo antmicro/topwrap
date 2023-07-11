@@ -12,10 +12,10 @@ from fpga_topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_
 from fpga_topwrap.kpm_dataflow_validator import (
     CheckStatus,
     _check_duplicate_ip_names,
-    _check_ambigous_ports_interfaces,
+    _check_ambigous_ports,
     _check_ext_in_to_ext_out_connections,
     _check_parameters_values,
-    _check_unconnected_interfaces
+    _check_unconnected_ports_interfaces
 )
 from fpga_topwrap.kpm_common import *
 
@@ -52,7 +52,7 @@ def pwm_dataflow(pwm_design_yaml, pwm_specification) -> dict:
 
 
 def test_pwm_specification_generation(pwm_specification, specification_schema):
-    assert len(pwm_specification['nodes']) == 5 # 3 IP cores + 2 External metanodes
+    assert len(pwm_specification['nodes']) == 6 # 3 IP cores + 3 External metanodes
     jsonschema.validate(pwm_specification, specification_schema)
 
 
@@ -88,7 +88,7 @@ class TestPWMDataflowImport:
     def test_pwm_metanodes(self, kpm_metanodes):
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         assert len(metanodes_json) == 1
-        assert len(metanodes_json[0]['properties']) == 0
+        assert len(metanodes_json[0]['properties']) == 1
         assert len(metanodes_json[0]['interfaces']) == 1
         assert metanodes_json[0]['interfaces'][0]['direction'] == 'input'
 
@@ -120,19 +120,55 @@ class TestPWMDataflowExport:
     def test_nodes_to_ips(self, pwm_design_yaml, pwm_dataflow, pwm_ipcores_names_to_yamls):
         from fpga_topwrap.kpm_dataflow_parser import _kpm_nodes_to_ips
         ips = _kpm_nodes_to_ips(pwm_dataflow, pwm_ipcores_names_to_yamls)
-        assert ips['ips'].keys() == pwm_design_yaml['ips'].keys()
+        assert ips.keys() == pwm_design_yaml['ips'].keys()
 
     def test_port_interfaces(self, pwm_design_yaml, pwm_dataflow, pwm_specification):
         from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_ports_ifaces
         connections = _kpm_connections_to_ports_ifaces(pwm_dataflow, pwm_specification)
-        assert connections['ports'] == pwm_design_yaml['ports']
-        assert connections['interfaces'] == pwm_design_yaml['interfaces']
+        assert connections['ports'] == {
+            'ps7': {
+                'MAXIGP0ACLK': ['ps7', 'FCLK0']
+            },
+            'axi_bridge': {
+                'clk': ['ps7', 'FCLK0'],
+                'rst': ['ps7', 'FCLK_RESET0_N']
+            },
+            'litex_pwm_top': {
+                'sys_clk': ['ps7', 'FCLK0'],
+                'sys_rst': ['ps7', 'FCLK_RESET0_N']
+            }
+        }
+        assert connections['interfaces'] == {
+            'axi_bridge': {
+                's_axi': ['ps7', 'M_AXI_GP0']
+            },
+            'litex_pwm_top': {
+                's_axi': ['axi_bridge', 'm_axi']
+            }
+        }
 
-    def test_externals(self, pwm_design_yaml, pwm_dataflow):
+    def test_externals(self, pwm_design_yaml, pwm_dataflow, pwm_specification):
         from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_external
-        external = _kpm_connections_to_external(pwm_dataflow)
-        assert external['external']['in'] == {}
-        assert external['external']['out'] == pwm_design_yaml['external']['out']
+        assert _kpm_connections_to_external(pwm_dataflow, pwm_specification) == {
+            'ports': {
+                'litex_pwm_top': {
+                    'pwm': 'pwm'
+                }
+            },
+            'interfaces': {},
+            'external': {
+                'ports': {
+                    'in': [],
+                    'out': ['pwm'],
+                    'inout': []
+                },
+                'interfaces': {
+                    'in': [],
+                    'out': [],
+                    'inout': []
+                }
+            }
+        }
 
 
 class TestPWMDataflowValidation:
@@ -232,14 +268,14 @@ class TestPWMDataflowValidation:
         (_check_duplicate_ip_names, lf('pwm_dataflow'), CheckStatus.OK),
         (_check_parameters_values, lf('pwm_dataflow'), CheckStatus.OK),
         (_check_ext_in_to_ext_out_connections, lf('pwm_dataflow'), CheckStatus.OK),
-        (_check_ambigous_ports_interfaces, lf('pwm_dataflow'), CheckStatus.OK),
+        (_check_ambigous_ports, lf('pwm_dataflow'), CheckStatus.OK),
 
-        (_check_unconnected_interfaces, lf('pwm_dataflow'), CheckStatus.WARNING),
+        (_check_unconnected_ports_interfaces, lf('pwm_dataflow'), CheckStatus.WARNING),
 
         (_check_duplicate_ip_names, lf('dataflow_duplicate_ip_names'), CheckStatus.ERROR),
         (_check_parameters_values, lf('dataflow_invalid_parameters_values'), CheckStatus.ERROR),
         (_check_ext_in_to_ext_out_connections, lf('dataflow_ext_in_to_ext_out_connections'), CheckStatus.ERROR),
-        (_check_ambigous_ports_interfaces, lf('dataflow_ambigous_ports_interfaces'), CheckStatus.ERROR)
+        (_check_ambigous_ports, lf('dataflow_ambigous_ports_interfaces'), CheckStatus.ERROR)
     ])
     def test_dataflow(self, pwm_specification, _check_function, dataflow, expected_result):
         status, msg = _check_function(dataflow, pwm_specification)

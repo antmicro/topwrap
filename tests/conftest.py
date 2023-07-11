@@ -8,7 +8,7 @@ from pathlib import Path
 
 @pytest.fixture
 def specification_schema_path() -> Path:
-    specification_schema_path = 'kenning-pipeline-manager/pipeline_manager/resources/schemas/dataflow_spec_schema.json'  # noqa: E501
+    specification_schema_path = 'kenning-pipeline-manager/pipeline_manager/resources/schemas/unresolved_specification_schema.json'  # noqa: E501
     return Path(specification_schema_path)
 
 

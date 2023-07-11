@@ -11,10 +11,10 @@ from fpga_topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_
 from fpga_topwrap.kpm_dataflow_validator import (
     CheckStatus,
     _check_duplicate_ip_names,
-    _check_ambigous_ports_interfaces,
+    _check_ambigous_ports,
     _check_ext_in_to_ext_out_connections,
     _check_parameters_values,
-    _check_unconnected_interfaces
+    _check_unconnected_ports_interfaces
 )
 from fpga_topwrap.kpm_common import *
 
@@ -62,7 +62,7 @@ def hdmi_dataflow(hdmi_design_yaml, hdmi_specification) -> dict:
 
 
 def test_hdmi_specification_generation(hdmi_specification, specification_schema):
-    assert len(hdmi_specification['nodes']) == 14 # 12 IP cores + 2 External metanodes
+    assert len(hdmi_specification['nodes']) == 15 # 12 IP cores + 3 External metanodes
     jsonschema.validate(hdmi_specification, specification_schema)
 
 
@@ -105,33 +105,66 @@ class TestHDMIDataflowExport:
         from fpga_topwrap.kpm_dataflow_parser import _kpm_properties_to_parameters
         axi_node = [node for node in hdmi_dataflow['graph']['nodes'] if node['name'] == 'axi_interconnect0'][0]
         parameters = _kpm_properties_to_parameters(axi_node['properties'])
-        assert parameters['M_BASE_ADDR'] == int("0x43c2000043c1000043c00000", 16)
+        assert parameters['ADDR_WIDTH'] == 32
         assert parameters['M_ADDR_WIDTH'] == {'value': int("0x100000001000000010", 16), 'width': 96}
 
     def test_nodes_to_ips(self, hdmi_design_yaml, hdmi_dataflow, hdmi_ipcores_names_to_yamls):
         from fpga_topwrap.kpm_dataflow_parser import _kpm_nodes_to_ips
         ips = _kpm_nodes_to_ips(hdmi_dataflow, hdmi_ipcores_names_to_yamls)
-        assert ips['ips'].keys() == hdmi_design_yaml['ips'].keys()
+        assert ips.keys() == hdmi_design_yaml['ips'].keys()
 
     def test_port_interfaces(self, hdmi_design_yaml, hdmi_dataflow, hdmi_specification):
         from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_ports_ifaces
         connections = _kpm_connections_to_ports_ifaces(hdmi_dataflow, hdmi_specification)
         assert connections['interfaces'] == hdmi_design_yaml['interfaces']
 
-    def test_externals(self, hdmi_design_yaml, hdmi_dataflow):
+    def test_externals(self, hdmi_design_yaml, hdmi_dataflow, hdmi_specification):
         from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_external
-        external = _kpm_connections_to_external(hdmi_dataflow)
-        assert external['external']['in'] == {}
-        assert external['external']['out'] == hdmi_design_yaml['external']['out']
+        assert _kpm_connections_to_external(hdmi_dataflow, hdmi_specification) == {
+            'ports': {
+                'hdmi': {
+                    'HDMI_CLK_P': 'HDMI_CLK_P',
+                    'HDMI_CLK_N': 'HDMI_CLK_N',
+                    'HDMI_D0_P': 'HDMI_D0_P',
+                    'HDMI_D0_N': 'HDMI_D0_N',
+                    'HDMI_D1_P': 'HDMI_D1_P',
+                    'HDMI_D1_N': 'HDMI_D1_N',
+                    'HDMI_D2_P': 'HDMI_D2_P',
+                    'HDMI_D2_N': 'HDMI_D2_N'
+                }
+            },
+            'interfaces': {},
+            'external': {
+                'ports': {
+                    'in': [],
+                    'out': [
+                        'HDMI_CLK_P',
+                        'HDMI_CLK_N',
+                        'HDMI_D0_P',
+                        'HDMI_D0_N',
+                        'HDMI_D1_P',
+                        'HDMI_D1_N',
+                        'HDMI_D2_P',
+                        'HDMI_D2_N'
+                    ],
+                    'inout': []
+                },
+                'interfaces': {
+                    'in': [],
+                    'out': [],
+                    'inout': []
+                }
+            }
+        }
 
 
 @pytest.mark.parametrize('_check_function, expected_result', [
     (_check_duplicate_ip_names, CheckStatus.OK),
     (_check_parameters_values, CheckStatus.OK),
     (_check_ext_in_to_ext_out_connections, CheckStatus.OK),
-    (_check_ambigous_ports_interfaces, CheckStatus.OK),
+    (_check_ambigous_ports, CheckStatus.OK),
 
-    (_check_unconnected_interfaces,  CheckStatus.WARNING),
+    (_check_unconnected_ports_interfaces,  CheckStatus.WARNING),
 ])
 def test_dataflow(hdmi_specification, hdmi_dataflow, _check_function, expected_result):
     status, msg = _check_function(hdmi_dataflow, hdmi_specification)
