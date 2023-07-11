@@ -4,6 +4,7 @@
 import pytest
 from typing import List
 from fpga_topwrap.verilog_parser import VerilogModule
+from fpga_topwrap.vhdl_parser import VHDLModule
 
 
 class TestVerilogParse:
@@ -112,16 +113,35 @@ class TestVerilogParse:
 
 
 class TestVHDLParse:
-    def test_vhdl_parse(self):
-        from fpga_topwrap.vhdl_parser import ipcore_desc_from_vhdl_module, VHDLModule
-        from fpga_topwrap.interface_grouper import InterfaceGrouper
-        vhdl_module = VHDLModule('tests/data/axi_dispctrl_v1_0.vhd')
-        iface_grouper = InterfaceGrouper(False, False, None)
-        ipcore_desc_from_vhdl_module(vhdl_module, iface_grouper)
+    @pytest.fixture
+    def axi_dispctrl_module(self) -> VHDLModule:
+        return VHDLModule('tests/data/axi_dispctrl_v1_0.vhd')
+   
+    @pytest.fixture
+    def axi_dispctrl_params(self, axi_dispctrl_module) -> dict:
+        return axi_dispctrl_module.get_parameters()
 
-    def test_vhdl_parse_iface_deduce(self):
-        from fpga_topwrap.vhdl_parser import ipcore_desc_from_vhdl_module, VHDLModule
-        from fpga_topwrap.interface_grouper import InterfaceGrouper
-        vhdl_module = VHDLModule('tests/data/axi_dispctrl_v1_0.vhd')
-        iface_grouper = InterfaceGrouper(False, True, None)
-        ipcore_desc_from_vhdl_module(vhdl_module, iface_grouper)
+    @pytest.fixture
+    def axi_dispctrl_ports_by_dir(self, axi_dispctrl_module) -> dict:
+        from fpga_topwrap.verilog_parser import group_ports_by_dir
+        return group_ports_by_dir(axi_dispctrl_module.get_ports())
+
+
+    def test_axi_dispctrl_parameters(self, axi_dispctrl_params):
+        assert axi_dispctrl_params == {
+            'C_S_AXIS_TDATA_WIDTH': 32,
+            'C_S00_AXI_DATA_WIDTH': 32,
+            'C_S00_AXI_ADDR_WIDTH': 7
+        }
+
+
+    def test_axi_dispctrl_ports(self, axi_dispctrl_ports_by_dir):
+        assert axi_dispctrl_ports_by_dir['inout'] == []
+
+        assert len(axi_dispctrl_ports_by_dir['in']) == 19
+        assert {'name': 'S_AXIS_TDATA', 'bounds': ('(C_S_AXIS_TDATA_WIDTH-1)', '0')} in axi_dispctrl_ports_by_dir['in']
+        assert {'name': 's00_axi_arprot', 'bounds': ('2', '0')} in axi_dispctrl_ports_by_dir['in']
+
+        assert len(axi_dispctrl_ports_by_dir['out']) == 19
+        assert {'name': 'DATA_O', 'bounds': ('(C_S_AXIS_TDATA_WIDTH-1)', '0')} in axi_dispctrl_ports_by_dir['out']
+        assert {'name': 's00_axi_rresp', 'bounds': ('1', '0')} in axi_dispctrl_ports_by_dir['out']
