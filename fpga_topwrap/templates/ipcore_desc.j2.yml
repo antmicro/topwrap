@@ -1,22 +1,22 @@
-parameters:{% for name, value in parameters.items() %}{% if value is mapping %}
+{% if parameters %}parameters:{% for name, value in parameters.items() %}{% if value is mapping %}
   {{name}}:{% for k,v in value.items() %}
     {{k}}: {{v}}{%endfor%}{% else %}
-  {{name}}: {{value}}{%- endif -%}{%-endfor%}
+  {{name}}: {{value}}{%- endif -%}{%-endfor%}{% endif %}
 
 signals:
-  in:{% for port in ports['in'] %}  
-    - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}
-  out:{% for port in ports['out'] %}  
-    - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}
-  inout:{% for port in ports['inout'] %}  
-    - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}
+  {% if ports['in'] %}in:{% for port in ports['in'] %}  
+    - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
+  {% if ports['out'] %}out:{% for port in ports['out'] %}  
+    - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
+  {% if ports['inout'] %}inout:{% for port in ports['inout'] %}  
+    - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
 {% for iface_name, iface in interfaces.items() %}
 {{iface_name}}:
   signals:
-    in:{% for port in iface['in'] %}
-      - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}
-    out:{% for port in iface['out'] %}
-      - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}
-    inout:{% for port in iface['inout'] %}  
-      - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}
+    {% if iface['in'] %}in:{% for port in iface['in'] %}
+      - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
+    {% if iface['out'] %}out:{% for port in iface['out'] %}
+      - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
+    {% if iface['inout'] %}inout:{% for port in iface['inout'] %}  
+      - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
 {%endfor%}
