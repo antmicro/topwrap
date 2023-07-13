@@ -1,18 +1,40 @@
-build-and-deploy:
-    image: $CI_DOCS_DOCKER_IMAGE
-    tags:
-        - docs
-    variables:
-        DOCS_DIR: 'docs'
-    before_script:
-        - pip3 install -r $DOCS_DIR/requirements.txt
-    script:
-        - echo -en "\nhtml_js_files = [ '$ANNOTANT' ]" >> $DOCS_DIR/source/conf.py
-        - cd $DOCS_DIR
-        - make html latexpdf
-        - cp build/latex/*.pdf build/html/
-        - tar cf ../$CI_DOCS_ARCHIVE -C build/html/ .
-    artifacts:
-        paths:
-            - $DOCS_DIR/build/
-            - $CI_DOCS_ARCHIVE
+stages:
+  - verify
+  - build
+  - deploy
+
+image: $CI_DOCS_DOCKER_IMAGE
+
+build:
+  stage: build
+  tags: ['ace-x86_64']
+  before_script:
+    - pip3 install -r docs/requirements.txt
+  script:
+    - cd docs
+    - echo -en "\nhtml_js_files = [ '`dirname $CI_FULL_PROJECT_URL`/annotant/docs/annotant.js' ]" >> source/conf.py
+    - make html latexpdf
+    - cp build/latex/*.pdf build/html/
+    - tar cf ../$CI_DOCS_ARCHIVE -C build/html/ .
+  artifacts:
+    paths:
+      - docs/build
+      - $CI_DOCS_ARCHIVE
+
+deploy:
+  variables:
+    GIT_STRATEGY: none
+  dependencies:
+    - build
+  stage: deploy
+  tags: ['docs']
+  script: echo 'Deploying docs'
+  artifacts:
+    paths:
+      - $CI_DOCS_ARCHIVE
+
+verify:
+  stage: verify
+  image: debian:bullseye
+  script:
+    - eval ${VERIFY_SCRIPT}
