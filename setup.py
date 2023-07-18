@@ -27,6 +27,7 @@ setuptools.setup(
         'amaranth @ git+https://github.com/amaranth-lang/amaranth',
         'wasmtime==1.0.1',
         'numexpr',
+        'hdlConvertor',
         'pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication'
     ],
     setup_requires=["pytest-runner"],
