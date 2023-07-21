@@ -23,4 +23,4 @@ python3 setup.py build
 python3 setup.py install
 ```
 
-For more information about Topwrap, see the [Documentation](https://antmicro.github.io/topwrap/).
+For more information about Topwrap, see the [Documentation](https://antmicro.github.io/fpga-topwrap/).
