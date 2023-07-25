@@ -1,0 +1,101 @@
+name: Pipeline
+
+
+on: [pull_request, push, workflow_dispatch]
+
+
+jobs:
+
+
+  Test:
+
+    runs-on: ubuntu-latest
+    name: "Test Python ${{ matrix.python-version }}"
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install requirements
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y antlr4 libantlr4-runtime-dev python3-dev yosys
+          python3 -m pip install --upgrade pip wheel setuptools
+          python3 -m pip install flake8 pytest git+https://github.com/antmicro/tuttest
+
+      - name: Lint with flake8
+        run: flake8 fpga_topwrap --count --show-source --statistics
+
+      - name: Build
+        run: tuttest README.md | bash -
+
+      - name: Test with pytest
+        run: pytest
+
+      - name: Generate sources for example HDMI setup
+        run: |
+          cd examples/hdmi
+          tuttest README.md generate | bash -
+          cd -
+
+      - name: Build example PWM setup
+        run: |
+          export FPGA_FAM="xc7"
+          export F4PGA_INSTALL_DIR="${HOME}/opt/f4pga"
+          export F4PGA_INSTALL_DIR_FAM="${F4PGA_INSTALL_DIR}/${FPGA_FAM}"
+          ./.github/scripts/prepare_environment.sh
+          source .github/scripts/activate.sh
+          pip3 install https://github.com/chipsalliance/f4pga/archive/main.zip#subdirectory=f4pga
+
+          cd examples/pwm
+          tuttest README.md build | bash -
+          cd -
+          cp examples/pwm/build/project_1_0/zynq-symbiflow/project_top.bit ./top.bit
+
+      - name: Store bit
+        uses: actions/upload-artifact@v3
+        with:
+          name: top.bit
+          path: top.bit
+
+
+  Docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker://btdi/sphinx:min
+        with:
+          args: ./.github/scripts/sphinx.sh
+
+      - uses: docker://btdi/latex
+        with:
+          args: ./.github/scripts/latex.sh
+
+      - name: 'Upload artifact: Sphinx HTML and PDF'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Documentation
+          path: docs/build/html
+
+      - name: Deploy to Github Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          sudo chown -R $(whoami) docs
+          cd docs/build/html
+          touch .nojekyll
+          git init
+          cp ../../../.git/config ./.git/config
+          git add .
+          git config --local user.email "push@gha"
+          git config --local user.name "GHA"
+          git commit -am "update ${{ github.sha }}"
+          git push -u origin +HEAD:gh-pages
+          rm -rf .git
