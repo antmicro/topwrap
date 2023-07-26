@@ -7,11 +7,12 @@ on: [pull_request, push, workflow_dispatch]
 jobs:
 
 
-  Test:
+  Tests:
 
     runs-on: ubuntu-latest
     name: "Test Python ${{ matrix.python-version }}"
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
@@ -43,13 +44,39 @@ jobs:
       - name: Test with pytest
         run: pytest
 
+
+  Examples:
+
+    runs-on: ubuntu-latest
+    name: 'Example ${{ matrix.example }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - HDMI
+          - PWM
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install tuttest and fpga-topwrap
+        run: |
+          python3 -m pip install git+https://github.com/antmicro/tuttest
+          tuttest README.md | bash -
+
       - name: Generate sources for example HDMI setup
+        if: matrix.example == 'HDMI'
         run: |
           cd examples/hdmi
           tuttest README.md generate | bash -
           cd -
 
-      - name: Build example PWM setup
+      - name: Generate sources for and build example PWM setup
+        if: matrix.example == 'PWM'
         run: |
           cd examples/pwm
           make generate copy_sources
@@ -65,8 +92,8 @@ jobs:
 
           cp examples/pwm/build/project_1_0/zynq-symbiflow/project_top.bit top.bit
 
-      - name: Store bit
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
+        if: matrix.example == 'PWM'
         with:
           name: top.bit
           path: top.bit
