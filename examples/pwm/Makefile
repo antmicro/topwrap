@@ -1,6 +1,6 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-all: zvb
+all: generate copy_sources zvb
 
 build:
 	mkdir build
@@ -15,7 +15,7 @@ copy_sources: build
 	cp -rf sources/ build/
 	cp -rf ipcores/* build/
 
-zvb: generate copy_sources
+zvb:
 	fusesoc --cores-root build run --tool=symbiflow --build --target zynq project_1
 
 zvb_vivado: generate copy_sources
