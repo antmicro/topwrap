@@ -1,0 +1,21 @@
+CAPI=2:
+name : ::project_1
+description : project
+filesets:
+  rtl:
+    files:{% for file in sources %}
+      - {{file.filename}} : {file_type : {{file.type}}}{% endfor %}
+targets:
+  zynq:
+    default_tool: symbiflow
+    filesets:
+      - rtl
+    tools:
+      vivado:
+        part : {{part}}
+      symbiflow:
+        package: clg400-1
+        part: xc7z010
+        pnr: vtr
+        vendor: xilinx
+    toplevel : project_top

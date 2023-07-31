@@ -1,0 +1,43 @@
+ips:
+  ip_ibuf:
+    file: ipcores/gen_ibuf.yaml
+    module: ibuf
+  ip_obuf:
+    file: ipcores/gen_obuf.yaml
+    module: obuf
+  ip_iobuf:
+    file: ipcores/gen_iobuf.yaml
+    module: iobuf
+
+ports:
+  ip_obuf:
+    clk: PORT_CLK
+    rst: PORT_RST
+    oe: PORT_CLK
+    a: PORT_IN
+    z: PORT_OUT_0
+  ip_iobuf:
+    clk: PORT_CLK
+    rst: PORT_RST
+    oe: PORT_CLK
+    a: PORT_IN
+    y: PORT_OUT_1
+    z: PORT_IO
+  ip_ibuf:
+    clk: PORT_CLK
+    rst: PORT_RST
+    a: PORT_IN
+    z: PORT_OUT_2
+
+external:
+  ports:
+    in:
+      - PORT_CLK
+      - PORT_RST
+      - PORT_IN
+    out:
+      - PORT_OUT_0
+      - PORT_OUT_1
+      - PORT_OUT_2
+    inout:
+      - PORT_IO
