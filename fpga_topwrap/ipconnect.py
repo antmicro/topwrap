@@ -271,6 +271,13 @@ class IPConnect(Elaboratable):
                     # check if port direction matches with the user-specified
                     # direction from the 'externals' section - 'ext_dir'
                     port_dir = self._ips[ip_name].get_port_by_name(ip_port).direction  # noqa: E501
+                    # It is illegal to connect:
+                    #  - output to output
+                    #  - input to input
+                    # Any other connection is legal.
+                    if DIR_NONE in (port_dir, ext_dir):
+                        self._set_port(self._ips[ip_name], ip_port, target)
+                        continue
                     if port_dir != ext_dir:
                         raise ValueError(
                             f"Direction of external port '{target}'"
