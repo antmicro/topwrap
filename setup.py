@@ -22,8 +22,6 @@ setuptools.setup(
         'PyYAML',
         'click',
         'amaranth-yosys',
-        'edalize==0.4.0',
-        'fusesoc==1.12.0',
         'amaranth @ git+https://github.com/amaranth-lang/amaranth',
         'wasmtime==1.0.1',
         'numexpr',
