@@ -1,0 +1,135 @@
+name: Pipeline
+
+
+on: [pull_request, push, workflow_dispatch]
+
+
+jobs:
+
+
+  Tests:
+
+    runs-on: ubuntu-latest
+    name: "Test Python ${{ matrix.python-version }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dev requirements
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            antlr4 \
+            libantlr4-runtime-dev \
+            python3-dev \
+            yosys
+          python3 -m pip install --upgrade pip wheel setuptools
+          python3 -m pip install -r dev.requirements.txt
+          python3 -m pip install git+https://github.com/antmicro/tuttest
+
+      - name: Lint with flake8
+        run: flake8 fpga_topwrap --count --show-source --statistics
+
+      - name: Build
+        run: tuttest README.md | bash -
+
+      - name: Test with pytest
+        run: pytest
+
+
+  Examples:
+
+    runs-on: ubuntu-latest
+    name: 'Example ${{ matrix.example }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - HDMI
+          - PWM
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install tuttest and fpga-topwrap
+        run: |
+          python3 -m pip install git+https://github.com/antmicro/tuttest
+          tuttest README.md | bash -
+
+      - name: Generate sources for example HDMI setup
+        if: matrix.example == 'HDMI'
+        run: |
+          cd examples/hdmi
+          tuttest README.md generate | bash -
+          cd -
+
+      - name: Generate sources for and build example PWM setup
+        if: matrix.example == 'PWM'
+        run: |
+          cd examples/pwm
+          make generate copy_sources
+          cd -
+
+          docker run --rm -i -v $(pwd):/wrk -w /wrk \
+          gcr.io/hdl-containers/conda/f4pga/xc7/z010 \
+          bash -le <<'EOF'
+            pip3 install -r impl.requirements.txt
+            cd examples/pwm
+            make zvb
+          EOF
+
+          cp examples/pwm/build/project_1_0/zynq-symbiflow/project_top.bit top.bit
+
+      - uses: actions/upload-artifact@v3
+        if: matrix.example == 'PWM'
+        with:
+          name: top.bit
+          path: top.bit
+
+
+  Docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker://btdi/sphinx:min
+        with:
+          args: ./.github/scripts/sphinx.sh
+
+      - uses: docker://btdi/latex
+        with:
+          args: ./.github/scripts/latex.sh
+
+      - name: 'Upload artifact: Sphinx HTML and PDF'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Documentation
+          path: docs/build/html
+
+      - name: Deploy to Github Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          sudo chown -R $(whoami) docs
+          cd docs/build/html
+          touch .nojekyll
+          git init
+          cp ../../../.git/config ./.git/config
+          git add .
+          git config --local user.email "push@gha"
+          git config --local user.name "GHA"
+          git commit -am "update ${{ github.sha }}"
+          git push -u origin +HEAD:gh-pages
+          rm -rf .git
