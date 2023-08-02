@@ -53,15 +53,17 @@ jobs:
         run: |
           cd examples/pwm
           make generate copy_sources
+          cd -
 
           docker run --rm -i -v $(pwd):/wrk -w /wrk \
           gcr.io/hdl-containers/conda/f4pga/xc7/z010 \
           bash -le <<'EOF'
-            pip3 install edalize==0.4.0 fusesoc==1.12.0
+            pip3 install -r impl.requirements.txt
+            cd examples/pwm
             make zvb
           EOF
 
-          cp build/project_1_0/zynq-symbiflow/project_top.bit ../../top.bit
+          cp examples/pwm/build/project_1_0/zynq-symbiflow/project_top.bit top.bit
 
       - name: Store bit
         uses: actions/upload-artifact@v3
