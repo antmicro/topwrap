@@ -1,11 +1,36 @@
 stages:
-  - verify
+  - test
   - build
   - deploy
 
-image: $CI_DOCS_DOCKER_IMAGE
+image: debian:bullseye
 
-build:
+lint:
+  stage: test
+  before_script: &BeforeScript
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends python3-pip
+    - python3 -m pip install -U pip wheel setuptools
+  script:
+    - python3 -m pip install flake8
+    - flake8 fpga_topwrap
+
+pytest:
+  stage: test
+  before_script: *BeforeScript
+  script:
+    - apt-get install -y --no-install-recommends g++ make git python3-dev
+    - python3 -m pip install pytest git+https://github.com/antmicro/tuttest
+    - tuttest README.md | bash -
+    - pytest tests
+
+docs-verify:
+  stage: test
+  script:
+    - eval ${VERIFY_SCRIPT}
+
+docs-build:
+  image: $CI_DOCS_DOCKER_IMAGE
   stage: build
   tags: ['ace-x86_64']
   before_script:
@@ -21,20 +46,13 @@ build:
       - docs/build
       - $CI_DOCS_ARCHIVE
 
-deploy:
+docs-deploy:
   variables:
     GIT_STRATEGY: none
-  dependencies:
-    - build
+  dependencies: [ docs-build ]
   stage: deploy
   tags: ['docs']
   script: echo 'Deploying docs'
   artifacts:
     paths:
       - $CI_DOCS_ARCHIVE
-
-verify:
-  stage: verify
-  image: debian:bullseye
-  script:
-    - eval ${VERIFY_SCRIPT}
