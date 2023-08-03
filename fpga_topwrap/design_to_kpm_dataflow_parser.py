@@ -2,25 +2,27 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+
 import logging
 import os
-from typing import List
 from time import time
+from typing import List
+
 from .kpm_common import (
+    EXT_INOUT_NAME,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
-    EXT_INOUT_NAME,
-    get_metanode_property_value
+    get_metanode_property_value,
 )
 
 
 class IDGenerator(object):
-    """ ID generator implementation just as in BaklavaJS
-    """
+    """ID generator implementation just as in BaklavaJS"""
+
     __counter = 0
 
     def __new__(cls):
-        if not hasattr(cls, 'instance'):
+        if not hasattr(cls, "instance"):
             cls.instance = super(IDGenerator, cls).__new__(cls)
         return cls.instance
 
@@ -31,16 +33,17 @@ class IDGenerator(object):
 
 
 class KPMDataflowNodeInterface:
-    KPM_DIR_INPUT = 'input'
-    KPM_DIR_OUTPUT = 'output'
-    KPM_DIR_INOUT = 'inout'
-    __EXT_IFACE_NAME = 'external'
+    KPM_DIR_INPUT = "input"
+    KPM_DIR_OUTPUT = "output"
+    KPM_DIR_INOUT = "inout"
+    __EXT_IFACE_NAME = "external"
 
     def __init__(self, name: str, direction: str):
         if direction not in [
-                KPMDataflowNodeInterface.KPM_DIR_INPUT,
-                KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
-                KPMDataflowNodeInterface.KPM_DIR_INOUT]:
+            KPMDataflowNodeInterface.KPM_DIR_INPUT,
+            KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+            KPMDataflowNodeInterface.KPM_DIR_INOUT,
+        ]:
             raise ValueError(f"Invalid interface direction: {direction}")
 
         generator = IDGenerator()
@@ -50,12 +53,11 @@ class KPMDataflowNodeInterface:
 
     @staticmethod
     def new_external_interface(direction: str) -> KPMDataflowNodeInterface:
-        return KPMDataflowNodeInterface(
-            KPMDataflowNodeInterface.__EXT_IFACE_NAME, direction)
+        return KPMDataflowNodeInterface(KPMDataflowNodeInterface.__EXT_IFACE_NAME, direction)
 
 
 class KPMDataflowNodeProperty:
-    KPM_EXT_PROP_NAME = 'External Name'
+    KPM_EXT_PROP_NAME = "External Name"
 
     def __init__(self, name: str, value: str):
         generator = IDGenerator()
@@ -65,21 +67,19 @@ class KPMDataflowNodeProperty:
 
     @staticmethod
     def new_external_property(value: str) -> KPMDataflowNodeProperty:
-        return KPMDataflowNodeProperty(
-            KPMDataflowNodeProperty.KPM_EXT_PROP_NAME,
-            value
-        )
+        return KPMDataflowNodeProperty(KPMDataflowNodeProperty.KPM_EXT_PROP_NAME, value)
 
 
 class KPMDataflowNode:
     __default_width = 200
 
-    def __init__(self,
-                 name: str,
-                 type: str,
-                 properties: List[KPMDataflowNodeProperty],
-                 interfaces: List[KPMDataflowNodeInterface]) -> None:
-
+    def __init__(
+        self,
+        name: str,
+        type: str,
+        properties: List[KPMDataflowNodeProperty],
+        interfaces: List[KPMDataflowNodeInterface],
+    ) -> None:
         generator = IDGenerator()
         self.id = "node_" + generator.generate_id()
         self.name = name
@@ -88,25 +88,24 @@ class KPMDataflowNode:
         self.interfaces = interfaces
 
     @staticmethod
-    def new_external_node(
-            node_name: str,
-            property_name: str) -> KPMDataflowNode:
-
+    def new_external_node(node_name: str, property_name: str) -> KPMDataflowNode:
         if node_name not in [EXT_OUTPUT_NAME, EXT_INPUT_NAME, EXT_INOUT_NAME]:
             raise ValueError(f"Invalid external node name: {node_name}")
 
         interface_dir_by_node_name = {
             EXT_OUTPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INPUT,
             EXT_INPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
-            EXT_INOUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INOUT
+            EXT_INOUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INOUT,
         }
         return KPMDataflowNode(
             node_name,
             node_name,
             [KPMDataflowNodeProperty.new_external_property(property_name)],
-            [KPMDataflowNodeInterface.new_external_interface(
-                interface_dir_by_node_name[node_name]
-            )]
+            [
+                KPMDataflowNodeInterface.new_external_interface(
+                    interface_dir_by_node_name[node_name]
+                )
+            ],
         )
 
     def to_json_format(self) -> dict:
@@ -120,25 +119,18 @@ class KPMDataflowNode:
                     "id": interface.id,
                     "direction": interface.direction,
                     "connectionSide": "left"
-                    if (interface.direction
-                        == KPMDataflowNodeInterface.KPM_DIR_INPUT)
-                    else "right"
-                } for interface in self.interfaces
+                    if (interface.direction == KPMDataflowNodeInterface.KPM_DIR_INPUT)
+                    else "right",
+                }
+                for interface in self.interfaces
             ],
-            "position": {
-                "x": 0,
-                "y": 0
-            },
+            "position": {"x": 0, "y": 0},
             "width": KPMDataflowNode.__default_width,
             "twoColumn": False,
             "properties": [
-                {
-                    "name": property.name,
-                    "id": property.id,
-                    "value": property.value
-                }
+                {"name": property.name, "id": property.id, "value": property.value}
                 for property in self.properties
-            ]
+            ],
         }
 
 
@@ -150,86 +142,70 @@ class KPMDataflowConnection:
         self.id_to = id_to
 
     def to_json_format(self) -> dict:
-        return {
-            "id": self.id,
-            "from": self.id_from,
-            "to": self.id_to
-        }
+        return {"id": self.id, "from": self.id_from, "to": self.id_to}
 
 
 def _get_specification_node_by_type(type: str, specification: dict) -> dict:
-    """ Return a node of type `type` from specification
-    """
-    for node in specification['nodes']:
-        if type == node['type']:
+    """Return a node of type `type` from specification"""
+    for node in specification["nodes"]:
+        if type == node["type"]:
             return node
     logging.warning(f'Node type "{type}" not found in specification')
 
 
 def _ipcore_param_to_kpm_value(param) -> str:
-    """ Return a string representing an IP core parameter,
+    """Return a string representing an IP core parameter,
     that will be placed in dataflow node property textbox
     """
     if isinstance(param, str):
         return param
     elif isinstance(param, int):
         return str(param)
-    elif isinstance(param, dict) and param.keys() == {'value', 'width'}:
-        width = str(param['width'])
-        value = hex(param['value'])[2:]
-        return width + "\'h" + value
+    elif isinstance(param, dict) and param.keys() == {"value", "width"}:
+        width = str(param["width"])
+        value = hex(param["value"])[2:]
+        return width + "'h" + value
 
 
-def kpm_nodes_from_design_descr(
-        design_descr: dict,
-        specification: dict) -> List[KPMDataflowNode]:
-    """ Generate KPM dataflow nodes based on Topwrap's design
+def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List[KPMDataflowNode]:
+    """Generate KPM dataflow nodes based on Topwrap's design
     description yaml (e.g. generated from YAML design description)
     and already loaded KPM specification.
     """
-    ips = design_descr['ips']
+    ips = design_descr["ips"]
     nodes = []
 
     for ip_name in ips.keys():
         ip = ips[ip_name]
-        ip_type = os.path.splitext(os.path.basename(ip['file']))[0]
+        ip_type = os.path.splitext(os.path.basename(ip["file"]))[0]
         spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
             continue
 
         properties = {
-            prop['name']: KPMDataflowNodeProperty(
-                prop['name'], prop['default']
-            )
-            for prop in spec_node['properties']
+            prop["name"]: KPMDataflowNodeProperty(prop["name"], prop["default"])
+            for prop in spec_node["properties"]
         }
-        if 'parameters' in ip.keys():
-            for (param_name, param_val) in ip['parameters'].items():
+        if "parameters" in ip.keys():
+            for param_name, param_val in ip["parameters"].items():
                 if param_name in properties.keys():
-                    properties[param_name].value = _ipcore_param_to_kpm_value(
-                        param_val
-                    )
+                    properties[param_name].value = _ipcore_param_to_kpm_value(param_val)
                 else:
-                    logging.warning(
-                        f"Parameter '{param_name}'"
-                        f"not found in node {ip_name}"
-                    )
+                    logging.warning(f"Parameter '{param_name}'" f"not found in node {ip_name}")
 
         interfaces = [
-            KPMDataflowNodeInterface(interface['name'], interface['direction'])
-            for interface in spec_node['interfaces']
+            KPMDataflowNodeInterface(interface["name"], interface["direction"])
+            for interface in spec_node["interfaces"]
         ]
 
-        nodes.append(KPMDataflowNode(ip_name, ip_type,
-                     list(properties.values()), interfaces))
+        nodes.append(KPMDataflowNode(ip_name, ip_type, list(properties.values()), interfaces))
     return nodes
 
 
 def _get_dataflow_interface_by_name(
-        name: str,
-        node_name: str,
-        nodes: List[KPMDataflowNode]) -> KPMDataflowNodeInterface:
-    """ Find `name` interface of a node
+    name: str, node_name: str, nodes: List[KPMDataflowNode]
+) -> KPMDataflowNodeInterface:
+    """Find `name` interface of a node
     (representing an IP core) named `node_name`.
     """
     for node in nodes:
@@ -237,55 +213,65 @@ def _get_dataflow_interface_by_name(
             for iface in node.interfaces:
                 if iface.name == name:
                     return iface
-            logging.warning(
-                f"Interface '{name}' not found in node {node_name}")
+            logging.warning(f"Interface '{name}' not found in node {node_name}")
             return
     logging.warning(f"Node '{node_name}' not found")
 
 
 def _get_flattened_connections(design_descr: dict) -> list:
-    """ Helper function to get a list of flattened connections
+    """Helper function to get a list of flattened connections
     from a design description yaml.
     """
     conn_descrs = []
-    for sec in set(['ports', 'interfaces']) & set(design_descr.keys()):
+    for sec in set(["ports", "interfaces"]) & set(design_descr.keys()):
         for ip_name in design_descr[sec].keys():
             for port_iface_name in design_descr[sec][ip_name].keys():
-                conn_descrs.append({
-                    'ip_name': ip_name,
-                    'port_iface_name': port_iface_name,
-                    'connection': design_descr[sec][ip_name][port_iface_name]
-                })
+                conn_descrs.append(
+                    {
+                        "ip_name": ip_name,
+                        "port_iface_name": port_iface_name,
+                        "connection": design_descr[sec][ip_name][port_iface_name],
+                    }
+                )
     return conn_descrs
 
 
 def _get_external_connections(design_descr: dict) -> list:
-    """ Get connections to externals from 'ports' and 'interfaces'
+    """Get connections to externals from 'ports' and 'interfaces'
     sections of design description.
     """
-    ext_connections = list(filter(
-        lambda conn_descr: isinstance(conn_descr['connection'], str),
-        _get_flattened_connections(design_descr)))
+    ext_connections = list(
+        filter(
+            lambda conn_descr: isinstance(conn_descr["connection"], str),
+            _get_flattened_connections(design_descr),
+        )
+    )
 
     # `ext_connections` is now a list of all the external connections gathered
     # from a design yaml. Each such connection is in format:
     # `{'ip_name': str, 'port_iface_name': str, 'connection': str}`
     # where 'connection' represents a name of the external port/interface
 
-    return [{
-        'ip_name': conn['ip_name'],
-        'port_iface_name': conn['port_iface_name'],
-        'external_name': conn['connection']
-    } for conn in ext_connections]
+    return [
+        {
+            "ip_name": conn["ip_name"],
+            "port_iface_name": conn["port_iface_name"],
+            "external_name": conn["connection"],
+        }
+        for conn in ext_connections
+    ]
 
 
 def _get_ipcores_connections(design_descr: dict) -> list:
-    """ Get connections between IP cores from 'ports' and 'interfaces'
+    """Get connections between IP cores from 'ports' and 'interfaces'
     sections of design description.
     """
-    ipcores_connections = list(filter(
-        lambda conn_descr: isinstance(conn_descr['connection'], list),
-        _get_flattened_connections(design_descr)))
+    ipcores_connections = list(
+        filter(
+            lambda conn_descr: isinstance(conn_descr["connection"], list),
+            _get_flattened_connections(design_descr),
+        )
+    )
 
     # `ipcores_connections` is now a list of all the connections between
     # IP cores gathered from a design yaml. Each such connection is in format:
@@ -293,37 +279,49 @@ def _get_ipcores_connections(design_descr: dict) -> list:
     # where conn['connection'][0] is an IP name and conn['connection'][1] is
     # a port/interface name from which the connection originates
 
-    return [{
-        'ip_to_name': conn['ip_name'],
-        'port_iface_to_name': conn['port_iface_name'],
-        'ip_from_name': conn['connection'][0],
-        'port_iface_from_name': conn['connection'][1]
-    } for conn in ipcores_connections]
+    return [
+        {
+            "ip_to_name": conn["ip_name"],
+            "port_iface_to_name": conn["port_iface_name"],
+            "ip_from_name": conn["connection"][0],
+            "port_iface_from_name": conn["connection"][1],
+        }
+        for conn in ipcores_connections
+    ]
 
 
 def _create_connection(
-        kpm_iface_from: KPMDataflowNodeInterface,
-        kpm_iface_to: KPMDataflowNodeInterface) -> KPMDataflowConnection:
-
+    kpm_iface_from: KPMDataflowNodeInterface, kpm_iface_to: KPMDataflowNodeInterface
+) -> KPMDataflowConnection:
     dir_from = kpm_iface_from.direction
     dir_to = kpm_iface_to.direction
 
-    if (dir_from == KPMDataflowNodeInterface.KPM_DIR_OUTPUT and
-        dir_to != KPMDataflowNodeInterface.KPM_DIR_INPUT) or \
-        (dir_from == KPMDataflowNodeInterface.KPM_DIR_INPUT and
-         dir_to != KPMDataflowNodeInterface.KPM_DIR_OUTPUT) or \
-        (dir_from == KPMDataflowNodeInterface.KPM_DIR_INOUT and
-         dir_to != KPMDataflowNodeInterface.KPM_DIR_INOUT):
-        logging.warning("Port/interface direction mismatch for connection: "
-                        f"'{kpm_iface_from.name}<->{kpm_iface_to.name}'")
+    if (
+        (
+            dir_from == KPMDataflowNodeInterface.KPM_DIR_OUTPUT
+            and dir_to != KPMDataflowNodeInterface.KPM_DIR_INPUT
+        )
+        or (
+            dir_from == KPMDataflowNodeInterface.KPM_DIR_INPUT
+            and dir_to != KPMDataflowNodeInterface.KPM_DIR_OUTPUT
+        )
+        or (
+            dir_from == KPMDataflowNodeInterface.KPM_DIR_INOUT
+            and dir_to != KPMDataflowNodeInterface.KPM_DIR_INOUT
+        )
+    ):
+        logging.warning(
+            "Port/interface direction mismatch for connection: "
+            f"'{kpm_iface_from.name}<->{kpm_iface_to.name}'"
+        )
     else:
         return KPMDataflowConnection(kpm_iface_from.id, kpm_iface_to.id)
 
 
 def kpm_connections_from_design_descr(
-        design_descr: dict,
-        nodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
-    """ Generate KPM connections based on the data from `design_descr`.
+    design_descr: dict, nodes: List[KPMDataflowNode]
+) -> List[KPMDataflowConnection]:
+    """Generate KPM connections based on the data from `design_descr`.
     We also need a list of previously generated KPM dataflow nodes, because the
     connections in KPM are specified using id's of their interfaces
     """
@@ -332,55 +330,50 @@ def kpm_connections_from_design_descr(
 
     for conn in _conns:
         kpm_iface_from = _get_dataflow_interface_by_name(
-            conn['port_iface_from_name'], conn['ip_from_name'], nodes)
+            conn["port_iface_from_name"], conn["ip_from_name"], nodes
+        )
         kpm_iface_to = _get_dataflow_interface_by_name(
-            conn['port_iface_to_name'], conn['ip_to_name'], nodes)
+            conn["port_iface_to_name"], conn["ip_to_name"], nodes
+        )
         if kpm_iface_from is not None and kpm_iface_to is not None:
             result.append(_create_connection(kpm_iface_from, kpm_iface_to))
     return [conn for conn in result if conn is not None]
 
 
-def kpm_metanodes_from_design_descr(
-        design_descr: dict) -> List[KPMDataflowNode]:
-    """ Generate a list of external metanodes based on the contents of
+def kpm_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]:
+    """Generate a list of external metanodes based on the contents of
     "externals" section of Topwrap's design description
     """
-    if 'external' not in design_descr.keys():
+    if "external" not in design_descr.keys():
         return []
 
     metanodes = []
-    dir_to_metanode_type = {
-        'in': EXT_INPUT_NAME,
-        'out': EXT_OUTPUT_NAME,
-        'inout': EXT_INOUT_NAME
-    }
+    dir_to_metanode_type = {"in": EXT_INPUT_NAME, "out": EXT_OUTPUT_NAME, "inout": EXT_INOUT_NAME}
 
-    for conn_type in design_descr['external'].keys():
-        for dir in design_descr['external'][conn_type].keys():
-            for external_name in design_descr['external'][conn_type][dir]:
-                metanodes.append(KPMDataflowNode.new_external_node(
-                    dir_to_metanode_type[dir], external_name))
+    for conn_type in design_descr["external"].keys():
+        for dir in design_descr["external"][conn_type].keys():
+            for external_name in design_descr["external"][conn_type][dir]:
+                metanodes.append(
+                    KPMDataflowNode.new_external_node(dir_to_metanode_type[dir], external_name)
+                )
 
     return metanodes
 
 
 def _find_dataflow_metanode_by_external_name(
-        metanodes: List[KPMDataflowNode],
-        external_name: str) -> KPMDataflowNode:
-
+    metanodes: List[KPMDataflowNode], external_name: str
+) -> KPMDataflowNode:
     for metanode in metanodes:
         prop_val = get_metanode_property_value(metanode.to_json_format())
         if prop_val == external_name:
             return metanode
-    logging.warning(f"External port/interface '{external_name}'"
-                    "not found in design description")
+    logging.warning(f"External port/interface '{external_name}'" "not found in design description")
 
 
 def kpm_metanodes_connections_from_design_descr(
-        design_descr: dict,
-        nodes: List[KPMDataflowNode],
-        metanodes: List[KPMDataflowNode]) -> List[KPMDataflowConnection]:
-    """ Create a list of connections between external metanodes and
+    design_descr: dict, nodes: List[KPMDataflowNode], metanodes: List[KPMDataflowNode]
+) -> List[KPMDataflowConnection]:
+    """Create a list of connections between external metanodes and
     appropriate  nodes' interfaces, based on the contents of "externals"
     section of Topwrap's design description
     """
@@ -389,45 +382,36 @@ def kpm_metanodes_connections_from_design_descr(
 
     for ext_conn in _external_conns:
         kpm_interface = _get_dataflow_interface_by_name(
-            ext_conn['port_iface_name'], ext_conn['ip_name'], nodes)
+            ext_conn["port_iface_name"], ext_conn["ip_name"], nodes
+        )
         kpm_metanode = _find_dataflow_metanode_by_external_name(
-            metanodes, ext_conn['external_name'])
+            metanodes, ext_conn["external_name"]
+        )
         if kpm_interface is not None and kpm_metanode is not None:
             # Metanodes have exactly 1 interface; hence we can take 0th index
             # of the `interfaces` array of a metanode to access the interface.
-            result.append(_create_connection(
-                kpm_interface, kpm_metanode.interfaces[0]))
+            result.append(_create_connection(kpm_interface, kpm_metanode.interfaces[0]))
     return [conn for conn in result if conn is not None]
 
 
-def kpm_dataflow_from_design_descr(
-        design_descr: dict,
-        specification: dict) -> dict:
-    """ Generate Pipeline Manager dataflow from a design description
+def kpm_dataflow_from_design_descr(design_descr: dict, specification: dict) -> dict:
+    """Generate Pipeline Manager dataflow from a design description
     in Topwrap's yaml format
     """
     nodes = kpm_nodes_from_design_descr(design_descr, specification)
     metanodes = kpm_metanodes_from_design_descr(design_descr)
     connections = kpm_connections_from_design_descr(design_descr, nodes)
-    ext_connections = kpm_metanodes_connections_from_design_descr(
-        design_descr, nodes, metanodes)
+    ext_connections = kpm_metanodes_connections_from_design_descr(design_descr, nodes, metanodes)
     generator = IDGenerator()
     return {
         "graph": {
             "id": generator.generate_id(),
-            "nodes": [
-                node.to_json_format() for node in nodes
-            ] + [
-                metanode.to_json_format() for metanode in metanodes
-            ],
-            "connections": [
-                connection.to_json_format() for connection in connections
-            ] + [
-                ext_connection.to_json_format()
-                for ext_connection in ext_connections
-            ],
+            "nodes": [node.to_json_format() for node in nodes]
+            + [metanode.to_json_format() for metanode in metanodes],
+            "connections": [connection.to_json_format() for connection in connections]
+            + [ext_connection.to_json_format() for ext_connection in ext_connections],
             "inputs": [],
-            "outputs": []
+            "outputs": [],
         },
-        "graphTemplates": []
+        "graphTemplates": [],
     }

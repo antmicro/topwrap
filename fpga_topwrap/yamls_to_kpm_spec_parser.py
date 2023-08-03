@@ -3,12 +3,13 @@
 
 import logging
 import os
+
+from .kpm_common import EXT_INOUT_NAME, EXT_INPUT_NAME, EXT_OUTPUT_NAME
 from .parsers import parse_port_map
-from .kpm_common import EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME
 
 
 def _ipcore_param_to_kpm_value(param) -> str:
-    """ Returns a parameter default value, that will be displayed
+    """Returns a parameter default value, that will be displayed
     as an option in Pipeline Manager Node.
 
     :param param: may be int, str or {'value': ..., 'width': ... } dict.
@@ -20,14 +21,14 @@ def _ipcore_param_to_kpm_value(param) -> str:
         return param
     elif isinstance(param, int):
         return str(param)
-    elif isinstance(param, dict) and param.keys() == {'value', 'width'}:
-        width = str(param['width'])
-        value = hex(param['value'])[2:]
-        return width + "\'h" + value
+    elif isinstance(param, dict) and param.keys() == {"value", "width"}:
+        width = str(param["width"])
+        value = hex(param["value"])[2:]
+        return width + "'h" + value
 
 
 def _ipcore_params_to_kpm(params: dict) -> list:
-    """ Returns a list of parameters in a format used in KPM specification
+    """Returns a list of parameters in a format used in KPM specification
 
     :param params: a dict containing parameter names and their values,
         gathered from IP core description YAML
@@ -36,17 +37,13 @@ def _ipcore_params_to_kpm(params: dict) -> list:
         given IP core parameters
     """
     return [
-        {
-            'name': param[0],
-            'type': 'text',
-            'default': _ipcore_param_to_kpm_value(param[1])
-        }
+        {"name": param[0], "type": "text", "default": _ipcore_param_to_kpm_value(param[1])}
         for param in params.items()
     ]
 
 
 def _ipcore_ports_to_kpm(ports: dict) -> list:
-    """ Returns lists of ports grouped by direction (inputs/outputs)
+    """Returns lists of ports grouped by direction (inputs/outputs)
     in a format used in KPM specification.
 
     :param ports: a dict containing ports descriptions,
@@ -60,35 +57,23 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
             # In ip core yamls each port is described as a separate,
             # one-element list. Here `port` is a one-element list containing a
             # single string (i.e. port name), which is accessed with `port[0]`
-            'name': port[0],
-            'type': 'port',
-            'direction': 'input'
+            "name": port[0],
+            "type": "port",
+            "direction": "input",
         }
-        for port in ports['in']
+        for port in ports["in"]
     ]
-    outputs = [
-        {
-            'name': port[0],
-            'type': 'port',
-            'direction': 'output'
-        }
-        for port in ports['out']
-    ]
+    outputs = [{"name": port[0], "type": "port", "direction": "output"} for port in ports["out"]]
     inouts = [
-        {
-            'name': port[0],
-            'type': 'port_inout',
-            'direction': 'inout',
-            'side': 'right'
-        }
-        for port in ports['inout']
+        {"name": port[0], "type": "port_inout", "direction": "inout", "side": "right"}
+        for port in ports["inout"]
     ]
 
     return inputs + outputs + inouts
 
 
 def _ipcore_ifaces_to_kpm(ifaces: dict):
-    """ Returns a list of interfaces grouped by direction (inputs/outputs)
+    """Returns a list of interfaces grouped by direction (inputs/outputs)
     in a format used in KPM specification. Master interfaces are considered
     outputs and slave interfaces are considered inputs.
 
@@ -99,28 +84,26 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
         correspond to given IP core interfaces
     """
     inputs = [
-        {
-            'name': iface,
-            'type': 'iface_' + ifaces[iface]['interface'],
-            'direction': 'input'
-        }
-        for iface in ifaces.keys() if ifaces[iface]['mode'] == 'slave'
+        {"name": iface, "type": "iface_" + ifaces[iface]["interface"], "direction": "input"}
+        for iface in ifaces.keys()
+        if ifaces[iface]["mode"] == "slave"
     ]
     outputs = [
         {
-            'name': iface,
-            'type': 'iface_' + ifaces[iface]['interface'],
-            'direction': 'output',
-            'maxConnectionsCount': 1
+            "name": iface,
+            "type": "iface_" + ifaces[iface]["interface"],
+            "direction": "output",
+            "maxConnectionsCount": 1,
         }
-        for iface in ifaces.keys() if ifaces[iface]['mode'] == 'master'
+        for iface in ifaces.keys()
+        if ifaces[iface]["mode"] == "master"
     ]
 
     return inputs + outputs
 
 
 def _ipcore_to_kpm(yamlfile: str) -> dict:
-    """ Returns a single KPM specification 'node' representing
+    """Returns a single KPM specification 'node' representing
     given IP core description YAML file.
 
     :param yamlfile: IP core description file to be converted
@@ -130,16 +113,16 @@ def _ipcore_to_kpm(yamlfile: str) -> dict:
     ip_yaml = parse_port_map(yamlfile)
 
     ip_name = os.path.splitext(os.path.basename(yamlfile))[0]
-    kpm_params = _ipcore_params_to_kpm(ip_yaml['parameters'])
-    kpm_ports = _ipcore_ports_to_kpm(ip_yaml['signals'])
-    kpm_ifaces = _ipcore_ifaces_to_kpm(ip_yaml['interfaces'])
+    kpm_params = _ipcore_params_to_kpm(ip_yaml["parameters"])
+    kpm_ports = _ipcore_ports_to_kpm(ip_yaml["signals"])
+    kpm_ifaces = _ipcore_ifaces_to_kpm(ip_yaml["interfaces"])
 
     return {
-        'name': ip_name,
-        'type': ip_name,
-        'category': 'IPcore',
-        'properties': kpm_params,
-        'interfaces': kpm_ports + kpm_ifaces
+        "name": ip_name,
+        "type": ip_name,
+        "category": "IPcore",
+        "properties": kpm_params,
+        "interfaces": kpm_ports + kpm_ifaces,
     }
 
 
@@ -148,10 +131,10 @@ def _duplicate_ipcore_types_check(specification: str):
     types_set = set()
     duplicates = set()
     for node in specification["nodes"]:
-        if node['type'] in types_set:
-            duplicates.add(node['type'])
+        if node["type"] in types_set:
+            duplicates.add(node["type"])
         else:
-            types_set.add(node['type'])
+            types_set.add(node["type"])
     for dup in list(duplicates):
         logging.warning(f"Multiple IP cores of type '{dup}'")
 
@@ -173,16 +156,8 @@ def _generate_external_metanode(direction: str) -> dict:
         "name": name,
         "type": type,
         "category": "Metanode",
-        "properties": [{
-            "name": "External Name",
-            "type": "text",
-            "default": ""
-        }],
-        "interfaces": [{
-            "name": "external",
-            "type": "",
-            "direction": iface_dir
-        }]
+        "properties": [{"name": "External Name", "type": "text", "default": ""}],
+        "interfaces": [{"name": "external", "type": "", "direction": iface_dir}],
     }
     if direction == "inout":
         metanode["interfaces"][0]["side"] = "left"
@@ -192,7 +167,7 @@ def _generate_external_metanode(direction: str) -> dict:
 
 
 def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
-    """ Translate Topwrap's IP core description YAMLs into
+    """Translate Topwrap's IP core description YAMLs into
     KPM specification 'nodes'.
 
     :param yamlfiles: IP core desciption YAMLs, that will be converted
@@ -206,16 +181,14 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
             "allowLoopbacks": True,
             "connectionStyle": "orthogonal",
             "movementStep": 15,
-            "backgroundSize": 15
+            "backgroundSize": 15,
         },
         "nodes": [
             _generate_external_metanode("input"),
             _generate_external_metanode("output"),
             _generate_external_metanode("inout"),
-        ] + [
-            _ipcore_to_kpm(yamlfile)
-            for yamlfile in yamlfiles
         ]
+        + [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
     }
 
     _duplicate_ipcore_types_check(specification)

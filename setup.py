@@ -7,8 +7,8 @@
 import setuptools
 
 entry_points = {
-    'console_scripts': [
-        'fpga_topwrap = fpga_topwrap.cli:main',
+    "console_scripts": [
+        "fpga_topwrap = fpga_topwrap.cli:main",
     ]
 }
 
@@ -19,14 +19,14 @@ setuptools.setup(
     description="IP Core wrapper",
     packages=setuptools.find_namespace_packages(),
     install_requires=[
-        'PyYAML',
-        'click',
-        'amaranth-yosys',
-        'amaranth @ git+https://github.com/amaranth-lang/amaranth',
-        'wasmtime==1.0.1',
-        'numexpr',
-        'hdlConvertor',
-        'pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication'
+        "PyYAML",
+        "click",
+        "amaranth-yosys",
+        "amaranth @ git+https://github.com/amaranth-lang/amaranth",
+        "wasmtime==1.0.1",
+        "numexpr",
+        "hdlConvertor",
+        "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication",
     ],
     setup_requires=["pytest-runner"],
     tests_require=["pytest"],

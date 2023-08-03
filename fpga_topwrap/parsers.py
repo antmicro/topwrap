@@ -1,12 +1,13 @@
 # Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from os import listdir
-from os.path import join, dirname
-from yaml import load, Loader
+from os.path import dirname, join
+
+from yaml import Loader, load
 
 # package-included directories with yamls describing interfaces/IPs
-DIR = join(dirname(__file__), 'interfaces')
-IP_YAMLS_DIR = join(dirname(__file__), 'ips')
+DIR = join(dirname(__file__), "interfaces")
+IP_YAMLS_DIR = join(dirname(__file__), "ips")
 
 
 def _default_bounds(signal):
@@ -50,8 +51,7 @@ def parse_interface_definitions(dir_name=DIR):
     try:
         filenames = listdir(dir_name)
     except OSError:
-        raise OSError(f"Directory '{dir_name}' "
-                      "doesn't exist or cannot be listed")
+        raise OSError(f"Directory '{dir_name}' " "doesn't exist or cannot be listed")
 
     defs = []
     for filename in filenames:
@@ -62,13 +62,13 @@ def parse_interface_definitions(dir_name=DIR):
 
 
 def parse_port_map(filename: str):
-    '''Read a yaml file to gather information about Port <-> Interface mapping.
+    """Read a yaml file to gather information about Port <-> Interface mapping.
     This is used for reading per-IP-instance port descriptions.
 
     :param filename: name of the yaml file. Either in working directory,
         or bundled with the package.
     :return: a dict describing the ports and the interfaces of the IP.
-    '''
+    """
     try:
         with open(filename) as f:
             ports = load(f, Loader=Loader)
@@ -77,70 +77,67 @@ def parse_port_map(filename: str):
         with open(join(IP_YAMLS_DIR, filename)) as f:
             ports = load(f, Loader=Loader)
 
-    if 'signals' not in ports.keys():
-        ports['signals'] = dict()
-    if 'parameters' not in ports.keys():
-        ports['parameters'] = dict()
+    if "signals" not in ports.keys():
+        ports["signals"] = dict()
+    if "parameters" not in ports.keys():
+        ports["parameters"] = dict()
 
     # fill non-existent values with defaults
     for key, val in ports.items():
-        if key == 'parameters':
+        if key == "parameters":
             pass
 
-        elif key == 'signals':
+        elif key == "signals":
             try:
-                sigs = val['in']
+                sigs = val["in"]
                 for i in range(len(sigs)):
                     sigs[i] = _default_bounds(sigs[i])
             except KeyError:  # 'in' doesn't exist in val
-                val['in'] = list()
+                val["in"] = list()
             try:
-                sigs = val['out']
+                sigs = val["out"]
                 for i in range(len(sigs)):
                     sigs[i] = _default_bounds(sigs[i])
             except KeyError:  # 'out' doesn't exist in val
-                val['out'] = list()
+                val["out"] = list()
             try:
-                sigs = val['inout']
+                sigs = val["inout"]
                 for i in range(len(sigs)):
                     sigs[i] = _default_bounds(sigs[i])
             except KeyError:  # 'inout' doesn't exist in val
-                val['inout'] = list()
+                val["inout"] = list()
 
         else:  # key is an interface name
-            iface = val['signals']
+            iface = val["signals"]
             try:
-                sigs = iface['in']
+                sigs = iface["in"]
                 for key in sigs:
                     sigs[key] = _default_bounds(sigs[key])
             except KeyError:
-                iface['in'] = dict()
+                iface["in"] = dict()
 
             try:
-                sigs = iface['out']
+                sigs = iface["out"]
                 for key in sigs:
                     sigs[key] = _default_bounds(sigs[key])
             except KeyError:
-                iface['out'] = dict()
+                iface["out"] = dict()
 
             try:
-                sigs = iface['inout']
+                sigs = iface["inout"]
                 for key in sigs:
                     sigs[key] = _default_bounds(sigs[key])
             except KeyError:
-                iface['inout'] = dict()
+                iface["inout"] = dict()
 
     result = dict()
 
-    result['parameters'] = ports['parameters']
-    del ports['parameters']
+    result["parameters"] = ports["parameters"]
+    del ports["parameters"]
 
-    result['signals'] = ports['signals']
-    del ports['signals']
+    result["signals"] = ports["signals"]
+    del ports["signals"]
 
-    result['interfaces'] = {
-        iface_name: ports[iface_name]
-        for iface_name in ports.keys()
-    }
+    result["interfaces"] = {iface_name: ports[iface_name] for iface_name in ports.keys()}
 
     return result

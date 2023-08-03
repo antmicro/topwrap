@@ -10,17 +10,18 @@
 # Updated documentation of the configuration options is available at
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-from os import environ
 from datetime import datetime
+from os import environ
 
+from antmicro_sphinx_utils.defaults import antmicro_html, antmicro_latex
+from antmicro_sphinx_utils.defaults import extensions as default_extensions
 from antmicro_sphinx_utils.defaults import (
-    numfig_format,
-    extensions as default_extensions,
     myst_enable_extensions as default_myst_enable_extensions,
-    myst_fence_as_directive as default_myst_fence_as_directive,
-    antmicro_html,
-    antmicro_latex
 )
+from antmicro_sphinx_utils.defaults import (
+    myst_fence_as_directive as default_myst_fence_as_directive,
+)
+from antmicro_sphinx_utils.defaults import numfig_format
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

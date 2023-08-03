@@ -1,7 +1,7 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from amaranth import Signal
-from amaranth.hdl.rec import Direction, DIR_FANIN, DIR_FANOUT
+from amaranth.hdl.rec import DIR_FANIN, DIR_FANOUT, Direction
 
 
 def port_direction_to_prefix(direction: Direction) -> str:
@@ -10,26 +10,25 @@ def port_direction_to_prefix(direction: Direction) -> str:
     :rtype: str
     """
     if direction == DIR_FANIN:
-        return 'i_'
+        return "i_"
     elif direction == DIR_FANOUT:
-        return 'o_'
+        return "o_"
     else:
-        return 'io_'
+        return "io_"
 
 
 def strip_port_prefix(port_name: str) -> str:
-    """ Return a port name without the o_/i_/io_ prefix
-    """
-    if port_name[:2] in ['i_', 'o_']:
+    """Return a port name without the o_/i_/io_ prefix"""
+    if port_name[:2] in ["i_", "o_"]:
         return port_name[2:]
-    if port_name[:3] == 'io_':
+    if port_name[:3] == "io_":
         return port_name[3:]
     return port_name
 
 
 class WrapperPort(Signal):
     def __init__(self, shape=None, src_loc_at=0, **kwargs):
-        '''
+        """
         Wraps a port, adding a new name and optionally slicing the signal
 
         :param bounds[0:1]: upper and lower bounds of reference signal
@@ -40,12 +39,9 @@ class WrapperPort(Signal):
         :param name: a new name for the signal
         :param internal_name: name of the port to be wrapped/sliced
         :param direction: one of amaranth.hdl.rec.Direction, e.g. DIR_FANOUT
-        '''
+        """
 
-        super().__init__(
-            shape=kwargs["bounds"][2]-kwargs["bounds"][3]+1,
-            name=kwargs["name"]
-        )
+        super().__init__(shape=kwargs["bounds"][2] - kwargs["bounds"][3] + 1, name=kwargs["name"])
         # port name of the wrapped IP
         self.internal_name = kwargs["internal_name"]
         self.direction = kwargs["direction"]
