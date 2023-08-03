@@ -12,7 +12,7 @@ s_axi:
     in:
       AWADDR: [axi_awaddr, 31, 0]
       AWVALID: axi_awvalid
-      WDATA: [axi_wdata, 31, 0] 
+      WDATA: [axi_wdata, 31, 0]
       WSTRB: [axi_wstrb, 3, 0]
       WVALID: axi_wvalid
       BREADY: axi_bready

@@ -4,11 +4,11 @@
   {{name}}: {{value}}{%- endif -%}{%-endfor%}{% endif %}
 
 signals:
-  {% if ports['in'] %}in:{% for port in ports['in'] %}  
+  {% if ports['in'] %}in:{% for port in ports['in'] %}
     - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
-  {% if ports['out'] %}out:{% for port in ports['out'] %}  
+  {% if ports['out'] %}out:{% for port in ports['out'] %}
     - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
-  {% if ports['inout'] %}inout:{% for port in ports['inout'] %}  
+  {% if ports['inout'] %}inout:{% for port in ports['inout'] %}
     - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
 {% for iface_name, iface in interfaces.items() %}
 {{iface_name}}:
@@ -17,6 +17,6 @@ signals:
       - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
     {% if iface['out'] %}out:{% for port in iface['out'] %}
       - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
-    {% if iface['inout'] %}inout:{% for port in iface['inout'] %}  
+    {% if iface['inout'] %}inout:{% for port in iface['inout'] %}
       - {% if port.bounds[0] != port.bounds[1] %}[{{port.name}}, {{port.bounds[0]}}, {{port.bounds[1]}}]{% else %}{{port.name}}{% endif %}{%endfor%}{% endif %}
 {%endfor%}

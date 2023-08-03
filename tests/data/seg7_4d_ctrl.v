@@ -431,7 +431,7 @@ module seg7_4d_ctrl #(
     input wire dec_e,           // enable decimal format
     input wire sign_e,          // enable signed format
     input wire [15:0] d,        // input data
-    input wire [1:0] dpn,       // decimal point position 
+    input wire [1:0] dpn,       // decimal point position
     output wire [0:6] seg,      // 7-segment output
     output wire [3:0] select,   // select output (controls common anode/cathode)
     output wire dp              // decimal point output vector
@@ -488,12 +488,12 @@ module seg7_4d_ctrl #(
                 d_in = d;
         end
     end
-    
+
     // Calculate decimal point vector
     always @* begin
         dp_in = 'b0;
         dp_in[dpn] = dpn == 2'd0 ? 1'b0 : 1'b1;
-    end 
+    end
 
     // binary to bcd converter
     bin_to_bcd_14 bin_to_bcd_14 (
@@ -560,4 +560,3 @@ module seg7_4d_ctrl_test #(
         .dp(dp)
     );
 endmodule // seg7_4d_ctrl_test
-

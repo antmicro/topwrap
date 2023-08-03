@@ -45,7 +45,7 @@ module ps7_inst (
     output         MAXIGP0WVALID
 );
     wire [ 3: 0] FCLK;
-    
+
     assign FCLK0 = FCLK[0];
 
     PS7 ps7 (

@@ -321,10 +321,10 @@ axi_dispctrl_v1_0_S00_AXI_inst : axi_dispctrl_v1_0_S00_AXI
 		end if;
 	end process;
 
-Inst_vdma_to_vga: vdma_to_vga 
+Inst_vdma_to_vga: vdma_to_vga
 	GENERIC MAP(
 		C_S_AXIS_TDATA_WIDTH => C_S_AXIS_TDATA_WIDTH
-	)  
+	)
 	PORT MAP(
 		LOCKED_I => locked,
 		ENABLE_I => enable_reg,

@@ -116,7 +116,7 @@ module ps7_inst (
 );
     wire [ 3: 0] FCLK;
     wire  [19: 0] IRQF2P;
-    
+
     assign FCLK0 = FCLK[0];
     assign FCLK1 = FCLK[1];
     assign IRQF2P[0] = IRQ_F2P_0;

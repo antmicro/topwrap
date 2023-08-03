@@ -26,7 +26,7 @@ python -m fpga_topwrap build --sources src --design project.yml --part 'xc7z020c
 
 ## Connect Topwrap to Pipeline Manager
 
-If you want to use Pipeline Manager as a UI for creating block design, you need to: 
+If you want to use Pipeline Manager as a UI for creating block design, you need to:
 
 1. Build and run Pipeline Manager server application.
 

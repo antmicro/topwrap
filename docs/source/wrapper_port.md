@@ -22,4 +22,3 @@ This is used in {code}`IPWrapper` class implementation and there should be no ne
 
    .. automethod:: __init__
 ```
-

@@ -9,4 +9,3 @@ It's used to standardize names of ports that belong to interfaces to ease connec
 
    .. automethod:: __init__
 ```
-

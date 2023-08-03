@@ -210,4 +210,3 @@ signals:
 ```
 
 The name of an interface has to be unique. We also specify a prefix which will be used as a shortened identifier.
-
