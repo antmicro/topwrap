@@ -35,14 +35,14 @@ jobs:
           python3 -m pip install -r dev.requirements.txt
           python3 -m pip install git+https://github.com/antmicro/tuttest
 
-      - name: Lint with flake8
-        run: flake8 fpga_topwrap --count --show-source --statistics
+      - name: Run lint checks
+        run: nox -s isort black flake8
 
       - name: Build
         run: tuttest README.md | bash -
 
-      - name: Test with pytest
-        run: pytest
+      - name: Run pytest with nox
+        run: nox -s tests
 
 
   Examples:
