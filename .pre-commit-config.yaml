@@ -1,0 +1,33 @@
+# Copyright (C) 2023 Antmicro
+# SPDX-License-Identifier: Apache-2.0
+#
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+exclude: docs/source/conf.py
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-docstring-first
+    -   id: check-executables-have-shebangs
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-toml
+    -   id: check-yaml
+        exclude: ^(.*\.j2\.yml)$
+    -   id: end-of-file-fixer
+    -   id: mixed-line-ending
+    -   id: pretty-format-json
+    -   id: requirements-txt-fixer
+    -   id: trailing-whitespace
+
+-   repo: local
+    hooks:
+    -   id: nox
+        name: Nox Lint (isort black flake8)
+        entry: nox -s isort black flake8 --
+        language: system
+        types: [python]
+        require_serial: true
