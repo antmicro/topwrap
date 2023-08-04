@@ -7,6 +7,7 @@ from .kpm_common import (
     EXT_INOUT_NAME,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
+    is_external_metanode,
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_id,
     find_dataflow_node_type_by_name,
@@ -120,16 +121,22 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
 
         # Determine the name of the port/interface
         # to be made external and its node
-        if node_to["name"] in [EXT_OUTPUT_NAME, EXT_INOUT_NAME]:
-            dir = "out" if node_to["name"] == EXT_OUTPUT_NAME else "inout"
+        if is_external_metanode(node_to):
             iface_name = iface_from["iface_name"]
             ip_node, metanode = node_from, node_to
-        elif node_from["name"] in [EXT_INPUT_NAME, EXT_INOUT_NAME]:
-            dir = "in" if node_from["name"] == EXT_INPUT_NAME else "inout"
+        elif is_external_metanode(node_from):
             iface_name = iface_to["iface_name"]
             ip_node, metanode = node_to, node_from
         else:
             raise ValueError("Invalid name of external metanode")
+
+        # Determine the direction of external ports/interface
+        if metanode["name"] == EXT_OUTPUT_NAME:
+            dir = "out"
+        elif metanode["name"] == EXT_INPUT_NAME:
+            dir = "in"
+        else:
+            dir = "inout"
 
         # Get user-defined external name.
         # If none - get internal name as default

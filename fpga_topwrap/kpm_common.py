@@ -7,7 +7,7 @@ EXT_OUTPUT_NAME = "External Output"
 EXT_INOUT_NAME = "External Inout"
 
 
-def _is_external_metanode(node: dict) -> bool:
+def is_external_metanode(node: dict) -> bool:
     """Return True if a node is an external metanode, False elsewhere."""
     return node["type"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]
 
@@ -16,12 +16,12 @@ def get_dataflow_ip_nodes(dataflow_json) -> list:
     """Return a list of nodes which represent ip cores
     (i.e. filter out External Outputs, Inputs and Inouts)
     """
-    return [node for node in dataflow_json["graph"]["nodes"] if not _is_external_metanode(node)]
+    return [node for node in dataflow_json["graph"]["nodes"] if not is_external_metanode(node)]
 
 
 def get_dataflow_metanodes(dataflow_json) -> list:
     """Return a list of external metanodes (i.e. External Outputs and Inputs)"""
-    return [node for node in dataflow_json["graph"]["nodes"] if _is_external_metanode(node)]
+    return [node for node in dataflow_json["graph"]["nodes"] if is_external_metanode(node)]
 
 
 def _get_interfaces(nodes: list) -> dict:
