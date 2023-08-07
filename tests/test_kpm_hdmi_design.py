@@ -6,12 +6,15 @@ import pytest
 from yaml import Loader, load
 
 from fpga_topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
-from fpga_topwrap.kpm_common import *
 from fpga_topwrap.kpm_dataflow_validator import (
     CheckStatus,
     _check_ambigous_ports,
+    _check_duplicate_external_input_interfaces,
+    _check_duplicate_external_out_inout_names,
     _check_duplicate_ip_names,
     _check_ext_in_to_ext_out_connections,
+    _check_external_inputs_missing_val,
+    _check_externals_metanodes_types,
     _check_parameters_values,
     _check_unconnected_ports_interfaces,
 )
@@ -185,6 +188,10 @@ class TestHDMIDataflowExport:
         (_check_parameters_values, CheckStatus.OK),
         (_check_ext_in_to_ext_out_connections, CheckStatus.OK),
         (_check_ambigous_ports, CheckStatus.OK),
+        (_check_externals_metanodes_types, CheckStatus.OK),
+        (_check_external_inputs_missing_val, CheckStatus.OK),
+        (_check_duplicate_external_input_interfaces, CheckStatus.OK),
+        (_check_duplicate_external_out_inout_names, CheckStatus.OK),
         (_check_unconnected_ports_interfaces, CheckStatus.WARNING),
     ],
 )
