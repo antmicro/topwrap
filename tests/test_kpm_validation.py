@@ -14,6 +14,7 @@ from fpga_topwrap.kpm_dataflow_validator import (
     _check_external_inputs_missing_val,
     _check_externals_metanodes_types,
     _check_parameters_values,
+    _check_unconnected_ports_interfaces,
 )
 
 
@@ -620,6 +621,55 @@ def specification_duplicate_external_input_interfaces():
     }
 
 
+# Test validation checks by running them on PWM dataflow
+@pytest.mark.parametrize(
+    "_check_function, expected_result",
+    [
+        (_check_duplicate_ip_names, CheckStatus.OK),
+        (_check_parameters_values, CheckStatus.OK),
+        (_check_ext_in_to_ext_out_connections, CheckStatus.OK),
+        (_check_ambigous_ports, CheckStatus.OK),
+        (_check_externals_metanodes_types, CheckStatus.OK),
+        (_check_external_inputs_missing_val, CheckStatus.OK),
+        (_check_duplicate_external_input_interfaces, CheckStatus.OK),
+        (_check_duplicate_external_out_inout_names, CheckStatus.OK),
+        (_check_unconnected_ports_interfaces, CheckStatus.WARNING),
+    ],
+)
+def test_hdmi_dataflow_validation(
+    _check_function, expected_result, hdmi_dataflow, hdmi_ipcores_yamls
+):
+    from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+
+    hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
+    status, msg = _check_function(hdmi_dataflow, hdmi_specification)
+    assert status == expected_result
+
+
+# Test validation checks by running them on HDMI dataflow
+@pytest.mark.parametrize(
+    "_check_function, expected_result",
+    [
+        (_check_duplicate_ip_names, CheckStatus.OK),
+        (_check_parameters_values, CheckStatus.OK),
+        (_check_ext_in_to_ext_out_connections, CheckStatus.OK),
+        (_check_ambigous_ports, CheckStatus.OK),
+        (_check_externals_metanodes_types, CheckStatus.OK),
+        (_check_external_inputs_missing_val, CheckStatus.OK),
+        (_check_duplicate_external_input_interfaces, CheckStatus.OK),
+        (_check_duplicate_external_out_inout_names, CheckStatus.OK),
+        (_check_unconnected_ports_interfaces, CheckStatus.WARNING),
+    ],
+)
+def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow, pwm_ipcores_yamls):
+    from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+
+    pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
+    status, msg = _check_function(pwm_dataflow, pwm_specification)
+    assert status == expected_result
+
+
+# Test validation checks on some simple erroneous dataflows
 @pytest.mark.parametrize(
     "_check_function, dataflow, specification, expected_result",
     [
@@ -663,6 +713,6 @@ def specification_duplicate_external_input_interfaces():
         ),
     ],
 )
-def test_dataflow(dataflow, specification, _check_function, expected_result):
+def test_invalid_dataflow_validation(dataflow, specification, _check_function, expected_result):
     status, msg = _check_function(dataflow, specification)
     assert status == expected_result
