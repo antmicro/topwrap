@@ -32,7 +32,7 @@ jobs:
             python3-dev \
             yosys
           python3 -m pip install --upgrade pip wheel setuptools
-          python3 -m pip install -r dev.requirements.txt
+          python3 -m pip install -r requirements.dev.txt
           python3 -m pip install git+https://github.com/antmicro/tuttest
 
       - name: Run lint checks
@@ -85,7 +85,7 @@ jobs:
           docker run --rm -i -v $(pwd):/wrk -w /wrk \
           gcr.io/hdl-containers/conda/f4pga/xc7/z010 \
           bash -le <<'EOF'
-            pip3 install -r impl.requirements.txt
+            pip3 install -r requirements.impl.txt
             cd examples/pwm
             make zvb
           EOF
