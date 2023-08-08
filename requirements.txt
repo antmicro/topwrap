@@ -1,10 +1,2 @@
-
+-e .
 -r impl.requirements.txt
-amaranth-yosys
-click
-git+https://github.com/amaranth-lang/amaranth
-git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication.git
-hdlConvertor
-numexpr
-PyYaml
-wasmtime==1.0.1
