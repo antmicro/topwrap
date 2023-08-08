@@ -36,4 +36,4 @@ def black(session):
 def tests(session: nox.Session) -> None:
     session.install("-r", "requirements.txt")
     session.install("-r", "requirements.dev.txt")
-    session.run("pytest")
+    session.run("pytest", "tests")
