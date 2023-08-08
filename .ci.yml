@@ -12,17 +12,18 @@ lint:
     - apt-get install -y --no-install-recommends python3-pip
     - python3 -m pip install -U pip wheel setuptools
   script:
-    - python3 -m pip install flake8
-    - flake8 fpga_topwrap
+    - python3 -m pip install -r requirements.dev.txt
+    - nox -s isort black flake8
 
 pytest:
   stage: test
   before_script: *BeforeScript
   script:
     - apt-get install -y --no-install-recommends g++ make git python3-dev
-    - python3 -m pip install pytest git+https://github.com/antmicro/tuttest
+    - python3 -m pip install -r requirements.dev.txt
+    - python3 -m pip install git+https://github.com/antmicro/tuttest
     - tuttest README.md | bash -
-    - pytest tests
+    - nox -s tests
 
 docs-verify:
   stage: test
