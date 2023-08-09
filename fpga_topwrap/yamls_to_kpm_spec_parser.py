@@ -140,12 +140,12 @@ def _duplicate_ipcore_types_check(specification: str):
 
 
 def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
-    """ Generate a dict representing external metanode.
+    """Generate a dict representing external metanode.
 
     :param direction: a string describing the direction of a metanode ("inout"/"output"/"input")
     :param interfaces_types: list of all the interfaces types occurring in nodes representing
     IP cores. These are necessary to append to "type" property of the interface of the node, so
-    that it is possible to connect any interface to external metanode. 
+    that it is possible to connect any interface to external metanode.
 
     :return: a dict representing an external metanode
     """
@@ -166,7 +166,9 @@ def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
         "type": type,
         "category": "Metanode",
         "properties": [{"name": "External Name", "type": "text", "default": ""}],
-        "interfaces": [{"name": "external", "type": ["external"] + interfaces_types, "direction": iface_dir}],
+        "interfaces": [
+            {"name": "external", "type": ["external"] + interfaces_types, "direction": iface_dir}
+        ],
     }
 
     return metanode
@@ -189,7 +191,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
             "connectionStyle": "orthogonal",
             "movementStep": 15,
             "backgroundSize": 15,
-            "layout": "CytoscapeEngine - grid"
+            "layout": "CytoscapeEngine - grid",
         },
         "nodes": [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
     }
@@ -207,7 +209,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
     specification["nodes"] += [
         _generate_external_metanode("input", interfaces_types),
         _generate_external_metanode("output", interfaces_types),
-        _generate_external_metanode("inout", interfaces_types)
+        _generate_external_metanode("inout", interfaces_types),
     ]
 
     _duplicate_ipcore_types_check(specification)
