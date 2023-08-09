@@ -65,7 +65,7 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
     ]
     outputs = [{"name": port[0], "type": "port", "direction": "output"} for port in ports["out"]]
     inouts = [
-        {"name": port[0], "type": "port_inout", "direction": "inout", "side": "right"}
+        {"name": port[0], "type": "port", "direction": "inout", "side": "right"}
         for port in ports["inout"]
     ]
 
