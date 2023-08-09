@@ -58,14 +58,14 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
             # one-element list. Here `port` is a one-element list containing a
             # single string (i.e. port name), which is accessed with `port[0]`
             "name": port[0],
-            "type": "port",
+            "type": ["port"],
             "direction": "input",
         }
         for port in ports["in"]
     ]
-    outputs = [{"name": port[0], "type": "port", "direction": "output"} for port in ports["out"]]
+    outputs = [{"name": port[0], "type": ["port"], "direction": "output"} for port in ports["out"]]
     inouts = [
-        {"name": port[0], "type": "port", "direction": "inout", "side": "right"}
+        {"name": port[0], "type": ["port"], "direction": "inout", "side": "right"}
         for port in ports["inout"]
     ]
 
@@ -84,14 +84,14 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
         correspond to given IP core interfaces
     """
     inputs = [
-        {"name": iface, "type": "iface_" + ifaces[iface]["interface"], "direction": "input"}
+        {"name": iface, "type": ["iface_" + ifaces[iface]["interface"]], "direction": "input"}
         for iface in ifaces.keys()
         if ifaces[iface]["mode"] == "slave"
     ]
     outputs = [
         {
             "name": iface,
-            "type": "iface_" + ifaces[iface]["interface"],
+            "type": ["iface_" + ifaces[iface]["interface"]],
             "direction": "output",
             "maxConnectionsCount": 1,
         }
@@ -139,7 +139,16 @@ def _duplicate_ipcore_types_check(specification: str):
         logging.warning(f"Multiple IP cores of type '{dup}'")
 
 
-def _generate_external_metanode(direction: str) -> dict:
+def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
+    """ Generate a dict representing external metanode.
+
+    :param direction: a string describing the direction of a metanode ("inout"/"output"/"input")
+    :param interfaces_types: list of all the interfaces types occurring in nodes representing
+    IP cores. These are necessary to append to "type" property of the interface of the node, so
+    that it is possible to connect any interface to external metanode. 
+
+    :return: a dict representing an external metanode
+    """
     if direction == "input":
         name = type = EXT_INPUT_NAME
         iface_dir = "output"
@@ -157,7 +166,7 @@ def _generate_external_metanode(direction: str) -> dict:
         "type": type,
         "category": "Metanode",
         "properties": [{"name": "External Name", "type": "text", "default": ""}],
-        "interfaces": [{"name": "external", "type": "", "direction": iface_dir}],
+        "interfaces": [{"name": "external", "type": ["external"] + interfaces_types, "direction": iface_dir}],
     }
 
     return metanode
@@ -180,13 +189,24 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
             "movementStep": 15,
             "backgroundSize": 15,
         },
-        "nodes": [
-            _generate_external_metanode("input"),
-            _generate_external_metanode("output"),
-            _generate_external_metanode("inout"),
-        ]
-        + [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
+        "nodes": [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
     }
+
+    interfaces_types = list(
+        set(
+            [
+                iface_type
+                for node in specification["nodes"]
+                for iface in node["interfaces"]
+                for iface_type in iface["type"]
+            ]
+        )
+    )
+    specification["nodes"] += [
+        _generate_external_metanode("input", interfaces_types),
+        _generate_external_metanode("output", interfaces_types),
+        _generate_external_metanode("inout", interfaces_types)
+    ]
 
     _duplicate_ipcore_types_check(specification)
 
