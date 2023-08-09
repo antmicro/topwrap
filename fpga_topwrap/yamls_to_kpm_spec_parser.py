@@ -183,6 +183,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
         represents a separate IP core
     """
     specification = {
+        "version": "20230824.9",
         "metadata": {
             "allowLoopbacks": True,
             "connectionStyle": "orthogonal",
