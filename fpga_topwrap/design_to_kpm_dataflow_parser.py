@@ -413,5 +413,5 @@ def kpm_dataflow_from_design_descr(design_descr: dict, specification: dict) -> d
             "inputs": [],
             "outputs": [],
         },
-        "graphTemplates": [],
+        "graphTemplateInstances": []
     }
