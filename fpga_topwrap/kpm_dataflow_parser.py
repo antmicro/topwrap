@@ -56,18 +56,21 @@ def _kpm_properties_to_parameters(properties: dict) -> dict:
     return result
 
 
-def _kpm_nodes_to_ips(dataflow_data, ipcore_to_yamls: dict) -> dict:
+def _kpm_nodes_to_ips(dataflow_data, specification) -> dict:
     """Parse dataflow nodes into Topwrap's "ips" section
     of a design description yaml
     """
-    return {
-        node["name"]: {
-            "file": ipcore_to_yamls[node["type"]],
+    ips = {}
+    for node in get_dataflow_ip_nodes(dataflow_data):
+        for spec_node in specification["nodes"]:
+            if spec_node["type"] == node["type"]:
+                filename = spec_node["additionalData"]
+        ips[node["name"]] = {
+            "file": filename,
             "module": node["type"],
             "parameters": _kpm_properties_to_parameters(node["properties"]),
         }
-        for node in get_dataflow_ip_nodes(dataflow_data)
-    }
+    return ips
 
 
 def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict) -> dict:
@@ -172,9 +175,9 @@ def _update_ports_ifaces_section(ports_ifaces: dict, externals: dict) -> dict:
     return ports_ifaces
 
 
-def kpm_dataflow_to_design(dataflow_data, ipcore_to_yamls: dict, specification) -> dict:
+def kpm_dataflow_to_design(dataflow_data, specification) -> dict:
     """Parse Pipeline Manager dataflow into Topwrap's design description yaml"""
-    ips = _kpm_nodes_to_ips(dataflow_data, ipcore_to_yamls)
+    ips = _kpm_nodes_to_ips(dataflow_data, specification)
     ports_ifaces_dict = _kpm_connections_to_ports_ifaces(dataflow_data, specification)
     externals = _kpm_connections_to_external(dataflow_data, specification)
 

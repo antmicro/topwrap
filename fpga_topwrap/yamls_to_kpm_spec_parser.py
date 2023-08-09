@@ -123,6 +123,7 @@ def _ipcore_to_kpm(yamlfile: str) -> dict:
         "category": "IPcore",
         "properties": kpm_params,
         "interfaces": kpm_ports + kpm_ifaces,
+        "additionalData": yamlfile,
     }
 
 
