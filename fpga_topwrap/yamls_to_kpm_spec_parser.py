@@ -189,6 +189,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
             "connectionStyle": "orthogonal",
             "movementStep": 15,
             "backgroundSize": 15,
+            "layout": "CytoscapeEngine - grid"
         },
         "nodes": [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
     }
