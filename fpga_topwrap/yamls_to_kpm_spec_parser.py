@@ -58,14 +58,17 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
             # one-element list. Here `port` is a one-element list containing a
             # single string (i.e. port name), which is accessed with `port[0]`
             "name": port[0],
-            "type": ["port"],
+            "type": ["port", "port_external"],
             "direction": "input",
         }
         for port in ports["in"]
     ]
-    outputs = [{"name": port[0], "type": ["port"], "direction": "output"} for port in ports["out"]]
+    outputs = [
+        {"name": port[0], "type": ["port", "port_external"], "direction": "output"}
+        for port in ports["out"]
+    ]
     inouts = [
-        {"name": port[0], "type": ["port"], "direction": "inout", "side": "right"}
+        {"name": port[0], "type": ["port", "port_external"], "direction": "inout", "side": "right"}
         for port in ports["inout"]
     ]
 
@@ -84,14 +87,24 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
         correspond to given IP core interfaces
     """
     inputs = [
-        {"name": iface, "type": ["iface_" + ifaces[iface]["interface"]], "direction": "input"}
+        {
+            "name": iface,
+            "type": [
+                f'iface_{ifaces[iface]["interface"]}',
+                f'iface_{ifaces[iface]["interface"]}_external',
+            ],
+            "direction": "input",
+        }
         for iface in ifaces.keys()
         if ifaces[iface]["mode"] == "slave"
     ]
     outputs = [
         {
             "name": iface,
-            "type": ["iface_" + ifaces[iface]["interface"]],
+            "type": [
+                f'iface_{ifaces[iface]["interface"]}',
+                f'iface_{ifaces[iface]["interface"]}_external',
+            ],
             "direction": "output",
             "maxConnectionsCount": 1,
         }
@@ -197,20 +210,21 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
         "nodes": [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
     }
 
-    interfaces_types = list(
+    interfaces_external_types = list(
         set(
             [
                 iface_type
                 for node in specification["nodes"]
                 for iface in node["interfaces"]
                 for iface_type in iface["type"]
+                if iface_type.endswith("_external")
             ]
         )
     )
     specification["nodes"] += [
-        _generate_external_metanode("input", interfaces_types),
-        _generate_external_metanode("output", interfaces_types),
-        _generate_external_metanode("inout", interfaces_types),
+        _generate_external_metanode("input", interfaces_external_types),
+        _generate_external_metanode("output", interfaces_external_types),
+        _generate_external_metanode("inout", interfaces_external_types),
     ]
 
     _duplicate_ipcore_types_check(specification)
