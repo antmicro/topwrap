@@ -12,7 +12,7 @@ With your package manager you need to install:
 * Yosys, which is used to extract information about IP cores' interfaces from Verilog.
 
 ```
-$(command -v sudo) apt-get install -y git python3 python3-pip antlr4 libantlr4-runtime-dev yosys
+$(command -v sudo) apt-get install -y git g++ make python3 python3-pip antlr4 libantlr4-runtime-dev yosys
 pip3 install -r requirements.txt
 ```
 
