@@ -205,7 +205,6 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
     """Check for duplicate names of external outputs"""
     ext_names_set = set()
     duplicates = set()
-
     for metanode in get_dataflow_metanodes(dataflow_data):
         if metanode["name"] == EXT_OUTPUT_NAME:
             # Get external port/interface name. If user didn't specify external
@@ -216,7 +215,9 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
                 conn_ifaces_ids = find_connected_interfaces(
                     dataflow_data, get_metanode_interface_id(metanode)
                 )
-                # Here we have an Input interface of an external metanode, which can have only 1
+                if not conn_ifaces_ids:
+                    continue
+                # Here we have an Input interface, which can have only 1
                 # existing connection hence, we use index 0 to retrieve it
                 assert len(conn_ifaces_ids) == 1
                 external_name = find_dataflow_interface_by_id(dataflow_data, conn_ifaces_ids[0])[
