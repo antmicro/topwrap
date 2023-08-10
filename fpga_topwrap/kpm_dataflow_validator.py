@@ -144,11 +144,11 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> 
         ):
             iface = find_dataflow_interface_by_id(dataflow_data, iface_id)
             node = find_dataflow_node_by_interface_id(dataflow_data, iface_id)
-            iface_type = find_spec_interface_by_name(
+            iface_types = find_spec_interface_by_name(
                 specification, node["type"], iface["iface_name"]
             )["type"]
 
-            if iface_type != ["port"]:
+            if "port" not in iface_types:
                 external_name = get_metanode_property_value(metanode)
                 if not external_name:
                     external_name = iface["iface_name"]

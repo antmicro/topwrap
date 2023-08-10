@@ -91,11 +91,11 @@ def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict) -> dict
         iface_to = find_dataflow_interface_by_id(dataflow_data, conn["to"])
 
         node_to_type = find_dataflow_node_type_by_name(dataflow_data, iface_to["node_name"])
-        iface_to_type = find_spec_interface_by_name(
+        iface_to_types = find_spec_interface_by_name(
             specification, node_to_type, iface_to["iface_name"]
         )["type"]
 
-        if iface_to_type == ["port"]:
+        if "port" in iface_to_types:
             conns_dict = ports_conns
         else:
             conns_dict = interfaces_conns
@@ -158,8 +158,10 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
             external_name = iface_name
 
         # Determine whether we deal with a port or an interface
-        iface_type = find_spec_interface_by_name(specification, ip_node["type"], iface_name)["type"]
-        if iface_type == ["port"]:
+        iface_types = find_spec_interface_by_name(specification, ip_node["type"], iface_name)[
+            "type"
+        ]
+        if "port" in iface_types:
             ext_conns, ext_section = ports_ext_conns, "ports"
         else:
             ext_conns, ext_section = ifaces_ext_conns, "interfaces"
