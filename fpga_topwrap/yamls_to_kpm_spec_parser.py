@@ -76,6 +76,24 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
     return inputs + outputs + inouts
 
 
+def _is_external_port_type(port: str) -> bool:
+    """Check whether `port` is a type of interface that was added for the purpose of
+    appropriate coloring/styling ports connections to external metanodes,
+    i.e. check if `interface` is equal to "port_external"
+    """
+    return port == "port_external"
+
+
+def _is_external_interface_type(interface: str) -> bool:
+    """Check whether `interface` is a type of interface that was added for the purpose of
+    appropriate coloring/styling interfaces connections to external metanodes,
+    i.e. check if `interface` has format "iface_external_*"
+    """
+    return (
+        interface.startswith("iface_external_") and interface[len("iface_external_") :].isnumeric()
+    )
+
+
 def _ipcore_ifaces_to_kpm(ifaces: dict):
     """Returns a list of interfaces grouped by direction (inputs/outputs)
     in a format used in KPM specification. Master interfaces are considered
@@ -92,11 +110,11 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
             "name": iface,
             "type": [
                 f'iface_{ifaces[iface]["interface"]}',
-                f'iface_{ifaces[iface]["interface"]}_external',
+                f"iface_external_{counter}",
             ],
             "direction": "input",
         }
-        for iface in ifaces.keys()
+        for counter, iface in enumerate(ifaces.keys())
         if ifaces[iface]["mode"] == "slave"
     ]
     outputs = [
@@ -104,12 +122,12 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
             "name": iface,
             "type": [
                 f'iface_{ifaces[iface]["interface"]}',
-                f'iface_{ifaces[iface]["interface"]}_external',
+                f"iface_external_{counter}",
             ],
             "direction": "output",
             "maxConnectionsCount": 1,
         }
-        for iface in ifaces.keys()
+        for counter, iface in enumerate(ifaces.keys(), start=len(inputs) + 1)
         if ifaces[iface]["mode"] == "master"
     ]
 
@@ -241,7 +259,7 @@ def _generate_ifaces_colors(interfaces_types: list, interfaces_external_types: l
 
 def _get_port_ifaces_external_types(specification: dict) -> list:
     """Return a list of all ports/interfaces types from specification
-    which end with "*_external"
+    which are types used for coloring/styling external connections and interfaces.
     """
     return list(
         set(
@@ -250,15 +268,15 @@ def _get_port_ifaces_external_types(specification: dict) -> list:
                 for node in specification["nodes"]
                 for iface in node["interfaces"]
                 for iface_type in iface["type"]
-                if iface_type.endswith("_external")
+                if _is_external_port_type(iface_type) or _is_external_interface_type(iface_type)
             ]
         )
     )
 
 
 def _get_ifaces_general_types(specification: dict) -> list:
-    """Return a list of all interfaces types from specification
-    which don't end with "*_external" an start with "iface_*"
+    """Return a list of all interfaces types from specification that are interfaces types,
+    but not the ones used for coloring/styling external connections and interfaces.
     """
     return list(
         set(
@@ -267,7 +285,7 @@ def _get_ifaces_general_types(specification: dict) -> list:
                 for node in specification["nodes"]
                 for iface in node["interfaces"]
                 for iface_type in iface["type"]
-                if iface_type.startswith("iface_") and not iface_type.endswith("_external")
+                if iface_type.startswith("iface_") and not _is_external_interface_type(iface_type)
             ]
         )
     )
