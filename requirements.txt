@@ -1,2 +1,3 @@
 -e .
+-r requirements.dev.txt
 -r requirements.impl.txt
