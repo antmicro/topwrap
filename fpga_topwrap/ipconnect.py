@@ -10,7 +10,15 @@ from amaranth.hdl.ast import Const
 
 from .fuse_helper import FuseSocBuilder
 from .ipwrapper import IPWrapper
-from .nm_helper import port_direction_to_prefix, strip_port_prefix, DIR_IN, DIR_OUT, DIR_INOUT, PortDirection
+from .nm_helper import (
+    port_direction_to_prefix,
+    strip_port_prefix,
+    DIR_IN,
+    DIR_OUT,
+    DIR_INOUT,
+    PortDirection,
+    WrapperPort
+)
 
 
 class IPConnect(Elaboratable):
@@ -19,8 +27,8 @@ class IPConnect(Elaboratable):
     """
 
     def __init__(self):
-        self._signals_between_ips = []
         self._ips = dict()
+        self._hiers = dict()
         self._ips_by_internal_name = dict()
         self._ports = []
 
@@ -31,40 +39,53 @@ class IPConnect(Elaboratable):
         self._ips_by_internal_name[ip.ip_name] = ip
         # create a placeholder for Instance arguments to instantiate the ip
         setattr(self, ip_name, dict())
+ 
+    def add_hierarchy(self, hier) -> None:
+        """Add a new HierarchyWrapper object, allowing to make connections with it"""
+        self._hiers[hier.name] = hier
+        # create a placeholder for Instance arguments to instantiate the hierarchy
+        setattr(self, hier.name, dict())
 
-    def connect_ports(self, port1_name: str, ip1_name: str, port2_name: str, ip2_name: str) -> None:
+    def connect_ports(self, port1_name: str, comp1_name: str, port2_name: str, comp2_name: str) -> None:
         """Connect ports of IPs previously added to this Connector
 
         :param port1_name: name of the port of the 1st IP
-        :param ip1_name: name of the 1st IP
+        :param comp1_name: name of the 1st IP
         :param port2_name: name of the port of the 2nd IP
-        :param ip2_name: name of the 2nd IP
+        :param comp2_name: name of the 2nd IP
         :raises ValueError: if such IP doesn't exist
         """
-        if ip1_name not in self._ips.keys() or ip2_name not in self._ips.keys():
+        if (comp1_name not in self._hiers.keys() and comp1_name not in self._ips.keys()
+            or comp2_name not in self._hiers.keys() and comp2_name not in self._ips.keys()):
             raise ValueError(
-                f"No such IP in this module: {ip1_name}, {ip2_name}."
-                " Use add_ip method to add the IPs first"
+                f"No such IP or hierarchy in this module: {comp1_name}, {comp2_name}."
+                " Use add_ip() or add_hierarchy() method to add the IPs/hierarchies first"
             )
         # get the 'WrapperPort's
-        port1 = self._ips[ip1_name].get_port_by_name(port1_name)
-        port2 = self._ips[ip2_name].get_port_by_name(port2_name)
+        if comp1_name in self._ips.keys():
+            port1 = self._ips[comp1_name].get_port_by_name(port1_name)
+        else:
+            port1 = self._hiers[comp1_name].get_port_by_name(port1_name)
+        if comp2_name in self._ips.keys():
+            port2 = self._ips[comp2_name].get_port_by_name(port2_name)
+        else:
+            port2 = self._hiers[comp2_name].get_port_by_name(port2_name)
 
         if len(port1) != len(port2):
             warning(
-                f"ports: {ip1_name}:{port1.name}({len(port1)}), "
-                f"{ip2_name}:{port2.name}({len(port2)})"
+                f"ports: {comp1_name}:{port1.name}({len(port1)}), "
+                f"{comp2_name}:{port2.name}({len(port2)})"
                 " have different widths!"
             )
 
         if port1.direction == DIR_INOUT or port2.direction == DIR_INOUT:
             warning(
-                f"one of {ip1_name}:{port1.name}, {ip2_name}:{port2.name} is inout; "
+                f"one of {comp1_name}:{port1.name}, {comp2_name}:{port2.name} is inout; "
                 "the wire connecting them will be also external in the top module"
             )
 
-        inst1_args = getattr(self, ip1_name)
-        inst2_args = getattr(self, ip2_name)
+        inst1_args = getattr(self, comp1_name)
+        inst2_args = getattr(self, comp2_name)
 
         full_name1 = port_direction_to_prefix(port1.direction) + port1.name
         full_name2 = port_direction_to_prefix(port2.direction) + port2.name
@@ -79,39 +100,45 @@ class IPConnect(Elaboratable):
             # neither of the ports was connected previously
             # create a new signal for the connection
             combined_name = port1.name + "_" + port2.name
-            self._signals_between_ips.append(combined_name)
             sig = Signal(len(port1), name=combined_name)
             setattr(self, combined_name, sig)
 
         inst1_args[full_name1] = sig
         inst2_args[full_name2] = sig
 
-    def connect_interfaces(self, iface1: str, ip1_name: str, iface2: str, ip2_name: str) -> None:
+    def connect_interfaces(self, iface1: str, comp1_name: str, iface2: str, comp2_name: str) -> None:
         """Make connections between all matching ports of the interfaces
 
         :param iface1: name of the 1st interface
-        :param ip1_name: name of the 1st IP
+        :param comp1_name: name of the 1st IP
         :param iface2: name of the 2nd interface
-        :param ip2_name: name of the 2nd IP
+        :param comp2_name: name of the 2nd IP
         :raises ValueError: if any of the IPs doesn't exist
         """
-        if ip1_name not in self._ips.keys() or ip2_name not in self._ips.keys():
+        if (comp1_name not in self._hiers.keys() and comp1_name not in self._ips.keys()
+            or comp2_name not in self._hiers.keys() and comp2_name not in self._ips.keys()):
             raise ValueError(
-                f"No such IP in this module: {ip1_name}, {ip2_name}."
-                " Use add_ip method to add the IPs first"
+                f"No such IP or hierarchy in this module: {comp1_name}, {comp2_name}."
+                " Use add_ip() or add_hierarchy() method to add the IPs/hierarchies first"
             )
 
-        ip1_ports = self._ips[ip1_name].get_ports_of_interface(iface1)
-        ip2_ports = self._ips[ip2_name].get_ports_of_interface(iface2)
+        if comp1_name in self._ips.keys():
+            ip1_ports = self._ips[comp1_name].get_ports_of_interface(iface1)
+        else:
+            ip1_ports = self._hiers[comp1_name].get_ports_of_interface(iface1)
+        if comp2_name in self._ips.keys():
+            ip2_ports = self._ips[comp2_name].get_ports_of_interface(iface2)
+        else:
+            ip2_ports = self._hiers[comp2_name].get_ports_of_interface(iface2)
 
         ip1_signames = {p.name.split("_")[-1] for p in ip1_ports}
         ip2_signames = {p.name.split("_")[-1] for p in ip2_ports}
         ip1_unconnected = ip1_signames - ip2_signames
         ip2_unconnected = ip2_signames - ip1_signames
         if ip1_unconnected:
-            info("Unconnected signals of " f"{ip1_name}:{iface1}: {ip1_unconnected}")
+            info("Unconnected signals of " f"{comp1_name}:{iface1}: {ip1_unconnected}")
         if ip2_unconnected:
-            info("Unconnected signals of " f"{ip2_name}:{iface2} {ip2_unconnected}")
+            info("Unconnected signals of " f"{comp2_name}:{iface2} {ip2_unconnected}")
 
         ports_connected = 0
         for p1 in ip1_ports:
@@ -119,11 +146,11 @@ class IPConnect(Elaboratable):
                 names_match = p1.name.split("_")[-1] == p2.name.split("_")[-1]
                 # widths_match = len(p1) == len(p2)
                 if names_match:
-                    self.connect_ports(p1.name, ip1_name, p2.name, ip2_name)
+                    self.connect_ports(p1.name, comp1_name, p2.name, comp2_name)
                     ports_connected += 1
         info(
             f"number of ports matched: {ports_connected} for interfaces:"
-            f"{ip1_name}:{iface1} - {ip2_name}:{iface2}"
+            f"{comp1_name}:{iface1} - {comp2_name}:{iface2}"
         )
 
     def _set_port(self, ip: IPWrapper, port_name: str, external_name: str, external_dir: PortDirection) -> None:
@@ -135,7 +162,7 @@ class IPConnect(Elaboratable):
         :type external_dir: PortDirection
         :raises ValueError: if such port doesn't exist
         """
-        self._set_unconnected_port(ip.top_name, port_name, external_dir)
+        self._set_unconnected_port(ip.top_name, port_name, "None", external_dir)
 
         inst_args = getattr(self, ip.top_name)
 
@@ -151,15 +178,14 @@ class IPConnect(Elaboratable):
             sig.name = external_name
             setattr(self, external_name, sig)
             self._ports.append(sig)
-        elif name[:2] == "i_" or name[:3] == "io_":
             ext_sig = getattr(self, external_name)
             inst_args[name] = ext_sig
         else:
             # Connections between a single external and many internal ports
             # are allowed for external inputs only
             raise ValueError(
-                "Multiple connections to external port"
-                f"'{external_name}', that is external output"
+                "Multiple connections to external port "
+                f"'{external_name}', that is not external input"
             )
 
     def _set_interface(self, ip: IPWrapper, iface_name: str, external_iface_name: str) -> None:
@@ -171,7 +197,7 @@ class IPConnect(Elaboratable):
         :raises ValueError: if such interface doesn't exist
         """
         for port in ip.get_ports_of_interface(iface_name):
-            self._set_unconnected_port(ip.top_name, port.name, port.direction)
+            self._set_unconnected_port(ip.top_name, port.name, external_iface_name, port.direction)
 
         inst_args = getattr(self, ip.top_name)
 
@@ -196,7 +222,7 @@ class IPConnect(Elaboratable):
         """Return a list of external ports of this module"""
         return self._ports
 
-    def _set_unconnected_port(self, ip_name: str, port_name: str, external_dir: PortDirection) -> None:
+    def _set_unconnected_port(self, ip_name: str, port_name: str, iface_name: str, external_dir: PortDirection) -> None:
         """Create signal for unconnected port to allow using it as
         external. This is essential since ports that haven't been used have
         no signals assigned to them.
@@ -206,7 +232,13 @@ class IPConnect(Elaboratable):
         full_name = port_direction_to_prefix(external_dir) + port.name
 
         if full_name not in inst_args.keys():
-            inst_args[full_name] = Signal(len(port), name=full_name)
+            inst_args[full_name] = WrapperPort(
+                bounds=port.bounds,
+                name=full_name,
+                internal_name=full_name,
+                direction=port.direction,
+                interface_name=iface_name,
+            )
 
     def set_constant(self, ip_name: str, ip_port: str, target: int) -> None:
         """Set a constant value on a port of an IP
@@ -228,30 +260,31 @@ class IPConnect(Elaboratable):
 
     def make_connections(self, ports: dict, interfaces: dict) -> None:
         """Use names of port and names of ips to make connections"""
-        for ip1_name, connections in ports.items():
-            for ip1_port, target in connections.items():
+        
+        for comp1_name, connections in ports.items():
+            for comp1_port, target in connections.items():
                 # target is one of:
                 #   - a number (int)
                 #   - an external port name
-                #   - list of (ip2_name, ip2_port)
+                #   - list of (comp2_name, comp2_port)
                 if isinstance(target, int):
-                    self.set_constant(ip1_name, ip1_port, target)
+                    self.set_constant(comp1_name, comp1_port, target)
                 elif isinstance(target, str):
                     pass
                 else:
-                    (ip2_name, ip2_port) = target
-                    self.connect_ports(ip1_port, ip1_name, ip2_port, ip2_name)
+                    (comp2_name, comp2_port) = target
+                    self.connect_ports(comp1_port, comp1_name, comp2_port, comp2_name)
 
-        for ip1_name, connections in interfaces.items():
-            for ip1_iface, target in connections.items():
+        for comp1_name, connections in interfaces.items():
+            for comp1_iface, target in connections.items():
                 # target is one of:
                 #   - an external interface name
-                #   - list of (ip2_name, ip2_iface)
+                #   - list of (comp2_name, comp2_iface)
                 if isinstance(target, str):
                     pass
                 else:
-                    (ip2_name, ip2_iface) = target
-                    self.connect_interfaces(ip1_iface, ip1_name, ip2_iface, ip2_name)
+                    (comp2_name, comp2_iface) = target
+                    self.connect_interfaces(comp1_iface, comp1_name, comp2_iface, comp2_name)
 
     def make_external_ports_interfaces(self, ports: dict, interfaces: dict, external: dict) -> None:
         """Pick ports and interfaces which will be used as external I/O"""
@@ -315,6 +348,10 @@ class IPConnect(Elaboratable):
         # This class is used for generating FuseSoC Core file
         fuse = FuseSocBuilder(part)
 
+        # Build hierarchies recursively
+        for hier in self._hiers.values():
+            hier.ipc.build(top_module_name=hier.name)
+
         for ip in self._ips.values():
             filename = ip.top_name + ".v"
             fuse.add_source(filename, "verilogSource")
@@ -337,12 +374,16 @@ class IPConnect(Elaboratable):
 
     def elaborate(self, platform: Platform) -> Module:
         m = Module()
-        for ip_name in self._ips.keys():
-            args = getattr(self, ip_name)
+
+        def instance_component(comp_name: str):
+            args = getattr(self, comp_name)
             try:
-                inst = Instance(ip_name, **args)
-                setattr(m.submodules, ip_name, inst)
+                inst = Instance(comp_name, **args)
+                setattr(m.submodules, comp_name, inst)
             except TypeError:
-                error(f"couldn't create instance of {ip_name} " f"using args: {args}")
+                error(f"couldn't create instance of {comp_name} using args: {args}")
+
+        for comp_name in list(self._ips.keys()) + list(self._hiers.keys()):
+            instance_component(comp_name)
 
         return m
