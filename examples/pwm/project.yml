@@ -5,28 +5,31 @@ ips:
   axi_bridge:
     file: axi/axi_axil_adapter.yaml
     module: axi_axil_adapter
-    parameters:
-      AXI_ID_WIDTH: 12
   ps7:
     file: ipcores/ps7.yaml
     module: ps7_inst
 
-ports:
-  ps7:
-    MAXIGP0ACLK: [ps7, FCLK0]
-  axi_bridge:
-    clk: [ps7, FCLK0]
-    rst: [ps7, FCLK_RESET0_N]
-  litex_pwm_top:
-    sys_clk: [ps7, FCLK0]
-    sys_rst: [ps7, FCLK_RESET0_N]
-    pwm: pwm
+design:
+  parameters:
+    axi_bridge:
+      AXI_ID_WIDTH: 12
 
-interfaces:
-  axi_bridge:
-    s_axi: [ps7, M_AXI_GP0]
-  litex_pwm_top:
-    s_axi: [axi_bridge, m_axi]
+  ports:
+    ps7:
+      MAXIGP0ACLK: [ps7, FCLK0]
+    axi_bridge:
+      clk: [ps7, FCLK0]
+      rst: [ps7, FCLK_RESET0_N]
+    litex_pwm_top:
+      sys_clk: [ps7, FCLK0]
+      sys_rst: [ps7, FCLK_RESET0_N]
+      pwm: pwm
+ 
+  interfaces:
+    axi_bridge:
+      s_axi: [ps7, M_AXI_GP0]
+    litex_pwm_top:
+      s_axi: [axi_bridge, m_axi]
 
 external:
   ports:
