@@ -16,6 +16,15 @@ PS7_NAME = "ps7"
 PWM_NAME = "litex_pwm_top"
 
 
+def ipcore_names_to_yamls(ipcores_yamls: list):
+    """Return a dict with "`ipcore_name`: `ipcore_descr_yaml`" key-value pairs"""
+
+    def basename_without_ext(name: str):
+        return os.path.splitext(os.path.basename(name))[0]
+
+    return {basename_without_ext(yamlfile): yamlfile for yamlfile in ipcores_yamls}
+
+
 class TestPWMDataflowExport:
     def test_parameters(self, pwm_dataflow):
         [axi_node] = list(
@@ -32,10 +41,7 @@ class TestPWMDataflowExport:
         }
 
     def test_nodes_to_ips(self, pwm_ipcores_yamls, pwm_design_yaml, pwm_dataflow):
-        pwm_ipcores_names_to_yamls = {
-            os.path.splitext(os.path.basename(yamlfile))[0]: yamlfile
-            for yamlfile in pwm_ipcores_yamls
-        }
+        pwm_ipcores_names_to_yamls = ipcore_names_to_yamls(pwm_ipcores_yamls)
         ips = _kpm_nodes_to_ips(pwm_dataflow, pwm_ipcores_names_to_yamls)
         assert ips.keys() == pwm_design_yaml["ips"].keys()
 
@@ -76,10 +82,7 @@ class TestHDMIDataflowExport:
         assert parameters["M_ADDR_WIDTH"] == {"value": int("0x100000001000000010", 16), "width": 96}
 
     def test_nodes_to_ips(self, hdmi_design_yaml, hdmi_dataflow, hdmi_ipcores_yamls):
-        hdmi_ipcores_names_to_yamls = {
-            os.path.splitext(os.path.basename(yamlfile))[0]: yamlfile
-            for yamlfile in hdmi_ipcores_yamls
-        }
+        hdmi_ipcores_names_to_yamls = ipcore_names_to_yamls(hdmi_ipcores_yamls)
         ips = _kpm_nodes_to_ips(hdmi_dataflow, hdmi_ipcores_names_to_yamls)
         assert ips.keys() == hdmi_design_yaml["ips"].keys()
 
