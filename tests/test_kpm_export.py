@@ -3,6 +3,14 @@
 
 import os
 
+from fpga_topwrap.kpm_dataflow_parser import (
+    _kpm_connections_to_external,
+    _kpm_connections_to_ports_ifaces,
+    _kpm_nodes_to_ips,
+    _kpm_properties_to_parameters,
+)
+from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+
 AXI_NAME = "axi_bridge"
 PS7_NAME = "ps7"
 PWM_NAME = "litex_pwm_top"
@@ -10,8 +18,6 @@ PWM_NAME = "litex_pwm_top"
 
 class TestPWMDataflowExport:
     def test_parameters(self, pwm_dataflow):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_properties_to_parameters
-
         axi_node = next(
             (node for node in pwm_dataflow["graph"]["nodes"] if node["name"] == AXI_NAME), None
         )
@@ -27,8 +33,6 @@ class TestPWMDataflowExport:
         }
 
     def test_nodes_to_ips(self, pwm_ipcores_yamls, pwm_design_yaml, pwm_dataflow):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_nodes_to_ips
-
         pwm_ipcores_names_to_yamls = {
             os.path.splitext(os.path.basename(yamlfile))[0]: yamlfile
             for yamlfile in pwm_ipcores_yamls
@@ -37,9 +41,6 @@ class TestPWMDataflowExport:
         assert ips.keys() == pwm_design_yaml["ips"].keys()
 
     def test_port_interfaces(self, pwm_dataflow, pwm_ipcores_yamls):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_ports_ifaces
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         connections = _kpm_connections_to_ports_ifaces(pwm_dataflow, pwm_specification)
         assert connections["ports"] == {
@@ -53,9 +54,6 @@ class TestPWMDataflowExport:
         }
 
     def test_externals(self, pwm_dataflow, pwm_ipcores_yamls):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_external
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         assert _kpm_connections_to_external(pwm_dataflow, pwm_specification) == {
             "ports": {PWM_NAME: {"pwm": "pwm"}},
@@ -69,8 +67,6 @@ class TestPWMDataflowExport:
 
 class TestHDMIDataflowExport:
     def test_parameters(self, hdmi_dataflow):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_properties_to_parameters
-
         axi_node = [
             node for node in hdmi_dataflow["graph"]["nodes"] if node["name"] == "axi_interconnect0"
         ][0]
@@ -79,8 +75,6 @@ class TestHDMIDataflowExport:
         assert parameters["M_ADDR_WIDTH"] == {"value": int("0x100000001000000010", 16), "width": 96}
 
     def test_nodes_to_ips(self, hdmi_design_yaml, hdmi_dataflow, hdmi_ipcores_yamls):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_nodes_to_ips
-
         hdmi_ipcores_names_to_yamls = {
             os.path.splitext(os.path.basename(yamlfile))[0]: yamlfile
             for yamlfile in hdmi_ipcores_yamls
@@ -89,17 +83,11 @@ class TestHDMIDataflowExport:
         assert ips.keys() == hdmi_design_yaml["ips"].keys()
 
     def test_port_interfaces(self, hdmi_design_yaml, hdmi_dataflow, hdmi_ipcores_yamls):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_ports_ifaces
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         connections = _kpm_connections_to_ports_ifaces(hdmi_dataflow, hdmi_specification)
         assert connections["interfaces"] == hdmi_design_yaml["interfaces"]
 
     def test_externals(self, hdmi_dataflow, hdmi_ipcores_yamls):
-        from fpga_topwrap.kpm_dataflow_parser import _kpm_connections_to_external
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         assert _kpm_connections_to_external(hdmi_dataflow, hdmi_specification) == {
             "ports": {

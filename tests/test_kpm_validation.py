@@ -16,6 +16,7 @@ from fpga_topwrap.kpm_dataflow_validator import (
     _check_parameters_values,
     _check_unconnected_ports_interfaces,
 )
+from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
 @pytest.fixture
@@ -639,8 +640,6 @@ def specification_duplicate_external_input_interfaces():
 def test_hdmi_dataflow_validation(
     _check_function, expected_result, hdmi_dataflow, hdmi_ipcores_yamls
 ):
-    from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
     hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
     status, msg = _check_function(hdmi_dataflow, hdmi_specification)
     assert status == expected_result
@@ -662,8 +661,6 @@ def test_hdmi_dataflow_validation(
     ],
 )
 def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow, pwm_ipcores_yamls):
-    from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
     pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
     status, msg = _check_function(pwm_dataflow, pwm_specification)
     assert status == expected_result

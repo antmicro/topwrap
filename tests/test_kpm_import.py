@@ -1,7 +1,14 @@
 # Copyright (C) 2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
+from fpga_topwrap.design_to_kpm_dataflow_parser import (
+    kpm_connections_from_design_descr,
+    kpm_metanodes_connections_from_design_descr,
+    kpm_metanodes_from_design_descr,
+    kpm_nodes_from_design_descr,
+)
 from fpga_topwrap.kpm_common import EXT_OUTPUT_NAME
+from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 AXI_NAME = "axi_bridge"
 PS7_NAME = "ps7"
@@ -10,11 +17,6 @@ PWM_NAME = "litex_pwm_top"
 
 class TestPWMDataflowImport:
     def test_pwm_nodes(self, pwm_design_yaml, pwm_ipcores_yamls):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_nodes_from_design_descr,
-        )
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         kpm_nodes = [
             node for node in kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
@@ -70,10 +72,6 @@ class TestPWMDataflowImport:
         ]
 
     def test_pwm_metanodes(self, pwm_design_yaml):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_metanodes_from_design_descr,
-        )
-
         kpm_metanodes = [node for node in kpm_metanodes_from_design_descr(pwm_design_yaml)]
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         # PWM design should contain only 1 `External Output` metanode
@@ -99,12 +97,6 @@ class TestPWMDataflowImport:
                 return node["name"]
 
     def test_pwm_connections(self, pwm_design_yaml, pwm_ipcores_yamls):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_connections_from_design_descr,
-            kpm_nodes_from_design_descr,
-        )
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         kpm_nodes = [
             node for node in kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
@@ -128,13 +120,6 @@ class TestPWMDataflowImport:
         assert node_names.count(PWM_NAME) == 3
 
     def test_pwm_metanodes_connections(self, pwm_design_yaml, pwm_ipcores_yamls):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_metanodes_connections_from_design_descr,
-            kpm_metanodes_from_design_descr,
-            kpm_nodes_from_design_descr,
-        )
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         kpm_nodes = [
             node for node in kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
@@ -159,11 +144,6 @@ class TestPWMDataflowImport:
 
 class TestHDMIDataflowImport:
     def test_hdmi_nodes(self, hdmi_design_yaml, hdmi_ipcores_yamls):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_nodes_from_design_descr,
-        )
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         kpm_nodes = [
             node for node in kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
@@ -180,21 +160,11 @@ class TestHDMIDataflowImport:
         assert m_addr_width["value"] == "96'h100000001000000010"
 
     def test_hdmi_metanodes(self, hdmi_design_yaml):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_metanodes_from_design_descr,
-        )
-
         kpm_metanodes = [node for node in kpm_metanodes_from_design_descr(hdmi_design_yaml)]
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         assert len(metanodes_json) == 8
 
     def test_hdmi_connections(self, hdmi_design_yaml, hdmi_ipcores_yamls):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_connections_from_design_descr,
-            kpm_nodes_from_design_descr,
-        )
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         kpm_nodes = [
             node for node in kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
@@ -203,13 +173,6 @@ class TestHDMIDataflowImport:
         assert len(connections) == 59
 
     def test_hdmi_metanodes_connections(self, hdmi_design_yaml, hdmi_ipcores_yamls):
-        from fpga_topwrap.design_to_kpm_dataflow_parser import (
-            kpm_metanodes_connections_from_design_descr,
-            kpm_metanodes_from_design_descr,
-            kpm_nodes_from_design_descr,
-        )
-        from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         kpm_nodes = [
             node for node in kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
