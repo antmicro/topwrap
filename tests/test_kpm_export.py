@@ -18,10 +18,9 @@ PWM_NAME = "litex_pwm_top"
 
 class TestPWMDataflowExport:
     def test_parameters(self, pwm_dataflow):
-        axi_node = next(
-            (node for node in pwm_dataflow["graph"]["nodes"] if node["name"] == AXI_NAME), None
+        [axi_node] = list(
+            filter(lambda node: node["name"] == AXI_NAME, pwm_dataflow["graph"]["nodes"])
         )
-        assert axi_node is not None
         parameters = _kpm_properties_to_parameters(axi_node["properties"])
         assert parameters == {
             "ADDR_WIDTH": 32,
@@ -67,9 +66,11 @@ class TestPWMDataflowExport:
 
 class TestHDMIDataflowExport:
     def test_parameters(self, hdmi_dataflow):
-        axi_node = [
-            node for node in hdmi_dataflow["graph"]["nodes"] if node["name"] == "axi_interconnect0"
-        ][0]
+        [axi_node] = list(
+            filter(
+                lambda node: node["name"] == "axi_interconnect0", hdmi_dataflow["graph"]["nodes"]
+            )
+        )
         parameters = _kpm_properties_to_parameters(axi_node["properties"])
         assert parameters["ADDR_WIDTH"] == 32
         assert parameters["M_ADDR_WIDTH"] == {"value": int("0x100000001000000010", 16), "width": 96}

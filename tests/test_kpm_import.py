@@ -23,10 +23,9 @@ class TestPWMDataflowImport:
         ]
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == 3
-        axi_node = next((node for node in nodes_json if node["name"] == AXI_NAME), None)
-        ps7_node = next((node for node in nodes_json if node["name"] == PS7_NAME), None)
-        pwm_node = next((node for node in nodes_json if node["name"] == PWM_NAME), None)
-        assert None not in [axi_node, ps7_node, pwm_node]
+        [axi_node] = list(filter(lambda node: node["name"] == AXI_NAME, nodes_json))
+        [ps7_node] = list(filter(lambda node: node["name"] == PS7_NAME, nodes_json))
+        [pwm_node] = list(filter(lambda node: node["name"] == PWM_NAME, nodes_json))
 
         # check imported properties
         for prop in axi_node["properties"]:
