@@ -18,9 +18,7 @@ PWM_NAME = "litex_pwm_top"
 class TestPWMDataflowImport:
     def test_pwm_nodes(self, pwm_design_yaml, pwm_ipcores_yamls):
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
-        kpm_nodes = [
-            node for node in kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
-        ]
+        kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == 3
         [axi_node] = list(filter(lambda node: node["name"] == AXI_NAME, nodes_json))
@@ -71,7 +69,7 @@ class TestPWMDataflowImport:
         ]
 
     def test_pwm_metanodes(self, pwm_design_yaml):
-        kpm_metanodes = [node for node in kpm_metanodes_from_design_descr(pwm_design_yaml)]
+        kpm_metanodes = kpm_metanodes_from_design_descr(pwm_design_yaml)
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         # PWM design should contain only 1 `External Output` metanode
         assert len(metanodes_json) == 1
@@ -97,9 +95,7 @@ class TestPWMDataflowImport:
 
     def test_pwm_connections(self, pwm_design_yaml, pwm_ipcores_yamls):
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
-        kpm_nodes = [
-            node for node in kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
-        ]
+        kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
         connections_json = [
             conn.to_json_format()
             for conn in kpm_connections_from_design_descr(pwm_design_yaml, kpm_nodes)
@@ -120,10 +116,8 @@ class TestPWMDataflowImport:
 
     def test_pwm_metanodes_connections(self, pwm_design_yaml, pwm_ipcores_yamls):
         pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
-        kpm_nodes = [
-            node for node in kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
-        ]
-        kpm_metanodes = [node for node in kpm_metanodes_from_design_descr(pwm_design_yaml)]
+        kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
+        kpm_metanodes = kpm_metanodes_from_design_descr(pwm_design_yaml)
         connections_json = [
             conn.to_json_format()
             for conn in kpm_metanodes_connections_from_design_descr(
@@ -144,39 +138,33 @@ class TestPWMDataflowImport:
 class TestHDMIDataflowImport:
     def test_hdmi_nodes(self, hdmi_design_yaml, hdmi_ipcores_yamls):
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
-        kpm_nodes = [
-            node for node in kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
-        ]
+        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == 15
         # check overrode {'value': ..., 'width': ...} parameter value
-        axi_interconnect_node = [
-            node for node in nodes_json if node["name"] == "axi_interconnect0"
-        ][0]
-        m_addr_width = [
-            prop for prop in axi_interconnect_node["properties"] if prop["name"] == "M_ADDR_WIDTH"
-        ][0]
+        [axi_interconnect_node] = list(
+            filter(lambda node: node["name"] == "axi_interconnect0", nodes_json)
+        )
+        [m_addr_width] = list(
+            filter(lambda prop: prop["name"] == "M_ADDR_WIDTH", axi_interconnect_node["properties"])
+        )
         assert m_addr_width["value"] == "96'h100000001000000010"
 
     def test_hdmi_metanodes(self, hdmi_design_yaml):
-        kpm_metanodes = [node for node in kpm_metanodes_from_design_descr(hdmi_design_yaml)]
+        kpm_metanodes = kpm_metanodes_from_design_descr(hdmi_design_yaml)
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         assert len(metanodes_json) == 8
 
     def test_hdmi_connections(self, hdmi_design_yaml, hdmi_ipcores_yamls):
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
-        kpm_nodes = [
-            node for node in kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
-        ]
+        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
         connections = kpm_connections_from_design_descr(hdmi_design_yaml, kpm_nodes)
         assert len(connections) == 59
 
     def test_hdmi_metanodes_connections(self, hdmi_design_yaml, hdmi_ipcores_yamls):
         hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
-        kpm_nodes = [
-            node for node in kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
-        ]
-        kpm_metanodes = [node for node in kpm_metanodes_from_design_descr(hdmi_design_yaml)]
+        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
+        kpm_metanodes = kpm_metanodes_from_design_descr(hdmi_design_yaml)
 
         connections = kpm_metanodes_connections_from_design_descr(
             hdmi_design_yaml, kpm_nodes, kpm_metanodes
