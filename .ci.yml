@@ -17,6 +17,8 @@ lint:
 
 pytest:
   stage: test
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
   before_script: *BeforeScript
   script:
     - apt-get install -y --no-install-recommends git python3-dev
