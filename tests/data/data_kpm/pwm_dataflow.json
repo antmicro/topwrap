@@ -1,0 +1,233 @@
+{
+    "graph": {
+        "id": "169148525824333",
+        "nodes": [
+            {
+                "type": "litex_pwm",
+                "id": "node_16914852582434",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "sys_clk",
+                        "id": "ni_16914852582430",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "sys_rst",
+                        "id": "ni_16914852582431",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_16914852582433",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "pwm",
+                        "id": "ni_16914852582432",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [],
+                "name": "litex_pwm_top"
+            },
+            {
+                "type": "axi_axil_adapter",
+                "id": "node_169148525824315",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clk",
+                        "id": "ni_169148525824311",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "rst",
+                        "id": "ni_169148525824312",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_169148525824313",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "ni_169148525824314",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "ADDR_WIDTH",
+                        "id": "16914852582435",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_DATA_WIDTH",
+                        "id": "16914852582436",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_ID_WIDTH",
+                        "id": "16914852582437",
+                        "value": "12"
+                    },
+                    {
+                        "name": "AXI_STRB_WIDTH",
+                        "id": "16914852582438",
+                        "value": "AXI_DATA_WIDTH/8"
+                    },
+                    {
+                        "name": "AXIL_DATA_WIDTH",
+                        "id": "16914852582439",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXIL_STRB_WIDTH",
+                        "id": "169148525824310",
+                        "value": "AXIL_DATA_WIDTH/8"
+                    }
+                ],
+                "name": "axi_bridge"
+            },
+            {
+                "type": "ps7",
+                "id": "node_169148525824321",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "MAXIGP0ACLK",
+                        "id": "ni_169148525824316",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "FCLK0",
+                        "id": "ni_169148525824317",
+                        "direction": "output",
+                        "side": "right"
+                    },
+                    {
+                        "name": "MAXIGP0ARESETN",
+                        "id": "ni_169148525824318",
+                        "direction": "output",
+                        "side": "right"
+                    },
+                    {
+                        "name": "FCLK_RESET0_N",
+                        "id": "ni_169148525824319",
+                        "direction": "output",
+                        "side": "right"
+                    },
+                    {
+                        "name": "M_AXI_GP0",
+                        "id": "ni_169148525824320",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [],
+                "name": "ps7"
+            },
+            {
+                "type": "External Output",
+                "id": "node_169148525824324",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "external",
+                        "id": "ni_169148525824323",
+                        "direction": "input",
+                        "side": "left"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "External Name",
+                        "id": "169148525824322",
+                        "value": "pwm"
+                    }
+                ],
+                "name": "External Output"
+            }
+        ],
+        "connections": [
+            {
+                "id": "169148525824325",
+                "from": "ni_169148525824317",
+                "to": "ni_169148525824316"
+            },
+            {
+                "id": "169148525824326",
+                "from": "ni_169148525824317",
+                "to": "ni_169148525824311"
+            },
+            {
+                "id": "169148525824327",
+                "from": "ni_169148525824319",
+                "to": "ni_169148525824312"
+            },
+            {
+                "id": "169148525824328",
+                "from": "ni_169148525824317",
+                "to": "ni_16914852582430"
+            },
+            {
+                "id": "169148525824329",
+                "from": "ni_169148525824319",
+                "to": "ni_16914852582431"
+            },
+            {
+                "id": "169148525824330",
+                "from": "ni_169148525824320",
+                "to": "ni_169148525824313"
+            },
+            {
+                "id": "169148525824331",
+                "from": "ni_169148525824314",
+                "to": "ni_16914852582433"
+            },
+            {
+                "id": "169148525824332",
+                "from": "ni_16914852582432",
+                "to": "ni_169148525824323"
+            }
+        ],
+        "panning": {
+            "x": 1500,
+            "y": 405
+        },
+        "scaling": 0.6836922975942521
+    },
+    "graphTemplateInstances": [],
+    "version": "20230619.3"
+}

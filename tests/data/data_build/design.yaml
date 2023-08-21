@@ -1,9 +1,9 @@
 ips:
   dma:
-    file: tests/data/DMATop.yaml
+    file: tests/data/data_build/DMATop.yaml
     module: DMATop
   disp:
-    file: tests/data/axi_dispctrl_v1_0.yaml
+    file: tests/data/data_build/axi_dispctrl_v1_0.yaml
     module: axi_dispctrl_v1_0
 ports:
   dma:

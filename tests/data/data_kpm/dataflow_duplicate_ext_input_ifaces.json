@@ -1,0 +1,118 @@
+{
+    "graph": {
+        "id": "169115721638333",
+        "nodes": [
+            {
+                "type": "axi_axil_adapter",
+                "id": "d265fcbb-f9f1-453f-8754-1e8b688823ee",
+                "position": {
+                    "x": -300,
+                    "y": -330
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "s_axi",
+                        "id": "5d9c9245-c892-4dcf-b07f-4cfa35e90916",
+                        "direction": "input",
+                        "side": "left"
+                    }
+                ],
+                "properties": [],
+                "name": "axi_axil_adapter_1"
+            },
+            {
+                "type": "axi_axil_adapter",
+                "id": "74f51fda-666d-416b-91bc-d3839446fb26",
+                "position": {
+                    "x": -300,
+                    "y": 300
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "s_axi",
+                        "id": "e2330e0b-d759-4ee3-8ec4-a26da8a63f32",
+                        "direction": "input",
+                        "side": "left"
+                    }
+                ],
+                "properties": [],
+                "name": "axi_axil_adapter_2"
+            },
+            {
+                "type": "External Input",
+                "id": "16086ece-757e-4666-973e-6c9234f3f35e",
+                "position": {
+                    "x": -660,
+                    "y": 90
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "external",
+                        "id": "1a7e22a1-7e29-4c38-9f91-8d3caec0c41e",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "External Name",
+                        "id": "895fbf48-5c1b-48c0-9cea-93e99f59424a",
+                        "value": ""
+                    }
+                ],
+                "name": "External Input"
+            },
+            {
+                "type": "External Input",
+                "id": "2ddc2619-8893-438b-9a56-3a3c332ad6e8",
+                "position": {
+                    "x": -645,
+                    "y": 705
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "external",
+                        "id": "9d30971f-d9c9-447d-9950-7239ee407a6c",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "External Name",
+                        "id": "932df291-aff5-4d36-9ddd-bc42326189d1",
+                        "value": ""
+                    }
+                ],
+                "name": "External Input"
+            }
+        ],
+        "connections": [
+            {
+                "id": "37c397c0-f304-44f3-9973-ed57f7f8880b",
+                "from": "1a7e22a1-7e29-4c38-9f91-8d3caec0c41e",
+                "to": "5d9c9245-c892-4dcf-b07f-4cfa35e90916"
+            },
+            {
+                "id": "08bd3461-91f6-4210-974b-d07f222db1fe",
+                "from": "9d30971f-d9c9-447d-9950-7239ee407a6c",
+                "to": "e2330e0b-d759-4ee3-8ec4-a26da8a63f32"
+            }
+        ],
+        "panning": {
+            "x": 1980,
+            "y": 477
+        },
+        "scaling": 0.6836922975942521
+    },
+    "graphTemplateInstances": [],
+    "version": "20230619.3"
+}

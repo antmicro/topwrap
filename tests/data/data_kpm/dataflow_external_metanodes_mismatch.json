@@ -1,0 +1,67 @@
+{
+    "graph": {
+        "id": "169115721638333",
+        "nodes": [
+            {
+                "type": "litex_pwm",
+                "id": "e8c958ea-676b-4a24-b3eb-417af629e251",
+                "position": {
+                    "x": -345,
+                    "y": 45
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "pwm",
+                        "id": "7dd4df7b-13a6-4bae-8e66-e9cdf9ef0461",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [],
+                "name": "litex_pwm"
+            },
+            {
+                "type": "External Inout",
+                "id": "0f3c0e76-0c70-4b27-ac6a-ee346080ec2f",
+                "position": {
+                    "x": 75,
+                    "y": -30
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "external",
+                        "id": "8b72cc2d-d770-43c7-84cb-a54dd90e14dd",
+                        "direction": "inout",
+                        "side": "left"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "External Name",
+                        "id": "8fd7960e-def7-49dc-b397-16ee41f7b77d",
+                        "value": ""
+                    }
+                ],
+                "name": "External Inout"
+            }
+        ],
+        "connections": [
+            {
+                "id": "76df4294-bbb2-4caf-b4d5-a5050500a395",
+                "from": "7dd4df7b-13a6-4bae-8e66-e9cdf9ef0461",
+                "to": "8b72cc2d-d770-43c7-84cb-a54dd90e14dd"
+            }
+        ],
+        "panning": {
+            "x": 791,
+            "y": 290
+        },
+        "scaling": 0.9987521399140239
+    },
+    "graphTemplateInstances": [],
+    "version": "20230619.3"
+}

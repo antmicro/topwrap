@@ -1,0 +1,41 @@
+{
+    "graph": {
+        "id": "169115721638333",
+        "nodes": [
+            {
+                "type": "ps7",
+                "id": "d92d0945-44ba-496b-94a2-c04cd92f0486",
+                "position": {
+                    "x": -240,
+                    "y": 60
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [],
+                "properties": [],
+                "name": "ps7"
+            },
+            {
+                "type": "ps7",
+                "id": "13fc35a4-bba5-40a3-bd28-5e7435d31819",
+                "position": {
+                    "x": -240,
+                    "y": 330
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [],
+                "properties": [],
+                "name": "ps7"
+            }
+        ],
+        "connections": [],
+        "panning": {
+            "x": 1045,
+            "y": 188
+        },
+        "scaling": 0.9476349596290801
+    },
+    "graphTemplateInstances": [],
+    "version": "20230619.3"
+}

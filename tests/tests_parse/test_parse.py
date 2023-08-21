@@ -14,7 +14,7 @@ class TestVerilogParse:
     def axi_axil_adapter_module(self) -> VerilogModule:
         from fpga_topwrap.verilog_parser import VerilogModuleGenerator
 
-        verilog_modules = VerilogModuleGenerator().get_modules("tests/data/axi_axil_adapter.v")
+        verilog_modules = VerilogModuleGenerator().get_modules("tests/data/data_parse/axi_axil_adapter.v")
         assert len(verilog_modules) == 1
         return verilog_modules[0]
 
@@ -36,7 +36,7 @@ class TestVerilogParse:
     def seg7_4d_ctrl_modules(self) -> List[VerilogModule]:
         from fpga_topwrap.verilog_parser import VerilogModuleGenerator
 
-        verilog_modules = VerilogModuleGenerator().get_modules("tests/data/seg7_4d_ctrl.v")
+        verilog_modules = VerilogModuleGenerator().get_modules("tests/data/data_parse/seg7_4d_ctrl.v")
         assert len(verilog_modules) > 0
         return verilog_modules
 
@@ -132,7 +132,7 @@ class TestVerilogParse:
 class TestVHDLParse:
     @pytest.fixture
     def axi_dispctrl_module(self) -> VHDLModule:
-        return VHDLModule("tests/data/axi_dispctrl_v1_0.vhd")
+        return VHDLModule("tests/data/data_parse/axi_dispctrl_v1_0.vhd")
 
     @pytest.fixture
     def axi_dispctrl_params(self, axi_dispctrl_module) -> dict:

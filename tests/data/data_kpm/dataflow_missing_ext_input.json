@@ -1,0 +1,92 @@
+{
+    "graph": {
+        "id": "169115721638333",
+        "nodes": [
+            {
+                "type": "ps7",
+                "id": "cb4100f5-cf42-413f-b499-fab73d136f7f",
+                "position": {
+                    "x": -15,
+                    "y": 15
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "MAXIGP0ACLK",
+                        "id": "fd6b3645-f6c8-4c47-abb5-4d089fc4cd96",
+                        "direction": "input",
+                        "side": "left"
+                    }
+                ],
+                "properties": [],
+                "name": "ps7"
+            },
+            {
+                "type": "External Input",
+                "id": "ee9edc66-6e5b-4e73-979f-e0b19193dcad",
+                "position": {
+                    "x": -975,
+                    "y": 195
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "external",
+                        "id": "fb5e64ae-a302-4ca3-91fd-3891563d848f",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "External Name",
+                        "id": "f786c887-2a62-4ada-a497-de1874032fb5",
+                        "value": ""
+                    }
+                ],
+                "name": "External Input"
+            },
+            {
+                "type": "ps7",
+                "id": "da4c87de-59f9-4c17-ad77-1fb7ed9dca93",
+                "position": {
+                    "x": -390,
+                    "y": 405
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "MAXIGP0ACLK",
+                        "id": "2c01002f-d334-4005-b353-491291e6f42a",
+                        "direction": "input",
+                        "side": "left"
+                    }
+                ],
+                "properties": [],
+                "name": "ps7_2"
+            }
+        ],
+        "connections": [
+            {
+                "id": "e00e2d1d-b522-4909-ac01-5f1e2b59d5fd",
+                "from": "fb5e64ae-a302-4ca3-91fd-3891563d848f",
+                "to": "fd6b3645-f6c8-4c47-abb5-4d089fc4cd96"
+            },
+            {
+                "id": "84c35418-ea66-4c5a-9797-960c8660593f",
+                "from": "fb5e64ae-a302-4ca3-91fd-3891563d848f",
+                "to": "2c01002f-d334-4005-b353-491291e6f42a"
+            }
+        ],
+        "panning": {
+            "x": 1361,
+            "y": -55
+        },
+        "scaling": 0.9987521399140239
+    },
+    "graphTemplateInstances": [],
+    "version": "20230619.3"
+}

@@ -1,0 +1,34 @@
+{
+    "graph": {
+        "id": "169115721638333",
+        "nodes": [
+            {
+                "type": "axi_axil_adapter",
+                "id": "23324971-5d66-4369-af4e-a06fad5e3c4c",
+                "position": {
+                    "x": -240,
+                    "y": 15
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [],
+                "properties": [
+                    {
+                        "name": "ADDR_WIDTH",
+                        "id": "999a5de6-d627-4ac9-9be6-2680949aa385",
+                        "value": "INVALID_NAME!!!"
+                    }
+                ],
+                "name": "axi_axil_adapter"
+            }
+        ],
+        "connections": [],
+        "panning": {
+            "x": 1045,
+            "y": 188
+        },
+        "scaling": 0.9476349596290801
+    },
+    "graphTemplateInstances": [],
+    "version": "20230619.3"
+}
