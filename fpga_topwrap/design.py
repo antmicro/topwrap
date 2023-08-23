@@ -13,31 +13,33 @@ def build_design_from_yaml(yamlfile, sources_dir=None, part=None):
     build_design(design, sources_dir, part)
 
 
-def generate_design(ips: dict, components: dict, external: dict) -> IPConnect:
+def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     ipc = IPConnect()
-    ipc_ports = dict()
-    ipc_interfaces = dict()
+    ipc_params = design["parameters"] if "parameters" in design.keys() else dict()
+    ipc_ports = design["ports"] if "ports" in design.keys() else dict()
+    ipc_interfaces = design["interfaces"] if "interfaces" in design.keys() else dict()
 
-    for comp_name, comp in components.items():
-        if list(comp.keys()) == ["components", "external"]:
-            hier_ipc = generate_design(ips, comp["components"], comp["external"])
-            ipc.add_hierarchy(HierarchyWrapper(comp_name, hier_ipc))
-        else:
-            parameters = dict()
-            if "parameters" in comp.keys():
-                parameters = comp["parameters"]
-            if "ports" in comp.keys():
-                ipc_ports[comp_name] = comp["ports"]
-            if "interfaces" in comp.keys():
-                ipc_interfaces[comp_name] = comp["interfaces"]
-            ipc.add_ip(IPWrapper(ips[comp_name]["file"], ips[comp_name]["module"], comp_name, parameters))
+    # Generate hierarchies and add them to `ipc`.
+    for key, val in design.items():
+        if key not in ["parameters", "ports", "interfaces"]:
+            hier_ipc = generate_design(ips, val["design"], val["external"])
+            ipc.add_hierarchy(HierarchyWrapper(key, hier_ipc))
+
+    # Find IP cores based on the contents of "ports" and "interfaces" sections
+    # and add them to `ipc`.
+    hier_names = set(filter(lambda key: key not in ["parameters", "ports", "interfaces"], design.keys()))
+    ports_keys, interfaces_keys  = set(ipc_ports.keys()), set(ipc_interfaces.keys())
+
+    for ip_name in ports_keys.union(interfaces_keys).difference(hier_names):
+        parameters = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
+        ipc.add_ip(IPWrapper(ips[ip_name]["file"], ips[ip_name]["module"], ip_name, parameters))
 
     ipc.make_connections(ipc_ports, ipc_interfaces)
     ipc.make_external_ports_interfaces(ipc_ports, ipc_interfaces, external)
     return ipc
 
 
-def build_design(design, sources_dir=None, part=None):
+def build_design(design_descr, sources_dir=None, part=None):
     """Build a complete project
 
     :param design: dict describing the top design
@@ -45,12 +47,8 @@ def build_design(design, sources_dir=None, part=None):
         to core file
     """
 
-    components = dict()
-    external = dict()
-    if "components" in design.keys():
-        components = design["components"]
-    if "external" in design.keys():
-        external = design["external"]
+    design = design_descr["design"] if "design" in design_descr.keys() else dict()
+    external = design_descr["external"] if "external" in design_descr.keys() else dict()
 
-    ipc = generate_design(design["ips"], components, external)
+    ipc = generate_design(design_descr["ips"], design, external)
     ipc.build(sources_dir=sources_dir, part=part)

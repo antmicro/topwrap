@@ -153,59 +153,74 @@ class IPConnect(Elaboratable):
             f"{comp1_name}:{iface1} - {comp2_name}:{iface2}"
         )
 
-    def _set_port(self, ip: IPWrapper, port_name: str, external_name: str, external_dir: PortDirection) -> None:
+    def _set_port(self, comp_name: str, port_name: str, external_name: str, external_dir: PortDirection) -> None:
         """Set port specified by name as an external port
 
-        :type ip: IPWrapper
-        :type port_name: str
-        :type external_name: str
-        :type external_dir: PortDirection
+        :param comp_name: name of the component - hierarchy or IP core
+        :param port_name: port name in the component
+        :param external_name: external name of the port specified in "externals" section
+        :param external_dir: external direction of the port specified in "externals" section
         :raises ValueError: if such port doesn't exist
         """
-        self._set_unconnected_port(ip.top_name, port_name, "None", external_dir)
+        self._set_unconnected_port(comp_name, port_name, "None", external_dir)
 
-        inst_args = getattr(self, ip.top_name)
+        inst_args = getattr(self, comp_name)
 
-        name = None
-        for inst_arg in inst_args.keys():
-            if strip_port_prefix(inst_arg) == port_name:
-                name = inst_arg
-        if name is None:
-            raise ValueError(f'port: "{port_name}" does not exist in ip: ' f"{ip.top_name}")
+        try:
+            [name] = list(filter(lambda arg: strip_port_prefix(arg) == port_name, inst_args.keys()))
+        except ValueError: # "not enough"/"too many values" to unpack
+            raise ValueError(f'port: "{port_name}" does not exist in ip: ' f"{comp_name}")
 
-        if external_name not in [port.name for port in self._ports]:
+        ext_ports = list(filter(lambda port: port.name == external_name, self._ports))
+        if len(ext_ports) > 1:
+            raise ValueError(f"More than 1 external port named {external_name}")
+
+        # No external port named `external_name` in this IPConnect.
+        if not ext_ports:
             sig = inst_args[name]
             sig.name = external_name
             setattr(self, external_name, sig)
             self._ports.append(sig)
-            ext_sig = getattr(self, external_name)
-            inst_args[name] = ext_sig
+            inst_args[name] = getattr(self, external_name)
+
+        # External input port named `external_name` already exists in this IPConnect.
+        elif ext_ports[0].direction == DIR_IN:
+            inst_args[name] = getattr(self, external_name)
+
+        # External inout or output port named `external_name` already exists in this IPConnect.
+        # Raise and error since connections between a single external and many internal ports
+        # are allowed for external inputs only.
         else:
-            # Connections between a single external and many internal ports
-            # are allowed for external inputs only
             raise ValueError(
                 "Multiple connections to external port "
                 f"'{external_name}', that is not external input"
             )
 
-    def _set_interface(self, ip: IPWrapper, iface_name: str, external_iface_name: str) -> None:
+    def _set_interface(self, comp_name: str, iface_name: str, external_iface_name: str) -> None:
         """Set interface specified by name as an external interface
 
-        :type ip: IPWrapper
-        :type iface_name: str
-        :type external_iface_name: str
+        :param comp_name: name of the component - hierarchy or IP core
+        :param iface_name: interface name in the component
+        :param external_iface_name: external name of the interface specified in "externals" section
         :raises ValueError: if such interface doesn't exist
         """
-        for port in ip.get_ports_of_interface(iface_name):
-            self._set_unconnected_port(ip.top_name, port.name, external_iface_name, port.direction)
+        if comp_name in self._ips.keys():
+            comp = self._ips[comp_name]
+        elif comp_name in self._hiers.keys():
+            comp = self._hiers[comp_name]
+        else:
+            raise ValueError(f"No such IP or hierarchy: {comp_name}")
 
-        inst_args = getattr(self, ip.top_name)
+        for port in comp.get_ports_of_interface(iface_name):
+            self._set_unconnected_port(comp_name, port.name, external_iface_name)
+
+        inst_args = getattr(self, comp_name)
 
         iface_ports = [
             key for key in inst_args.keys() if strip_port_prefix(key).startswith(iface_name)
         ]
         if not iface_ports:
-            raise ValueError(f"no ports exist for interface {iface_name}" f"in ip: {ip.top_name}")
+            raise ValueError(f"no ports exist for interface {iface_name} in ip: {comp_name}")
 
         for iface_port in iface_ports:
             external_port_name = strip_port_prefix(iface_port).replace(
@@ -222,14 +237,20 @@ class IPConnect(Elaboratable):
         """Return a list of external ports of this module"""
         return self._ports
 
-    def _set_unconnected_port(self, ip_name: str, port_name: str, iface_name: str, external_dir: PortDirection) -> None:
+    def _set_unconnected_port(self, comp_name: str, port_name: str, iface_name: str, external_dir: PortDirection) -> None:
         """Create signal for unconnected port to allow using it as
         external. This is essential since ports that haven't been used have
         no signals assigned to them.
         """
-        inst_args = getattr(self, ip_name)
-        port = self._ips[ip_name].get_port_by_name(port_name)
-        full_name = port_direction_to_prefix(external_dir) + port.name
+        inst_args = getattr(self, comp_name)
+        if comp_name in self._ips.keys():
+            port = self._ips[comp_name].get_port_by_name(port_name)
+        elif comp_name in self._hiers.keys():
+            port = self._hiers[comp_name].get_port_by_name(port_name)
+        else:
+            raise ValueError(f"No such IP or hierarchy: {comp_name}")
+
+        full_name = port_direction_to_prefix(port.direction) + port.name
 
         if full_name not in inst_args.keys():
             inst_args[full_name] = WrapperPort(
@@ -293,8 +314,8 @@ class IPConnect(Elaboratable):
             for dir in external["ports"].keys():
                 ext_ports[dir] = external["ports"][dir]
 
-        for ip_name, connections in ports.items():
-            for ip_port, target in connections.items():
+        for comp_name, connections in ports.items():
+            for comp_port, target in connections.items():
                 if isinstance(target, str):
                     # check if 'target' is present in the 'externals' section
                     if target in ext_ports["in"]:
@@ -308,34 +329,37 @@ class IPConnect(Elaboratable):
                             f"External port {target} not found" "in the 'externals' section"
                         )
 
-                    # check if port direction matches with the user-specified
-                    # direction from the 'externals' section - 'ext_dir'
-                    port_dir = self._ips[ip_name].get_port_by_name(ip_port).direction  # noqa: E501
                     # It is illegal to connect:
                     #  - output to output
                     #  - input to input
                     # Any other connection is legal.
-                    if port_dir != ext_dir and DIR_INOUT not in (port_dir, ext_dir):
+                    if comp_name in self._ips.keys():
+                        port_dir = self._ips[comp_name].get_port_by_name(comp_port).direction
+                    elif comp_name in self._hiers.keys():
+                        port_dir = self._hiers[comp_name].get_port_by_name(comp_port).direction
+                    else:
+                        raise ValueError(f"No such IP or hierarchy: {comp_name}")
+                    if port_dir != ext_dir and DIR_INOUT not in [port_dir, ext_dir]:
                         raise ValueError(
                             f"Direction of external port '{target}'"
-                            f"doesn't match '{ip_name}:{ip_port}' direction"
+                            f"doesn't match '{comp_name}:{comp_port}' direction"
                         )
 
-                    self._set_port(self._ips[ip_name], ip_port, target, ext_dir)
+                    self._set_port(comp_name, ip_port, target, ext_dir)
 
         ext_ifaces = []
         if "interfaces" in external.keys():
             for dir in external["interfaces"].keys():
                 ext_ifaces += external["interfaces"][dir]
 
-        for ip_name, connections in interfaces.items():
-            for ip_iface, target in connections.items():
+        for comp_name, connections in interfaces.items():
+            for comp_iface, target in connections.items():
                 if isinstance(target, str):
                     if target not in ext_ifaces:
                         raise ValueError(
-                            f"External interface '{target}'" "not found in 'externals' section"
+                            f"External interface '{target}' not found in 'externals' section"
                         )
-                    self._set_interface(self._ips[ip_name], ip_iface, target)
+                    self._set_interface(comp_name, comp_iface, target)
 
     def build(
         self,
