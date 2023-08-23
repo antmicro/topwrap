@@ -5,19 +5,26 @@ ips:
   disp:
     file: tests/data/data_build/axi_dispctrl_v1_0.yaml
     module: axi_dispctrl_v1_0
-ports:
-  dma:
-    io_sync_readerSync: [disp, HSYNC_O]
-    io_sync_writerSync: [disp, HSYNC_O]
-interfaces:
-  dma:
-    AXIS_m0: [disp, AXIS_s0]
-external:
-  out:
+
+design:
+  ports:
     disp:
-      - FSYNC_O
-      - HSYNC_O
-      - VSYNC_O
+      FSYNC_O: FSYNC_O
+      VSYNC_O: VSYNC_O
     dma:
+      io_sync_readerSync: [disp, HSYNC_O]
+      io_sync_writerSync: [disp, HSYNC_O]
+      io_irq_readerDone: io_irq_readerDone
+      io_irq_writerDone: io_irq_writerDone
+
+  interfaces:
+    dma:
+      AXIS_m0: [disp, AXIS_s0]
+
+external:
+  ports:
+    out:
+      - FSYNC_O
+      - VSYNC_O
       - io_irq_readerDone
       - io_irq_writerDone

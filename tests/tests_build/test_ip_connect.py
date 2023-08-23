@@ -24,8 +24,8 @@ class TestIPConnect:
 
         # connect the IPs in another module
         connector = IPConnect()
-        connector.add_ip(dma)
-        connector.add_ip(disp)
+        connector.add_component(dma.top_name, dma)
+        connector.add_component(disp.top_name, disp)
         connector.connect_interfaces("AXIS_m0", dma.top_name, "AXIS_s0", disp.top_name)
         # connect output of disp to two inputs of dma
         connector.connect_ports("io_sync_writerSync", dma.top_name, "HSYNC_O", disp.top_name)
