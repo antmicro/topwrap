@@ -9,6 +9,7 @@ from amaranth.build import Platform
 from amaranth.hdl.ast import Const
 
 from .fuse_helper import FuseSocBuilder
+from .hierarchy_wrapper import HierarchyWrapper
 from .ipwrapper import IPWrapper
 from .nm_helper import (
     port_direction_to_prefix,
@@ -27,24 +28,28 @@ class IPConnect(Elaboratable):
     """
 
     def __init__(self):
-        self._ips = dict()
-        self._hiers = dict()
-        self._ips_by_internal_name = dict()
+        self._components = dict()
         self._ports = []
 
-    def add_ip(self, ip: IPWrapper) -> None:
-        """Add a new IPWrapper object, allowing to make connections with it"""
-        ip_name = ip.top_name
-        self._ips[ip_name] = ip
-        self._ips_by_internal_name[ip.ip_name] = ip
+    def add_component(self, name: str, component) -> None:
+        """Add a new component to this IPConnect, allowing to make connections with it
+        
+        :param name: name of the component
+        :param component: IPWrapper or HierarchyWrapper object
+        """
+        self._components[name] = component
         # create a placeholder for Instance arguments to instantiate the ip
-        setattr(self, ip_name, dict())
- 
-    def add_hierarchy(self, hier) -> None:
-        """Add a new HierarchyWrapper object, allowing to make connections with it"""
-        self._hiers[hier.name] = hier
-        # create a placeholder for Instance arguments to instantiate the hierarchy
-        setattr(self, hier.name, dict())
+        setattr(self, name, dict())
+
+    def _get_component_by_name(self, name: str):
+        try:
+            comp = self._components[name]
+        except KeyError:
+            raise ValueError(
+                f"No such IP or hierarchy in this module: {name}."
+                " Use add_component() method to add the IP/hierarchy first"
+            )
+        return comp
 
     def connect_ports(self, port1_name: str, comp1_name: str, port2_name: str, comp2_name: str) -> None:
         """Connect ports of IPs previously added to this Connector
@@ -55,21 +60,10 @@ class IPConnect(Elaboratable):
         :param comp2_name: name of the 2nd IP
         :raises ValueError: if such IP doesn't exist
         """
-        if (comp1_name not in self._hiers.keys() and comp1_name not in self._ips.keys()
-            or comp2_name not in self._hiers.keys() and comp2_name not in self._ips.keys()):
-            raise ValueError(
-                f"No such IP or hierarchy in this module: {comp1_name}, {comp2_name}."
-                " Use add_ip() or add_hierarchy() method to add the IPs/hierarchies first"
-            )
-        # get the 'WrapperPort's
-        if comp1_name in self._ips.keys():
-            port1 = self._ips[comp1_name].get_port_by_name(port1_name)
-        else:
-            port1 = self._hiers[comp1_name].get_port_by_name(port1_name)
-        if comp2_name in self._ips.keys():
-            port2 = self._ips[comp2_name].get_port_by_name(port2_name)
-        else:
-            port2 = self._hiers[comp2_name].get_port_by_name(port2_name)
+        comp1 = self._get_component_by_name(comp1_name)
+        comp2 = self._get_component_by_name(comp2_name)
+        port1 = comp1.get_port_by_name(port1_name)
+        port2 = comp2.get_port_by_name(port2_name)
 
         if len(port1) != len(port2):
             warning(
@@ -115,21 +109,10 @@ class IPConnect(Elaboratable):
         :param comp2_name: name of the 2nd IP
         :raises ValueError: if any of the IPs doesn't exist
         """
-        if (comp1_name not in self._hiers.keys() and comp1_name not in self._ips.keys()
-            or comp2_name not in self._hiers.keys() and comp2_name not in self._ips.keys()):
-            raise ValueError(
-                f"No such IP or hierarchy in this module: {comp1_name}, {comp2_name}."
-                " Use add_ip() or add_hierarchy() method to add the IPs/hierarchies first"
-            )
-
-        if comp1_name in self._ips.keys():
-            ip1_ports = self._ips[comp1_name].get_ports_of_interface(iface1)
-        else:
-            ip1_ports = self._hiers[comp1_name].get_ports_of_interface(iface1)
-        if comp2_name in self._ips.keys():
-            ip2_ports = self._ips[comp2_name].get_ports_of_interface(iface2)
-        else:
-            ip2_ports = self._hiers[comp2_name].get_ports_of_interface(iface2)
+        comp1 = self._get_component_by_name(comp1_name)
+        comp2 = self._get_component_by_name(comp2_name)
+        ip1_ports = comp1.get_ports_of_interface(iface1)
+        ip2_ports = comp2.get_ports_of_interface(iface2)
 
         ip1_signames = {p.name.split("_")[-1] for p in ip1_ports}
         ip2_signames = {p.name.split("_")[-1] for p in ip2_ports}
@@ -204,12 +187,7 @@ class IPConnect(Elaboratable):
         :param external_iface_name: external name of the interface specified in "externals" section
         :raises ValueError: if such interface doesn't exist
         """
-        if comp_name in self._ips.keys():
-            comp = self._ips[comp_name]
-        elif comp_name in self._hiers.keys():
-            comp = self._hiers[comp_name]
-        else:
-            raise ValueError(f"No such IP or hierarchy: {comp_name}")
+        comp = self._get_component_by_name(comp_name)
 
         for port in comp.get_ports_of_interface(iface_name):
             self._set_unconnected_port(comp_name, port.name, external_iface_name)
@@ -243,13 +221,7 @@ class IPConnect(Elaboratable):
         no signals assigned to them.
         """
         inst_args = getattr(self, comp_name)
-        if comp_name in self._ips.keys():
-            port = self._ips[comp_name].get_port_by_name(port_name)
-        elif comp_name in self._hiers.keys():
-            port = self._hiers[comp_name].get_port_by_name(port_name)
-        else:
-            raise ValueError(f"No such IP or hierarchy: {comp_name}")
-
+        port = self._get_component_by_name(comp_name).get_port_by_name(port_name)
         full_name = port_direction_to_prefix(port.direction) + port.name
 
         if full_name not in inst_args.keys():
@@ -269,14 +241,7 @@ class IPConnect(Elaboratable):
         :param target: int value to be assigned
         :raises ValueError: if such IP doesn't exist
         """
-        if comp_name in self._ips.keys():
-            comp = self._ips[comp_name]
-        elif comp_name in self._hiers.keys():
-            comp = self._hiers[comp_name]
-        else:
-            raise ValueError(f"No such IP or hierarchy: {comp_name}")
-
-        port = comp.get_port_by_name(comp_port)
+        port = self._get_component_by_name(comp_name).get_port_by_name(comp_port)
         inst_args = getattr(self, comp_name)
         full_name = port_direction_to_prefix(port.direction) + port.name
         inst_args[full_name] = Const(target)
@@ -335,12 +300,7 @@ class IPConnect(Elaboratable):
                     #  - output to output
                     #  - input to input
                     # Any other connection is legal.
-                    if comp_name in self._ips.keys():
-                        port_dir = self._ips[comp_name].get_port_by_name(comp_port).direction
-                    elif comp_name in self._hiers.keys():
-                        port_dir = self._hiers[comp_name].get_port_by_name(comp_port).direction
-                    else:
-                        raise ValueError(f"No such IP or hierarchy: {comp_name}")
+                    port_dir = self._get_component_by_name(comp_name).get_port_by_name(comp_port).direction
                     if port_dir != ext_dir and DIR_INOUT not in [port_dir, ext_dir]:
                         raise ValueError(
                             f"Direction of external port '{target}'"
@@ -374,11 +334,12 @@ class IPConnect(Elaboratable):
         # This class is used for generating FuseSoC Core file
         fuse = FuseSocBuilder(part)
 
-        # Build hierarchies recursively
-        for hier in self._hiers.values():
+        # Identify hierarchies in this IPConenct and build them recursively
+        for hier in list(filter(lambda comp: isinstance(comp, HierarchyWrapper), self._components.values())):
             hier.ipc.build(top_module_name=hier.name)
 
-        for ip in self._ips.values():
+        # Identify IPs in this IPConnect and build them
+        for ip in list(filter(lambda comp: isinstance(comp, IPWrapper), self._components.values())):
             filename = ip.top_name + ".v"
             fuse.add_source(filename, "verilogSource")
 
@@ -401,15 +362,12 @@ class IPConnect(Elaboratable):
     def elaborate(self, platform: Platform) -> Module:
         m = Module()
 
-        def instance_component(comp_name: str):
+        for comp_name in self._components.keys():
             args = getattr(self, comp_name)
             try:
                 inst = Instance(comp_name, **args)
                 setattr(m.submodules, comp_name, inst)
             except TypeError:
                 error(f"couldn't create instance of {comp_name} using args: {args}")
-
-        for comp_name in list(self._ips.keys()) + list(self._hiers.keys()):
-            instance_component(comp_name)
 
         return m

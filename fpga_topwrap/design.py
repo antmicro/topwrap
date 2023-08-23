@@ -23,7 +23,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     for key, val in design.items():
         if key not in ["parameters", "ports", "interfaces"]:
             hier_ipc = generate_design(ips, val["design"], val["external"])
-            ipc.add_hierarchy(HierarchyWrapper(key, hier_ipc))
+            ipc.add_component(key, HierarchyWrapper(key, hier_ipc))
 
     # Find IP cores based on the contents of "ports" and "interfaces" sections
     # and add them to `ipc`.
@@ -32,7 +32,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
 
     for ip_name in ports_keys.union(interfaces_keys).difference(hier_names):
         parameters = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
-        ipc.add_ip(IPWrapper(ips[ip_name]["file"], ips[ip_name]["module"], ip_name, parameters))
+        ipc.add_component(ip_name, IPWrapper(ips[ip_name]["file"], ips[ip_name]["module"], ip_name, parameters))
 
     ipc.make_connections(ipc_ports, ipc_interfaces)
     ipc.make_external_ports_interfaces(ipc_ports, ipc_interfaces, external)
