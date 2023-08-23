@@ -14,33 +14,15 @@ ips:
   axi_interconnect0:
     file: axi/axi_interconnect.yaml
     module: axi_interconnect
-    parameters:
-      S_COUNT: 1
-      M_COUNT: 3
-      ADDR_WIDTH: 32
-      DATA_WIDTH: 32
-      ID_WIDTH: 12
-      M_BASE_ADDR:
-          value: 0x43c2000043c1000043c00000
-          width: 118
-      M_ADDR_WIDTH:
-          value: 0x100000001000000010
-          width: 96
   axi_bridge_disp:
     file: axi/axi_axil_adapter.yaml
     module: axi_axil_adapter
-    parameters:
-      AXI_ID_WIDTH: 12
   axi_bridge_dma:
     file: axi/axi_axil_adapter.yaml
     module: axi_axil_adapter
-    parameters:
-      AXI_ID_WIDTH: 12
   axi_bridge_mmcm:
     file: axi/axi_axil_adapter.yaml
     module: axi_axil_adapter
-    parameters:
-      AXI_ID_WIDTH: 12
   axis_dwidth_converter:
     file: axi/axis_dwidth_converter.yaml
     module: dwidth_converter
@@ -56,10 +38,6 @@ ips:
   axis_clock_converter:
     file: axi/axis_async_fifo.yaml
     module: axis_async_fifo
-    parameters:
-      DATA_WIDTH: 64
-      ID_ENABLE: 0
-      USER_ENABLE: 0
   ps7:
     file: ipcores/ps7.yaml
     module: ps7_inst
@@ -67,110 +45,135 @@ ips:
     file: axi/axi_protocol_converter.yaml
     module: axi_protocol_converter
 
-ports:
-  ps7:
-    MAXIGP0ACLK: [ps7, FCLK0]
-    SAXIHP0ACLK: [ps7, FCLK0]
-    IRQ_F2P_0: [dma, io_irq_readerDone]
-    IRQ_F2P_1: [dma, io_irq_writerDone]
-  axi_protocol_converter0:
-    aclk: [ps7, FCLK0]
-    aresetn: [reset0, interconnect_aresetn]
-  reset0:
-    slowest_sync_clk: [ps7, FCLK0]
-    ext_reset_in: 0
-    dcm_locked: 1
-    aux_reset_in: 0
-    mb_debug_sys_rst: 0
-  reset1:
-    slowest_sync_clk: [mmcm, clkgen_out0]
-    ext_reset_in: 0
-    dcm_locked: 1
-    aux_reset_in: 0
-    mb_debug_sys_rst: 0
-  axi_interconnect0:
-    clk: [ps7, FCLK0]
-    rst: [reset0, bus_struct_reset]
-  axi_bridge_disp:
-    clk: [ps7, FCLK0]
-    rst: [reset0, bus_struct_reset]
-  axi_bridge_mmcm:
-    clk: [ps7, FCLK0]
-    rst: [reset0, bus_struct_reset]
-  axi_bridge_dma:
-    clk: [ps7, FCLK0]
-    rst: [reset0, bus_struct_reset]
-  mmcm:
-    sys_clk: [ps7, FCLK0]
-    sys_rst: [reset0, peripheral_reset]
-    clkgen_ref: [ps7, FCLK1]
-  dma:
-    clock: [ps7, FCLK0]
-    reset: [reset0, peripheral_reset]
-    io_sync_readerSync: [clock_crossing, 'B']
-    io_sync_writerSync: [clock_crossing, 'B']
-  clock_crossing:
-    clkA: [mmcm, clkgen_out0]
-    A: [disp, FSYNC_O]
-    clkB: [ps7, FCLK0]
-  axis_dwidth_converter:
-    aclk: [mmcm, clkgen_out0]
-    aresetn: [reset1, interconnect_aresetn]
-  axis_clock_converter:
-    async_rst: [reset0, bus_struct_reset]
-    s_clk: [ps7, FCLK0]
-    m_clk: [mmcm, clkgen_out0]
-  disp:
-    S_AXIS_ACLK: [mmcm, clkgen_out0]
-    LOCKED_I: [mmcm, clkgen_locked]
-    s00_axi_aclk: [ps7, FCLK0]
-    s00_axi_aresetn: [reset0, peripheral_aresetn]
-  hdmi:
-    PXLCLK_I: [mmcm, clkgen_out0]
-    PXLCLK_5X_I: [mmcm, clkgen_out1]
-    LOCKED_I: [mmcm, clkgen_locked]
-    VGA_HS: [disp, HSYNC_O]
-    VGA_VS: [disp, VSYNC_O]
-    VGA_DE: [disp, DE_O]
-    DATA_I: [disp, DATA_O]
-    CTL: [disp, CTL_O]
-    VGUARD: [disp, VGUARD_O]
-    DGUARD: [disp, DGUARD_O]
-    DIEN: [disp, DIEN_O]
-    DIH: [disp, DIH_O]
-    HDMI_CLK_P: HDMI_CLK_P
-    HDMI_CLK_N: HDMI_CLK_N
-    HDMI_D0_P: HDMI_D0_P
-    HDMI_D0_N:  HDMI_D0_N
-    HDMI_D1_P: HDMI_D1_P
-    HDMI_D1_N: HDMI_D1_N
-    HDMI_D2_P: HDMI_D2_P
-    HDMI_D2_N: HDMI_D2_N
+design:
+  parameters:
+    axi_interconnect0:
+      S_COUNT: 1
+      M_COUNT: 3
+      ADDR_WIDTH: 32
+      DATA_WIDTH: 32
+      ID_WIDTH: 12
+      M_BASE_ADDR:
+          value: 0x43c2000043c1000043c00000
+          width: 118
+      M_ADDR_WIDTH:
+          value: 0x100000001000000010
+          width: 96
+    axi_bridge_disp:
+      AXI_ID_WIDTH: 12
+    axi_bridge_dma:
+      AXI_ID_WIDTH: 12
+    axi_bridge_mmcm:
+      AXI_ID_WIDTH: 12
+    axis_clock_converter:
+      DATA_WIDTH: 64
+      ID_ENABLE: 0
+      USER_ENABLE: 0
 
-interfaces:
-  ps7:
-    S_AXI_HP0: [axi_protocol_converter0, M_AXI]
-  axi_protocol_converter0:
-    S_AXI: [dma, m_axi]
-  axi_interconnect0:
-    s_axi_0: [ps7, M_AXI_GP0]
-  axi_bridge_disp:
-    s_axi: [axi_interconnect0, m_axi_2]
-  axi_bridge_dma:
-    s_axi: [axi_interconnect0, m_axi_1]
-  axi_bridge_mmcm:
-    s_axi: [axi_interconnect0, m_axi_0]
-  mmcm:
-    axi: [axi_bridge_mmcm, m_axi]
-  dma:
-    s_axi: [axi_bridge_dma, m_axi]
-  axis_dwidth_converter:
-    s_axis: [axis_clock_converter, m_axis]
-  axis_clock_converter:
-    s_axis: [dma, m_axis]
-  disp:
-    S_AXIS: [axis_dwidth_converter, m_axis]
-    S00_AXI: [axi_bridge_disp, m_axi]
+  ports:
+    ps7:
+      MAXIGP0ACLK: [ps7, FCLK0]
+      SAXIHP0ACLK: [ps7, FCLK0]
+      IRQ_F2P_0: [dma, io_irq_readerDone]
+      IRQ_F2P_1: [dma, io_irq_writerDone]
+    axi_protocol_converter0:
+      aclk: [ps7, FCLK0]
+      aresetn: [reset0, interconnect_aresetn]
+    reset0:
+      slowest_sync_clk: [ps7, FCLK0]
+      ext_reset_in: 0
+      dcm_locked: 1
+      aux_reset_in: 0
+      mb_debug_sys_rst: 0
+    reset1:
+      slowest_sync_clk: [mmcm, clkgen_out0]
+      ext_reset_in: 0
+      dcm_locked: 1
+      aux_reset_in: 0
+      mb_debug_sys_rst: 0
+    axi_interconnect0:
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
+    axi_bridge_disp:
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
+    axi_bridge_mmcm:
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
+    axi_bridge_dma:
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
+    mmcm:
+      sys_clk: [ps7, FCLK0]
+      sys_rst: [reset0, peripheral_reset]
+      clkgen_ref: [ps7, FCLK1]
+    dma:
+      clock: [ps7, FCLK0]
+      reset: [reset0, peripheral_reset]
+      io_sync_readerSync: [clock_crossing, 'B']
+      io_sync_writerSync: [clock_crossing, 'B']
+    clock_crossing:
+      clkA: [mmcm, clkgen_out0]
+      A: [disp, FSYNC_O]
+      clkB: [ps7, FCLK0]
+    axis_dwidth_converter:
+      aclk: [mmcm, clkgen_out0]
+      aresetn: [reset1, interconnect_aresetn]
+    axis_clock_converter:
+      async_rst: [reset0, bus_struct_reset]
+      s_clk: [ps7, FCLK0]
+      m_clk: [mmcm, clkgen_out0]
+    disp:
+      S_AXIS_ACLK: [mmcm, clkgen_out0]
+      LOCKED_I: [mmcm, clkgen_locked]
+      s00_axi_aclk: [ps7, FCLK0]
+      s00_axi_aresetn: [reset0, peripheral_aresetn]
+    hdmi:
+      PXLCLK_I: [mmcm, clkgen_out0]
+      PXLCLK_5X_I: [mmcm, clkgen_out1]
+      LOCKED_I: [mmcm, clkgen_locked]
+      VGA_HS: [disp, HSYNC_O]
+      VGA_VS: [disp, VSYNC_O]
+      VGA_DE: [disp, DE_O]
+      DATA_I: [disp, DATA_O]
+      CTL: [disp, CTL_O]
+      VGUARD: [disp, VGUARD_O]
+      DGUARD: [disp, DGUARD_O]
+      DIEN: [disp, DIEN_O]
+      DIH: [disp, DIH_O]
+      HDMI_CLK_P: HDMI_CLK_P
+      HDMI_CLK_N: HDMI_CLK_N
+      HDMI_D0_P: HDMI_D0_P
+      HDMI_D0_N:  HDMI_D0_N
+      HDMI_D1_P: HDMI_D1_P
+      HDMI_D1_N: HDMI_D1_N
+      HDMI_D2_P: HDMI_D2_P
+      HDMI_D2_N: HDMI_D2_N
+
+  interfaces:
+    ps7:
+      S_AXI_HP0: [axi_protocol_converter0, M_AXI]
+    axi_protocol_converter0:
+      S_AXI: [dma, m_axi]
+    axi_interconnect0:
+      s_axi_0: [ps7, M_AXI_GP0]
+    axi_bridge_disp:
+      s_axi: [axi_interconnect0, m_axi_2]
+    axi_bridge_dma:
+      s_axi: [axi_interconnect0, m_axi_1]
+    axi_bridge_mmcm:
+      s_axi: [axi_interconnect0, m_axi_0]
+    mmcm:
+      axi: [axi_bridge_mmcm, m_axi]
+    dma:
+      s_axi: [axi_bridge_dma, m_axi]
+    axis_dwidth_converter:
+      s_axis: [axis_clock_converter, m_axis]
+    axis_clock_converter:
+      s_axis: [dma, m_axis]
+    disp:
+      S_AXIS: [axis_dwidth_converter, m_axis]
+      S00_AXI: [axi_bridge_disp, m_axi]
 
 external:
   ports:
