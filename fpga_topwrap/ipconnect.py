@@ -261,21 +261,23 @@ class IPConnect(Elaboratable):
                 interface_name=iface_name,
             )
 
-    def set_constant(self, ip_name: str, ip_port: str, target: int) -> None:
+    def set_constant(self, comp_name: str, comp_port: str, target: int) -> None:
         """Set a constant value on a port of an IP
 
-        :param ip_name: name of the IP
-        :param ip_port: name of the port of the IP
+        :param comp_name: name of the IP or hierarchy
+        :param comp_port: name of the port of the IP or hierarchy
         :param target: int value to be assigned
         :raises ValueError: if such IP doesn't exist
         """
-        if ip_name not in self._ips.keys():
-            raise ValueError(
-                f"No such IP in this module: {ip_name}." " Use add_ip method to add the IPs first"
-            )
+        if comp_name in self._ips.keys():
+            comp = self._ips[comp_name]
+        elif comp_name in self._hiers.keys():
+            comp = self._hiers[comp_name]
+        else:
+            raise ValueError(f"No such IP or hierarchy: {comp_name}")
 
-        port = self._ips[ip_name].get_port_by_name(ip_port)
-        inst_args = getattr(self, ip_name)
+        port = comp.get_port_by_name(comp_port)
+        inst_args = getattr(self, comp_name)
         full_name = port_direction_to_prefix(port.direction) + port.name
         inst_args[full_name] = Const(target)
 
