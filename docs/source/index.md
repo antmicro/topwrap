@@ -23,3 +23,9 @@ developers_guide/style
 developers_guide/tests
 developers_guide/examples
 ```
+
+```{toctree}
+:caption: Future enhancements
+:maxdepth: 1
+future_enhancements
+```
