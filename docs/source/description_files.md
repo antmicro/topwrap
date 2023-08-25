@@ -7,39 +7,70 @@
 ## Design Description
 
 To create a complete, fully synthesizable design, a proper design file is needed.
-It's used to specify to choose the IP cores for the project, set their parameters' values,
-connect the IPs, and pick external ports (those which will be connected to physical I/O).
+It's used to specify IP cores, set their parameters' values, describe hierarchies for the project,
+connect the IPs and hierarchies, and pick external ports (those which will be connected to physical I/O).
 
-The structure is as below:
+You can see example design files in `examples` directory. The structure is as below:
 
 ```yaml
 ips:
+  # specify relations between IPs names in the design yaml
+  # and IP cores description yamls and modules
   {ip_instance_name}:
     file: {path_to_yaml_file_of_the_ip}
     module: {name_of_the_HDL_module}
-    parameters:
-      {param_name}: {param_value}
   ...
 
-ports: # specify ip1:port1 <-> ip2:port2 connections here
-  {ip_instance_name}:
-    {port_name} : [{ip_instance_name}, {port_name}]
+design:
+  {hierarchy_name}: # describe hierarchy design
+    design:
+      parameters:
+        ...
+      ports: # ports connections internal to this hierarchy
+        ...
+      interfaces: # interfaces connections internal to this hierarchy
+        ...
+      {nested_hierarchy_name}:
+        ...
+    external:
+      # external ports and/or interfaces of this hierarchy; these can be
+      # referenced in the upper-level `ports`, `interfaces` or `external` section
+      ...
+  
+  parameters: # specify IPs parameter values to be overridden
+    {ip_instance_name}:
+      {param_name} : {param_value}
+      ...
+
+  ports:
+    # specify incoming ports connections of an IP named `ip1_name`
+    {ip1_name}:
+      {port1_name} : [{ip2_name}, {port2_name}]
+      ...
+    # specify incoming ports connections of a hierarchy named `hier_name`
+    {hier_name}:
+      {port1_name} : [{ip_name}, {port2_name}]
+      ...
+    # specify external ports connections
+    {ip_instance_name}:
+      {port_name} : ext_port_name
     ...
-  # specify external ports connections
-  {ip_instance_name}:
-    {port_name} : ext_port_name
-  ...
 
-interfaces: # specify ip1:iface1 <-> ip2:iface2 connections here
-  {ip_instance_name}:
-    {iface_name} : [{ip_instance_name}, {iface_name}]
+  interfaces:
+    # specify incoming interfaces connections of `ip1_name` IP
+    {ip1_name}:
+      {iface1_name} : [{ip2_name}, {iface2_name}]
+      ...
+    # specify incoming interfaces connections of `hier_name` hierarchy
+    {hier_name}:
+      {iface1_name} : [{ip_name}, {iface2_name}]
+      ...
+    # specify external interfaces connections
+    {ip_instance_name}:
+      {iface_name} : ext_iface_name
     ...
-  # specify external interfaces connections
-  {ip_instance_name}:
-    {iface_name} : ext_iface_name
-  ...
 
-external: # specify names of top module's external ports and interfaces
+external: # specify names of external ports and interfaces of the top module
   ports:
     out:
       - {ext_port_name}
@@ -50,7 +81,11 @@ external: # specify names of top module's external ports and interfaces
       - {ext_iface_name}
 ```
 
-You can see example design files in `examples` directory.
+In order for an IP to be present in the generated design, it must be specified in `ports` or `interfaces` sections as a key. This means that even if it has no incoming connections from any other IP or hierarchy, the `ports` or `interfaces` sections must contain `ip_name: {}` entry.
+
+The design description yaml format allows creating hierarchical designs. In order to create a hierarchy, it suffices to add its name as a key in the `design` section and describe the hierarchy design "recursively" by using the same keys and values (`ports`, `parameters` etc.) as in the top-level design (see above). Hierarchies can be nested recursively, which means that you can create a hierarchy inside another one.
+
+Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it's correct to have `ip_name` key in this section and `ip_name` in the `design` section of some hierarchy.
 
 (ip-description)=
 
