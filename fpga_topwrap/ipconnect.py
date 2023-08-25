@@ -31,9 +31,9 @@ class IPConnect(Elaboratable):
         self._components = dict()
         self._ports = []
 
-    def add_component(self, name: str, component) -> None:
+    def add_component(self, name: str, component: IPWrapper | HierarchyWrapper) -> None:
         """Add a new component to this IPConnect, allowing to make connections with it
-        
+
         :param name: name of the component
         :param component: IPWrapper or HierarchyWrapper object
         """
@@ -41,7 +41,7 @@ class IPConnect(Elaboratable):
         # create a placeholder for Instance arguments to instantiate the ip
         setattr(self, name, dict())
 
-    def _get_component_by_name(self, name: str):
+    def _get_component_by_name(self, name: str) -> IPWrapper | HierarchyWrapper:
         try:
             comp = self._components[name]
         except KeyError:
@@ -51,7 +51,9 @@ class IPConnect(Elaboratable):
             )
         return comp
 
-    def connect_ports(self, port1_name: str, comp1_name: str, port2_name: str, comp2_name: str) -> None:
+    def connect_ports(
+        self, port1_name: str, comp1_name: str, port2_name: str, comp2_name: str
+    ) -> None:
         """Connect ports of IPs previously added to this Connector
 
         :param port1_name: name of the port of the 1st IP
@@ -100,7 +102,9 @@ class IPConnect(Elaboratable):
         inst1_args[full_name1] = sig
         inst2_args[full_name2] = sig
 
-    def connect_interfaces(self, iface1: str, comp1_name: str, iface2: str, comp2_name: str) -> None:
+    def connect_interfaces(
+        self, iface1: str, comp1_name: str, iface2: str, comp2_name: str
+    ) -> None:
         """Make connections between all matching ports of the interfaces
 
         :param iface1: name of the 1st interface
@@ -151,7 +155,7 @@ class IPConnect(Elaboratable):
 
         try:
             [name] = list(filter(lambda arg: strip_port_prefix(arg) == port_name, inst_args.keys()))
-        except ValueError: # "not enough"/"too many values" to unpack
+        except ValueError:  # "not enough"/"too many values" to unpack
             raise ValueError(f'port: "{port_name}" does not exist in ip: ' f"{comp_name}")
 
         ext_ports = list(filter(lambda port: port.name == external_name, self._ports))
@@ -248,7 +252,7 @@ class IPConnect(Elaboratable):
 
     def make_connections(self, ports: dict, interfaces: dict) -> None:
         """Use names of port and names of ips to make connections"""
-        
+
         for comp1_name, connections in ports.items():
             for comp1_port, target in connections.items():
                 # target is one of:
@@ -300,7 +304,9 @@ class IPConnect(Elaboratable):
                     #  - output to output
                     #  - input to input
                     # Any other connection is legal.
-                    port_dir = self._get_component_by_name(comp_name).get_port_by_name(comp_port).direction
+                    port_dir = (
+                        self._get_component_by_name(comp_name).get_port_by_name(comp_port).direction
+                    )
                     if port_dir != ext_dir and DIR_INOUT not in [port_dir, ext_dir]:
                         raise ValueError(
                             f"Direction of external port '{target}'"
@@ -335,7 +341,9 @@ class IPConnect(Elaboratable):
         fuse = FuseSocBuilder(part)
 
         # Identify hierarchies in this IPConenct and build them recursively
-        for hier in list(filter(lambda comp: isinstance(comp, HierarchyWrapper), self._components.values())):
+        for hier in list(
+            filter(lambda comp: isinstance(comp, HierarchyWrapper), self._components.values())
+        ):
             hier.ipc.build(top_module_name=hier.name)
 
         # Identify IPs in this IPConnect and build them

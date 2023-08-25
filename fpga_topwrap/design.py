@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 from yaml import Loader, load
 
+from .hierarchy_wrapper import HierarchyWrapper
 from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
-from .hierarchy_wrapper import HierarchyWrapper
 
 
 def build_design_from_yaml(yamlfile, sources_dir=None, part=None):
@@ -27,12 +27,17 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
 
     # Find IP cores based on the contents of "ports" and "interfaces" sections
     # and add them to `ipc`.
-    hier_names = set(filter(lambda key: key not in ["parameters", "ports", "interfaces"], design.keys()))
-    ports_keys, interfaces_keys  = set(ipc_ports.keys()), set(ipc_interfaces.keys())
+    hier_names = set(
+        filter(lambda key: key not in ["parameters", "ports", "interfaces"], design.keys())
+    )
+    ports_keys = set(ipc_ports.keys())
+    interfaces_keys = set(ipc_interfaces.keys())
 
     for ip_name in ports_keys.union(interfaces_keys).difference(hier_names):
         parameters = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
-        ipc.add_component(ip_name, IPWrapper(ips[ip_name]["file"], ips[ip_name]["module"], ip_name, parameters))
+        ipc.add_component(
+            ip_name, IPWrapper(ips[ip_name]["file"], ips[ip_name]["module"], ip_name, parameters)
+        )
 
     ipc.make_connections(ipc_ports, ipc_interfaces)
     ipc.make_external_ports_interfaces(ipc_ports, ipc_interfaces, external)

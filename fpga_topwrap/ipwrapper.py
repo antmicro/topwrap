@@ -84,7 +84,7 @@ class IPWrapper(Elaboratable):
         self._parameters = {}
 
         _evaluate_parameters(params)
-        self.set_parameters(params)
+        self._set_parameters(params)
 
         self._create_ports(yamlfile)
         self.ip_name = ip_name
@@ -201,19 +201,10 @@ class IPWrapper(Elaboratable):
             raise ValueError(f"Port named '{name}' couldn't be found" f" in the IP: {self.ip_name}")
         return port
 
-    def get_port_names(self) -> List[str]:
-        """Return a list of names of all ports of this IP."""
-        return [port.name for port in self._ports]
-
-    def get_port_names_of_interface(self, iface_name: str) -> List[str]:
-        """Return a list of names of ports that belong to specific interface."""
-        names = [port.name for port in self.get_ports_of_interface(iface_name)]
-        return names
-
     def _set_parameter(self, name, value):
         self._parameters["p_" + name] = value
 
-    def set_parameters(self, params: dict):
+    def _set_parameters(self, params: dict):
         """Set parameters defined in HDL source file
             (for example `generic` in VHDL)
 

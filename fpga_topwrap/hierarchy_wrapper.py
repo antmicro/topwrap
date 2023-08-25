@@ -4,11 +4,10 @@
 from typing import List
 
 from .nm_helper import WrapperPort
-from .ipconnect import IPConnect
 
 
 class HierarchyWrapper:
-    """ This class is a wrapper for hierarchies - in fact it is IPConnect to IPWrapper adapter.
+    """This class is a wrapper for hierarchies - in fact it is IPConnect to IPWrapper adapter.
 
     On one hand, the hierarchies are created with IPConnect class since they are a group of IP cores
     (or nested hierarchies) connected together.
@@ -16,7 +15,7 @@ class HierarchyWrapper:
     one - this is achieved by wrapping IPConnect with HierarchyWrapper.
     """
 
-    def __init__(self, name: str, ipc: IPConnect) -> None:
+    def __init__(self, name: str, ipc) -> None:
         self.name = name
         self.ipc = ipc
         self._ports = []
