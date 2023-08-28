@@ -1,0 +1,6 @@
+signals:
+  in:
+    - clk
+    - compare
+  out:
+    - sig_pwm

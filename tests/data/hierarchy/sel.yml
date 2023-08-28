@@ -1,0 +1,7 @@
+signals:
+  in:
+    - sig1
+    - sig2
+    - sig_choose
+  out:
+    - out_sig

@@ -1,0 +1,5 @@
+signals:
+  in:
+    - clk
+  out:
+    - cnt

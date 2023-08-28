@@ -1,0 +1,82 @@
+ips:
+  pwm:
+    file: tests/data/hierarchy/pwm.yml
+    module: pwm
+  counter_up:
+    file: tests/data/hierarchy/up_cnt.yml
+    module: up_cnt
+  counter_down:
+    file: tests/data/hierarchy/down_cnt.yml
+    module: down_cnt
+  sig_select:
+    file: tests/data/hierarchy/sel.yml
+    module: sel
+
+design:
+  top_hierarchy:
+    design:
+      counters_hier:
+        design:
+          ports:
+            counter_up:
+              clk: in_clk
+              cnt: cnt_up
+            counter_down:
+              clk: in_clk
+              cnt: cnt_down
+        external:
+          ports:
+            in:
+              - in_clk
+            out:
+              - cnt_up
+              - cnt_down
+
+      pwm_hier:
+        design:
+          ports:
+            pwm:
+              clk: pwm_clk
+              compare: pwm_compare
+              sig_pwm: sig_pwm
+        external:
+          ports:
+            in:
+              - pwm_clk
+              - pwm_compare
+            out:
+              - sig_pwm
+ 
+      ports:
+        counters_hier:
+          in_clk: clk
+        pwm_hier:
+          pwm_clk: clk
+          pwm_compare: compare
+        sig_select:
+          sig1: [counters_hier, cnt_up]
+          sig2: [counters_hier, cnt_down]
+          sig_choose: [pwm_hier, sig_pwm]
+          out_sig: cnt
+
+    external:
+      ports:
+        in:
+          - clk
+          - compare
+        out:
+          - cnt
+
+  ports:
+    top_hierarchy:
+      clk: top_clk
+      compare: top_compare
+      cnt: top_cnt
+
+external:
+  ports:
+    in:
+      - top_clk
+      - top_compare
+    out:
+      - top_cnt
