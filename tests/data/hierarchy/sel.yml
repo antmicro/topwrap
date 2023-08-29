@@ -1,7 +1,10 @@
+parameters:
+  SIG_WIDTH: 32
+
 signals:
   in:
-    - sig1
-    - sig2
+    - [sig1, SIG_WIDTH-1, 0]
+    - [sig2, SIG_WIDTH-1, 0]
     - sig_choose
   out:
-    - out_sig
+    - [out_sig, SIG_WIDTH-1, 0]

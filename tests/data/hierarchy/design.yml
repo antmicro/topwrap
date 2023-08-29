@@ -17,6 +17,11 @@ design:
     design:
       counters_hier:
         design:
+          parameters:
+            counter_up:
+              CNT_WIDTH: 16
+            counter_down:
+              CNT_WIDTH: 16
           ports:
             counter_up:
               clk: in_clk
@@ -47,6 +52,10 @@ design:
             out:
               - sig_pwm
  
+      parameters:
+        sig_select:
+          SIG_WIDTH: 16
+      
       ports:
         counters_hier:
           in_clk: clk

@@ -1,6 +1,9 @@
+parameters:
+  COMP_WIDTH: 32
+
 signals:
   in:
     - clk
-    - compare
+    - [compare, COMP_WIDTH-1, 0]
   out:
     - sig_pwm
