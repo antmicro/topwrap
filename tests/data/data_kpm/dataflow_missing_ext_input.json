@@ -1,20 +1,20 @@
 {
     "graph": {
-        "id": "169115721638333",
+        "id": "1693316036262295",
         "nodes": [
             {
                 "type": "ps7",
-                "id": "cb4100f5-cf42-413f-b499-fab73d136f7f",
+                "id": "cdb6f0f2-d221-4e4c-a3cd-c78a5138cf17",
                 "position": {
-                    "x": -15,
-                    "y": 15
+                    "x": -915,
+                    "y": 480
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "MAXIGP0ACLK",
-                        "id": "fd6b3645-f6c8-4c47-abb5-4d089fc4cd96",
+                        "id": "75301da8-60f2-4a77-8e6f-a6bf9b1cf5f0",
                         "direction": "input",
                         "side": "left"
                     }
@@ -23,18 +23,38 @@
                 "name": "ps7"
             },
             {
-                "type": "External Input",
-                "id": "ee9edc66-6e5b-4e73-979f-e0b19193dcad",
+                "type": "ps7",
+                "id": "486bf094-300e-4693-920a-ad7f0df0e56a",
                 "position": {
-                    "x": -975,
-                    "y": 195
+                    "x": -915,
+                    "y": 750
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "MAXIGP0ACLK",
+                        "id": "8a124111-2483-40b6-ad9c-e4f56ccd26da",
+                        "direction": "input",
+                        "side": "left"
+                    }
+                ],
+                "properties": [],
+                "name": "ps7_2"
+            },
+            {
+                "type": "External Input",
+                "id": "208ea7ce-1a07-4d68-913e-423c3be3d4b5",
+                "position": {
+                    "x": -1560,
+                    "y": 690
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "fb5e64ae-a302-4ca3-91fd-3891563d848f",
+                        "id": "fc7bf900-8c4b-46ed-9284-b3d2306dc718",
                         "direction": "output",
                         "side": "right"
                     }
@@ -42,51 +62,34 @@
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "f786c887-2a62-4ada-a497-de1874032fb5",
+                        "id": "0f01694b-f2b8-4135-9a70-e9810944fd30",
                         "value": ""
                     }
                 ],
                 "name": "External Input"
-            },
-            {
-                "type": "ps7",
-                "id": "da4c87de-59f9-4c17-ad77-1fb7ed9dca93",
-                "position": {
-                    "x": -390,
-                    "y": 405
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "MAXIGP0ACLK",
-                        "id": "2c01002f-d334-4005-b353-491291e6f42a",
-                        "direction": "input",
-                        "side": "left"
-                    }
-                ],
-                "properties": [],
-                "name": "ps7_2"
             }
         ],
         "connections": [
             {
-                "id": "e00e2d1d-b522-4909-ac01-5f1e2b59d5fd",
-                "from": "fb5e64ae-a302-4ca3-91fd-3891563d848f",
-                "to": "fd6b3645-f6c8-4c47-abb5-4d089fc4cd96"
+                "id": "7d11c839-804c-441c-9d0e-15926a8b6acc",
+                "from": "fc7bf900-8c4b-46ed-9284-b3d2306dc718",
+                "to": "75301da8-60f2-4a77-8e6f-a6bf9b1cf5f0"
             },
             {
-                "id": "84c35418-ea66-4c5a-9797-960c8660593f",
-                "from": "fb5e64ae-a302-4ca3-91fd-3891563d848f",
-                "to": "2c01002f-d334-4005-b353-491291e6f42a"
+                "id": "dfdf3981-49f2-4ef9-827c-d3ae9b95b367",
+                "from": "fc7bf900-8c4b-46ed-9284-b3d2306dc718",
+                "to": "8a124111-2483-40b6-ad9c-e4f56ccd26da"
             }
         ],
         "panning": {
-            "x": 1361,
-            "y": -55
+            "x": 2189,
+            "y": -260
         },
-        "scaling": 0.9987521399140239
+        "scaling": 0.821664464993395
     },
     "graphTemplateInstances": [],
-    "version": "20230619.3"
+    "version": "20230720.5",
+    "metadata": {
+        "randomizedOffset": true
+    }
 }

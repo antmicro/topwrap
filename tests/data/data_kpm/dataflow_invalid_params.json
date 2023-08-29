@@ -1,13 +1,13 @@
 {
     "graph": {
-        "id": "169115721638333",
+        "id": "1693316036262295",
         "nodes": [
             {
                 "type": "axi_axil_adapter",
-                "id": "23324971-5d66-4369-af4e-a06fad5e3c4c",
+                "id": "bd8b4bd5-addf-4d68-81ce-c094ff695adb",
                 "position": {
-                    "x": -240,
-                    "y": 15
+                    "x": -1080,
+                    "y": 405
                 },
                 "width": 200,
                 "twoColumn": false,
@@ -15,8 +15,33 @@
                 "properties": [
                     {
                         "name": "ADDR_WIDTH",
-                        "id": "999a5de6-d627-4ac9-9be6-2680949aa385",
-                        "value": "INVALID_NAME!!!"
+                        "id": "d5f592a1-86f6-4070-8d56-8e20c491f9ef",
+                        "value": "INVALID NAME !!!"
+                    },
+                    {
+                        "name": "AXI_DATA_WIDTH",
+                        "id": "7d9f0217-5123-49a9-8df7-1f73f1df1dff",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_ID_WIDTH",
+                        "id": "860b4b31-1496-435a-98a2-864f985ee43d",
+                        "value": "8"
+                    },
+                    {
+                        "name": "AXI_STRB_WIDTH",
+                        "id": "c47e2175-0aab-48d9-b31e-1823f136d852",
+                        "value": "AXI_DATA_WIDTH/8"
+                    },
+                    {
+                        "name": "AXIL_DATA_WIDTH",
+                        "id": "2e5f0be4-d9ff-4315-aee5-9a1b1ea9dd22",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXIL_STRB_WIDTH",
+                        "id": "a7c40ea9-d6e7-4f3d-bf41-79e480e78069",
+                        "value": "AXIL_DATA_WIDTH/8"
                     }
                 ],
                 "name": "axi_axil_adapter"
@@ -24,11 +49,14 @@
         ],
         "connections": [],
         "panning": {
-            "x": 1045,
-            "y": 188
+            "x": 1762,
+            "y": -221
         },
-        "scaling": 0.9476349596290801
+        "scaling": 0.821664464993395
     },
     "graphTemplateInstances": [],
-    "version": "20230619.3"
+    "version": "20230720.5",
+    "metadata": {
+        "randomizedOffset": true
+    }
 }

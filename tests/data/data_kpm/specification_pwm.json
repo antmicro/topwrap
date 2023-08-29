@@ -1,0 +1,237 @@
+{
+    "version": "20230720.5",
+    "metadata": {
+        "allowLoopbacks": true,
+        "connectionStyle": "orthogonal",
+        "movementStep": 15,
+        "backgroundSize": 15,
+        "layout": "CytoscapeEngine - grid"
+    },
+    "nodes": [
+        {
+            "name": "axi_axil_adapter",
+            "type": "axi_axil_adapter",
+            "category": "IPcore",
+            "properties": [
+                {
+                    "name": "ADDR_WIDTH",
+                    "type": "text",
+                    "default": "32"
+                },
+                {
+                    "name": "AXI_DATA_WIDTH",
+                    "type": "text",
+                    "default": "32"
+                },
+                {
+                    "name": "AXI_ID_WIDTH",
+                    "type": "text",
+                    "default": "8"
+                },
+                {
+                    "name": "AXI_STRB_WIDTH",
+                    "type": "text",
+                    "default": "AXI_DATA_WIDTH/8"
+                },
+                {
+                    "name": "AXIL_DATA_WIDTH",
+                    "type": "text",
+                    "default": "32"
+                },
+                {
+                    "name": "AXIL_STRB_WIDTH",
+                    "type": "text",
+                    "default": "AXIL_DATA_WIDTH/8"
+                }
+            ],
+            "interfaces": [
+                {
+                    "name": "clk",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "input"
+                },
+                {
+                    "name": "rst",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "input"
+                },
+                {
+                    "name": "s_axi",
+                    "type": [
+                        "iface_AXI4"
+                    ],
+                    "direction": "input"
+                },
+                {
+                    "name": "m_axi",
+                    "type": [
+                        "iface_AXI4Lite"
+                    ],
+                    "direction": "output",
+                    "maxConnectionsCount": 1
+                }
+            ],
+            "additionalData": "fpga_topwrap/ips/axi/axi_axil_adapter.yaml"
+        },
+        {
+            "name": "litex_pwm",
+            "type": "litex_pwm",
+            "category": "IPcore",
+            "properties": [],
+            "interfaces": [
+                {
+                    "name": "sys_clk",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "input"
+                },
+                {
+                    "name": "sys_rst",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "input"
+                },
+                {
+                    "name": "pwm",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "output"
+                },
+                {
+                    "name": "s_axi",
+                    "type": [
+                        "iface_AXI4Lite"
+                    ],
+                    "direction": "input"
+                }
+            ],
+            "additionalData": "examples/pwm/ipcores/litex_pwm.yml"
+        },
+        {
+            "name": "ps7",
+            "type": "ps7",
+            "category": "IPcore",
+            "properties": [],
+            "interfaces": [
+                {
+                    "name": "MAXIGP0ACLK",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "input"
+                },
+                {
+                    "name": "FCLK0",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "output"
+                },
+                {
+                    "name": "MAXIGP0ARESETN",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "output"
+                },
+                {
+                    "name": "FCLK_RESET0_N",
+                    "type": [
+                        "port"
+                    ],
+                    "direction": "output"
+                },
+                {
+                    "name": "M_AXI_GP0",
+                    "type": [
+                        "iface_AXI4"
+                    ],
+                    "direction": "output",
+                    "maxConnectionsCount": 1
+                }
+            ],
+            "additionalData": "examples/pwm/ipcores/ps7.yaml"
+        },
+        {
+            "name": "External Input",
+            "type": "External Input",
+            "category": "Metanode",
+            "properties": [
+                {
+                    "name": "External Name",
+                    "type": "text",
+                    "default": ""
+                }
+            ],
+            "interfaces": [
+                {
+                    "name": "external",
+                    "type": [
+                        "external",
+                        "iface_AXI4",
+                        "iface_AXI4Lite",
+                        "port"
+                    ],
+                    "direction": "output"
+                }
+            ]
+        },
+        {
+            "name": "External Output",
+            "type": "External Output",
+            "category": "Metanode",
+            "properties": [
+                {
+                    "name": "External Name",
+                    "type": "text",
+                    "default": ""
+                }
+            ],
+            "interfaces": [
+                {
+                    "name": "external",
+                    "type": [
+                        "external",
+                        "iface_AXI4",
+                        "iface_AXI4Lite",
+                        "port"
+                    ],
+                    "direction": "input"
+                }
+            ]
+        },
+        {
+            "name": "External Inout",
+            "type": "External Inout",
+            "category": "Metanode",
+            "properties": [
+                {
+                    "name": "External Name",
+                    "type": "text",
+                    "default": ""
+                }
+            ],
+            "interfaces": [
+                {
+                    "name": "external",
+                    "type": [
+                        "external",
+                        "iface_AXI4",
+                        "iface_AXI4Lite",
+                        "port"
+                    ],
+                    "direction": "inout",
+                    "side": "left",
+                    "maxConnectionsCount": 1
+                }
+            ]
+        }
+    ]
+}

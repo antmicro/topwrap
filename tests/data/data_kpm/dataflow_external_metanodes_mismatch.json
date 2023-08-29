@@ -1,20 +1,20 @@
 {
     "graph": {
-        "id": "169115721638333",
+        "id": "1693316036262295",
         "nodes": [
             {
                 "type": "litex_pwm",
-                "id": "e8c958ea-676b-4a24-b3eb-417af629e251",
+                "id": "1e04ff66-c200-43b6-a865-ad6352f34a04",
                 "position": {
-                    "x": -345,
-                    "y": 45
+                    "x": -960,
+                    "y": 480
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "pwm",
-                        "id": "7dd4df7b-13a6-4bae-8e66-e9cdf9ef0461",
+                        "id": "a222c099-8fa5-4f4a-a478-368b23e447cc",
                         "direction": "output",
                         "side": "right"
                     }
@@ -24,17 +24,17 @@
             },
             {
                 "type": "External Inout",
-                "id": "0f3c0e76-0c70-4b27-ac6a-ee346080ec2f",
+                "id": "89f90f1b-bddb-48e0-a8c5-08f6f306650a",
                 "position": {
-                    "x": 75,
-                    "y": -30
+                    "x": -405,
+                    "y": 330
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "8b72cc2d-d770-43c7-84cb-a54dd90e14dd",
+                        "id": "3eee3596-e9ae-42ec-bb87-ff3e50136d33",
                         "direction": "inout",
                         "side": "left"
                     }
@@ -42,7 +42,7 @@
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "8fd7960e-def7-49dc-b397-16ee41f7b77d",
+                        "id": "a017fdcb-9b8b-4c6a-8360-c0a7d1059bf9",
                         "value": ""
                     }
                 ],
@@ -51,17 +51,20 @@
         ],
         "connections": [
             {
-                "id": "76df4294-bbb2-4caf-b4d5-a5050500a395",
-                "from": "7dd4df7b-13a6-4bae-8e66-e9cdf9ef0461",
-                "to": "8b72cc2d-d770-43c7-84cb-a54dd90e14dd"
+                "id": "f34336b0-2023-486b-8896-471f632b65b0",
+                "from": "a222c099-8fa5-4f4a-a478-368b23e447cc",
+                "to": "3eee3596-e9ae-42ec-bb87-ff3e50136d33"
             }
         ],
         "panning": {
-            "x": 791,
-            "y": 290
+            "x": 1762,
+            "y": -221
         },
-        "scaling": 0.9987521399140239
+        "scaling": 0.821664464993395
     },
     "graphTemplateInstances": [],
-    "version": "20230619.3"
+    "version": "20230720.5",
+    "metadata": {
+        "randomizedOffset": true
+    }
 }
