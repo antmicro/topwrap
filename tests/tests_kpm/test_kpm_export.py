@@ -55,6 +55,7 @@ class TestPWMDataflowExport:
             PWM_NAME: {"sys_clk": [PS7_NAME, "FCLK0"], "sys_rst": [PS7_NAME, "FCLK_RESET0_N"]},
         }
         assert connections["interfaces"] == {
+            PS7_NAME: {},
             AXI_NAME: {"s_axi": [PS7_NAME, "M_AXI_GP0"]},
             PWM_NAME: {"s_axi": [AXI_NAME, "m_axi"]},
         }
@@ -106,7 +107,7 @@ class TestHDMIDataflowExport:
         some ports are driven by constants. This feature is not yet supported in KPM.
         """
         connections = _kpm_connections_to_ports_ifaces(hdmi_dataflow, hdmi_specification)
-        assert connections["interfaces"] == hdmi_design_yaml["interfaces"]
+        assert connections["interfaces"] == hdmi_design_yaml["design"]["interfaces"]
 
     def test_externals(self, hdmi_dataflow, hdmi_specification):
         """Check whether generated external ports/interfaces descriptions in "externals" section
