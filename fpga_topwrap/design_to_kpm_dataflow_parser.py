@@ -167,29 +167,42 @@ def _ipcore_param_to_kpm_value(param) -> str:
         return width + "'h" + value
 
 
+def _get_hierarchies_names(design_descr: dict) -> set:
+    return set(design_descr["design"].keys()).difference(set(["parameters", "ports", "interfaces"]))
+
+
 def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List[KPMDataflowNode]:
     """Generate KPM dataflow nodes based on Topwrap's design
     description yaml (e.g. generated from YAML design description)
     and already loaded KPM specification.
     """
-    ips = design_descr["ips"]
     nodes = []
+    ips = design_descr["ips"]
+    design = design_descr["design"]
+    parameters = design["parameters"] if "parameters" in design.keys() else dict()
+    ports = design["ports"] if "ports" in design.keys() else dict()
+    interfaces = design["interfaces"] if "interfaces" in design.keys() else dict()
 
-    for ip_name in ips.keys():
-        ip = ips[ip_name]
-        ip_type = os.path.splitext(os.path.basename(ip["file"]))[0]
+    hier_names = _get_hierarchies_names(design_descr)
+    if hier_names:
+        logging.warning(f"Imported design contains hierarchies ({hier_names}) which are not yet "
+                        "supported. The imported design will be incomplete")
+    ips_names = (set(ports.keys()).union(set(interfaces.keys()))).difference(hier_names)
+
+    for ip_name in ips_names:
+        ip_type = os.path.splitext(os.path.basename(ips[ip_name]["file"]))[0]
         spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
             continue
 
-        properties = {
+        kpm_properties = {
             prop["name"]: KPMDataflowNodeProperty(prop["name"], prop["default"])
             for prop in spec_node["properties"]
         }
-        if "parameters" in ip.keys():
-            for param_name, param_val in ip["parameters"].items():
-                if param_name in properties.keys():
-                    properties[param_name].value = _ipcore_param_to_kpm_value(param_val)
+        if ip_name in parameters.keys():
+            for param_name, param_val in parameters[ip_name].items():
+                if param_name in kpm_properties.keys():
+                    kpm_properties[param_name].value = _ipcore_param_to_kpm_value(param_val)
                 else:
                     logging.warning(f"Parameter '{param_name}'" f"not found in node {ip_name}")
 
@@ -198,7 +211,7 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
             for interface in spec_node["interfaces"]
         ]
 
-        nodes.append(KPMDataflowNode(ip_name, ip_type, list(properties.values()), interfaces))
+        nodes.append(KPMDataflowNode(ip_name, ip_type, list(kpm_properties.values()), interfaces))
     return nodes
 
 
@@ -223,14 +236,18 @@ def _get_flattened_connections(design_descr: dict) -> list:
     from a design description yaml.
     """
     conn_descrs = []
-    for sec in set(["ports", "interfaces"]) & set(design_descr.keys()):
-        for ip_name in design_descr[sec].keys():
-            for port_iface_name in design_descr[sec][ip_name].keys():
+    design = design_descr["design"]
+
+    for sec in ["ports", "interfaces"]:
+        if sec not in design.keys():
+            continue
+        for ip_name in design[sec].keys():
+            for port_iface_name in design[sec][ip_name].keys():
                 conn_descrs.append(
                     {
                         "ip_name": ip_name,
                         "port_iface_name": port_iface_name,
-                        "connection": design_descr[sec][ip_name][port_iface_name],
+                        "connection": design[sec][ip_name][port_iface_name],
                     }
                 )
     return conn_descrs
@@ -258,7 +275,8 @@ def _get_external_connections(design_descr: dict) -> list:
             "port_iface_name": conn["port_iface_name"],
             "external_name": conn["connection"],
         }
-        for conn in ext_connections
+        for conn in ext_connections if conn["ip_name"] not in _get_hierarchies_names(design_descr)
+        # skip external connections from/to hierarchies
     ]
 
 
@@ -266,11 +284,21 @@ def _get_ipcores_connections(design_descr: dict) -> list:
     """Get connections between IP cores from 'ports' and 'interfaces'
     sections of design description.
     """
+
+    def _is_ipcore_connection(conn_descr: dict) -> bool:
+        """Check if a connection is between two IP cores. `conn_descr` is here a dict in format:
+        `{"ip_name": str, "port_iface_name": str, "connection": list|int|str }`
+        """
+        if not isinstance(conn_descr["connection"], list):
+            return False
+        if conn_descr["ip_name"] in _get_hierarchies_names(design_descr):
+            return False
+        if conn_descr["connection"][0] in _get_hierarchies_names(design_descr):
+            return False
+        return True        
+
     ipcores_connections = list(
-        filter(
-            lambda conn_descr: isinstance(conn_descr["connection"], list),
-            _get_flattened_connections(design_descr),
-        )
+        filter(_is_ipcore_connection, _get_flattened_connections(design_descr))
     )
 
     # `ipcores_connections` is now a list of all the connections between

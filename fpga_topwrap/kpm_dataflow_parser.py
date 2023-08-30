@@ -56,6 +56,13 @@ def _kpm_properties_to_parameters(properties: dict) -> dict:
     return result
 
 
+def _kpm_nodes_to_parameters(dataflow_data) -> dict:
+    result = dict()
+    for node in get_dataflow_ip_nodes(dataflow_data):
+        result[node["name"]] = _kpm_properties_to_parameters(node["properties"])
+    return result
+
+
 def _kpm_nodes_to_ips(dataflow_data, specification) -> dict:
     """Parse dataflow nodes into Topwrap's "ips" section
     of a design description yaml
@@ -68,7 +75,6 @@ def _kpm_nodes_to_ips(dataflow_data, specification) -> dict:
         ips[node["name"]] = {
             "file": filename,
             "module": node["type"],
-            "parameters": _kpm_properties_to_parameters(node["properties"]),
         }
     return ips
 
@@ -94,6 +100,10 @@ def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict) -> dict
         else:
             conns_dict = interfaces_conns
 
+        if iface_from["node_name"] not in conns_dict.keys():
+            # We need to ensure that the module name, from which the connection originates,
+            # is present as a key in `conns_dict`
+            conns_dict[iface_from["node_name"]] = {}
         if iface_to["node_name"] not in conns_dict.keys():
             conns_dict[iface_to["node_name"]] = {}
         conns_dict[iface_to["node_name"]][iface_to["iface_name"]] = [
@@ -178,6 +188,7 @@ def _update_ports_ifaces_section(ports_ifaces: dict, externals: dict) -> dict:
 def kpm_dataflow_to_design(dataflow_data, specification) -> dict:
     """Parse Pipeline Manager dataflow into Topwrap's design description yaml"""
     ips = _kpm_nodes_to_ips(dataflow_data, specification)
+    properties = _kpm_nodes_to_parameters(dataflow_data)
     ports_ifaces_dict = _kpm_connections_to_ports_ifaces(dataflow_data, specification)
     externals = _kpm_connections_to_external(dataflow_data, specification)
 
@@ -186,4 +197,12 @@ def kpm_dataflow_to_design(dataflow_data, specification) -> dict:
         ports_ifaces_dict["interfaces"], externals["interfaces"]
     )
 
-    return {"ips": ips, "ports": ports, "interfaces": interfaces, "external": externals["external"]}
+    return {
+        "ips": ips,
+        "design": {
+            "parameters": properties,
+            "ports": ports,
+            "interfaces": interfaces
+        },
+        "external": externals["external"]
+    }
