@@ -10,17 +10,6 @@ from tests.common import read_json_file
 
 
 @pytest.fixture
-def specification_schema_path() -> Path:
-    specification_schema_path = "kenning-pipeline-manager/pipeline_manager/resources/schemas/unresolved_specification_schema.json"  # noqa: E501
-    return Path(specification_schema_path)
-
-
-@pytest.fixture
-def specification_schema(specification_schema_path) -> dict:
-    return read_json_file(specification_schema_path)
-
-
-@pytest.fixture
 def pwm_design_yaml() -> dict:
     with open("examples/pwm/project.yml", "r") as yamlfile:
         design = load(yamlfile, Loader=Loader)
@@ -64,8 +53,18 @@ def hdmi_ipcores_yamls() -> list:
 
 
 @pytest.fixture
+def pwm_specification() -> dict:
+    return read_json_file("tests/data/data_kpm/specification_pwm.json")
+
+
+@pytest.fixture
 def pwm_dataflow() -> dict:
     return read_json_file("tests/data/data_kpm/pwm_dataflow.json")
+
+
+@pytest.fixture
+def hdmi_specification() -> dict:
+    return read_json_file("tests/data/data_kpm/specification_hdmi.json")
 
 
 @pytest.fixture

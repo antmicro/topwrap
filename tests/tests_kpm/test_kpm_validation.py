@@ -16,7 +16,6 @@ from fpga_topwrap.kpm_dataflow_validator import (
     _check_unconnected_ports_interfaces,
     _check_inouts_connections,
 )
-from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 from tests.common import read_json_file
 
 
@@ -98,9 +97,8 @@ def specification_duplicate_external_input_interfaces():
     ],
 )
 def test_hdmi_dataflow_validation(
-    _check_function, expected_result, hdmi_dataflow, hdmi_ipcores_yamls
+    _check_function, expected_result, hdmi_dataflow, hdmi_ipcores_yamls, hdmi_specification
 ):
-    hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
     status, msg = _check_function(hdmi_dataflow, hdmi_specification)
     assert status == expected_result
 
@@ -120,56 +118,49 @@ def test_hdmi_dataflow_validation(
         (_check_inouts_connections, CheckStatus.OK),
     ],
 )
-def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow, pwm_ipcores_yamls):
-    pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
+def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow, pwm_specification):
     status, msg = _check_function(pwm_dataflow, pwm_specification)
     assert status == expected_result
 
 
 # Test validation checks on some simple erroneous dataflows
 @pytest.mark.parametrize(
-    "_check_function, dataflow, specification, expected_result",
+    "_check_function, dataflow, expected_result",
     [
-        (_check_duplicate_ip_names, lf("dataflow_duplicate_ip_names"), None, CheckStatus.ERROR),
+        (_check_duplicate_ip_names, lf("dataflow_duplicate_ip_names"), CheckStatus.ERROR),
         (
             _check_parameters_values,
             lf("dataflow_invalid_parameters_values"),
-            None,
             CheckStatus.ERROR,
         ),
         (
             _check_ext_in_to_ext_out_connections,
             lf("dataflow_ext_in_to_ext_out_connections"),
-            None,
             CheckStatus.ERROR,
         ),
-        (_check_ambigous_ports, lf("dataflow_ambigous_ports"), None, CheckStatus.ERROR),
+        (_check_ambigous_ports, lf("dataflow_ambigous_ports"), CheckStatus.ERROR),
         (
             _check_duplicate_external_out_names,
             lf("dataflow_duplicate_ext_out_port_names"),
-            None,
             CheckStatus.ERROR,
         ),
         (
             _check_external_inputs_missing_val,
             lf("dataflow_missing_ext_input_value"),
-            None,
             CheckStatus.WARNING,
         ),
         (
             _check_duplicate_external_input_interfaces,
             lf("dataflow_duplicate_external_input_interfaces"),
-            lf("specification_duplicate_external_input_interfaces"),
             CheckStatus.ERROR,
         ),
         (
             _check_inouts_connections,
             lf("dataflow_inouts_connections"),
-            None,
             CheckStatus.WARNING
         )
     ],
 )
-def test_invalid_dataflow_validation(dataflow, specification, _check_function, expected_result):
-    status, msg = _check_function(dataflow, specification)
+def test_invalid_dataflow_validation(dataflow, _check_function, expected_result, pwm_specification):
+    status, msg = _check_function(dataflow, pwm_specification)
     assert status == expected_result

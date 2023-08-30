@@ -9,20 +9,10 @@ from fpga_topwrap.kpm_dataflow_parser import (
     _kpm_nodes_to_ips,
     _kpm_properties_to_parameters,
 )
-from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 AXI_NAME = "axi_bridge"
 PS7_NAME = "ps7"
 PWM_NAME = "litex_pwm_top"
-
-
-def ipcore_names_to_yamls(ipcores_yamls: list):
-    """Return a dict with "`ipcore_name`: `ipcore_descr_yaml`" key-value pairs"""
-
-    def basename_without_ext(name: str):
-        return os.path.splitext(os.path.basename(name))[0]
-
-    return {basename_without_ext(yamlfile): yamlfile for yamlfile in ipcores_yamls}
 
 
 class TestPWMDataflowExport:
@@ -47,19 +37,17 @@ class TestPWMDataflowExport:
             "AXIL_STRB_WIDTH": "AXIL_DATA_WIDTH/8",
         }
 
-    def test_nodes_to_ips(self, pwm_ipcores_yamls, pwm_design_yaml, pwm_dataflow):
+    def test_nodes_to_ips(self, pwm_design_yaml, pwm_dataflow, pwm_specification):
         """Check whether generated IP cores names in "ips" section of a design description YAML
         match the values from `examples/pwm/project.yml`.
         """
-        pwm_ipcores_names_to_yamls = ipcore_names_to_yamls(pwm_ipcores_yamls)
-        ips = _kpm_nodes_to_ips(pwm_dataflow, pwm_ipcores_names_to_yamls)
+        ips = _kpm_nodes_to_ips(pwm_dataflow, pwm_specification)
         assert ips.keys() == pwm_design_yaml["ips"].keys()
 
-    def test_port_interfaces(self, pwm_dataflow, pwm_ipcores_yamls):
+    def test_port_interfaces(self, pwm_dataflow, pwm_specification):
         """Check whether generated connection descriptions in "ports" and "interfaces" sections
         of a design description YAML match the values from `examples/pwm/project.yml`.
         """
-        pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         connections = _kpm_connections_to_ports_ifaces(pwm_dataflow, pwm_specification)
         assert connections["ports"] == {
             PS7_NAME: {"MAXIGP0ACLK": [PS7_NAME, "FCLK0"]},
@@ -71,11 +59,10 @@ class TestPWMDataflowExport:
             PWM_NAME: {"s_axi": [AXI_NAME, "m_axi"]},
         }
 
-    def test_externals(self, pwm_dataflow, pwm_ipcores_yamls):
+    def test_externals(self, pwm_dataflow, pwm_specification):
         """Check whether generated external ports/interfaces descriptions in "externals" section
         of a design description YAML match the values from `examples/pwm/project.yml`.
         """
-        pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         assert _kpm_connections_to_external(pwm_dataflow, pwm_specification) == {
             "ports": {PWM_NAME: {"pwm": "pwm"}},
             "interfaces": {},
@@ -104,30 +91,27 @@ class TestHDMIDataflowExport:
         assert parameters["ADDR_WIDTH"] == 32
         assert parameters["M_ADDR_WIDTH"] == {"value": int("0x100000001000000010", 16), "width": 96}
 
-    def test_nodes_to_ips(self, hdmi_design_yaml, hdmi_dataflow, hdmi_ipcores_yamls):
+    def test_nodes_to_ips(self, hdmi_design_yaml, hdmi_dataflow, hdmi_specification):
         """Check whether generated IP cores names in "ips" section of a design description YAML
         match the values from `examples/hdmi/project.yml`.
         """
-        hdmi_ipcores_names_to_yamls = ipcore_names_to_yamls(hdmi_ipcores_yamls)
-        ips = _kpm_nodes_to_ips(hdmi_dataflow, hdmi_ipcores_names_to_yamls)
+        ips = _kpm_nodes_to_ips(hdmi_dataflow, hdmi_specification)
         assert ips.keys() == hdmi_design_yaml["ips"].keys()
 
-    def test_interfaces(self, hdmi_design_yaml, hdmi_dataflow, hdmi_ipcores_yamls):
+    def test_interfaces(self, hdmi_design_yaml, hdmi_dataflow, hdmi_specification):
         """Check whether generated connection descriptions in "interfaces" sections
         of a design description YAML match the values from `examples/hdmi/project.yml`.
 
         For now we don't test validity of "ports" section, since in `examples/pwm/project.yml`
         some ports are driven by constants. This feature is not yet supported in KPM.
         """
-        hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         connections = _kpm_connections_to_ports_ifaces(hdmi_dataflow, hdmi_specification)
         assert connections["interfaces"] == hdmi_design_yaml["interfaces"]
 
-    def test_externals(self, hdmi_dataflow, hdmi_ipcores_yamls):
+    def test_externals(self, hdmi_dataflow, hdmi_specification):
         """Check whether generated external ports/interfaces descriptions in "externals" section
         of a design description YAML match the values from `examples/hdmi/project.yml`.
         """
-        hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         assert _kpm_connections_to_external(hdmi_dataflow, hdmi_specification) == {
             "ports": {
                 "hdmi": {

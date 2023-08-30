@@ -8,7 +8,6 @@ from fpga_topwrap.design_to_kpm_dataflow_parser import (
     kpm_nodes_from_design_descr,
 )
 from fpga_topwrap.kpm_common import EXT_OUTPUT_NAME
-from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 AXI_NAME = "axi_bridge"
 PS7_NAME = "ps7"
@@ -20,11 +19,10 @@ class TestPWMDataflowImport:
     (i.e. PWM dataflow import feature).
     """
 
-    def test_pwm_nodes(self, pwm_design_yaml, pwm_ipcores_yamls):
+    def test_pwm_nodes(self, pwm_design_yaml, pwm_specification):
         """Check the validity of generated KPM nodes - test their properties values
         and interfaces names.
         """
-        pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == 3
@@ -103,11 +101,10 @@ class TestPWMDataflowImport:
             if iface_id in [iface["id"] for iface in node["interfaces"]]:
                 return node["name"]
 
-    def test_pwm_connections(self, pwm_design_yaml, pwm_ipcores_yamls):
+    def test_pwm_connections(self, pwm_design_yaml, pwm_specification):
         """Check the number of generated connections between two nodes representing IP cores
         (i.e. `ipcore_1`<->`ipcore_2` connections).
         """
-        pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
         connections_json = [
             conn.to_json_format()
@@ -127,11 +124,10 @@ class TestPWMDataflowImport:
         assert node_names.count(PS7_NAME) == 7
         assert node_names.count(PWM_NAME) == 3
 
-    def test_pwm_metanodes_connections(self, pwm_design_yaml, pwm_ipcores_yamls):
+    def test_pwm_metanodes_connections(self, pwm_design_yaml, pwm_specification):
         """Check the number of generated connections between a node representing IP core and
         an external metanode (i.e. `ipcore`<->`metanode` connections).
         """
-        pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
         kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
         kpm_metanodes = kpm_metanodes_from_design_descr(pwm_design_yaml)
         connections_json = [
@@ -152,9 +148,8 @@ class TestPWMDataflowImport:
 
 
 class TestHDMIDataflowImport:
-    def test_hdmi_nodes(self, hdmi_design_yaml, hdmi_ipcores_yamls):
+    def test_hdmi_nodes(self, hdmi_design_yaml, hdmi_specification):
         """Check the validity of generated KPM nodes - test some of their properties values."""
-        hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == 15
@@ -173,20 +168,18 @@ class TestHDMIDataflowImport:
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         assert len(metanodes_json) == 8
 
-    def test_hdmi_connections(self, hdmi_design_yaml, hdmi_ipcores_yamls):
+    def test_hdmi_connections(self, hdmi_design_yaml, hdmi_specification):
         """Check the number of generated connections between nodes representing IP cores
         (i.e. `ipcore_1`<->`ipcore_2` connections).
         """
-        hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
         connections = kpm_connections_from_design_descr(hdmi_design_yaml, kpm_nodes)
         assert len(connections) == 59
 
-    def test_hdmi_metanodes_connections(self, hdmi_design_yaml, hdmi_ipcores_yamls):
+    def test_hdmi_metanodes_connections(self, hdmi_design_yaml, hdmi_specification):
         """Check the number of generated connections between a node representing IP core and
         an external metanode (i.e. `ipcore`<->`metanode` connections).
         """
-        hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
         kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
         kpm_metanodes = kpm_metanodes_from_design_descr(hdmi_design_yaml)
 
