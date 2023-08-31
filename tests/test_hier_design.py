@@ -149,7 +149,7 @@ def _get_second_level_hier_by_name(
     return _get_inner_ipconnect(top_hier_ipc, sec_lvl_hier_name)
 
 
-def _get_ip_ports_by_dir(ipcw: IPConnect | IPWrapper, dir: PortDirection) -> list:
+def _get_ip_ports_by_dir(ipcw, dir: PortDirection) -> list:
     return list(filter(lambda port: port.direction == dir, ipcw.get_ports()))
 
 

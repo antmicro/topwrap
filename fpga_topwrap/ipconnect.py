@@ -31,7 +31,7 @@ class IPConnect(Elaboratable):
         self._components = dict()
         self._ports = []
 
-    def add_component(self, name: str, component: IPWrapper | HierarchyWrapper) -> None:
+    def add_component(self, name: str, component) -> None:
         """Add a new component to this IPConnect, allowing to make connections with it
 
         :param name: name of the component
@@ -41,7 +41,7 @@ class IPConnect(Elaboratable):
         # create a placeholder for Instance arguments to instantiate the ip
         setattr(self, name, dict())
 
-    def _get_component_by_name(self, name: str) -> IPWrapper | HierarchyWrapper:
+    def _get_component_by_name(self, name: str):
         try:
             comp = self._components[name]
         except KeyError:
