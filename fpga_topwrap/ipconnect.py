@@ -10,7 +10,7 @@ from amaranth.hdl.ast import Const
 
 from .fuse_helper import FuseSocBuilder
 from .ipwrapper import IPWrapper
-from .nm_helper import port_direction_to_prefix, strip_port_prefix, DIR_IN, DIR_OUT, DIR_INOUT
+from .nm_helper import port_direction_to_prefix, strip_port_prefix, DIR_IN, DIR_OUT, DIR_INOUT, PortDirection
 
 
 class IPConnect(Elaboratable):
@@ -120,15 +120,16 @@ class IPConnect(Elaboratable):
             f"{ip1_name}:{iface1} - {ip2_name}:{iface2}"
         )
 
-    def _set_port(self, ip: IPWrapper, port_name: str, external_name: str) -> None:
+    def _set_port(self, ip: IPWrapper, port_name: str, external_name: str, external_dir: PortDirection) -> None:
         """Set port specified by name as an external port
 
         :type ip: IPWrapper
         :type port_name: str
         :type external_name: str
+        :type external_dir: PortDirection
         :raises ValueError: if such port doesn't exist
         """
-        self._set_unconnected_port(ip.top_name, port_name)
+        self._set_unconnected_port(ip.top_name, port_name, external_dir)
 
         inst_args = getattr(self, ip.top_name)
 
@@ -164,7 +165,7 @@ class IPConnect(Elaboratable):
         :raises ValueError: if such interface doesn't exist
         """
         for port in ip.get_ports_of_interface(iface_name):
-            self._set_unconnected_port(ip.top_name, port.name)
+            self._set_unconnected_port(ip.top_name, port.name, port.direction)
 
         inst_args = getattr(self, ip.top_name)
 
@@ -189,14 +190,14 @@ class IPConnect(Elaboratable):
         """Return a list of external ports of this module"""
         return self._ports
 
-    def _set_unconnected_port(self, ip_name: str, port_name: str) -> None:
+    def _set_unconnected_port(self, ip_name: str, port_name: str, external_dir: PortDirection) -> None:
         """Create signal for unconnected port to allow using it as
         external. This is essential since ports that haven't been used have
         no signals assigned to them.
         """
         inst_args = getattr(self, ip_name)
         port = self._ips[ip_name].get_port_by_name(port_name)
-        full_name = port_direction_to_prefix(port.direction) + port.name
+        full_name = port_direction_to_prefix(external_dir) + port.name
 
         if full_name not in inst_args.keys():
             inst_args[full_name] = Signal(len(port), name=full_name)
@@ -275,16 +276,13 @@ class IPConnect(Elaboratable):
                     #  - output to output
                     #  - input to input
                     # Any other connection is legal.
-                    if DIR_NONE in (port_dir, ext_dir):
-                        self._set_port(self._ips[ip_name], ip_port, target)
-                        continue
-                    if port_dir != ext_dir:
+                    if port_dir != ext_dir and DIR_INOUT not in (port_dir, ext_dir):
                         raise ValueError(
                             f"Direction of external port '{target}'"
                             f"doesn't match '{ip_name}:{ip_port}' direction"
                         )
 
-                    self._set_port(self._ips[ip_name], ip_port, target)
+                    self._set_port(self._ips[ip_name], ip_port, target, ext_dir)
 
         ext_ifaces = []
         if "interfaces" in external.keys():
