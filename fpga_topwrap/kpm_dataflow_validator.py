@@ -8,14 +8,11 @@ from typing import NamedTuple, Union
 import numexpr as ex
 
 from .kpm_common import (
-    EXT_INOUT_NAME,
     EXT_INPUT_NAME,
-    EXT_OUTPUT_NAME,
     find_connected_interfaces,
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_id,
     find_spec_interface_by_name,
-    get_dataflow_external_connections,
     get_dataflow_externals_interfaces,
     get_dataflow_ip_nodes,
     get_dataflow_ips_interfaces,
@@ -137,33 +134,6 @@ def _check_ambigous_ports(dataflow_data, specification) -> CheckResult:
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_externals_metanodes_types(dataflow_data, specification) -> CheckResult:
-    """Check for external ports/interfaces which are connected to wrong type
-    of external metanode. External outputs must be connected to
-    `External Output` metanodes, external inputs to `External Input` etc.
-    """
-    bad_exts = []
-
-    for conn in get_dataflow_external_connections(dataflow_data):
-        iface_from = find_dataflow_interface_by_id(dataflow_data, conn["from"])
-        iface_to = find_dataflow_interface_by_id(dataflow_data, conn["to"])
-        if iface_from["iface_dir"] == "inout" and iface_to["node_name"] == EXT_OUTPUT_NAME:
-            bad_exts.append(f"{iface_from['node_name']}:{iface_from['iface_name']}")
-        elif iface_to["iface_dir"] == "inout" and iface_from["node_name"] == EXT_INPUT_NAME:
-            bad_exts.append(f"{iface_to['node_name']}:{iface_to['iface_name']}")
-        elif iface_from["iface_dir"] == "output" and iface_to["node_name"] == EXT_INOUT_NAME:
-            bad_exts.append(f"{iface_from['node_name']}:{iface_from['iface_name']}")
-        elif iface_to["iface_dir"] == "input" and iface_from["node_name"] == EXT_INOUT_NAME:
-            bad_exts.append(f"{iface_to['node_name']}:{iface_to['iface_name']}")
-
-    if bad_exts:
-        return CheckResult(
-            CheckStatus.ERROR,
-            "External port/interfaces" f"connected to wrong type of external metanode: {bad_exts}",
-        )
-    return CheckResult(CheckStatus.OK, None)
-
-
 def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> CheckResult:
     """Find external input interfaces which have the same name."""
     ext_names_set = set()
@@ -273,7 +243,6 @@ def validate_kpm_design(data: bytes, specification) -> dict:
         _check_parameters_values,
         _check_ext_in_to_ext_out_connections,
         _check_ambigous_ports,
-        _check_externals_metanodes_types,
         _check_duplicate_external_input_interfaces,
         _check_external_inputs_missing_val,
         _check_duplicate_external_out_inout_names,
