@@ -1,0 +1,121 @@
+{
+    "graph": {
+        "id": "a868145c-165b-43df-96ae-f67a027cc67a",
+        "nodes": [
+            {
+                "type": "gen_iobuf",
+                "id": "a3f4d70b-21e9-4c01-a4d8-9a2556c06282",
+                "position": {
+                    "x": -660,
+                    "y": 210
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clk",
+                        "id": "a7655165-7aeb-4e82-ad5e-5b8f180ce9fe",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "rst",
+                        "id": "d4271074-d1d8-411a-a429-e12ad0205cf9",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "a",
+                        "id": "e0e6d565-8361-47c8-89b9-7b2fdbdadfe6",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "oe",
+                        "id": "2fdf8a36-f680-4575-8b97-4b9b39ddb9a7",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "myport",
+                        "id": "630668e0-46e5-4e50-98c2-01aa888ae3cf",
+                        "direction": "inout",
+                        "side": "right"
+                    },
+                    {
+                        "name": "y",
+                        "id": "0f86510f-022b-4f77-80a3-26a9e28bd251",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [],
+                "name": "gen_iobuf_1"
+            },
+            {
+                "type": "gen_iobuf",
+                "id": "0d52d66f-0a1f-4100-b168-57f336473600",
+                "position": {
+                    "x": -660,
+                    "y": 510
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clk",
+                        "id": "4b4b56d0-a6ef-42f9-b72b-096bc2dafd7c",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "rst",
+                        "id": "be0fea43-b2f1-4ef3-b1a0-341c0ae3b33c",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "a",
+                        "id": "53ed09e7-28b1-469b-bd24-56e4f43f6fa6",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "oe",
+                        "id": "909916c3-e014-495d-bf31-e75c1a34f4f4",
+                        "direction": "input",
+                        "side": "left"
+                    },
+                    {
+                        "name": "myport",
+                        "id": "8b38601b-b641-438a-af6d-a0f55f7656bf",
+                        "direction": "inout",
+                        "side": "right"
+                    },
+                    {
+                        "name": "y",
+                        "id": "0381314d-12af-4d13-b10e-f1a3f45d9cb2",
+                        "direction": "output",
+                        "side": "right"
+                    }
+                ],
+                "properties": [],
+                "name": "gen_iobuf_2"
+            }
+        ],
+        "connections": [
+            {
+                "id": "3a0ec30f-ac4d-4011-bb9f-2cada22170f8",
+                "from": "630668e0-46e5-4e50-98c2-01aa888ae3cf",
+                "to": "8b38601b-b641-438a-af6d-a0f55f7656bf"
+            }
+        ],
+        "panning": {
+            "x": 1296,
+            "y": -52
+        },
+        "scaling": 1
+    },
+    "graphTemplateInstances": [],
+    "version": "20230619.3"
+}

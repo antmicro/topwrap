@@ -8,12 +8,13 @@ from fpga_topwrap.kpm_dataflow_validator import (
     CheckStatus,
     _check_ambigous_ports,
     _check_duplicate_external_input_interfaces,
-    _check_duplicate_external_out_inout_names,
+    _check_duplicate_external_out_names,
     _check_duplicate_ip_names,
     _check_ext_in_to_ext_out_connections,
     _check_external_inputs_missing_val,
     _check_parameters_values,
     _check_unconnected_ports_interfaces,
+    _check_inouts_connections,
 )
 from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 from tests.common import read_json_file
@@ -70,6 +71,12 @@ def dataflow_duplicate_external_input_interfaces():
 
 
 @pytest.fixture
+def dataflow_inouts_connections():
+    """Dataflow containing a connection between two inout ports"""
+    return read_json_file("tests/data/data_kpm/dataflow_inouts_connections.json")
+
+
+@pytest.fixture
 def specification_duplicate_external_input_interfaces():
     """Specification compatible with `dataflow_duplicate_external_input_interfaces`"""
     return read_json_file("tests/data/data_kpm/spec_duplicate_ext_input_ifaces.json")
@@ -85,8 +92,9 @@ def specification_duplicate_external_input_interfaces():
         (_check_ambigous_ports, CheckStatus.OK),
         (_check_external_inputs_missing_val, CheckStatus.OK),
         (_check_duplicate_external_input_interfaces, CheckStatus.OK),
-        (_check_duplicate_external_out_inout_names, CheckStatus.OK),
+        (_check_duplicate_external_out_names, CheckStatus.OK),
         (_check_unconnected_ports_interfaces, CheckStatus.WARNING),
+        (_check_inouts_connections, CheckStatus.OK)
     ],
 )
 def test_hdmi_dataflow_validation(
@@ -107,8 +115,9 @@ def test_hdmi_dataflow_validation(
         (_check_ambigous_ports, CheckStatus.OK),
         (_check_external_inputs_missing_val, CheckStatus.OK),
         (_check_duplicate_external_input_interfaces, CheckStatus.OK),
-        (_check_duplicate_external_out_inout_names, CheckStatus.OK),
+        (_check_duplicate_external_out_names, CheckStatus.OK),
         (_check_unconnected_ports_interfaces, CheckStatus.WARNING),
+        (_check_inouts_connections, CheckStatus.OK),
     ],
 )
 def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow, pwm_ipcores_yamls):
@@ -136,7 +145,7 @@ def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow,
         ),
         (_check_ambigous_ports, lf("dataflow_ambigous_ports"), None, CheckStatus.ERROR),
         (
-            _check_duplicate_external_out_inout_names,
+            _check_duplicate_external_out_names,
             lf("dataflow_duplicate_ext_out_port_names"),
             None,
             CheckStatus.ERROR,
@@ -153,6 +162,12 @@ def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow,
             lf("specification_duplicate_external_input_interfaces"),
             CheckStatus.ERROR,
         ),
+        (
+            _check_inouts_connections,
+            lf("dataflow_inouts_connections"),
+            None,
+            CheckStatus.WARNING
+        )
     ],
 )
 def test_invalid_dataflow_validation(dataflow, specification, _check_function, expected_result):
