@@ -9,11 +9,13 @@ import numexpr as ex
 
 from .kpm_common import (
     EXT_INPUT_NAME,
+    EXT_OUTPUT_NAME,
     find_connected_interfaces,
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_id,
     find_spec_interface_by_name,
     get_dataflow_externals_interfaces,
+    get_dataflow_ip_connections,
     get_dataflow_ip_nodes,
     get_dataflow_ips_interfaces,
     get_dataflow_metanodes,
@@ -199,37 +201,57 @@ def _check_external_inputs_missing_val(dataflow_data, specification) -> CheckRes
     return CheckResult(CheckStatus.OK, None)
 
 
-def _check_duplicate_external_out_inout_names(dataflow_data, specification) -> CheckResult:
-    """Check for duplicate external ports/interfaces names"""
+def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckResult:
+    """Check for duplicate names of external outputs"""
     ext_names_set = set()
     duplicates = set()
 
     for metanode in get_dataflow_metanodes(dataflow_data):
-        if metanode["name"] == EXT_INPUT_NAME:
-            continue
-        # Get external port/interface name. If user didn't specify external
-        # port/interface name in the textbox, let's get a corresponding
-        # IP core port/interface name as default
-        external_name = get_metanode_property_value(metanode)
-        if not external_name:
-            conn_ifaces_ids = find_connected_interfaces(
-                dataflow_data, get_metanode_interface_id(metanode)
-            )
-            # Here we have an Input/Inout interface, which can have only 1
-            # existing connection hence, we use index 0 to retrieve it
-            assert len(conn_ifaces_ids) == 1
-            external_name = find_dataflow_interface_by_id(dataflow_data, conn_ifaces_ids[0])[
-                "iface_name"
-            ]
+        if metanode["name"] == EXT_OUTPUT_NAME:
+            # Get external port/interface name. If user didn't specify external
+            # port/interface name in the textbox, let's get a corresponding
+            # IP core port/interface name as default
+            external_name = get_metanode_property_value(metanode)
+            if not external_name:
+                conn_ifaces_ids = find_connected_interfaces(
+                    dataflow_data, get_metanode_interface_id(metanode)
+                )
+                # Here we have an Input interface of an external metanode, which can have only 1
+                # existing connection hence, we use index 0 to retrieve it
+                assert len(conn_ifaces_ids) == 1
+                external_name = find_dataflow_interface_by_id(dataflow_data, conn_ifaces_ids[0])[
+                    "iface_name"
+                ]
 
-        if external_name in ext_names_set:
-            duplicates.add(external_name)
-        else:
-            ext_names_set.add(external_name)
+            if external_name in ext_names_set:
+                duplicates.add(external_name)
+            else:
+                ext_names_set.add(external_name)
 
     if duplicates:
         return CheckResult(
-            CheckStatus.ERROR, f"Duplicate external output/inout names: {str(list(duplicates))}"
+            CheckStatus.ERROR, f"Duplicate external output names: {str(list(duplicates))}"
+        )
+    return CheckResult(CheckStatus.OK, None)
+
+
+def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
+    """Check for connections between ports where one of them is has `inout` direction.
+    Return a warning if such connections exist.
+    """
+    connected_inouts = []
+    for connection in get_dataflow_ip_connections(dataflow_data):
+        iface_from = find_dataflow_interface_by_id(dataflow_data, connection["from"])
+        iface_to = find_dataflow_interface_by_id(dataflow_data, connection["to"])
+        if iface_from["iface_dir"] == "inout":
+            connected_inouts.append(f"{iface_from['node_name']}:{iface_from['iface_name']}")
+        if iface_to["iface_dir"] == "inout":
+            connected_inouts.append(f"{iface_to['node_name']}:{iface_to['iface_name']}")
+
+    if connected_inouts:
+        return CheckResult(
+            CheckStatus.WARNING, f"Wires connecting inout ports {connected_inouts} are always "
+                                 "external in the top module by Amaranth"
         )
     return CheckResult(CheckStatus.OK, None)
 
@@ -245,8 +267,9 @@ def validate_kpm_design(data: bytes, specification) -> dict:
         _check_ambigous_ports,
         _check_duplicate_external_input_interfaces,
         _check_external_inputs_missing_val,
-        _check_duplicate_external_out_inout_names,
+        _check_duplicate_external_out_names,
         _check_unconnected_ports_interfaces,
+        _check_inouts_connections,
     ]
 
     messages = {"errors": [], "warnings": []}

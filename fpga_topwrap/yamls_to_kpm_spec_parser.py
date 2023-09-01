@@ -159,9 +159,6 @@ def _generate_external_metanode(direction: str) -> dict:
         "properties": [{"name": "External Name", "type": "text", "default": ""}],
         "interfaces": [{"name": "external", "type": "", "direction": iface_dir}],
     }
-    if direction == "inout":
-        metanode["interfaces"][0]["side"] = "left"
-        metanode["interfaces"][0]["maxConnectionsCount"] = 1
 
     return metanode
 
