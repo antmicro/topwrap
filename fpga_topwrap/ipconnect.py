@@ -57,6 +57,12 @@ class IPConnect(Elaboratable):
                 " have different widths!"
             )
 
+        if port1.direction == DIR_INOUT or port2.direction == DIR_INOUT:
+            warning(
+                f"one of {ip1_name}:{port1.name}, {ip2_name}:{port2.name} is inout; "
+                "the wire connecting them will be also external in the top module"
+            )
+
         inst1_args = getattr(self, ip1_name)
         inst2_args = getattr(self, ip2_name)
 
@@ -145,7 +151,7 @@ class IPConnect(Elaboratable):
             sig.name = external_name
             setattr(self, external_name, sig)
             self._ports.append(sig)
-        elif name[:2] == "i_":
+        elif name[:2] == "i_" or name[:3] == "io_":
             ext_sig = getattr(self, external_name)
             inst_args[name] = ext_sig
         else:
@@ -153,7 +159,7 @@ class IPConnect(Elaboratable):
             # are allowed for external inputs only
             raise ValueError(
                 "Multiple connections to external port"
-                f"'{external_name}', that is not external input"
+                f"'{external_name}', that is external output"
             )
 
     def _set_interface(self, ip: IPWrapper, iface_name: str, external_iface_name: str) -> None:
