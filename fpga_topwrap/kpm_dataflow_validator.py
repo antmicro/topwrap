@@ -6,6 +6,7 @@ from enum import Enum
 from typing import NamedTuple, Union
 
 import numexpr as ex
+from pipeline_manager_backend_communication.misc_structures import MessageType
 
 from .kpm_common import (
     EXT_INPUT_NAME,
@@ -24,14 +25,8 @@ from .kpm_common import (
 )
 
 
-class CheckStatus(Enum):
-    OK = 0
-    WARNING = 1
-    ERROR = 2
-
-
 class CheckResult(NamedTuple):
-    status: CheckStatus
+    status: MessageType
     message: Union[str, None]
 
 
@@ -46,9 +41,9 @@ def _check_duplicate_ip_names(dataflow_data, specification) -> CheckResult:
             names_set.add(node["name"])
 
     if not duplicates:
-        return CheckResult(CheckStatus.OK, None)
+        return CheckResult(MessageType.OK, None)
     err_msg = f"Duplicate block names: {str(list(duplicates))}"
-    return CheckResult(CheckStatus.ERROR, err_msg)
+    return CheckResult(MessageType.ERROR, err_msg)
 
 
 def _check_parameters_values(dataflow_data, specification) -> CheckResult:
@@ -67,8 +62,8 @@ def _check_parameters_values(dataflow_data, specification) -> CheckResult:
 
     if invalid_params:
         err_msg = f"Invalid parameters values: {str(invalid_params)}"
-        return CheckResult(CheckStatus.ERROR, err_msg)
-    return CheckResult(CheckStatus.OK, None)
+        return CheckResult(MessageType.ERROR, err_msg)
+    return CheckResult(MessageType.OK, None)
 
 
 def _check_unconnected_ports_interfaces(dataflow_data, specification) -> CheckResult:
@@ -89,8 +84,8 @@ def _check_unconnected_ports_interfaces(dataflow_data, specification) -> CheckRe
         for unconn_iface_id in unconn_ifaces:
             interface = find_dataflow_interface_by_id(dataflow_data, unconn_iface_id)
             unconn_ifaces_descrs.append(f"{interface['node_name']}:{interface['iface_name']}")
-        return CheckResult(CheckStatus.WARNING, f"Unconnected interfaces: {unconn_ifaces_descrs}")
-    return CheckResult(CheckStatus.OK, None)
+        return CheckResult(MessageType.WARNING, f"Unconnected interfaces: {unconn_ifaces_descrs}")
+    return CheckResult(MessageType.OK, None)
 
 
 def _check_ext_in_to_ext_out_connections(dataflow_data, specification) -> CheckResult:
@@ -99,14 +94,14 @@ def _check_ext_in_to_ext_out_connections(dataflow_data, specification) -> CheckR
 
     for conn in dataflow_data["graph"]["connections"]:
         if conn["from"] in ext_ifaces_ids and conn["to"] in ext_ifaces_ids:
-            return CheckResult(CheckStatus.ERROR, "Existing connections between external metanodes")
+            return CheckResult(MessageType.ERROR, "Existing connections between external metanodes")
 
-    return CheckResult(CheckStatus.OK, None)
+    return CheckResult(MessageType.OK, None)
 
 
 def _check_ambigous_ports(dataflow_data, specification) -> CheckResult:
     """Check for ports which are connected to another ipcore port
-    and to external metanode at the same time
+    and to external meanode at the same time
     """
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 
@@ -131,9 +126,9 @@ def _check_ambigous_ports(dataflow_data, specification) -> CheckResult:
             for ambig_iface in ambig_ifaces
         ]
         return CheckResult(
-            CheckStatus.ERROR, f"External ports having >1 connections: {ambig_ifaces_descrs}"
+            MessageType.ERROR, f"External ports having >1 connections: {ambig_ifaces_descrs}"
         )
-    return CheckResult(CheckStatus.OK, None)
+    return CheckResult(MessageType.OK, None)
 
 
 def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> CheckResult:
@@ -164,10 +159,10 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> 
 
     if duplicates:
         return CheckResult(
-            CheckStatus.ERROR,
+            MessageType.ERROR,
             "Duplicate external input interfaces names: " f"{str(list(duplicates))}",
         )
-    return CheckResult(CheckStatus.OK, None)
+    return CheckResult(MessageType.OK, None)
 
 
 def _check_external_inputs_missing_val(dataflow_data, specification) -> CheckResult:
@@ -194,11 +189,11 @@ def _check_external_inputs_missing_val(dataflow_data, specification) -> CheckRes
 
     if err_ports:
         return CheckResult(
-            CheckStatus.WARNING,
+            MessageType.WARNING,
             f"External ports/interfaces {err_ports} are connected to "
             "`External Input` metanode with unspecified external name",
         )
-    return CheckResult(CheckStatus.OK, None)
+    return CheckResult(MessageType.OK, None)
 
 
 def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckResult:
@@ -231,9 +226,9 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
 
     if duplicates:
         return CheckResult(
-            CheckStatus.ERROR, f"Duplicate external output names: {str(list(duplicates))}"
+            MessageType.ERROR, f"Duplicate external output names: {str(list(duplicates))}"
         )
-    return CheckResult(CheckStatus.OK, None)
+    return CheckResult(MessageType.OK, None)
 
 
 def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
@@ -251,10 +246,10 @@ def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
 
     if connected_inouts:
         return CheckResult(
-            CheckStatus.WARNING, f"Wires connecting inout ports {connected_inouts} are always "
+            MessageType.WARNING, f"Wires connecting inout ports {connected_inouts} are always "
                                  "external in the top module by Amaranth"
         )
-    return CheckResult(CheckStatus.OK, None)
+    return CheckResult(MessageType.OK, None)
 
 
 def validate_kpm_design(data: bytes, specification) -> dict:
@@ -276,9 +271,9 @@ def validate_kpm_design(data: bytes, specification) -> dict:
     messages = {"errors": [], "warnings": []}
     for check in checks:
         status, msg = check(json.loads(data.decode()), specification)
-        if status == CheckStatus.ERROR:
-            messages["errors"].append("ERROR: " + msg)
-        elif status == CheckStatus.WARNING:
-            messages["warnings"].append("WARNING: " + msg)
+        if status == MessageType.ERROR:
+            messages["errors"].append(msg)
+        elif status == MessageType.WARNING:
+            messages["warnings"].append(msg)
 
     return messages

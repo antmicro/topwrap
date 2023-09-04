@@ -4,8 +4,8 @@
 import pytest
 from pytest_lazy_fixtures import lf
 
+from pipeline_manager_backend_communication.misc_structures import MessageType
 from fpga_topwrap.kpm_dataflow_validator import (
-    CheckStatus,
     _check_ambigous_ports,
     _check_duplicate_external_input_interfaces,
     _check_duplicate_external_out_names,
@@ -85,15 +85,15 @@ def specification_duplicate_external_input_interfaces():
 @pytest.mark.parametrize(
     "_check_function, expected_result",
     [
-        (_check_duplicate_ip_names, CheckStatus.OK),
-        (_check_parameters_values, CheckStatus.OK),
-        (_check_ext_in_to_ext_out_connections, CheckStatus.OK),
-        (_check_ambigous_ports, CheckStatus.OK),
-        (_check_external_inputs_missing_val, CheckStatus.OK),
-        (_check_duplicate_external_input_interfaces, CheckStatus.OK),
-        (_check_duplicate_external_out_names, CheckStatus.OK),
-        (_check_unconnected_ports_interfaces, CheckStatus.WARNING),
-        (_check_inouts_connections, CheckStatus.OK)
+        (_check_duplicate_ip_names, MessageType.OK),
+        (_check_parameters_values, MessageType.OK),
+        (_check_ext_in_to_ext_out_connections, MessageType.OK),
+        (_check_ambigous_ports, MessageType.OK),
+        (_check_external_inputs_missing_val, MessageType.OK),
+        (_check_duplicate_external_input_interfaces, MessageType.OK),
+        (_check_duplicate_external_out_names, MessageType.OK),
+        (_check_unconnected_ports_interfaces, MessageType.WARNING),
+        (_check_inouts_connections, MessageType.OK)
     ],
 )
 def test_hdmi_dataflow_validation(
@@ -107,15 +107,15 @@ def test_hdmi_dataflow_validation(
 @pytest.mark.parametrize(
     "_check_function, expected_result",
     [
-        (_check_duplicate_ip_names, CheckStatus.OK),
-        (_check_parameters_values, CheckStatus.OK),
-        (_check_ext_in_to_ext_out_connections, CheckStatus.OK),
-        (_check_ambigous_ports, CheckStatus.OK),
-        (_check_external_inputs_missing_val, CheckStatus.OK),
-        (_check_duplicate_external_input_interfaces, CheckStatus.OK),
-        (_check_duplicate_external_out_names, CheckStatus.OK),
-        (_check_unconnected_ports_interfaces, CheckStatus.WARNING),
-        (_check_inouts_connections, CheckStatus.OK),
+        (_check_duplicate_ip_names, MessageType.OK),
+        (_check_parameters_values, MessageType.OK),
+        (_check_ext_in_to_ext_out_connections, MessageType.OK),
+        (_check_ambigous_ports, MessageType.OK),
+        (_check_external_inputs_missing_val, MessageType.OK),
+        (_check_duplicate_external_input_interfaces, MessageType.OK),
+        (_check_duplicate_external_out_names, MessageType.OK),
+        (_check_unconnected_ports_interfaces, MessageType.WARNING),
+        (_check_inouts_connections, MessageType.OK),
     ],
 )
 def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow, pwm_specification):
@@ -127,37 +127,37 @@ def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow,
 @pytest.mark.parametrize(
     "_check_function, dataflow, expected_result",
     [
-        (_check_duplicate_ip_names, lf("dataflow_duplicate_ip_names"), CheckStatus.ERROR),
+        (_check_duplicate_ip_names, lf("dataflow_duplicate_ip_names"), MessageType.ERROR),
         (
             _check_parameters_values,
             lf("dataflow_invalid_parameters_values"),
-            CheckStatus.ERROR,
+            MessageType.ERROR,
         ),
         (
             _check_ext_in_to_ext_out_connections,
             lf("dataflow_ext_in_to_ext_out_connections"),
-            CheckStatus.ERROR,
+            MessageType.ERROR,
         ),
-        (_check_ambigous_ports, lf("dataflow_ambigous_ports"), CheckStatus.ERROR),
+        (_check_ambigous_ports, lf("dataflow_ambigous_ports"), MessageType.ERROR),
         (
             _check_duplicate_external_out_names,
             lf("dataflow_duplicate_ext_out_port_names"),
-            CheckStatus.ERROR,
+            MessageType.ERROR,
         ),
         (
             _check_external_inputs_missing_val,
             lf("dataflow_missing_ext_input_value"),
-            CheckStatus.WARNING,
+            MessageType.WARNING,
         ),
         (
             _check_duplicate_external_input_interfaces,
             lf("dataflow_duplicate_external_input_interfaces"),
-            CheckStatus.ERROR,
+            MessageType.ERROR,
         ),
         (
             _check_inouts_connections,
             lf("dataflow_inouts_connections"),
-            CheckStatus.WARNING
+            MessageType.WARNING
         )
     ],
 )
