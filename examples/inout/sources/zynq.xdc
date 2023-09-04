@@ -1,3 +1,6 @@
+# Copyright (C) 2023 Antmicro
+# SPDX-License-Identifier: Apache-2.0
+
 set_property -dict { PACKAGE_PIN K17   IOSTANDARD LVCMOS33 } [get_ports { PORT_CLK }];
 create_clock -add -name sys_clk_pin -period 8.00 -waveform {0 4} [get_ports { PORT_CLK }];
 
