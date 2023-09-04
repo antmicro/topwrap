@@ -4,12 +4,12 @@
 # -------------------------------------
 # Project
 # -------------------------------------
-DESIGN		=	project.yml
-SOURCE_DIR 	=	sources
-BUILD_DIR 	=	build
-IPCORES_DIR	=	ipcores
+DESIGN		:=	project.yml
+SOURCE_DIR 	:=	sources
+BUILD_DIR 	:=	build
+IPCORES_DIR	:=	ipcores
 
-SOURCE_FILES = \
+SOURCE_FILES := \
 	${SOURCE_DIR}/ibuf.v \
 	${SOURCE_DIR}/obuf.v \
 	${SOURCE_DIR}/iobuf.v
@@ -17,12 +17,12 @@ SOURCE_FILES = \
 # -------------------------------------
 # Toolchain
 # -------------------------------------
-PART	=	xc7z010clg400-1
+PART	:=	xc7z010clg400-1
 
-TOOL	?=	symbiflow
-# TOOL	?=	vivado
+TOOL	:=	symbiflow
+# TOOL	:=	vivado
 
-TARGET 	?= 	zynq
+TARGET  := 	zynq
 # -------------------------------------
 # Topwrap
 # -------------------------------------
@@ -47,12 +47,12 @@ setup:
 	mkdir -p ${BUILD_DIR} ${IPCORES_DIR}
 
 copy_sources:
-	mkdir -p build/sources
+	mkdir -p ${BUILD_DIR}/sources
 	cp -rf ${SOURCE_DIR}/* ${BUILD_DIR}/sources/
 
 clean:
 	rm -f sources/*.json gen_*.yml gen_*.yaml
 	rm -rf ${BUILD_DIR}/* ${IPCORES_DIR}/*
 
-.PHONY: setup clean copy_sources generate copy_sources bit
+.PHONY: setup clean copy_sources generate copy_sources bit parse all
 
