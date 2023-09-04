@@ -117,7 +117,7 @@ def kpm_run_client(host: str, port: int, yamlfiles: str):
                 if messages["errors"]:
                     client.send_message(MessageType.ERROR, messages["errors"][0].encode())
                 elif messages["warnings"]:
-                    client.send_message(MessageType.OK, messages["warnings"][0].encode())
+                    client.send_message(MessageType.WARNING, messages["warnings"][0].encode())
                 else:
                     client.send_message(MessageType.OK, "Design is valid".encode())
 
