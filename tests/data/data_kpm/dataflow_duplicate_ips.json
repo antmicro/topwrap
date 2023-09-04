@@ -1,43 +1,117 @@
 {
     "graph": {
-        "id": "1693316036262295",
+        "id": "169383254977833",
         "nodes": [
             {
                 "type": "ps7",
-                "id": "7930ef8f-e107-4878-b5ac-3358d49be2f9",
+                "id": "352acf91-83d7-4f5b-a0ec-a16c27b3e78c",
                 "position": {
-                    "x": -990,
-                    "y": 525
+                    "x": -1275,
+                    "y": 210
                 },
                 "width": 200,
                 "twoColumn": false,
-                "interfaces": [],
+                "interfaces": [
+                    {
+                        "name": "MAXIGP0ACLK",
+                        "id": "1d907e7a-ee53-4a08-9d04-7ef6f49cce90",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "FCLK0",
+                        "id": "bf4fc1c7-3ee3-45d4-bf4b-dba1f01ac584",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "MAXIGP0ARESETN",
+                        "id": "b6eeabdc-cfaf-4402-8f7b-acc03f4e93f0",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "FCLK_RESET0_N",
+                        "id": "16bbe50a-83b2-4ad0-8067-bcd014d44338",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "M_AXI_GP0",
+                        "id": "7f8c399e-7301-4a78-98bf-7a72435a26d4",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    }
+                ],
                 "properties": [],
+                "enabledInterfaceGroups": [],
                 "name": "ps7"
             },
             {
                 "type": "ps7",
-                "id": "03b42bc2-8272-4046-8cc0-745fe8cd2839",
+                "id": "0d73a381-73bb-4189-8a5a-c24e6ba3889e",
                 "position": {
-                    "x": -990,
-                    "y": 795
+                    "x": -1275,
+                    "y": 585
                 },
                 "width": 200,
                 "twoColumn": false,
-                "interfaces": [],
+                "interfaces": [
+                    {
+                        "name": "MAXIGP0ACLK",
+                        "id": "f3fddcf2-c35a-463e-b55d-4ee01c56f29f",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "FCLK0",
+                        "id": "ec880aa1-0ef6-4692-895c-f6642d8110db",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "MAXIGP0ARESETN",
+                        "id": "d4dded9d-eb04-457e-8edf-b1f95e3dd7f9",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "FCLK_RESET0_N",
+                        "id": "baa9245b-3cd8-42ef-a68a-86b554a12aca",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "M_AXI_GP0",
+                        "id": "55683c6a-6e5a-4efc-b33c-291ac8179b2d",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    }
+                ],
                 "properties": [],
+                "enabledInterfaceGroups": [],
                 "name": "ps7"
             }
         ],
         "connections": [],
         "panning": {
-            "x": 1762,
-            "y": -221
+            "x": 2379,
+            "y": 43
         },
-        "scaling": 0.821664464993395
+        "scaling": 0.5952100070290618
     },
     "graphTemplateInstances": [],
-    "version": "20230720.5",
+    "version": "20230824.9",
     "metadata": {
         "randomizedOffset": true
     }

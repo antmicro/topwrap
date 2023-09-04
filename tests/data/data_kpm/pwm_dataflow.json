@@ -1,119 +1,12 @@
 {
     "graph": {
-        "id": "169331965760233",
+        "id": "169383377059333",
         "nodes": [
             {
-                "type": "litex_pwm",
-                "id": "node_16933196576024",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "sys_clk",
-                        "id": "ni_16933196576020",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "sys_rst",
-                        "id": "ni_16933196576021",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axi",
-                        "id": "ni_16933196576023",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "pwm",
-                        "id": "ni_16933196576022",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [],
-                "name": "litex_pwm_top"
-            },
-            {
-                "type": "axi_axil_adapter",
-                "id": "node_169331965760215",
-                "position": {
-                    "x": -210,
-                    "y": 360
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "clk",
-                        "id": "ni_169331965760211",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "rst",
-                        "id": "ni_169331965760212",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axi",
-                        "id": "ni_169331965760213",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "m_axi",
-                        "id": "ni_169331965760214",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "ADDR_WIDTH",
-                        "id": "16933196576025",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_DATA_WIDTH",
-                        "id": "16933196576026",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_ID_WIDTH",
-                        "id": "16933196576027",
-                        "value": "12"
-                    },
-                    {
-                        "name": "AXI_STRB_WIDTH",
-                        "id": "16933196576028",
-                        "value": "AXI_DATA_WIDTH/8"
-                    },
-                    {
-                        "name": "AXIL_DATA_WIDTH",
-                        "id": "16933196576029",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXIL_STRB_WIDTH",
-                        "id": "169331965760210",
-                        "value": "AXIL_DATA_WIDTH/8"
-                    }
-                ],
-                "name": "axi_bridge"
-            },
-            {
                 "type": "ps7",
-                "id": "node_169331965760221",
+                "id": "node_16938337705935",
                 "position": {
-                    "x": -960,
+                    "x": -840,
                     "y": 0
                 },
                 "width": 200,
@@ -121,109 +14,240 @@
                 "interfaces": [
                     {
                         "name": "MAXIGP0ACLK",
-                        "id": "ni_169331965760216",
+                        "id": "ni_16938337705930",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     },
                     {
                         "name": "FCLK0",
-                        "id": "ni_169331965760217",
+                        "id": "ni_16938337705931",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "MAXIGP0ARESETN",
+                        "id": "ni_16938337705932",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
                     },
                     {
                         "name": "FCLK_RESET0_N",
-                        "id": "ni_169331965760219",
+                        "id": "ni_16938337705933",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 2
                     },
                     {
                         "name": "M_AXI_GP0",
-                        "id": "ni_169331965760220",
+                        "id": "ni_16938337705934",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 3
                     }
                 ],
                 "properties": [],
+                "enabledInterfaceGroups": [],
                 "name": "ps7"
             },
             {
-                "type": "External Output",
-                "id": "node_169331965760224",
+                "type": "axi_axil_adapter",
+                "id": "node_169383377059316",
                 "position": {
-                    "x": 465,
-                    "y": 0
+                    "x": 0,
+                    "y": 195
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clk",
+                        "id": "ni_169383377059312",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "rst",
+                        "id": "ni_169383377059313",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_169383377059314",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "ni_169383377059315",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "ADDR_WIDTH",
+                        "id": "16938337705936",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_DATA_WIDTH",
+                        "id": "16938337705937",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_ID_WIDTH",
+                        "id": "16938337705938",
+                        "value": "12"
+                    },
+                    {
+                        "name": "AXI_STRB_WIDTH",
+                        "id": "16938337705939",
+                        "value": "AXI_DATA_WIDTH/8"
+                    },
+                    {
+                        "name": "AXIL_DATA_WIDTH",
+                        "id": "169383377059310",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXIL_STRB_WIDTH",
+                        "id": "169383377059311",
+                        "value": "AXIL_DATA_WIDTH/8"
+                    }
+                ],
+                "enabledInterfaceGroups": [],
+                "name": "axi_bridge"
+            },
+            {
+                "type": "litex_pwm",
+                "id": "node_169383377059321",
+                "position": {
+                    "x": 510,
+                    "y": -120
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "sys_clk",
+                        "id": "ni_169383377059317",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "sys_rst",
+                        "id": "ni_169383377059318",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_169383377059320",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "pwm",
+                        "id": "ni_169383377059319",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    }
+                ],
+                "properties": [],
+                "enabledInterfaceGroups": [],
+                "name": "litex_pwm_top"
+            },
+            {
+                "type": "External Output",
+                "id": "node_169383377059324",
+                "position": {
+                    "x": 1035,
+                    "y": -90
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_169331965760223",
+                        "id": "ni_169383377059323",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "169331965760222",
+                        "id": "169383377059322",
                         "value": "pwm"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             }
         ],
         "connections": [
             {
-                "id": "307afc3e-571e-42cb-8576-40efe2663a0e",
-                "from": "ni_169331965760220",
-                "to": "ni_169331965760213"
+                "id": "ad7d7078-568a-4073-8e2e-f4dd0ed7fd16",
+                "from": "ni_16938337705931",
+                "to": "ni_16938337705930"
             },
             {
-                "id": "019fec4f-d0c7-4613-ba42-304698bf79dc",
-                "from": "ni_169331965760214",
-                "to": "ni_16933196576023"
+                "id": "37b65df8-b769-43de-ad82-aefc6d9d732f",
+                "from": "ni_16938337705931",
+                "to": "ni_169383377059312"
             },
             {
-                "id": "1c17737d-be21-4be9-9343-e10a9d1435e1",
-                "from": "ni_169331965760217",
-                "to": "ni_169331965760216"
+                "id": "52462985-ef90-4dd2-9881-54b6f4300535",
+                "from": "ni_16938337705933",
+                "to": "ni_169383377059313"
             },
             {
-                "id": "58ffd886-f3a2-4826-9349-171e1a120cc8",
-                "from": "ni_169331965760217",
-                "to": "ni_169331965760211"
+                "id": "1e03fb00-8e1e-4d50-96c1-9c3338d997c0",
+                "from": "ni_16938337705931",
+                "to": "ni_169383377059317"
             },
             {
-                "id": "7e0e1946-29d5-48b2-9aa1-3217555d5d2e",
-                "from": "ni_169331965760219",
-                "to": "ni_169331965760212"
+                "id": "2dfe82e8-33fa-49c7-a3f6-fc5f94c6d61a",
+                "from": "ni_16938337705933",
+                "to": "ni_169383377059318"
             },
             {
-                "id": "8e73b65f-8e06-4e1f-9dc0-c382cffb06be",
-                "from": "ni_169331965760217",
-                "to": "ni_16933196576020"
+                "id": "ae4d14a1-aaaf-4068-85ad-b3d2e9961b03",
+                "from": "ni_16938337705934",
+                "to": "ni_169383377059314"
             },
             {
-                "id": "5135ff9f-7afa-4606-83e0-73665d40633c",
-                "from": "ni_169331965760219",
-                "to": "ni_16933196576021"
+                "id": "ef8a7cf3-192b-4722-b286-75398f0dd6e9",
+                "from": "ni_169383377059315",
+                "to": "ni_169383377059320"
             },
             {
-                "id": "02ebafe9-bc2a-4afe-9625-7987440bdc94",
-                "from": "ni_16933196576022",
-                "to": "ni_169331965760223"
+                "id": "4cfde33e-5fc8-4ca1-b2ee-1369d745ce42",
+                "from": "ni_169383377059319",
+                "to": "ni_169383377059323"
             }
         ],
         "panning": {
-            "x": 1430,
-            "y": 220
+            "x": 1560.0814479638007,
+            "y": 200
         },
-        "scaling": 0.7806976752173672
+        "scaling": 0.8139963167587477
     },
     "graphTemplateInstances": [],
-    "version": "20230720.5",
+    "version": "20230824.9",
     "metadata": {
         "randomizedOffset": true
     }

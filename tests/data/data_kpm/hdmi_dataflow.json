@@ -1,378 +1,10 @@
 {
     "graph": {
-        "id": "1693316036262295",
+        "id": "1693834425917295",
         "nodes": [
             {
-                "type": "dma_axi_in_axis_out",
-                "id": "node_16933160362629",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "clock",
-                        "id": "ni_16933160362620",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "reset",
-                        "id": "ni_16933160362621",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "io_sync_readerSync",
-                        "id": "ni_16933160362622",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "io_sync_writerSync",
-                        "id": "ni_16933160362623",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axi",
-                        "id": "ni_16933160362626",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "io_irq_readerDone",
-                        "id": "ni_16933160362624",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "io_irq_writerDone",
-                        "id": "ni_16933160362625",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "m_axis",
-                        "id": "ni_16933160362627",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "m_axi",
-                        "id": "ni_16933160362628",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [],
-                "name": "dma"
-            },
-            {
-                "type": "axi_dispctrl",
-                "id": "node_169331603626226",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "S_AXIS_ACLK",
-                        "id": "ni_169331603626210",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "LOCKED_I",
-                        "id": "ni_169331603626211",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s00_axi_aclk",
-                        "id": "ni_169331603626212",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s00_axi_aresetn",
-                        "id": "ni_169331603626213",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "S00_AXI",
-                        "id": "ni_169331603626224",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "S_AXIS",
-                        "id": "ni_169331603626225",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "FSYNC_O",
-                        "id": "ni_169331603626214",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HSYNC_O",
-                        "id": "ni_169331603626215",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "VSYNC_O",
-                        "id": "ni_169331603626216",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "DE_O",
-                        "id": "ni_169331603626217",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "DATA_O",
-                        "id": "ni_169331603626218",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "CTL_O",
-                        "id": "ni_169331603626219",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "VGUARD_O",
-                        "id": "ni_169331603626220",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "DGUARD_O",
-                        "id": "ni_169331603626221",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "DIEN_O",
-                        "id": "ni_169331603626222",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "DIH_O",
-                        "id": "ni_169331603626223",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [],
-                "name": "disp"
-            },
-            {
-                "type": "hdmi_tx",
-                "id": "node_169331603626247",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "PXLCLK_I",
-                        "id": "ni_169331603626227",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "PXLCLK_5X_I",
-                        "id": "ni_169331603626228",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "LOCKED_I",
-                        "id": "ni_169331603626229",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "VGA_HS",
-                        "id": "ni_169331603626230",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "VGA_VS",
-                        "id": "ni_169331603626231",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "VGA_DE",
-                        "id": "ni_169331603626232",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "DATA_I",
-                        "id": "ni_169331603626233",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "CTL",
-                        "id": "ni_169331603626234",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "VGUARD",
-                        "id": "ni_169331603626235",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "DGUARD",
-                        "id": "ni_169331603626236",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "DIEN",
-                        "id": "ni_169331603626237",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "DIH",
-                        "id": "ni_169331603626238",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "HDMI_CLK_P",
-                        "id": "ni_169331603626239",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HDMI_CLK_N",
-                        "id": "ni_169331603626240",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HDMI_D2_P",
-                        "id": "ni_169331603626241",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HDMI_D2_N",
-                        "id": "ni_169331603626242",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HDMI_D1_P",
-                        "id": "ni_169331603626243",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HDMI_D1_N",
-                        "id": "ni_169331603626244",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HDMI_D0_P",
-                        "id": "ni_169331603626245",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "HDMI_D0_N",
-                        "id": "ni_169331603626246",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [],
-                "name": "hdmi"
-            },
-            {
-                "type": "litex_mmcm",
-                "id": "node_169331603626255",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "sys_clk",
-                        "id": "ni_169331603626248",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "sys_rst",
-                        "id": "ni_169331603626249",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "clkgen_ref",
-                        "id": "ni_169331603626250",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "axi",
-                        "id": "ni_169331603626254",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "clkgen_out0",
-                        "id": "ni_169331603626251",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "clkgen_out1",
-                        "id": "ni_169331603626252",
-                        "direction": "output",
-                        "side": "right"
-                    },
-                    {
-                        "name": "clkgen_locked",
-                        "id": "ni_169331603626253",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [],
-                "name": "mmcm"
-            },
-            {
                 "type": "axi_interconnect",
-                "id": "node_169331603626275",
+                "id": "node_169383442591619",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -382,407 +14,120 @@
                 "interfaces": [
                     {
                         "name": "clk",
-                        "id": "ni_169331603626269",
+                        "id": "ni_169383442591613",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     },
                     {
                         "name": "rst",
-                        "id": "ni_169331603626270",
+                        "id": "ni_169383442591614",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 1
                     },
                     {
                         "name": "s_axi_0",
-                        "id": "ni_169331603626271",
+                        "id": "ni_169383442591615",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 2
                     },
                     {
                         "name": "m_axi_0",
-                        "id": "ni_169331603626272",
+                        "id": "ni_169383442591616",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
                     },
                     {
                         "name": "m_axi_1",
-                        "id": "ni_169331603626273",
+                        "id": "ni_169383442591617",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 1
                     },
                     {
                         "name": "m_axi_2",
-                        "id": "ni_169331603626274",
+                        "id": "ni_169383442591618",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 2
                     }
                 ],
                 "properties": [
                     {
                         "name": "S_COUNT",
-                        "id": "169331603626256",
+                        "id": "16938344259160",
                         "value": "1"
                     },
                     {
                         "name": "M_COUNT",
-                        "id": "169331603626257",
+                        "id": "16938344259161",
                         "value": "3"
                     },
                     {
                         "name": "DATA_WIDTH",
-                        "id": "169331603626258",
+                        "id": "16938344259162",
                         "value": "32"
                     },
                     {
                         "name": "ADDR_WIDTH",
-                        "id": "169331603626259",
+                        "id": "16938344259163",
                         "value": "32"
                     },
                     {
                         "name": "ID_WIDTH",
-                        "id": "169331603626260",
+                        "id": "16938344259164",
                         "value": "12"
                     },
                     {
                         "name": "M_BASE_ADDR",
-                        "id": "169331603626261",
+                        "id": "16938344259165",
                         "value": "118'h43c2000043c1000043c00000"
                     },
                     {
                         "name": "M_ADDR_WIDTH",
-                        "id": "169331603626262",
+                        "id": "16938344259166",
                         "value": "96'h100000001000000010"
                     },
                     {
                         "name": "AWUSER_WIDTH",
-                        "id": "169331603626263",
+                        "id": "16938344259167",
                         "value": "1"
                     },
                     {
                         "name": "WUSER_WIDTH",
-                        "id": "169331603626264",
+                        "id": "16938344259168",
                         "value": "1"
                     },
                     {
                         "name": "ARUSER_WIDTH",
-                        "id": "169331603626265",
+                        "id": "16938344259169",
                         "value": "1"
                     },
                     {
                         "name": "BUSER_WIDTH",
-                        "id": "169331603626266",
+                        "id": "169383442591610",
                         "value": "1"
                     },
                     {
                         "name": "RUSER_WIDTH",
-                        "id": "169331603626267",
+                        "id": "169383442591611",
                         "value": "1"
                     },
                     {
                         "name": "STRB_WIDTH",
-                        "id": "169331603626268",
+                        "id": "169383442591612",
                         "value": "DATA_WIDTH/8"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "axi_interconnect0"
             },
             {
-                "type": "axi_axil_adapter",
-                "id": "node_169331603626286",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "clk",
-                        "id": "ni_169331603626282",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "rst",
-                        "id": "ni_169331603626283",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axi",
-                        "id": "ni_169331603626284",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "m_axi",
-                        "id": "ni_169331603626285",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "ADDR_WIDTH",
-                        "id": "169331603626276",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_DATA_WIDTH",
-                        "id": "169331603626277",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_ID_WIDTH",
-                        "id": "169331603626278",
-                        "value": "12"
-                    },
-                    {
-                        "name": "AXI_STRB_WIDTH",
-                        "id": "169331603626279",
-                        "value": "AXI_DATA_WIDTH/8"
-                    },
-                    {
-                        "name": "AXIL_DATA_WIDTH",
-                        "id": "169331603626280",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXIL_STRB_WIDTH",
-                        "id": "169331603626281",
-                        "value": "AXIL_DATA_WIDTH/8"
-                    }
-                ],
-                "name": "axi_bridge_disp"
-            },
-            {
-                "type": "axi_axil_adapter",
-                "id": "node_169331603626297",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "clk",
-                        "id": "ni_169331603626293",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "rst",
-                        "id": "ni_169331603626294",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axi",
-                        "id": "ni_169331603626295",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "m_axi",
-                        "id": "ni_169331603626296",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "ADDR_WIDTH",
-                        "id": "169331603626287",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_DATA_WIDTH",
-                        "id": "169331603626288",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_ID_WIDTH",
-                        "id": "169331603626289",
-                        "value": "12"
-                    },
-                    {
-                        "name": "AXI_STRB_WIDTH",
-                        "id": "169331603626290",
-                        "value": "AXI_DATA_WIDTH/8"
-                    },
-                    {
-                        "name": "AXIL_DATA_WIDTH",
-                        "id": "169331603626291",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXIL_STRB_WIDTH",
-                        "id": "169331603626292",
-                        "value": "AXIL_DATA_WIDTH/8"
-                    }
-                ],
-                "name": "axi_bridge_dma"
-            },
-            {
-                "type": "axi_axil_adapter",
-                "id": "node_1693316036262108",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "clk",
-                        "id": "ni_1693316036262104",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "rst",
-                        "id": "ni_1693316036262105",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axi",
-                        "id": "ni_1693316036262106",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "m_axi",
-                        "id": "ni_1693316036262107",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "ADDR_WIDTH",
-                        "id": "169331603626298",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_DATA_WIDTH",
-                        "id": "169331603626299",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXI_ID_WIDTH",
-                        "id": "1693316036262100",
-                        "value": "12"
-                    },
-                    {
-                        "name": "AXI_STRB_WIDTH",
-                        "id": "1693316036262101",
-                        "value": "AXI_DATA_WIDTH/8"
-                    },
-                    {
-                        "name": "AXIL_DATA_WIDTH",
-                        "id": "1693316036262102",
-                        "value": "32"
-                    },
-                    {
-                        "name": "AXIL_STRB_WIDTH",
-                        "id": "1693316036262103",
-                        "value": "AXIL_DATA_WIDTH/8"
-                    }
-                ],
-                "name": "axi_bridge_mmcm"
-            },
-            {
-                "type": "axis_dwidth_converter",
-                "id": "node_1693316036262115",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "aclk",
-                        "id": "ni_1693316036262111",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "aresetn",
-                        "id": "ni_1693316036262112",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axis",
-                        "id": "ni_1693316036262113",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "m_axis",
-                        "id": "ni_1693316036262114",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "IN_DATA_WIDTH",
-                        "id": "1693316036262109",
-                        "value": "64"
-                    },
-                    {
-                        "name": "OUT_DATA_WIDTH",
-                        "id": "1693316036262110",
-                        "value": "32"
-                    }
-                ],
-                "name": "axis_dwidth_converter"
-            },
-            {
-                "type": "clock_crossing",
-                "id": "node_1693316036262120",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "clkA",
-                        "id": "ni_1693316036262116",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "A",
-                        "id": "ni_1693316036262117",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "clkB",
-                        "id": "ni_1693316036262118",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "B",
-                        "id": "ni_1693316036262119",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [],
-                "name": "clock_crossing"
-            },
-            {
                 "type": "proc_sys_reset",
-                "id": "node_1693316036262131",
+                "id": "node_169383442591630",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -792,147 +137,82 @@
                 "interfaces": [
                     {
                         "name": "slowest_sync_clk",
-                        "id": "ni_1693316036262121",
+                        "id": "ni_169383442591620",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "ext_reset_in",
+                        "id": "ni_169383442591621",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "aux_reset_in",
+                        "id": "ni_169383442591622",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "mb_debug_sys_rst",
+                        "id": "ni_169383442591623",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "dcm_locked",
+                        "id": "ni_169383442591624",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "mb_reset",
+                        "id": "ni_169383442591625",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
                     },
                     {
                         "name": "bus_struct_reset",
-                        "id": "ni_1693316036262127",
+                        "id": "ni_169383442591626",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 1
                     },
                     {
                         "name": "peripheral_reset",
-                        "id": "ni_1693316036262128",
+                        "id": "ni_169383442591627",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 2
                     },
                     {
                         "name": "interconnect_aresetn",
-                        "id": "ni_1693316036262129",
+                        "id": "ni_169383442591628",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 3
                     },
                     {
                         "name": "peripheral_aresetn",
-                        "id": "ni_1693316036262130",
+                        "id": "ni_169383442591629",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 4
                     }
                 ],
                 "properties": [],
+                "enabledInterfaceGroups": [],
                 "name": "reset0"
             },
             {
-                "type": "proc_sys_reset",
-                "id": "node_1693316036262142",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "slowest_sync_clk",
-                        "id": "ni_1693316036262132",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "interconnect_aresetn",
-                        "id": "ni_1693316036262140",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [],
-                "name": "reset1"
-            },
-            {
-                "type": "axis_async_fifo",
-                "id": "node_1693316036262161",
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "async_rst",
-                        "id": "ni_1693316036262150",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_clk",
-                        "id": "ni_1693316036262151",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "m_clk",
-                        "id": "ni_1693316036262152",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "s_axis",
-                        "id": "ni_1693316036262159",
-                        "direction": "input",
-                        "side": "left"
-                    },
-                    {
-                        "name": "m_axis",
-                        "id": "ni_1693316036262160",
-                        "direction": "output",
-                        "side": "right"
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "DATA_WIDTH",
-                        "id": "1693316036262143",
-                        "value": "64"
-                    },
-                    {
-                        "name": "KEEP_WIDTH",
-                        "id": "1693316036262144",
-                        "value": "(DATA_WIDTH+7)/8"
-                    },
-                    {
-                        "name": "ID_WIDTH",
-                        "id": "1693316036262145",
-                        "value": "8"
-                    },
-                    {
-                        "name": "DEST_WIDTH",
-                        "id": "1693316036262146",
-                        "value": "8"
-                    },
-                    {
-                        "name": "USER_WIDTH",
-                        "id": "1693316036262147",
-                        "value": "1"
-                    },
-                    {
-                        "name": "ID_ENABLE",
-                        "id": "1693316036262148",
-                        "value": "0"
-                    },
-                    {
-                        "name": "USER_ENABLE",
-                        "id": "1693316036262149",
-                        "value": "0"
-                    }
-                ],
-                "name": "axis_clock_converter"
-            },
-            {
                 "type": "ps7",
-                "id": "node_1693316036262198",
+                "id": "node_169383442591667",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -942,59 +222,1166 @@
                 "interfaces": [
                     {
                         "name": "MAXIGP0ACLK",
-                        "id": "ni_1693316036262162",
+                        "id": "ni_169383442591631",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     },
                     {
                         "name": "SAXIHP0ACLK",
-                        "id": "ni_1693316036262163",
+                        "id": "ni_169383442591632",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 1
                     },
                     {
                         "name": "IRQ_F2P_0",
-                        "id": "ni_1693316036262164",
+                        "id": "ni_169383442591633",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 2
                     },
                     {
                         "name": "IRQ_F2P_1",
-                        "id": "ni_1693316036262165",
+                        "id": "ni_169383442591634",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 3
                     },
                     {
                         "name": "S_AXI_HP0",
-                        "id": "ni_1693316036262196",
+                        "id": "ni_169383442591665",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "ddr_addr",
+                        "id": "ni_169383442591644",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 5
+                    },
+                    {
+                        "name": "ddr_bankaddr",
+                        "id": "ni_169383442591645",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 6
+                    },
+                    {
+                        "name": "ddr_cas_n",
+                        "id": "ni_169383442591646",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 7
+                    },
+                    {
+                        "name": "ddr_cke",
+                        "id": "ni_169383442591647",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 8
+                    },
+                    {
+                        "name": "ddr_clk",
+                        "id": "ni_169383442591648",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 9
+                    },
+                    {
+                        "name": "ddr_clk_n",
+                        "id": "ni_169383442591649",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 10
+                    },
+                    {
+                        "name": "ddr_cs_n",
+                        "id": "ni_169383442591650",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 11
+                    },
+                    {
+                        "name": "ddr_dm",
+                        "id": "ni_169383442591651",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 12
+                    },
+                    {
+                        "name": "ddr_dq",
+                        "id": "ni_169383442591652",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 13
+                    },
+                    {
+                        "name": "ddr_dqs",
+                        "id": "ni_169383442591653",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 14
+                    },
+                    {
+                        "name": "ddr_dqs_n",
+                        "id": "ni_169383442591654",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 15
+                    },
+                    {
+                        "name": "ddr_drstb",
+                        "id": "ni_169383442591655",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 16
+                    },
+                    {
+                        "name": "ddr_odt",
+                        "id": "ni_169383442591656",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 17
+                    },
+                    {
+                        "name": "ddr_ras_n",
+                        "id": "ni_169383442591657",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 18
+                    },
+                    {
+                        "name": "ddr_vr_n",
+                        "id": "ni_169383442591658",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 19
+                    },
+                    {
+                        "name": "ddr_vr",
+                        "id": "ni_169383442591659",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 20
+                    },
+                    {
+                        "name": "ddr_web",
+                        "id": "ni_169383442591660",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 21
+                    },
+                    {
+                        "name": "ps_mio",
+                        "id": "ni_169383442591661",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 22
+                    },
+                    {
+                        "name": "ps_clk",
+                        "id": "ni_169383442591662",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 23
+                    },
+                    {
+                        "name": "ps_porb",
+                        "id": "ni_169383442591663",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 24
+                    },
+                    {
+                        "name": "ps_srstb",
+                        "id": "ni_169383442591664",
+                        "direction": "inout",
+                        "side": "left",
+                        "sidePosition": 25
                     },
                     {
                         "name": "FCLK0",
-                        "id": "ni_1693316036262166",
+                        "id": "ni_169383442591635",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
                     },
                     {
                         "name": "FCLK1",
-                        "id": "ni_1693316036262167",
+                        "id": "ni_169383442591636",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "MAXIGP0ARESETN",
+                        "id": "ni_169383442591637",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "SAXIHP0ARESETN",
+                        "id": "ni_169383442591638",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "FCLK_RESET0_N",
+                        "id": "ni_169383442591639",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "SAXIHP0RACOUNT",
+                        "id": "ni_169383442591640",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 5
+                    },
+                    {
+                        "name": "SAXIHP0RCOUNT",
+                        "id": "ni_169383442591641",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 6
+                    },
+                    {
+                        "name": "SAXIHP0WACOUNT",
+                        "id": "ni_169383442591642",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 7
+                    },
+                    {
+                        "name": "SAXIHP0WCOUNT",
+                        "id": "ni_169383442591643",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 8
                     },
                     {
                         "name": "M_AXI_GP0",
-                        "id": "ni_1693316036262197",
+                        "id": "ni_169383442591666",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 9
                     }
                 ],
                 "properties": [],
+                "enabledInterfaceGroups": [],
                 "name": "ps7"
             },
             {
-                "type": "axi_protocol_converter",
-                "id": "node_1693316036262203",
+                "type": "proc_sys_reset",
+                "id": "node_169383442591678",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "slowest_sync_clk",
+                        "id": "ni_169383442591668",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "ext_reset_in",
+                        "id": "ni_169383442591669",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "aux_reset_in",
+                        "id": "ni_169383442591670",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "mb_debug_sys_rst",
+                        "id": "ni_169383442591671",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "dcm_locked",
+                        "id": "ni_169383442591672",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "mb_reset",
+                        "id": "ni_169383442591673",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "bus_struct_reset",
+                        "id": "ni_169383442591674",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "peripheral_reset",
+                        "id": "ni_169383442591675",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "interconnect_aresetn",
+                        "id": "ni_169383442591676",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "peripheral_aresetn",
+                        "id": "ni_169383442591677",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 4
+                    }
+                ],
+                "properties": [],
+                "enabledInterfaceGroups": [],
+                "name": "reset1"
+            },
+            {
+                "type": "clock_crossing",
+                "id": "node_169383442591683",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clkA",
+                        "id": "ni_169383442591679",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "A",
+                        "id": "ni_169383442591680",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "clkB",
+                        "id": "ni_169383442591681",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "B",
+                        "id": "ni_169383442591682",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    }
+                ],
+                "properties": [],
+                "enabledInterfaceGroups": [],
+                "name": "clock_crossing"
+            },
+            {
+                "type": "axi_axil_adapter",
+                "id": "node_169383442591694",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clk",
+                        "id": "ni_169383442591690",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "rst",
+                        "id": "ni_169383442591691",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_169383442591692",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "ni_169383442591693",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "ADDR_WIDTH",
+                        "id": "169383442591684",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_DATA_WIDTH",
+                        "id": "169383442591685",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_ID_WIDTH",
+                        "id": "169383442591686",
+                        "value": "12"
+                    },
+                    {
+                        "name": "AXI_STRB_WIDTH",
+                        "id": "169383442591687",
+                        "value": "AXI_DATA_WIDTH/8"
+                    },
+                    {
+                        "name": "AXIL_DATA_WIDTH",
+                        "id": "169383442591688",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXIL_STRB_WIDTH",
+                        "id": "169383442591689",
+                        "value": "AXIL_DATA_WIDTH/8"
+                    }
+                ],
+                "enabledInterfaceGroups": [],
+                "name": "axi_bridge_dma"
+            },
+            {
+                "type": "litex_mmcm",
+                "id": "node_1693834425916102",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "sys_clk",
+                        "id": "ni_169383442591695",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "sys_rst",
+                        "id": "ni_169383442591696",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "clkgen_ref",
+                        "id": "ni_169383442591697",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "axi",
+                        "id": "ni_1693834425916101",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "clkgen_out0",
+                        "id": "ni_169383442591698",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "clkgen_out1",
+                        "id": "ni_169383442591699",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "clkgen_locked",
+                        "id": "ni_1693834425916100",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    }
+                ],
+                "properties": [],
+                "enabledInterfaceGroups": [],
+                "name": "mmcm"
+            },
+            {
+                "type": "dma_axi_in_axis_out",
+                "id": "node_1693834425916112",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clock",
+                        "id": "ni_1693834425916103",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "reset",
+                        "id": "ni_1693834425916104",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "io_sync_readerSync",
+                        "id": "ni_1693834425916105",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "io_sync_writerSync",
+                        "id": "ni_1693834425916106",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_1693834425916109",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "io_irq_readerDone",
+                        "id": "ni_1693834425916107",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "io_irq_writerDone",
+                        "id": "ni_1693834425916108",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "m_axis",
+                        "id": "ni_1693834425916110",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "ni_1693834425916111",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    }
+                ],
+                "properties": [],
+                "enabledInterfaceGroups": [],
+                "name": "dma"
+            },
+            {
+                "type": "axi_axil_adapter",
+                "id": "node_1693834425916123",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clk",
+                        "id": "ni_1693834425916119",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "rst",
+                        "id": "ni_1693834425916120",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_1693834425916121",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "ni_1693834425916122",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "ADDR_WIDTH",
+                        "id": "1693834425916113",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_DATA_WIDTH",
+                        "id": "1693834425916114",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_ID_WIDTH",
+                        "id": "1693834425916115",
+                        "value": "12"
+                    },
+                    {
+                        "name": "AXI_STRB_WIDTH",
+                        "id": "1693834425916116",
+                        "value": "AXI_DATA_WIDTH/8"
+                    },
+                    {
+                        "name": "AXIL_DATA_WIDTH",
+                        "id": "1693834425916117",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXIL_STRB_WIDTH",
+                        "id": "1693834425916118",
+                        "value": "AXIL_DATA_WIDTH/8"
+                    }
+                ],
+                "enabledInterfaceGroups": [],
+                "name": "axi_bridge_disp"
+            },
+            {
+                "type": "axi_dispctrl",
+                "id": "node_1693834425916140",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "S_AXIS_ACLK",
+                        "id": "ni_1693834425916124",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "LOCKED_I",
+                        "id": "ni_1693834425916125",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s00_axi_aclk",
+                        "id": "ni_1693834425916126",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "s00_axi_aresetn",
+                        "id": "ni_1693834425916127",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "S00_AXI",
+                        "id": "ni_1693834425916138",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "S_AXIS",
+                        "id": "ni_1693834425916139",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 5
+                    },
+                    {
+                        "name": "FSYNC_O",
+                        "id": "ni_1693834425916128",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "HSYNC_O",
+                        "id": "ni_1693834425916129",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "VSYNC_O",
+                        "id": "ni_1693834425916130",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "DE_O",
+                        "id": "ni_1693834425916131",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "DATA_O",
+                        "id": "ni_1693834425916132",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "CTL_O",
+                        "id": "ni_1693834425916133",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 5
+                    },
+                    {
+                        "name": "VGUARD_O",
+                        "id": "ni_1693834425916134",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 6
+                    },
+                    {
+                        "name": "DGUARD_O",
+                        "id": "ni_1693834425916135",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 7
+                    },
+                    {
+                        "name": "DIEN_O",
+                        "id": "ni_1693834425916136",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 8
+                    },
+                    {
+                        "name": "DIH_O",
+                        "id": "ni_1693834425916137",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 9
+                    }
+                ],
+                "properties": [],
+                "enabledInterfaceGroups": [],
+                "name": "disp"
+            },
+            {
+                "type": "axis_async_fifo",
+                "id": "node_1693834425916159",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "async_rst",
+                        "id": "ni_1693834425916148",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "s_clk",
+                        "id": "ni_1693834425916149",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "m_clk",
+                        "id": "ni_1693834425916150",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "s_axis",
+                        "id": "ni_1693834425916157",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "s_status_overflow",
+                        "id": "ni_1693834425916151",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "s_status_bad_frame",
+                        "id": "ni_1693834425916152",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_status_good_frame",
+                        "id": "ni_1693834425916153",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_status_overflow",
+                        "id": "ni_1693834425916154",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "m_status_bad_frame",
+                        "id": "ni_1693834425916155",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "m_status_good_frame",
+                        "id": "ni_1693834425916156",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 5
+                    },
+                    {
+                        "name": "m_axis",
+                        "id": "ni_1693834425916158",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 6
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "DATA_WIDTH",
+                        "id": "1693834425916141",
+                        "value": "64"
+                    },
+                    {
+                        "name": "KEEP_WIDTH",
+                        "id": "1693834425916142",
+                        "value": "(DATA_WIDTH+7)/8"
+                    },
+                    {
+                        "name": "ID_WIDTH",
+                        "id": "1693834425916143",
+                        "value": "8"
+                    },
+                    {
+                        "name": "DEST_WIDTH",
+                        "id": "1693834425916144",
+                        "value": "8"
+                    },
+                    {
+                        "name": "USER_WIDTH",
+                        "id": "1693834425916145",
+                        "value": "1"
+                    },
+                    {
+                        "name": "ID_ENABLE",
+                        "id": "1693834425916146",
+                        "value": "0"
+                    },
+                    {
+                        "name": "USER_ENABLE",
+                        "id": "1693834425916147",
+                        "value": "0"
+                    }
+                ],
+                "enabledInterfaceGroups": [],
+                "name": "axis_clock_converter"
+            },
+            {
+                "type": "axi_axil_adapter",
+                "id": "node_1693834425916170",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "clk",
+                        "id": "ni_1693834425916166",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "rst",
+                        "id": "ni_1693834425916167",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ni_1693834425916168",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "ni_1693834425916169",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "ADDR_WIDTH",
+                        "id": "1693834425916160",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_DATA_WIDTH",
+                        "id": "1693834425916161",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXI_ID_WIDTH",
+                        "id": "1693834425916162",
+                        "value": "12"
+                    },
+                    {
+                        "name": "AXI_STRB_WIDTH",
+                        "id": "1693834425916163",
+                        "value": "AXI_DATA_WIDTH/8"
+                    },
+                    {
+                        "name": "AXIL_DATA_WIDTH",
+                        "id": "1693834425916164",
+                        "value": "32"
+                    },
+                    {
+                        "name": "AXIL_STRB_WIDTH",
+                        "id": "1693834425916165",
+                        "value": "AXIL_DATA_WIDTH/8"
+                    }
+                ],
+                "enabledInterfaceGroups": [],
+                "name": "axi_bridge_mmcm"
+            },
+            {
+                "type": "hdmi_tx",
+                "id": "node_1693834425916191",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "PXLCLK_I",
+                        "id": "ni_1693834425916171",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "PXLCLK_5X_I",
+                        "id": "ni_1693834425916172",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "LOCKED_I",
+                        "id": "ni_1693834425916173",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "VGA_HS",
+                        "id": "ni_1693834425916174",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "VGA_VS",
+                        "id": "ni_1693834425916175",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "VGA_DE",
+                        "id": "ni_1693834425916176",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 5
+                    },
+                    {
+                        "name": "DATA_I",
+                        "id": "ni_1693834425916177",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 6
+                    },
+                    {
+                        "name": "CTL",
+                        "id": "ni_1693834425916178",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 7
+                    },
+                    {
+                        "name": "VGUARD",
+                        "id": "ni_1693834425916179",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 8
+                    },
+                    {
+                        "name": "DGUARD",
+                        "id": "ni_1693834425916180",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 9
+                    },
+                    {
+                        "name": "DIEN",
+                        "id": "ni_1693834425916181",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 10
+                    },
+                    {
+                        "name": "DIH",
+                        "id": "ni_1693834425916182",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 11
+                    },
+                    {
+                        "name": "HDMI_CLK_P",
+                        "id": "ni_1693834425916183",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "HDMI_CLK_N",
+                        "id": "ni_1693834425916184",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "HDMI_D2_P",
+                        "id": "ni_1693834425916185",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "HDMI_D2_N",
+                        "id": "ni_1693834425916186",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 3
+                    },
+                    {
+                        "name": "HDMI_D1_P",
+                        "id": "ni_1693834425916187",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 4
+                    },
+                    {
+                        "name": "HDMI_D1_N",
+                        "id": "ni_1693834425916188",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 5
+                    },
+                    {
+                        "name": "HDMI_D0_P",
+                        "id": "ni_1693834425916189",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 6
+                    },
+                    {
+                        "name": "HDMI_D0_N",
+                        "id": "ni_1693834425916190",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 7
+                    }
+                ],
+                "properties": [],
+                "enabledInterfaceGroups": [],
+                "name": "hdmi"
+            },
+            {
+                "type": "axis_dwidth_converter",
+                "id": "node_1693834425916198",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1004,35 +1391,94 @@
                 "interfaces": [
                     {
                         "name": "aclk",
-                        "id": "ni_1693316036262199",
+                        "id": "ni_1693834425916194",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     },
                     {
                         "name": "aresetn",
-                        "id": "ni_1693316036262200",
+                        "id": "ni_1693834425916195",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axis",
+                        "id": "ni_1693834425916196",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axis",
+                        "id": "ni_1693834425916197",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "IN_DATA_WIDTH",
+                        "id": "1693834425916192",
+                        "value": "64"
+                    },
+                    {
+                        "name": "OUT_DATA_WIDTH",
+                        "id": "1693834425916193",
+                        "value": "32"
+                    }
+                ],
+                "enabledInterfaceGroups": [],
+                "name": "axis_dwidth_converter"
+            },
+            {
+                "type": "axi_protocol_converter",
+                "id": "node_1693834425916203",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "width": 200,
+                "twoColumn": false,
+                "interfaces": [
+                    {
+                        "name": "aclk",
+                        "id": "ni_1693834425916199",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "aresetn",
+                        "id": "ni_1693834425916200",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
                     },
                     {
                         "name": "S_AXI",
-                        "id": "ni_1693316036262201",
+                        "id": "ni_1693834425916201",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 2
                     },
                     {
                         "name": "M_AXI",
-                        "id": "ni_1693316036262202",
+                        "id": "ni_1693834425916202",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [],
+                "enabledInterfaceGroups": [],
                 "name": "axi_protocol_converter0"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262206",
+                "id": "node_1693834425916206",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1042,23 +1488,25 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262205",
+                        "id": "ni_1693834425916205",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262204",
+                        "id": "1693834425916204",
                         "value": "HDMI_CLK_P"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262209",
+                "id": "node_1693834425916209",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1068,23 +1516,25 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262208",
+                        "id": "ni_1693834425916208",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262207",
+                        "id": "1693834425916207",
                         "value": "HDMI_CLK_N"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262212",
+                "id": "node_1693834425916212",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1094,23 +1544,25 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262211",
+                        "id": "ni_1693834425916211",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262210",
+                        "id": "1693834425916210",
                         "value": "HDMI_D0_P"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262215",
+                "id": "node_1693834425916215",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1120,23 +1572,25 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262214",
+                        "id": "ni_1693834425916214",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262213",
+                        "id": "1693834425916213",
                         "value": "HDMI_D0_N"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262218",
+                "id": "node_1693834425916218",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1146,23 +1600,25 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262217",
+                        "id": "ni_1693834425916217",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262216",
+                        "id": "1693834425916216",
                         "value": "HDMI_D1_P"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262221",
+                "id": "node_1693834425916221",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1172,23 +1628,25 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262220",
+                        "id": "ni_1693834425916220",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262219",
+                        "id": "1693834425916219",
                         "value": "HDMI_D1_N"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262224",
+                "id": "node_1693834425916224",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1198,23 +1656,25 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262223",
+                        "id": "ni_1693834425916223",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262222",
+                        "id": "1693834425916222",
                         "value": "HDMI_D2_P"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             },
             {
                 "type": "External Output",
-                "id": "node_1693316036262227",
+                "id": "node_1693834425916227",
                 "position": {
                     "x": 0,
                     "y": 0
@@ -1224,366 +1684,368 @@
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "ni_1693316036262226",
+                        "id": "ni_1693834425916226",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "1693316036262225",
+                        "id": "1693834425916225",
                         "value": "HDMI_D2_N"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Output"
             }
         ],
         "connections": [
             {
-                "id": "512e0f4e-a978-4016-96c4-fc8b2ac30efe",
-                "from": "ni_1693316036262166",
-                "to": "ni_1693316036262162"
+                "id": "7c8bb510-b086-49d1-b612-82406e17f817",
+                "from": "ni_169383442591635",
+                "to": "ni_169383442591631"
             },
             {
-                "id": "29c847f3-d9aa-4773-978e-42482a3777db",
-                "from": "ni_1693316036262166",
-                "to": "ni_1693316036262163"
+                "id": "11040e48-7484-45c6-9e3d-c1d6d206bb18",
+                "from": "ni_169383442591635",
+                "to": "ni_169383442591632"
             },
             {
-                "id": "b42fad1b-6f52-4f94-8b41-72d7b2618385",
-                "from": "ni_16933160362624",
-                "to": "ni_1693316036262164"
+                "id": "0f68d666-969a-4a74-9ff0-6e3e57f7437d",
+                "from": "ni_1693834425916107",
+                "to": "ni_169383442591633"
             },
             {
-                "id": "2179d4be-224c-49ec-bb7e-8cf2c04f5701",
-                "from": "ni_16933160362625",
-                "to": "ni_1693316036262165"
+                "id": "0df91586-9c45-4724-8228-007011a8829c",
+                "from": "ni_1693834425916108",
+                "to": "ni_169383442591634"
             },
             {
-                "id": "f1ac826d-762a-4238-bef1-c9f7807d287e",
-                "from": "ni_1693316036262166",
-                "to": "ni_1693316036262199"
+                "id": "9c1841a1-d8db-445c-9b0a-95cd8fedf453",
+                "from": "ni_169383442591635",
+                "to": "ni_1693834425916199"
             },
             {
-                "id": "771065f7-896e-40ad-8318-08813482c4ab",
-                "from": "ni_1693316036262129",
-                "to": "ni_1693316036262200"
+                "id": "783615be-acd7-4514-8e8f-4d27a2e93388",
+                "from": "ni_169383442591628",
+                "to": "ni_1693834425916200"
             },
             {
-                "id": "66c117ca-77d9-40ed-b1dd-3d8faff61705",
-                "from": "ni_1693316036262166",
-                "to": "ni_1693316036262121"
+                "id": "3a77d335-bdd6-4c2c-8508-05e4f154b2bc",
+                "from": "ni_169383442591635",
+                "to": "ni_169383442591620"
             },
             {
-                "id": "a766d36e-3ad3-49ab-967a-828319ff9b8b",
-                "from": "ni_169331603626251",
-                "to": "ni_1693316036262132"
+                "id": "a5754037-43bb-4461-908a-4935631a8654",
+                "from": "ni_169383442591698",
+                "to": "ni_169383442591668"
             },
             {
-                "id": "2154543a-eeaf-425a-8c69-a376ef6b8938",
-                "from": "ni_1693316036262166",
-                "to": "ni_169331603626269"
+                "id": "5be3b31d-ef03-46c7-8462-d553f7548db8",
+                "from": "ni_169383442591635",
+                "to": "ni_169383442591613"
             },
             {
-                "id": "9be38db4-1839-4c40-a87e-b2e5b0c8f375",
-                "from": "ni_1693316036262127",
-                "to": "ni_169331603626270"
+                "id": "e787b2b6-97cd-4c92-8616-77c8dfe20c96",
+                "from": "ni_169383442591626",
+                "to": "ni_169383442591614"
             },
             {
-                "id": "38d24032-7dea-4755-b4b4-6c5df9a1f9e6",
-                "from": "ni_1693316036262166",
-                "to": "ni_169331603626282"
+                "id": "e29d122c-d829-4d08-83af-6a252ff4088b",
+                "from": "ni_169383442591635",
+                "to": "ni_1693834425916119"
             },
             {
-                "id": "67ce0ee1-dfc9-4593-bf8e-864859b97717",
-                "from": "ni_1693316036262127",
-                "to": "ni_169331603626283"
+                "id": "b674bd72-e034-41b0-8833-819fb4f75545",
+                "from": "ni_169383442591626",
+                "to": "ni_1693834425916120"
             },
             {
-                "id": "6946f256-d718-4af6-bfd3-1c9197874bca",
-                "from": "ni_1693316036262166",
-                "to": "ni_1693316036262104"
+                "id": "df861fad-1950-4ce8-a213-2932e25c93e8",
+                "from": "ni_169383442591635",
+                "to": "ni_1693834425916166"
             },
             {
-                "id": "ceb251b3-3bda-4992-b9bc-ece87a300dbf",
-                "from": "ni_1693316036262127",
-                "to": "ni_1693316036262105"
+                "id": "2d15804d-87bd-4392-abf7-bef3981a0fec",
+                "from": "ni_169383442591626",
+                "to": "ni_1693834425916167"
             },
             {
-                "id": "60ddb12b-1af0-48d1-aa4e-8642ba98b96a",
-                "from": "ni_1693316036262166",
-                "to": "ni_169331603626293"
+                "id": "b4132eac-914b-42ed-bb56-a40e52393ab8",
+                "from": "ni_169383442591635",
+                "to": "ni_169383442591690"
             },
             {
-                "id": "b97184c6-2e89-44c6-8610-a88df60d074d",
-                "from": "ni_1693316036262127",
-                "to": "ni_169331603626294"
+                "id": "9b95bf0c-9dcb-4357-b66c-f970649807ea",
+                "from": "ni_169383442591626",
+                "to": "ni_169383442591691"
             },
             {
-                "id": "b62cb285-876a-4b5b-9e3b-3404d53c22d4",
-                "from": "ni_1693316036262166",
-                "to": "ni_169331603626248"
+                "id": "51dff3b7-569f-4cbb-92e1-b08ec124a999",
+                "from": "ni_169383442591635",
+                "to": "ni_169383442591695"
             },
             {
-                "id": "a2c0874d-e45f-4752-a9d7-0ef5535839f4",
-                "from": "ni_1693316036262128",
-                "to": "ni_169331603626249"
+                "id": "81dde328-8cd8-47ba-bacf-e66489068e86",
+                "from": "ni_169383442591627",
+                "to": "ni_169383442591696"
             },
             {
-                "id": "6c8065cf-fdeb-4b36-b158-eaeada06332f",
-                "from": "ni_1693316036262167",
-                "to": "ni_169331603626250"
+                "id": "da8b6dce-3b59-4c93-bcea-c4647fc95473",
+                "from": "ni_169383442591636",
+                "to": "ni_169383442591697"
             },
             {
-                "id": "383d14b9-573b-451d-963f-cc397b6e4db4",
-                "from": "ni_1693316036262166",
-                "to": "ni_16933160362620"
+                "id": "c39f82bb-f546-4e62-8fbc-ab2379908185",
+                "from": "ni_169383442591635",
+                "to": "ni_1693834425916103"
             },
             {
-                "id": "f7772c3a-d87b-462c-8359-df2cbfcf0d56",
-                "from": "ni_1693316036262128",
-                "to": "ni_16933160362621"
+                "id": "e8a25f61-a45e-421b-9e35-c2fd826b2646",
+                "from": "ni_169383442591627",
+                "to": "ni_1693834425916104"
             },
             {
-                "id": "e8c9d3a6-3e3d-44f3-b559-d191898e32d2",
-                "from": "ni_1693316036262119",
-                "to": "ni_16933160362622"
+                "id": "e3043a4c-a4c8-487b-a281-c1380a2277fb",
+                "from": "ni_169383442591682",
+                "to": "ni_1693834425916105"
             },
             {
-                "id": "33c65b74-e700-4c49-b14a-496a428c0613",
-                "from": "ni_1693316036262119",
-                "to": "ni_16933160362623"
+                "id": "73531955-d37e-48b7-8da0-bed6c5f82c7d",
+                "from": "ni_169383442591682",
+                "to": "ni_1693834425916106"
             },
             {
-                "id": "118f2b35-1a4b-4562-ac92-d448948d544f",
-                "from": "ni_169331603626251",
-                "to": "ni_1693316036262116"
+                "id": "389cf802-6097-40d1-b94b-7af8f7fe77e6",
+                "from": "ni_169383442591698",
+                "to": "ni_169383442591679"
             },
             {
-                "id": "9ad3b309-97a7-451c-903d-a3c82f6d5d58",
-                "from": "ni_169331603626214",
-                "to": "ni_1693316036262117"
+                "id": "11a59e9d-8583-4569-80e5-88caaca547ad",
+                "from": "ni_1693834425916128",
+                "to": "ni_169383442591680"
             },
             {
-                "id": "f1ca0de3-aeb8-4177-bc8f-b22d1c822417",
-                "from": "ni_1693316036262166",
-                "to": "ni_1693316036262118"
+                "id": "88583530-1bcc-4fa6-8ef7-8b547db9b531",
+                "from": "ni_169383442591635",
+                "to": "ni_169383442591681"
             },
             {
-                "id": "7f74f0f1-fe61-4fac-9685-bd49f1a5918d",
-                "from": "ni_169331603626251",
-                "to": "ni_1693316036262111"
+                "id": "b302b980-0c77-4aeb-b458-40acdf0ab0bb",
+                "from": "ni_169383442591698",
+                "to": "ni_1693834425916194"
             },
             {
-                "id": "7b73f065-50ba-4c46-b95c-4a9e8ef6c281",
-                "from": "ni_1693316036262140",
-                "to": "ni_1693316036262112"
+                "id": "78230557-9b30-4c56-922f-012cb0791487",
+                "from": "ni_169383442591676",
+                "to": "ni_1693834425916195"
             },
             {
-                "id": "a36755a0-528a-4efd-b618-df64814b60ab",
-                "from": "ni_1693316036262127",
-                "to": "ni_1693316036262150"
+                "id": "180f17cb-3753-43af-846b-13bac5a71741",
+                "from": "ni_169383442591626",
+                "to": "ni_1693834425916148"
             },
             {
-                "id": "cb13a5f7-dc4b-4697-834b-3083c1e1ee1b",
-                "from": "ni_1693316036262166",
-                "to": "ni_1693316036262151"
+                "id": "8c1f4541-d354-4b26-8f3c-83a1f78c65d3",
+                "from": "ni_169383442591635",
+                "to": "ni_1693834425916149"
             },
             {
-                "id": "7a5132ee-96b4-42ef-9d84-4cab13a16f8b",
-                "from": "ni_169331603626251",
-                "to": "ni_1693316036262152"
+                "id": "9af87582-96e5-48f2-b682-c09b194c7b85",
+                "from": "ni_169383442591698",
+                "to": "ni_1693834425916150"
             },
             {
-                "id": "95aa1300-fc97-4515-becd-800bafa7d6c1",
-                "from": "ni_169331603626251",
-                "to": "ni_169331603626210"
+                "id": "c7a673d4-dec8-412f-a859-678fbc2063dd",
+                "from": "ni_169383442591698",
+                "to": "ni_1693834425916124"
             },
             {
-                "id": "6462a3c8-7d37-4d76-82ab-863fd7af19e7",
-                "from": "ni_169331603626253",
-                "to": "ni_169331603626211"
+                "id": "14a89485-5026-4de0-b6af-a2559174f1c2",
+                "from": "ni_1693834425916100",
+                "to": "ni_1693834425916125"
             },
             {
-                "id": "abd44df6-6a4b-4896-aa79-8add32c094c5",
-                "from": "ni_1693316036262166",
-                "to": "ni_169331603626212"
+                "id": "354023a2-00b8-4af8-a76f-089f216895b7",
+                "from": "ni_169383442591635",
+                "to": "ni_1693834425916126"
             },
             {
-                "id": "c400e596-5617-4cbc-a31b-dbcfef095ec0",
-                "from": "ni_1693316036262130",
-                "to": "ni_169331603626213"
+                "id": "123c4136-d1cb-4a8b-b9ba-f30279d6afee",
+                "from": "ni_169383442591629",
+                "to": "ni_1693834425916127"
             },
             {
-                "id": "92b34d7a-48e4-4ce4-9cf8-826e415b54cb",
-                "from": "ni_169331603626251",
-                "to": "ni_169331603626227"
+                "id": "6b8cba92-f647-4e71-b1f5-b2eafec8d64e",
+                "from": "ni_169383442591698",
+                "to": "ni_1693834425916171"
             },
             {
-                "id": "3e99e5d4-8493-4e26-b2c9-36142757473c",
-                "from": "ni_169331603626252",
-                "to": "ni_169331603626228"
+                "id": "97b8ab9f-e523-43d7-9a79-95a5ffc64484",
+                "from": "ni_169383442591699",
+                "to": "ni_1693834425916172"
             },
             {
-                "id": "c93f7818-ee00-4a63-881d-a1a431508a71",
-                "from": "ni_169331603626253",
-                "to": "ni_169331603626229"
+                "id": "8b4b7eae-f706-491b-a92f-35b2ad74f34d",
+                "from": "ni_1693834425916100",
+                "to": "ni_1693834425916173"
             },
             {
-                "id": "5f1a7fb1-64f0-4055-a70c-5b37860caa54",
-                "from": "ni_169331603626215",
-                "to": "ni_169331603626230"
+                "id": "cb36f05c-81a1-4b7a-852e-4a35f54e43cf",
+                "from": "ni_1693834425916129",
+                "to": "ni_1693834425916174"
             },
             {
-                "id": "f1aa47ea-397b-43cf-9f20-510c8f88515b",
-                "from": "ni_169331603626216",
-                "to": "ni_169331603626231"
+                "id": "212458f5-e393-4822-b73f-28451886a0c2",
+                "from": "ni_1693834425916130",
+                "to": "ni_1693834425916175"
             },
             {
-                "id": "d2fd5c62-187d-4e23-ac86-cfac8f29675e",
-                "from": "ni_169331603626217",
-                "to": "ni_169331603626232"
+                "id": "c50c0334-0f14-4d87-81a1-8c87a065f611",
+                "from": "ni_1693834425916131",
+                "to": "ni_1693834425916176"
             },
             {
-                "id": "e97cc6d5-a688-4889-84c6-c4771dd7bcbe",
-                "from": "ni_169331603626218",
-                "to": "ni_169331603626233"
+                "id": "2dd08ab5-f638-4754-955d-cc9a03000cb4",
+                "from": "ni_1693834425916132",
+                "to": "ni_1693834425916177"
             },
             {
-                "id": "08bf8ea4-eef4-41d5-a64c-cb3145fdbbab",
-                "from": "ni_169331603626219",
-                "to": "ni_169331603626234"
+                "id": "91b22e0f-9955-49a3-8d48-365b82b5ef32",
+                "from": "ni_1693834425916133",
+                "to": "ni_1693834425916178"
             },
             {
-                "id": "ae9244b2-5574-4452-8bc4-e48829cafbf6",
-                "from": "ni_169331603626220",
-                "to": "ni_169331603626235"
+                "id": "6b3a08fa-edce-4644-9365-539f0c1d139d",
+                "from": "ni_1693834425916134",
+                "to": "ni_1693834425916179"
             },
             {
-                "id": "8f11b418-1139-4def-9ef7-31c9369abc6b",
-                "from": "ni_169331603626221",
-                "to": "ni_169331603626236"
+                "id": "2dcae301-fbf2-45b7-b638-4a3e7e3eb620",
+                "from": "ni_1693834425916135",
+                "to": "ni_1693834425916180"
             },
             {
-                "id": "a4c607f6-bc26-432a-9953-f7e42ba8a853",
-                "from": "ni_169331603626222",
-                "to": "ni_169331603626237"
+                "id": "1705b868-5bca-4805-a278-a9fc35c036bb",
+                "from": "ni_1693834425916136",
+                "to": "ni_1693834425916181"
             },
             {
-                "id": "7200d5b2-e3ae-4577-818e-04de2ff0fca3",
-                "from": "ni_169331603626223",
-                "to": "ni_169331603626238"
+                "id": "47011ae4-746e-4222-a6b9-f195cf53dac9",
+                "from": "ni_1693834425916137",
+                "to": "ni_1693834425916182"
             },
             {
-                "id": "26b2c58b-6980-4a02-a4d1-af1aed91f902",
-                "from": "ni_1693316036262202",
-                "to": "ni_1693316036262196"
+                "id": "12b35254-b8e1-4ea5-9684-a46e598c8270",
+                "from": "ni_1693834425916202",
+                "to": "ni_169383442591665"
             },
             {
-                "id": "e9fc3b95-b126-4dff-8786-00b5fab5e35a",
-                "from": "ni_16933160362628",
-                "to": "ni_1693316036262201"
+                "id": "342f5ec3-6a06-488d-9f26-e10af120553e",
+                "from": "ni_1693834425916111",
+                "to": "ni_1693834425916201"
             },
             {
-                "id": "a62db5f1-460c-46e6-9127-c2fa53c8cc0d",
-                "from": "ni_1693316036262197",
-                "to": "ni_169331603626271"
+                "id": "09b403bc-703f-4e26-8819-82a262e4a710",
+                "from": "ni_169383442591666",
+                "to": "ni_169383442591615"
             },
             {
-                "id": "d3eea1df-53ec-4732-8253-96efe70eaeae",
-                "from": "ni_169331603626274",
-                "to": "ni_169331603626284"
+                "id": "ec486460-34d0-4fcf-a9f2-837b790c13b5",
+                "from": "ni_169383442591618",
+                "to": "ni_1693834425916121"
             },
             {
-                "id": "614813b4-5a41-4aea-a07a-1d729d2af544",
-                "from": "ni_169331603626273",
-                "to": "ni_169331603626295"
+                "id": "4a8225e0-fd5e-41c1-8886-4e7a64dc5d39",
+                "from": "ni_169383442591617",
+                "to": "ni_169383442591692"
             },
             {
-                "id": "7053c906-2069-414b-9136-bb1510bf68ec",
-                "from": "ni_169331603626272",
-                "to": "ni_1693316036262106"
+                "id": "50c3e431-14e7-4e08-ab64-f7ca09fdb554",
+                "from": "ni_169383442591616",
+                "to": "ni_1693834425916168"
             },
             {
-                "id": "97ee1ed5-6339-4e4b-8307-96729ef67e0e",
-                "from": "ni_1693316036262107",
-                "to": "ni_169331603626254"
+                "id": "963abf75-37c4-48a6-a3fa-b5eda27dd350",
+                "from": "ni_1693834425916169",
+                "to": "ni_1693834425916101"
             },
             {
-                "id": "5a5c2837-7e62-4b24-931a-411e4c40754c",
-                "from": "ni_169331603626296",
-                "to": "ni_16933160362626"
+                "id": "edbd3ff4-9a03-4062-aeb7-c5ffbb001e5d",
+                "from": "ni_169383442591693",
+                "to": "ni_1693834425916109"
             },
             {
-                "id": "75b08356-99b9-4a9a-8b38-0fc3412fe1c1",
-                "from": "ni_1693316036262160",
-                "to": "ni_1693316036262113"
+                "id": "6181751f-07a8-4833-b0e5-deb6c431da91",
+                "from": "ni_1693834425916158",
+                "to": "ni_1693834425916196"
             },
             {
-                "id": "61da27fc-db42-496e-8835-ec9e2e2fd88b",
-                "from": "ni_16933160362627",
-                "to": "ni_1693316036262159"
+                "id": "84f08dd0-3dd1-45d2-920e-2daf5b70e9f1",
+                "from": "ni_1693834425916110",
+                "to": "ni_1693834425916157"
             },
             {
-                "id": "1f5334f1-9934-4c8a-ac8b-fdba552e640c",
-                "from": "ni_1693316036262114",
-                "to": "ni_169331603626225"
+                "id": "68aea333-a9a9-48e6-9f9c-260e4b3962ac",
+                "from": "ni_1693834425916197",
+                "to": "ni_1693834425916139"
             },
             {
-                "id": "08fee3db-1951-4e92-8888-327e5451382e",
-                "from": "ni_169331603626285",
-                "to": "ni_169331603626224"
+                "id": "efc3286b-0722-403d-967a-bcceae5ad419",
+                "from": "ni_1693834425916122",
+                "to": "ni_1693834425916138"
             },
             {
-                "id": "c9237990-d298-4546-9cc5-c94474f8009e",
-                "from": "ni_169331603626239",
-                "to": "ni_1693316036262205"
+                "id": "72117b3b-f29f-4668-ae74-d4dd59241a99",
+                "from": "ni_1693834425916183",
+                "to": "ni_1693834425916205"
             },
             {
-                "id": "7483c008-cdcf-4a85-a566-db3c505c5fc1",
-                "from": "ni_169331603626240",
-                "to": "ni_1693316036262208"
+                "id": "e1996c76-caed-4436-b3b3-eb0f476f5bdd",
+                "from": "ni_1693834425916184",
+                "to": "ni_1693834425916208"
             },
             {
-                "id": "7b953dbf-014f-432b-b947-7b373c01d092",
-                "from": "ni_169331603626245",
-                "to": "ni_1693316036262211"
+                "id": "72e5ed2d-d82e-40d2-8185-3ff93344c9d6",
+                "from": "ni_1693834425916189",
+                "to": "ni_1693834425916211"
             },
             {
-                "id": "0fc88d5e-5cb4-47fe-8dd5-d27a64291857",
-                "from": "ni_169331603626246",
-                "to": "ni_1693316036262214"
+                "id": "436b625a-e03b-4944-9558-29ee277386e7",
+                "from": "ni_1693834425916190",
+                "to": "ni_1693834425916214"
             },
             {
-                "id": "ba5eb37c-35ba-4010-b2f4-763b94510396",
-                "from": "ni_169331603626243",
-                "to": "ni_1693316036262217"
+                "id": "b051dfc3-2f99-4b3e-9322-8bde98371068",
+                "from": "ni_1693834425916187",
+                "to": "ni_1693834425916217"
             },
             {
-                "id": "dfa38c6d-9008-46c0-a7d7-0c7a9344fc38",
-                "from": "ni_169331603626244",
-                "to": "ni_1693316036262220"
+                "id": "ee14be49-c4d2-4d36-a5fd-a9186f14e595",
+                "from": "ni_1693834425916188",
+                "to": "ni_1693834425916220"
             },
             {
-                "id": "f1d8cf80-6721-438c-9660-be3b4231828e",
-                "from": "ni_169331603626241",
-                "to": "ni_1693316036262223"
+                "id": "8f7d849a-784a-4cb6-a1c8-3da69ac7be10",
+                "from": "ni_1693834425916185",
+                "to": "ni_1693834425916223"
             },
             {
-                "id": "5971cbc5-3c00-43a4-bd2b-91170700cb65",
-                "from": "ni_169331603626242",
-                "to": "ni_1693316036262226"
+                "id": "0b6c8e3b-a56b-441a-b282-230af50515f6",
+                "from": "ni_1693834425916186",
+                "to": "ni_1693834425916226"
             }
         ],
         "panning": {
-            "x": 1544.1221864951767,
-            "y": 100
+            "x": 3394.5610859728504,
+            "y": 200
         },
-        "scaling": 0.821664464993395
+        "scaling": 0.3927143491781431
     },
     "graphTemplateInstances": [],
-    "version": "20230720.5",
+    "version": "20230824.9",
     "metadata": {
         "randomizedOffset": true
     }

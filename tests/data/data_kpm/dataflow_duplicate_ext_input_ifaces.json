@@ -1,182 +1,232 @@
 {
     "graph": {
-        "id": "1693316036262295",
+        "id": "169383254977833",
         "nodes": [
             {
                 "type": "axi_axil_adapter",
-                "id": "5d035d11-1067-4998-a824-924878a5de22",
+                "id": "103e88ba-56b6-4c30-bdd1-f0a3a4be5b24",
                 "position": {
-                    "x": -570,
-                    "y": 210
+                    "x": -900,
+                    "y": -45
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
-                        "name": "s_axi",
-                        "id": "f1844877-08b6-4d0e-b0b6-34b636284857",
+                        "name": "clk",
+                        "id": "1f02093e-378d-441f-993e-928de9ecadc5",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "rst",
+                        "id": "ab496b1b-6cbd-4756-88ab-1d052d309f58",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "6f270c8e-7e16-45fa-88de-007e1219e0e0",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "94ca0f75-baeb-4dd9-81bd-9ba43f4537eb",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "ADDR_WIDTH",
-                        "id": "378014db-6a28-43ea-acca-42453ff0ff32",
+                        "id": "b9080865-e56e-4bc3-b7d6-386efe2282b8",
                         "value": "32"
                     },
                     {
                         "name": "AXI_DATA_WIDTH",
-                        "id": "8f046e5e-69ec-4d5d-9293-f1832a7b4736",
+                        "id": "fb9e5c96-3287-4144-9d9c-70acfed726b7",
                         "value": "32"
                     },
                     {
                         "name": "AXI_ID_WIDTH",
-                        "id": "9386cf41-8f34-47c3-9f69-04bcf0f155b7",
+                        "id": "38daae4a-3fe7-4585-bf5e-4c654fbf8d30",
                         "value": "8"
                     },
                     {
                         "name": "AXI_STRB_WIDTH",
-                        "id": "0092e1c6-641c-49c0-b890-7646c637efa4",
+                        "id": "82adfe94-b6fa-46ca-9d04-e3eba3a69bb6",
                         "value": "AXI_DATA_WIDTH/8"
                     },
                     {
                         "name": "AXIL_DATA_WIDTH",
-                        "id": "4feb516c-a117-4fdc-9608-a74c2b455f12",
+                        "id": "0fb17b46-0853-434e-8268-9e23038a594c",
                         "value": "32"
                     },
                     {
                         "name": "AXIL_STRB_WIDTH",
-                        "id": "bd56af0f-a970-4036-96f4-5fd7af5e3f87",
+                        "id": "f924992e-6c59-4f69-9afe-64fbb7e7c699",
                         "value": "AXIL_DATA_WIDTH/8"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "axi_axil_adapter_1"
             },
             {
                 "type": "axi_axil_adapter",
-                "id": "fcbff69c-f5f6-40e6-8656-def72f4b5ad9",
+                "id": "33794eef-49eb-4eb5-bf8d-c258f6f830ff",
                 "position": {
-                    "x": -585,
-                    "y": 825
+                    "x": -915,
+                    "y": 660
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
-                        "name": "s_axi",
-                        "id": "8183a772-d847-41c5-9ee4-da8b2f5ee550",
+                        "name": "clk",
+                        "id": "4bb44ac7-beca-461f-ba91-a18650c905ec",
                         "direction": "input",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "rst",
+                        "id": "355f44a1-be48-4597-8c7b-738079fd9504",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "ebee0349-0579-4f2e-baa0-e4d58e86b893",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
+                        "name": "m_axi",
+                        "id": "9e9f72c0-7b78-47f3-93af-da534a118265",
+                        "direction": "output",
+                        "side": "right",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "ADDR_WIDTH",
-                        "id": "06ac38f6-dca3-480c-9950-52c95cb9c65c",
+                        "id": "5bfb2d15-e22e-43a1-89ae-b81a6f869005",
                         "value": "32"
                     },
                     {
                         "name": "AXI_DATA_WIDTH",
-                        "id": "c2502dbf-c6e4-4987-ada3-f2f42c5fc334",
+                        "id": "c995620c-fd65-4e6b-8c09-89d5bd0ef86e",
                         "value": "32"
                     },
                     {
                         "name": "AXI_ID_WIDTH",
-                        "id": "724450cb-d9e5-48d2-a22f-bdfec1548410",
+                        "id": "638ce396-5697-4277-a1f8-f0c453723dd0",
                         "value": "8"
                     },
                     {
                         "name": "AXI_STRB_WIDTH",
-                        "id": "66bbe052-1dce-4201-8c11-b6fab3590a10",
+                        "id": "aac64501-5393-4fc8-a291-93b3c4b0dfbf",
                         "value": "AXI_DATA_WIDTH/8"
                     },
                     {
                         "name": "AXIL_DATA_WIDTH",
-                        "id": "8ff80ce7-883f-4f87-a3a1-5fb6e1deb44d",
+                        "id": "ac74cdb3-f950-4e45-90cd-bd1fb977a0ca",
                         "value": "32"
                     },
                     {
                         "name": "AXIL_STRB_WIDTH",
-                        "id": "59ef02b6-3b6f-414e-88c9-4c3b0ad478f4",
+                        "id": "42743aa2-3148-4767-a9c9-d226809daab9",
                         "value": "AXIL_DATA_WIDTH/8"
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "axi_axil_adapter_2"
             },
             {
                 "type": "External Input",
-                "id": "9fb9b7fc-f85f-42f1-a67e-162ed113296d",
+                "id": "78a9d846-6c7c-4471-9b9b-c1ef91cdb2ad",
                 "position": {
-                    "x": -1080,
-                    "y": 600
+                    "x": -1470,
+                    "y": 465
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "a2ad28cf-5d9e-4eb9-b24b-e97c4bc218d3",
+                        "id": "24b570e8-2969-483a-ba79-89d44ce26252",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "685a5c0d-b1c8-4ac0-903f-a670c5025e0b",
+                        "id": "1ec7a97f-aa09-496a-86b0-197a1169b67c",
                         "value": ""
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Input"
             },
             {
                 "type": "External Input",
-                "id": "ac7b26f3-8943-49bd-a77f-72d1b805ccfc",
+                "id": "5358601a-962e-4097-9030-ac9f587e5f09",
                 "position": {
-                    "x": -1110,
-                    "y": 1215
+                    "x": -1485,
+                    "y": 1125
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "2ff19c45-fe75-4ebc-822b-5ba4ce6f015e",
+                        "id": "e64a2247-edc0-449f-aaaa-6e8bd0ab2b78",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "6ec7d366-fca1-4813-b684-994c6fc195f8",
+                        "id": "2a04393e-3bd0-409b-8d9a-20a4d797a3b2",
                         "value": ""
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Input"
             }
         ],
         "connections": [
             {
-                "id": "7b818f21-f242-47f1-af4b-0051c7d53e93",
-                "from": "a2ad28cf-5d9e-4eb9-b24b-e97c4bc218d3",
-                "to": "f1844877-08b6-4d0e-b0b6-34b636284857"
+                "id": "824bb9ec-4e8f-477f-9ef0-ff96dd9a60bb",
+                "from": "e64a2247-edc0-449f-aaaa-6e8bd0ab2b78",
+                "to": "ebee0349-0579-4f2e-baa0-e4d58e86b893"
             },
             {
-                "id": "a552ccd2-cb7a-4454-8098-c237982ab08d",
-                "from": "2ff19c45-fe75-4ebc-822b-5ba4ce6f015e",
-                "to": "8183a772-d847-41c5-9ee4-da8b2f5ee550"
+                "id": "e2c7f5ac-cc42-454f-a07e-bb40ff37b1f2",
+                "from": "24b570e8-2969-483a-ba79-89d44ce26252",
+                "to": "6f270c8e-7e16-45fa-88de-007e1219e0e0"
             }
         ],
         "panning": {
-            "x": 1880,
-            "y": -308
+            "x": 2386,
+            "y": 43
         },
-        "scaling": 0.821664464993395
+        "scaling": 0.5952100070290618
     },
     "graphTemplateInstances": [],
-    "version": "20230720.5",
+    "version": "20230824.9",
     "metadata": {
         "randomizedOffset": true
     }

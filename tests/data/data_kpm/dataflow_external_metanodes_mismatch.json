@@ -1,69 +1,94 @@
 {
     "graph": {
-        "id": "1693316036262295",
+        "id": "169383254977833",
         "nodes": [
             {
                 "type": "litex_pwm",
-                "id": "1e04ff66-c200-43b6-a865-ad6352f34a04",
+                "id": "0c7c9066-3c9f-471e-b1b3-9317b671d025",
                 "position": {
-                    "x": -960,
-                    "y": 480
+                    "x": -1110,
+                    "y": 405
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
+                        "name": "sys_clk",
+                        "id": "dfec5672-934f-48c6-8f2f-6eff96068a48",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 0
+                    },
+                    {
+                        "name": "sys_rst",
+                        "id": "400d926a-8c71-47dd-8c32-6144cf4d8b70",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 1
+                    },
+                    {
+                        "name": "s_axi",
+                        "id": "aa62a475-caf2-4b80-9b94-4b119bd28133",
+                        "direction": "input",
+                        "side": "left",
+                        "sidePosition": 2
+                    },
+                    {
                         "name": "pwm",
-                        "id": "a222c099-8fa5-4f4a-a478-368b23e447cc",
+                        "id": "e501a7e7-f3c3-429b-8733-d0213d6fa94a",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [],
+                "enabledInterfaceGroups": [],
                 "name": "litex_pwm"
             },
             {
                 "type": "External Inout",
-                "id": "89f90f1b-bddb-48e0-a8c5-08f6f306650a",
+                "id": "4179b3ec-159d-4906-8bed-74e4b6f60bcd",
                 "position": {
-                    "x": -405,
-                    "y": 330
+                    "x": -615,
+                    "y": 180
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "3eee3596-e9ae-42ec-bb87-ff3e50136d33",
+                        "id": "13778494-9092-4b2c-a917-eff5b3d88d4e",
                         "direction": "inout",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "a017fdcb-9b8b-4c6a-8360-c0a7d1059bf9",
+                        "id": "ab2d330d-e6a4-4bcd-aa84-28803e3641bb",
                         "value": ""
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Inout"
             }
         ],
         "connections": [
             {
-                "id": "f34336b0-2023-486b-8896-471f632b65b0",
-                "from": "a222c099-8fa5-4f4a-a478-368b23e447cc",
-                "to": "3eee3596-e9ae-42ec-bb87-ff3e50136d33"
+                "id": "50e3f8f0-323e-48a0-9d0b-4cbfcb106437",
+                "from": "e501a7e7-f3c3-429b-8733-d0213d6fa94a",
+                "to": "13778494-9092-4b2c-a917-eff5b3d88d4e"
             }
         ],
         "panning": {
-            "x": 1762,
-            "y": -221
+            "x": 2379,
+            "y": 43
         },
-        "scaling": 0.821664464993395
+        "scaling": 0.5952100070290618
     },
     "graphTemplateInstances": [],
-    "version": "20230720.5",
+    "version": "20230824.9",
     "metadata": {
         "randomizedOffset": true
     }

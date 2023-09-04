@@ -1224,11 +1224,11 @@
                     "name": "external",
                     "type": [
                         "external",
-                        "iface_AXI3",
                         "iface_AXI4Lite",
-                        "iface_AXI4",
+                        "port",
                         "iface_AXI4Stream",
-                        "port"
+                        "iface_AXI3",
+                        "iface_AXI4"
                     ],
                     "direction": "output"
                 }
@@ -1250,11 +1250,11 @@
                     "name": "external",
                     "type": [
                         "external",
-                        "iface_AXI3",
                         "iface_AXI4Lite",
-                        "iface_AXI4",
+                        "port",
                         "iface_AXI4Stream",
-                        "port"
+                        "iface_AXI3",
+                        "iface_AXI4"
                     ],
                     "direction": "input"
                 }
@@ -1276,11 +1276,11 @@
                     "name": "external",
                     "type": [
                         "external",
-                        "iface_AXI3",
                         "iface_AXI4Lite",
-                        "iface_AXI4",
+                        "port",
                         "iface_AXI4Stream",
-                        "port"
+                        "iface_AXI3",
+                        "iface_AXI4"
                     ],
                     "direction": "inout",
                     "side": "left",

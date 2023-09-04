@@ -1,75 +1,79 @@
 {
     "graph": {
-        "id": "1693316036262295",
+        "id": "169383254977833",
         "nodes": [
             {
                 "type": "External Inout",
-                "id": "48cef266-bd11-4705-8fa8-7b20f55df1f3",
+                "id": "6c96482c-fc3e-43bb-a6d7-23e232dc804f",
                 "position": {
-                    "x": -660,
-                    "y": 540
+                    "x": -855,
+                    "y": 300
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "9752ecc9-00af-403b-9ceb-8967064fad57",
+                        "id": "403ab4e6-e1e2-4843-9980-5f4b3ac4de7c",
                         "direction": "inout",
-                        "side": "left"
+                        "side": "left",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "aac40301-2739-4dfc-aed7-b7f35fb22640",
+                        "id": "504e0c9e-b0c5-4c49-a07e-a3251e1f4a80",
                         "value": ""
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Inout"
             },
             {
                 "type": "External Input",
-                "id": "7e8a2716-97d9-4b87-975d-08534ce997d3",
+                "id": "35ef04e1-eddd-4ff7-90d4-644d003d37d6",
                 "position": {
                     "x": -1320,
-                    "y": 555
+                    "y": 300
                 },
                 "width": 200,
                 "twoColumn": false,
                 "interfaces": [
                     {
                         "name": "external",
-                        "id": "bc94df07-1dbe-4a48-a470-9307d64cbc5b",
+                        "id": "1af020b3-626b-4fe6-a3da-fad06f3f612c",
                         "direction": "output",
-                        "side": "right"
+                        "side": "right",
+                        "sidePosition": 0
                     }
                 ],
                 "properties": [
                     {
                         "name": "External Name",
-                        "id": "8dcf2920-261a-45cc-8ec8-a94194272161",
+                        "id": "1ae83ee8-98d5-4bd3-b93c-beac8c17a166",
                         "value": ""
                     }
                 ],
+                "enabledInterfaceGroups": [],
                 "name": "External Input"
             }
         ],
         "connections": [
             {
-                "id": "5daa7e92-39d9-4c13-b006-8c272940b94a",
-                "from": "bc94df07-1dbe-4a48-a470-9307d64cbc5b",
-                "to": "9752ecc9-00af-403b-9ceb-8967064fad57"
+                "id": "7b60e567-1fd0-4698-a7c9-841e8fe855da",
+                "from": "1af020b3-626b-4fe6-a3da-fad06f3f612c",
+                "to": "403ab4e6-e1e2-4843-9980-5f4b3ac4de7c"
             }
         ],
         "panning": {
-            "x": 1762,
-            "y": -221
+            "x": 2683,
+            "y": 60
         },
-        "scaling": 0.821664464993395
+        "scaling": 0.5952100070290618
     },
     "graphTemplateInstances": [],
-    "version": "20230720.5",
+    "version": "20230824.9",
     "metadata": {
         "randomizedOffset": true
     }
