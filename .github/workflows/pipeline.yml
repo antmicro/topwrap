@@ -54,6 +54,7 @@ jobs:
       matrix:
         example:
           - HDMI
+          - INOUT
           - PWM
 
     steps:
@@ -72,6 +73,13 @@ jobs:
         if: matrix.example == 'HDMI'
         run: |
           cd examples/hdmi
+          tuttest README.md generate | bash -
+          cd -
+      
+      - name: Generate sources for example inout setup
+        if: matrix.example == 'INOUT'
+        run: |
+          cd examples/inout
           tuttest README.md generate | bash -
           cd -
 
