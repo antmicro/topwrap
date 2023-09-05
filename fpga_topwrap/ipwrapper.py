@@ -9,11 +9,10 @@ import numexpr as ex
 from amaranth import Elaboratable, Instance, Module, Signal
 from amaranth.build import Platform
 from amaranth.hdl.ast import Cat, Const
-from amaranth.hdl.rec import DIR_FANIN, DIR_FANOUT, DIR_NONE
 
 from .config import config
 from .interface import get_interface_by_name
-from .nm_helper import WrapperPort, port_direction_to_prefix
+from .nm_helper import WrapperPort, port_direction_to_prefix, DIR_IN, DIR_OUT, DIR_INOUT
 from .parsers import parse_port_map
 from .util import check_interface_compliance
 
@@ -116,9 +115,9 @@ class IPWrapper(Elaboratable):
             parameters[key[2:]] = value
 
         signals_dirs = [
-            (ip_yaml["signals"]["in"], DIR_FANIN),
-            (ip_yaml["signals"]["out"], DIR_FANOUT),
-            (ip_yaml["signals"]["inout"], DIR_NONE),
+            (ip_yaml["signals"]["in"], DIR_IN),
+            (ip_yaml["signals"]["out"], DIR_OUT),
+            (ip_yaml["signals"]["inout"], DIR_INOUT),
         ]
 
         # generic signals that don't belong to any interface
@@ -152,9 +151,9 @@ class IPWrapper(Elaboratable):
                     )
 
             signals_dirs = [
-                (iface_signals["in"].items(), DIR_FANIN),
-                (iface_signals["out"].items(), DIR_FANOUT),
-                (iface_signals["inout"].items(), DIR_NONE),
+                (iface_signals["in"].items(), DIR_IN),
+                (iface_signals["out"].items(), DIR_OUT),
+                (iface_signals["inout"].items(), DIR_INOUT),
             ]
 
             # sig_name is the name of the signal e.g. TREADY

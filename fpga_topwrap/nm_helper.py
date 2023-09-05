@@ -1,17 +1,24 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 from amaranth import Signal
-from amaranth.hdl.rec import DIR_FANIN, DIR_FANOUT, Direction
+from enum import Enum
 
 
-def port_direction_to_prefix(direction: Direction) -> str:
+PortDirection = Enum('PortDirection', ('INOUT', 'OUT', 'IN'))
+
+DIR_INOUT = PortDirection.INOUT
+DIR_OUT = PortDirection.OUT
+DIR_IN = PortDirection.IN
+
+
+def port_direction_to_prefix(direction: PortDirection) -> str:
     """Return a port prefix that is required by Instance class in amaranth,
 
     :rtype: str
     """
-    if direction == DIR_FANIN:
+    if direction == DIR_IN:
         return "i_"
-    elif direction == DIR_FANOUT:
+    elif direction == DIR_OUT:
         return "o_"
     else:
         return "io_"
@@ -38,7 +45,7 @@ class WrapperPort(Signal):
 
         :param name: a new name for the signal
         :param internal_name: name of the port to be wrapped/sliced
-        :param direction: one of amaranth.hdl.rec.Direction, e.g. DIR_FANOUT
+        :param direction: one of PortDirection, e.g. DIR_OUT
         """
 
         super().__init__(shape=kwargs["bounds"][2] - kwargs["bounds"][3] + 1, name=kwargs["name"])

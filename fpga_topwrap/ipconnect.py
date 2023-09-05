@@ -7,11 +7,10 @@ from amaranth import Elaboratable, Fragment, Instance, Module, Signal
 from amaranth.back import verilog
 from amaranth.build import Platform
 from amaranth.hdl.ast import Const
-from amaranth.hdl.rec import DIR_FANIN, DIR_FANOUT, DIR_NONE
 
 from .fuse_helper import FuseSocBuilder
 from .ipwrapper import IPWrapper
-from .nm_helper import port_direction_to_prefix, strip_port_prefix
+from .nm_helper import port_direction_to_prefix, strip_port_prefix, DIR_IN, DIR_OUT, DIR_INOUT
 
 
 class IPConnect(Elaboratable):
@@ -259,11 +258,11 @@ class IPConnect(Elaboratable):
                 if isinstance(target, str):
                     # check if 'target' is present in the 'externals' section
                     if target in ext_ports["in"]:
-                        ext_dir = DIR_FANIN
+                        ext_dir = DIR_IN
                     elif target in ext_ports["out"]:
-                        ext_dir = DIR_FANOUT
+                        ext_dir = DIR_OUT
                     elif target in ext_ports["inout"]:
-                        ext_dir = DIR_NONE
+                        ext_dir = DIR_INOUT
                     else:
                         raise ValueError(
                             f"External port {target} not found" "in the 'externals' section"
