@@ -32,4 +32,4 @@ class TestIPConnect:
         connector.connect_ports("io_sync_readerSync", dma.top_name, "HSYNC_O", disp.top_name)
 
         fragment = Fragment.get(connector, None)
-        assert verilog.convert(fragment, name="top", ports=None)
+        assert verilog.convert(fragment, name="top", ports=[])
