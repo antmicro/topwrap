@@ -1,5 +1,6 @@
-# Copyright (C) 2021 Antmicro
+# Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
+
 all: zvb
 
 build:
@@ -15,16 +16,21 @@ copy_sources: build
 	cp -rf sources/ build/
 	cp -rf ipcores/* build/
 
-snickerdoodle: generate copy_sources
+fusesoc_init:
+	fusesoc library add fusesoc_cores https://github.com/fusesoc/fusesoc-cores
+
+snickerdoodle: generate copy_sources fusesoc_init
 	cp constr/snickerdoodle.xdc build/
 	fusesoc --cores-root build run --build --target snickerdoodle project_1
 
-zvb: generate copy_sources
+zvb: generate copy_sources fusesoc_init
 	cp constr/zynq_video_board.xdc build/
 	fusesoc --cores-root build run --build --target zynq_video_board project_1
 
 clean:
+	rm -rf fusesoc.conf fusesoc_libraries
 	rm -f sources/*.json gen_*.yml
 	rm -rf build/*
 
-.PHONY: clean copy_sources generate copy_sources snickerdoodle zvb
+.PHONY: clean copy_sources fusesoc_init generate copy_sources snickerdoodle zvb
+

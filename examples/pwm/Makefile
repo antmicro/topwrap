@@ -1,6 +1,7 @@
-# Copyright (C) 2021 Antmicro
+# Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-all: generate copy_sources zvb
+
+all: zvb
 
 build:
 	mkdir build
@@ -15,14 +16,18 @@ copy_sources: build
 	cp -rf sources/ build/
 	cp -rf ipcores/* build/
 
-zvb:
+fusesoc_init:
+	fusesoc library add fusesoc_cores https://github.com/fusesoc/fusesoc-cores
+
+zvb: generate copy_sources fusesoc_init
 	fusesoc --cores-root build run --tool=symbiflow --build --target zynq project_1
 
-zvb_vivado: generate copy_sources
+zvb_vivado: generate copy_sources fusesoc_init
 	fusesoc --cores-root build run --tool=vivado --build --target zynq project_1
 
 clean:
+	rm -rf fusesoc.conf fusesoc_libraries
 	rm -f sources/*.json gen_*.yml
 	rm -rf build/*
 
-.PHONY: clean copy_sources generate zvb
+.PHONY: clean copy_sources fusesoc_init generate zvb
