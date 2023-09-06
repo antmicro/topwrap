@@ -37,12 +37,15 @@ generate: parse copy_sources
 # -------------------------------------
 # Bitstream generation
 # -------------------------------------
-bit: generate
+bit: generate fusesoc_init
 	fusesoc --cores-root build run --tool=${TOOL} --build --target ${TARGET} project_1
 
 # -------------------------------------
 # Utilities
 # -------------------------------------
+fusesoc_init:
+	fusesoc library add fusesoc_cores https://github.com/fusesoc/fusesoc-cores
+
 setup:
 	mkdir -p ${BUILD_DIR} ${IPCORES_DIR}
 
@@ -51,8 +54,9 @@ copy_sources:
 	cp -rf ${SOURCE_DIR}/* ${BUILD_DIR}/sources/
 
 clean:
+	rm -rf fusesoc.conf fusesoc_libraries
 	rm -f sources/*.json gen_*.yml gen_*.yaml
 	rm -rf ${BUILD_DIR}/* ${IPCORES_DIR}/*
 
-.PHONY: setup clean copy_sources generate copy_sources bit parse all
+.PHONY: setup clean fusesoc_init generate copy_sources bit parse all
 
