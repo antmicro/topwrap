@@ -313,7 +313,7 @@ class IPConnect(Elaboratable):
                             f"doesn't match '{comp_name}:{comp_port}' direction"
                         )
 
-                    self._set_port(comp_name, ip_port, target, ext_dir)
+                    self._set_port(comp_name, comp_port, target, ext_dir)
 
         ext_ifaces = []
         if "interfaces" in external.keys():
