@@ -1,8 +1,0 @@
-parameters:
-  CNT_WIDTH: 32
-
-signals:
-  in:
-    - clk
-  out:
-    - [cnt, CNT_WIDTH-1, 0]

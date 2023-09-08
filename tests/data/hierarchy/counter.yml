@@ -4,5 +4,6 @@ parameters:
 signals:
   in:
     - clk
+    - en
   out:
     - [cnt, CNT_WIDTH-1, 0]
