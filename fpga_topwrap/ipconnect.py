@@ -193,7 +193,7 @@ class IPConnect(Elaboratable):
         comp = self._get_component_by_name(comp_name)
 
         for port in comp.get_ports_of_interface(iface_name):
-            self._set_unconnected_port(comp_name, port.name, external_iface_name)
+            self._set_unconnected_port(comp_name, port.name, external_iface_name, port.direction)
 
         inst_args = getattr(self, comp_name)
 
@@ -232,7 +232,7 @@ class IPConnect(Elaboratable):
                 bounds=port.bounds,
                 name=full_name,
                 internal_name=full_name,
-                direction=port.direction,
+                direction=external_dir,
                 interface_name=iface_name,
             )
 
