@@ -97,7 +97,6 @@ class IPConnect(Elaboratable):
             # create a new signal for the connection
             combined_name = port1.name + "_" + port2.name
             sig = Signal(len(port1), name=combined_name)
-            setattr(self, combined_name, sig)
 
         inst1_args[full_name1] = sig
         inst2_args[full_name2] = sig
