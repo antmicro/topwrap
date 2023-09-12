@@ -1,3 +1,5 @@
+# amaranth: UnusedElaboratable=no
+
 # Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 import pytest
