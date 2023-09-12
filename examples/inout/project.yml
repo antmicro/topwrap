@@ -12,25 +12,26 @@ ips:
     file: ipcores/gen_iobuf.yaml
     module: iobuf
 
-ports:
-  ip_obuf:
-    clk: PORT_CLK
-    rst: PORT_RST
-    oe: PORT_CLK
-    a: PORT_IN
-    z: PORT_OUT_0
-  ip_iobuf:
-    clk: PORT_CLK
-    rst: PORT_RST
-    oe: PORT_CLK
-    a: PORT_IN
-    y: PORT_OUT_1
-    z: PORT_IO
-  ip_ibuf:
-    clk: PORT_CLK
-    rst: PORT_RST
-    a: PORT_IN
-    z: PORT_OUT_2
+design:
+  ports:
+    ip_obuf:
+      clk: PORT_CLK
+      rst: PORT_RST
+      oe: PORT_CLK
+      a: PORT_IN
+      z: PORT_OUT_0
+    ip_iobuf:
+      clk: PORT_CLK
+      rst: PORT_RST
+      oe: PORT_CLK
+      a: PORT_IN
+      y: PORT_OUT_1
+      z: PORT_IO
+    ip_ibuf:
+      clk: PORT_CLK
+      rst: PORT_RST
+      a: PORT_IN
+      z: PORT_OUT_2
 
 external:
   ports:
