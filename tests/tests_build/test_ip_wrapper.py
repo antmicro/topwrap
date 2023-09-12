@@ -84,12 +84,12 @@ class TestIPWrapper:
             assert len(ipw_port) == port_width
     
     def test_get_port_by_name_invalid_name(self, axi_dispctrl_ipw):
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(ValueError):
             axi_dispctrl_ipw.get_port_by_name("non_existing_port_name")
 
     def test_get_port_by_interface(self, axi_dispctrl_ipw, axi_dispctrl_interfaces):
         for iface_name, num_ports in axi_dispctrl_interfaces:
             assert len(axi_dispctrl_ipw.get_ports_of_interface(iface_name)) == num_ports
 
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(ValueError):
             axi_dispctrl_ipw.get_ports_of_interface("non_existing_iface_name")
