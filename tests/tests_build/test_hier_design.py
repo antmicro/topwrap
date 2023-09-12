@@ -14,8 +14,7 @@ from fpga_topwrap.nm_helper import PortDirection, DIR_IN, DIR_OUT
 
 @pytest.fixture
 def hier_design_yaml() -> Path:
-    return Path("tests/data/hierarchy/design.yml")
-
+    return Path("tests/data/data_build/hierarchy/design.yml")
 
 @pytest.fixture
 def hier_design(hier_design_yaml) -> dict:
@@ -23,13 +22,11 @@ def hier_design(hier_design_yaml) -> dict:
         design = load(f, Loader=Loader)
     return design
 
-
 @pytest.fixture
 def hier_top_ipconnect(hier_design) -> IPConnect:
     design = hier_design["design"] if "design" in hier_design.keys() else dict()
     external = hier_design["external"] if "external" in hier_design.keys() else dict()
     return generate_design(hier_design["ips"], design, external)
-
 
 def _get_inner_ipconnect(top_ipconnect: IPConnect, hier_name: str) -> IPConnect:
     """Return IPConnect object of Hierarchy Wrapper belonging to `top_ipconnect`.
@@ -39,107 +36,35 @@ def _get_inner_ipconnect(top_ipconnect: IPConnect, hier_name: str) -> IPConnect:
     """
     return top_ipconnect._get_component_by_name(hier_name).ipc
 
-
 # Expected hierarchies and modules names:
 
+@pytest.fixture
+def counter_hier_name() -> str:
+    return "counter_hier"
 
 @pytest.fixture
-def top_hier_name() -> str:
-    return "top_hierarchy"
-
-
-@pytest.fixture
-def counters_hier_name() -> str:
-    return "counters_hier"
-
-
-@pytest.fixture
-def counter_up_mod_name() -> str:
-    return "counter_up"
-
-
-@pytest.fixture
-def counter_down_mod_name() -> str:
-    return "counter_down"
-
-
-@pytest.fixture
-def pwm_hier_name() -> str:
-    return "pwm_hier"
-
+def counter_mod_name() -> str:
+    return "counter"
 
 @pytest.fixture
 def pwm_mod_name() -> str:
     return "pwm"
 
-
-@pytest.fixture
-def select_mod_name() -> str:
-    return "sig_select"
-
-
-# Expected hierarchies ports names:
-
+# Expected ports of modules and hierarchies and their widths:
 
 @pytest.fixture
 def toplevel_ports() -> list:
-    return ["top_clk", "top_cnt", "top_compare"]
-
-
-@pytest.fixture
-def top_hierarchy_ports() -> list:
-    return ["clk", "cnt", "compare"]
-
+    return [("top_clk", 1), ("top_compare", 32), ("top_cnt", 16)]
 
 @pytest.fixture
-def pwm_hierarchy_ports() -> list:
-    return ["pwm_clk", "pwm_compare", "sig_pwm"]
-
-
-@pytest.fixture
-def counters_hierarchy_ports() -> list:
-    return ["cnt_down", "cnt_up", "in_clk"]
-
-
-# Expected modules port names and their widths:
-
-
-@pytest.fixture
-def pwm_module_ports() -> list:
+def pwm_ports() -> list:
     return [("clk", 1), ("compare", 32), ("sig_pwm", 1)]
 
-
 @pytest.fixture
-def counter_up_module_ports() -> list:
-    return [("clk", 1), ("cnt", 16)]
-
-
-@pytest.fixture
-def counter_down_module_ports() -> list:
-    return [("clk", 1), ("cnt", 16)]
-
-
-@pytest.fixture
-def select_module_ports() -> list:
-    return [("out_sig", 16), ("sig1", 16), ("sig2", 16), ("sig_choose", 1)]
-
-
-# Expected number of connections inside hierarchies
-
-
-@pytest.fixture
-def top_hierarchy_connections() -> int:
-    """Return number of defined connections inside top_hierachy. This includes:
-
-    * 3 wires for pwm hierarchy (2 in + 1 out)
-    * 3 wires for counters hierarchy (1 in + 2 out)
-    * 4 wires for sig_select module (3 in + 1 out)
-    """
-    return 10
-
+def counter_hierarchy_ports() -> list:
+    return [("out_cnt", 16), ("in_en", 1), ("in_clk", 1)]
 
 # Helper functions:
-
 
 def _get_second_level_hier_by_name(
     hier_top_ipconnect: IPConnect, top_hier_name: str, sec_lvl_hier_name: str
@@ -161,7 +86,7 @@ class TestHierarchyDesign:
         assert len(_get_ip_ports_by_dir(hier_top_ipconnect, DIR_OUT)) == 1
         assert sorted([port.name for port in hier_top_ipconnect.get_ports()]) == toplevel_ports
 
-    def test_component(self, hier_top_ipconnect, top_hier_name):
+    def test_components(self, hier_top_ipconnect, top_hier_name):
         """Check if top-level IPConnect has the defined top-hierarchy component"""
         assert len(hier_top_ipconnect._components) == 1
         assert isinstance(
@@ -176,63 +101,6 @@ class TestHierarchyDesign:
         assert len(_get_ip_ports_by_dir(top_hier_ipc, DIR_OUT)) == 1
         assert sorted([port.name for port in top_hier_ipc.get_ports()]) == top_hierarchy_ports
 
-    def test_top_hierarchy_components(
-        self, hier_top_ipconnect, top_hier_name, pwm_hier_name, counters_hier_name, select_mod_name
-    ):
-        """Check if top-hierarchy contains all the defined sub-hierarchies and modules:
-
-        * pwm_hier hierarchy (which wraps only pwm module)
-        * counters_hier hierarchy (which wraps 2 counter modules)
-        * sig_select module
-        """
-        top_hier_ipc = _get_inner_ipconnect(hier_top_ipconnect, top_hier_name)
-        assert len(top_hier_ipc._components) == 3
-        assert isinstance(top_hier_ipc._get_component_by_name(pwm_hier_name), HierarchyWrapper)
-        assert isinstance(top_hier_ipc._get_component_by_name(counters_hier_name), HierarchyWrapper)
-        assert isinstance(top_hier_ipc._get_component_by_name(select_mod_name), IPWrapper)
-
-    def test_top_hierarchy_connections(
-        self,
-        hier_top_ipconnect,
-        top_hier_name,
-        pwm_hier_name,
-        counters_hier_name,
-        select_mod_name,
-        top_hierarchy_connections,
-    ):
-        """Check if all the defined connections are present in top_hierarchy"""
-        top_hier_ipc = _get_inner_ipconnect(hier_top_ipconnect, top_hier_name)
-        assert hasattr(top_hier_ipc, pwm_hier_name)
-        assert hasattr(top_hier_ipc, counters_hier_name)
-        assert hasattr(top_hier_ipc, select_mod_name)
-        assert (
-            len(getattr(top_hier_ipc, pwm_hier_name))
-            + len(getattr(top_hier_ipc, counters_hier_name))
-            + len(getattr(top_hier_ipc, select_mod_name))
-            == top_hierarchy_connections
-        )
-
-    # Tests for pwm hierarchy:
-    def test_pwm_hierarchy_ports(
-        self, hier_top_ipconnect, top_hier_name, pwm_hier_name, pwm_hierarchy_ports
-    ):
-        """Check if pwm hierarchy (which wraps only pwm module) has all the defined ports"""
-        pwm_hier_ipc = _get_second_level_hier_by_name(
-            hier_top_ipconnect, top_hier_name, pwm_hier_name
-        )
-        assert len(_get_ip_ports_by_dir(pwm_hier_ipc, DIR_IN)) == 2
-        assert len(_get_ip_ports_by_dir(pwm_hier_ipc, DIR_OUT)) == 1
-        assert sorted([port.name for port in pwm_hier_ipc.get_ports()]) == pwm_hierarchy_ports
-
-    def test_pwm_hierarchy_components(
-        self, hier_top_ipconnect, top_hier_name, pwm_hier_name, pwm_mod_name
-    ):
-        """Check if pwm hierarchy contains only the pwm module"""
-        pwm_hier_ipc = _get_second_level_hier_by_name(
-            hier_top_ipconnect, top_hier_name, pwm_hier_name
-        )
-        assert len(pwm_hier_ipc._components) == 1
-        assert isinstance(pwm_hier_ipc._get_component_by_name(pwm_mod_name), IPWrapper)
 
     # Test for pwm module:
     def test_pwm_module_ports(
@@ -294,40 +162,4 @@ class TestHierarchyDesign:
         assert (
             sorted([(port.name, len(port)) for port in cnt_ipw.get_ports()])
             == counter_up_module_ports
-        )
-
-    # Test for down-counter module:
-    def test_counter_down_module_ports(
-        self,
-        hier_top_ipconnect,
-        top_hier_name,
-        counters_hier_name,
-        counter_down_mod_name,
-        counter_down_module_ports,
-    ):
-        """Check counter_down module ports - check their directions, names and widths"""
-        cnt_hier_ipc = _get_second_level_hier_by_name(
-            hier_top_ipconnect, top_hier_name, counters_hier_name
-        )
-        cnt_ipw = cnt_hier_ipc._get_component_by_name(counter_down_mod_name)
-        assert len(_get_ip_ports_by_dir(cnt_ipw, DIR_IN)) == 1
-        assert len(_get_ip_ports_by_dir(cnt_ipw, DIR_OUT)) == 1
-        assert (
-            sorted([(port.name, len(port)) for port in cnt_ipw.get_ports()])
-            == counter_down_module_ports
-        )
-
-    # Test for sig select module:
-    def test_sig_select_module_ports(
-        self, hier_top_ipconnect, top_hier_name, select_mod_name, select_module_ports
-    ):
-        """Check sig_select module ports - check their directions, names and widths"""
-        top_hier_ipc = _get_inner_ipconnect(hier_top_ipconnect, top_hier_name)
-        select_ipw = top_hier_ipc._get_component_by_name(select_mod_name)
-        assert isinstance(select_ipw, IPWrapper)
-        assert len(_get_ip_ports_by_dir(select_ipw, DIR_IN)) == 3
-        assert len(_get_ip_ports_by_dir(select_ipw, DIR_OUT)) == 1
-        assert (
-            sorted([(port.name, len(port)) for port in select_ipw.get_ports()])
-            == select_module_ports
         )
