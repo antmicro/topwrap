@@ -59,39 +59,21 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
             # one-element list. Here `port` is a one-element list containing a
             # single string (i.e. port name), which is accessed with `port[0]`
             "name": port[0],
-            "type": ["port", "port_external"],
+            "type": ["port"],
             "direction": "input",
         }
         for port in ports["in"]
     ]
     outputs = [
-        {"name": port[0], "type": ["port", "port_external"], "direction": "output"}
+        {"name": port[0], "type": ["port"], "direction": "output"}
         for port in ports["out"]
     ]
     inouts = [
-        {"name": port[0], "type": ["port", "port_external"], "direction": "inout", "side": "right"}
+        {"name": port[0], "type": ["port"], "direction": "inout", "side": "right"}
         for port in ports["inout"]
     ]
 
     return inputs + outputs + inouts
-
-
-def _is_external_port_type(port: str) -> bool:
-    """Check whether `port` is a type of interface that was added for the purpose of
-    appropriate coloring/styling ports connections to external metanodes,
-    i.e. check if `interface` is equal to "port_external"
-    """
-    return port == "port_external"
-
-
-def _is_external_interface_type(interface: str) -> bool:
-    """Check whether `interface` is a type of interface that was added for the purpose of
-    appropriate coloring/styling interfaces connections to external metanodes,
-    i.e. check if `interface` has format "iface_external_*"
-    """
-    return (
-        interface.startswith("iface_external_") and interface[len("iface_external_") :].isnumeric()
-    )
 
 
 def _ipcore_ifaces_to_kpm(ifaces: dict):
@@ -108,26 +90,20 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
     inputs = [
         {
             "name": iface,
-            "type": [
-                f'iface_{ifaces[iface]["interface"]}',
-                f"iface_external_{counter}",
-            ],
+            "type": [f'iface_{ifaces[iface]["interface"]}'],
             "direction": "input",
         }
-        for counter, iface in enumerate(ifaces.keys())
+        for iface in ifaces.keys()
         if ifaces[iface]["mode"] == "slave"
     ]
     outputs = [
         {
             "name": iface,
-            "type": [
-                f'iface_{ifaces[iface]["interface"]}',
-                f"iface_external_{counter}",
-            ],
+            "type": [f'iface_{ifaces[iface]["interface"]}'],
             "direction": "output",
             "maxConnectionsCount": 1,
         }
-        for counter, iface in enumerate(ifaces.keys(), start=len(inputs) + 1)
+        for iface in ifaces.keys()
         if ifaces[iface]["mode"] == "master"
     ]
 
@@ -200,26 +176,23 @@ def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
         "category": "Metanode",
         "properties": [{"name": "External Name", "type": "text", "default": ""}],
         "interfaces": [
-            {"name": "external", "type": ["external"] + interfaces_types, "direction": iface_dir}
+            {"name": "external", "type": ["port"] + interfaces_types, "direction": iface_dir}
         ],
     }
 
     return metanode
 
 
-def _generate_ifaces_colors(interfaces_types: list, interfaces_external_types: list) -> dict:
-    """Generate the `spec["metatadata"]["interfaces]` part of the KPM specification. which is
+def _generate_ifaces_colors(interfaces_types: list) -> dict:
+    """Generate the `spec["metatadata"]["interfaces]` part of the KPM specification, which is
     responsible for styling interfaces and their connections.
 
     :param interfaces_types: a list of interfaces types, e.g. ["iface_AXI4", "iface_AXILite"]
-    :param interfaces_external_types: a list of interfaces types ending with "*_external",
-    e.g. ["port_external", "iface_AXI4_external", "iface_AXILite_external"]
 
     :return: a dict of type {"iface_type1":  {...}, "iface_type2":  {...}, ...}, which describes
     styling of all the interfaces
     """
     COLOR_GREEN = "#00ca7c"  # for ports
-    COLOR_MAGENTA = "#ff00ff"  # for externals
     COLORS_CYAN = [  # for different interfaces types
         "#1191b1",
         "#16b6de",
@@ -245,21 +218,12 @@ def _generate_ifaces_colors(interfaces_types: list, interfaces_external_types: l
         }
         for iface_type, iface_color in list(zip(interfaces_types, cycle(COLORS_CYAN)))
     }
-    externals_styling = {
-        iface_ext_type: {
-            "interfaceColor": COLOR_MAGENTA,
-            "interfaceConnectionColor": COLOR_MAGENTA,
-            "interfaceConnectionPattern": "dashed",
-        }
-        for iface_ext_type in interfaces_external_types
-    }
 
-    return {**ports_styling, **interfaces_styling, **externals_styling}
+    return {**ports_styling, **interfaces_styling}
 
 
-def _get_port_ifaces_external_types(specification: dict) -> list:
-    """Return a list of all ports/interfaces types from specification
-    which are types used for coloring/styling external connections and interfaces.
+def _get_ifaces_types(specification: dict) -> list:
+    """Return a list of all interfaces types from specification that are interfaces types.
     """
     return list(
         set(
@@ -267,25 +231,7 @@ def _get_port_ifaces_external_types(specification: dict) -> list:
                 iface_type
                 for node in specification["nodes"]
                 for iface in node["interfaces"]
-                for iface_type in iface["type"]
-                if _is_external_port_type(iface_type) or _is_external_interface_type(iface_type)
-            ]
-        )
-    )
-
-
-def _get_ifaces_general_types(specification: dict) -> list:
-    """Return a list of all interfaces types from specification that are interfaces types,
-    but not the ones used for coloring/styling external connections and interfaces.
-    """
-    return list(
-        set(
-            [
-                iface_type
-                for node in specification["nodes"]
-                for iface in node["interfaces"]
-                for iface_type in iface["type"]
-                if iface_type.startswith("iface_") and not _is_external_interface_type(iface_type)
+                for iface_type in iface["type"] if iface_type != "port"
             ]
         )
     )
@@ -313,17 +259,13 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
         "nodes": [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
     }
 
-    ports_ifaces_external_types = _get_port_ifaces_external_types(specification)
+    interfaces_types = _get_ifaces_types(specification)
     specification["nodes"] += [
-        _generate_external_metanode("input", ports_ifaces_external_types),
-        _generate_external_metanode("output", ports_ifaces_external_types),
-        _generate_external_metanode("inout", ports_ifaces_external_types),
+        _generate_external_metanode("input", interfaces_types),
+        _generate_external_metanode("output", interfaces_types),
+        _generate_external_metanode("inout", interfaces_types),
     ]
-
-    interfaces_types = _get_ifaces_general_types(specification)
-    specification["metadata"]["interfaces"] = _generate_ifaces_colors(
-        interfaces_types, ports_ifaces_external_types
-    )
+    specification["metadata"]["interfaces"] = _generate_ifaces_colors(interfaces_types)
 
     _duplicate_ipcore_types_check(specification)
 
