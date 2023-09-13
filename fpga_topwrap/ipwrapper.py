@@ -130,7 +130,7 @@ class IPWrapper(Elaboratable):
                         name=port_name,
                         internal_name=port_name,
                         direction=direction,
-                        interface_name="None",
+                        interface_name=None,
                     )
                 )
 

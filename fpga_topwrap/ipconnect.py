@@ -148,7 +148,7 @@ class IPConnect(Elaboratable):
         :param external_dir: external direction of the port specified in "externals" section
         :raises ValueError: if such port doesn't exist
         """
-        self._set_unconnected_port(comp_name, port_name, "None", external_dir)
+        self._set_unconnected_port(comp_name, port_name, None, external_dir)
 
         inst_args = getattr(self, comp_name)
 
