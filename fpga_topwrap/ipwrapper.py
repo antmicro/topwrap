@@ -12,7 +12,7 @@ from amaranth.hdl.ast import Cat, Const
 
 from .config import config
 from .interface import get_interface_by_name
-from .nm_helper import WrapperPort, port_direction_to_prefix, DIR_IN, DIR_OUT, DIR_INOUT
+from .amaranth_helpers import WrapperPort, port_direction_to_prefix, DIR_IN, DIR_OUT, DIR_INOUT
 from .parsers import parse_port_map
 from .util import check_interface_compliance
 

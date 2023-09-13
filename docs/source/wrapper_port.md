@@ -17,7 +17,7 @@ See {ref}`Port slicing <port-slicing>` to know more about `bounds`.
 This is used in {code}`IPWrapper` class implementation and there should be no need to use {class}`WrapperPort` individually.
 
 ```{eval-rst}
-.. autoclass:: fpga_topwrap.nm_helper.WrapperPort
+.. autoclass:: fpga_topwrap.amaranth_helpers.WrapperPort
    :members:
 
    .. automethod:: __init__

@@ -3,7 +3,7 @@
 
 from typing import List
 
-from .nm_helper import WrapperPort
+from .amaranth_helpers import WrapperPort
 
 
 class HierarchyWrapper:

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import pytest
 from pathlib import Path
-from fpga_topwrap.nm_helper import DIR_IN, DIR_OUT, DIR_INOUT
+from fpga_topwrap.amaranth_helpers import DIR_IN, DIR_OUT, DIR_INOUT
 from fpga_topwrap.ipconnect import IPConnect
 from fpga_topwrap.ipwrapper import IPWrapper
 

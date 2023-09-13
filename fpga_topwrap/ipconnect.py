@@ -11,7 +11,7 @@ from amaranth.hdl.ast import Const
 from .fuse_helper import FuseSocBuilder
 from .hierarchy_wrapper import HierarchyWrapper
 from .ipwrapper import IPWrapper
-from .nm_helper import (
+from .amaranth_helpers import (
     port_direction_to_prefix,
     strip_port_prefix,
     DIR_IN,
