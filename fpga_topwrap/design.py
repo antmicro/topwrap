@@ -15,6 +15,24 @@ def build_design_from_yaml(yamlfile, sources_dir=None, part=None):
     build_design(design, sources_dir, part)
 
 
+def get_hierarchies_names(design_descr: dict) -> set:
+    """ `design_descr` is the "design" section of a design description yaml."""
+    return set(
+        filter(lambda key: key not in ["parameters", "ports", "interfaces"], design_descr.keys())
+    )
+
+
+def get_ipcores_names(design_descr: dict) -> set:
+    """ `design_descr` is the "design" section of a design description yaml."""
+    design_ports = design_descr["ports"] if "ports" in design_descr.keys() else dict()
+    design_interfaces = design_descr["interfaces"] if "interfaces" in design_descr.keys() else dict()
+    ports_keys = set(design_ports.keys())
+    interfaces_keys = set(design_interfaces.keys())
+    # IP core should be added to the design if its name occurs as a key in "ports" or
+    # "interfaces" sections of a design description yaml (and it is not a hierarchy name).
+    return ports_keys.union(interfaces_keys).difference(get_hierarchies_names(design_descr))
+
+
 def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     ipc = IPConnect()
     ipc_params = design["parameters"] if "parameters" in design.keys() else dict()
@@ -22,20 +40,11 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     ipc_interfaces = design["interfaces"] if "interfaces" in design.keys() else dict()
 
     # Generate hierarchies and add them to `ipc`.
-    for key, val in design.items():
-        if key not in ["parameters", "ports", "interfaces"]:
-            hier_ipc = generate_design(ips, val["design"], val["external"])
-            ipc.add_component(key, HierarchyWrapper(key, hier_ipc))
+    for hier_name in get_hierarchies_names(design):
+        hier_ipc = generate_design(ips, design[hier_name]["design"], design[hier_name]["external"])
+        ipc.add_component(hier_name, HierarchyWrapper(hier_name, hier_ipc))
 
-    # Find IP cores based on the contents of "ports" and "interfaces" sections
-    # and add them to `ipc`.
-    hier_names = set(
-        filter(lambda key: key not in ["parameters", "ports", "interfaces"], design.keys())
-    )
-    ports_keys = set(ipc_ports.keys())
-    interfaces_keys = set(ipc_interfaces.keys())
-
-    for ip_name in ports_keys.union(interfaces_keys).difference(hier_names):
+    for ip_name in get_ipcores_names(design):
         parameters = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
         ipc.add_component(
             ip_name, IPWrapper(ips[ip_name]["file"], ips[ip_name]["module"], ip_name, parameters)

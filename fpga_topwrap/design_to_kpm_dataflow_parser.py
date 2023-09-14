@@ -14,6 +14,7 @@ from .kpm_common import (
     EXT_OUTPUT_NAME,
     get_metanode_property_value,
 )
+from .design import get_hierarchies_names, get_ipcores_names
 
 
 class IDGenerator(object):
@@ -167,10 +168,6 @@ def _ipcore_param_to_kpm_value(param) -> str:
         return width + "'h" + value
 
 
-def _get_hierarchies_names(design_descr: dict) -> set:
-    return set(design_descr["design"].keys()).difference(set(["parameters", "ports", "interfaces"]))
-
-
 def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List[KPMDataflowNode]:
     """Generate KPM dataflow nodes based on Topwrap's design
     description yaml (e.g. generated from YAML design description)
@@ -180,16 +177,13 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
     ips = design_descr["ips"]
     design = design_descr["design"]
     parameters = design["parameters"] if "parameters" in design.keys() else dict()
-    ports = design["ports"] if "ports" in design.keys() else dict()
-    interfaces = design["interfaces"] if "interfaces" in design.keys() else dict()
 
-    hier_names = _get_hierarchies_names(design_descr)
+    hier_names = get_hierarchies_names(design)
     if hier_names:
         logging.warning(f"Imported design contains hierarchies ({hier_names}) which are not yet "
                         "supported. The imported design will be incomplete")
-    ips_names = (set(ports.keys()).union(set(interfaces.keys()))).difference(hier_names)
-
-    for ip_name in ips_names:
+    
+    for ip_name in get_ipcores_names(design):
         ip_type = os.path.splitext(os.path.basename(ips[ip_name]["file"]))[0]
         spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
@@ -275,7 +269,7 @@ def _get_external_connections(design_descr: dict) -> list:
             "port_iface_name": conn["port_iface_name"],
             "external_name": conn["connection"],
         }
-        for conn in ext_connections if conn["ip_name"] not in _get_hierarchies_names(design_descr)
+        for conn in ext_connections if conn["ip_name"] not in get_hierarchies_names(design_descr["design"])
         # skip external connections from/to hierarchies
     ]
 
@@ -291,9 +285,9 @@ def _get_ipcores_connections(design_descr: dict) -> list:
         """
         if not isinstance(conn_descr["connection"], list):
             return False
-        if conn_descr["ip_name"] in _get_hierarchies_names(design_descr):
+        if conn_descr["ip_name"] in get_hierarchies_names(design_descr["design"]):
             return False
-        if conn_descr["connection"][0] in _get_hierarchies_names(design_descr):
+        if conn_descr["connection"][0] in get_hierarchies_names(design_descr["design"]):
             return False
         return True        
 
