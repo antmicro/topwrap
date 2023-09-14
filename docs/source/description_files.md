@@ -22,19 +22,22 @@ ips:
   ...
 
 design:
-  {hierarchy_name}: # describe hierarchy design
-    design:
-      parameters:
+  hierarchies: # specify hierarchies designs
+    {hierarchy_name_1}:
+      design:
+        parameters:
+          ...
+        ports: # ports connections internal to this hierarchy
+          ...
+        interfaces: # interfaces connections internal to this hierarchy
+          ...
+        {nested_hierarchy_name}:
+          ...
+      external:
+        # external ports and/or interfaces of this hierarchy; these can be
+        # referenced in the upper-level `ports`, `interfaces` or `external` section
         ...
-      ports: # ports connections internal to this hierarchy
-        ...
-      interfaces: # interfaces connections internal to this hierarchy
-        ...
-      {nested_hierarchy_name}:
-        ...
-    external:
-      # external ports and/or interfaces of this hierarchy; these can be
-      # referenced in the upper-level `ports`, `interfaces` or `external` section
+    {hierarchy_name_2}:
       ...
   
   parameters: # specify IPs parameter values to be overridden
