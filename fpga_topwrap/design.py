@@ -45,10 +45,10 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
         ipc.add_component(hier_name, HierarchyWrapper(hier_name, hier_ipc))
 
     for ip_name in get_ipcores_names(design):
-        parameters = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
-        ipc.add_component(
-            ip_name, IPWrapper(ips[ip_name]["file"], ips[ip_name]["module"], ip_name, parameters)
-        )
+        ip_file = ips[ip_name]["file"]
+        ip_module = ips[ip_name]["module"]
+        ip_params = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
+        ipc.add_component(ip_name, IPWrapper(ip_file, ip_module, ip_name, ip_params))
 
     ipc.make_connections(ipc_ports, ipc_interfaces)
     ipc.make_external_ports_interfaces(ipc_ports, ipc_interfaces, external)
