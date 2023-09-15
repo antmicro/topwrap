@@ -183,7 +183,7 @@ def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
     return metanode
 
 
-def _generate_ifaces_colors(interfaces_types: list) -> dict:
+def _generate_ifaces_styling(interfaces_types: list) -> dict:
     """Generate the `spec["metatadata"]["interfaces]` part of the KPM specification, which is
     responsible for styling interfaces and their connections.
 
@@ -192,31 +192,23 @@ def _generate_ifaces_colors(interfaces_types: list) -> dict:
     :return: a dict of type {"iface_type1":  {...}, "iface_type2":  {...}, ...}, which describes
     styling of all the interfaces
     """
-    COLOR_GREEN = "#00ca7c"  # for ports
-    COLORS_CYAN = [  # for different interfaces types
-        "#1191b1",
-        "#16b6de",
-        "#41c9eb",
-        "#66d4ef",
-        "#7ddaf1",
-        "#a2e4f5",
-        "#bfedf8",
-    ]
+    COLOR_WHITE = "#ffffff"
+    COLOR_GREEN = "#00ca7c"
 
     ports_styling = {
         "port": {
             "interfaceColor": COLOR_GREEN,
-            "interfaceConnectionColor": COLOR_GREEN,
+            "interfaceConnectionColor": COLOR_WHITE,
             "interfaceConnectionPattern": "solid",
         },
     }
     interfaces_styling = {
         iface_type: {
-            "interfaceColor": iface_color,
-            "interfaceConnectionColor": iface_color,
-            "interfaceConnectionPattern": "solid",
+            "interfaceColor": COLOR_GREEN,
+            "interfaceConnectionColor": COLOR_WHITE,
+            "interfaceConnectionPattern": "dashed",
         }
-        for iface_type, iface_color in list(zip(interfaces_types, cycle(COLORS_CYAN)))
+        for iface_type in interfaces_types
     }
 
     return {**ports_styling, **interfaces_styling}
@@ -265,7 +257,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
         _generate_external_metanode("output", interfaces_types),
         _generate_external_metanode("inout", interfaces_types),
     ]
-    specification["metadata"]["interfaces"] = _generate_ifaces_colors(interfaces_types)
+    specification["metadata"]["interfaces"] = _generate_ifaces_styling(interfaces_types)
 
     _duplicate_ipcore_types_check(specification)
 
