@@ -16,7 +16,7 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     ./run
     ```
 
-    After executing the above-mentioned commands, the Pipeline Manager server is running on `http://127.0.0.1:5000` and waiting for an external application (i.e. Topwrap) to connect on `http://127.0.0.1:9000`.
+    After executing the above-mentioned commands, the Pipeline Manager server is waiting for an external application (i.e. Topwrap) to connect on `127.0.0.1:9000` and you can connect to the web GUI frontend in your browser on `http://127.0.0.1:5000`. 
 
 2. Establish connection with Topwrap
 
