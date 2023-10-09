@@ -6,7 +6,9 @@ from os import makedirs, path
 from amaranth import Elaboratable, Fragment, Instance, Module, Signal
 from amaranth.back import verilog
 from amaranth.build import Platform
+from amaranth.hdl import ClockSignal, ResetSignal
 from amaranth.hdl.ast import Const
+from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 
 from .amaranth_helpers import (
     DIR_IN,
@@ -17,9 +19,11 @@ from .amaranth_helpers import (
     port_direction_to_prefix,
     strip_port_prefix,
 )
+from .elaboratable_wrapper import ElaboratableWrapper
 from .fuse_helper import FuseSocBuilder
 from .hierarchy_wrapper import HierarchyWrapper
 from .ipwrapper import IPWrapper
+from .util import removeprefix
 
 
 class IPConnect(Elaboratable):
@@ -30,16 +34,22 @@ class IPConnect(Elaboratable):
     def __init__(self):
         self._components = dict()
         self._ports = []
+        self._connections = []
 
     def add_component(self, name: str, component) -> None:
         """Add a new component to this IPConnect, allowing to make connections with it
 
         :param name: name of the component
-        :param component: IPWrapper or HierarchyWrapper object
+        :param component: IPWrapper or HierarchyWrapper or ElaboratableWrapper object
         """
         self._components[name] = component
         # create a placeholder for Instance arguments to instantiate the ip
-        setattr(self, name, dict())
+        instance_args = dict()
+        if isinstance(component, IPWrapper):
+            instance_args["i_clk"] = ClockSignal("sync")
+            instance_args["i_rst"] = ResetSignal("sync")
+
+        setattr(self, name, instance_args)
 
     def _get_component_by_name(self, name: str):
         try:
@@ -88,18 +98,15 @@ class IPConnect(Elaboratable):
 
         # If a port was connected previoulsy,
         # take the previoulsy created signal, instead of creating a new one
-        if full_name1 in inst1_args.keys():
-            sig = inst1_args[full_name1]
-        elif full_name2 in inst2_args.keys():
-            sig = inst2_args[full_name2]
-        else:
-            # neither of the ports was connected previously
-            # create a new signal for the connection
-            combined_name = port1.name + "_" + port2.name
-            sig = Signal(len(port1), name=combined_name)
+        inst1_args[full_name1] = port1
+        inst2_args[full_name2] = port2
 
-        inst1_args[full_name1] = sig
-        inst2_args[full_name2] = sig
+        if port1.direction == DIR_OUT and port2.direction == DIR_IN:
+            self._connections.append(port2.eq(port1))
+        elif port1.direction == DIR_IN and port2.direction == DIR_OUT:
+            self._connections.append(port1.eq(port2))
+        else:
+            warning(f"Ports {port1.name} and {port2.name} have mismatched directionality")
 
     def connect_interfaces(
         self, iface1: str, comp1_name: str, iface2: str, comp2_name: str
@@ -117,19 +124,21 @@ class IPConnect(Elaboratable):
         ip1_ports = comp1.get_ports_of_interface(iface1)
         ip2_ports = comp2.get_ports_of_interface(iface2)
 
-        ip1_signames = {p.name.split("_")[-1] for p in ip1_ports}
-        ip2_signames = {p.name.split("_")[-1] for p in ip2_ports}
+        ip1_signames = {removeprefix(p.name, f"{iface1}_") for p in ip1_ports}
+        ip2_signames = {removeprefix(p.name, f"{iface2}_") for p in ip2_ports}
         ip1_unconnected = ip1_signames - ip2_signames
         ip2_unconnected = ip2_signames - ip1_signames
         if ip1_unconnected:
             info("Unconnected signals of " f"{comp1_name}:{iface1}: {ip1_unconnected}")
         if ip2_unconnected:
-            info("Unconnected signals of " f"{comp2_name}:{iface2} {ip2_unconnected}")
+            info("Unconnected signals of " f"{comp2_name}:{iface2}: {ip2_unconnected}")
 
         ports_connected = 0
         for p1 in ip1_ports:
             for p2 in ip2_ports:
-                names_match = p1.name.split("_")[-1] == p2.name.split("_")[-1]
+                names_match = removeprefix(p1.name, f"{iface1}_") == removeprefix(
+                    p2.name, f"{iface2}_"
+                )
                 # widths_match = len(p1) == len(p2)
                 if names_match:
                     self.connect_ports(p1.name, comp1_name, p2.name, comp2_name)
@@ -253,8 +262,39 @@ class IPConnect(Elaboratable):
         full_name = port_direction_to_prefix(port.direction) + port.name
         inst_args[full_name] = Const(target)
 
-    def make_connections(self, ports: dict, interfaces: dict) -> None:
+    def make_connections(self, ports: dict, interfaces: dict, interconnects: dict) -> None:
         """Use names of port and names of ips to make connections"""
+
+        for ic_name, params in interconnects.items():
+            ic = self._get_component_by_name(ic_name)
+
+            masters, slaves = params["masters"], params["slaves"]
+
+            for slave_name, slave_ifaces in slaves.items():
+                for slave_iface_name, iface_params in slave_ifaces.items():
+                    address, size = iface_params["address"], iface_params["size"]
+                    ic.elaboratable.add_peripheral(
+                        name=f"{slave_name}_{slave_iface_name}", addr=address, size=size
+                    )
+
+            for master_name, master_ifaces in masters.items():
+                for master_iface_name in master_ifaces:
+                    ic.elaboratable.add_master(name=f"{master_name}_{master_iface_name}")
+
+            for slave_name, slave_ifaces in slaves.items():
+                for slave_iface_name, iface_params in slave_ifaces.items():
+                    self.connect_interfaces(
+                        slave_iface_name, slave_name, f"{slave_name}_{slave_iface_name}", ic_name
+                    )
+
+            for master_name, master_ifaces in masters.items():
+                for master_iface_name in master_ifaces:
+                    self.connect_interfaces(
+                        master_iface_name,
+                        master_name,
+                        f"{master_name}_{master_iface_name}",
+                        ic_name,
+                    )
 
         for comp1_name, connections in ports.items():
             for comp1_port, target in connections.items():
@@ -373,12 +413,17 @@ class IPConnect(Elaboratable):
     def elaborate(self, platform: Platform) -> Module:
         m = Module()
 
-        for comp_name in self._components.keys():
-            args = getattr(self, comp_name)
-            try:
-                inst = Instance(comp_name, **args)
-                setattr(m.submodules, comp_name, inst)
-            except TypeError:
-                error(f"couldn't create instance of {comp_name} using args: {args}")
+        m.d.comb += self._connections
+
+        for comp_name, comp in self._components.items():
+            if isinstance(comp, (HierarchyWrapper, IPWrapper)):
+                args = getattr(self, comp_name)
+                try:
+                    inst = Instance(comp_name, **args)
+                    setattr(m.submodules, comp_name, inst)
+                except TypeError:
+                    error(f"couldn't create instance of {comp_name} using args: {args}")
+            elif isinstance(comp, ElaboratableWrapper):
+                m.submodules += comp
 
         return m

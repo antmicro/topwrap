@@ -1,0 +1,26 @@
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: wishbone
+port_prefix: wishbone
+signals:
+    required:
+        - clk
+        - ack
+        - cyc
+        - rst
+        - stb
+    optional:
+        - dat_r
+        - dat_w
+        - tgd_r
+        - tgd_w
+        - adr
+        - stall
+        - err
+        - rty
+        - lock
+        - sel
+        - tga
+        - tgc
+        - we

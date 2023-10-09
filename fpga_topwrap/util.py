@@ -59,3 +59,14 @@ def match_interface(ports_matches):
             )
 
     return {"name": iface.name, "ports": ports_matches}
+
+
+def removeprefix(s: str, prefix: str):
+    """Return string with a prefix removed if it contains it
+
+    :param s: string to be stripped of its prefix
+    :param prefix: prefix to be removed
+    """
+    if s.startswith(prefix):
+        return s[len(prefix) :]
+    return s

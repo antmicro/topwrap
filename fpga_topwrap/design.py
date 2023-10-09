@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 from yaml import Loader, load
 
+from soc_generator.wishbone_interconnect import WishboneRRInterconnect
+
+from .elaboratable_wrapper import ElaboratableWrapper
 from .hierarchy_wrapper import HierarchyWrapper
 from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
@@ -30,9 +33,25 @@ def get_ipcores_names(design_descr: dict) -> set:
     )
     ports_keys = set(design_ports.keys())
     interfaces_keys = set(design_interfaces.keys())
-    # IP core should be added to the design if its name occurs as a key in "ports" or
-    # "interfaces" sections of a design description yaml (and it is not a hierarchy name).
-    return ports_keys.union(interfaces_keys).difference(get_hierarchies_names(design_descr))
+
+    interconnects = (
+        design_descr["interconnects"] if "interconnects" in design_descr.keys() else dict()
+    )
+    interconnect_conns = set()
+    for interconnect in interconnects.values():
+        if "slaves" in interconnect.keys():
+            interconnect_conns |= interconnect["slaves"].keys()
+        if "masters" in interconnect.keys():
+            interconnect_conns |= interconnect["masters"].keys()
+
+    # IP core should be added to the design if its name occurs as a key in "ports",
+    # "interfaces" or "interconnects.<interconnect_name>.{slaves, masters}" sections
+    # of a design description yaml (and it is not a hierarchy name).
+    return (ports_keys | interfaces_keys | interconnect_conns) - get_hierarchies_names(design_descr)
+
+
+def get_interconnects_names(design_descr: dict) -> set:
+    return design_descr["interconnects"].keys() if "interconnects" in design_descr.keys() else set()
 
 
 def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
@@ -41,6 +60,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     ipc_hiers = design["hierarchies"] if "hierarchies" in design.keys() else dict()
     ipc_ports = design["ports"] if "ports" in design.keys() else dict()
     ipc_interfaces = design["interfaces"] if "interfaces" in design.keys() else dict()
+    ipc_interconnects = design["interconnects"] if "interconnects" in design.keys() else dict()
 
     # Generate hierarchies and add them to `ipc`.
     for hier_name in get_hierarchies_names(design):
@@ -55,8 +75,23 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
         ip_params = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
         ipc.add_component(ip_name, IPWrapper(ip_file, ip_module, ip_name, ip_params))
 
-    ipc.make_connections(ipc_ports, ipc_interfaces)
+    for interconnect_name in get_interconnects_names(design):
+        ic = ipc_interconnects[interconnect_name]
+        ipc.add_component(
+            interconnect_name,
+            ElaboratableWrapper(
+                name=interconnect_name,
+                elaboratable=WishboneRRInterconnect(
+                    addr_width=ic["addr_width"],
+                    data_width=ic["data_width"],
+                    granularity=ic["granularity"],
+                    features=ic["features"],
+                ),
+            ),
+        )
+
     ipc.make_external_ports_interfaces(ipc_ports, ipc_interfaces, external)
+    ipc.make_connections(ipc_ports, ipc_interfaces, ipc_interconnects)
     return ipc
 
 

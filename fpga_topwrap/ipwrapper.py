@@ -8,6 +8,7 @@ from typing import List
 import numexpr as ex
 from amaranth import Elaboratable, Instance, Module, Signal
 from amaranth.build import Platform
+from amaranth.hdl import ClockSignal, ResetSignal
 from amaranth.hdl.ast import Cat, Const
 
 from .amaranth_helpers import (
@@ -92,13 +93,14 @@ class IPWrapper(Elaboratable):
         _evaluate_parameters(params)
         self._set_parameters(params)
 
-        self._create_ports(yamlfile)
         self.ip_name = ip_name
 
         if top_name is None:
             self.top_name = ip_name + "_top"
         else:
             self.top_name = top_name
+
+        self._create_ports(yamlfile)
 
     def _create_ports(self, yamlfile: str):
         """Initialize object attributes with data found in the yamlfile
@@ -119,6 +121,12 @@ class IPWrapper(Elaboratable):
         for key, value in self._parameters.items():
             # trim 'p_' in the beginning
             parameters[key[2:]] = value
+
+        try:
+            self._clk = ip_yaml["signals"]["clock"]
+            self._rst = ip_yaml["signals"]["reset"]
+        except KeyError:
+            raise ValueError(f"Missing clock or reset assignment in {self.ip_name}")
 
         signals_dirs = [
             (ip_yaml["signals"]["in"], DIR_IN),
@@ -261,5 +269,9 @@ class IPWrapper(Elaboratable):
 
         instance_args = {**instance_args, **self._parameters}
 
+        instance_args |= {
+            f"i_{self._clk}": ClockSignal("sync"),
+            f"i_{self._rst}": ResetSignal("sync"),
+        }
         m.submodules.ip = Instance(self.ip_name, **instance_args)
         return m
