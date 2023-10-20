@@ -18,6 +18,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - uses: actions/setup-python@v4
         with:
@@ -75,7 +77,7 @@ jobs:
           cd examples/hdmi
           tuttest README.md generate | bash -
           cd -
-      
+
       - name: Generate sources for example inout setup
         if: matrix.example == 'INOUT'
         run: |
@@ -87,57 +89,11 @@ jobs:
         if: matrix.example == 'PWM'
         run: |
           cd examples/pwm
-          make generate copy_sources
+          tuttest README.md generate | bash -
           cd -
-
-          docker run --rm -i -v $(pwd):/wrk -w /wrk \
-          gcr.io/hdl-containers/conda/f4pga/xc7/z010 \
-          bash -le <<'EOF'
-            pip3 install -r requirements.impl.txt
-            cd examples/pwm
-            make zvb
-          EOF
-
-          cp examples/pwm/build/project_1_0/zynq-symbiflow/project_top.bit top.bit
 
       - uses: actions/upload-artifact@v3
         if: matrix.example == 'PWM'
         with:
           name: top.bit
           path: top.bit
-
-
-  Docs:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: docker://btdi/sphinx:min
-        with:
-          args: ./.github/scripts/sphinx.sh
-
-      - uses: docker://btdi/latex
-        with:
-          args: ./.github/scripts/latex.sh
-
-      - name: 'Upload artifact: Sphinx HTML and PDF'
-        uses: actions/upload-artifact@v3
-        with:
-          name: Documentation
-          path: docs/build/html
-
-      - name: Deploy to Github Pages
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        run: |
-          sudo chown -R $(whoami) docs
-          cd docs/build/html
-          touch .nojekyll
-          git init
-          cp ../../../.git/config ./.git/config
-          git add .
-          git config --local user.email "push@gha"
-          git config --local user.name "GHA"
-          git commit -am "update ${{ github.sha }}"
-          git push -u origin +HEAD:gh-pages
-          rm -rf .git
