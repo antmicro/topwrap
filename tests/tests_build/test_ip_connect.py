@@ -3,8 +3,10 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
+from typing import Dict
 
 import pytest
+from amaranth.hdl import ast
 
 from fpga_topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
 from fpga_topwrap.ipconnect import IPConnect
@@ -35,7 +37,7 @@ def axi_dispctrl_yaml() -> Path:
 
 
 # -------------------------------------
-# IPWrapper and HierarchyWrapper structures
+# IPWrapper and hierarchy IPConnect structures
 # -------------------------------------
 @pytest.fixture
 def dmatop_ipw(dmatop_yaml, dmatop_name) -> IPWrapper:
@@ -51,36 +53,25 @@ def axi_dispctrl_ipw(axi_dispctrl_yaml, axi_dispctrl_name) -> IPWrapper:
 # Fixtures for specific tests
 # -------------------------------------
 @pytest.fixture
-def dmatop_axism0_ports_names() -> list:
-    return [
-        "i_AXIS_m0_TREADY",
-        "o_AXIS_m0_TDATA",
-        "o_AXIS_m0_TLAST",
-        "o_AXIS_m0_TUSER",
-        "o_AXIS_m0_TVALID",
-    ]
+def dmatop_to_axi_dispctrl_ports_connections() -> Dict[str, str]:
+    return {
+        "AXIS_m0_TREADY": "AXIS_s0_TREADY",
+        "AXIS_s0_TVALID": "AXIS_m0_TVALID",
+        "AXIS_s0_TDATA": "AXIS_m0_TDATA",
+        "AXIS_s0_TLAST": "AXIS_m0_TLAST",
+        "AXIS_s0_TUSER": "AXIS_m0_TUSER",
+    }
 
 
 @pytest.fixture
-def axi_dispctrl_axiss0_ports_names() -> list:
-    return [
-        "i_AXIS_s0_TDATA",
-        "i_AXIS_s0_TLAST",
-        "i_AXIS_s0_TUSER",
-        "i_AXIS_s0_TVALID",
-        "o_AXIS_s0_TREADY",
-    ]
-
-
-@pytest.fixture
-def ext_axism0_ports_names() -> list:
-    return [
-        "ext_axis_TDATA",
-        "ext_axis_TLAST",
-        "ext_axis_TREADY",
-        "ext_axis_TUSER",
-        "ext_axis_TVALID",
-    ]
+def ext_to_axism0_ports_connections() -> list:
+    return {
+        "AXIS_m0_TREADY": "ext_axis_TREADY",
+        "ext_axis_TDATA": "AXIS_m0_TDATA",
+        "ext_axis_TLAST": "AXIS_m0_TLAST",
+        "ext_axis_TUSER": "AXIS_m0_TUSER",
+        "ext_axis_TVALID": "AXIS_m0_TVALID",
+    }
 
 
 class TestIPConnect:
@@ -99,17 +90,18 @@ class TestIPConnect:
 
         dmatop_port_name = "io_sync_writerSync"
         axi_dispctrl_port_name = "HSYNC_O"
-        combined_name = f"{dmatop_port_name}_{axi_dispctrl_port_name}"
 
         ipc.connect_ports(dmatop_port_name, dmatop_name, axi_dispctrl_port_name, axi_dispctrl_name)
 
-        dmatop_port_full_name = "i_io_sync_writerSync"
-        axi_dispctrl_port_full_name = "o_HSYNC_O"
-        sig_dmatop = getattr(ipc, dmatop_name)[dmatop_port_full_name]
-        sig_axi_dispctrl = getattr(ipc, axi_dispctrl_name)[axi_dispctrl_port_full_name]
+        sig_dmatop = ipc._get_component_by_name(dmatop_name).get_port_by_name(dmatop_port_name)
+        sig_axi_dispctrl = ipc._get_component_by_name(axi_dispctrl_name).get_port_by_name(
+            axi_dispctrl_port_name
+        )
+        [conn] = ipc._connections
 
-        assert sig_dmatop.name == combined_name
-        assert sig_axi_dispctrl.name == combined_name
+        assert isinstance(conn, ast.Assign)
+        assert conn.lhs is sig_dmatop
+        assert conn.rhs is sig_axi_dispctrl
 
         # Check function behavior on invalid data
         with pytest.raises(ValueError):
@@ -130,8 +122,7 @@ class TestIPConnect:
         dmatop_name,
         axi_dispctrl_ipw,
         axi_dispctrl_name,
-        dmatop_axism0_ports_names,
-        axi_dispctrl_axiss0_ports_names,
+        dmatop_to_axi_dispctrl_ports_connections,
     ):
         """Test connecting two IPs interfaces."""
         ipc = IPConnect()
@@ -143,11 +134,20 @@ class TestIPConnect:
 
         ipc.connect_interfaces(dmatop_iface, dmatop_name, axi_dispctrl_iface, axi_dispctrl_name)
 
-        sigs_dmatop = getattr(ipc, dmatop_name)
-        sigs_axi_dispctrl = getattr(ipc, axi_dispctrl_name)
+        sigs_dmatop = dmatop_ipw.get_ports_of_interface(dmatop_iface)
+        sigs_axi_dispctrl = axi_dispctrl_ipw.get_ports_of_interface(axi_dispctrl_iface)
 
-        assert sorted(list(sigs_dmatop.keys())) == dmatop_axism0_ports_names
-        assert sorted(list(sigs_axi_dispctrl.keys())) == axi_dispctrl_axiss0_ports_names
+        name_sig = {sig.name: sig for sig in [*sigs_dmatop, *sigs_axi_dispctrl]}
+
+        for conn in ipc._connections:
+            assert isinstance(conn, ast.Assign)
+            lhs = conn.lhs
+            rhs = conn.rhs
+
+            assert lhs.name in dmatop_to_axi_dispctrl_ports_connections
+            assert rhs.name == dmatop_to_axi_dispctrl_ports_connections[lhs.name]
+            assert name_sig[lhs.name] is lhs
+            assert name_sig[rhs.name] is rhs
 
         # Check function behavior on invalid data
         with pytest.raises(ValueError):
@@ -168,32 +168,41 @@ class TestIPConnect:
         # Check simple creation of external reset port
         sig_dmatop_reset = "reset"
         sig_dmatop_reset_external = "ext_reset"
-        ipc._set_port(dmatop_name, sig_dmatop_reset, sig_dmatop_reset_external, DIR_IN)
-        assert len(ipc.get_ports()) == 1 and ipc.get_ports()[0].name == sig_dmatop_reset_external
+        ipc._set_port(dmatop_name, sig_dmatop_reset, sig_dmatop_reset_external)
+
+        [conn] = ipc._connections
+        assert isinstance(conn, ast.Assign)
+        assert len(ipc.get_ports()) == 1
+        assert conn.lhs is dmatop_ipw.get_port_by_name(sig_dmatop_reset)
+        assert conn.rhs is ipc.get_port_by_name(sig_dmatop_reset_external)
 
         # Check creating 1 external input port which is connected to 2 different inputs
         sig_dmatop_clk, sig_axi_dispctrl_clk = "clock", "S_AXIS_ACLK"
         sig_clk_external = "ext_clk"
-        ipc._set_port(dmatop_name, sig_dmatop_clk, sig_clk_external, DIR_IN)
-        ipc._set_port(axi_dispctrl_name, sig_axi_dispctrl_clk, sig_clk_external, DIR_IN)
-        assert len(ipc.get_ports()) == 2 and sig_clk_external in [
-            sig.name for sig in ipc.get_ports()
-        ]
-        assert sig_clk_external in [sig.name for sig in getattr(ipc, dmatop_name).values()]
-        assert sig_clk_external in [sig.name for sig in getattr(ipc, axi_dispctrl_name).values()]
+        ipc._set_port(dmatop_name, sig_dmatop_clk, sig_clk_external)
+        ipc._set_port(axi_dispctrl_name, sig_axi_dispctrl_clk, sig_clk_external)
+        for ipw, input_sig in (
+            (dmatop_ipw, sig_dmatop_clk),
+            (axi_dispctrl_ipw, sig_axi_dispctrl_clk),
+        ):
+            [conn] = [conn for conn in ipc._connections if conn.lhs.name == input_sig]
+            assert isinstance(conn, ast.Assign)
+            assert len(ipc.get_ports()) == 2
+            assert conn.lhs is ipw.get_port_by_name(input_sig)
+            assert conn.rhs is ipc.get_port_by_name(sig_clk_external)
 
         # Check whether connecting 2 output ports to a single external output results in ValueError
         with pytest.raises(ValueError):
             sig_dmatop_out, sig_axi_dispctrl_out = "io_irq_readerDone", "FSYNC_O"
             sig_out_external = "ext_sig"
-            ipc._set_port(dmatop_name, sig_dmatop_out, sig_out_external, DIR_OUT)
-            ipc._set_port(axi_dispctrl_name, sig_axi_dispctrl_out, sig_out_external, DIR_OUT)
+            ipc._set_port(dmatop_name, sig_dmatop_out, sig_out_external)
+            ipc._set_port(axi_dispctrl_name, sig_axi_dispctrl_out, sig_out_external)
 
         # Check function behavior on invalid data
         with pytest.raises(ValueError):
-            ipc._set_port(dmatop_name, "non_existing_port_name", "sig_ext", DIR_IN)
+            ipc._set_port(dmatop_name, "non_existing_port_name", "sig_ext")
 
-    def test_set_interface(self, dmatop_ipw, dmatop_name, ext_axism0_ports_names):
+    def test_set_interface(self, dmatop_ipw, dmatop_name, ext_to_axism0_ports_connections):
         """Test setting an interface as external in the top module"""
         ipc = IPConnect()
         ipc.add_component(dmatop_name, dmatop_ipw)
@@ -201,7 +210,21 @@ class TestIPConnect:
         dmatop_iface = "AXIS_m0"
         ext_iface_name = "ext_axis"
         ipc._set_interface(dmatop_name, dmatop_iface, ext_iface_name)
-        assert sorted([sig.name for sig in ipc.get_ports()]) == ext_axism0_ports_names
+
+        sigs_dmatop = dmatop_ipw.get_ports_of_interface(dmatop_iface)
+        sigs_ipc = ipc.get_ports_of_interface(ext_iface_name)
+
+        name_sig = {sig.name: sig for sig in [*sigs_dmatop, *sigs_ipc]}
+
+        for conn in ipc._connections:
+            assert isinstance(conn, ast.Assign)
+            lhs = conn.lhs
+            rhs = conn.rhs
+
+            assert lhs.name in ext_to_axism0_ports_connections
+            assert rhs.name == ext_to_axism0_ports_connections[lhs.name]
+            assert name_sig[lhs.name] is lhs
+            assert name_sig[rhs.name] is rhs
 
         # Check function behavior on invalid data
         with pytest.raises(ValueError):
@@ -214,9 +237,12 @@ class TestIPConnect:
         ipc = IPConnect()
         ipc.add_component(dmatop_name, dmatop_ipw)
 
-        sig_dmatop_reset, full_sig_dmatop_reset = "reset", "i_reset"
+        sig_dmatop_reset = "reset"
         ipc.set_constant(dmatop_name, sig_dmatop_reset, 0)
-        assert getattr(ipc, dmatop_name)[full_sig_dmatop_reset].value == 0
+        [conn] = [conn for conn in ipc._connections if conn.lhs.name == sig_dmatop_reset]
+        assert isinstance(conn, ast.Assign)
+        assert conn.lhs is dmatop_ipw.get_port_by_name(sig_dmatop_reset)
+        assert conn.rhs.value == 0
 
         # Check function behavior on invalid data
         with pytest.raises(ValueError):

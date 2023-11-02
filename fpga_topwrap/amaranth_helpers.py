@@ -54,3 +54,15 @@ class WrapperPort(Signal):
         self.direction = kwargs["direction"]
         self.interface_name = kwargs["interface_name"]
         self.bounds = kwargs["bounds"]
+
+    @staticmethod
+    def like(other, **kwargs):
+        base_args = {
+            "bounds": other.bounds,
+            "name": other.name,
+            "internal_name": other.internal_name,
+            "direction": other.direction,
+            "interface_name": other.interface_name,
+        }
+        base_args.update(kwargs)
+        return WrapperPort(**base_args)

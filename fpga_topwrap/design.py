@@ -7,7 +7,6 @@ from yaml import Loader, load
 from soc_generator.wishbone_interconnect import WishboneRRInterconnect
 
 from .elaboratable_wrapper import ElaboratableWrapper
-from .hierarchy_wrapper import HierarchyWrapper
 from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
 
@@ -51,7 +50,11 @@ def get_ipcores_names(design_descr: dict) -> set:
 
 
 def get_interconnects_names(design_descr: dict) -> set:
-    return design_descr["interconnects"].keys() if "interconnects" in design_descr.keys() else set()
+    return (
+        set(design_descr["interconnects"].keys())
+        if "interconnects" in design_descr.keys()
+        else set()
+    )
 
 
 def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
@@ -67,7 +70,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
         hier_ipc = generate_design(
             ips, ipc_hiers[hier_name]["design"], ipc_hiers[hier_name]["external"]
         )
-        ipc.add_component(hier_name, HierarchyWrapper(hier_name, hier_ipc))
+        ipc.add_component(hier_name, hier_ipc)
 
     for ip_name in get_ipcores_names(design):
         ip_file = ips[ip_name]["file"]

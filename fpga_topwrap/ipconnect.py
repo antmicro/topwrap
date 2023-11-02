@@ -21,35 +21,28 @@ from .amaranth_helpers import (
 )
 from .elaboratable_wrapper import ElaboratableWrapper
 from .fuse_helper import FuseSocBuilder
-from .hierarchy_wrapper import HierarchyWrapper
 from .ipwrapper import IPWrapper
 from .util import removeprefix
 
 
-class IPConnect(Elaboratable):
+class IPConnect(Wrapper):
     """Connector for multiple IPs, capable of connecting their interfaces
     as well as individual ports.
     """
 
-    def __init__(self):
+    def __init__(self, name: str = "ip_connector"):
+        super().__init__(name)
         self._components = dict()
         self._ports = []
         self._connections = []
 
-    def add_component(self, name: str, component) -> None:
+    def add_component(self, name: str, component: Wrapper) -> None:
         """Add a new component to this IPConnect, allowing to make connections with it
 
         :param name: name of the component
-        :param component: IPWrapper or HierarchyWrapper or ElaboratableWrapper object
+        :param component: Wrapper object
         """
         self._components[name] = component
-        # create a placeholder for Instance arguments to instantiate the ip
-        instance_args = dict()
-        if isinstance(component, IPWrapper):
-            instance_args["i_clk"] = ClockSignal("sync")
-            instance_args["i_rst"] = ResetSignal("sync")
-
-        setattr(self, name, instance_args)
 
     def _get_component_by_name(self, name: str):
         try:
@@ -60,6 +53,33 @@ class IPConnect(Elaboratable):
                 " Use add_component() method to add the IP/hierarchy first"
             )
         return comp
+
+    def _connect_internal_ports(self, port1: WrapperPort, port2: WrapperPort):
+        match port1.direction, port2.direction:
+            case (PortDirection.OUT, PortDirection.IN) | (PortDirection.INOUT, PortDirection.IN) | (
+                PortDirection.OUT,
+                PortDirection.INOUT,
+            ):
+                self._connections.append(port2.eq(port1))
+            case (PortDirection.IN, PortDirection.OUT) | (PortDirection.IN, PortDirection.INOUT) | (
+                PortDirection.INOUT,
+                PortDirection.OUT,
+            ) | (
+                PortDirection.INOUT,
+                PortDirection.INOUT,
+            ):  # order doesn't matter for inout-inout
+                self._connections.append(port1.eq(port2))
+            case _:
+                warning(f"Ports {port1.name} and {port2.name} have mismatched directionality")
+
+    def _connect_external_ports(self, internal: WrapperPort, external: WrapperPort):
+        match internal.direction, external.direction:
+            case (PortDirection.OUT, PortDirection.OUT):
+                self._connections.append(external.eq(internal))
+            case (PortDirection.IN, PortDirection.IN):
+                self._connections.append(internal.eq(external))
+            case _:
+                self._connect_internal_ports(internal, external)
 
     def connect_ports(
         self, port1_name: str, comp1_name: str, port2_name: str, comp2_name: str
@@ -90,23 +110,7 @@ class IPConnect(Elaboratable):
                 "the wire connecting them will be also external in the top module"
             )
 
-        inst1_args = getattr(self, comp1_name)
-        inst2_args = getattr(self, comp2_name)
-
-        full_name1 = port_direction_to_prefix(port1.direction) + port1.name
-        full_name2 = port_direction_to_prefix(port2.direction) + port2.name
-
-        # If a port was connected previoulsy,
-        # take the previoulsy created signal, instead of creating a new one
-        inst1_args[full_name1] = port1
-        inst2_args[full_name2] = port2
-
-        if port1.direction == DIR_OUT and port2.direction == DIR_IN:
-            self._connections.append(port2.eq(port1))
-        elif port1.direction == DIR_IN and port2.direction == DIR_OUT:
-            self._connections.append(port1.eq(port2))
-        else:
-            warning(f"Ports {port1.name} and {port2.name} have mismatched directionality")
+        self._connect_internal_ports(port1, port2)
 
     def connect_interfaces(
         self, iface1: str, comp1_name: str, iface2: str, comp2_name: str
@@ -148,25 +152,22 @@ class IPConnect(Elaboratable):
             f"{comp1_name}:{iface1} - {comp2_name}:{iface2}"
         )
 
-    def _set_port(
-        self, comp_name: str, port_name: str, external_name: str, external_dir: PortDirection
-    ) -> None:
+    def _set_port(self, comp_name: str, port_name: str, external_name: str) -> None:
         """Set port specified by name as an external port
 
         :param comp_name: name of the component - hierarchy or IP core
         :param port_name: port name in the component
         :param external_name: external name of the port specified in "externals" section
-        :param external_dir: external direction of the port specified in "externals" section
         :raises ValueError: if such port doesn't exist
         """
-        self._set_unconnected_port(comp_name, port_name, None, external_dir)
+        comp = self._get_component_by_name(comp_name)
 
-        inst_args = getattr(self, comp_name)
-
-        try:
-            [name] = list(filter(lambda arg: strip_port_prefix(arg) == port_name, inst_args.keys()))
-        except ValueError:  # "not enough"/"too many values" to unpack
-            raise ValueError(f'port: "{port_name}" does not exist in ip: ' f"{comp_name}")
+        ports = list(filter(lambda port: port.name == port_name, comp.get_ports()))
+        if len(ports) > 1:
+            raise ValueError(f"More than 1 port named {port_name} in {comp_name}")
+        elif len(ports) == 0:
+            raise ValueError(f"Port {port_name} does not exist in ip {comp_name}")
+        [port] = ports
 
         ext_ports = list(filter(lambda port: port.name == external_name, self._ports))
         if len(ext_ports) > 1:
@@ -174,18 +175,14 @@ class IPConnect(Elaboratable):
 
         # No external port named `external_name` in this IPConnect.
         if not ext_ports:
-            sig = inst_args[name]
-            sig.name = external_name
-            setattr(self, external_name, sig)
-            self._ports.append(sig)
-            inst_args[name] = getattr(self, external_name)
-
+            external_port = WrapperPort.like(port, name=external_name)
+            self._ports.append(external_port)
+            self._connect_external_ports(port, external_port)
         # External input port named `external_name` already exists in this IPConnect.
         elif ext_ports[0].direction == DIR_IN:
-            inst_args[name] = getattr(self, external_name)
-
+            self._connect_external_ports(port, ext_ports[0])
         # External inout or output port named `external_name` already exists in this IPConnect.
-        # Raise and error since connections between a single external and many internal ports
+        # Raise an error since connections between a single external and many internal ports
         # are allowed for external inputs only.
         else:
             raise ValueError(
@@ -203,51 +200,23 @@ class IPConnect(Elaboratable):
         """
         comp = self._get_component_by_name(comp_name)
 
-        for port in comp.get_ports_of_interface(iface_name):
-            self._set_unconnected_port(comp_name, port.name, external_iface_name, port.direction)
-
-        inst_args = getattr(self, comp_name)
-
-        iface_ports = [
-            key for key in inst_args.keys() if strip_port_prefix(key).startswith(iface_name)
-        ]
+        iface_ports = [port for port in comp.get_ports() if port.interface_name == iface_name]
         if not iface_ports:
             raise ValueError(f"no ports exist for interface {iface_name} in ip: {comp_name}")
 
         for iface_port in iface_ports:
-            external_port_name = strip_port_prefix(iface_port).replace(
-                iface_name, external_iface_name, 1
-            )
-            if external_port_name in [port.name for port in self._ports]:
-                warning(f"External port '{external_port_name}'" "already exists")
-            sig = inst_args[iface_port]
-            sig.name = strip_port_prefix(iface_port).replace(iface_name, external_iface_name, 1)
-            setattr(self, iface_port, sig)
-            self._ports.append(sig)
+            external_port = WrapperPort.like(iface_port)
+            external_port.name = external_port.name.replace(iface_name, external_iface_name, 1)
+            external_port.interface_name = external_iface_name
+            if external_port.name in [port.name for port in self._ports]:
+                warning(f"External port '{external_port.name}'" "already exists")
+
+            self._connect_external_ports(iface_port, external_port)
+            self._ports.append(external_port)
 
     def get_ports(self) -> list:
         """Return a list of external ports of this module"""
         return self._ports
-
-    def _set_unconnected_port(
-        self, comp_name: str, port_name: str, iface_name: str, external_dir: PortDirection
-    ) -> None:
-        """Create signal for unconnected port to allow using it as
-        external. This is essential since ports that haven't been used have
-        no signals assigned to them.
-        """
-        inst_args = getattr(self, comp_name)
-        port = self._get_component_by_name(comp_name).get_port_by_name(port_name)
-        full_name = port_direction_to_prefix(port.direction) + port.name
-
-        if full_name not in inst_args.keys():
-            inst_args[full_name] = WrapperPort(
-                bounds=port.bounds,
-                name=full_name,
-                internal_name=full_name,
-                direction=external_dir,
-                interface_name=iface_name,
-            )
 
     def set_constant(self, comp_name: str, comp_port: str, target: int) -> None:
         """Set a constant value on a port of an IP
@@ -258,9 +227,7 @@ class IPConnect(Elaboratable):
         :raises ValueError: if such IP doesn't exist
         """
         port = self._get_component_by_name(comp_name).get_port_by_name(comp_port)
-        inst_args = getattr(self, comp_name)
-        full_name = port_direction_to_prefix(port.direction) + port.name
-        inst_args[full_name] = Const(target)
+        self._connections.append(port.eq(Const(target)))
 
     def make_connections(self, ports: dict, interfaces: dict, interconnects: dict) -> None:
         """Use names of port and names of ips to make connections"""
@@ -356,7 +323,7 @@ class IPConnect(Elaboratable):
                             f"doesn't match '{comp_name}:{comp_port}' direction"
                         )
 
-                    self._set_port(comp_name, comp_port, target, ext_dir)
+                    self._set_port(comp_name, comp_port, target)
 
         ext_ifaces = []
         if "interfaces" in external.keys():
@@ -383,25 +350,6 @@ class IPConnect(Elaboratable):
         # This class is used for generating FuseSoC Core file
         fuse = FuseSocBuilder(part)
 
-        # Identify hierarchies in this IPConenct and build them recursively
-        for hier in list(
-            filter(lambda comp: isinstance(comp, HierarchyWrapper), self._components.values())
-        ):
-            hier.ipc.build(top_module_name=hier.name)
-
-        # Identify IPs in this IPConnect and build them
-        for ip in list(filter(lambda comp: isinstance(comp, IPWrapper), self._components.values())):
-            filename = ip.top_name + ".v"
-            fuse.add_source(filename, "verilogSource")
-
-            makedirs(build_dir, exist_ok=True)
-            target_file = open(path.join(build_dir, filename), "w")
-
-            fragment = Fragment.get(ip, None)
-
-            output = verilog.convert(fragment, name=ip.top_name, ports=ip.get_ports())
-            target_file.write(output)
-
         fuse.add_source(top_module_name + ".v", "verilogSource")
         fuse.build(path.join(build_dir, "top.core"), sources_dir=sources_dir)
         target_file = open(path.join(build_dir, top_module_name + ".v"), "w")
@@ -416,14 +364,6 @@ class IPConnect(Elaboratable):
         m.d.comb += self._connections
 
         for comp_name, comp in self._components.items():
-            if isinstance(comp, (HierarchyWrapper, IPWrapper)):
-                args = getattr(self, comp_name)
-                try:
-                    inst = Instance(comp_name, **args)
-                    setattr(m.submodules, comp_name, inst)
-                except TypeError:
-                    error(f"couldn't create instance of {comp_name} using args: {args}")
-            elif isinstance(comp, ElaboratableWrapper):
-                m.submodules += comp
+            setattr(m.submodules, comp_name, comp)
 
         return m

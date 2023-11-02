@@ -45,6 +45,8 @@ AXIS_s0:
             TREADY: S_AXIS_TREADY
 
 signals:
+    clock: s00_axi_aclk
+    reset: s00_axi_aresetn
     in:
         - S_AXIS_ACLK
         - LOCKED_I

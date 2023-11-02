@@ -6,7 +6,7 @@ After the object is created, IPs can be added using {code}`add_ip` method:
 
 ```python
 # create a wrapper for an IP
-dma := IPWrapper('DMATop.yaml', ip_name='DMATop'),
+dma := IPWrapper('DMATop.yaml', ip_name='DMATop', instance_name='DMATop0'),
 
 ipc = IPConnect()
 ip.add_ip(dma)

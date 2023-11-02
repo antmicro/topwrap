@@ -1,8 +1,9 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from collections.abc import Mapping
+from dataclasses import dataclass
 from itertools import groupby
-from logging import error
+from logging import error, warning
 from typing import List
 
 import numexpr as ex
@@ -22,6 +23,7 @@ from .config import config
 from .interface import get_interface_by_name
 from .parsers import parse_port_map
 from .util import check_interface_compliance
+from .wrapper import Wrapper
 
 
 def _group_by_internal_name(ports: List[WrapperPort]):
@@ -73,32 +75,36 @@ def _eval_bounds(bounds, params):
     return result
 
 
-class IPWrapper(Elaboratable):
+@dataclass(frozen=True)
+class ClockDomainNames:
+    clk: str
+    rst: str
+
+
+class IPWrapper(Wrapper):
     """This class instantiates an IP in a wrapper to use its individual ports
     or groupped ports as interfaces.
     """
 
-    def __init__(self, yamlfile: str, ip_name: str, top_name, params={}):
+    def __init__(self, yamlfile: str, ip_name: str, instance_name: str, params={}):
         """
         :param yamlfile: name of a file describing
             ports and interfaces of the IP
         :param ip_name: name of the module to wrap
-        :param top_name: the name of the top wrapper module,
-            defaults to ip_name + '_top'
-        :param params: HDL parameters of this instance
+        :param instance_name: name of this instance
+        :param params: optional, HDL parameters of this instance
         """
+        super().__init__(instance_name)
+
         self._ports = []
         self._parameters = {}
+        self._clock_domains = {}
 
         _evaluate_parameters(params)
         self._set_parameters(params)
 
         self.ip_name = ip_name
-
-        if top_name is None:
-            self.top_name = ip_name + "_top"
-        else:
-            self.top_name = top_name
+        self.instance_name = instance_name
 
         self._create_ports(yamlfile)
 
@@ -123,10 +129,11 @@ class IPWrapper(Elaboratable):
             parameters[key[2:]] = value
 
         try:
-            self._clk = ip_yaml["signals"]["clock"]
-            self._rst = ip_yaml["signals"]["reset"]
+            clk = ip_yaml["signals"]["clock"]
+            rst = ip_yaml["signals"]["reset"]
+            self._clock_domains["default"] = ClockDomainNames(clk, rst)
         except KeyError:
-            raise ValueError(f"Missing clock or reset assignment in {self.ip_name}")
+            warning(f"Missing clock or reset assignment in {self.ip_name}")
 
         signals_dirs = [
             (ip_yaml["signals"]["in"], DIR_IN),
@@ -194,27 +201,6 @@ class IPWrapper(Elaboratable):
 
         return self._ports
 
-    def get_ports_of_interface(self, iface_name: str) -> List[WrapperPort]:
-        """Return a list of ports of specific interface.
-
-        :raises ValueError: if such interface doesn't exist.
-        """
-        ports = [port for port in filter(lambda x: x.interface_name == iface_name, self._ports)]
-        if not ports:
-            raise ValueError("No ports could be found for " f"this interface name: {iface_name}")
-        return ports
-
-    def get_port_by_name(self, name: str) -> WrapperPort:
-        """Given port's name, return the port as WrapperPort object.
-
-        :raises ValueError: If such port doesn't exist.
-        """
-        try:
-            port = getattr(self, name)
-        except AttributeError:
-            raise ValueError(f"Port named '{name}' couldn't be found" f" in the IP: {self.ip_name}")
-        return port
-
     def _set_parameter(self, name, value):
         self._parameters["p_" + name] = value
 
@@ -269,9 +255,11 @@ class IPWrapper(Elaboratable):
 
         instance_args = {**instance_args, **self._parameters}
 
-        instance_args |= {
-            f"i_{self._clk}": ClockSignal("sync"),
-            f"i_{self._rst}": ResetSignal("sync"),
-        }
-        m.submodules.ip = Instance(self.ip_name, **instance_args)
+        if "default" in self._clock_domains:
+            instance_args |= {
+                f"i_{self._clock_domains['default'].clk}": ClockSignal("sync"),
+                f"i_{self._clock_domains['default'].rst}": ResetSignal("sync"),
+            }
+
+        setattr(m.submodules, self.instance_name, Instance(self.ip_name, **instance_args))
         return m
