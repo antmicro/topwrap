@@ -13,7 +13,7 @@ lint:
     - python3 -m pip install -U pip wheel setuptools
   script:
     - python3 -m pip install -r requirements.dev.txt
-    - nox -s isort black flake8
+    - nox -s isort_check black_check flake8
 
 pytest:
   stage: test

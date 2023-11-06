@@ -18,6 +18,13 @@ def isort(session: nox.Session) -> None:
     session.run("isort", ".")
 
 
+@nox.session()
+def isort_check(session: nox.Session) -> None:
+    """Options are defined in pyproject.toml file"""
+    session.install("isort")
+    session.run("isort", "--check", ".")
+
+
 @nox.session
 def flake8(session):
     """Options are defined in .flake8 file."""
@@ -30,6 +37,13 @@ def black(session):
     """Options are defined in pyproject.toml file"""
     session.install("black")
     session.run("black", ".")
+
+
+@nox.session
+def black_check(session):
+    """Options are defined in pyproject.toml file"""
+    session.install("black")
+    session.run("black", "--check", ".")
 
 
 @nox.session
