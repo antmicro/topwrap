@@ -10,9 +10,15 @@ from amaranth import Elaboratable, Instance, Module, Signal
 from amaranth.build import Platform
 from amaranth.hdl.ast import Cat, Const
 
+from .amaranth_helpers import (
+    DIR_IN,
+    DIR_INOUT,
+    DIR_OUT,
+    WrapperPort,
+    port_direction_to_prefix,
+)
 from .config import config
 from .interface import get_interface_by_name
-from .amaranth_helpers import WrapperPort, port_direction_to_prefix, DIR_IN, DIR_OUT, DIR_INOUT
 from .parsers import parse_port_map
 from .util import check_interface_compliance
 

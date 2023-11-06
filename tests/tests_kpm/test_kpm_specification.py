@@ -1,10 +1,11 @@
 # Copyright (C) 2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 from pathlib import Path
-from referencing import Registry
+
+import pytest
 from jsonschema import Draft202012Validator
+from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 
 from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
@@ -32,16 +33,22 @@ def schemas_names() -> list:
     """Return a list of helper schemas necessary for specification validation.
     These are "included" by the main `speficication_schema.json`.
     """
-    return ['unresolved_specification_schema', 'metadata_schema']
+    return ["unresolved_specification_schema", "metadata_schema"]
 
 
 @pytest.fixture
 def schemas_registry(schemas_dir, schemas_names) -> Registry:
-    return Registry().with_resources([
-        (schema_name, DRAFT202012.create_resource(
-            read_json_file(schemas_dir / Path(f"{schema_name}.json"))))
-        for schema_name in schemas_names
-    ])
+    return Registry().with_resources(
+        [
+            (
+                schema_name,
+                DRAFT202012.create_resource(
+                    read_json_file(schemas_dir / Path(f"{schema_name}.json"))
+                ),
+            )
+            for schema_name in schemas_names
+        ]
+    )
 
 
 def test_pwm_specification_generation(specification_schema, pwm_ipcores_yamls, schemas_registry):
@@ -49,8 +56,9 @@ def test_pwm_specification_generation(specification_schema, pwm_ipcores_yamls, s
     pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
     assert len(pwm_specification["nodes"]) == 6  # 3 IP cores + 3 External metanodes
 
-    Draft202012Validator(specification_schema,
-                         registry=schemas_registry).validate(pwm_specification)
+    Draft202012Validator(specification_schema, registry=schemas_registry).validate(
+        pwm_specification
+    )
 
 
 def test_hdmi_specification_generation(specification_schema, hdmi_ipcores_yamls, schemas_registry):
@@ -58,5 +66,6 @@ def test_hdmi_specification_generation(specification_schema, hdmi_ipcores_yamls,
     hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
     assert len(hdmi_specification["nodes"]) == 15  # 12 IP cores + 3 External metanodes
 
-    Draft202012Validator(specification_schema,
-                         registry=schemas_registry).validate(hdmi_specification)
+    Draft202012Validator(specification_schema, registry=schemas_registry).validate(
+        hdmi_specification
+    )

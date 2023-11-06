@@ -246,8 +246,9 @@ def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
 
     if connected_inouts:
         return CheckResult(
-            MessageType.WARNING, f"Wires connecting inout ports {connected_inouts} are always "
-                                 "external in the top module by Amaranth"
+            MessageType.WARNING,
+            f"Wires connecting inout ports {connected_inouts} are always "
+            "external in the top module by Amaranth",
         )
     return CheckResult(MessageType.OK, None)
 

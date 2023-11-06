@@ -1,10 +1,10 @@
 # Copyright (C) 2021 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-from amaranth import Signal
 from enum import Enum
 
+from amaranth import Signal
 
-PortDirection = Enum('PortDirection', ('INOUT', 'OUT', 'IN'))
+PortDirection = Enum("PortDirection", ("INOUT", "OUT", "IN"))
 
 DIR_INOUT = PortDirection.INOUT
 DIR_OUT = PortDirection.OUT

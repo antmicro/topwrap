@@ -64,10 +64,7 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
         }
         for port in ports["in"]
     ]
-    outputs = [
-        {"name": port[0], "type": ["port"], "direction": "output"}
-        for port in ports["out"]
-    ]
+    outputs = [{"name": port[0], "type": ["port"], "direction": "output"} for port in ports["out"]]
     inouts = [
         {"name": port[0], "type": ["port"], "direction": "inout", "side": "right"}
         for port in ports["inout"]
@@ -215,15 +212,15 @@ def _generate_ifaces_styling(interfaces_types: list) -> dict:
 
 
 def _get_ifaces_types(specification: dict) -> list:
-    """Return a list of all interfaces types from specification that are interfaces types.
-    """
+    """Return a list of all interfaces types from specification that are interfaces types."""
     return list(
         set(
             [
                 iface_type
                 for node in specification["nodes"]
                 for iface in node["interfaces"]
-                for iface_type in iface["type"] if iface_type != "port"
+                for iface_type in iface["type"]
+                if iface_type != "port"
             ]
         )
     )

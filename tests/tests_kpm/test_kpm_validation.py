@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from pipeline_manager_backend_communication.misc_structures import MessageType
 from pytest_lazy_fixtures import lf
 
-from pipeline_manager_backend_communication.misc_structures import MessageType
 from fpga_topwrap.kpm_dataflow_validator import (
     _check_ambigous_ports,
     _check_duplicate_external_input_interfaces,
@@ -12,9 +12,9 @@ from fpga_topwrap.kpm_dataflow_validator import (
     _check_duplicate_ip_names,
     _check_ext_in_to_ext_out_connections,
     _check_external_inputs_missing_val,
+    _check_inouts_connections,
     _check_parameters_values,
     _check_unconnected_ports_interfaces,
-    _check_inouts_connections,
 )
 from tests.common import read_json_file
 
@@ -93,7 +93,7 @@ def specification_duplicate_external_input_interfaces():
         (_check_duplicate_external_input_interfaces, MessageType.OK),
         (_check_duplicate_external_out_names, MessageType.OK),
         (_check_unconnected_ports_interfaces, MessageType.WARNING),
-        (_check_inouts_connections, MessageType.OK)
+        (_check_inouts_connections, MessageType.OK),
     ],
 )
 def test_hdmi_dataflow_validation(
@@ -154,11 +154,7 @@ def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow,
             lf("dataflow_duplicate_external_input_interfaces"),
             MessageType.ERROR,
         ),
-        (
-            _check_inouts_connections,
-            lf("dataflow_inouts_connections"),
-            MessageType.WARNING
-        )
+        (_check_inouts_connections, lf("dataflow_inouts_connections"), MessageType.WARNING),
     ],
 )
 def test_invalid_dataflow_validation(dataflow, _check_function, expected_result, pwm_specification):

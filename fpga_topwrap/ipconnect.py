@@ -8,18 +8,18 @@ from amaranth.back import verilog
 from amaranth.build import Platform
 from amaranth.hdl.ast import Const
 
+from .amaranth_helpers import (
+    DIR_IN,
+    DIR_INOUT,
+    DIR_OUT,
+    PortDirection,
+    WrapperPort,
+    port_direction_to_prefix,
+    strip_port_prefix,
+)
 from .fuse_helper import FuseSocBuilder
 from .hierarchy_wrapper import HierarchyWrapper
 from .ipwrapper import IPWrapper
-from .amaranth_helpers import (
-    port_direction_to_prefix,
-    strip_port_prefix,
-    DIR_IN,
-    DIR_OUT,
-    DIR_INOUT,
-    PortDirection,
-    WrapperPort
-)
 
 
 class IPConnect(Elaboratable):
@@ -139,7 +139,9 @@ class IPConnect(Elaboratable):
             f"{comp1_name}:{iface1} - {comp2_name}:{iface2}"
         )
 
-    def _set_port(self, comp_name: str, port_name: str, external_name: str, external_dir: PortDirection) -> None:
+    def _set_port(
+        self, comp_name: str, port_name: str, external_name: str, external_dir: PortDirection
+    ) -> None:
         """Set port specified by name as an external port
 
         :param comp_name: name of the component - hierarchy or IP core
@@ -218,7 +220,9 @@ class IPConnect(Elaboratable):
         """Return a list of external ports of this module"""
         return self._ports
 
-    def _set_unconnected_port(self, comp_name: str, port_name: str, iface_name: str, external_dir: PortDirection) -> None:
+    def _set_unconnected_port(
+        self, comp_name: str, port_name: str, iface_name: str, external_dir: PortDirection
+    ) -> None:
         """Create signal for unconnected port to allow using it as
         external. This is essential since ports that haven't been used have
         no signals assigned to them.

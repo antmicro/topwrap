@@ -14,7 +14,9 @@ class TestVerilogParse:
     def axi_axil_adapter_module(self) -> VerilogModule:
         from fpga_topwrap.verilog_parser import VerilogModuleGenerator
 
-        verilog_modules = VerilogModuleGenerator().get_modules("tests/data/data_parse/axi_axil_adapter.v")
+        verilog_modules = VerilogModuleGenerator().get_modules(
+            "tests/data/data_parse/axi_axil_adapter.v"
+        )
         assert len(verilog_modules) == 1
         return verilog_modules[0]
 
@@ -36,7 +38,9 @@ class TestVerilogParse:
     def seg7_4d_ctrl_modules(self) -> List[VerilogModule]:
         from fpga_topwrap.verilog_parser import VerilogModuleGenerator
 
-        verilog_modules = VerilogModuleGenerator().get_modules("tests/data/data_parse/seg7_4d_ctrl.v")
+        verilog_modules = VerilogModuleGenerator().get_modules(
+            "tests/data/data_parse/seg7_4d_ctrl.v"
+        )
         assert len(verilog_modules) > 0
         return verilog_modules
 

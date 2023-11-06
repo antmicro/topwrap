@@ -7,7 +7,6 @@ from .kpm_common import (
     EXT_INOUT_NAME,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
-    is_external_metanode,
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_id,
     find_dataflow_node_type_by_name,
@@ -16,6 +15,7 @@ from .kpm_common import (
     get_dataflow_ip_connections,
     get_dataflow_ip_nodes,
     get_metanode_property_value,
+    is_external_metanode,
 )
 
 
@@ -201,10 +201,6 @@ def kpm_dataflow_to_design(dataflow_data, specification) -> dict:
 
     return {
         "ips": ips,
-        "design": {
-            "parameters": properties,
-            "ports": ports,
-            "interfaces": interfaces
-        },
-        "external": externals["external"]
+        "design": {"parameters": properties, "ports": ports, "interfaces": interfaces},
+        "external": externals["external"],
     }

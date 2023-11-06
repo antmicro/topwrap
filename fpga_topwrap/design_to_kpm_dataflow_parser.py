@@ -8,13 +8,13 @@ import os
 from time import time
 from typing import List
 
+from .design import get_hierarchies_names, get_ipcores_names
 from .kpm_common import (
     EXT_INOUT_NAME,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
     get_metanode_property_value,
 )
-from .design import get_hierarchies_names, get_ipcores_names
 
 
 class IDGenerator(object):
@@ -180,9 +180,11 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
 
     hier_names = get_hierarchies_names(design)
     if hier_names:
-        logging.warning(f"Imported design contains hierarchies ({hier_names}) which are not yet "
-                        "supported. The imported design will be incomplete")
-    
+        logging.warning(
+            f"Imported design contains hierarchies ({hier_names}) which are not yet "
+            "supported. The imported design will be incomplete"
+        )
+
     for ip_name in get_ipcores_names(design):
         ip_type = os.path.splitext(os.path.basename(ips[ip_name]["file"]))[0]
         spec_node = _get_specification_node_by_type(ip_type, specification)
@@ -269,7 +271,8 @@ def _get_external_connections(design_descr: dict) -> list:
             "port_iface_name": conn["port_iface_name"],
             "external_name": conn["connection"],
         }
-        for conn in ext_connections if conn["ip_name"] not in get_hierarchies_names(design_descr["design"])
+        for conn in ext_connections
+        if conn["ip_name"] not in get_hierarchies_names(design_descr["design"])
         # skip external connections from/to hierarchies
     ]
 
@@ -289,7 +292,7 @@ def _get_ipcores_connections(design_descr: dict) -> list:
             return False
         if conn_descr["connection"][0] in get_hierarchies_names(design_descr["design"]):
             return False
-        return True        
+        return True
 
     ipcores_connections = list(
         filter(_is_ipcore_connection, _get_flattened_connections(design_descr))

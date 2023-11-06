@@ -16,16 +16,18 @@ def build_design_from_yaml(yamlfile, sources_dir=None, part=None):
 
 
 def get_hierarchies_names(design_descr: dict) -> set:
-    """ `design_descr` is the "design" section of a design description yaml."""
+    """`design_descr` is the "design" section of a design description yaml."""
     if "hierarchies" not in design_descr.keys():
         return set()
     return set(design_descr["hierarchies"].keys())
 
 
 def get_ipcores_names(design_descr: dict) -> set:
-    """ `design_descr` is the "design" section of a design description yaml."""
+    """`design_descr` is the "design" section of a design description yaml."""
     design_ports = design_descr["ports"] if "ports" in design_descr.keys() else dict()
-    design_interfaces = design_descr["interfaces"] if "interfaces" in design_descr.keys() else dict()
+    design_interfaces = (
+        design_descr["interfaces"] if "interfaces" in design_descr.keys() else dict()
+    )
     ports_keys = set(design_ports.keys())
     interfaces_keys = set(design_interfaces.keys())
     # IP core should be added to the design if its name occurs as a key in "ports" or
@@ -42,7 +44,9 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
 
     # Generate hierarchies and add them to `ipc`.
     for hier_name in get_hierarchies_names(design):
-        hier_ipc = generate_design(ips, ipc_hiers[hier_name]["design"], ipc_hiers[hier_name]["external"])
+        hier_ipc = generate_design(
+            ips, ipc_hiers[hier_name]["design"], ipc_hiers[hier_name]["external"]
+        )
         ipc.add_component(hier_name, HierarchyWrapper(hier_name, hier_ipc))
 
     for ip_name in get_ipcores_names(design):

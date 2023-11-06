@@ -2,9 +2,11 @@
 
 # Copyright (C) 2021-2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
-import pytest
 from pathlib import Path
-from fpga_topwrap.amaranth_helpers import DIR_IN, DIR_OUT, DIR_INOUT
+
+import pytest
+
+from fpga_topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
 from fpga_topwrap.ipconnect import IPConnect
 from fpga_topwrap.ipwrapper import IPWrapper
 
@@ -16,17 +18,21 @@ from fpga_topwrap.ipwrapper import IPWrapper
 def dmatop_name() -> str:
     return "DMATop"
 
+
 @pytest.fixture
 def axi_dispctrl_name() -> str:
     return "axi_dispctrl_v1_0"
+
 
 @pytest.fixture
 def dmatop_yaml() -> Path:
     return Path("tests/data/data_build/DMATop.yaml")
 
+
 @pytest.fixture
 def axi_dispctrl_yaml() -> Path:
     return Path("tests/data/data_build/axi_dispctrl_v1_0.yaml")
+
 
 # -------------------------------------
 # IPWrapper and HierarchyWrapper structures
@@ -35,24 +41,46 @@ def axi_dispctrl_yaml() -> Path:
 def dmatop_ipw(dmatop_yaml, dmatop_name) -> IPWrapper:
     return IPWrapper(dmatop_yaml, dmatop_name, dmatop_name)
 
+
 @pytest.fixture
 def axi_dispctrl_ipw(axi_dispctrl_yaml, axi_dispctrl_name) -> IPWrapper:
     return IPWrapper(axi_dispctrl_yaml, axi_dispctrl_name, axi_dispctrl_name)
+
 
 # -------------------------------------
 # Fixtures for specific tests
 # -------------------------------------
 @pytest.fixture
 def dmatop_axism0_ports_names() -> list:
-    return ['i_AXIS_m0_TREADY', 'o_AXIS_m0_TDATA', 'o_AXIS_m0_TLAST', 'o_AXIS_m0_TUSER', 'o_AXIS_m0_TVALID']
+    return [
+        "i_AXIS_m0_TREADY",
+        "o_AXIS_m0_TDATA",
+        "o_AXIS_m0_TLAST",
+        "o_AXIS_m0_TUSER",
+        "o_AXIS_m0_TVALID",
+    ]
+
 
 @pytest.fixture
 def axi_dispctrl_axiss0_ports_names() -> list:
-    return ['i_AXIS_s0_TDATA', 'i_AXIS_s0_TLAST', 'i_AXIS_s0_TUSER', 'i_AXIS_s0_TVALID', 'o_AXIS_s0_TREADY']
+    return [
+        "i_AXIS_s0_TDATA",
+        "i_AXIS_s0_TLAST",
+        "i_AXIS_s0_TUSER",
+        "i_AXIS_s0_TVALID",
+        "o_AXIS_s0_TREADY",
+    ]
+
 
 @pytest.fixture
 def ext_axism0_ports_names() -> list:
-    return ['ext_axis_TDATA', 'ext_axis_TLAST', 'ext_axis_TREADY', 'ext_axis_TUSER', 'ext_axis_TVALID']
+    return [
+        "ext_axis_TDATA",
+        "ext_axis_TLAST",
+        "ext_axis_TREADY",
+        "ext_axis_TUSER",
+        "ext_axis_TVALID",
+    ]
 
 
 class TestIPConnect:
@@ -63,10 +91,8 @@ class TestIPConnect:
         with pytest.raises(ValueError):
             ipc._get_component_by_name("non_existing_comp_name")
 
-
     def test_connect_ports(self, dmatop_ipw, dmatop_name, axi_dispctrl_ipw, axi_dispctrl_name):
-        """Test connecting two IPs ports.
-        """
+        """Test connecting two IPs ports."""
         ipc = IPConnect()
         ipc.add_component(dmatop_name, dmatop_ipw)
         ipc.add_component(axi_dispctrl_name, axi_dispctrl_ipw)
@@ -87,14 +113,27 @@ class TestIPConnect:
 
         # Check function behavior on invalid data
         with pytest.raises(ValueError):
-            ipc.connect_ports(dmatop_port_name, dmatop_name, "non_existing_port_name", axi_dispctrl_name)
+            ipc.connect_ports(
+                dmatop_port_name, dmatop_name, "non_existing_port_name", axi_dispctrl_name
+            )
         with pytest.raises(ValueError):
-            ipc.connect_ports(dmatop_port_name, "non_existing_comp_name", axi_dispctrl_port_name, axi_dispctrl_name)
+            ipc.connect_ports(
+                dmatop_port_name,
+                "non_existing_comp_name",
+                axi_dispctrl_port_name,
+                axi_dispctrl_name,
+            )
 
-
-    def test_connect_interfaces(self, dmatop_ipw, dmatop_name, axi_dispctrl_ipw, axi_dispctrl_name, dmatop_axism0_ports_names, axi_dispctrl_axiss0_ports_names):
-        """Test connecting two IPs interfaces.
-        """
+    def test_connect_interfaces(
+        self,
+        dmatop_ipw,
+        dmatop_name,
+        axi_dispctrl_ipw,
+        axi_dispctrl_name,
+        dmatop_axism0_ports_names,
+        axi_dispctrl_axiss0_ports_names,
+    ):
+        """Test connecting two IPs interfaces."""
         ipc = IPConnect()
         ipc.add_component(dmatop_name, dmatop_ipw)
         ipc.add_component(axi_dispctrl_name, axi_dispctrl_ipw)
@@ -112,14 +151,16 @@ class TestIPConnect:
 
         # Check function behavior on invalid data
         with pytest.raises(ValueError):
-            ipc.connect_interfaces(dmatop_iface, dmatop_name, "non_existing_iface_name", axi_dispctrl_name)
+            ipc.connect_interfaces(
+                dmatop_iface, dmatop_name, "non_existing_iface_name", axi_dispctrl_name
+            )
         with pytest.raises(ValueError):
-            ipc.connect_interfaces(dmatop_iface, "non_existing_comp_name", axi_dispctrl_iface, axi_dispctrl_name)
-
+            ipc.connect_interfaces(
+                dmatop_iface, "non_existing_comp_name", axi_dispctrl_iface, axi_dispctrl_name
+            )
 
     def test_set_port(self, dmatop_ipw, dmatop_name, axi_dispctrl_ipw, axi_dispctrl_name):
-        """Test setting a port as external in the top module
-        """
+        """Test setting a port as external in the top module"""
         ipc = IPConnect()
         ipc.add_component(dmatop_name, dmatop_ipw)
         ipc.add_component(axi_dispctrl_name, axi_dispctrl_ipw)
@@ -135,7 +176,9 @@ class TestIPConnect:
         sig_clk_external = "ext_clk"
         ipc._set_port(dmatop_name, sig_dmatop_clk, sig_clk_external, DIR_IN)
         ipc._set_port(axi_dispctrl_name, sig_axi_dispctrl_clk, sig_clk_external, DIR_IN)
-        assert len(ipc.get_ports()) == 2 and sig_clk_external in [sig.name for sig in ipc.get_ports()]
+        assert len(ipc.get_ports()) == 2 and sig_clk_external in [
+            sig.name for sig in ipc.get_ports()
+        ]
         assert sig_clk_external in [sig.name for sig in getattr(ipc, dmatop_name).values()]
         assert sig_clk_external in [sig.name for sig in getattr(ipc, axi_dispctrl_name).values()]
 
@@ -150,10 +193,8 @@ class TestIPConnect:
         with pytest.raises(ValueError):
             ipc._set_port(dmatop_name, "non_existing_port_name", "sig_ext", DIR_IN)
 
-
     def test_set_interface(self, dmatop_ipw, dmatop_name, ext_axism0_ports_names):
-        """Test setting an interface as external in the top module
-        """
+        """Test setting an interface as external in the top module"""
         ipc = IPConnect()
         ipc.add_component(dmatop_name, dmatop_ipw)
 
@@ -169,8 +210,7 @@ class TestIPConnect:
             ipc._set_interface("non_existing_comp_name", dmatop_iface, ext_iface_name)
 
     def test_set_constant(self, dmatop_ipw, dmatop_name):
-        """Test setting a constant value on a port of a module
-        """
+        """Test setting a constant value on a port of a module"""
         ipc = IPConnect()
         ipc.add_component(dmatop_name, dmatop_ipw)
 
