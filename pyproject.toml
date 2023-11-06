@@ -14,11 +14,27 @@ exclude = '''
     | \.pytest_cache
     | __pycache__
     | venv
+    | builds
+    | kenning-pipeline-manager
+    | soc_generator
   )/
   | docs/source/conf.py
 )
 '''
+target-version = ["py39", "py310", "py311"]
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+skip = [
+    "git",
+    ".gitignore",
+    ".gitmodules",
+    ".github",
+    ".nox",
+    ".pytest_cache",
+    "__pycache__",
+    "venv",
+    "builds",
+    "kenning-pipeline-manager",
+]

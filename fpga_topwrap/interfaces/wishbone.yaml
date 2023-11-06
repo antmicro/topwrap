@@ -1,6 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+# Signals specification: https://cdn.opencores.org/downloads/wbspec_b3.pdf#page=32
 name: wishbone
 port_prefix: wishbone
 signals:

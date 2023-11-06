@@ -2,9 +2,8 @@
 
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 from yaml import Loader, load
-
-from soc_generator.wishbone_interconnect import WishboneRRInterconnect
 
 from .elaboratable_wrapper import ElaboratableWrapper
 from .ipconnect import IPConnect
@@ -50,6 +49,7 @@ def get_ipcores_names(design_descr: dict) -> set:
 
 
 def get_interconnects_names(design_descr: dict) -> set:
+    """Returns a set of interconnect names present in design description YAML"""
     return (
         set(design_descr["interconnects"].keys())
         if "interconnects" in design_descr.keys()
@@ -80,16 +80,17 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
 
     for interconnect_name in get_interconnects_names(design):
         ic = ipc_interconnects[interconnect_name]
+        ic_type = ic["type"]
+        ic_cls = {
+            "wishbone_roundrobin": WishboneRRInterconnect,
+            # place for more interconnect name: class mappings
+        }[ic_type]
+        ic_params = ic["params"]  # interconnect-dependent parameters
         ipc.add_component(
             interconnect_name,
             ElaboratableWrapper(
                 name=interconnect_name,
-                elaboratable=WishboneRRInterconnect(
-                    addr_width=ic["addr_width"],
-                    data_width=ic["data_width"],
-                    granularity=ic["granularity"],
-                    features=ic["features"],
-                ),
+                elaboratable=ic_cls(**ic_params),
             ),
         )
 

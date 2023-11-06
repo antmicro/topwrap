@@ -180,12 +180,16 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
 
     hier_names = get_hierarchies_names(design)
     if hier_names:
-        logging.warning(f"Imported design contains hierarchies ({hier_names}) which are not "
-                        "supported yet. The imported design will be incomplete")
+        logging.warning(
+            f"Imported design contains hierarchies ({hier_names}) which are not "
+            "supported yet. The imported design will be incomplete"
+        )
     interconnect_names = get_interconnects_names(design)
     if interconnect_names:
-        logging.warning(f"Imported design contains interconnects ({interconnect_names}) which are not "
-                        "supported yet. The imported design will be incomplete")
+        logging.warning(
+            f"Imported design contains interconnects ({interconnect_names}) which are not "
+            "supported yet. The imported design will be incomplete"
+        )
 
     for ip_name in get_ipcores_names(design):
         ip_type = os.path.splitext(os.path.basename(ips[ip_name]["file"]))[0]

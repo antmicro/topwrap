@@ -23,6 +23,7 @@ from .elaboratable_wrapper import ElaboratableWrapper
 from .fuse_helper import FuseSocBuilder
 from .ipwrapper import IPWrapper
 from .util import removeprefix
+from .wrapper import Wrapper
 
 
 class IPConnect(Wrapper):
@@ -55,31 +56,47 @@ class IPConnect(Wrapper):
         return comp
 
     def _connect_internal_ports(self, port1: WrapperPort, port2: WrapperPort):
-        match port1.direction, port2.direction:
-            case (PortDirection.OUT, PortDirection.IN) | (PortDirection.INOUT, PortDirection.IN) | (
-                PortDirection.OUT,
-                PortDirection.INOUT,
-            ):
-                self._connections.append(port2.eq(port1))
-            case (PortDirection.IN, PortDirection.OUT) | (PortDirection.IN, PortDirection.INOUT) | (
-                PortDirection.INOUT,
-                PortDirection.OUT,
-            ) | (
-                PortDirection.INOUT,
-                PortDirection.INOUT,
-            ):  # order doesn't matter for inout-inout
-                self._connections.append(port1.eq(port2))
-            case _:
-                warning(f"Ports {port1.name} and {port2.name} have mismatched directionality")
+        """Connects two ports with matching directionality. Disallowed configurations are:
+        - input to input
+        - output to output
+        All other configurations are allowed.
+
+        :param port1: 1st port to connect
+        :param port2: 2nd port to connect
+        """
+        d1, d2 = port1.direction, port2.direction
+        if (
+            (d1 == DIR_OUT and d2 == DIR_IN)
+            or (d1 == DIR_INOUT and d2 == DIR_IN)
+            or (d1 == DIR_OUT and d2 == DIR_INOUT)
+        ):
+            self._connections.append(port2.eq(port1))
+        elif (
+            (d1 == DIR_IN and d2 == DIR_OUT)
+            or (d1 == DIR_IN and d2 == DIR_INOUT)
+            or (d1 == DIR_INOUT and d2 == DIR_OUT)
+            or (d1 == DIR_INOUT and d2 == DIR_INOUT)
+        ):
+            # order doesn't matter for inout-inout
+            self._connections.append(port1.eq(port2))
+        else:
+            warning(f"Ports {port1.name} and {port2.name} have mismatched directionality")
 
     def _connect_external_ports(self, internal: WrapperPort, external: WrapperPort):
-        match internal.direction, external.direction:
-            case (PortDirection.OUT, PortDirection.OUT):
-                self._connections.append(external.eq(internal))
-            case (PortDirection.IN, PortDirection.IN):
-                self._connections.append(internal.eq(external))
-            case _:
-                self._connect_internal_ports(internal, external)
+        """Makes a pass-through connection - port of an internal module in IPConnect
+        is connected to an external IPConnect port.
+
+        :param internal: port of an internal module of IPConnect
+        :param external: external IPConnect port
+        """
+        i, e = internal.direction, external.direction
+        if i == DIR_OUT and e == DIR_OUT:
+            self._connections.append(external.eq(internal))
+        elif i == PortDirection.IN and e == PortDirection.IN:
+            self._connections.append(internal.eq(external))
+        else:
+            # delegate handling inouts
+            self._connect_internal_ports(internal, external)
 
     def connect_ports(
         self, port1_name: str, comp1_name: str, port2_name: str, comp2_name: str
@@ -361,6 +378,8 @@ class IPConnect(Wrapper):
     def elaborate(self, platform: Platform) -> Module:
         m = Module()
 
+        # self._connections only contains Amaranth assignment objects, to truly
+        # create the connections we have to add them to the comb domain
         m.d.comb += self._connections
 
         for comp_name, comp in self._components.items():
