@@ -4,25 +4,31 @@
 
 ## Installation
 
-1. Get `python3` with your package manager
+1. Install required system packages:
 
-2. Install base requirements:
+    ```
+    apt install -y git g++ make python3 python3-pip antlr4 libantlr4-runtime-dev yosys
+    ```
 
-   ```
-   pip3 install -r requirements.txt
-   ```
+2. It is highly recommended to run the following steps in a Python virtual environment (e.g. [venv](https://docs.python.org/3/library/venv.html)).
 
-3. Build the Topwrap package:
+3. Install base requirements:
 
-   ```
-   python3 setup.py build
-   ```
+    ```
+    pip3 install -r requirements.txt
+    ```
 
-4. Install the Topwrap package:
+4. Build the Topwrap package:
 
-   ```
-   sudo python3 setup.py install
-   ```
+    ```
+    python3 setup.py build
+    ```
+
+5. Install the Topwrap package:
+
+    ```
+    python3 setup.py install
+    ```
 
 (example-usage)=
 
