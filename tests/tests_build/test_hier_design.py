@@ -47,7 +47,6 @@ def counter_mod_name() -> str:
 def counter_hier_conns() -> list:
     return {
         "in_clk": "top_clk",
-        "in_rst": "top_rst",
         "in_en": "sig_pwm",
         "top_cnt": "out_cnt",
     }
@@ -82,7 +81,7 @@ class TestHierarchyDesign:
     ):
         """Check whether the connections from/to the `counter_hier` hierarchy have been
         created correctly. We should have:
-        * `in_clk` and `in_rst` incoming from the top module
+        * `in_clk` incoming from the top module
         * `out_cnt` outgoing as external output of the top module
         * a wire between `sig_pwm` of pwm module and `in_en` of the hierarchy
         """

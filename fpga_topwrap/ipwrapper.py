@@ -1,15 +1,13 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from collections.abc import Mapping
-from dataclasses import dataclass
 from itertools import groupby
-from logging import error, warning
+from logging import error
 from typing import List
 
 import numexpr as ex
-from amaranth import Elaboratable, Instance, Module, Signal
+from amaranth import Instance, Module, Signal
 from amaranth.build import Platform
-from amaranth.hdl import ClockSignal, ResetSignal
 from amaranth.hdl.ast import Cat, Const
 
 from .amaranth_helpers import (
@@ -75,12 +73,6 @@ def _eval_bounds(bounds, params):
     return result
 
 
-@dataclass(frozen=True)
-class ClockDomainNames:
-    clk: str
-    rst: str
-
-
 class IPWrapper(Wrapper):
     """This class instantiates an IP in a wrapper to use its individual ports
     or groupped ports as interfaces.
@@ -98,7 +90,6 @@ class IPWrapper(Wrapper):
 
         self._ports = []
         self._parameters = {}
-        self._clock_domains = {}
 
         _evaluate_parameters(params)
         self._set_parameters(params)
@@ -127,13 +118,6 @@ class IPWrapper(Wrapper):
         for key, value in self._parameters.items():
             # trim 'p_' in the beginning
             parameters[key[2:]] = value
-
-        try:
-            clk = ip_yaml["signals"]["clock"]
-            rst = ip_yaml["signals"]["reset"]
-            self._clock_domains["default"] = ClockDomainNames(clk, rst)
-        except KeyError:
-            warning(f"Missing clock or reset assignment in {self.ip_name}")
 
         signals_dirs = [
             (ip_yaml["signals"]["in"], DIR_IN),
@@ -254,12 +238,6 @@ class IPWrapper(Wrapper):
             instance_args[prefix + internal_name] = Cat(*ports_sorted)
 
         instance_args = {**instance_args, **self._parameters}
-
-        if "default" in self._clock_domains:
-            instance_args |= {
-                f"i_{self._clock_domains['default'].clk}": ClockSignal("sync"),
-                f"i_{self._clock_domains['default'].rst}": ResetSignal("sync"),
-            }
 
         setattr(m.submodules, self.instance_name, Instance(self.ip_name, **instance_args))
         return m

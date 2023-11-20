@@ -94,8 +94,8 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
             ),
         )
 
-    ipc.make_external_ports_interfaces(ipc_ports, ipc_interfaces, external)
-    ipc.make_connections(ipc_ports, ipc_interfaces, ipc_interconnects)
+    ipc.make_connections(ipc_ports, ipc_interfaces, external)
+    ipc.make_interconnect_connections(ipc_interconnects, external)
     return ipc
 
 

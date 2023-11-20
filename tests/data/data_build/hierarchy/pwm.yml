@@ -5,11 +5,8 @@ parameters:
   COMP_WIDTH: 32
 
 signals:
-  clock: clk
-  reset: rst
   in:
     - clk
-    - rst
     - [compare, COMP_WIDTH-1, 0]
   out:
     - sig_pwm

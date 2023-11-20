@@ -5,11 +5,8 @@ parameters:
   CNT_WIDTH: 32
 
 signals:
-  clock: clk
-  reset: rst
   in:
     - clk
-    - rst
     - en
   out:
     - [cnt, CNT_WIDTH-1, 0]

@@ -1,12 +1,12 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from collections import defaultdict
 from logging import error, info, warning
 from os import makedirs, path
 
 from amaranth import Elaboratable, Fragment, Instance, Module, Signal
 from amaranth.back import verilog
 from amaranth.build import Platform
-from amaranth.hdl import ClockSignal, ResetSignal
 from amaranth.hdl.ast import Const
 from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 
@@ -174,7 +174,7 @@ class IPConnect(Wrapper):
 
         :param comp_name: name of the component - hierarchy or IP core
         :param port_name: port name in the component
-        :param external_name: external name of the port specified in "externals" section
+        :param external_name: external name of the port specified in "external" section
         :raises ValueError: if such port doesn't exist
         """
         comp = self._get_component_by_name(comp_name)
@@ -212,7 +212,7 @@ class IPConnect(Wrapper):
 
         :param comp_name: name of the component - hierarchy or IP core
         :param iface_name: interface name in the component
-        :param external_iface_name: external name of the interface specified in "externals" section
+        :param external_iface_name: external name of the interface specified in "external" section
         :raises ValueError: if such interface doesn't exist
         """
         comp = self._get_component_by_name(comp_name)
@@ -246,19 +246,112 @@ class IPConnect(Wrapper):
         port = self._get_component_by_name(comp_name).get_port_by_name(comp_port)
         self._connections.append(port.eq(Const(target)))
 
-    def make_connections(self, ports: dict, interfaces: dict, interconnects: dict) -> None:
-        """Use names of port and names of ips to make connections"""
+    def _connect_to_external_port(
+        self, internal_port: str, internal_comp: str, external_port: str, external: dict
+    ) -> None:
+        """Connect internal port of a component to an external port
 
+        :param internal_port: internal port name in internal_component to connect to external_port
+        :param internal_comp: internal component name
+        :param external_port: external port name
+        :param external: dictionary in the form of {"in": list, "out": list, "inout": list} containing
+                          port names specified as external in each of the three categories. All keys are
+                          optional and lack of a category implies an empty list
+        """
+
+        # check if 'target' is present in the 'external' section
+        external_dd = defaultdict(list, **external)
+        if external_port in external_dd["in"]:
+            ext_dir = DIR_IN
+        elif external_port in external_dd["out"]:
+            ext_dir = DIR_OUT
+        elif external_port in external_dd["inout"]:
+            ext_dir = DIR_INOUT
+        else:
+            raise ValueError(f"External port {external_port} not found" "in the 'external' section")
+
+        # It is illegal to connect:
+        #  - output to output
+        #  - input to input
+        # Any other connection is legal.
+        port_dir = (
+            self._get_component_by_name(internal_comp).get_port_by_name(internal_port).direction
+        )
+        if port_dir != ext_dir and DIR_INOUT not in [port_dir, ext_dir]:
+            raise ValueError(
+                f"Direction of external port '{external_port}'"
+                f"doesn't match '{internal_comp}:{internal_port}' direction"
+            )
+
+        self._set_port(internal_comp, internal_port, external_port)
+
+    def make_connections(self, ports: dict, interfaces: dict, external: dict) -> None:
+        """Use names of port and names of ips to make connections
+
+        :param ports: "ports" section in the YAML design specification
+        :param interfaces: "interfaces" section in the YAML design specification
+        :param external: "external" section in the YAML design specification
+        """
+
+        for comp1_name, connections in ports.items():
+            for comp1_port, target in connections.items():
+                # target is one of:
+                #   - a number (int)
+                #   - an external port name
+                #   - list of (comp2_name, comp2_port)
+                if isinstance(target, int):
+                    self.set_constant(comp1_name, comp1_port, target)
+                elif isinstance(target, str):
+                    self._connect_to_external_port(
+                        comp1_port, comp1_name, target, external["ports"]
+                    )
+                else:
+                    (comp2_name, comp2_port) = target
+                    self.connect_ports(comp1_port, comp1_name, comp2_port, comp2_name)
+
+        for comp1_name, connections in interfaces.items():
+            for comp1_iface, target in connections.items():
+                # target is one of:
+                #   - an external interface name
+                #   - list of (comp2_name, comp2_iface)
+                if isinstance(target, str):
+                    if target not in external["interfaces"]:
+                        raise ValueError(
+                            f"External interface '{target}' not found in 'external' section"
+                        )
+                    self._set_interface(comp1_name, comp1_iface, target)
+                else:
+                    (comp2_name, comp2_iface) = target
+                    self.connect_interfaces(comp1_iface, comp1_name, comp2_iface, comp2_name)
+
+    def make_interconnect_connections(self, interconnects: dict, external: dict):
+        """Connect slaves and masters to their respective interfaces in the interconnect
+
+        :param interconnects: "interconnects" section in the YAML design specification
+        :param external: "external" section in the YAML design specification
+        """
         for ic_name, params in interconnects.items():
             ic = self._get_component_by_name(ic_name)
 
             masters, slaves = params["masters"], params["slaves"]
+            clk_src, rst_src = params["clock"], params["reset"]
+
+            for dst_name, cd_sig in [("clk", clk_src), ("rst", rst_src)]:
+                # cd_sig is either
+                # - external port name
+                # - [component, port] - port of another component
+                if isinstance(cd_sig, str):
+                    self._connect_to_external_port(dst_name, ic_name, cd_sig, external["ports"])
+                else:
+                    src_comp, src_sig = cd_sig
+                    self.connect_ports(dst_name, ic_name, src_sig, src_comp)
 
             for slave_name, slave_ifaces in slaves.items():
                 for slave_iface_name, iface_params in slave_ifaces.items():
-                    address, size = iface_params["address"], iface_params["size"]
                     ic.elaboratable.add_peripheral(
-                        name=f"{slave_name}_{slave_iface_name}", addr=address, size=size
+                        name=f"{slave_name}_{slave_iface_name}",
+                        addr=iface_params["address"],
+                        size=iface_params["size"],
                     )
 
             for master_name, master_ifaces in masters.items():
@@ -279,82 +372,6 @@ class IPConnect(Wrapper):
                         f"{master_name}_{master_iface_name}",
                         ic_name,
                     )
-
-        for comp1_name, connections in ports.items():
-            for comp1_port, target in connections.items():
-                # target is one of:
-                #   - a number (int)
-                #   - an external port name
-                #   - list of (comp2_name, comp2_port)
-                if isinstance(target, int):
-                    self.set_constant(comp1_name, comp1_port, target)
-                elif isinstance(target, str):
-                    pass
-                else:
-                    (comp2_name, comp2_port) = target
-                    self.connect_ports(comp1_port, comp1_name, comp2_port, comp2_name)
-
-        for comp1_name, connections in interfaces.items():
-            for comp1_iface, target in connections.items():
-                # target is one of:
-                #   - an external interface name
-                #   - list of (comp2_name, comp2_iface)
-                if isinstance(target, str):
-                    pass
-                else:
-                    (comp2_name, comp2_iface) = target
-                    self.connect_interfaces(comp1_iface, comp1_name, comp2_iface, comp2_name)
-
-    def make_external_ports_interfaces(self, ports: dict, interfaces: dict, external: dict) -> None:
-        """Pick ports and interfaces which will be used as external I/O"""
-        ext_ports = {"in": [], "out": [], "inout": []}
-        if "ports" in external.keys():
-            for dir in external["ports"].keys():
-                ext_ports[dir] = external["ports"][dir]
-
-        for comp_name, connections in ports.items():
-            for comp_port, target in connections.items():
-                if isinstance(target, str):
-                    # check if 'target' is present in the 'externals' section
-                    if target in ext_ports["in"]:
-                        ext_dir = DIR_IN
-                    elif target in ext_ports["out"]:
-                        ext_dir = DIR_OUT
-                    elif target in ext_ports["inout"]:
-                        ext_dir = DIR_INOUT
-                    else:
-                        raise ValueError(
-                            f"External port {target} not found" "in the 'externals' section"
-                        )
-
-                    # It is illegal to connect:
-                    #  - output to output
-                    #  - input to input
-                    # Any other connection is legal.
-                    port_dir = (
-                        self._get_component_by_name(comp_name).get_port_by_name(comp_port).direction
-                    )
-                    if port_dir != ext_dir and DIR_INOUT not in [port_dir, ext_dir]:
-                        raise ValueError(
-                            f"Direction of external port '{target}'"
-                            f"doesn't match '{comp_name}:{comp_port}' direction"
-                        )
-
-                    self._set_port(comp_name, comp_port, target)
-
-        ext_ifaces = []
-        if "interfaces" in external.keys():
-            for dir in external["interfaces"].keys():
-                ext_ifaces += external["interfaces"][dir]
-
-        for comp_name, connections in interfaces.items():
-            for comp_iface, target in connections.items():
-                if isinstance(target, str):
-                    if target not in ext_ifaces:
-                        raise ValueError(
-                            f"External interface '{target}' not found in 'externals' section"
-                        )
-                    self._set_interface(comp_name, comp_iface, target)
 
     def build(
         self,

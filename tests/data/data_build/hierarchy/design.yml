@@ -25,14 +25,12 @@ design:
         ports:
           counter:
             clk: in_clk
-            rst: in_rst
             en: in_en
             cnt: out_cnt
       external:
         ports:
           in:
             - in_clk
-            - in_rst
             - in_en
           out:
             - out_cnt
@@ -40,19 +38,16 @@ design:
   ports:
     counter_hier:
       in_clk: top_clk
-      in_rst: top_rst
       in_en: [pwm, sig_pwm]
       out_cnt: top_cnt
     pwm:
       clk: top_clk
-      rst: top_rst
       compare: top_compare
 
 external:
   ports:
     in:
       - top_clk
-      - top_rst
       - top_compare
     out:
       - top_cnt

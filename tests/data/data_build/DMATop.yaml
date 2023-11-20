@@ -83,8 +83,6 @@ AXI_m1:
             ARVALID: io_read_ar_arvalid
             RREADY: io_read_r_rready
 signals:
-    clock: clock
-    reset: reset
     in:
         - clock
         - reset
