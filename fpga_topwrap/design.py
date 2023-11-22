@@ -110,5 +110,7 @@ def build_design(design_descr, sources_dir=None, part=None):
     design = design_descr["design"] if "design" in design_descr.keys() else dict()
     external = design_descr["external"] if "external" in design_descr.keys() else dict()
 
+    design_name = design["name"] if "name" in design else "top"
+
     ipc = generate_design(design_descr["ips"], design, external)
-    ipc.build(sources_dir=sources_dir, part=part)
+    ipc.build(sources_dir=sources_dir, part=part, top_module_name=design_name)
