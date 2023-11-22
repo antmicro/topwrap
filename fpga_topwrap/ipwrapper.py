@@ -53,7 +53,8 @@ def _evaluate_parameters(params: dict):
         if isinstance(param, Mapping):
             params[name] = Const(param["value"], shape=(param["width"]))
         elif isinstance(param, str):
-            params[name] = int(ex.evaluate(params[name], params).take(0))
+            if ex.validate(param, params) is None:
+                params[name] = int(ex.evaluate(param, params).take(0))
 
 
 def _eval_bounds(bounds, params):
