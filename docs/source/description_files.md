@@ -7,7 +7,7 @@
 ## Design Description
 
 To create a complete, fully synthesizable design, a proper design file is needed.
-It's used to specify IP cores, set their parameters' values, describe hierarchies for the project,
+It's used to specify interconnects, IP cores, set their parameters' values, describe hierarchies for the project,
 connect the IPs and hierarchies, and pick external ports (those which will be connected to physical I/O).
 
 You can see example design files in `examples` directory. The structure is as below:
@@ -22,6 +22,7 @@ ips:
   ...
 
 design:
+  name: {design_name} # optional name of the toplevel
   hierarchies: # specify hierarchies designs
     {hierarchy_name_1}:
       design:
@@ -71,6 +72,10 @@ design:
     # specify external interfaces connections
     {ip_instance_name}:
       {iface_name} : ext_iface_name
+    ...
+
+  interconnects:
+    # see "Interconnect generation" page for a detailed description of the format
     ...
 
 external: # specify names of external ports and interfaces of the top module

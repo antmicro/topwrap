@@ -6,6 +6,7 @@
 introduction
 getting_started
 description_files
+interconnect_gen
 cli
 pipeline_manager
 wrapper_port
