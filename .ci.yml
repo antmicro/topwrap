@@ -25,7 +25,10 @@ pytest:
     - python3 -m pip install -r requirements.dev.txt
     - python3 -m pip install git+https://github.com/antmicro/tuttest
     - tuttest README.md | bash -
-    - nox -s tests
+    - nox -s tests_with_report
+  artifacts:
+    paths:
+      - cov_html
 
 docs-verify:
   stage: test
@@ -43,6 +46,7 @@ docs-build:
     - echo -en "\nhtml_js_files = [ '$ANNOTANT' ]" >> source/conf.py
     - make html latexpdf
     - cp build/latex/*.pdf build/html/
+    - cp -r ../cov_html build/html/cov
     - tar cf ../$CI_DOCS_ARCHIVE -C build/html/ .
   artifacts:
     paths:

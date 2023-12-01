@@ -49,5 +49,10 @@ def black_check(session):
 @nox.session
 def tests(session: nox.Session) -> None:
     session.install("-r", "requirements.txt")
-    session.install("-r", "requirements.dev.txt")
-    session.run("pytest", "tests")
+    session.run("pytest", "--cov=fpga_topwrap", "tests")
+
+
+@nox.session
+def tests_with_report(session: nox.Session) -> None:
+    session.install("-r", "requirements.txt")
+    session.run("pytest", "--cov-report", "html:cov_html", "--cov=fpga_topwrap", "tests")
