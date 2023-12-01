@@ -11,6 +11,7 @@ pipeline_manager
 wrapper_port
 ipwrapper
 ipconnect
+elaboratable_wrapper
 helpers
 fusesoc
 ```
