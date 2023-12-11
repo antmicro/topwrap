@@ -1,0 +1,84 @@
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+ips:
+  soc:
+    file: ipcores/soc.yaml
+    module: soc
+  wb_ram_data:
+    file: ipcores/litex_mem.yaml
+    module: mem
+  wb_ram_instr:
+    file: ipcores/litex_mem.yaml
+    module: mem
+  crg:
+    file: ipcores/crg.yaml
+    module: crg
+
+design:
+  name: top
+  parameters:
+    wb_ram_data:
+      depth: 0x1000
+      memfile: "top_sram.init"
+    wb_ram_instr:
+      depth: 0xA000
+      memfile: "top_rom.init"
+  ports:
+    wb_ram_data:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    wb_ram_instr:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    crg:
+      clk100: clk100
+    soc:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+      sim_serial_source_ready: sim_serial_source_ready
+      sim_serial_sink_valid: sim_serial_sink_valid
+      sim_serial_sink_data: sim_serial_sink_data
+      sim_serial_sink_ready: sim_serial_sink_ready
+      sim_serial_source_valid: sim_serial_source_valid
+      sim_serial_source_data: sim_serial_source_data
+  interconnects:
+    interconnect0:
+      clock: clk100
+      reset: [crg, sys_rst]
+      type: wishbone_roundrobin
+      params:
+        addr_width: 30
+        data_width: 32
+        granularity: 8
+        features: ["bte", "cti", "err"]
+      slaves:
+        wb_ram_instr:
+          s_wishbone:
+            address: 0x00000000
+            size: 0xA000
+        wb_ram_data:
+          s_wishbone:
+            address: 0x10000000
+            size: 0x1000
+        soc:
+          s_csr_wishbone:
+            address: 0xF0000000
+            size: 0x1000
+      masters:
+        soc:
+          - m_dbus_wishbone
+          - m_ibus_wishbone
+
+external:
+  ports:
+    in:
+      - clk100
+      - sim_serial_source_ready
+      - sim_serial_sink_valid
+      - sim_serial_sink_data
+    out:
+      - sim_serial_sink_ready
+      - sim_serial_source_valid
+      - sim_serial_source_data
+

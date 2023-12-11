@@ -1,0 +1,45 @@
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+signals:
+  in:
+    - [externalResetVector, 31, 0]
+    - timerInterrupt
+    - softwareInterrupt
+    - [externalInterruptArray, 31, 0]
+    - clk
+    - reset
+m_dbus_wishbone:
+  interface: wishbone
+  mode: master
+  signals:
+    in:
+      ack: dBusWishbone_ACK
+      dat_r: [dBusWishbone_DAT_MISO, 31, 0]
+      err: dBusWishbone_ERR
+    out:
+      cyc: dBusWishbone_CYC
+      stb: dBusWishbone_STB
+      we: dBusWishbone_WE
+      adr: [dBusWishbone_ADR, 29, 0]
+      dat_w: [dBusWishbone_DAT_MOSI, 31, 0]
+      sel: [dBusWishbone_SEL, 3, 0]
+      cti: [dBusWishbone_CTI, 2, 0]
+      bte: [dBusWishbone_BTE, 1, 0]
+m_ibus_wishbone:
+  interface: wishbone
+  mode: master
+  signals:
+    in:
+      ack: iBusWishbone_ACK
+      dat_r: [iBusWishbone_DAT_MISO, 31, 0]
+      err: iBusWishbone_ERR
+    out:
+      cyc: iBusWishbone_CYC
+      stb: iBusWishbone_STB
+      we: iBusWishbone_WE
+      adr: [iBusWishbone_ADR, 29, 0]
+      dat_w: [iBusWishbone_DAT_MOSI, 31, 0]
+      sel: [iBusWishbone_SEL, 3, 0]
+      cti: [iBusWishbone_CTI, 2, 0]
+      bte: [iBusWishbone_BTE, 1, 0]

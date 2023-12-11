@@ -1,0 +1,25 @@
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+signals:
+  in:
+    - sys_clk
+    - sys_rst
+  out: []
+s_wishbone:
+  interface: wishbone
+  mode: slave
+  signals:
+    in:
+      adr: [mem_bus_adr, 29, 0]
+      dat_w: [mem_bus_dat_w, 31, 0]
+      sel: [mem_bus_sel, 3, 0]
+      we: mem_bus_we
+      bte: [mem_bus_bte, 1, 0]
+      cti: [mem_bus_cti, 2, 0]
+      cyc: mem_bus_cyc
+      stb: mem_bus_stb
+    out:
+      ack: mem_bus_ack
+      err: mem_bus_err
+      dat_r: [mem_bus_dat_r, 31, 0]
