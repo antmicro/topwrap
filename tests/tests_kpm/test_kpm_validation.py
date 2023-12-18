@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from common import read_json_file
 from pipeline_manager_backend_communication.misc_structures import MessageType
 from pytest_lazy_fixtures import lf
 
@@ -16,7 +17,6 @@ from fpga_topwrap.kpm_dataflow_validator import (
     _check_parameters_values,
     _check_unconnected_ports_interfaces,
 )
-from tests.common import read_json_file
 
 
 @pytest.fixture

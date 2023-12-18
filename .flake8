@@ -8,15 +8,13 @@ select = B,C,E,F,W,T4,B9
 exclude =
     .git,
     .gitignore,
-    .gitmodules,
     .github,
     .nox,
     .pytest_cache,
     __pycache__,
-    docs/source/conf.py,
     venv,
-    builds,
-    kenning-pipeline-manager,
+    build,
+    docs/source/conf.py,
 count = True
 show-source = True
 statistics = True

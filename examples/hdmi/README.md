@@ -8,6 +8,12 @@ This is an example on how to use [Topwrap](https://github.com/antmicro/topwrap) 
 
 Install Vivado and add it to your `PATH`.
 
+Install example's dependencies:
+<!-- name="install-deps" -->
+```
+pip install -r requirements.txt
+```
+
 ### Generate bitstream for desired target:
 
 Snickerdoodle Black:

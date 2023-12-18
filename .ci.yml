@@ -10,18 +10,20 @@ image: debian:bookworm
 
 lint:
   stage: test
+  tags: ['ace-x86_64']
   before_script: &BeforeScript
     - apt-get update -qq
-    - apt-get install -y --no-install-recommends python3-pip python3-venv
+    - apt-get install -y --no-install-recommends git python3-pip python3-venv
     - python3 -m venv venv
     - source venv/bin/activate
     - python3 -m pip install -U pip wheel setuptools
   script:
-    - python3 -m pip install -r requirements.txt
+    - pip install ".[lint]"
     - nox -s isort_check black_check flake8
 
 pytest:
   stage: test
+  tags: ['ace-x86_64']
   variables:
     GIT_SUBMODULE_STRATEGY: normal
   before_script:
@@ -37,9 +39,9 @@ pytest:
     - conda install -c conda-forge gcc=12.1.0
   script:
     - apt-get install -y --no-install-recommends git python3-dev
-    - python3 -m pip install nox
     - python3 -m pip install git+https://github.com/antmicro/tuttest
     - tuttest README.md | bash -
+    - pip install ".[tests]"
     - nox -s tests_with_report
   artifacts:
     paths:
@@ -47,6 +49,7 @@ pytest:
 
 docs-verify:
   stage: test
+  tags: ['ace-x86_64']
   script:
     - eval ${VERIFY_SCRIPT}
 

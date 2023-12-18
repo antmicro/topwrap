@@ -6,29 +6,24 @@
 
 1. Install required system packages:
 
-    ```
+    ```bash
     apt install -y git g++ make python3 python3-pip antlr4 libantlr4-runtime-dev yosys
     ```
 
 2. It is highly recommended to run the following steps in a Python virtual environment (e.g. [venv](https://docs.python.org/3/library/venv.html)).
 
-3. Install base requirements:
+3. Install the Topwrap package:
 
-    ```
-    pip3 install -r requirements.txt
-    ```
-
-4. Build the Topwrap package:
-
-    ```
-    python3 setup.py build
+    ```bash
+    pip3 install .
     ```
 
-5. Install the Topwrap package:
-
-    ```
-    python3 setup.py install
-    ```
+:::{note}
+To use `fpga_topwrap parse` command you also need to install optional dependencies:
+```bash
+pip3 install ".[topwrap-parse]"
+```
+:::
 
 (example-usage)=
 
@@ -67,7 +62,7 @@ axi_interconnect0:
         width: 96
 ```
 
-3. Connect desired ports of the IP cores:
+2. Connect desired ports of the IP cores:
 
 ```yaml
 ports:
@@ -78,7 +73,7 @@ ports:
     clk: [some_other_ip, clk_out]
 ```
 
-4. Connect desired interfaces of the IP cores:
+3. Connect desired interfaces of the IP cores:
 
 ```yaml
 interfaces:
@@ -88,7 +83,7 @@ interfaces:
     m_axi: [some_other_ip, 's_axi']
 ```
 
-5. Specify external ports or interfaces of the top module and connect them with chosen IP cores' ports or interfaces:
+4. Specify external ports or interfaces of the top module and connect them with chosen IP cores' ports or interfaces:
 
 ```yaml
 ports:
@@ -107,15 +102,15 @@ external:
     ...
 ```
 
-6. Create a Core file template for FuseSoC, or use a default one bundled with Topwrap.
+5. Create a Core file template for FuseSoC, or use a default one bundled with Topwrap.
 
 You may want to modify the file to add dependencies, source files, or change the target board.
 The file should be named `core.yaml.j2`. You can find an example template in `examples/hdmi` directory of the project.
 If you don't create any template a default template bundled with Topwrap will be used (stored in `templates` directory).
 
-7. Place any additional source files in a directory, which we will be calling `sources` here.
+6. Place any additional source files in a directory, which we will be calling `sources` here.
 
-8. Run Topwrap:
+7. Run Topwrap:
 
    ```
    python -m fpga_topwrap build --design project.yml --sources sources

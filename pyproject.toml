@@ -1,6 +1,54 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fpga_topwrap"
+version = "0.0.1"
+requires-python = ">=3.8"
+authors = [{name = "Antmicro"}]
+description = "Package for generating HDL wrappers and top modules for your HDL sources"
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "PyYAML",
+  "click",
+  "amaranth==0.4.0.*",
+  "numexpr",
+  "hdlConvertor @ git+https://github.com/Nic30/hdlConvertor@fae60effdb16574de152bf9bf7bc2e225b729797",
+  "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@06b38824500d8239432e614bfa655d8e50b197cf",
+  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@686c4592c4e816a72116107abaf8a55dec0ed5a1",
+  "soc_generator @ git+https://github.com/antmicro/soc-generator@76ac5b3743bea1bb6e5d2ac7ecae31ab39d5e8b3"
+]
+
+[project.optional-dependencies]
+lint = [
+  "nox==2023.4.22",
+  "flake8==7.0.0",
+  "pre-commit==3.5.0",
+  "black==23.12.1",
+  "isort==5.13.2",
+]
+tests = [
+  "nox==2023.4.22",
+  "pytest==7.4.4",
+  "pytest-cov==4.1.0",
+  "pytest-lazy-fixtures==1.0.1",
+]
+
+[project.scripts]
+fpga_topwrap = "fpga_topwrap.cli:main"
+
+[tool.setuptools]
+packages = ["fpga_topwrap"]
+
 [tool.black]
 line-length = 100
 exclude = '''
@@ -8,33 +56,29 @@ exclude = '''
   /(
     | \.git
     | \.gitignore
-    | \.gitmodules
     | \.github
     | \.nox
     | \.pytest_cache
     | __pycache__
     | venv
-    | builds
-    | kenning-pipeline-manager
-    | soc_generator
+    | build
   )/
   | docs/source/conf.py
 )
 '''
-target-version = ["py39", "py310", "py311"]
+target-version = ["py38", "py39", "py310", "py311", "py312"]
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
 skip = [
-    "git",
+    ".git",
     ".gitignore",
-    ".gitmodules",
     ".github",
     ".nox",
     ".pytest_cache",
     "__pycache__",
     "venv",
-    "builds",
-    "kenning-pipeline-manager",
+    "build",
+    "docs/source/conf.py",
 ]

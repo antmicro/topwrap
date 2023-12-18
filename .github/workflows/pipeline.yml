@@ -85,7 +85,7 @@ jobs:
         if: matrix.example == 'HDMI'
         run: |
           cd examples/hdmi
-          tuttest README.md generate | bash -
+          tuttest README.md install-deps,generate | bash -
           cd -
 
       - name: Generate sources for example inout setup
@@ -99,7 +99,7 @@ jobs:
         if: matrix.example == 'PWM'
         run: |
           cd examples/pwm
-          tuttest README.md generate | bash -
+          tuttest README.md install-deps,generate | bash -
           cd -
 
       - uses: actions/upload-artifact@v3

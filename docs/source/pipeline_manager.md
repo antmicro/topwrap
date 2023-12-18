@@ -11,9 +11,8 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     In order to start creating block design in Pipeline Manager, you need to first build and run a server application - here is a brief instruction on how to achieve this (the process of building and installation of Pipeline Manager is described in detail in its [documentation](https://antmicro.github.io/kenning-pipeline-manager/project-readme.html#building-and-running)):
 
     ```
-    ./build_server.sh
-    cd kenning-pipeline-manager
-    ./run
+    python -m fpga_topwrap kpm_build_server
+    python -m fpga_topwrap kpm_run_server
     ```
 
     After executing the above-mentioned commands, the Pipeline Manager server is waiting for an external application (i.e. Topwrap) to connect on `127.0.0.1:9000` and you can connect to the web GUI frontend in your browser on `http://127.0.0.1:5000`. 

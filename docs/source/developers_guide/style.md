@@ -11,6 +11,14 @@ nox -s isort black flake8
 ```
 
 :::{note}
+To reuse current virtual environment and avoid long installation time use `-R` option:
+
+```bash
+nox -R -s isort black flake8
+```
+:::
+
+:::{note}
 pre-commit can also be run from nox:
 
 ```bash

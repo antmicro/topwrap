@@ -13,7 +13,6 @@ With your package manager you need to install:
 
 ```
 $(command -v sudo) apt-get install -y git g++ make python3 python3-pip antlr4 libantlr4-runtime-dev yosys
-pip3 install -r requirements.txt
 ```
 
 ### Install the Topwrap package:

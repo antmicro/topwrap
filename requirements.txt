@@ -1,8 +1,0 @@
-flake8
-nox
-pre-commit
-pytest
-pytest-cov
-pytest-lazy-fixtures
-edalize==0.4.0
-fusesoc==1.12.0

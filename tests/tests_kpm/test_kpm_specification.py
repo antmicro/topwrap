@@ -5,12 +5,12 @@ import importlib.resources
 from pathlib import Path
 
 import pytest
+from common import read_json_file
 from jsonschema import Draft202012Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 
 from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-from tests.common import read_json_file
 
 
 def get_schema_path(schema_name) -> Path:

@@ -4,6 +4,14 @@ Copyright (c) 2023-2024 [Antmicro](https://antmicro.com)
 
 This examples presents usage of inout ports in a small design, which can be reused to quickly test features.
 
+## Install required dependencies
+
+Install example's dependencies:
+<!-- name="install-deps" -->
+```
+pip install -r requirements.txt
+```
+
 ## Generate bitstream for Zynq:
 
 <!-- name="build" -->

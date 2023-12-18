@@ -5,9 +5,8 @@ import json
 from pathlib import Path
 
 import pytest
+from common import read_json_file
 from yaml import Loader, load
-
-from tests.common import read_json_file
 
 
 @pytest.fixture

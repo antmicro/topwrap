@@ -31,9 +31,8 @@ If you want to use Pipeline Manager as a UI for creating block design, you need 
 1. Build and run Pipeline Manager server application.
 
 ```
-./build_server.sh
-cd kenning-pipeline-manager
-./run
+python -m fpga_topwrap kpm_build_server
+python -m fpga_topwrap kpm_run_server
 ```
 
 2. Run Topwrap's client application, that will connect to a running Pipeline Manager server app.
