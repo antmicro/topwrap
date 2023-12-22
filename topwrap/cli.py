@@ -15,6 +15,7 @@ from .design import build_design_from_yaml
 from .interface_grouper import InterfaceGrouper
 from .kpm_topwrap_client import kpm_run_client
 
+
 click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True)
 click_opt_rw_dir = click.Path(
     exists=False, file_okay=False, dir_okay=True, readable=True, writable=True
@@ -22,6 +23,19 @@ click_opt_rw_dir = click.Path(
 click_r_file = click.Path(exists=True, file_okay=True, dir_okay=False, readable=True)
 
 main = click.Group(help="Topwrap")
+
+
+AVAILABLE_LOG_LEVELS = ["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+DEFAULT_LOG_LEVEL = "WARNING"
+
+
+def configure_log_level(log_level: str):
+    logging.basicConfig(level=DEFAULT_LOG_LEVEL)
+    if log_level not in AVAILABLE_LOG_LEVELS:
+       logging.warning(f"Wrong log-level value: {log_level}. Select one of {AVAILABLE_LOG_LEVELS}")
+
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
 
 
 @main.command("build", help="Generate top module")
@@ -42,7 +56,9 @@ main = click.Group(help="Topwrap")
     default=False,
     help="Force compliance checks for predefined interfaces",
 )
-def build_main(sources, design, build_dir, part, iface_compliance):
+@click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
+def build_main(sources, design, build_dir, part, iface_compliance, log_level):
+    configure_log_level(log_level)
     config.force_interface_compliance = iface_compliance
 
     if part is None:
@@ -79,8 +95,9 @@ def build_main(sources, design, build_dir, part, iface_compliance):
     default="./",
     help="Destination directory for generated yamls",
 )
+@click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 @click.argument("files", type=click_r_file, nargs=-1)
-def parse_main(use_yosys, iface_deduce, iface, files, dest_dir):
+def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
     try:
         from .verilog_parser import (
             VerilogModuleGenerator,
@@ -93,7 +110,7 @@ def parse_main(use_yosys, iface_deduce, iface, files, dest_dir):
             "e.g. pip install topwrap[topwrap-parse]"
         )
 
-    logging.basicConfig(level=logging.INFO)
+    configure_log_level(log_level)
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(exist_ok=True, parents=True)
 
@@ -132,8 +149,10 @@ DEFAULT_BACKEND_PORT = 5000
 @main.command("kpm_client", help="Run a client app, that connects to" "a running KPM server")
 @click.option("--host", "-h", default=DEFAULT_SERVER_ADDR, help="KPM server address")
 @click.option("--port", "-p", default=DEFAULT_SERVER_PORT, help="KPM server listening port")
+@click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 @click.argument("yamlfiles", type=click_r_file, nargs=-1)
 def kpm_client_main(host, port, yamlfiles):
+    configure_log_level(log_level)
     kpm_run_client(host, port, yamlfiles)
 
 
