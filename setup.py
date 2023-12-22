@@ -22,7 +22,7 @@ setuptools.setup(
         "PyYAML",
         "click",
         "amaranth-yosys",
-        "amaranth @ git+https://github.com/amaranth-lang/amaranth",
+        "amaranth==0.4.0.*",
         "wasmtime==1.0.1",
         "numexpr",
         "hdlConvertor @ git+https://github.com/Nic30/hdlConvertor.git",
