@@ -2,6 +2,9 @@
 
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from logging import error
+from pathlib import Path
+
 from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 from yaml import Loader, load
 
@@ -10,10 +13,10 @@ from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
 
 
-def build_design_from_yaml(yamlfile, sources_dir=None, part=None):
+def build_design_from_yaml(yamlfile, build_dir, sources_dir=None, part=None):
     with open(yamlfile) as f:
         design = load(f, Loader=Loader)
-    build_design(design, sources_dir, part)
+    build_design(design, build_dir, sources_dir, part)
 
 
 def get_hierarchies_names(design_descr: dict) -> set:
@@ -101,7 +104,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     return ipc
 
 
-def build_design(design_descr, sources_dir=None, part=None):
+def build_design(design_descr, build_dir, sources_dir=None, part=None):
     """Build a complete project
 
     :param design: dict describing the top design
@@ -113,6 +116,14 @@ def build_design(design_descr, sources_dir=None, part=None):
     external = design_descr["external"] if "external" in design_descr.keys() else dict()
 
     design_name = design["name"] if "name" in design else "top"
+    build_path = Path(build_dir)
+
+    try:
+        build_path.mkdir(exist_ok=True)
+    except (FileExistsError, FileNotFoundError) as e:
+        # raised when path already exists but is not a directory or when parent directory is missing
+        error(e)
+        return
 
     ipc = generate_design(design_descr["ips"], design, external)
-    ipc.build(sources_dir=sources_dir, part=part, top_module_name=design_name)
+    ipc.build(build_dir=build_dir, sources_dir=sources_dir, part=part, top_module_name=design_name)

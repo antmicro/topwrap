@@ -18,6 +18,7 @@ from .verilog_parser import VerilogModuleGenerator, ipcore_desc_from_verilog_mod
 from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
 
 click_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True)
+click_opt_dir = click.Path(exists=False, file_okay=False, dir_okay=True, readable=True)
 click_file = click.Path(exists=True, file_okay=True, dir_okay=False, readable=True)
 
 main = click.Group(help="FPGA Topwrap")
@@ -28,13 +29,20 @@ main = click.Group(help="FPGA Topwrap")
     "--sources", "-s", type=click_dir, help="Specify directory to scan for additional sources"
 )
 @click.option("--design", "-d", type=click_file, required=True, help="Specify top design file")
+@click.option(
+    "--build-dir",
+    "-b",
+    type=click_opt_dir,
+    default="build",
+    help="Specify directory name for output files",
+)
 @click.option("--part", "-p", help="FPGA part name")
 @click.option(
     "--iface-compliance/--no-iface-compliance",
     default=False,
     help="Force compliance checks for predefined interfaces",
 )
-def build_main(sources, design, part, iface_compliance):
+def build_main(sources, design, build_dir, part, iface_compliance):
     config.force_interface_compliance = iface_compliance
 
     if part is None:
@@ -43,7 +51,7 @@ def build_main(sources, design, part, iface_compliance):
             "and thus your implamentation may fail."
         )
 
-    build_design_from_yaml(design, sources, part)
+    build_design_from_yaml(design, build_dir, sources, part)
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")
