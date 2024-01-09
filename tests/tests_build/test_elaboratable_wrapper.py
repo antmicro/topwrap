@@ -3,7 +3,7 @@
 # Copyright (C) 2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Callable, Union
+from typing import Callable, List, Tuple, Union
 
 import pytest
 from amaranth import *
@@ -115,7 +115,7 @@ def nested_signature_mapping() -> SignalMapping:
 
 
 @pytest.fixture
-def flattened_nested_signature_mapping() -> list[WrapperPort]:
+def flattened_nested_signature_mapping() -> List[WrapperPort]:
     return [
         WrapperPort(
             bounds=[15, 0, 15, 0],
@@ -217,7 +217,7 @@ def clock_domain_signals(elaboratable_wrapper: ElaboratableWrapper) -> SignalMap
 @pytest.fixture
 def interface_connections(
     elaboratable: Elaboratable, nested_signature_mapping: SignalMapping
-) -> list[tuple[Signal, Signal]]:
+) -> List[Tuple[Signal, Signal]]:
     m = elaboratable
     d = nested_signature_mapping
     return [
@@ -269,7 +269,7 @@ class TestElaboratableWrapper:
         self,
         elaboratable_wrapper: ElaboratableWrapper,
         nested_signature_mapping: SignalMapping,
-        flattened_nested_signature_mapping: list[WrapperPort],
+        flattened_nested_signature_mapping: List[WrapperPort],
     ) -> None:
         def ordering(p):
             return p.name
@@ -299,12 +299,13 @@ class TestElaboratableWrapper:
         clock_domain_signals: SignalMapping,
     ) -> None:
         hier_ports = elaboratable_wrapper.get_ports_hier()
-        assert signal_mapping_eq(hier_ports, nested_signature_mapping | clock_domain_signals)
+        nested_signature_mapping.update(clock_domain_signals)
+        assert signal_mapping_eq(hier_ports, nested_signature_mapping)
 
     def test_get_ports(
         self,
         elaboratable_wrapper: ElaboratableWrapper,
-        flattened_nested_signature_mapping: list[WrapperPort],
+        flattened_nested_signature_mapping: List[WrapperPort],
         clock_domain_signals: SignalMapping,
     ) -> None:
         def ordering(p):
@@ -322,7 +323,7 @@ class TestElaboratableWrapper:
         elaboratable_wrapper: ElaboratableWrapper,
         nested_signature_mapping: SignalMapping,
         elaboratable: Elaboratable,
-        interface_connections: list[tuple[Signal, Signal]],
+        interface_connections: List[Tuple[Signal, Signal]],
     ) -> None:
         conns_test = sorted(
             elaboratable_wrapper._connect_ports(nested_signature_mapping, elaboratable),

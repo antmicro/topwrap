@@ -1,8 +1,8 @@
 # Copyright (C) 2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
-from functools import cache
-from typing import Iterable, Mapping, Union
+from functools import lru_cache
+from typing import Iterable, List, Mapping, Union
 
 from amaranth import *
 from amaranth.build import Platform
@@ -35,7 +35,7 @@ class ElaboratableWrapper(Wrapper):
             port_width=1, port_flow=wiring.In, name="rst", port_name="rst", iface_name=""
         )
 
-    def get_ports(self) -> list[WrapperPort]:
+    def get_ports(self) -> List[WrapperPort]:
         """Return a list of external ports."""
         return self._flatten_hier(self.get_ports_hier())
 
@@ -43,12 +43,16 @@ class ElaboratableWrapper(Wrapper):
         """Maps elaboratable's Signature to a nested dictionary of WrapperPorts.
         See _gather_signature_ports for more details.
         """
-        return self._gather_signature_ports(self.elaboratable.signature) | {
-            "clk": self.clk,
-            "rst": self.rst,
-        }
+        ports = self._gather_signature_ports(self.elaboratable.signature)
+        ports.update(
+            {
+                "clk": self.clk,
+                "rst": self.rst,
+            }
+        )
+        return ports
 
-    @cache
+    @lru_cache(maxsize=None)
     def _cached_wrapper(
         self, port_width: int, port_flow: wiring.Flow, name: str, port_name: str, iface_name: str
     ) -> WrapperPort:
@@ -136,7 +140,7 @@ class ElaboratableWrapper(Wrapper):
             ports += [hier]
         return ports
 
-    def _connect_ports(self, ports: SignalMapping, iface: InterfaceLike) -> list[Assign]:
+    def _connect_ports(self, ports: SignalMapping, iface: InterfaceLike) -> List[Assign]:
         """Returns a list of amaranth assignments between the wrapped elaboratable and external ports.
 
         :param ports: nested dictionary of WrapperPorts mirroring that of iface's signature
