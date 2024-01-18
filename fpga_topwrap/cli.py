@@ -2,8 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
+import subprocess
+import sys
+from pathlib import Path
 
 import click
+from pipeline_manager.scripts.build import script_build
+from pipeline_manager.scripts.run import script_run
 
 from .config import config
 from .design import build_design_from_yaml
@@ -92,11 +97,79 @@ def parse_main(use_yosys, iface_deduce, iface, files, dest_dir):
         logging.info(f"VHDL Module '{vhdl_mod.get_module_name()}'" f"saved in file '{yaml_path}'")
 
 
+DEFAULT_WORKSPACE_DIR = Path("build", "workspace")
+DEFAULT_BACKEND_DIR = Path("build", "backend")
+DEFAULT_FRONTEND_DIR = Path("build", "frontend")
+DEFAULT_SERVER_ADDR = "127.0.0.1"
+DEFAULT_SERVER_PORT = 9000
+DEFAULT_BACKEND_ADDR = "127.0.0.1"
+DEFAULT_BACKEND_PORT = 5000
+
+
 @main.command("kpm_client", help="Run a client app, that connects to" "a running KPM server")
-@click.option(
-    "--host", "-h", default="127.0.0.1", help='KPM server address - "127.0.0.1" is default'
-)
-@click.option("--port", "-p", default=9000, help="KPM server listening port - 9000 is default")
+@click.option("--host", "-h", default=DEFAULT_SERVER_ADDR, help="KPM server address")
+@click.option("--port", "-p", default=DEFAULT_SERVER_PORT, help="KPM server listening port")
 @click.argument("yamlfiles", type=click_file, nargs=-1)
 def kpm_client_main(host, port, yamlfiles):
     kpm_run_client(host, port, yamlfiles)
+
+
+@main.command("kpm_build_server", help="Build KPM server")
+@click.option(
+    "--workspace-directory",
+    type=click.Path(),
+    default=DEFAULT_WORKSPACE_DIR,
+    help="Directory where the frontend sources should be stored",
+)
+@click.option(
+    "--output-directory",
+    type=click.Path(),
+    default=DEFAULT_FRONTEND_DIR,
+    help="Directory where the built frontend should be stored",
+)
+@click.pass_context
+def kpm_build_server(ctx, workspace_directory, output_directory):
+    args = ["pipeline_manager", "build", "server-app"]
+    for k, v in ctx.params.items():
+        args += [f"--{k}".replace("_", "-"), f"{v}"]
+    subprocess.check_call(args)
+
+
+@main.command("kpm_run_server", help="Run a KPM server")
+@click.option(
+    "--frontend-directory",
+    type=click.Path(),
+    default=DEFAULT_FRONTEND_DIR,
+    help="Location of the built frontend",
+)
+@click.option(
+    "--server-host",
+    default=DEFAULT_SERVER_ADDR,
+    help="The address of the Pipeline Manager TCP Server",
+)
+@click.option(
+    "--server-port", default=DEFAULT_SERVER_PORT, help="The port of the Pipeline Manager TCP Server"
+)
+@click.option(
+    "--backend-host",
+    default=DEFAULT_BACKEND_ADDR,
+    help="The adress of the backend of Pipeline Manager",
+)
+@click.option(
+    "--backend-port",
+    default=DEFAULT_BACKEND_PORT,
+    help="The port of the backend of Pipeline Manager",
+)
+@click.pass_context
+def kpm_run_server(
+    ctx,
+    frontend_directory,
+    server_host,
+    server_port,
+    backend_host,
+    backend_port,
+):
+    args = ["pipeline_manager", "run"]
+    for k, v in ctx.params.items():
+        args += [f"--{k}".replace("_", "-"), f"{v}"]
+    subprocess.check_call(args)
