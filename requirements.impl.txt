@@ -1,2 +1,0 @@
-edalize==0.4.0
-fusesoc==1.12.0

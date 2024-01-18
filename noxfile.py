@@ -6,7 +6,7 @@ import nox
 
 @nox.session()
 def pre_commit(session: nox.Session) -> None:
-    session.install("-r", "requirements.dev.txt")
+    session.install("-r", "requirements.txt")
     session.run("pre-commit", "install")
     session.run("pre-commit", "run", "--all-files")
 

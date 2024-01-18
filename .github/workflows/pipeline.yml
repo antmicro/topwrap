@@ -34,7 +34,7 @@ jobs:
             python3-dev \
             yosys
           python3 -m pip install --upgrade pip wheel setuptools
-          python3 -m pip install -r requirements.dev.txt
+          python3 -m pip install nox
           python3 -m pip install git+https://github.com/antmicro/tuttest
 
       - name: Run lint checks

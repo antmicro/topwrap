@@ -12,7 +12,7 @@ lint:
     - apt-get install -y --no-install-recommends python3-pip
     - python3 -m pip install -U pip wheel setuptools
   script:
-    - python3 -m pip install -r requirements.dev.txt
+    - python3 -m pip install -r requirements.txt
     - nox -s isort_check black_check flake8
 
 pytest:
@@ -22,7 +22,7 @@ pytest:
   before_script: *BeforeScript
   script:
     - apt-get install -y --no-install-recommends git python3-dev
-    - python3 -m pip install -r requirements.dev.txt
+    - python3 -m pip install nox
     - python3 -m pip install git+https://github.com/antmicro/tuttest
     - tuttest README.md | bash -
     - nox -s tests_with_report
