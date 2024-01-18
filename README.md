@@ -16,11 +16,10 @@ $(command -v sudo) apt-get install -y git g++ make python3 python3-pip antlr4 li
 pip3 install -r requirements.txt
 ```
 
-### Build and install the Topwrap package:
+### Install the Topwrap package:
 
 ```
-python3 setup.py build
-python3 setup.py install
+pip3 install .
 ```
 
 For more information about Topwrap, see the [Documentation](https://antmicro.github.io/fpga-topwrap/).
