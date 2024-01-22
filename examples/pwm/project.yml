@@ -13,6 +13,7 @@ ips:
     module: ps7_inst
 
 design:
+  name: project_top
   parameters:
     axi_bridge:
       AXI_ID_WIDTH: 12

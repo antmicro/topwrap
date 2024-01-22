@@ -13,6 +13,7 @@ ips:
     module: iobuf
 
 design:
+  name: project_top
   ports:
     ip_obuf:
       clk: PORT_CLK
@@ -26,7 +27,6 @@ design:
       oe: PORT_CLK
       a: PORT_IN
       y: PORT_OUT_1
-      z: PORT_IO
     ip_ibuf:
       clk: PORT_CLK
       rst: PORT_RST
@@ -44,4 +44,4 @@ external:
       - PORT_OUT_1
       - PORT_OUT_2
     inout:
-      - PORT_IO
+      - [ip_iobuf, z]

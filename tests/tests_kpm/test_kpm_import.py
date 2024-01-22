@@ -166,7 +166,7 @@ class TestHDMIDataflowImport:
         """Check the number of generated external metanodes."""
         kpm_metanodes = kpm_metanodes_from_design_descr(hdmi_design_yaml)
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
-        assert len(metanodes_json) == 8
+        assert len(metanodes_json) == 29
 
     def test_hdmi_connections(self, hdmi_design_yaml, hdmi_specification):
         """Check the number of generated connections between nodes representing IP cores
@@ -186,4 +186,4 @@ class TestHDMIDataflowImport:
         connections = kpm_metanodes_connections_from_design_descr(
             hdmi_design_yaml, kpm_nodes, kpm_metanodes
         )
-        assert len(connections) == 8
+        assert len(connections) == 29

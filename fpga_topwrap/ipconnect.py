@@ -59,26 +59,33 @@ class IPConnect(Wrapper):
         """Connects two ports with matching directionality. Disallowed configurations are:
         - input to input
         - output to output
+        - inout to inout
         All other configurations are allowed.
 
         :param port1: 1st port to connect
         :param port2: 2nd port to connect
         """
         d1, d2 = port1.direction, port2.direction
+        # logic for assignments with inouts in Amaranth is as follows:
+        # - lhs signal is generated as output if rhs is DIR_INOUT
+        # - rhs signal is generated as input if lhs is DIR_INOUT
+        # the following logic is derived from these two rules
         if (
             (d1 == DIR_OUT and d2 == DIR_IN)
-            or (d1 == DIR_INOUT and d2 == DIR_IN)
-            or (d1 == DIR_OUT and d2 == DIR_INOUT)
+            or (d1 == DIR_IN and d2 == DIR_INOUT)
+            or (d1 == DIR_INOUT and d2 == DIR_OUT)
         ):
             self._connections.append(port2.eq(port1))
         elif (
             (d1 == DIR_IN and d2 == DIR_OUT)
-            or (d1 == DIR_IN and d2 == DIR_INOUT)
-            or (d1 == DIR_INOUT and d2 == DIR_OUT)
-            or (d1 == DIR_INOUT and d2 == DIR_INOUT)
+            or (d1 == DIR_INOUT and d2 == DIR_IN)
+            or (d1 == DIR_OUT and d2 == DIR_INOUT)
         ):
-            # order doesn't matter for inout-inout
             self._connections.append(port1.eq(port2))
+        elif d1 == DIR_INOUT and d2 == DIR_INOUT:
+            raise ValueError(
+                f"Internally connecting two inout ports {port1.name} and {port2.name} is disallowed"
+            )
         else:
             warning(f"Ports {port1.name} and {port2.name} have mismatched directionality")
 
@@ -92,11 +99,16 @@ class IPConnect(Wrapper):
         i, e = internal.direction, external.direction
         if i == DIR_OUT and e == DIR_OUT:
             self._connections.append(external.eq(internal))
-        elif i == PortDirection.IN and e == PortDirection.IN:
+        elif i == DIR_IN and e == DIR_IN:
             self._connections.append(internal.eq(external))
+        elif i == DIR_INOUT and e == DIR_INOUT:
+            raise ValueError(
+                f"Connecting external inout port {external.name} to a port {internal.name} in the design is disallowed (inouts are automatically connected to toplevel ports)"
+            )
         else:
-            # delegate handling inouts
-            self._connect_internal_ports(internal, external)
+            raise ValueError(
+                f"External port {external.name} and port {internal.name} in the design must have identical directionality"
+            )
 
     def connect_ports(
         self, port1_name: str, comp1_name: str, port2_name: str, comp2_name: str
@@ -119,12 +131,6 @@ class IPConnect(Wrapper):
                 f"ports: {comp1_name}:{port1.name}({len(port1)}), "
                 f"{comp2_name}:{port2.name}({len(port2)})"
                 " have different widths!"
-            )
-
-        if port1.direction == DIR_INOUT or port2.direction == DIR_INOUT:
-            warning(
-                f"one of {comp1_name}:{port1.name}, {comp2_name}:{port2.name} is inout; "
-                "the wire connecting them will be also external in the top module"
             )
 
         self._connect_internal_ports(port1, port2)
@@ -261,27 +267,8 @@ class IPConnect(Wrapper):
 
         # check if 'target' is present in the 'external' section
         external_dd = defaultdict(list, **external)
-        if external_port in external_dd["in"]:
-            ext_dir = DIR_IN
-        elif external_port in external_dd["out"]:
-            ext_dir = DIR_OUT
-        elif external_port in external_dd["inout"]:
-            ext_dir = DIR_INOUT
-        else:
-            raise ValueError(f"External port {external_port} not found" "in the 'external' section")
-
-        # It is illegal to connect:
-        #  - output to output
-        #  - input to input
-        # Any other connection is legal.
-        port_dir = (
-            self._get_component_by_name(internal_comp).get_port_by_name(internal_port).direction
-        )
-        if port_dir != ext_dir and DIR_INOUT not in [port_dir, ext_dir]:
-            raise ValueError(
-                f"Direction of external port '{external_port}'"
-                f"doesn't match '{internal_comp}:{internal_port}' direction"
-            )
+        if external_port not in [*external_dd["in"], *external_dd["out"], *external_dd["inout"]]:
+            raise ValueError(f"External port {external_port} not found in the 'external' section")
 
         self._set_port(internal_comp, internal_port, external_port)
 
@@ -372,6 +359,35 @@ class IPConnect(Wrapper):
                         f"{master_name}_{master_iface_name}",
                         ic_name,
                     )
+
+    def validate_inout_connections(self, inouts):
+        """Checks that all inout ports of any IP or hierarchy in the design are explicitly
+        listed in the 'external' section.
+
+        :param inouts: external.ports.inout section of the design description YAML
+        """
+        inouts_tuples = list(map(tuple, inouts))
+        missing_externals = list()
+        all_inout_port_names = set()
+        for comp_name, comp in self._components.items():
+            comp_inouts = list(filter(lambda port: port.direction == DIR_INOUT, comp.get_ports()))
+            identical_port_names = all_inout_port_names.intersection(
+                (port.name for port in comp_inouts)
+            )
+            if identical_port_names:
+                warning(
+                    f"Identical port name(s) in {comp_name} - signals {identical_port_names} will get a suffix $<number> appended"
+                )
+            for port in comp_inouts:
+                if (comp_name, port.name) not in inouts_tuples:
+                    missing_externals.append((comp_name, port.name))
+        if missing_externals:
+            formatted_missing = "\n".join(
+                map(lambda external: f"- [{external[0]}, {external[1]}]", missing_externals)
+            )
+            raise ValueError(
+                f"Inout ports have to be explicitly listed in 'external' section. Missing ports:\n{formatted_missing}"
+            )
 
     def build(
         self,

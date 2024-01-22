@@ -169,9 +169,17 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
         # Update 'ports'/'interfaces' and 'external' sections
         if ip_node["name"] not in ext_conns.keys():
             ext_conns[ip_node["name"]] = {}
-        ext_conns[ip_node["name"]][iface_name] = external_name
-        if external_name not in external[ext_section][dir]:
-            external[ext_section][dir].append(external_name)
+
+        if dir != "inout":
+            ext_conns[ip_node["name"]][iface_name] = external_name
+            if external_name not in external[ext_section][dir]:
+                external[ext_section][dir].append(external_name)
+        else:
+            # don't put inout connections in ext_conns as the rule is to specify them
+            # in the "external" section of the YAML
+            connection = (ip_node["name"], external_name)
+            if connection not in external[ext_section][dir]:
+                external[ext_section][dir].append(connection)
 
     return {"ports": ports_ext_conns, "interfaces": ifaces_ext_conns, "external": external}
 

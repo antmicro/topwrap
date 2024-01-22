@@ -61,3 +61,6 @@ signals:
         - DGUARD_O
         - DIEN_O
         - DIH_O
+    inout:
+        - some_inout1
+        - some_inout2

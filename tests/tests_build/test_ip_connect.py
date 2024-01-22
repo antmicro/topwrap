@@ -116,6 +116,10 @@ class TestIPConnect:
                 axi_dispctrl_name,
             )
 
+        # Check that connecting two internal inout ports raises a ValueError
+        with pytest.raises(ValueError):
+            ipc.connect_ports("some_inout1", axi_dispctrl_name, "some_inout2", axi_dispctrl_name)
+
     def test_connect_interfaces(
         self,
         dmatop_ipw,
@@ -202,6 +206,10 @@ class TestIPConnect:
         with pytest.raises(ValueError):
             ipc._set_port(dmatop_name, "non_existing_port_name", "sig_ext")
 
+        # Check that connecting internal inout port to external inout port raises a ValueError
+        with pytest.raises(ValueError):
+            ipc._set_port(axi_dispctrl_name, "some_inout1", "external_inout")
+
     def test_set_interface(self, dmatop_ipw, dmatop_name, ext_to_axism0_ports_connections):
         """Test setting an interface as external in the top module"""
         ipc = IPConnect()
@@ -249,3 +257,17 @@ class TestIPConnect:
             ipc.set_constant(dmatop_name, "non_existing_port_name", 0)
         with pytest.raises(ValueError):
             ipc.set_constant("non_existing_comp_name", "port", 0)
+
+    def test_validate_inout_connections(self, axi_dispctrl_name, axi_dispctrl_ipw):
+        """Test validating that the user put all inout ports in the
+        external.ports.inout section of YAML design file"""
+        ipc = IPConnect("top")
+        ipc.add_component(axi_dispctrl_name, axi_dispctrl_ipw)
+        conn1 = [axi_dispctrl_name, "some_inout1"]
+        conn2 = [axi_dispctrl_name, "some_inout2"]
+
+        # Negative case: user didn't put all inout ports in the external.ports.inout section
+        with pytest.raises(ValueError):
+            ipc.validate_inout_connections([conn1])
+        # Positive case: user did put all inout ports in the external.ports.inout.section
+        ipc.validate_inout_connections([conn1, conn2])

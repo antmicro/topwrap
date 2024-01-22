@@ -31,3 +31,6 @@ external:
       - VSYNC_O
       - io_irq_readerDone
       - io_irq_writerDone
+    inout:
+      - [disp, some_inout1]
+      - [disp, some_inout2]

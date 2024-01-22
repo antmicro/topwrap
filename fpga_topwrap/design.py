@@ -64,6 +64,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     ipc_ports = design["ports"] if "ports" in design.keys() else dict()
     ipc_interfaces = design["interfaces"] if "interfaces" in design.keys() else dict()
     ipc_interconnects = design["interconnects"] if "interconnects" in design.keys() else dict()
+    ipc_inouts = external["ports"]["inout"] if "inout" in external["ports"].keys() else dict()
 
     # Generate hierarchies and add them to `ipc`.
     for hier_name in get_hierarchies_names(design):
@@ -96,6 +97,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
 
     ipc.make_connections(ipc_ports, ipc_interfaces, external)
     ipc.make_interconnect_connections(ipc_interconnects, external)
+    ipc.validate_inout_connections(ipc_inouts)
     return ipc
 
 

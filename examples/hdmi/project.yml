@@ -49,6 +49,7 @@ ips:
     module: axi_protocol_converter
 
 design:
+  name: project_top
   parameters:
     axi_interconnect0:
       S_COUNT: 1
@@ -189,3 +190,25 @@ external:
       - HDMI_D1_N
       - HDMI_D2_P
       - HDMI_D2_N
+    inout:
+      - [ps7, ddr_addr]
+      - [ps7, ddr_bankaddr]
+      - [ps7, ddr_cas_n]
+      - [ps7, ddr_cke]
+      - [ps7, ddr_clk]
+      - [ps7, ddr_clk_n]
+      - [ps7, ddr_cs_n]
+      - [ps7, ddr_dm]
+      - [ps7, ddr_dq]
+      - [ps7, ddr_dqs]
+      - [ps7, ddr_dqs_n]
+      - [ps7, ddr_drstb]
+      - [ps7, ddr_odt]
+      - [ps7, ddr_ras_n]
+      - [ps7, ddr_vr_n]
+      - [ps7, ddr_vr]
+      - [ps7, ddr_web]
+      - [ps7, ps_mio]
+      - [ps7, ps_clk]
+      - [ps7, ps_porb]
+      - [ps7, ps_srstb]

@@ -119,9 +119,11 @@ class KPMDataflowNode:
                     "name": interface.name,
                     "id": interface.id,
                     "direction": interface.direction,
-                    "connectionSide": "left"
-                    if (interface.direction == KPMDataflowNodeInterface.KPM_DIR_INPUT)
-                    else "right",
+                    "connectionSide": (
+                        "left"
+                        if (interface.direction == KPMDataflowNodeInterface.KPM_DIR_INPUT)
+                        else "right"
+                    ),
                 }
                 for interface in self.interfaces
             ],
@@ -255,6 +257,17 @@ def _get_flattened_connections(design_descr: dict) -> list:
     return conn_descrs
 
 
+def _get_inout_connections(ports: dict) -> list:
+    conn_descrs = []
+    inouts = ports["inout"] if "inout" in ports else {}
+
+    for [ip_name, port_name] in inouts:
+        conn_descrs.append(
+            {"ip_name": ip_name, "port_iface_name": port_name, "connection": port_name}
+        )
+    return conn_descrs
+
+
 def _get_external_connections(design_descr: dict) -> list:
     """Get connections to externals from 'ports' and 'interfaces'
     sections of design description.
@@ -264,7 +277,7 @@ def _get_external_connections(design_descr: dict) -> list:
             lambda conn_descr: isinstance(conn_descr["connection"], str),
             _get_flattened_connections(design_descr),
         )
-    )
+    ) + _get_inout_connections(design_descr["external"]["ports"])
 
     # `ext_connections` is now a list of all the external connections gathered
     # from a design yaml. Each such connection is in format:
@@ -384,8 +397,12 @@ def kpm_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]
     for conn_type in design_descr["external"].keys():
         for dir in design_descr["external"][conn_type].keys():
             for external_name in design_descr["external"][conn_type][dir]:
+                if dir == "inout":
+                    _, ext_name = external_name
+                else:
+                    ext_name = external_name
                 metanodes.append(
-                    KPMDataflowNode.new_external_node(dir_to_metanode_type[dir], external_name)
+                    KPMDataflowNode.new_external_node(dir_to_metanode_type[dir], ext_name)
                 )
 
     return metanodes

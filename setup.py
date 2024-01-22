@@ -28,7 +28,7 @@ setuptools.setup(
         "hdlConvertor @ git+https://github.com/Nic30/hdlConvertor.git",
         "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@06b38824500d8239432e614bfa655d8e50b197cf",
         "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@686c4592c4e816a72116107abaf8a55dec0ed5a1",
-        "soc_generator @ git+https://github.com/antmicro/soc-generator@a4c47e879a89797ebfd88dfd58e69f29826e676f",
+        "soc_generator @ git+https://github.com/antmicro/soc-generator@76ac5b3743bea1bb6e5d2ac7ecae31ab39d5e8b3",
     ],
     setup_requires=["pytest-runner"],
     tests_require=["pytest", "pytest-lazy-fixtures"],
