@@ -3,6 +3,10 @@
 
 import nox
 
+BLACK_VERSION = "black==23.12.1"
+FLAKE8_VERSION = "flake8==7.0.0."
+ISORT_VERSION = "isort==5.13.2"
+
 
 @nox.session()
 def pre_commit(session: nox.Session) -> None:
@@ -14,35 +18,35 @@ def pre_commit(session: nox.Session) -> None:
 @nox.session()
 def isort(session: nox.Session) -> None:
     """Options are defined in pyproject.toml file"""
-    session.install("isort")
+    session.install(ISORT_VERSION)
     session.run("isort", ".")
 
 
 @nox.session()
 def isort_check(session: nox.Session) -> None:
     """Options are defined in pyproject.toml file"""
-    session.install("isort")
+    session.install(ISORT_VERSION)
     session.run("isort", "--check", ".")
 
 
 @nox.session
 def flake8(session):
     """Options are defined in .flake8 file."""
-    session.install("flake8")
+    session.install(FLAKE8_VERSION)
     session.run("flake8", ".")
 
 
 @nox.session
 def black(session):
     """Options are defined in pyproject.toml file"""
-    session.install("black")
+    session.install(BLACK_VERSION)
     session.run("black", ".")
 
 
 @nox.session
 def black_check(session):
     """Options are defined in pyproject.toml file"""
-    session.install("black")
+    session.install(BLACK_VERSION)
     session.run("black", "--check", ".")
 
 
