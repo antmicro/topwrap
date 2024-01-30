@@ -1,3 +1,6 @@
+# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
 ips:
   litex_pwm_top:
     file: ipcores/litex_pwm.yml
