@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Antmicro
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from fpga_topwrap.design_to_kpm_dataflow_parser import (

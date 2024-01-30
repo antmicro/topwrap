@@ -1,6 +1,6 @@
 # FPGA Topwrap example: inout
 
-Copyright (c) 2023 [Antmicro](https://antmicro.com)
+Copyright (c) 2023-2024 [Antmicro](https://antmicro.com)
 
 This examples presents usage of inout ports in a small design, which can be reused to quickly test features.
 

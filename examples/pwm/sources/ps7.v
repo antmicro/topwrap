@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Antmicro
+// Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 // SPDX-License-Identifier: Apache-2.0
 module ps7_inst (
     output         FCLK0, // slice FCLK

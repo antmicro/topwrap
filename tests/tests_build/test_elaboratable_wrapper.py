@@ -1,6 +1,6 @@
 # amaranth: UnusedElaboratable=no
 
-# Copyright (C) 2023 Antmicro
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Callable, List, Tuple, Union

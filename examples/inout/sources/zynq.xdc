@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Antmicro
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 set_property -dict { PACKAGE_PIN K17   IOSTANDARD LVCMOS33 } [get_ports { PORT_CLK }];

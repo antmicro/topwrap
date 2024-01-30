@@ -1,6 +1,6 @@
 # FPGA Topwrap
 
-Copyright (c) 2021-2023 [Antmicro](https://antmicro.com)
+Copyright (c) 2021-2024 [Antmicro](https://antmicro.com)
 
 This is a Python package for generating HDL wrappers and top modules for your HDL source, resulting in a fully synthesizable design.
 

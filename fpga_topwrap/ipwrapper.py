@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2023 Antmicro
+# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from collections.abc import Mapping
 from itertools import groupby

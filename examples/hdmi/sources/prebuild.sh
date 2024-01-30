@@ -1,4 +1,4 @@
-# Copyright (C) 2021  Antmicro
+# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 echo "Prebuild script started"
 sed -i '8icreate_ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 -module_name proc_sys_reset_0' project_1_0.tcl
