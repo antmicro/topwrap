@@ -92,7 +92,7 @@ jobs:
         if: matrix.example == 'INOUT'
         run: |
           cd examples/inout
-          tuttest README.md generate | bash -
+          tuttest README.md install-deps,generate | bash -
           cd -
 
       - name: Generate sources for and build example PWM setup

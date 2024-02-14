@@ -14,8 +14,6 @@ from .config import config
 from .design import build_design_from_yaml
 from .interface_grouper import InterfaceGrouper
 from .kpm_topwrap_client import kpm_run_client
-from .verilog_parser import VerilogModuleGenerator, ipcore_desc_from_verilog_module
-from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
 
 click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True)
 click_opt_rw_dir = click.Path(
@@ -83,6 +81,18 @@ def build_main(sources, design, build_dir, part, iface_compliance):
 )
 @click.argument("files", type=click_r_file, nargs=-1)
 def parse_main(use_yosys, iface_deduce, iface, files, dest_dir):
+    try:
+        from .verilog_parser import (
+            VerilogModuleGenerator,
+            ipcore_desc_from_verilog_module,
+        )
+        from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
+    except ModuleNotFoundError:
+        raise RuntimeError(
+            "hdlConvertor not installed, please install optional dependency topwrap-parse "
+            "e.g. pip install fpga_topwrap[topwrap-parse]"
+        )
+
     logging.basicConfig(level=logging.INFO)
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(exist_ok=True, parents=True)
