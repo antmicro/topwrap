@@ -96,11 +96,8 @@ def build_main(sources, design, build_dir, part, iface_compliance, log_level):
 @click.argument("files", type=click_r_file, nargs=-1)
 def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
     try:
-        from .verilog_parser import (
-            VerilogModuleGenerator,
-            ipcore_desc_from_verilog_module,
-        )
-        from .vhdl_parser import VHDLModule, ipcore_desc_from_vhdl_module
+        from .verilog_parser import VerilogModuleGenerator
+        from .vhdl_parser import VHDLModule
     except ModuleNotFoundError:
         raise RuntimeError(
             "hdlConvertor not installed, please install optional dependency topwrap-parse "
@@ -115,7 +112,7 @@ def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
         modules = VerilogModuleGenerator().get_modules(filename)
         iface_grouper = InterfaceGrouper(use_yosys, iface_deduce, iface)
         for verilog_mod in modules:
-            ipcore_desc = ipcore_desc_from_verilog_module(verilog_mod, iface_grouper)
+            ipcore_desc = verilog_mod.to_ip_core_description(iface_grouper)
             yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
             ipcore_desc.save(yaml_path)
             logging.info(
@@ -128,7 +125,7 @@ def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
         # TODO - handle case with multiple VHDL modules in one file
         vhdl_mod = VHDLModule(filename)
         iface_grouper = InterfaceGrouper(False, iface_deduce, iface)
-        ipcore_desc = ipcore_desc_from_vhdl_module(vhdl_mod, iface_grouper)
+        ipcore_desc = vhdl_mod.to_ip_core_description(iface_grouper)
         yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
         ipcore_desc.save(yaml_path)
         logging.info(f"VHDL Module '{vhdl_mod.get_module_name()}'" f"saved in file '{yaml_path}'")

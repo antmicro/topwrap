@@ -1,5 +1,8 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from typing import Any, Dict, Generator, List, Union
+
+from .interface import get_interface_by_prefix
 
 
 def check_interface_compliance(iface_def, signals):
@@ -19,7 +22,7 @@ def check_interface_compliance(iface_def, signals):
     return True
 
 
-def removeprefix(s: str, prefix: str):
+def removeprefix(s: str, prefix: str) -> str:
     """Return string with a prefix removed if it contains it
 
     :param s: string to be stripped of its prefix

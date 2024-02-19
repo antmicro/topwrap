@@ -1,52 +1,52 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: apache-2.0
 
 name: AXI3
 port_prefix: AXI3
 signals:
     required:
-        - ACLK
-        - ARESETn
+        ACLK: aclk
+        ARESETn: aresetn
 
-        - AWADDR
-        - AWVALID
-        - AWREADY
-        - AWID
-        - AWLEN
-        - AWSIZE
-        - AWBURST
-        - AWLOCK
-        - AWCACHE
-        - AWPROT
+        AWADDR: awaddr
+        AWVALID: awvalid
+        AWREADY: awready
+        AWID: awid
+        AWLEN: awlen
+        AWSIZE: awsize
+        AWBURST: awburst
+        AWLOCK: awlock
+        AWCACHE: awcache
+        AWPROT: awprot
 
-        - WID
-        - WDATA
-        - WLAST
-        - WVALID
-        - WREADY
-        - WSTRB
+        WID: wid
+        WDATA: wdata
+        WLAST: wlast
+        WVALID: wvalid
+        WREADY: wready
+        WSTRB: wstrb
 
-        - BVALID
-        - BREADY
-        - BID
-        - BRESP
+        BVALID: bvalid
+        BREADY: bready
+        BID: bid
+        BRESP: bresp
 
-        - ARID
-        - ARADDR
-        - ARLEN
-        - ARSIZE
-        - ARBURST
-        - ARLOCK
-        - ARCACHE
-        - ARPROT
-        - ARVALID
-        - ARREADY
+        ARID: arid
+        ARADDR: araddr
+        ARLEN: arlen
+        ARSIZE: arsize
+        ARBURST: arburst
+        ARLOCK: arlock
+        ARCACHE: arcache
+        ARPROT: arprot
+        ARVALID: arvalid
+        ARREADY: arready
 
-        - RID
-        - RDATA
-        - RRESP
-        - RLAST
-        - RVALID
-        - RREADY
+        RID: rid
+        RDATA: rdata
+        RRESP: rresp
+        RLAST: rlast
+        RVALID: rvalid
+        RREADY: rready
 
     optional:

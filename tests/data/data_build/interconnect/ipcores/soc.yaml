@@ -12,54 +12,56 @@ signals:
     - sim_serial_sink_ready
     - sim_serial_source_valid
     - [sim_serial_source_data, 7, 0]
-m_dbus_wishbone:
-  interface: wishbone
-  mode: master
-  signals:
-    in:
-      ack: dbus_ack
-      dat_r: [dbus_dat_r, 31, 0]
-      err: dbus_err
-    out:
-      cyc: dbus_cyc
-      stb: dbus_stb
-      we: dbus_we
-      adr: [dbus_adr, 29, 0]
-      dat_w: [dbus_dat_w, 31, 0]
-      sel: [dbus_sel, 3, 0]
-      cti: [dbus_cti, 2, 0]
-      bte: [dbus_bte, 1, 0]
-m_ibus_wishbone:
-  interface: wishbone
-  mode: master
-  signals:
-    in:
-      ack: ibus_ack
-      dat_r: [ibus_dat_r, 31, 0]
-      err: ibus_err
-    out:
-      cyc: ibus_cyc
-      stb: ibus_stb
-      we: ibus_we
-      adr: [ibus_adr, 29, 0]
-      dat_w: [ibus_dat_w, 31, 0]
-      sel: [ibus_sel, 3, 0]
-      cti: [ibus_cti, 2, 0]
-      bte: [ibus_bte, 1, 0]
-s_csr_wishbone:
-  interface: wishbone
-  mode: slave
-  signals:
-    in:
-      cyc: csr_wishbone_cyc
-      stb: csr_wishbone_stb
-      we: csr_wishbone_we
-      adr: [csr_wishbone_adr, 29, 0]
-      dat_w: [csr_wishbone_dat_w, 31, 0]
-      sel: [csr_wishbone_sel, 3, 0]
-      cti: [csr_wishbone_cti, 2, 0]
-      bte: [csr_wishbone_bte, 1, 0]
-    out:
-      ack: csr_wishbone_ack
-      dat_r: [csr_wishbone_dat_r, 31, 0]
-      err: csr_wishbone_err
+
+interfaces:
+  m_dbus_wishbone:
+    type: wishbone
+    mode: master
+    signals:
+      in:
+        ack: dbus_ack
+        dat_r: [dbus_dat_r, 31, 0]
+        err: dbus_err
+      out:
+        cyc: dbus_cyc
+        stb: dbus_stb
+        we: dbus_we
+        adr: [dbus_adr, 29, 0]
+        dat_w: [dbus_dat_w, 31, 0]
+        sel: [dbus_sel, 3, 0]
+        cti: [dbus_cti, 2, 0]
+        bte: [dbus_bte, 1, 0]
+  m_ibus_wishbone:
+    type: wishbone
+    mode: master
+    signals:
+      in:
+        ack: ibus_ack
+        dat_r: [ibus_dat_r, 31, 0]
+        err: ibus_err
+      out:
+        cyc: ibus_cyc
+        stb: ibus_stb
+        we: ibus_we
+        adr: [ibus_adr, 29, 0]
+        dat_w: [ibus_dat_w, 31, 0]
+        sel: [ibus_sel, 3, 0]
+        cti: [ibus_cti, 2, 0]
+        bte: [ibus_bte, 1, 0]
+  s_csr_wishbone:
+    type: wishbone
+    mode: slave
+    signals:
+      in:
+        cyc: csr_wishbone_cyc
+        stb: csr_wishbone_stb
+        we: csr_wishbone_we
+        adr: [csr_wishbone_adr, 29, 0]
+        dat_w: [csr_wishbone_dat_w, 31, 0]
+        sel: [csr_wishbone_sel, 3, 0]
+        cti: [csr_wishbone_cti, 2, 0]
+        bte: [csr_wishbone_bte, 1, 0]
+      out:
+        ack: csr_wishbone_ack
+        dat_r: [csr_wishbone_dat_r, 31, 0]
+        err: csr_wishbone_err

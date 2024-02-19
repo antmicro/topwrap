@@ -6,43 +6,44 @@ parameters:
   C_S00_AXI_DATA_WIDTH: 32
   C_S00_AXI_ADDR_WIDTH: 7
 
-AXI_s0:
-    interface: AXI
-    mode: slave
-    signals:
-        in:
-            AWADDR: [s00_axi_awaddr, C_S00_AXI_ADDR_WIDTH-1, 0]
-            AWPROT: [s00_axi_awprot, 2, 0]
-            AWVALID: s00_axi_awvalid
-            WDATA: [s00_axi_wdata, C_S00_AXI_DATA_WIDTH-1, 0]
-            WSTRB: [s00_axi_wstrb, (C_S00_AXI_DATA_WIDTH/8)-1, 0]
-            WVALID: s00_axi_wvalid
-            BREADY: s00_axi_bready
-            ARADDR: [s00_axi_araddr, C_S00_AXI_ADDR_WIDTH-1, 0]
-            ARPROT: [s00_axi_arprot, 2, 0]
-            ARVALID: s00_axi_arvalid
-            RREADY: s00_axi_rready
-        out:
-            AWREADY: s00_axi_awready
-            WREADY: s00_axi_wready
-            BRESP: [s00_axi_bresp, 1, 0]
-            BVALID: s00_axi_bvalid
-            ARREADY: s00_axi_arready
-            RDATA: [s00_axi_rdata, C_S00_AXI_DATA_WIDTH-1, 0]
-            RRESP: [s00_axi_rresp, 1, 0]
-            RVALID: s00_axi_rvalid
+interfaces:
+    AXI_s0:
+        type: AXI
+        mode: slave
+        signals:
+            in:
+                AWADDR: [s00_axi_awaddr, C_S00_AXI_ADDR_WIDTH-1, 0]
+                AWPROT: [s00_axi_awprot, 2, 0]
+                AWVALID: s00_axi_awvalid
+                WDATA: [s00_axi_wdata, C_S00_AXI_DATA_WIDTH-1, 0]
+                WSTRB: [s00_axi_wstrb, (C_S00_AXI_DATA_WIDTH/8)-1, 0]
+                WVALID: s00_axi_wvalid
+                BREADY: s00_axi_bready
+                ARADDR: [s00_axi_araddr, C_S00_AXI_ADDR_WIDTH-1, 0]
+                ARPROT: [s00_axi_arprot, 2, 0]
+                ARVALID: s00_axi_arvalid
+                RREADY: s00_axi_rready
+            out:
+                AWREADY: s00_axi_awready
+                WREADY: s00_axi_wready
+                BRESP: [s00_axi_bresp, 1, 0]
+                BVALID: s00_axi_bvalid
+                ARREADY: s00_axi_arready
+                RDATA: [s00_axi_rdata, C_S00_AXI_DATA_WIDTH-1, 0]
+                RRESP: [s00_axi_rresp, 1, 0]
+                RVALID: s00_axi_rvalid
 
-AXIS_s0:
-    interface: AXIStream
-    mode: slave
-    signals:
-        in:
-            TVALID: S_AXIS_TVALID
-            TDATA: [S_AXIS_TDATA, C_S_AXIS_TDATA_WIDTH-1, 0]
-            TLAST: S_AXIS_TLAST
-            TUSER: S_AXIS_TUSER
-        out:
-            TREADY: S_AXIS_TREADY
+    AXIS_s0:
+        type: AXIStream
+        mode: slave
+        signals:
+            in:
+                TVALID: S_AXIS_TVALID
+                TDATA: [S_AXIS_TDATA, C_S_AXIS_TDATA_WIDTH-1, 0]
+                TLAST: S_AXIS_TLAST
+                TUSER: S_AXIS_TUSER
+            out:
+                TREADY: S_AXIS_TREADY
 
 signals:
     in:

@@ -1,8 +1,26 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from collections import defaultdict
+from dataclasses import dataclass
+from enum import Enum
 from logging import warning
+from typing import Iterable
 
 import numexpr as ex
+
+
+class PortDirection(Enum):
+    IN = "in"
+    OUT = "out"
+    INOUT = "inout"
+
+
+@dataclass(frozen=True)
+class PortDefinition:
+    name: str
+    upper_bound: str
+    lower_bound: str
+    direction: PortDirection
 
 
 def _eval_param(val, params: dict):
@@ -129,60 +147,7 @@ def resolve_ops(val, params: dict):
             # this happens in VHDL's 'std_logic_vector({up_id DOWNTO low_id})
             # drop `std_logic_vector` and process the insides of parentheses
             return resolve_ops(val["ops"][1], params)
+        elif val["fn"] == "CALL":
+            return f"{resolve_ops(val['ops'][0], params)}({','.join(resolve_ops(arg, params) for arg in val['ops'][1:])})"
         else:
             warning(f'resolve_ops: unhandled HdlOp function: {val["fn"]}')
-
-
-def group_ports_by_dir(ports: dict):
-    """Restructure ports to group them by direction"""
-
-    ports_new = {"in": [], "out": [], "inout": []}
-    for port_name, port in ports.items():
-        port_descr = {"name": port_name, "bounds": port["bounds"]}
-        d = port["direction"]
-        if d == "IN":
-            ports_new["in"].append(port_descr)
-        elif d == "OUT":
-            ports_new["out"].append(port_descr)
-        else:
-            ports_new["inout"].append(port_descr)
-
-    return ports_new
-
-
-def group_ports_to_ifaces(iface_mappings: dict, ports: dict):
-    """Group `ports` into interfaces, based on `iface_mappings
-
-    :param iface_mappings: a dict containing pairs
-        { 'iface_name': [ports_names], ... }
-    :param ports: a dict of ports, grouped by direction -
-        {'in': [], 'out': [], 'inout': []}
-
-    :return: a dict containing ports names, grouped into interfaces
-    """
-    ifaces = {}
-    for iface_name in iface_mappings.keys():
-        ifaces[iface_name] = dict()
-        ifaces[iface_name]["in"] = []
-        ifaces[iface_name]["out"] = []
-        ifaces[iface_name]["inout"] = []
-
-    # all the ports are stored in `ports` dict
-    # those which belong to interfaces shall be moved to a new dict
-    for iface_name, ports_list in iface_mappings.items():
-        for port_name in ports_list:
-            in_matches = list(filter(lambda port: port["name"] == port_name, ports["in"]))
-            out_matches = list(filter(lambda port: port["name"] == port_name, ports["out"]))
-            inout_matches = list(filter(lambda port: port["name"] == port_name, ports["inout"]))
-
-            if len(in_matches) > 0:
-                ifaces[iface_name]["in"].append(in_matches[0])
-                ports["in"].remove(in_matches[0])
-            elif len(out_matches) > 0:
-                ifaces[iface_name]["out"].append(out_matches[0])
-                ports["out"].remove(out_matches[0])
-            elif len(inout_matches) > 0:
-                ifaces[iface_name]["inout"].append(inout_matches[0])
-                ports["inout"].remove(inout_matches[0])
-
-    return ifaces

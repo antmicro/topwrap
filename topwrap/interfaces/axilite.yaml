@@ -1,47 +1,47 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: apache-2.0
 
 name: AXI4Lite
 port_prefix: AXIL
 signals:
     required:
-        - ACLK
-        - ARESETn
+        ACLK: aclk
+        ARESETn: aresetn
 
-        - AWID
-        - AWADDR
-        - AWPROT
-        - AWQOS
-        - AWREGION
-        - AWVALID
-        - AWREADY
-        - WDATA
-        - WSTRB
-        - WVALID
-        - WREADY
+        AWID: awid
+        AWADDR: awaddr
+        AWPROT: awprot
+        AWQOS: awqos
+        AWREGION: awregion
+        AWVALID: awvalid
+        AWREADY: awready
+        WDATA: wdata
+        WSTRB: wstrb
+        WVALID: wvalid
+        WREADY: wready
 
-        - BID
-        - BRESP
-        - BVALID
-        - BREADY
+        BID: bid
+        BRESP: bresp
+        BVALID: bvalid
+        BREADY: bready
 
-        - ARID
-        - ARADDR
-        - ARPROT
-        - ARQOS
-        - ARREGION
-        - ARVALID
-        - ARREADY
+        ARID: arid
+        ARADDR: araddr
+        ARPROT: arprot
+        ARQOS: arqos
+        ARREGION: arregion
+        ARVALID: arvalid
+        ARREADY: arready
 
-        - RID
-        - RDATA
-        - RRESP
-        - RVALID
-        - RREADY
+        RID: rid
+        RDATA: rdata
+        RRESP: rresp
+        RVALID: rvalid
+        RREADY: rready
 
     optional:
-        - AWUSER
-        - WUSER
-        - BUSER
-        - ARUSER
-        - RUSER
+        AWUSER: awuser
+        WUSER: wuser
+        BUSER: buser
+        ARUSER: aruser
+        RUSER: ruser

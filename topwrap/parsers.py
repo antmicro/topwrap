@@ -82,63 +82,37 @@ def parse_port_map(filename: str, base_path: str = ""):
         ports["signals"] = dict()
     if "parameters" not in ports.keys():
         ports["parameters"] = dict()
+    if "interfaces" not in ports.keys():
+        ports["interfaces"] = dict()
 
     # fill non-existent values with defaults
-    for key, val in ports.items():
-        if key == "parameters":
-            pass
+    sigs_by_dir = ports["signals"]
+    for direction in ["in", "out", "inout"]:
+        try:
+            sigs = sigs_by_dir[direction] or []
+            for i in range(len(sigs)):
+                sigs[i] = _default_bounds(sigs[i])
+            sigs_by_dir[direction] = sigs
+        except KeyError:
+            sigs_by_dir[direction] = list()
 
-        elif key == "signals":
+    interfaces = ports["interfaces"] or {}
+    for iface_name, iface_def in interfaces.items():
+        iface = iface_def["signals"]
+        for direction in ["in", "out", "inout"]:
             try:
-                sigs = val["in"]
-                for i in range(len(sigs)):
-                    sigs[i] = _default_bounds(sigs[i])
-            except KeyError:  # 'in' doesn't exist in val
-                val["in"] = list()
-            try:
-                sigs = val["out"]
-                for i in range(len(sigs)):
-                    sigs[i] = _default_bounds(sigs[i])
-            except KeyError:  # 'out' doesn't exist in val
-                val["out"] = list()
-            try:
-                sigs = val["inout"]
-                for i in range(len(sigs)):
-                    sigs[i] = _default_bounds(sigs[i])
-            except KeyError:  # 'inout' doesn't exist in val
-                val["inout"] = list()
-
-        else:  # key is an interface name
-            iface = val["signals"]
-            try:
-                sigs = iface["in"]
-                for key in sigs:
-                    sigs[key] = _default_bounds(sigs[key])
+                sigs = dict()
+                for iface_port, rtl_port in iface[direction].items():
+                    bounds = _default_bounds(rtl_port)
+                    sigs[iface_port] = bounds
+                iface[direction] = sigs
             except KeyError:
-                iface["in"] = dict()
-
-            try:
-                sigs = iface["out"]
-                for key in sigs:
-                    sigs[key] = _default_bounds(sigs[key])
-            except KeyError:
-                iface["out"] = dict()
-
-            try:
-                sigs = iface["inout"]
-                for key in sigs:
-                    sigs[key] = _default_bounds(sigs[key])
-            except KeyError:
-                iface["inout"] = dict()
+                iface[direction] = dict()
 
     result = dict()
 
-    result["parameters"] = ports["parameters"]
-    del ports["parameters"]
-
-    result["signals"] = ports["signals"]
-    del ports["signals"]
-
-    result["interfaces"] = {iface_name: ports[iface_name] for iface_name in ports.keys()}
+    result["parameters"] = ports["parameters"] or {}
+    result["signals"] = ports["signals"] or {}
+    result["interfaces"] = ports["interfaces"] or {}
 
     return result

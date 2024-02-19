@@ -1,8 +1,28 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+import functools
+import importlib
 import json
+import os
+import re
 import subprocess
+from dataclasses import dataclass
 from logging import warning
+from math import exp
+from pathlib import Path
+from typing import Dict, Iterable, List, Set, Union
+
+from yaml import Loader, safe_load
+
+from .hdl_parsers_utils import PortDefinition
+from .util import removeprefix
+
+
+@dataclass(frozen=True)
+class InterfaceMatch:
+    signals: Dict[str, PortDefinition]
+    bus_type: str
+    prefix: str
 
 
 class InterfaceGrouper:
@@ -15,6 +35,70 @@ class InterfaceGrouper:
         self.use_yosys = use_yosys
         self.iface_deduce = iface_deduce
         self.ifaces_names = ifaces_names
+
+    def __match_signals(
+        self, sig_regexps: Dict[str, re.Pattern], signals: Set[PortDefinition], prefix: str
+    ) -> Dict[str, PortDefinition]:
+        """Tries to match signal names from RTL to signal names in interface specification"""
+        matched = {}
+        for iface_sig_name, regexp in sig_regexps.items():
+            for port_def in signals:
+                if regexp.search(removeprefix(port_def.name, prefix).lstrip("_")):
+                    matched[iface_sig_name] = port_def
+        return matched
+
+    def __interface_matching_score(
+        self,
+        iface_spec: Dict[str, Union[str, Dict[str, Iterable[str]]]],
+        signals: Set[PortDefinition],
+        prefix: str,
+    ) -> (int, Dict[str, PortDefinition]):
+        """Compute score of how much a set of signals `signals` matches
+        a specification of interface `iface_spec`
+
+        :param iface_spec: interface YAML
+        :param signals: set of signals as PortDefinitions
+        :param prefix: common prefix of all signals
+        """
+
+        match_required_points = 10
+        missing_required_points = -20
+        match_optional_points = 5
+        missing_optional_points = -2
+
+        def score_for_group(signals_regexps, match_points, missing_points):
+            signals_regexps_compiled = {
+                k: re.compile(regexp) for k, regexp in signals_regexps.items()
+            }
+            matched = self.__match_signals(signals_regexps_compiled, signals, prefix)
+            unmatched_iface_cnt = len(signals_regexps) - len(matched)
+            if len(signals_regexps) != 0:
+                score_matched = (len(matched) / len(signals_regexps)) * match_points
+                score_missing = (unmatched_iface_cnt / len(signals_regexps)) * missing_points
+                return score_matched + score_missing, matched
+            else:
+                return 0, matched
+
+        score_req, matched_req = score_for_group(
+            iface_spec["signals"]["required"] or {}, match_required_points, missing_required_points
+        )
+        score_opt, matched_opt = score_for_group(
+            iface_spec["signals"]["optional"] or {}, match_optional_points, missing_optional_points
+        )
+
+        matched = {}
+        matched.update(matched_req)
+        matched.update(matched_opt)
+
+        unmatched_cnt = len(signals) - len(matched)
+        # penalize not matching all signals in an interface
+        # baseline for this value is 0 when all signals with the prefix have been
+        # matched (since exp(0) + 1 = 0), whereas for each signal that wasn't this
+        # value decreases exponentially, thus overall preferring interfaces that
+        # have matched more signals with identical prefix
+        unmatched_penalty = -exp(unmatched_cnt / 5) + 1
+
+        return score_req + score_opt + unmatched_penalty, matched
 
     def __find_common_prefix(self, ports: list):
         """Find a prefix that is the most common among ports names.
@@ -34,8 +118,15 @@ class InterfaceGrouper:
 
         # simple heuristic that is used to prefer less names with
         # longer prefixes than more names with shorter prefixes
-        def _heuristic(pref_len: int, count: int):
-            return pref_len * pref_len * count
+        def _heuristic(pref_len: int, count: int, prefix: str, port: str):
+            # forbid prefix that is not on word boundary. We assume words are
+            # either separated by _ or lowercase letter followed by an uppercase letter
+            # (as in camelCase)
+            if prefix and (
+                prefix[-1] != "_" or (prefix[-1].islower() and port.lstrip(prefix).islower())
+            ):
+                return -1
+            return pref_len**3 * count
 
         lcp_prev = [1] + [0] * (len(ports) - 1)
         for i in range(1, len(ports)):
@@ -56,10 +147,12 @@ class InterfaceGrouper:
         # find prefix for which the heuristic value is the highest
         for i in range(len(lcp_prev)):
             for j in range(i + min_num_prefixes, len(lcp_prev)):
-                heur = _heuristic(dp_mins[i][j], j - i + 1)
+                prefix = ports[i][: dp_mins[i][j]]
+                heur = _heuristic(dp_mins[i][j], j - i + 1, prefix, ports[i])
                 if heur > best_heur and heur > min_heur_value:
                     best_i, best_j = i, j
-                    best_heur, best_prefix = heur, ports[i][: dp_mins[i][j]]
+                    best_heur, best_prefix = heur, prefix
+
         return (best_prefix.rstrip("_"), best_i - 1, best_j)
 
     def __create_interface_mappings(self, ifaces_names, ports):
@@ -74,10 +167,9 @@ class InterfaceGrouper:
         :return: a dict containing pairs { 'iface_name': [ports_names], ... }
         """
         iface_mappings = {}
-        ports_names = ports.keys()
 
         for iface in ifaces_names:
-            iface_matches = list(filter(lambda port: port.startswith(iface), ports_names))
+            iface_matches = list(filter(lambda port: port.name.startswith(iface), ports))
             if iface_matches:
                 iface_mappings[iface] = iface_matches
             else:
@@ -88,7 +180,8 @@ class InterfaceGrouper:
     def __deduce_interface_mappings(self, ports):
         """Try to deduce names of interfaces by looking at ports prefixes"""
         # sort ports by name
-        ports_sorted = sorted(ports.keys())
+        port_names = [port.name for port in ports]
+        ports_sorted = sorted(port_names)
         ifaces_names = []
 
         (prefix, i, j) = self.__find_common_prefix(ports_sorted)
@@ -132,7 +225,20 @@ class InterfaceGrouper:
 
         return interfaces
 
-    def get_interface_mappings(self, hdl_file: str, ports: dict):
+    def get_interface_mappings(self, hdl_file: str, ports: Set[PortDefinition]):
+        @functools.lru_cache
+        def load_iface_yaml(filename):
+            return safe_load(importlib.resources.read_text("topwrap.interfaces", filename))
+
+        def iter_interfaces():
+            for filename in importlib.resources.contents("topwrap.interfaces"):
+                yield load_iface_yaml(filename)
+
+        def match(ports, prefix):
+            for yaml in iter_interfaces():
+                score, signals = self.__interface_matching_score(yaml, ports, prefix)
+                yield score, InterfaceMatch(signals, yaml["name"], prefix)
+
         iface_mappings = {}
         if self.use_yosys:
             iface_mappings = self.__interface_mapping_from_yosys(hdl_file)
@@ -140,4 +246,13 @@ class InterfaceGrouper:
             iface_mappings = self.__deduce_interface_mappings(ports)
         elif self.ifaces_names:
             iface_mappings = self.__create_interface_mappings(self.ifaces_names, ports)
-        return iface_mappings
+
+        ifaces = []
+        for prefix, iface_ports in iface_mappings.items():
+            matches = list(match(iface_ports, prefix))
+            if matches:
+                _, best_iface_match = max(matches, key=lambda t: t[0])  # select max by score
+                if best_iface_match.signals:
+                    ifaces.append(best_iface_match)
+
+        return ifaces

@@ -86,7 +86,7 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
     inputs = [
         {
             "name": iface,
-            "type": [f'iface_{ifaces[iface]["interface"]}'],
+            "type": [f'iface_{ifaces[iface]["type"]}'],
             "direction": "input",
         }
         for iface in ifaces.keys()
@@ -95,7 +95,7 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
     outputs = [
         {
             "name": iface,
-            "type": [f'iface_{ifaces[iface]["interface"]}'],
+            "type": [f'iface_{ifaces[iface]["type"]}'],
             "direction": "output",
             "maxConnectionsCount": 1,
         }

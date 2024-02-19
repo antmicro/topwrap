@@ -1,27 +1,31 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-# Signals specification: https://cdn.opencores.org/downloads/wbspec_b3.pdf#page=32
+# Signals specification:
+# - https://cdn.opencores.org/downloads/wbspec_b3.pdf#page=32
+# - https://cdn.opencores.org/downloads/wbspec_b3.pdf#page=73
 name: wishbone
 port_prefix: wishbone
 signals:
     required:
-        - clk
-        - ack
-        - cyc
-        - rst
-        - stb
+        clk: clk
+        ack: ack
+        cyc: cyc
+        rst: rst
+        stb: stb
     optional:
-        - dat_r
-        - dat_w
-        - tgd_r
-        - tgd_w
-        - adr
-        - stall
-        - err
-        - rty
-        - lock
-        - sel
-        - tga
-        - tgc
-        - we
+        dat_r: dat_r
+        dat_w: dat_w
+        tgd_r: tgd_r
+        tgd_w: tgd_w
+        adr: adr
+        stall: stall
+        err: err
+        rty: rty
+        lock: lock
+        sel: sel
+        tga: tga
+        tgc: tgc
+        we: we
+        cti: cti
+        bte: bte

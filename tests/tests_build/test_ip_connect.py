@@ -73,7 +73,7 @@ def dmatop_to_axi_dispctrl_ports_connections() -> Dict[str, str]:
 
 
 @pytest.fixture
-def ext_to_axism0_ports_connections() -> list:
+def ext_to_axism0_ports_connections() -> Dict[str, str]:
     return {
         "AXIS_m0_TREADY": "ext_axis_TREADY",
         "ext_axis_TDATA": "AXIS_m0_TDATA",
@@ -151,6 +151,8 @@ class TestIPConnect:
         sigs_axi_dispctrl = axi_dispctrl_ipw.get_ports_of_interface(axi_dispctrl_iface)
 
         name_sig = {sig.name: sig for sig in [*sigs_dmatop, *sigs_axi_dispctrl]}
+
+        assert len(ipc._connections) == len(dmatop_to_axi_dispctrl_ports_connections)
 
         for conn in ipc._connections:
             assert isinstance(conn, ast.Assign)
@@ -232,6 +234,8 @@ class TestIPConnect:
         sigs_ipc = ipc.get_ports_of_interface(ext_iface_name)
 
         name_sig = {sig.name: sig for sig in [*sigs_dmatop, *sigs_ipc]}
+
+        assert len(ipc._connections) == len(ext_to_axism0_ports_connections)
 
         for conn in ipc._connections:
             assert isinstance(conn, ast.Assign)

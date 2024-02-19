@@ -143,7 +143,7 @@ class IPWrapper(Wrapper):
 
         for iface_name in ip_yaml["interfaces"].keys():
             iface_signals = ip_yaml["interfaces"][iface_name]["signals"]
-            iface_def_name = ip_yaml["interfaces"][iface_name]["interface"]
+            iface_def_name = ip_yaml["interfaces"][iface_name]["type"]
             iface_def = get_interface_by_name(iface_def_name)
 
             if config.force_interface_compliance:

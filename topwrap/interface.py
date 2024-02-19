@@ -11,15 +11,15 @@ class InterfaceDef:
         :param name: full name of the interface
         :param prefix: prefix used as a short identifier for the interface
         :param signals: collection of names of required and optional signals
-        :type signals: dict {'required': [str], 'optional': [str]}
+        :type signals: dict {'required': {port_name: port_regex}, 'optional': {port_name: port_regex}}
         """
         self.name = name
         self.prefix = prefix
         self.signals = signals
         if "required" not in self.signals.keys():
-            self.signals["required"] = list()
+            self.signals["required"] = dict()
         if "optional" not in self.signals.keys():
-            self.signals["optional"] = list()
+            self.signals["optional"] = dict()
 
     def __repr__(self):
         return f"Name: {self.name}, signals: {self.signals}"

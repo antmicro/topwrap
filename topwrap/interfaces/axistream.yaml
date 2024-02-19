@@ -1,17 +1,17 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: apache-2.0
 
 name: AXI4Stream
 port_prefix: AXIS
 signals:
     required:
-        - TVALID
-        - TDATA
-        - TLAST
-        - TREADY
+        TVALID: tvalid
+        TDATA: tdata
+        TLAST: tlast
+        TREADY: tready
     optional:
-        - TID
-        - TDEST
-        - TKEEP
-        - TSTRB
-        - TUSER
+        TID: tid
+        TDEST: tdest
+        TKEEP: tkeep
+        TSTRB: tstrb
+        TUSER: tuser

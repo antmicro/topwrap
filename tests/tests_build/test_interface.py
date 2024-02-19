@@ -75,25 +75,4 @@ class TestInterfaceDef:
 
     def test_iface_retrieve_by_prefix_negative(self):
         prefix = "zxcvbnm"
-        assert get_interface_by_prefix(prefix) is None
-
-
-class TestInterfaces:
-    def test_iface_match(self):
-        ports_correct = (("port1", "AXIS_0_TVALID"), ("port2", "AXIS_0_TREADY"))
-        # signal name does not belong to the interface
-        ports_incorrect = (("port1", "AXIS_0_TVALID"), ("port2", "AXIS_0_000000"))
-        # interface prefixes don't match
-        ports_incorrect2 = (("port1", "AXIS_0_TVALID"), ("port2", "AXI_0_TREADY"))
-        # interface instances don't match
-        ports_incorrect3 = (("port1", "AXIS_0_TVALID"), ("port2", "AXIS_1_TREADY"))
-        correct = match_interface(ports_correct)
-
-        assert correct["name"] == "AXI4Stream"
-        assert correct["ports"]
-        with raises(ValueError):
-            match_interface(ports_incorrect)
-        with raises(ValueError):
-            match_interface(ports_incorrect2)
-        with raises(ValueError):
-            match_interface(ports_incorrect3)
+        assert interface.get_interface_by_prefix(prefix) is None

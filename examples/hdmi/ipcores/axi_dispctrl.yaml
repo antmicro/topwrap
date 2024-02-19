@@ -1,43 +1,44 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-S00_AXI:
-    interface: AXI4Lite
-    mode: slave
-    signals:
-        in:
-            AWADDR: [s00_axi_awaddr, 6, 0]
-            AWPROT: [s00_axi_awprot, 2, 0]
-            AWVALID: s00_axi_awvalid
-            WDATA: [s00_axi_wdata, 31, 0]
-            WSTRB: [s00_axi_wstrb, 3, 0]
-            WVALID: s00_axi_wvalid
-            BREADY: s00_axi_bready
-            ARADDR: [s00_axi_araddr, 6, 0]
-            ARPROT: [s00_axi_arprot, 2, 0]
-            ARVALID: s00_axi_arvalid
-            RREADY: s00_axi_rready
-        out:
-            AWREADY: s00_axi_awready
-            WREADY: s00_axi_wready
-            BRESP: [s00_axi_bresp, 1, 0]
-            BVALID: s00_axi_bvalid
-            ARREADY: s00_axi_arready
-            RDATA: [s00_axi_rdata, 31, 0]
-            RRESP: [s00_axi_rresp, 1, 0]
-            RVALID: s00_axi_rvalid
+interfaces:
+    S00_AXI:
+        type: AXI4Lite
+        mode: slave
+        signals:
+            in:
+                AWADDR: [s00_axi_awaddr, 6, 0]
+                AWPROT: [s00_axi_awprot, 2, 0]
+                AWVALID: s00_axi_awvalid
+                WDATA: [s00_axi_wdata, 31, 0]
+                WSTRB: [s00_axi_wstrb, 3, 0]
+                WVALID: s00_axi_wvalid
+                BREADY: s00_axi_bready
+                ARADDR: [s00_axi_araddr, 6, 0]
+                ARPROT: [s00_axi_arprot, 2, 0]
+                ARVALID: s00_axi_arvalid
+                RREADY: s00_axi_rready
+            out:
+                AWREADY: s00_axi_awready
+                WREADY: s00_axi_wready
+                BRESP: [s00_axi_bresp, 1, 0]
+                BVALID: s00_axi_bvalid
+                ARREADY: s00_axi_arready
+                RDATA: [s00_axi_rdata, 31, 0]
+                RRESP: [s00_axi_rresp, 1, 0]
+                RVALID: s00_axi_rvalid
 
-S_AXIS:
-    interface: AXI4Stream
-    mode: slave
-    signals:
-        in:
-            TVALID: S_AXIS_TVALID
-            TDATA: [S_AXIS_TDATA, 31, 0]
-            TLAST: S_AXIS_TLAST
-            TUSER: S_AXIS_TUSER
-        out:
-            TREADY: S_AXIS_TREADY
+    S_AXIS:
+        type: AXI4Stream
+        mode: slave
+        signals:
+            in:
+                TVALID: S_AXIS_TVALID
+                TDATA: [S_AXIS_TDATA, 31, 0]
+                TLAST: S_AXIS_TLAST
+                TUSER: S_AXIS_TUSER
+            out:
+                TREADY: S_AXIS_TREADY
 
 signals:
     in:

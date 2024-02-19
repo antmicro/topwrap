@@ -9,48 +9,49 @@ signals:
         - MAXIGP0ARESETN
         - FCLK_RESET0_N
 
-M_AXI_GP0:
-    interface: AXI4
-    mode: master
-    signals:
-        in:
-            ARREADY: MAXIGP0ARREADY
-            RDATA: [MAXIGP0RDATA, 31, 0]
-            RLAST: MAXIGP0RLAST
-            RRESP: [MAXIGP0RRESP, 1, 0]
-            RVALID: MAXIGP0RVALID
-            RID: [MAXIGP0RID, 11, 0]
-            AWREADY: MAXIGP0AWREADY
-            WREADY: MAXIGP0WREADY
-            BID: [MAXIGP0BID, 11, 0]
-            BRESP: [MAXIGP0BRESP, 1, 0]
-            BVALID: MAXIGP0BVALID
+interfaces:
+    M_AXI_GP0:
+        type: AXI4
+        mode: master
+        signals:
+            in:
+                ARREADY: MAXIGP0ARREADY
+                RDATA: [MAXIGP0RDATA, 31, 0]
+                RLAST: MAXIGP0RLAST
+                RRESP: [MAXIGP0RRESP, 1, 0]
+                RVALID: MAXIGP0RVALID
+                RID: [MAXIGP0RID, 11, 0]
+                AWREADY: MAXIGP0AWREADY
+                WREADY: MAXIGP0WREADY
+                BID: [MAXIGP0BID, 11, 0]
+                BRESP: [MAXIGP0BRESP, 1, 0]
+                BVALID: MAXIGP0BVALID
 
-        out:
-            ARID: [MAXIGP0ARID, 11, 0]
-            ARADDR: [MAXIGP0ARADDR, 31, 0]
-            ARBURST: [MAXIGP0ARBURST, 1, 0]
-            ARLEN: [MAXIGP0ARLEN, 3, 0]
-            ARSIZE: [MAXIGP0ARSIZE, 1, 0]
-            ARLOCK: MAXIGP0ARLOCK
-            ARPROT: [MAXIGP0ARPROT, 2, 0]
-            ARCACHE: [MAXIGP0ARCACHE, 3, 0]
-            ARQOS: [MAXIGP0ARQOS, 3, 0]
-            ARVALID: MAXIGP0ARVALID
-            RREADY: MAXIGP0RREADY
-            AWID: [MAXIGP0AWID, 11, 0]
-            AWADDR: [MAXIGP0AWADDR, 31, 0]
-            AWBURST: [MAXIGP0AWBURST, 1, 0]
-            AWLEN: [MAXIGP0AWLEN, 3, 0]
-            AWSIZE: [MAXIGP0AWSIZE, 1, 0]
-            AWLOCK: MAXIGP0AWLOCK
-            AWPROT: [MAXIGP0AWPROT, 2, 0]
-            AWCACHE: [MAXIGP0AWCACHE, 3, 0]
-            AWQOS: [MAXIGP0AWQOS, 3, 0]
-            AWVALID: MAXIGP0AWVALID
-            WID: [MAXIGP0WID, 11, 0]
-            WDATA: [MAXIGP0WDATA, 31, 0]
-            WSTRB: [MAXIGP0WSTRB, 3, 0]
-            WLAST: MAXIGP0WLAST
-            WVALID: MAXIGP0WVALID
-            BREADY: MAXIGP0BREADY
+            out:
+                ARID: [MAXIGP0ARID, 11, 0]
+                ARADDR: [MAXIGP0ARADDR, 31, 0]
+                ARBURST: [MAXIGP0ARBURST, 1, 0]
+                ARLEN: [MAXIGP0ARLEN, 3, 0]
+                ARSIZE: [MAXIGP0ARSIZE, 1, 0]
+                ARLOCK: MAXIGP0ARLOCK
+                ARPROT: [MAXIGP0ARPROT, 2, 0]
+                ARCACHE: [MAXIGP0ARCACHE, 3, 0]
+                ARQOS: [MAXIGP0ARQOS, 3, 0]
+                ARVALID: MAXIGP0ARVALID
+                RREADY: MAXIGP0RREADY
+                AWID: [MAXIGP0AWID, 11, 0]
+                AWADDR: [MAXIGP0AWADDR, 31, 0]
+                AWBURST: [MAXIGP0AWBURST, 1, 0]
+                AWLEN: [MAXIGP0AWLEN, 3, 0]
+                AWSIZE: [MAXIGP0AWSIZE, 1, 0]
+                AWLOCK: MAXIGP0AWLOCK
+                AWPROT: [MAXIGP0AWPROT, 2, 0]
+                AWCACHE: [MAXIGP0AWCACHE, 3, 0]
+                AWQOS: [MAXIGP0AWQOS, 3, 0]
+                AWVALID: MAXIGP0AWVALID
+                WID: [MAXIGP0WID, 11, 0]
+                WDATA: [MAXIGP0WDATA, 31, 0]
+                WSTRB: [MAXIGP0WSTRB, 3, 0]
+                WLAST: MAXIGP0WLAST
+                WVALID: MAXIGP0WVALID
+                BREADY: MAXIGP0BREADY

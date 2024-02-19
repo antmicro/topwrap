@@ -1,29 +1,30 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-axi:
-    interface: AXI4Lite
-    mode: slave
-    signals:
-        in:
-            AWVALID: axi_awvalid
-            AWADDR: [axi_awaddr, 31, 0]
-            WDATA: [axi_wdata, 31, 0]
-            WSTRB: [axi_wstrb, 3, 0]
-            WVALID: axi_wvalid
-            BREADY: axi_bready
-            ARADDR: [axi_araddr, 31, 0]
-            ARVALID: axi_arvalid
-            RREADY: axi_rready
-        out:
-            AWREADY: axi_awready
-            WREADY: axi_wready
-            BRESP: [axi_bresp, 1, 0]
-            BVALID: axi_bvalid
-            ARREADY: axi_arready
-            RDATA: [axi_rdata, 31, 0]
-            RRESP: [axi_rresp, 1, 0]
-            RVALID: axi_rvalid
+interfaces:
+    axi:
+        type: AXI4Lite
+        mode: slave
+        signals:
+            in:
+                AWVALID: axi_awvalid
+                AWADDR: [axi_awaddr, 31, 0]
+                WDATA: [axi_wdata, 31, 0]
+                WSTRB: [axi_wstrb, 3, 0]
+                WVALID: axi_wvalid
+                BREADY: axi_bready
+                ARADDR: [axi_araddr, 31, 0]
+                ARVALID: axi_arvalid
+                RREADY: axi_rready
+            out:
+                AWREADY: axi_awready
+                WREADY: axi_wready
+                BRESP: [axi_bresp, 1, 0]
+                BVALID: axi_bvalid
+                ARREADY: axi_arready
+                RDATA: [axi_rdata, 31, 0]
+                RRESP: [axi_rresp, 1, 0]
+                RVALID: axi_rvalid
 
 signals:
     in:

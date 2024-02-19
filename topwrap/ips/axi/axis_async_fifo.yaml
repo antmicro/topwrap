@@ -9,35 +9,37 @@ parameters:
     USER_WIDTH: 1
     ID_ENABLE: 0
     USER_ENABLE: 1
-s_axis:
-    interface: AXI4Stream
-    mode: slave
-    signals:
-        in:
-            TDATA: [s_axis_tdata, DATA_WIDTH-1, 0]
-            TKEEP: [s_axis_tkeep, KEEP_WIDTH-1, 0]
-            TVALID: s_axis_tvalid
-            TLAST: s_axis_tlast
-            TID: [s_axis_tid, ID_WIDTH-1, 0]
-            TDEST: [s_axis_tdest, DEST_WIDTH-1, 0]
-            TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
-        out:
-            TREADY: s_axis_tready
 
-m_axis:
-    interface: AXI4Stream
-    mode: master
-    signals:
-        in:
-            TREADY: m_axis_tready
-        out:
-            TDATA: [m_axis_tdata, DATA_WIDTH-1, 0]
-            TKEEP: [m_axis_tkeep, KEEP_WIDTH-1, 0]
-            TVALID: m_axis_tvalid
-            TLAST: m_axis_tlast
-            TID: [m_axis_tid, ID_WIDTH-1, 0]
-            TDEST: [m_axis_tdest, DEST_WIDTH-1, 0]
-            TUSER: [m_axis_tuser, USER_WIDTH-1, 0]
+interfaces:
+    s_axis:
+        type: AXI4Stream
+        mode: slave
+        signals:
+            in:
+                TDATA: [s_axis_tdata, DATA_WIDTH-1, 0]
+                TKEEP: [s_axis_tkeep, KEEP_WIDTH-1, 0]
+                TVALID: s_axis_tvalid
+                TLAST: s_axis_tlast
+                TID: [s_axis_tid, ID_WIDTH-1, 0]
+                TDEST: [s_axis_tdest, DEST_WIDTH-1, 0]
+                TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
+            out:
+                TREADY: s_axis_tready
+
+    m_axis:
+        type: AXI4Stream
+        mode: master
+        signals:
+            in:
+                TREADY: m_axis_tready
+            out:
+                TDATA: [m_axis_tdata, DATA_WIDTH-1, 0]
+                TKEEP: [m_axis_tkeep, KEEP_WIDTH-1, 0]
+                TVALID: m_axis_tvalid
+                TLAST: m_axis_tlast
+                TID: [m_axis_tid, ID_WIDTH-1, 0]
+                TDEST: [m_axis_tdest, DEST_WIDTH-1, 0]
+                TUSER: [m_axis_tuser, USER_WIDTH-1, 0]
 
 signals:
     in:
