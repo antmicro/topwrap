@@ -1,5 +1,7 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+
+import asyncio
 import logging
 import os
 import subprocess
@@ -15,7 +17,6 @@ from .design import build_design_from_yaml
 from .interface_grouper import InterfaceGrouper
 from .kpm_topwrap_client import kpm_run_client
 
-
 click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True)
 click_opt_rw_dir = click.Path(
     exists=False, file_okay=False, dir_okay=True, readable=True, writable=True
@@ -24,7 +25,6 @@ click_r_file = click.Path(exists=True, file_okay=True, dir_okay=False, readable=
 
 main = click.Group(help="Topwrap")
 
-
 AVAILABLE_LOG_LEVELS = ["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 DEFAULT_LOG_LEVEL = "WARNING"
 
@@ -32,7 +32,7 @@ DEFAULT_LOG_LEVEL = "WARNING"
 def configure_log_level(log_level: str):
     logging.basicConfig(level=DEFAULT_LOG_LEVEL)
     if log_level not in AVAILABLE_LOG_LEVELS:
-       logging.warning(f"Wrong log-level value: {log_level}. Select one of {AVAILABLE_LOG_LEVELS}")
+        logging.warning(f"Wrong log-level value: {log_level}. Select one of {AVAILABLE_LOG_LEVELS}")
 
     logger = logging.getLogger()
     logger.setLevel(log_level)
@@ -146,14 +146,23 @@ DEFAULT_BACKEND_ADDR = "127.0.0.1"
 DEFAULT_BACKEND_PORT = 5000
 
 
-@main.command("kpm_client", help="Run a client app, that connects to" "a running KPM server")
+@main.command("kpm_client", help="Run a client app, that connects to a running KPM server")
 @click.option("--host", "-h", default=DEFAULT_SERVER_ADDR, help="KPM server address")
 @click.option("--port", "-p", default=DEFAULT_SERVER_PORT, help="KPM server listening port")
 @click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
+@click.option(
+    "--build-dir",
+    "-b",
+    type=click_opt_rw_dir,
+    default="build",
+    help="Specify directory name for output files",
+)
 @click.argument("yamlfiles", type=click_r_file, nargs=-1)
-def kpm_client_main(host, port, yamlfiles):
+def kpm_client_main(host, port, log_level, yamlfiles, build_dir):
     configure_log_level(log_level)
-    kpm_run_client(host, port, yamlfiles)
+    logging.info("Starting kenning pipeline manager client")
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(kpm_run_client(host, port, yamlfiles, build_dir))
 
 
 @main.command("kpm_build_server", help="Build KPM server")

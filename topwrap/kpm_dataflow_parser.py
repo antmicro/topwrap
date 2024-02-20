@@ -59,7 +59,7 @@ def _kpm_properties_to_parameters(properties: dict) -> dict:
 def _kpm_nodes_to_parameters(dataflow_data) -> dict:
     result = dict()
     for node in get_dataflow_ip_nodes(dataflow_data):
-        result[node["name"]] = _kpm_properties_to_parameters(node["properties"])
+        result[node["instanceName"]] = _kpm_properties_to_parameters(node["properties"])
     return result
 
 
@@ -70,11 +70,11 @@ def _kpm_nodes_to_ips(dataflow_data, specification) -> dict:
     ips = {}
     for node in get_dataflow_ip_nodes(dataflow_data):
         for spec_node in specification["nodes"]:
-            if spec_node["type"] == node["type"]:
+            if spec_node["layer"] == node["name"]:
                 filename = spec_node["additionalData"]
-        ips[node["name"]] = {
+        ips[node["instanceName"]] = {
             "file": filename,
-            "module": node["type"],
+            "module": node["name"],
         }
     return ips
 
@@ -144,9 +144,9 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
             raise ValueError("Invalid name of external metanode")
 
         # Determine the direction of external ports/interface
-        if metanode["name"] == EXT_OUTPUT_NAME:
+        if metanode["instanceName"] == EXT_OUTPUT_NAME:
             dir = "out"
-        elif metanode["name"] == EXT_INPUT_NAME:
+        elif metanode["instanceName"] == EXT_INPUT_NAME:
             dir = "in"
         else:
             dir = "inout"
@@ -158,7 +158,7 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
             external_name = iface_name
 
         # Determine whether we deal with a port or an interface
-        iface_types = find_spec_interface_by_name(specification, ip_node["type"], iface_name)[
+        iface_types = find_spec_interface_by_name(specification, ip_node["name"], iface_name)[
             "type"
         ]
         if "port" in iface_types:
@@ -167,17 +167,17 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
             ext_conns, ext_section = ifaces_ext_conns, "interfaces"
 
         # Update 'ports'/'interfaces' and 'external' sections
-        if ip_node["name"] not in ext_conns.keys():
-            ext_conns[ip_node["name"]] = {}
+        if ip_node["instanceName"] not in ext_conns.keys():
+            ext_conns[ip_node["instanceName"]] = {}
 
         if dir != "inout":
-            ext_conns[ip_node["name"]][iface_name] = external_name
+            ext_conns[ip_node["instanceName"]][iface_name] = external_name
             if external_name not in external[ext_section][dir]:
                 external[ext_section][dir].append(external_name)
         else:
             # don't put inout connections in ext_conns as the rule is to specify them
             # in the "external" section of the YAML
-            connection = (ip_node["name"], external_name)
+            connection = (ip_node["instanceName"], external_name)
             if connection not in external[ext_section][dir]:
                 external[ext_section][dir].append(connection)
 

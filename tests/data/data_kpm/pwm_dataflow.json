@@ -3,7 +3,6 @@
         "id": "169383377059333",
         "nodes": [
             {
-                "type": "ps7",
                 "id": "node_16938337705935",
                 "position": {
                     "x": -840,
@@ -50,10 +49,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "ps7",
                 "name": "ps7"
             },
             {
-                "type": "axi_axil_adapter",
                 "id": "node_169383377059316",
                 "position": {
                     "x": 0,
@@ -124,10 +123,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axi_bridge"
+                "instanceName": "axi_bridge",
+                "name": "axi_axil_adapter"
             },
             {
-                "type": "litex_pwm",
                 "id": "node_169383377059321",
                 "position": {
                     "x": 510,
@@ -167,10 +166,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "litex_pwm_top"
+                "instanceName": "litex_pwm_top",
+                "name": "litex_pwm"
             },
             {
-                "type": "External Output",
                 "id": "node_169383377059324",
                 "position": {
                     "x": 1035,
@@ -195,6 +194,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             }
         ],
@@ -246,8 +246,8 @@
         },
         "scaling": 0.8139963167587477
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

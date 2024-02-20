@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "External Inout",
                 "id": "6c96482c-fc3e-43bb-a6d7-23e232dc804f",
                 "position": {
                     "x": -855,
@@ -28,10 +27,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Inout",
                 "name": "External Inout"
             },
             {
-                "type": "External Input",
                 "id": "35ef04e1-eddd-4ff7-90d4-644d003d37d6",
                 "position": {
                     "x": -1320,
@@ -56,6 +55,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Input",
                 "name": "External Input"
             }
         ],
@@ -72,8 +72,8 @@
         },
         "scaling": 0.5952100070290618
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

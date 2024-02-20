@@ -9,7 +9,7 @@ EXT_INOUT_NAME = "External Inout"
 
 def is_external_metanode(node: dict) -> bool:
     """Return True if a node is an external metanode, False elsewhere."""
-    return node["type"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]
+    return node["name"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]
 
 
 def get_dataflow_ip_nodes(dataflow_json) -> list:
@@ -33,7 +33,7 @@ def _get_interfaces(nodes: list) -> dict:
     for node in nodes:
         for interface in node["interfaces"]:
             result[interface["id"]] = {
-                "node_name": node["name"],
+                "node_name": node["instanceName"],
                 "iface_name": interface["name"],
                 "iface_dir": interface["direction"],
             }
@@ -115,7 +115,7 @@ def find_dataflow_interface_by_id(dataflow_json, iface_id: str) -> dict:
 def find_spec_interface_by_name(specification, node_type: str, iface_name: str) -> dict:
     """Find `name` interface of `ip_type` IP core in `specification`"""
     for node in specification["nodes"]:
-        if node["type"] != node_type:
+        if node["layer"] != node_type:
             continue
         for interface in node["interfaces"]:
             if interface["name"] == iface_name:
@@ -124,8 +124,8 @@ def find_spec_interface_by_name(specification, node_type: str, iface_name: str) 
 
 def find_dataflow_node_type_by_name(dataflow_data, node_name: str) -> str:
     for node in dataflow_data["graph"]["nodes"]:
-        if node["name"] == node_name:
-            return node["type"]
+        if node["instanceName"] == node_name:
+            return node["name"]
 
 
 def find_connected_interfaces(dataflow_json, iface_id: str) -> list:

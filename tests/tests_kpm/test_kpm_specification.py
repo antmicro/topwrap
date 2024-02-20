@@ -14,8 +14,7 @@ from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
 def get_schema_path(schema_name) -> Path:
-    with importlib.resources.path("pipeline_manager.resources.schemas", schema_name) as fd:
-        return str(fd)
+    return Path(importlib.resources.files("pipeline_manager.resources.schemas") / schema_name)
 
 
 @pytest.fixture

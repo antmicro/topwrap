@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "ps7",
                 "id": "8863c553-29cb-452d-8ae1-4c62089947a9",
                 "position": {
                     "x": -1260,
@@ -50,10 +49,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "ps7",
                 "name": "ps7"
             },
             {
-                "type": "External Output",
                 "id": "d8594cde-ae77-4e02-9cfa-d58a2cc77015",
                 "position": {
                     "x": -720,
@@ -78,6 +77,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             }
         ],
@@ -99,8 +99,8 @@
         },
         "scaling": 0.7543196738637923
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "ps7",
                 "id": "e64c4941-34b1-4aab-963e-7138199482b3",
                 "position": {
                     "x": -1665,
@@ -50,10 +49,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "ps7_1"
+                "instanceName": "ps7_1",
+                "name": "ps7"
             },
             {
-                "type": "ps7",
                 "id": "c43f6e8c-a066-4f84-9572-81787e4176a3",
                 "position": {
                     "x": -1665,
@@ -100,10 +99,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "ps7_2"
+                "instanceName": "ps7_2",
+                "name": "ps7"
             },
             {
-                "type": "External Input",
                 "id": "e96ae5e0-f570-42a1-ab7f-0e46c92b83ac",
                 "position": {
                     "x": -2145,
@@ -128,6 +127,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Input",
                 "name": "External Input"
             }
         ],
@@ -149,8 +149,8 @@
         },
         "scaling": 0.5952100070290618
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

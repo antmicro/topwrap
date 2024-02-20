@@ -47,12 +47,6 @@ pytest:
     paths:
       - cov_html
 
-docs-verify:
-  stage: test
-  tags: ['ace-x86_64']
-  script:
-    - eval ${VERIFY_SCRIPT}
-
 docs-build:
   image: $CI_DOCS_DOCKER_IMAGE
   stage: build
@@ -81,3 +75,8 @@ docs-deploy:
   artifacts:
     paths:
       - $CI_DOCS_ARCHIVE
+
+include:
+  - project: 'repositories/topwrap'
+    ref: internal_ci_yaml
+    file: '/internal.yml'

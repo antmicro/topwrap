@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "litex_pwm",
                 "id": "0c7c9066-3c9f-471e-b1b3-9317b671d025",
                 "position": {
                     "x": -1110,
@@ -43,10 +42,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "litex_pwm",
                 "name": "litex_pwm"
             },
             {
-                "type": "External Inout",
                 "id": "4179b3ec-159d-4906-8bed-74e4b6f60bcd",
                 "position": {
                     "x": -615,
@@ -71,6 +70,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Inout",
                 "name": "External Inout"
             }
         ],
@@ -87,8 +87,8 @@
         },
         "scaling": 0.5952100070290618
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

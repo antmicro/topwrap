@@ -25,7 +25,7 @@ class TestPWMDataflowExport:
         `examples/pwm/project.yml` and default values from IP core description YAMLs.
         """
         [axi_node] = list(
-            filter(lambda node: node["name"] == AXI_NAME, pwm_dataflow["graph"]["nodes"])
+            filter(lambda node: node["instanceName"] == AXI_NAME, pwm_dataflow["graph"]["nodes"])
         )
         parameters = _kpm_properties_to_parameters(axi_node["properties"])
         assert parameters == {
@@ -85,7 +85,8 @@ class TestHDMIDataflowExport:
         """
         [axi_node] = list(
             filter(
-                lambda node: node["name"] == "axi_interconnect0", hdmi_dataflow["graph"]["nodes"]
+                lambda node: node["instanceName"] == "axi_interconnect0",
+                hdmi_dataflow["graph"]["nodes"],
             )
         )
         parameters = _kpm_properties_to_parameters(axi_node["properties"])

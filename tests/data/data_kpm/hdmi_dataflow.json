@@ -3,7 +3,6 @@
         "id": "1693834425917295",
         "nodes": [
             {
-                "type": "axi_interconnect",
                 "id": "node_169383442591619",
                 "position": {
                     "x": 0,
@@ -123,10 +122,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axi_interconnect0"
+                "instanceName": "axi_interconnect0",
+                "name": "axi_interconnect"
             },
             {
-                "type": "proc_sys_reset",
                 "id": "node_169383442591630",
                 "position": {
                     "x": 0,
@@ -208,10 +207,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "reset0"
+                "instanceName": "reset0",
+                "name": "proc_sys_reset"
             },
             {
-                "type": "ps7",
                 "id": "node_169383442591667",
                 "position": {
                     "x": 0,
@@ -475,10 +474,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "ps7",
                 "name": "ps7"
             },
             {
-                "type": "proc_sys_reset",
                 "id": "node_169383442591678",
                 "position": {
                     "x": 0,
@@ -560,10 +559,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "reset1"
+                "instanceName": "reset1",
+                "name": "proc_sys_reset"
             },
             {
-                "type": "clock_crossing",
                 "id": "node_169383442591683",
                 "position": {
                     "x": 0,
@@ -603,10 +602,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "clock_crossing",
                 "name": "clock_crossing"
             },
             {
-                "type": "axi_axil_adapter",
                 "id": "node_169383442591694",
                 "position": {
                     "x": 0,
@@ -677,10 +676,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axi_bridge_dma"
+                "instanceName": "axi_bridge_dma",
+                "name": "axi_axil_adapter"
             },
             {
-                "type": "litex_mmcm",
                 "id": "node_1693834425916102",
                 "position": {
                     "x": 0,
@@ -741,10 +740,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "mmcm"
+                "instanceName": "mmcm",
+                "name": "litex_mmcm"
             },
             {
-                "type": "dma_axi_in_axis_out",
                 "id": "node_1693834425916112",
                 "position": {
                     "x": 0,
@@ -819,10 +818,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "dma"
+                "instanceName": "dma",
+                "name": "dma_axi_in_axis_out"
             },
             {
-                "type": "axi_axil_adapter",
                 "id": "node_1693834425916123",
                 "position": {
                     "x": 0,
@@ -893,10 +892,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axi_bridge_disp"
+                "instanceName": "axi_bridge_disp",
+                "name": "axi_axil_adapter"
             },
             {
-                "type": "axi_dispctrl",
                 "id": "node_1693834425916140",
                 "position": {
                     "x": 0,
@@ -1020,10 +1019,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "disp"
+                "instanceName": "disp",
+                "name": "axi_dispctrl"
             },
             {
-                "type": "axis_async_fifo",
                 "id": "node_1693834425916159",
                 "position": {
                     "x": 0,
@@ -1148,10 +1147,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axis_clock_converter"
+                "instanceName": "axis_clock_converter",
+                "name": "axis_async_fifo"
             },
             {
-                "type": "axi_axil_adapter",
                 "id": "node_1693834425916170",
                 "position": {
                     "x": 0,
@@ -1222,10 +1221,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axi_bridge_mmcm"
+                "instanceName": "axi_bridge_mmcm",
+                "name": "axi_axil_adapter"
             },
             {
-                "type": "hdmi_tx",
                 "id": "node_1693834425916191",
                 "position": {
                     "x": 0,
@@ -1377,10 +1376,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "hdmi"
+                "instanceName": "hdmi",
+                "name": "hdmi_tx"
             },
             {
-                "type": "axis_dwidth_converter",
                 "id": "node_1693834425916198",
                 "position": {
                     "x": 0,
@@ -1431,10 +1430,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "axis_dwidth_converter",
                 "name": "axis_dwidth_converter"
             },
             {
-                "type": "axi_protocol_converter",
                 "id": "node_1693834425916203",
                 "position": {
                     "x": 0,
@@ -1474,10 +1473,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "axi_protocol_converter0"
+                "instanceName": "axi_protocol_converter0",
+                "name": "axi_protocol_converter"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916206",
                 "position": {
                     "x": 0,
@@ -1502,10 +1501,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916209",
                 "position": {
                     "x": 0,
@@ -1530,10 +1529,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916212",
                 "position": {
                     "x": 0,
@@ -1558,10 +1557,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916215",
                 "position": {
                     "x": 0,
@@ -1586,10 +1585,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916218",
                 "position": {
                     "x": 0,
@@ -1614,10 +1613,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916221",
                 "position": {
                     "x": 0,
@@ -1642,10 +1641,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916224",
                 "position": {
                     "x": 0,
@@ -1670,10 +1669,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "node_1693834425916227",
                 "position": {
                     "x": 0,
@@ -1698,6 +1697,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             }
         ],
@@ -2044,8 +2044,8 @@
         },
         "scaling": 0.3927143491781431
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

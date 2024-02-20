@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "litex_pwm",
                 "id": "d28313da-8c30-4ede-9e28-99ee34ab8a5d",
                 "position": {
                     "x": -1410,
@@ -43,10 +42,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "litex_pwm",
                 "name": "litex_pwm"
             },
             {
-                "type": "litex_pwm",
                 "id": "a45f5d03-11c4-41fc-b7bb-84245b032f4a",
                 "position": {
                     "x": -1425,
@@ -86,10 +85,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
-                "name": "litex_pwm_1"
+                "instanceName": "litex_pwm_1",
+                "name": "litex_pwm"
             },
             {
-                "type": "External Output",
                 "id": "5d9602e1-4f16-4b94-9d28-48c5e1e15faf",
                 "position": {
                     "x": -885,
@@ -114,10 +113,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             },
             {
-                "type": "External Output",
                 "id": "0fab6d5b-f955-4d61-9c7a-fbecc8945854",
                 "position": {
                     "x": -840,
@@ -142,6 +141,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Output",
                 "name": "External Output"
             }
         ],
@@ -163,8 +163,8 @@
         },
         "scaling": 0.5952100070290618
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

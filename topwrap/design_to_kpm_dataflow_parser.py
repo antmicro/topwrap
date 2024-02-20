@@ -111,9 +111,9 @@ class KPMDataflowNode:
 
     def to_json_format(self) -> dict:
         return {
-            "type": self.type,
+            "name": self.type,
             "id": self.id,
-            "name": self.name,
+            "instanceName": self.name,
             "interfaces": [
                 {
                     "name": interface.name,
@@ -129,7 +129,6 @@ class KPMDataflowNode:
             ],
             "position": {"x": 0, "y": 0},
             "width": KPMDataflowNode.__default_width,
-            "twoColumn": False,
             "properties": [
                 {"name": property.name, "id": property.id, "value": property.value}
                 for property in self.properties
@@ -151,7 +150,7 @@ class KPMDataflowConnection:
 def _get_specification_node_by_type(type: str, specification: dict) -> dict:
     """Return a node of type `type` from specification"""
     for node in specification["nodes"]:
-        if type == node["type"]:
+        if type == node["layer"]:
             return node
     logging.warning(f'Node type "{type}" not found in specification')
 
@@ -461,6 +460,6 @@ def kpm_dataflow_from_design_descr(design_descr: dict, specification: dict) -> d
             "inputs": [],
             "outputs": [],
         },
-        "graphTemplateInstances": [],
-        "version": "20230824.9",
+        "subgraphs": [],
+        "version": "20230830.11",
     }

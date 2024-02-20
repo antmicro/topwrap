@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "axi_axil_adapter",
                 "id": "a322afe0-c7b7-4f81-9002-9229bba14d0d",
                 "position": {
                     "x": -1155,
@@ -74,6 +73,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "axi_axil_adapter",
                 "name": "axi_axil_adapter"
             }
         ],
@@ -84,8 +84,8 @@
         },
         "scaling": 0.5952100070290618
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

@@ -35,10 +35,10 @@ def _check_duplicate_ip_names(dataflow_data, specification) -> CheckResult:
     names_set = set()
     duplicates = set()
     for node in get_dataflow_ip_nodes(dataflow_data):
-        if node["name"] in names_set:
-            duplicates.add(node["name"])
+        if node["instanceName"] in names_set:
+            duplicates.add(node["instanceName"])
         else:
-            names_set.add(node["name"])
+            names_set.add(node["instanceName"])
 
     if not duplicates:
         return CheckResult(MessageType.OK, None)
@@ -137,7 +137,7 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> 
     duplicates = set()
 
     for metanode in get_dataflow_metanodes(dataflow_data):
-        if metanode["name"] != EXT_INPUT_NAME:
+        if metanode["instanceName"] != EXT_INPUT_NAME:
             continue
         for iface_id in find_connected_interfaces(
             dataflow_data, get_metanode_interface_id(metanode)
@@ -145,7 +145,7 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> 
             iface = find_dataflow_interface_by_id(dataflow_data, iface_id)
             node = find_dataflow_node_by_interface_id(dataflow_data, iface_id)
             iface_types = find_spec_interface_by_name(
-                specification, node["type"], iface["iface_name"]
+                specification, node["name"], iface["iface_name"]
             )["type"]
 
             if "port" not in iface_types:
@@ -174,7 +174,7 @@ def _check_external_inputs_missing_val(dataflow_data, specification) -> CheckRes
     err_ports = []
 
     for metanode in get_dataflow_metanodes(dataflow_data):
-        if metanode["name"] != EXT_INPUT_NAME:
+        if metanode["instanceName"] != EXT_INPUT_NAME:
             continue
         if get_metanode_property_value(metanode):
             continue
@@ -201,7 +201,7 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
     ext_names_set = set()
     duplicates = set()
     for metanode in get_dataflow_metanodes(dataflow_data):
-        if metanode["name"] == EXT_OUTPUT_NAME:
+        if metanode["instanceName"] == EXT_OUTPUT_NAME:
             # Get external port/interface name. If user didn't specify external
             # port/interface name in the textbox, let's get a corresponding
             # IP core port/interface name as default
@@ -253,7 +253,7 @@ def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
     return CheckResult(MessageType.OK, None)
 
 
-def validate_kpm_design(data: bytes, specification) -> dict:
+def validate_kpm_design(data: dict, specification) -> dict:
     """Run some checks to validate user-created design in KPM.
     Return a dict of warning and error messages to be sent to the KPM.
     """
@@ -271,7 +271,7 @@ def validate_kpm_design(data: bytes, specification) -> dict:
 
     messages = {"errors": [], "warnings": []}
     for check in checks:
-        status, msg = check(json.loads(data.decode()), specification)
+        status, msg = check(data, specification)
         if status == MessageType.ERROR:
             messages["errors"].append(msg)
         elif status == MessageType.WARNING:

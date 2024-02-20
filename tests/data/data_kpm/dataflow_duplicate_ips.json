@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "ps7",
                 "id": "352acf91-83d7-4f5b-a0ec-a16c27b3e78c",
                 "position": {
                     "x": -1275,
@@ -50,10 +49,10 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "ps7",
                 "name": "ps7"
             },
             {
-                "type": "ps7",
                 "id": "0d73a381-73bb-4189-8a5a-c24e6ba3889e",
                 "position": {
                     "x": -1275,
@@ -100,6 +99,7 @@
                 ],
                 "properties": [],
                 "enabledInterfaceGroups": [],
+                "instanceName": "ps7",
                 "name": "ps7"
             }
         ],
@@ -110,8 +110,8 @@
         },
         "scaling": 0.5952100070290618
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

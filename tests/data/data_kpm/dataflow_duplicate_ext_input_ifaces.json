@@ -3,7 +3,6 @@
         "id": "169383254977833",
         "nodes": [
             {
-                "type": "axi_axil_adapter",
                 "id": "103e88ba-56b6-4c30-bdd1-f0a3a4be5b24",
                 "position": {
                     "x": -900,
@@ -74,10 +73,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axi_axil_adapter_1"
+                "instanceName": "axi_axil_adapter_1",
+                "name": "axi_axil_adapter"
             },
             {
-                "type": "axi_axil_adapter",
                 "id": "33794eef-49eb-4eb5-bf8d-c258f6f830ff",
                 "position": {
                     "x": -915,
@@ -148,10 +147,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
-                "name": "axi_axil_adapter_2"
+                "instanceName": "axi_axil_adapter_2",
+                "name": "axi_axil_adapter"
             },
             {
-                "type": "External Input",
                 "id": "78a9d846-6c7c-4471-9b9b-c1ef91cdb2ad",
                 "position": {
                     "x": -1470,
@@ -176,10 +175,10 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Input",
                 "name": "External Input"
             },
             {
-                "type": "External Input",
                 "id": "5358601a-962e-4097-9030-ac9f587e5f09",
                 "position": {
                     "x": -1485,
@@ -204,6 +203,7 @@
                     }
                 ],
                 "enabledInterfaceGroups": [],
+                "instanceName": "External Input",
                 "name": "External Input"
             }
         ],
@@ -225,8 +225,8 @@
         },
         "scaling": 0.5952100070290618
     },
-    "graphTemplateInstances": [],
-    "version": "20230824.9",
+    "subgraphs": [],
+    "version": "20230830.11",
     "metadata": {
         "randomizedOffset": true
     }

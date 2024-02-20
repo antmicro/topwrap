@@ -3,7 +3,6 @@
         "id": "a868145c-165b-43df-96ae-f67a027cc67a",
         "nodes": [
             {
-                "type": "gen_iobuf",
                 "id": "a3f4d70b-21e9-4c01-a4d8-9a2556c06282",
                 "position": {
                     "x": -660,
@@ -50,10 +49,10 @@
                     }
                 ],
                 "properties": [],
-                "name": "gen_iobuf_1"
+                "instanceName": "gen_iobuf_1",
+                "name": "gen_iobuf"
             },
             {
-                "type": "gen_iobuf",
                 "id": "0d52d66f-0a1f-4100-b168-57f336473600",
                 "position": {
                     "x": -660,
@@ -100,7 +99,8 @@
                     }
                 ],
                 "properties": [],
-                "name": "gen_iobuf_2"
+                "instanceName": "gen_iobuf_2",
+                "name": "gen_iobuf"
             }
         ],
         "connections": [
@@ -116,6 +116,6 @@
         },
         "scaling": 1
     },
-    "graphTemplateInstances": [],
-    "version": "20230619.3"
+    "subgraphs": [],
+    "version": "20230830.11"
 }

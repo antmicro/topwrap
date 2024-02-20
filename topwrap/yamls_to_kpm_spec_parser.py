@@ -124,7 +124,7 @@ def _ipcore_to_kpm(yamlfile: str) -> dict:
 
     return {
         "name": ip_name,
-        "type": ip_name,
+        "layer": ip_name,
         "category": "IPcore",
         "properties": kpm_params,
         "interfaces": kpm_ports + kpm_ifaces,
@@ -137,10 +137,10 @@ def _duplicate_ipcore_types_check(specification: str):
     types_set = set()
     duplicates = set()
     for node in specification["nodes"]:
-        if node["type"] in types_set:
-            duplicates.add(node["type"])
+        if node["layer"] in types_set:
+            duplicates.add(node["layer"])
         else:
-            types_set.add(node["type"])
+            types_set.add(node["layer"])
     for dup in list(duplicates):
         logging.warning(f"Multiple IP cores of type '{dup}'")
 
@@ -150,26 +150,26 @@ def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
 
     :param direction: a string describing the direction of a metanode ("inout"/"output"/"input")
     :param interfaces_types: list of all the interfaces types occurring in nodes representing
-    IP cores. These are necessary to append to "type" property of the interface of the node, so
+    IP cores. These are necessary to append to "layer" property of the interface of the node, so
     that it is possible to connect any interface to external metanode.
 
     :return: a dict representing an external metanode
     """
     if direction == "input":
-        name = type = EXT_INPUT_NAME
+        name = EXT_INPUT_NAME
         iface_dir = "output"
     elif direction == "output":
-        name = type = EXT_OUTPUT_NAME
+        name = EXT_OUTPUT_NAME
         iface_dir = "input"
     elif direction == "inout":
-        name = type = EXT_INOUT_NAME
+        name = EXT_INOUT_NAME
         iface_dir = "inout"
     else:
         raise ValueError(f"Unknown direction: {direction}")
 
     metanode = {
         "name": name,
-        "type": type,
+        "layer": name,
         "category": "Metanode",
         "properties": [{"name": "External Name", "type": "text", "default": ""}],
         "interfaces": [
@@ -237,13 +237,14 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
         represents a separate IP core
     """
     specification = {
-        "version": "20230824.9",
+        "version": "20230830.11",
         "metadata": {
             "allowLoopbacks": True,
             "connectionStyle": "orthogonal",
             "movementStep": 15,
             "backgroundSize": 15,
             "layout": "CytoscapeEngine - grid",
+            "twoColumn": True,
         },
         "nodes": [_ipcore_to_kpm(yamlfile) for yamlfile in yamlfiles],
     }

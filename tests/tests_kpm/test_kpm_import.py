@@ -26,9 +26,9 @@ class TestPWMDataflowImport:
         kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == 3
-        [axi_node] = list(filter(lambda node: node["name"] == AXI_NAME, nodes_json))
-        [ps7_node] = list(filter(lambda node: node["name"] == PS7_NAME, nodes_json))
-        [pwm_node] = list(filter(lambda node: node["name"] == PWM_NAME, nodes_json))
+        [axi_node] = list(filter(lambda node: node["instanceName"] == AXI_NAME, nodes_json))
+        [ps7_node] = list(filter(lambda node: node["instanceName"] == PS7_NAME, nodes_json))
+        [pwm_node] = list(filter(lambda node: node["instanceName"] == PWM_NAME, nodes_json))
 
         # check imported properties
         for prop in axi_node["properties"]:
@@ -99,7 +99,7 @@ class TestPWMDataflowImport:
     def _find_node_name_by_iface_id(self, iface_id: str, nodes_json: list) -> str:
         for node in nodes_json:
             if iface_id in [iface["id"] for iface in node["interfaces"]]:
-                return node["name"]
+                return node["instanceName"]
 
     def test_pwm_connections(self, pwm_design_yaml, pwm_specification):
         """Check the number of generated connections between two nodes representing IP cores
@@ -155,7 +155,7 @@ class TestHDMIDataflowImport:
         assert len(nodes_json) == 15
         # check overrode {'value': ..., 'width': ...} parameter value
         [axi_interconnect_node] = list(
-            filter(lambda node: node["name"] == "axi_interconnect0", nodes_json)
+            filter(lambda node: node["instanceName"] == "axi_interconnect0", nodes_json)
         )
         [m_addr_width] = list(
             filter(lambda prop: prop["name"] == "M_ADDR_WIDTH", axi_interconnect_node["properties"])
