@@ -45,13 +45,18 @@ def black_check(session):
     session.run("black", "--check", ".")
 
 
+# Coverage report generation will work only with packages installed
+# in development mode. For more details, check
+# https://github.com/pytest-dev/pytest-cov/issues/388
+
+
 @nox.session
 def tests(session: nox.Session) -> None:
-    session.install(".[tests,topwrap-parse]")
-    session.run("pytest", "--cov=fpga_topwrap", "tests")
+    session.install("-e", ".[tests,topwrap-parse]")
+    session.run("pytest", "--cov=topwrap", "tests")
 
 
 @nox.session
 def tests_with_report(session: nox.Session) -> None:
-    session.install(".[tests,topwrap-parse]")
-    session.run("pytest", "--cov-report", "html:cov_html", "--cov=fpga_topwrap", "tests")
+    session.install("-e", ".[tests,topwrap-parse]")
+    session.run("pytest", "--cov-report", "html:cov_html", "--cov=topwrap", "tests")
