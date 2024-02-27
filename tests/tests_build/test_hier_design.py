@@ -11,9 +11,9 @@ import pytest
 from amaranth.hdl import ast
 from yaml import Loader, load
 
-from fpga_topwrap.design import generate_design
-from fpga_topwrap.ipconnect import IPConnect
-from fpga_topwrap.ipwrapper import IPWrapper
+from topwrap.design import generate_design
+from topwrap.ipconnect import IPConnect
+from topwrap.ipwrapper import IPWrapper
 
 
 @pytest.fixture

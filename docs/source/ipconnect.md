@@ -19,7 +19,7 @@ Ports and interfaces can be set as external input/output/inout with {code}`make_
 For a wider example of using the {class}`IPConnect` see {ref}`Getting Started <getting-started>`
 
 ```{eval-rst}
-.. autoclass:: fpga_topwrap.ipconnect.IPConnect
+.. autoclass:: topwrap.ipconnect.IPConnect
    :members:
 
    .. automethod:: __init__

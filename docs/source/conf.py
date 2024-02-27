@@ -34,8 +34,8 @@ from antmicro_sphinx_utils.defaults import numfig_format
 # -- General configuration -----------------------------------------------------
 
 # General information about the project.
-project = u'FPGA Topwrap'
-basic_filename = u'fpga-topwrap'
+project = u'Topwrap'
+basic_filename = u'topwrap'
 authors = u'Antmicro'
 copyright = f'{authors}, {datetime.now().year}'
 
@@ -79,7 +79,7 @@ html_title = project
     html_theme_options,
     html_context
 ) = antmicro_html(
-    gh_slug=environ.get('GITHUB_REPOSITORY', 'antmicro/fpga-towrap'),
+    gh_slug=environ.get('GITHUB_REPOSITORY', 'antmicro/topwrap'),
     pdf_url=f"{basic_filename}.pdf",
 )
 

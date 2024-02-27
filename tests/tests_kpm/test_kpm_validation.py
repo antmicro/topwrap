@@ -6,7 +6,7 @@ from common import read_json_file
 from pipeline_manager_backend_communication.misc_structures import MessageType
 from pytest_lazy_fixtures import lf
 
-from fpga_topwrap.kpm_dataflow_validator import (
+from topwrap.kpm_dataflow_validator import (
     _check_ambigous_ports,
     _check_duplicate_external_input_interfaces,
     _check_duplicate_external_out_names,

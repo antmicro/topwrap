@@ -21,7 +21,7 @@ click_opt_rw_dir = click.Path(
 )
 click_r_file = click.Path(exists=True, file_okay=True, dir_okay=False, readable=True)
 
-main = click.Group(help="FPGA Topwrap")
+main = click.Group(help="Topwrap")
 
 
 @main.command("build", help="Generate top module")
@@ -90,7 +90,7 @@ def parse_main(use_yosys, iface_deduce, iface, files, dest_dir):
     except ModuleNotFoundError:
         raise RuntimeError(
             "hdlConvertor not installed, please install optional dependency topwrap-parse "
-            "e.g. pip install fpga_topwrap[topwrap-parse]"
+            "e.g. pip install topwrap[topwrap-parse]"
         )
 
     logging.basicConfig(level=logging.INFO)

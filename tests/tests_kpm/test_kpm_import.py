@@ -1,13 +1,13 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from fpga_topwrap.design_to_kpm_dataflow_parser import (
+from topwrap.design_to_kpm_dataflow_parser import (
     kpm_connections_from_design_descr,
     kpm_metanodes_connections_from_design_descr,
     kpm_metanodes_from_design_descr,
     kpm_nodes_from_design_descr,
 )
-from fpga_topwrap.kpm_common import EXT_OUTPUT_NAME
+from topwrap.kpm_common import EXT_OUTPUT_NAME
 
 AXI_NAME = "axi_bridge"
 PS7_NAME = "ps7"

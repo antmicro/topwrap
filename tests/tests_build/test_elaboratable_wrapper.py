@@ -10,8 +10,8 @@ from amaranth import *
 from amaranth.hdl.ast import Assign
 from amaranth.lib.wiring import Component, In, Out, Signature
 
-from fpga_topwrap.amaranth_helpers import DIR_IN, DIR_OUT, WrapperPort
-from fpga_topwrap.elaboratable_wrapper import ElaboratableWrapper, SignalMapping
+from topwrap.amaranth_helpers import DIR_IN, DIR_OUT, WrapperPort
+from topwrap.elaboratable_wrapper import ElaboratableWrapper, SignalMapping
 
 
 @pytest.fixture

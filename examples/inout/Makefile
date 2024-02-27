@@ -29,10 +29,10 @@ TARGET  := 	zynq
 all: bit
 
 parse: clean setup
-	fpga_topwrap parse --iface-deduce ${SOURCE_FILES} --dest-dir=${IPCORES_DIR}/
+	topwrap parse --iface-deduce ${SOURCE_FILES} --dest-dir=${IPCORES_DIR}/
 
 generate: parse copy_sources
-	fpga_topwrap build --design ${DESIGN} --part ${PART} --sources ${SOURCE_DIR}
+	topwrap build --design ${DESIGN} --part ${PART} --sources ${SOURCE_DIR}
 
 # -------------------------------------
 # Bitstream generation
@@ -59,4 +59,3 @@ clean:
 	rm -rf ${BUILD_DIR}/* ${IPCORES_DIR}/*
 
 .PHONY: setup clean fusesoc_init generate copy_sources bit parse all
-

@@ -5,7 +5,7 @@ Supplied elaboratable must contain a `signature` property and a conforming inter
 Ports' directionality, their names and widths are inferred from it.
 
 ```{eval-rst}
-.. autoclass:: fpga_topwrap.elaboratable_wrapper.ElaboratableWrapper
+.. autoclass:: topwrap.elaboratable_wrapper.ElaboratableWrapper
    :members:
 
    .. automethod:: __init__

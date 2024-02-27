@@ -1,4 +1,4 @@
-# FPGA Topwrap PWM example setup
+# Topwrap PWM example setup
 
 Copyright (c) 2021-2024 [Antmicro](https://antmicro.com)
 

@@ -15,7 +15,7 @@ By default, {class}`FuseSocBuilder` searches for the template file in the direct
 Here's an example of how to generate a simple project:
 
 ```python
-from fpga_topwrap.fuse_helper import FuseSocBuilder
+from topwrap.fuse_helper import FuseSocBuilder
 fuse = FuseSocBuilder()
 
 # add source of the IPs used in the project

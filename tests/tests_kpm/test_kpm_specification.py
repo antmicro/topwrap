@@ -10,7 +10,7 @@ from jsonschema import Draft202012Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 
-from fpga_topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
 def get_schema_path(schema_name) -> Path:

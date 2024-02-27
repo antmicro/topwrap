@@ -11,11 +11,11 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     In order to start creating block design in Pipeline Manager, you need to first build and run a server application - here is a brief instruction on how to achieve this (the process of building and installation of Pipeline Manager is described in detail in its [documentation](https://antmicro.github.io/kenning-pipeline-manager/project-readme.html#building-and-running)):
 
     ```
-    python -m fpga_topwrap kpm_build_server
-    python -m fpga_topwrap kpm_run_server
+    python -m topwrap kpm_build_server
+    python -m topwrap kpm_run_server
     ```
 
-    After executing the above-mentioned commands, the Pipeline Manager server is waiting for an external application (i.e. Topwrap) to connect on `127.0.0.1:9000` and you can connect to the web GUI frontend in your browser on `http://127.0.0.1:5000`. 
+    After executing the above-mentioned commands, the Pipeline Manager server is waiting for an external application (i.e. Topwrap) to connect on `127.0.0.1:9000` and you can connect to the web GUI frontend in your browser on `http://127.0.0.1:5000`.
 
 2. Establish connection with Topwrap
 
@@ -26,8 +26,8 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
 
     An example command, that runs Topwrap's client, may look like this:
     ```
-    python -m fpga_topwrap kpm_client -h 127.0.0.1 -p 9000 \
-        fpga_topwrap/ips/axi/axi_axil_adapter.yaml \
+    python -m topwrap kpm_client -h 127.0.0.1 -p 9000 \
+        topwrap/ips/axi/axi_axil_adapter.yaml \
         examples/pwm/ipcores/{litex_pwm.yml,ps7.yaml}
     ```
 
@@ -91,4 +91,4 @@ If a block design validation returns a warning, it means that the block design c
 
 ### Building design
 
-Once the design has been created and tested for validity, you can build design using `Run` feature. If the design does not contain any errors, this will result in creating a top module, similarly when using Topwrap's `fpga_topwrap build` command.
+Once the design has been created and tested for validity, you can build design using `Run` feature. If the design does not contain any errors, this will result in creating a top module, similarly when using Topwrap's `topwrap build` command.

@@ -9,7 +9,7 @@
   },
   "nodes": [
     {
-      "additionalData": "fpga_topwrap/ips/axi/axi_axil_adapter.yaml",
+      "additionalData": "topwrap/ips/axi/axi_axil_adapter.yaml",
       "category": "IPcore",
       "interfaces": [
         {

@@ -1,4 +1,4 @@
-# FPGA Topwrap example: inout
+# Topwrap example: inout
 
 Copyright (c) 2023-2024 [Antmicro](https://antmicro.com)
 

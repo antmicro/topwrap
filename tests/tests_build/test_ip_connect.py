@@ -8,9 +8,9 @@ from typing import Dict
 import pytest
 from amaranth.hdl import ast
 
-from fpga_topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
-from fpga_topwrap.ipconnect import IPConnect
-from fpga_topwrap.ipwrapper import IPWrapper
+from topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
+from topwrap.ipconnect import IPConnect
+from topwrap.ipwrapper import IPWrapper
 
 
 # -------------------------------------

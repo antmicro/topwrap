@@ -3,7 +3,7 @@
 
 import os
 
-from fpga_topwrap.kpm_dataflow_parser import (
+from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_external,
     _kpm_connections_to_ports_ifaces,
     _kpm_nodes_to_ips,

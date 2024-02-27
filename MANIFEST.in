@@ -1,5 +1,5 @@
-include fpga_topwrap/interfaces/*
-include fpga_topwrap/ips/*/*
-include fpga_topwrap/templates/core.yaml.j2
-include fpga_topwrap/templates/ipcore_desc.j2.yml
+include topwrap/interfaces/*
+include topwrap/ips/*/*
+include topwrap/templates/core.yaml.j2
+include topwrap/templates/ipcore_desc.j2.yml
 include tests/data/*

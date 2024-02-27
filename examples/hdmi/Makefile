@@ -7,10 +7,10 @@ build:
 	mkdir build
 
 parse:
-	fpga_topwrap parse --iface-deduce sources/clock_crossing.v sources/ps7.v
+	topwrap parse --iface-deduce sources/clock_crossing.v sources/ps7.v
 
 generate: build
-	fpga_topwrap build --design project.yml --sources sources
+	topwrap build --design project.yml --sources sources
 
 copy_sources: build
 	cp -rf sources/ build/
@@ -33,4 +33,3 @@ clean:
 	rm -rf build/*
 
 .PHONY: clean copy_sources fusesoc_init generate copy_sources snickerdoodle zvb
-

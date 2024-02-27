@@ -5,14 +5,14 @@ from typing import List
 
 import pytest
 
-from fpga_topwrap.verilog_parser import VerilogModule
-from fpga_topwrap.vhdl_parser import VHDLModule
+from topwrap.verilog_parser import VerilogModule
+from topwrap.vhdl_parser import VHDLModule
 
 
 class TestVerilogParse:
     @pytest.fixture
     def axi_axil_adapter_module(self) -> VerilogModule:
-        from fpga_topwrap.verilog_parser import VerilogModuleGenerator
+        from topwrap.verilog_parser import VerilogModuleGenerator
 
         verilog_modules = VerilogModuleGenerator().get_modules(
             "tests/data/data_parse/axi_axil_adapter.v"
@@ -30,13 +30,13 @@ class TestVerilogParse:
 
     @pytest.fixture
     def axi_axil_adapter_ports_by_dir(self, axi_axil_adapter_ports) -> dict:
-        from fpga_topwrap.verilog_parser import group_ports_by_dir
+        from topwrap.verilog_parser import group_ports_by_dir
 
         return group_ports_by_dir(axi_axil_adapter_ports)
 
     @pytest.fixture
     def seg7_4d_ctrl_modules(self) -> List[VerilogModule]:
-        from fpga_topwrap.verilog_parser import VerilogModuleGenerator
+        from topwrap.verilog_parser import VerilogModuleGenerator
 
         verilog_modules = VerilogModuleGenerator().get_modules(
             "tests/data/data_parse/seg7_4d_ctrl.v"
@@ -76,8 +76,8 @@ class TestVerilogParse:
     def test_axi_axil_adapter_iface_deduce(
         self, axi_axil_adapter_ports, axi_axil_adapter_ports_by_dir
     ):
-        from fpga_topwrap.hdl_parsers_utils import group_ports_to_ifaces
-        from fpga_topwrap.interface_grouper import InterfaceGrouper
+        from topwrap.hdl_parsers_utils import group_ports_to_ifaces
+        from topwrap.interface_grouper import InterfaceGrouper
 
         iface_grouper = InterfaceGrouper(False, True, None)
 
@@ -94,8 +94,8 @@ class TestVerilogParse:
     def test_axi_axil_adapter_specified_ifaces(
         self, axi_axil_adapter_ports, axi_axil_adapter_ports_by_dir
     ):
-        from fpga_topwrap.hdl_parsers_utils import group_ports_to_ifaces
-        from fpga_topwrap.interface_grouper import InterfaceGrouper
+        from topwrap.hdl_parsers_utils import group_ports_to_ifaces
+        from topwrap.interface_grouper import InterfaceGrouper
 
         iface_grouper = InterfaceGrouper(False, False, ("m_axil",))
 
@@ -108,7 +108,7 @@ class TestVerilogParse:
         assert len(ifaces["m_axil"]["out"]) == 11
 
     def test_verilog_parse_multiple_modules(self, seg7_4d_ctrl_modules):
-        from fpga_topwrap.verilog_parser import group_ports_by_dir
+        from topwrap.verilog_parser import group_ports_by_dir
 
         assert len(seg7_4d_ctrl_modules) == 9
 
@@ -144,7 +144,7 @@ class TestVHDLParse:
 
     @pytest.fixture
     def axi_dispctrl_ports_by_dir(self, axi_dispctrl_module) -> dict:
-        from fpga_topwrap.verilog_parser import group_ports_by_dir
+        from topwrap.verilog_parser import group_ports_by_dir
 
         return group_ports_by_dir(axi_dispctrl_module.get_ports())
 

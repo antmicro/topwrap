@@ -9,7 +9,7 @@
   },
   "nodes": [
     {
-      "additionalData": "fpga_topwrap/ips/axi/axi_axil_adapter.yaml",
+      "additionalData": "topwrap/ips/axi/axi_axil_adapter.yaml",
       "category": "IPcore",
       "interfaces": [
         {
@@ -78,7 +78,7 @@
       "type": "axi_axil_adapter"
     },
     {
-      "additionalData": "fpga_topwrap/ips/axi/axi_interconnect.yaml",
+      "additionalData": "topwrap/ips/axi/axi_interconnect.yaml",
       "category": "IPcore",
       "interfaces": [
         {
@@ -198,7 +198,7 @@
       "type": "axi_interconnect"
     },
     {
-      "additionalData": "fpga_topwrap/ips/axi/axi_protocol_converter.yaml",
+      "additionalData": "topwrap/ips/axi/axi_protocol_converter.yaml",
       "category": "IPcore",
       "interfaces": [
         {
@@ -236,7 +236,7 @@
       "type": "axi_protocol_converter"
     },
     {
-      "additionalData": "fpga_topwrap/ips/axi/axis_async_fifo.yaml",
+      "additionalData": "topwrap/ips/axi/axis_async_fifo.yaml",
       "category": "IPcore",
       "interfaces": [
         {
@@ -359,7 +359,7 @@
       "type": "axis_async_fifo"
     },
     {
-      "additionalData": "fpga_topwrap/ips/axi/axis_dwidth_converter.yaml",
+      "additionalData": "topwrap/ips/axi/axis_dwidth_converter.yaml",
       "category": "IPcore",
       "interfaces": [
         {

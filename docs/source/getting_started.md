@@ -19,7 +19,7 @@
     ```
 
 :::{note}
-To use `fpga_topwrap parse` command you also need to install optional dependencies:
+To use `topwrap parse` command you also need to install optional dependencies:
 ```bash
 pip3 install ".[topwrap-parse]"
 ```
@@ -113,7 +113,7 @@ If you don't create any template a default template bundled with Topwrap will be
 7. Run Topwrap:
 
    ```
-   python -m fpga_topwrap build --design project.yml --sources sources
+   python -m topwrap build --design project.yml --sources sources
    ```
 
 ### Example PWM design

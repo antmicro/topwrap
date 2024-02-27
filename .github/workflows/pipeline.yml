@@ -76,7 +76,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install tuttest and fpga-topwrap
+      - name: Install tuttest and topwrap
         run: |
           python3 -m pip install git+https://github.com/antmicro/tuttest
           tuttest README.md | bash -

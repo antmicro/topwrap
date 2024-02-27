@@ -56,7 +56,7 @@ class TestInterconnect:
                 [
                     "python",
                     "-m",
-                    "fpga_topwrap",
+                    "topwrap",
                     "build",
                     "-d",
                     "project.yml",

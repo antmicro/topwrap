@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from fpga_topwrap.ipwrapper import IPWrapper
+from topwrap.ipwrapper import IPWrapper
 
 
 # -----------------------------------------
