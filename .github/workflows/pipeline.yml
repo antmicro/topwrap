@@ -3,107 +3,72 @@
 
 name: Pipeline
 
-
 on: [pull_request, push, workflow_dispatch]
 
+defaults:
+  run:
+    shell: bash
+
+env:
+  DEBIAN_FRONTEND: noninteractive
 
 jobs:
-
-
-  Tests:
-
+  lint:
     runs-on: ubuntu-latest
-    container: verilator/verilator:v5.020
-    name: "Test Python ${{ matrix.python-version }}"
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11.7", "3.12.1"]
+    container:
+      image: debian:bookworm
+    name: "Run lint checks"
 
-    env:
-      DEBIAN_FRONTEND: noninteractive
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dev requirements
+      - name: Install git package
         run: |
           apt-get update -qq
-          apt-get install -y \
-            antlr4 \
-            libantlr4-runtime-dev \
-            python3-dev \
-            yosys \
-            gcc-riscv64-unknown-elf \
-            meson \
-            ninja-build \
-            bsdextrautils
-          python3 -m pip install --upgrade pip wheel setuptools
-          python3 -m pip install nox
-          python3 -m pip install git+https://github.com/antmicro/tuttest
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
 
       - name: Run lint checks
-        run: nox -s isort black flake8
+        run: |
+          ./.github/scripts/ci.sh lint
 
-      - name: Build
-        run: tuttest README.md | bash -
-
-      - name: Run pytest with nox
-        run: nox -s tests
-
-
-  Examples:
-
+  tests:
     runs-on: ubuntu-latest
-    name: 'Example ${{ matrix.example }}'
-    strategy:
-      fail-fast: false
-      matrix:
-        example:
-          - HDMI
-          - INOUT
-          - PWM
+    container:
+      image: debian:bookworm
+    name: "Run tests"
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
 
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+
+      - name: Run Python tests
+        run: |
+          ./.github/scripts/ci.sh tests
+
+  examples:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    name: 'Generate examples'
+
+    steps:
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+
+      - name: Generate Topwrap examples
+        run: |
+          ./.github/scripts/ci.sh examples
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          python-version: "3.11"
-
-      - name: Install tuttest and topwrap
-        run: |
-          python3 -m pip install git+https://github.com/antmicro/tuttest
-          tuttest README.md | bash -
-
-      - name: Generate sources for example HDMI setup
-        if: matrix.example == 'HDMI'
-        run: |
-          cd examples/hdmi
-          tuttest README.md install-deps,generate | bash -
-          cd -
-
-      - name: Generate sources for example inout setup
-        if: matrix.example == 'INOUT'
-        run: |
-          cd examples/inout
-          tuttest README.md install-deps,generate | bash -
-          cd -
-
-      - name: Generate sources for and build example PWM setup
-        if: matrix.example == 'PWM'
-        run: |
-          cd examples/pwm
-          tuttest README.md install-deps,generate | bash -
-          cd -
-
-      - uses: actions/upload-artifact@v3
-        if: matrix.example == 'PWM'
-        with:
-          name: top.bit
-          path: top.bit
+          name: examples
+          path: examples/**/build
