@@ -53,7 +53,7 @@ pre-commit run --all-files
 
 ## Tools
 
-Tools used in project for maintaing code style:
+Tools used in project for maintaining code style:
 * `Nox` is a tool, which simplifies management of Python testing.
 [Visit nox website](https://nox.thea.codes/en/stable/)
 * `Pre-commit` is a framework for managing and maintaining multi-language pre-commit hooks.

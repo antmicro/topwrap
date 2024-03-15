@@ -148,7 +148,7 @@ class TestIPWrapper:
         self, axi_dispctrl_ipw_overriden, axi_dispctrl_overriden_port_names_widths
     ):
         """Check whether all the ports of `IPWrapper` object have been created, but this time
-        taking into account the overriden parameters values.
+        taking into account the overridden parameters values.
         """
         for port_name, port_width in axi_dispctrl_overriden_port_names_widths:
             ipw_port = axi_dispctrl_ipw_overriden.get_port_by_name(port_name)

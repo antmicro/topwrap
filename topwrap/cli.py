@@ -64,7 +64,7 @@ def build_main(sources, design, build_dir, part, iface_compliance, log_level):
     if part is None:
         logging.warning(
             "You didn't specify part number. 'None' will be used"
-            "and thus your implamentation may fail."
+            "and thus your implementation may fail."
         )
 
     # following function does make sure that build directory exists
@@ -206,7 +206,7 @@ def kpm_build_server(ctx, workspace_directory, output_directory):
 @click.option(
     "--backend-host",
     default=DEFAULT_BACKEND_ADDR,
-    help="The adress of the backend of Pipeline Manager",
+    help="The address of the backend of Pipeline Manager",
 )
 @click.option(
     "--backend-port",

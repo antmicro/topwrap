@@ -181,7 +181,7 @@ def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
 
 
 def _generate_ifaces_styling(interfaces_types: list) -> dict:
-    """Generate the `spec["metatadata"]["interfaces]` part of the KPM specification, which is
+    """Generate the `spec["metadata"]["interfaces"]` part of the KPM specification, which is
     responsible for styling interfaces and their connections.
 
     :param interfaces_types: a list of interfaces types, e.g. ["iface_AXI4", "iface_AXILite"]
@@ -230,10 +230,10 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
     """Translate Topwrap's IP core description YAMLs into
     KPM specification 'nodes'.
 
-    :param yamlfiles: IP core desciption YAMLs, that will be converted
+    :param yamlfiles: IP core description YAMLs, that will be converted
     into KPM specification 'nodes'
 
-    :return: a dict contatining KPM specification in which each 'node'
+    :return: a dict containing KPM specification in which each 'node'
         represents a separate IP core
     """
     specification = {

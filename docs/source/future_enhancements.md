@@ -31,7 +31,7 @@ Therefore, one of our objectives is to provide a convenient way of creating and 
 (systemverilog-parsing)=
 ## Support for parsing SystemVerilog sources
 
-Information about IP cores is stored in {ref}`IP core description YAMLs <ip-description>`. These files can be generated automatically from HDL source files - currently Verilog and VHDL are supported. Our goal is to provide the possiblity of generating such YAMLs from SystemVerilog too.
+Information about IP cores is stored in {ref}`IP core description YAMLs <ip-description>`. These files can be generated automatically from HDL source files - currently Verilog and VHDL are supported. Our goal is to provide the possibility of generating such YAMLs from SystemVerilog too.
 
 (pm-hdl-parsing)=
 ## Provide a way to parse HDL sources from the Pipeline Manager level

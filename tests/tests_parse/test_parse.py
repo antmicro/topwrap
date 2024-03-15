@@ -112,7 +112,7 @@ class TestVerilogParse:
 
         assert len(seg7_4d_ctrl_modules) == 9
 
-        # check if one of the modules (the first one) was parsed correcly
+        # check if one of the modules (the first one) was parsed correctly
         seg7_4d_ctrl_raw = seg7_4d_ctrl_modules[0]
         assert seg7_4d_ctrl_raw.get_module_name() == "seg7_4d_ctrl_raw"
         assert seg7_4d_ctrl_raw.get_parameters() == {"CDBITS": 18, "POL": 0, "SELECT_POL": 0}

@@ -75,7 +75,7 @@ class TestPWMDataflowImport:
 
     def test_pwm_metanodes(self, pwm_design_yaml):
         """Check the number of generated external metanodes and their contents. Metanodes should
-        always cotain one "External Name" property and one "external" interface.
+        always contain one "External Name" property and one "external" interface.
         """
         kpm_metanodes = kpm_metanodes_from_design_descr(pwm_design_yaml)
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]

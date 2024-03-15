@@ -40,7 +40,7 @@ design:
         ...
     {hierarchy_name_2}:
       ...
-  
+
   parameters: # specify IPs parameter values to be overridden
     {ip_instance_name}:
       {param_name} : {param_value}
@@ -184,7 +184,7 @@ signals:
 ### Parameterization
 
 Port widths don't have to be hardcoded - you can use parameters to describe an IP core in a generic way.
-Values specified in IP core yamls can be overriden in a design description file (see {ref}`Design Description <design-description>`).
+Values specified in IP core yamls can be overridden in a design description file (see {ref}`Design Description <design-description>`).
 
 ```yaml
 parameters:
@@ -231,7 +231,7 @@ m_axi_1:
 
 ## Interface Description files
 
-Topwrap can use predefined interfaces which are descibed in YAML-formatted files.
+Topwrap can use predefined interfaces which are described in YAML-formatted files.
 The interfaces you use don't have to be predefined, but it's possible to perform checks
 on whether all the mandatory signals are connected, when you use an interface definition.
 

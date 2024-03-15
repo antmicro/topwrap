@@ -76,7 +76,7 @@ def _eval_bounds(bounds, params):
 
 class IPWrapper(Wrapper):
     """This class instantiates an IP in a wrapper to use its individual ports
-    or groupped ports as interfaces.
+    or grouped ports as interfaces.
     """
 
     def __init__(self, yamlfile: str, ip_name: str, instance_name: str, params={}):
@@ -204,7 +204,7 @@ class IPWrapper(Wrapper):
         instance_args = {}
 
         for internal_name, ports in _group_by_internal_name(self._ports):
-            # Ports must be groupped to allow connecting
+            # Ports must be grouped to allow connecting
             # multiple ports into one, wider port
             #
             # ext_name1[7:6] ---\
@@ -213,7 +213,7 @@ class IPWrapper(Wrapper):
             # ext_name3[1:0] ---/
 
             # Ports must be sorted.
-            # The order of concatentation is : Cat(a,b,c) == cba
+            # The order of concatenation is : Cat(a,b,c) == cba
             ports_sorted = sorted(ports, key=lambda p: p.bounds[2])
             prefix = port_direction_to_prefix(ports_sorted[0].direction)
 

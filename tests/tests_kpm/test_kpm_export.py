@@ -21,7 +21,7 @@ class TestPWMDataflowExport:
     """
 
     def test_parameters(self, pwm_dataflow):
-        """Check whether generated parameters values match the overriden values from
+        """Check whether generated parameters values match the overridden values from
         `examples/pwm/project.yml` and default values from IP core description YAMLs.
         """
         [axi_node] = list(
