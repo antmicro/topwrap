@@ -70,7 +70,7 @@ run_lint() {
     end_command_group
 
     begin_command_group "Run lint checks"
-    log_cmd nox -s isort_check black_check flake8
+    log_cmd nox -s lint_check
     end_command_group
 }
 

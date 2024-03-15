@@ -17,38 +17,20 @@ def pre_commit(session: nox.Session) -> None:
 
 
 @nox.session()
-def isort(session: nox.Session) -> None:
-    """Options are defined in pyproject.toml file"""
+def lint(session: nox.Session) -> None:
+    """Options are defined in pyproject.toml and .flake8 files"""
     session.install(".[lint]")
     session.run("isort", ".")
-
-
-@nox.session()
-def isort_check(session: nox.Session) -> None:
-    """Options are defined in pyproject.toml file"""
-    session.install(".[lint]")
-    session.run("isort", "--check", ".")
-
-
-@nox.session
-def flake8(session):
-    """Options are defined in .flake8 file."""
-    session.install(".[lint]")
     session.run("flake8", ".")
-
-
-@nox.session
-def black(session):
-    """Options are defined in pyproject.toml file"""
-    session.install(".[lint]")
     session.run("black", ".")
 
 
-@nox.session
-def black_check(session):
-    """Options are defined in pyproject.toml file"""
+@nox.session()
+def lint_check(session: nox.Session) -> None:
     session.install(".[lint]")
+    session.run("isort", "--check", ".")
     session.run("black", "--check", ".")
+    session.run("flake8", ".")
 
 
 # Coverage report generation will work only with packages installed

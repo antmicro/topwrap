@@ -27,8 +27,8 @@ repos:
 -   repo: local
     hooks:
     -   id: nox
-        name: Nox Lint (isort black flake8)
-        entry: nox -s isort black flake8 --
+        name: Nox Lint
+        entry: nox -s lint --
         language: system
         types: [python]
         require_serial: true
