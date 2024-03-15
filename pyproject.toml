@@ -37,6 +37,7 @@ lint = [
   "pre-commit==3.5.0",
   "black==23.12.1",
   "isort==5.13.2",
+  "codespell==2.2.6",
 ]
 tests = [
   "nox==2023.4.22",
@@ -84,3 +85,7 @@ skip = [
     "build",
     "docs/source/conf.py",
 ]
+
+[tool.codespell]
+skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__"
+ignore-words-list = "convertor, inout, inouts"

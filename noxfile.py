@@ -23,6 +23,7 @@ def lint(session: nox.Session) -> None:
     session.run("isort", ".")
     session.run("flake8", ".")
     session.run("black", ".")
+    session.run("codespell", "-w")
 
 
 @nox.session()
@@ -31,6 +32,7 @@ def lint_check(session: nox.Session) -> None:
     session.run("isort", "--check", ".")
     session.run("black", "--check", ".")
     session.run("flake8", ".")
+    session.run("codespell")
 
 
 # Coverage report generation will work only with packages installed
