@@ -5,56 +5,61 @@ name: AXI4
 port_prefix: AXI4
 signals:
     required:
-        ACLK: aclk
-        ARESETn: aresetn
+        out:
+            AWADDR: awaddr
+            AWVALID: awvalid
+            AWID: awid
+            AWREGION: awregion
+            AWLEN: awlen
+            AWSIZE: awsize
+            AWBURST: awburst
+            AWLOCK: awlock
+            AWCACHE: awcache
+            AWPROT: awprot
+            AWQOS: awqos
 
-        AWADDR: awaddr
-        AWVALID: awvalid
-        AWREADY: awready
-        AWID: awid
-        AWREGION: awregion
-        AWLEN: awlen
-        AWSIZE: awsize
-        AWBURST: awburst
-        AWLOCK: awlock
-        AWCACHE: awcache
-        AWPROT: awprot
-        AWQOS: awqos
-        WDATA: wdata
+            WDATA: wdata
+            WVALID: wvalid
+            WSTRB: wstrb
+            WLAST: wlast
 
-        WVALID: wvalid
-        WREADY: wready
-        WSTRB: wstrb
-        WLAST: wlast
+            BREADY: bready
 
-        BVALID: bvalid
-        BREADY: bready
-        BID: bid
-        BRESP: bresp
+            ARID: arid
+            ARADDR: araddr
+            ARLEN: arlen
+            ARSIZE: arsize
+            ARBURST: arburst
+            ARLOCK: arlock
+            ARCACHE: arcache
+            ARPROT: arprot
+            ARQOS: arqos
+            ARREGION: arregion
+            ARVALID: arvalid
 
-        ARID: arid
-        ARADDR: araddr
-        ARLEN: arlen
-        ARSIZE: arsize
-        ARBURST: arburst
-        ARLOCK: arlock
-        ARCACHE: arcache
-        ARPROT: arprot
-        ARQOS: arqos
-        ARREGION: arregion
-        ARVALID: arvalid
-        ARREADY: arready
+            RREADY: rready
+        in:
+            AWREADY: awready
 
-        RID: rid
-        RDATA: rdata
-        RRESP: rresp
-        RLAST: rlast
-        RVALID: rvalid
-        RREADY: rready
+            WREADY: wready
 
+            BVALID: bvalid
+            BID: bid
+            BRESP: bresp
+
+            ARREADY: arready
+
+            RID: rid
+            RDATA: rdata
+            RRESP: rresp
+            RLAST: rlast
+            RVALID: rvalid
     optional:
-        AWUSER: awuser
-        WUSER: wuser
-        BUSER: buser
-        ARUSER: aruser
-        RUSER: ruser
+        out:
+            AWUSER: awuser
+            WUSER: wuser
+            ARUSER: aruser
+
+        in:
+            BUSER: buser
+            RUSER: ruser

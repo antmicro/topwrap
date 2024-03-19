@@ -12,14 +12,11 @@ from typing import List
 import yaml
 from typing_extensions import override
 
-from topwrap.interface_grouper import InterfaceGrouper
+from topwrap.interface_grouper import standard_iface_grouper
 from topwrap.repo.files import File, LocalFile, TemporaryFile
 from topwrap.repo.repo import Repo
 from topwrap.repo.resource import FileHandler, Resource, ResourceHandler
-from topwrap.verilog_parser import (
-    VerilogModuleGenerator,
-    ipcore_desc_from_verilog_module,
-)
+from topwrap.verilog_parser import VerilogModuleGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -158,14 +155,15 @@ class VerilogFileHandler(FileHandler):
         resources: List[Resource] = []
         for file in self._files:
             modules = VerilogModuleGenerator().get_modules(str(file.path))
-            iface_grouper = InterfaceGrouper(use_yosys=True, iface_deduce=True, ifaces_names=())
+            iface_grouper = standard_iface_grouper(
+                hdl_filename=file.path, use_yosys=True, iface_deduce=True, ifaces_names=()
+            )
             for module in modules:
                 desc_file = TemporaryFile()
-                ipcore_desc = ipcore_desc_from_verilog_module(module, iface_grouper)
+                ipcore_desc = module.to_ip_core_description(iface_grouper)
                 ipcore_desc.save(desc_file.path)
 
-                name = module.get_module_name()
-                core = Core(name, desc_file, [file])
+                core = Core(module.module_name, desc_file, [file])
                 resources.append(core)
 
         return resources

@@ -5,48 +5,50 @@ name: AXI3
 port_prefix: AXI3
 signals:
     required:
-        ACLK: aclk
-        ARESETn: aresetn
+        out:
+            AWADDR: awaddr
+            AWVALID: awvalid
+            AWID: awid
+            AWLEN: awlen
+            AWSIZE: awsize
+            AWBURST: awburst
+            AWLOCK: awlock
+            AWCACHE: awcache
+            AWPROT: awprot
 
-        AWADDR: awaddr
-        AWVALID: awvalid
-        AWREADY: awready
-        AWID: awid
-        AWLEN: awlen
-        AWSIZE: awsize
-        AWBURST: awburst
-        AWLOCK: awlock
-        AWCACHE: awcache
-        AWPROT: awprot
+            WID: wid
+            WDATA: wdata
+            WLAST: wlast
+            WVALID: wvalid
+            WSTRB: wstrb
 
-        WID: wid
-        WDATA: wdata
-        WLAST: wlast
-        WVALID: wvalid
-        WREADY: wready
-        WSTRB: wstrb
+            BREADY: bready
 
-        BVALID: bvalid
-        BREADY: bready
-        BID: bid
-        BRESP: bresp
+            ARID: arid
+            ARADDR: araddr
+            ARLEN: arlen
+            ARSIZE: arsize
+            ARBURST: arburst
+            ARLOCK: arlock
+            ARCACHE: arcache
+            ARPROT: arprot
+            ARVALID: arvalid
 
-        ARID: arid
-        ARADDR: araddr
-        ARLEN: arlen
-        ARSIZE: arsize
-        ARBURST: arburst
-        ARLOCK: arlock
-        ARCACHE: arcache
-        ARPROT: arprot
-        ARVALID: arvalid
-        ARREADY: arready
+            RREADY: rready
+        in:
+            AWREADY: awready
 
-        RID: rid
-        RDATA: rdata
-        RRESP: rresp
-        RLAST: rlast
-        RVALID: rvalid
-        RREADY: rready
+            WREADY: wready
 
-    optional:
+            BVALID: bvalid
+            BID: bid
+            BRESP: bresp
+
+            ARREADY: arready
+
+            RID: rid
+            RDATA: rdata
+            RRESP: rresp
+            RLAST: rlast
+            RVALID: rvalid
+

@@ -1,13 +1,14 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from logging import error
-from typing import Dict, Set, Union
+from typing import Dict, Set
 
 from hdlConvertor import HdlConvertor
 from hdlConvertorAst.language import Language
 from hdlConvertorAst.to.json import ToJson
+from typing_extensions import override
 
-from .hdl_module import HDLModule
+from .hdl_module import HDLModule, HDLParameter
 from .hdl_parsers_utils import PortDefinition, PortDirection, resolve_ops
 
 
@@ -31,10 +32,14 @@ class VHDLModule(HDLModule):
         except IndexError:
             error(f"No module found in {vhdl_file}!")  # TODO
 
-    def get_module_name(self) -> str:
+    @property
+    @override
+    def module_name(self) -> str:
         return self.__data["name"]["val"]
 
-    def get_parameters(self) -> Dict[str, Union[int, str, Dict[str, int]]]:
+    @property
+    @override
+    def parameters(self) -> Dict[str, HDLParameter]:
         params = {}
         for item in self.__data["params"]:
             param_val = resolve_ops(item["value"], params)
@@ -42,7 +47,9 @@ class VHDLModule(HDLModule):
                 params[item["name"]["val"]] = param_val
         return params
 
-    def get_ports(self) -> Set[PortDefinition]:
+    @property
+    @override
+    def ports(self) -> Set[PortDefinition]:
         ports = set()
 
         for item in self.__data["ports"]:
@@ -53,7 +60,7 @@ class VHDLModule(HDLModule):
             if type_or_bounds == "std_logic" or type_or_bounds == "std_ulogic":
                 ubound, lbound = "0", "0"
             else:
-                resolved_ops = resolve_ops(type_or_bounds, self.get_parameters())
+                resolved_ops = resolve_ops(type_or_bounds, self.parameters)
                 if resolved_ops is not None:
                     ubound, lbound = resolved_ops[1:-1].split(":")
                 else:

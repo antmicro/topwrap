@@ -1,12 +1,9 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from collections import defaultdict
-from os import path
-from typing import Dict, Iterable, List, Optional, Set
+from typing import Dict, Iterable, List, Set
 
-import yaml
 from strictyaml import (
-    CommaSeparated,
     EmptyDict,
     EmptyList,
     Enum,
@@ -18,10 +15,9 @@ from strictyaml import (
     Str,
     as_document,
 )
-from strictyaml.dumper import StrictYAMLDumper
-from strictyaml.ruamel import dump
 
 from .hdl_parsers_utils import PortDefinition, PortDirection
+from .interface import InterfaceMode
 from .interface_grouper import InterfaceMatch
 
 
@@ -38,9 +34,6 @@ class IPCoreDescription:
         self.ports = ports
         self.iface_matches = iface_matches
 
-        # TODO: update docs on new formats
-        # TODO: update examples with new formats
-        # TODO: update anything that might depend on the format
         port_schema = FixedSeq([Str(), Str(), Str()])  # alternatively CommaSeparated(Str())
         port_list_schema = Seq(port_schema) | EmptyList()
         iface_port_list_schema = MapPattern(Str(), port_schema) | EmptyDict()
@@ -71,7 +64,7 @@ class IPCoreDescription:
                                 }
                             ),
                             "type": Str(),  # preferably enum of available interfaces
-                            "mode": Enum(["master", "slave"]),
+                            "mode": Enum(list(map(lambda mode: mode.value, InterfaceMode))),
                         }
                     ),
                 )
@@ -153,11 +146,10 @@ class IPCoreDescription:
         )
 
         for iface in iface_matches:
-            ifaces_by_dir[iface.prefix]["type"] = iface.bus_type
-            # TODO: deduce mode or get rid of it entirely as there could be more configurations that don't imply master/slave
-            ifaces_by_dir[iface.prefix]["mode"] = "master"
-            for iface_port_name, rtl_port in iface.signals.items():
-                ifaces_by_dir[iface.prefix]["signals"][rtl_port.direction.value][iface_port_name] = [
+            ifaces_by_dir[iface.name]["type"] = iface.bus_type
+            ifaces_by_dir[iface.name]["mode"] = iface.mode.value
+            for iface_port, rtl_port in iface.signals.items():
+                ifaces_by_dir[iface.name]["signals"][rtl_port.direction.value][iface_port.name] = [
                     rtl_port.name,
                     rtl_port.upper_bound,
                     rtl_port.lower_bound,
@@ -165,23 +157,25 @@ class IPCoreDescription:
 
         return ifaces_by_dir
 
+    def format(self):
+        ifaces_by_dir = self._group_iface_ports_by_dir(self.iface_matches)
+
+        # ports that belong to some interface
+        iface_ports = set()
+        for iface in self.iface_matches:
+            iface_ports.update(iface.signals.values())
+        # only consider ports that aren't part of any interface
+        ports_by_dir = self._group_ports_by_dir(self.ports - iface_ports)
+        return {
+            "name": self.name,
+            "parameters": self.parameters,
+            "signals": ports_by_dir,
+            "interfaces": ifaces_by_dir,
+        }
+
     def save(self, filename=None):
         if filename is None:
             filename = self.name + ".yaml"
 
         with open(filename, "w") as f:
-            ifaces_by_dir = self._group_iface_ports_by_dir(self.iface_matches)
-
-            # ports that belong to some interface
-            iface_ports = set()
-            for iface in self.iface_matches:
-                iface_ports.update(iface.signals.values())
-            # only consider ports that aren't part of any interface
-            ports_by_dir = self._group_ports_by_dir(self.ports - iface_ports)
-            yaml_content = {
-                "name": self.name,
-                "parameters": self.parameters,
-                "signals": ports_by_dir,
-                "interfaces": ifaces_by_dir,
-            }
-            f.write(as_document(yaml_content, self.schema).as_yaml())
+            f.write(as_document(self.format(), self.schema).as_yaml())

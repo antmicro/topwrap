@@ -8,24 +8,27 @@ name: wishbone
 port_prefix: wishbone
 signals:
     required:
-        clk: clk
-        ack: ack
-        cyc: cyc
-        rst: rst
-        stb: stb
+        out:
+            cyc: cyc
+            stb: stb
+        in:
+            ack: ack
     optional:
-        dat_r: dat_r
-        dat_w: dat_w
-        tgd_r: tgd_r
-        tgd_w: tgd_w
-        adr: adr
-        stall: stall
-        err: err
-        rty: rty
-        lock: lock
-        sel: sel
-        tga: tga
-        tgc: tgc
-        we: we
-        cti: cti
-        bte: bte
+        out:
+            dat_w: dat_w|mosi
+            adr: adr
+            tgd_w: tgd_w
+            lock: lock
+            sel: sel
+            tga: tga
+            tgc: tgc
+            we: we
+            cti: cti
+            bte: bte
+        in:
+            dat_r: dat_r|miso
+            tgd_r: tgd_r
+            stall: stall
+
+            err: err
+            rty: rty

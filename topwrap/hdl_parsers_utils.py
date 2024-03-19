@@ -1,10 +1,8 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
 from logging import warning
-from typing import Iterable
 
 import numexpr as ex
 

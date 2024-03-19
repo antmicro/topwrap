@@ -1,0 +1,251 @@
+name: axi_axil_adapter
+parameters:
+  ADDR_WIDTH: 32
+  AXI_DATA_WIDTH: 32
+  AXI_STRB_WIDTH: (AXI_DATA_WIDTH/8)
+  AXI_ID_WIDTH: 8
+  AXIL_DATA_WIDTH: 32
+  AXIL_STRB_WIDTH: (AXIL_DATA_WIDTH/8)
+  CONVERT_BURST: 1
+  CONVERT_NARROW_BURST: 0
+signals:
+  in:
+  - - clk
+    - 0
+    - 0
+  - - rst
+    - 0
+    - 0
+  out:
+  inout:
+interfaces:
+  s_axi:
+    signals:
+      in:
+        ARCACHE:
+        - s_axi_arcache
+        - 3
+        - 0
+        ARBURST:
+        - s_axi_arburst
+        - 1
+        - 0
+        AWBURST:
+        - s_axi_awburst
+        - 1
+        - 0
+        ARVALID:
+        - s_axi_arvalid
+        - 0
+        - 0
+        AWCACHE:
+        - s_axi_awcache
+        - 3
+        - 0
+        AWVALID:
+        - s_axi_awvalid
+        - 0
+        - 0
+        ARPROT:
+        - s_axi_arprot
+        - 2
+        - 0
+        AWPROT:
+        - s_axi_awprot
+        - 2
+        - 0
+        BREADY:
+        - s_axi_bready
+        - 0
+        - 0
+        ARLOCK:
+        - s_axi_arlock
+        - 0
+        - 0
+        RREADY:
+        - s_axi_rready
+        - 0
+        - 0
+        ARSIZE:
+        - s_axi_arsize
+        - 2
+        - 0
+        ARADDR:
+        - s_axi_araddr
+        - (ADDR_WIDTH-1)
+        - 0
+        AWSIZE:
+        - s_axi_awsize
+        - 2
+        - 0
+        AWADDR:
+        - s_axi_awaddr
+        - (ADDR_WIDTH-1)
+        - 0
+        WVALID:
+        - s_axi_wvalid
+        - 0
+        - 0
+        AWLOCK:
+        - s_axi_awlock
+        - 0
+        - 0
+        AWLEN:
+        - s_axi_awlen
+        - 7
+        - 0
+        WDATA:
+        - s_axi_wdata
+        - (AXI_DATA_WIDTH-1)
+        - 0
+        WLAST:
+        - s_axi_wlast
+        - 0
+        - 0
+        WSTRB:
+        - s_axi_wstrb
+        - (AXI_STRB_WIDTH-1)
+        - 0
+        ARLEN:
+        - s_axi_arlen
+        - 7
+        - 0
+        AWID:
+        - s_axi_awid
+        - (AXI_ID_WIDTH-1)
+        - 0
+        ARID:
+        - s_axi_arid
+        - (AXI_ID_WIDTH-1)
+        - 0
+      out:
+        ARREADY:
+        - s_axi_arready
+        - 0
+        - 0
+        AWREADY:
+        - s_axi_awready
+        - 0
+        - 0
+        WREADY:
+        - s_axi_wready
+        - 0
+        - 0
+        RVALID:
+        - s_axi_rvalid
+        - 0
+        - 0
+        BVALID:
+        - s_axi_bvalid
+        - 0
+        - 0
+        RLAST:
+        - s_axi_rlast
+        - 0
+        - 0
+        RDATA:
+        - s_axi_rdata
+        - (AXI_DATA_WIDTH-1)
+        - 0
+        RRESP:
+        - s_axi_rresp
+        - 1
+        - 0
+        BRESP:
+        - s_axi_bresp
+        - 1
+        - 0
+        RID:
+        - s_axi_rid
+        - (AXI_ID_WIDTH-1)
+        - 0
+        BID:
+        - s_axi_bid
+        - (AXI_ID_WIDTH-1)
+        - 0
+      inout:
+    type: AXI3
+    mode: slave
+  m_axil:
+    signals:
+      in:
+        ARREADY:
+        - m_axil_arready
+        - 0
+        - 0
+        AWREADY:
+        - m_axil_awready
+        - 0
+        - 0
+        WREADY:
+        - m_axil_wready
+        - 0
+        - 0
+        RVALID:
+        - m_axil_rvalid
+        - 0
+        - 0
+        BVALID:
+        - m_axil_bvalid
+        - 0
+        - 0
+        RDATA:
+        - m_axil_rdata
+        - (AXIL_DATA_WIDTH-1)
+        - 0
+        RRESP:
+        - m_axil_rresp
+        - 1
+        - 0
+        BRESP:
+        - m_axil_bresp
+        - 1
+        - 0
+      out:
+        ARVALID:
+        - m_axil_arvalid
+        - 0
+        - 0
+        AWVALID:
+        - m_axil_awvalid
+        - 0
+        - 0
+        AWPROT:
+        - m_axil_awprot
+        - 2
+        - 0
+        BREADY:
+        - m_axil_bready
+        - 0
+        - 0
+        WVALID:
+        - m_axil_wvalid
+        - 0
+        - 0
+        ARADDR:
+        - m_axil_araddr
+        - (ADDR_WIDTH-1)
+        - 0
+        AWADDR:
+        - m_axil_awaddr
+        - (ADDR_WIDTH-1)
+        - 0
+        RREADY:
+        - m_axil_rready
+        - 0
+        - 0
+        ARPROT:
+        - m_axil_arprot
+        - 2
+        - 0
+        WDATA:
+        - m_axil_wdata
+        - (AXIL_DATA_WIDTH-1)
+        - 0
+        WSTRB:
+        - m_axil_wstrb
+        - (AXIL_STRB_WIDTH-1)
+        - 0
+      inout:
+    type: AXI4Lite
+    mode: master

@@ -4,14 +4,22 @@
 name: AXI4Stream
 port_prefix: AXIS
 signals:
+    # assuming transmitter = master
     required:
-        TVALID: tvalid
-        TDATA: tdata
-        TLAST: tlast
-        TREADY: tready
+        out:
+            TVALID: tvalid
+            TDATA: tdata
+            TLAST: tlast
+
+        in:
+            TREADY: tready
+
     optional:
-        TID: tid
-        TDEST: tdest
-        TKEEP: tkeep
-        TSTRB: tstrb
-        TUSER: tuser
+        out:
+            TID: tid
+            TDEST: tdest
+            TKEEP: tkeep
+            TSTRB: tstrb
+            TUSER: tuser
+            TWAKEUP: twakeup
+

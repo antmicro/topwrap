@@ -25,6 +25,9 @@ dependencies = [
   "numexpr",
   "typing_extensions",
   "strictyaml",
+  "marshmallow-dataclass[enum]",
+  "typing_extensions",
+  "pygtrie",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@f00e45573bb91ff5ac8760b1c4b73e8ff67085a0",
   "soc_generator @ git+https://github.com/antmicro/soc-generator@76ac5b3743bea1bb6e5d2ac7ecae31ab39d5e8b3"
@@ -48,6 +51,7 @@ tests = [
   "pytest-cov==4.1.0",
   "pytest-lazy-fixtures==1.0.1",
   "pyfakefs==5.3.5",
+  "deepdiff==7.0.1",
 ]
 
 [project.scripts]

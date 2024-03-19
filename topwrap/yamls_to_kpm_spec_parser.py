@@ -4,6 +4,7 @@
 import logging
 import os
 
+from .interface import InterfaceMode
 from .kpm_common import CONST_NAME, EXT_INOUT_NAME, EXT_INPUT_NAME, EXT_OUTPUT_NAME
 from .parsers import parse_port_map
 
@@ -75,7 +76,8 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
 def _ipcore_ifaces_to_kpm(ifaces: dict):
     """Returns a list of interfaces grouped by direction (inputs/outputs)
     in a format used in KPM specification. Master interfaces are considered
-    outputs and slave interfaces are considered inputs.
+    outputs, slave interfaces are considered inputs and interfaces with
+    unspecified direction are considered inouts.
 
     :param ifaces: a dict containing interfaces descriptions,
         gathered from IP core description YAML
@@ -83,27 +85,27 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
     :return: a dict containing KPM "inputs" and "outputs", which
         correspond to given IP core interfaces
     """
-    inputs = [
-        {
-            "name": iface,
-            "type": [f'iface_{ifaces[iface]["type"]}'],
-            "direction": "input",
-        }
-        for iface in ifaces.keys()
-        if ifaces[iface]["mode"] == "slave"
-    ]
-    outputs = [
-        {
-            "name": iface,
-            "type": [f'iface_{ifaces[iface]["type"]}'],
-            "direction": "output",
-            "maxConnectionsCount": 1,
-        }
-        for iface in ifaces.keys()
-        if ifaces[iface]["mode"] == "master"
-    ]
+    kpm_ifaces = []
+    for name, iface in ifaces.items():
+        if iface["mode"] in (InterfaceMode.SLAVE.value, InterfaceMode.UNSPECIFIED.value):
+            kpm_ifaces.append(
+                {
+                    "name": name,
+                    "type": [f'iface_{iface["type"]}'],
+                    "direction": "input" if iface["mode"] == InterfaceMode.SLAVE.value else "inout",
+                }
+            )
+        elif iface["mode"] == InterfaceMode.MASTER.value:
+            kpm_ifaces.append(
+                {
+                    "name": name,
+                    "type": [f'iface_{iface["type"]}'],
+                    "direction": "output",
+                    "maxConnectionsCount": 1,
+                }
+            )
 
-    return inputs + outputs
+    return kpm_ifaces
 
 
 def _ipcore_to_kpm(yamlfile: str) -> dict:

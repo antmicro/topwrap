@@ -57,63 +57,117 @@ module axi_axil_adapter #
     /*
      * AXI slave interface
      */
+    (* interface="axi_slave" *)
     input  wire [AXI_ID_WIDTH-1:0]     s_axi_awid,
+    (* interface="axi_slave" *)
     input  wire [ADDR_WIDTH-1:0]       s_axi_awaddr,
+    (* interface="axi_slave" *)
     input  wire [7:0]                  s_axi_awlen,
+    (* interface="axi_slave" *)
     input  wire [2:0]                  s_axi_awsize,
+    (* interface="axi_slave" *)
     input  wire [1:0]                  s_axi_awburst,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_awlock,
+    (* interface="axi_slave" *)
     input  wire [3:0]                  s_axi_awcache,
+    (* interface="axi_slave" *)
     input  wire [2:0]                  s_axi_awprot,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_awvalid,
+    (* interface="axi_slave" *)
     output wire                        s_axi_awready,
+    (* interface="axi_slave" *)
     input  wire [AXI_DATA_WIDTH-1:0]   s_axi_wdata,
+    (* interface="axi_slave" *)
     input  wire [AXI_STRB_WIDTH-1:0]   s_axi_wstrb,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_wlast,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_wvalid,
+    (* interface="axi_slave" *)
     output wire                        s_axi_wready,
+    (* interface="axi_slave" *)
     output wire [AXI_ID_WIDTH-1:0]     s_axi_bid,
+    (* interface="axi_slave" *)
     output wire [1:0]                  s_axi_bresp,
+    (* interface="axi_slave" *)
     output wire                        s_axi_bvalid,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_bready,
+    (* interface="axi_slave" *)
     input  wire [AXI_ID_WIDTH-1:0]     s_axi_arid,
+    (* interface="axi_slave" *)
     input  wire [ADDR_WIDTH-1:0]       s_axi_araddr,
+    (* interface="axi_slave" *)
     input  wire [7:0]                  s_axi_arlen,
+    (* interface="axi_slave" *)
     input  wire [2:0]                  s_axi_arsize,
+    (* interface="axi_slave" *)
     input  wire [1:0]                  s_axi_arburst,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_arlock,
+    (* interface="axi_slave" *)
     input  wire [3:0]                  s_axi_arcache,
+    (* interface="axi_slave" *)
     input  wire [2:0]                  s_axi_arprot,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_arvalid,
+    (* interface="axi_slave" *)
     output wire                        s_axi_arready,
+    (* interface="axi_slave" *)
     output wire [AXI_ID_WIDTH-1:0]     s_axi_rid,
+    (* interface="axi_slave" *)
     output wire [AXI_DATA_WIDTH-1:0]   s_axi_rdata,
+    (* interface="axi_slave" *)
     output wire [1:0]                  s_axi_rresp,
+    (* interface="axi_slave" *)
     output wire                        s_axi_rlast,
+    (* interface="axi_slave" *)
     output wire                        s_axi_rvalid,
+    (* interface="axi_slave" *)
     input  wire                        s_axi_rready,
 
     /*
      * AXI lite master interface
      */
+    (* interface="axi_master" *)
     output wire [ADDR_WIDTH-1:0]       m_axil_awaddr,
+    (* interface="axi_master" *)
     output wire [2:0]                  m_axil_awprot,
+    (* interface="axi_master" *)
     output wire                        m_axil_awvalid,
+    (* interface="axi_master" *)
     input  wire                        m_axil_awready,
+    (* interface="axi_master" *)
     output wire [AXIL_DATA_WIDTH-1:0]  m_axil_wdata,
+    (* interface="axi_master" *)
     output wire [AXIL_STRB_WIDTH-1:0]  m_axil_wstrb,
+    (* interface="axi_master" *)
     output wire                        m_axil_wvalid,
+    (* interface="axi_master" *)
     input  wire                        m_axil_wready,
+    (* interface="axi_master" *)
     input  wire [1:0]                  m_axil_bresp,
+    (* interface="axi_master" *)
     input  wire                        m_axil_bvalid,
+    (* interface="axi_master" *)
     output wire                        m_axil_bready,
+    (* interface="axi_master" *)
     output wire [ADDR_WIDTH-1:0]       m_axil_araddr,
+    (* interface="axi_master" *)
     output wire [2:0]                  m_axil_arprot,
+    (* interface="axi_master" *)
     output wire                        m_axil_arvalid,
+    (* interface="axi_master" *)
     input  wire                        m_axil_arready,
+    (* interface="axi_master" *)
     input  wire [AXIL_DATA_WIDTH-1:0]  m_axil_rdata,
+    (* interface="axi_master" *)
     input  wire [1:0]                  m_axil_rresp,
+    (* interface="axi_master" *)
     input  wire                        m_axil_rvalid,
+    (* interface="axi_master" *)
     output wire                        m_axil_rready
 );
 

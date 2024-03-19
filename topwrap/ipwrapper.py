@@ -18,9 +18,8 @@ from .amaranth_helpers import (
     port_direction_to_prefix,
 )
 from .config import config
-from .interface import get_interface_by_name
+from .interface import check_interface_compliance, get_interface_by_name
 from .parsers import parse_port_map
-from .util import check_interface_compliance
 from .wrapper import Wrapper
 
 

@@ -11,7 +11,7 @@ import click
 
 from .config import config
 from .design import build_design_from_yaml
-from .interface_grouper import InterfaceGrouper
+from .interface_grouper import standard_iface_grouper
 from .kpm_topwrap_client import kpm_run_client
 
 click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True)
@@ -110,13 +110,13 @@ def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
 
     for filename in list(filter(lambda name: os.path.splitext(name)[-1] == ".v", files)):  # noqa
         modules = VerilogModuleGenerator().get_modules(filename)
-        iface_grouper = InterfaceGrouper(use_yosys, iface_deduce, iface)
+        iface_grouper = standard_iface_grouper(Path(filename), use_yosys, iface_deduce, iface)
         for verilog_mod in modules:
             ipcore_desc = verilog_mod.to_ip_core_description(iface_grouper)
             yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
             ipcore_desc.save(yaml_path)
             logging.info(
-                f"Verilog module '{verilog_mod.get_module_name()}'" f"saved in file '{yaml_path}'"
+                f"Verilog module '{verilog_mod.module_name}'" f"saved in file '{yaml_path}'"
             )
 
     for filename in list(
@@ -124,11 +124,11 @@ def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
     ):  # noqa
         # TODO - handle case with multiple VHDL modules in one file
         vhdl_mod = VHDLModule(filename)
-        iface_grouper = InterfaceGrouper(False, iface_deduce, iface)
+        iface_grouper = standard_iface_grouper(Path(filename), False, iface_deduce, iface)
         ipcore_desc = vhdl_mod.to_ip_core_description(iface_grouper)
         yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
         ipcore_desc.save(yaml_path)
-        logging.info(f"VHDL Module '{vhdl_mod.get_module_name()}'" f"saved in file '{yaml_path}'")
+        logging.info(f"VHDL Module '{vhdl_mod.module_name}'" f"saved in file '{yaml_path}'")
 
 
 DEFAULT_WORKSPACE_DIR = Path("build", "workspace")

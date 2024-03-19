@@ -121,35 +121,36 @@ The previous example is enough to make use of any IP. However, in order to benef
 
 ```yaml
 #file: axis_width_converter.yaml
-s_axis:
-    interface: AXIStream
-    mode: slave
-    signals:
-        in:
-            TDATA: [s_axis_tdata, 63, 0]
-            TKEEP: [s_axis_tkeep, 7, 0]
-            TVALID: s_axis_tvalid
-            TLAST: s_axis_tlast
-            TID: [s_axis_tid, 7, 0]
-            TDEST: [s_axis_tdest, 7, 0]
-            TUSER: s_axis_tuser
-        out:
-            TREADY: s_axis_tready
+interfaces:
+    s_axis:
+        type: AXIStream
+        mode: slave
+        signals:
+            in:
+                TDATA: [s_axis_tdata, 63, 0]
+                TKEEP: [s_axis_tkeep, 7, 0]
+                TVALID: s_axis_tvalid
+                TLAST: s_axis_tlast
+                TID: [s_axis_tid, 7, 0]
+                TDEST: [s_axis_tdest, 7, 0]
+                TUSER: s_axis_tuser
+            out:
+                TREADY: s_axis_tready
 
-m_axis:
-    interface: AXIStream
-    mode: master
-    signals:
-        in:
-            TREADY: m_axis_tready
-        out:
-            TDATA: [m_axis_tdata, 31, 0]
-            TKEEP: [m_axis_tkeep, 3, 0]
-            TVALID: m_axis_tvalid
-            TLAST: m_axis_tlast
-            TID: [m_axis_tid, 7, 0]
-            TDEST: [m_axis_tdest, 7, 0]
-            TUSER: m_axis_tuser
+    m_axis:
+        type: AXIStream
+        mode: master
+        signals:
+            in:
+                TREADY: m_axis_tready
+            out:
+                TDATA: [m_axis_tdata, 31, 0]
+                TKEEP: [m_axis_tkeep, 3, 0]
+                TVALID: m_axis_tvalid
+                TLAST: m_axis_tlast
+                TID: [m_axis_tid, 7, 0]
+                TDEST: [m_axis_tdest, 7, 0]
+                TUSER: m_axis_tuser
 signals: # These ports don't belong to any interface
     in:
         - clk
@@ -167,14 +168,15 @@ The width of every port defaults to `1`.
 You can specify the width using this notation:
 
 ```yaml
-s_axis:
-    interface: AXIStream
-    mode: slave
-    signals:
-        in:
-            TDATA: [s_axis_tdata, 63, 0] # 64 bits
-            ...
-            TVALID: s_axis_tvalid # defaults to 1 bit
+interfaces:
+    s_axis:
+        type: AXIStream
+        mode: slave
+        signals:
+            in:
+                TDATA: [s_axis_tdata, 63, 0] # 64 bits
+                ...
+                TVALID: s_axis_tvalid # defaults to 1 bit
 
 signals:
     in:
@@ -194,17 +196,18 @@ parameters:
     DEST_WIDTH: 8
     USER_WIDTH: 1
 
-s_axis:
-    interface: AXI4Stream
-    mode: slave
-    signals:
-        in:
-            TDATA: [s_axis_tdata, DATA_WIDTH-1, 0]
-            TKEEP: [s_axis_tkeep, KEEP_WIDTH-1, 0]
-            ...
-            TID: [s_axis_tid, ID_WIDTH-1, 0]
-            TDEST: [s_axis_tdest, DEST_WIDTH-1, 0]
-            TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
+interfaces:
+    s_axis:
+        type: AXI4Stream
+        mode: slave
+        signals:
+            in:
+                TDATA: [s_axis_tdata, DATA_WIDTH-1, 0]
+                TKEEP: [s_axis_tkeep, KEEP_WIDTH-1, 0]
+                ...
+                TID: [s_axis_tid, ID_WIDTH-1, 0]
+                TDEST: [s_axis_tdest, DEST_WIDTH-1, 0]
+                TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
 ```
 
 Parameters values can be integers or math expressions, which are evaluated using `numexpr.evaluate()`.
@@ -220,7 +223,7 @@ The example below means:
 
 ```yaml
 m_axi_1:
-    interface: AXI
+    type: AXI
     mode: master
     signals:
         in:
@@ -231,9 +234,8 @@ m_axi_1:
 
 ## Interface Description files
 
-Topwrap can use predefined interfaces which are described in YAML-formatted files.
-The interfaces you use don't have to be predefined, but it's possible to perform checks
-on whether all the mandatory signals are connected, when you use an interface definition.
+Topwrap can use predefined interfaces described in YAML files that come packaged with the tool.
+Currently supported interfaces are AXI4, AXI3, AXI Stream, AXI Lite and Wishbone.
 
 You can see an example file below:
 
@@ -241,17 +243,30 @@ You can see an example file below:
 name: AXI4Stream
 port_prefix: AXIS
 signals:
+    # convention assumes the AXI Stream transmitter (master) perspective
     required:
-        - TVALID
-        - TDATA
-        - TLAST
-        - TREADY
+        out:
+            TVALID: tvalid
+            TDATA: tdata
+            TLAST: tlast
+        in:
+            TREADY: tready
     optional:
-        - TID
-        - TDEST
-        - TKEEP
-        - TSTRB
-        - TUSER
+        out:
+            TID: tid
+            TDEST: tdest
+            TKEEP: tkeep
+            TSTRB: tstrb
+            TUSER: tuser
+            TWAKEUP: twakeup
 ```
 
-The name of an interface has to be unique. We also specify a prefix which will be used as a shortened identifier.
+The name of an interface has to be unique.
+We also specify a prefix which will be used as a shortened identifier.
+Signals are either required or optional.
+Their direction is described from the the perspective of master (i.e. directionality of signals in the slave is flipped) - note that clock and reset are not included as these are usually inputs in both master and slave so they're not supported in interface specification.
+These distinctions are used when an option to check if all mandatory signals are present is enabled and when parsing an IP core with `topwrap parse` (not all required signals must necessarily be present but it's taken into account).
+Every signal is a key-value pair, where the key is a generic signal name (usually from interface specification) and value is a regex that is used to pair the generic name with a concrete signal name in the RTL source when using `topwrap parse`.
+This pairing is performed on signal names that are transformed to lowercase and have a common prefix of an interface they belong to removed. 
+If a regexp occurs in such transformed signal name anywhere, that name is paired with the generic name.
+Since this occurs on names that have all characters in lowercase, regex must be written in lowercase as well.

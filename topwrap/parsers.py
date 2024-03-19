@@ -106,7 +106,7 @@ def parse_port_map(filename: str, base_path: str = ""):
                     bounds = _default_bounds(rtl_port)
                     sigs[iface_port] = bounds
                 iface[direction] = sigs
-            except KeyError:
+            except (KeyError, AttributeError):
                 iface[direction] = dict()
 
     result = dict()

@@ -5,43 +5,50 @@ name: AXI4Lite
 port_prefix: AXIL
 signals:
     required:
-        ACLK: aclk
-        ARESETn: aresetn
+        out:
+            AWID: awid
+            AWADDR: awaddr
+            AWPROT: awprot
+            AWQOS: awqos
+            AWREGION: awregion
+            AWVALID: awvalid
 
-        AWID: awid
-        AWADDR: awaddr
-        AWPROT: awprot
-        AWQOS: awqos
-        AWREGION: awregion
-        AWVALID: awvalid
-        AWREADY: awready
-        WDATA: wdata
-        WSTRB: wstrb
-        WVALID: wvalid
-        WREADY: wready
+            WDATA: wdata
+            WSTRB: wstrb
+            WVALID: wvalid
 
-        BID: bid
-        BRESP: bresp
-        BVALID: bvalid
-        BREADY: bready
+            BREADY: bready
 
-        ARID: arid
-        ARADDR: araddr
-        ARPROT: arprot
-        ARQOS: arqos
-        ARREGION: arregion
-        ARVALID: arvalid
-        ARREADY: arready
+            ARID: arid
+            ARADDR: araddr
+            ARPROT: arprot
+            ARQOS: arqos
+            ARREGION: arregion
+            ARVALID: arvalid
 
-        RID: rid
-        RDATA: rdata
-        RRESP: rresp
-        RVALID: rvalid
-        RREADY: rready
+            RREADY: rready
+        in:
+            AWREADY: awready
+
+            WREADY: wready
+
+            BID: bid
+            BRESP: bresp
+            BVALID: bvalid
+
+            ARREADY: arready
+
+            RID: rid
+            RDATA: rdata
+            RRESP: rresp
+            RVALID: rvalid
 
     optional:
-        AWUSER: awuser
-        WUSER: wuser
-        BUSER: buser
-        ARUSER: aruser
-        RUSER: ruser
+        out:
+            AWUSER: awuser
+            WUSER: wuser
+            ARUSER: aruser
+
+        in:
+            BUSER: buser
+            RUSER: ruser

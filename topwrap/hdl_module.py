@@ -2,32 +2,39 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
+from typing import Dict, Set, Union
 
+from .hdl_parsers_utils import PortDefinition
 from .interface_grouper import InterfaceGrouper
 from .ip_desc import IPCoreDescription
+
+HDLParameter = Union[int, str, Dict[str, int]]
 
 
 class HDLModule(ABC):
     def __init__(self, filename: str):
         self.filename = filename
 
+    @property
     @abstractmethod
-    def get_module_name(self):
-        pass
+    def module_name(self) -> str:
+        pass  # pragma: no cover
 
+    @property
     @abstractmethod
-    def get_parameters(self):
-        pass
+    def parameters(self) -> Dict[str, HDLParameter]:
+        pass  # pragma: no cover
 
+    @property
     @abstractmethod
-    def get_ports(self):
-        pass
+    def ports(self) -> Set[PortDefinition]:
+        pass  # pragma: no cover
 
     def to_ip_core_description(self, iface_grouper: InterfaceGrouper) -> IPCoreDescription:
-        mod_name = self.get_module_name()
-        parameters = self.get_parameters()
-        ports = self.get_ports()
+        mod_name = self.module_name
+        parameters = self.parameters
+        ports = self.ports
 
-        iface_mappings = iface_grouper.get_interface_mappings(self.filename, ports)
+        iface_mappings = iface_grouper.group_to_interfaces(ports)
 
         return IPCoreDescription(mod_name, parameters, ports, iface_mappings)
