@@ -14,13 +14,15 @@ from .kpm_common import (
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_id,
     find_spec_interface_by_name,
-    get_dataflow_externals_interfaces,
+    get_dataflow_constant_metanodes,
+    get_dataflow_external_interfaces,
+    get_dataflow_external_metanodes,
     get_dataflow_ip_connections,
     get_dataflow_ip_nodes,
     get_dataflow_ips_interfaces,
-    get_dataflow_metanodes,
     get_metanode_interface_id,
     get_metanode_property_value,
+    str_to_int,
 )
 
 
@@ -47,17 +49,28 @@ def _check_duplicate_ip_names(dataflow_data, specification) -> CheckResult:
 
 def _check_parameters_values(dataflow_data, specification) -> CheckResult:
     invalid_params = list()
-
     for node in get_dataflow_ip_nodes(dataflow_data):
         evaluated = dict()
         for property in node["properties"]:
             param_name = property["name"]
             param_val = property["value"]
+
+            if isinstance(param_val, int):
+                continue
+
             if not re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
                 try:
                     evaluated[param_name] = int(ex.evaluate(param_val, evaluated).take(0))
                 except (ValueError, KeyError, SyntaxError, OverflowError):
                     invalid_params.append(f"{node['name']}:{param_name}")
+
+    for node in get_dataflow_constant_metanodes(dataflow_data):
+        name = node["properties"][0]["name"]
+        value = node["properties"][0]["value"]
+        const_value = str_to_int(value)
+
+        if const_value is None:
+            invalid_params.append(f"{name}:{value}")
 
     if invalid_params:
         err_msg = f"Invalid parameters values: {str(invalid_params)}"
@@ -89,7 +102,7 @@ def _check_unconnected_ports_interfaces(dataflow_data, specification) -> CheckRe
 
 def _check_ext_in_to_ext_out_connections(dataflow_data, specification) -> CheckResult:
     """Check for connections between external metanodes"""
-    ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
+    ext_ifaces_ids = get_dataflow_external_interfaces(dataflow_data).keys()
 
     for conn in dataflow_data["graph"]["connections"]:
         if conn["from"] in ext_ifaces_ids and conn["to"] in ext_ifaces_ids:
@@ -102,7 +115,7 @@ def _check_ambigous_ports(dataflow_data, specification) -> CheckResult:
     """Check for ports which are connected to another ipcore port
     and to external metanode at the same time
     """
-    ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
+    ext_ifaces_ids = get_dataflow_external_interfaces(dataflow_data).keys()
 
     ambig_ifaces = []
     for iface_id, iface in get_dataflow_ips_interfaces(dataflow_data).items():
@@ -135,7 +148,7 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> 
     ext_names_set = set()
     duplicates = set()
 
-    for metanode in get_dataflow_metanodes(dataflow_data):
+    for metanode in get_dataflow_external_metanodes(dataflow_data):
         if metanode["instanceName"] != EXT_INPUT_NAME:
             continue
         for iface_id in find_connected_interfaces(
@@ -172,7 +185,7 @@ def _check_external_inputs_missing_val(dataflow_data, specification) -> CheckRes
     """
     err_ports = []
 
-    for metanode in get_dataflow_metanodes(dataflow_data):
+    for metanode in get_dataflow_external_metanodes(dataflow_data):
         if metanode["instanceName"] != EXT_INPUT_NAME:
             continue
         if get_metanode_property_value(metanode):
@@ -199,7 +212,7 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
     """Check for duplicate names of external outputs"""
     ext_names_set = set()
     duplicates = set()
-    for metanode in get_dataflow_metanodes(dataflow_data):
+    for metanode in get_dataflow_external_metanodes(dataflow_data):
         if metanode["instanceName"] == EXT_OUTPUT_NAME:
             # Get external port/interface name. If user didn't specify external
             # port/interface name in the textbox, let's get a corresponding

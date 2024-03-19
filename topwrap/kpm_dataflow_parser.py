@@ -10,11 +10,14 @@ from .kpm_common import (
     find_dataflow_node_by_interface_id,
     find_dataflow_node_type_by_name,
     find_spec_interface_by_name,
+    get_dataflow_constant_connections,
     get_dataflow_external_connections,
     get_dataflow_ip_connections,
     get_dataflow_ip_nodes,
     get_metanode_property_value,
+    is_constant_metanode,
     is_external_metanode,
+    str_to_int,
 )
 
 
@@ -31,15 +34,6 @@ def _parse_value_width_parameter(param: str) -> dict:
     return {"value": int(value, radix_to_base[radix]), "width": int(width)}
 
 
-def _maybe_to_int(string: int):
-    for base in [10, 16, 2, 8]:
-        try:
-            return int(string, base)
-        except ValueError:
-            pass
-    return string
-
-
 def _kpm_properties_to_parameters(properties: dict) -> dict:
     """Parse `properties` taken from a dataflow node into
     Topwrap's IP core's parameters.
@@ -51,7 +45,11 @@ def _kpm_properties_to_parameters(properties: dict) -> dict:
         if re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
             result[param_name] = _parse_value_width_parameter(param_val)
         else:
-            result[param_name] = _maybe_to_int(param_val)
+            result[param_name] = str_to_int(param_val)
+
+        if result[param_name] is None:
+            result[param_name] = param_val
+
     return result
 
 
@@ -115,7 +113,7 @@ def _kpm_connections_to_ports_ifaces(dataflow_data, specification: dict) -> dict
 
 def _kpm_connections_to_external(dataflow_data, specification) -> dict:
     """Parse dataflow connections representing external ports/interfaces
-    (i.e. connections between IP cores and external metanodes) into "external"
+    (i.e. connections between IP cores and external metanodes) into 'external'
     section of a Topwrap's design description yaml
     """
     ports_ext_conns = {}
@@ -183,6 +181,34 @@ def _kpm_connections_to_external(dataflow_data, specification) -> dict:
     return {"ports": ports_ext_conns, "interfaces": ifaces_ext_conns, "external": external}
 
 
+def _kpm_connections_to_constant(dataflow_data, specification) -> dict:
+    """Parse dataflow connections representing constant ports into design
+    'ports' section of a Topwrap's design description yaml
+    """
+    ports_conns = {"ports": {}}
+
+    for conn in get_dataflow_constant_connections(dataflow_data):
+        ip_iface = find_dataflow_interface_by_id(dataflow_data, conn["to"])
+        ip_node = find_dataflow_node_by_interface_id(dataflow_data, conn["to"])
+        const_node = find_dataflow_node_by_interface_id(dataflow_data, conn["from"])
+
+        # Ensure the node is constant metanode
+        if not is_constant_metanode(const_node):
+            raise ValueError("Invalid name of constant metanode")
+
+        iface_name = ip_iface["iface_name"]
+        value = const_node["properties"][0]["value"]
+        const_value = str_to_int(value)
+
+        if const_value is None:
+            raise ValueError(f"Invalid value of constant metanode ({value})")
+
+        ports_conns["ports"].setdefault(ip_node["instanceName"], {})
+        ports_conns["ports"][ip_node["instanceName"]].setdefault(iface_name, const_value)
+
+    return ports_conns
+
+
 def _update_ports_ifaces_section(ports_ifaces: dict, externals: dict) -> dict:
     """Helper function to update 'ports' or 'interfaces' section of a design
     description yaml with the collected entries describing external connections
@@ -199,9 +225,11 @@ def kpm_dataflow_to_design(dataflow_data, specification) -> dict:
     ips = _kpm_nodes_to_ips(dataflow_data, specification)
     properties = _kpm_nodes_to_parameters(dataflow_data)
     ports_ifaces_dict = _kpm_connections_to_ports_ifaces(dataflow_data, specification)
+    constants = _kpm_connections_to_constant(dataflow_data, specification)
     externals = _kpm_connections_to_external(dataflow_data, specification)
 
     ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], externals["ports"])
+    ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], constants["ports"])
     interfaces = _update_ports_ifaces_section(
         ports_ifaces_dict["interfaces"], externals["interfaces"]
     )

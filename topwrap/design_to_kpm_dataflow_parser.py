@@ -10,6 +10,7 @@ from typing import List
 
 from .design import get_hierarchies_names, get_interconnects_names, get_ipcores_names
 from .kpm_common import (
+    CONST_NAME,
     EXT_INOUT_NAME,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
@@ -38,8 +39,9 @@ class KPMDataflowNodeInterface:
     KPM_DIR_OUTPUT = "output"
     KPM_DIR_INOUT = "inout"
     __EXT_IFACE_NAME = "external"
+    __CONST_IFACE_NAME = "constant"
 
-    def __init__(self, name: str, direction: str):
+    def __init__(self, name: str, direction: str, value: str):
         if direction not in [
             KPMDataflowNodeInterface.KPM_DIR_INPUT,
             KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
@@ -51,14 +53,24 @@ class KPMDataflowNodeInterface:
         self.id = "ni_" + generator.generate_id()
         self.name = name
         self.direction = direction
+        self.value = value
 
     @staticmethod
     def new_external_interface(direction: str) -> KPMDataflowNodeInterface:
-        return KPMDataflowNodeInterface(KPMDataflowNodeInterface.__EXT_IFACE_NAME, direction)
+        return KPMDataflowNodeInterface(KPMDataflowNodeInterface.__EXT_IFACE_NAME, direction, None)
+
+    @staticmethod
+    def new_constant_interface(value: str) -> KPMDataflowNodeInterface:
+        return KPMDataflowNodeInterface(
+            KPMDataflowNodeInterface.__CONST_IFACE_NAME,
+            KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+            value,
+        )
 
 
 class KPMDataflowNodeProperty:
     KPM_EXT_PROP_NAME = "External Name"
+    KPM_CONST_VALUE_PROP_NAME = "Constant Value"
 
     def __init__(self, name: str, value: str):
         generator = IDGenerator()
@@ -67,8 +79,12 @@ class KPMDataflowNodeProperty:
         self.value = value
 
     @staticmethod
-    def new_external_property(value: str) -> KPMDataflowNodeProperty:
+    def new_external_name_property(value: str) -> KPMDataflowNodeProperty:
         return KPMDataflowNodeProperty(KPMDataflowNodeProperty.KPM_EXT_PROP_NAME, value)
+
+    @staticmethod
+    def new_const_value_property(value: str) -> KPMDataflowNodeProperty:
+        return KPMDataflowNodeProperty(KPMDataflowNodeProperty.KPM_CONST_VALUE_PROP_NAME, value)
 
 
 class KPMDataflowNode:
@@ -101,12 +117,24 @@ class KPMDataflowNode:
         return KPMDataflowNode(
             node_name,
             node_name,
-            [KPMDataflowNodeProperty.new_external_property(property_name)],
+            [KPMDataflowNodeProperty.new_external_name_property(property_name)],
             [
                 KPMDataflowNodeInterface.new_external_interface(
                     interface_dir_by_node_name[node_name]
                 )
             ],
+        )
+
+    @staticmethod
+    def new_constant_node(node_name: str, value: int = None) -> KPMDataflowNode:
+        if node_name != CONST_NAME:
+            raise ValueError(f"Invalid constant node name: {node_name}")
+
+        return KPMDataflowNode(
+            CONST_NAME,
+            CONST_NAME,
+            [KPMDataflowNodeProperty.new_const_value_property(value)],
+            [KPMDataflowNodeInterface.new_constant_interface(CONST_NAME)],
         )
 
     def to_json_format(self) -> dict:
@@ -193,6 +221,7 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
         )
 
     for ip_name in get_ipcores_names(design):
+        ports = design["ports"][ip_name]
         ip_type = os.path.splitext(os.path.basename(ips[ip_name]["file"]))[0]
         spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
@@ -209,10 +238,15 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
                 else:
                     logging.warning(f"Parameter '{param_name}'" f"not found in node {ip_name}")
 
-        interfaces = [
-            KPMDataflowNodeInterface(interface["name"], interface["direction"])
-            for interface in spec_node["interfaces"]
-        ]
+        interfaces = []
+        for interface in spec_node["interfaces"]:
+            dir = interface["direction"]
+            value = (
+                None
+                if ((dir != "input") or ("iface" in interface["type"][0]))
+                else ports[interface["name"]]
+            )
+            interfaces.append(KPMDataflowNodeInterface(interface["name"], dir, value))
 
         nodes.append(KPMDataflowNode(ip_name, ip_type, list(kpm_properties.values()), interfaces))
     return nodes
@@ -245,12 +279,17 @@ def _get_flattened_connections(design_descr: dict) -> list:
         if sec not in design.keys():
             continue
         for ip_name in design[sec].keys():
-            for port_iface_name in design[sec][ip_name].keys():
+            for port_iface_name, value in design[sec][ip_name].items():
+                if isinstance(value, int):
+                    connection = "Constant"
+                else:
+                    connection = design[sec][ip_name][port_iface_name]
+
                 conn_descrs.append(
                     {
                         "ip_name": ip_name,
                         "port_iface_name": port_iface_name,
-                        "connection": design[sec][ip_name][port_iface_name],
+                        "connection": connection,
                     }
                 )
     return conn_descrs
@@ -383,9 +422,9 @@ def kpm_connections_from_design_descr(
     return [conn for conn in result if conn is not None]
 
 
-def kpm_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]:
+def kpm_external_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]:
     """Generate a list of external metanodes based on the contents of
-    "externals" section of Topwrap's design description
+    'external' section of Topwrap's design description
     """
     if "external" not in design_descr.keys():
         return []
@@ -407,6 +446,51 @@ def kpm_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]
     return metanodes
 
 
+def kpm_constant_metanodes_from_nodes(nodes: list) -> List[KPMDataflowNode]:
+    """Generate a list of constant metanodes based on values assigned to ip core
+    ports of Topwrap's design description
+    """
+    metanodes = []
+    created = []
+
+    for node in nodes:
+        for port in node.interfaces:
+            value = port.value
+
+            if not isinstance(value, int):
+                continue
+
+            if value in created:
+                continue
+
+            metanodes.append(KPMDataflowNode.new_constant_node("Constant", value))
+            created.append(value)
+
+    return metanodes
+
+
+def kpm_constant_metanodes_from_design_descr(
+    design_descr: dict, specification: dict
+) -> List[KPMDataflowNode]:
+    """Generate a list of constant metanodes based on values assigned to ip core
+    ports of Topwrap's design description
+    """
+    nodes = kpm_nodes_from_design_descr(design_descr, specification)
+    return kpm_constant_metanodes_from_nodes(nodes)
+
+
+def kpm_metanodes_from_design_descr(
+    design_descr: dict, specification: dict
+) -> List[KPMDataflowNode]:
+    """Generate a list of all metanodes based on values assigned to ip core
+    ports and an 'external' section of Topwrap's design description
+    """
+    externals = kpm_external_metanodes_from_design_descr(design_descr)
+    constants = kpm_constant_metanodes_from_design_descr(design_descr, specification)
+
+    return externals + constants
+
+
 def _find_dataflow_metanode_by_external_name(
     metanodes: List[KPMDataflowNode], external_name: str
 ) -> KPMDataflowNode:
@@ -414,14 +498,24 @@ def _find_dataflow_metanode_by_external_name(
         prop_val = get_metanode_property_value(metanode.to_json_format())
         if prop_val == external_name:
             return metanode
-    logging.warning(f"External port/interface '{external_name}'" "not found in design description")
+    logging.warning(f"External port/interface '{external_name}' not found in design description")
+
+
+def _find_dataflow_metanode_by_constant_value(
+    metanodes: List[KPMDataflowNode], value: int
+) -> KPMDataflowNode:
+    for metanode in metanodes:
+        prop_val = get_metanode_property_value(metanode.to_json_format())
+        if prop_val == value:
+            return metanode
+    logging.warning(f"Constant value '{value}' not found in design description")
 
 
 def kpm_metanodes_connections_from_design_descr(
     design_descr: dict, nodes: List[KPMDataflowNode], metanodes: List[KPMDataflowNode]
 ) -> List[KPMDataflowConnection]:
     """Create a list of connections between external metanodes and
-    appropriate  nodes' interfaces, based on the contents of "externals"
+    appropriate  nodes' interfaces, based on the contents of 'external'
     section of Topwrap's design description
     """
     result = []
@@ -431,9 +525,18 @@ def kpm_metanodes_connections_from_design_descr(
         kpm_interface = _get_dataflow_interface_by_name(
             ext_conn["port_iface_name"], ext_conn["ip_name"], nodes
         )
-        kpm_metanode = _find_dataflow_metanode_by_external_name(
-            metanodes, ext_conn["external_name"]
-        )
+
+        if isinstance(kpm_interface.value, int):
+            if kpm_interface.direction != KPMDataflowNodeInterface.KPM_DIR_INPUT:
+                logging.warning("Cannot assign output port to constant value")
+                continue
+
+            kpm_metanode = _find_dataflow_metanode_by_constant_value(metanodes, kpm_interface.value)
+        else:
+            kpm_metanode = _find_dataflow_metanode_by_external_name(
+                metanodes, ext_conn["external_name"]
+            )
+
         if kpm_interface is not None and kpm_metanode is not None:
             # Metanodes have exactly 1 interface; hence we can take 0th index
             # of the `interfaces` array of a metanode to access the interface.
@@ -446,9 +549,11 @@ def kpm_dataflow_from_design_descr(design_descr: dict, specification: dict) -> d
     in Topwrap's yaml format
     """
     nodes = kpm_nodes_from_design_descr(design_descr, specification)
-    metanodes = kpm_metanodes_from_design_descr(design_descr)
+    metanodes = kpm_metanodes_from_design_descr(design_descr, specification)
     connections = kpm_connections_from_design_descr(design_descr, nodes)
-    ext_connections = kpm_metanodes_connections_from_design_descr(design_descr, nodes, metanodes)
+    metanodes_connections = kpm_metanodes_connections_from_design_descr(
+        design_descr, nodes, metanodes
+    )
     generator = IDGenerator()
     return {
         "graph": {
@@ -456,7 +561,7 @@ def kpm_dataflow_from_design_descr(design_descr: dict, specification: dict) -> d
             "nodes": [node.to_json_format() for node in nodes]
             + [metanode.to_json_format() for metanode in metanodes],
             "connections": [connection.to_json_format() for connection in connections]
-            + [ext_connection.to_json_format() for ext_connection in ext_connections],
+            + [ext_connection.to_json_format() for ext_connection in metanodes_connections],
             "inputs": [],
             "outputs": [],
         },

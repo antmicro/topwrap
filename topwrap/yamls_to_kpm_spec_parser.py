@@ -4,7 +4,7 @@
 import logging
 import os
 
-from .kpm_common import EXT_INOUT_NAME, EXT_INPUT_NAME, EXT_OUTPUT_NAME
+from .kpm_common import CONST_NAME, EXT_INOUT_NAME, EXT_INPUT_NAME, EXT_OUTPUT_NAME
 from .parsers import parse_port_map
 
 
@@ -179,6 +179,30 @@ def _generate_external_metanode(direction: str, interfaces_types: list) -> dict:
     return metanode
 
 
+def _generate_constant_metanode(interfaces_types: list) -> dict:
+    """Generate a dict representing constant metanode.
+
+    :param interfaces_types: list of all the interfaces types occurring in nodes representing
+    IP cores. These are necessary to append to "layer" property of the interface of the node, so
+    that it is possible to connect any interface to external metanode.
+
+    :return: a dict representing a constant metanode
+    """
+    metanode = {
+        "name": CONST_NAME,
+        "layer": CONST_NAME,
+        "category": "Metanode",
+        "properties": [
+            {"name": "Constant Value", "type": "text", "default": "0"},
+        ],
+        "interfaces": [
+            {"name": "constant", "type": ["port"] + interfaces_types, "direction": "output"}
+        ],
+    }
+
+    return metanode
+
+
 def _generate_ifaces_styling(interfaces_types: list) -> dict:
     """Generate the `spec["metadata"]["interfaces"]` part of the KPM specification, which is
     responsible for styling interfaces and their connections.
@@ -253,6 +277,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: list) -> dict:
         _generate_external_metanode("input", interfaces_types),
         _generate_external_metanode("output", interfaces_types),
         _generate_external_metanode("inout", interfaces_types),
+        _generate_constant_metanode(interfaces_types),
     ]
     specification["metadata"]["interfaces"] = _generate_ifaces_styling(interfaces_types)
 

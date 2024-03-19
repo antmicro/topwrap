@@ -3,8 +3,8 @@
 
 from topwrap.design_to_kpm_dataflow_parser import (
     kpm_connections_from_design_descr,
+    kpm_external_metanodes_from_design_descr,
     kpm_metanodes_connections_from_design_descr,
-    kpm_metanodes_from_design_descr,
     kpm_nodes_from_design_descr,
 )
 from topwrap.kpm_common import EXT_OUTPUT_NAME
@@ -77,7 +77,7 @@ class TestPWMDataflowImport:
         """Check the number of generated external metanodes and their contents. Metanodes should
         always contain one "External Name" property and one "external" interface.
         """
-        kpm_metanodes = kpm_metanodes_from_design_descr(pwm_design_yaml)
+        kpm_metanodes = kpm_external_metanodes_from_design_descr(pwm_design_yaml)
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         # PWM design should contain only 1 `External Output` metanode
         assert len(metanodes_json) == 1
@@ -124,12 +124,12 @@ class TestPWMDataflowImport:
         assert node_names.count(PS7_NAME) == 7
         assert node_names.count(PWM_NAME) == 3
 
-    def test_pwm_metanodes_connections(self, pwm_design_yaml, pwm_specification):
+    def test_pwm_external_metanodes_connections(self, pwm_design_yaml, pwm_specification):
         """Check the number of generated connections between a node representing IP core and
         an external metanode (i.e. `ipcore`<->`metanode` connections).
         """
         kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
-        kpm_metanodes = kpm_metanodes_from_design_descr(pwm_design_yaml)
+        kpm_metanodes = kpm_external_metanodes_from_design_descr(pwm_design_yaml)
         connections_json = [
             conn.to_json_format()
             for conn in kpm_metanodes_connections_from_design_descr(
@@ -164,7 +164,7 @@ class TestHDMIDataflowImport:
 
     def test_hdmi_metanodes(self, hdmi_design_yaml):
         """Check the number of generated external metanodes."""
-        kpm_metanodes = kpm_metanodes_from_design_descr(hdmi_design_yaml)
+        kpm_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design_yaml)
         metanodes_json = [node.to_json_format() for node in kpm_metanodes]
         assert len(metanodes_json) == 29
 
@@ -176,12 +176,12 @@ class TestHDMIDataflowImport:
         connections = kpm_connections_from_design_descr(hdmi_design_yaml, kpm_nodes)
         assert len(connections) == 59
 
-    def test_hdmi_metanodes_connections(self, hdmi_design_yaml, hdmi_specification):
+    def test_hdmi_external_metanodes_connections(self, hdmi_design_yaml, hdmi_specification):
         """Check the number of generated connections between a node representing IP core and
         an external metanode (i.e. `ipcore`<->`metanode` connections).
         """
         kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
-        kpm_metanodes = kpm_metanodes_from_design_descr(hdmi_design_yaml)
+        kpm_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design_yaml)
 
         connections = kpm_metanodes_connections_from_design_descr(
             hdmi_design_yaml, kpm_nodes, kpm_metanodes
