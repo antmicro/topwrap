@@ -6,6 +6,7 @@ max-line-length = 100
 max-complexity = 27
 select = B,C,E,F,W,T4,B9
 exclude =
+    .eggs,
     .git,
     .gitignore,
     .github,

@@ -59,6 +59,7 @@ line-length = 100
 exclude = '''
 (
   /(
+    | \.eggs
     | \.git
     | \.gitignore
     | \.github
@@ -77,6 +78,7 @@ target-version = ["py38", "py39", "py310", "py311", "py312"]
 profile = "black"
 multi_line_output = 3
 skip = [
+    ".eggs",
     ".git",
     ".gitignore",
     ".github",
