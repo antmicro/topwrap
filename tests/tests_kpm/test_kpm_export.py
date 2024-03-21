@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from topwrap.kpm_dataflow_parser import (
+    _kpm_connections_to_constant,
     _kpm_connections_to_external,
     _kpm_connections_to_ports_ifaces,
     _kpm_nodes_to_ips,
@@ -70,6 +71,12 @@ class TestPWMDataflowExport:
                 "interfaces": {"in": [], "out": [], "inout": []},
             },
         }
+
+    def test_constants(self, pwm_dataflow, pwm_specification):
+        """Check whether generated constant ports description match the values
+        from `examples/pwm/project.yml`.
+        """
+        assert _kpm_connections_to_constant(pwm_dataflow, pwm_specification) == {"ports": {}}
 
 
 class TestHDMIDataflowExport:
@@ -143,4 +150,25 @@ class TestHDMIDataflowExport:
                 },
                 "interfaces": {"in": [], "out": [], "inout": []},
             },
+        }
+
+    def test_constants(self, hdmi_dataflow, hdmi_specification):
+        """Check whether generated constant ports description match the values
+        from `examples/hdmi/project.yml`.
+        """
+        assert _kpm_connections_to_constant(hdmi_dataflow, hdmi_specification) == {
+            "ports": {
+                "reset0": {
+                    "aux_reset_in": 0,
+                    "dcm_locked": 1,
+                    "ext_reset_in": 0,
+                    "mb_debug_sys_rst": 0,
+                },
+                "reset1": {
+                    "aux_reset_in": 0,
+                    "dcm_locked": 1,
+                    "ext_reset_in": 0,
+                    "mb_debug_sys_rst": 0,
+                },
+            }
         }

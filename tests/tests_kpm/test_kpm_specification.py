@@ -5,7 +5,7 @@ import importlib.resources
 from pathlib import Path
 
 import pytest
-from common import read_json_file
+from common import HDMI_ALL_UNIQUE_NODES, PWM_ALL_UNIQUE_NODES, read_json_file
 from jsonschema import Draft202012Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
@@ -48,7 +48,7 @@ def schemas_registry(schemas_names) -> Registry:
 def test_pwm_specification_generation(specification_schema, pwm_ipcores_yamls, schemas_registry):
     """Validate generated specification for PWM design."""
     pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
-    assert len(pwm_specification["nodes"]) == 6  # 3 IP cores + 3 External metanodes
+    assert len(pwm_specification["nodes"]) == PWM_ALL_UNIQUE_NODES
 
     Draft202012Validator(specification_schema, registry=schemas_registry).validate(
         pwm_specification
@@ -58,7 +58,7 @@ def test_pwm_specification_generation(specification_schema, pwm_ipcores_yamls, s
 def test_hdmi_specification_generation(specification_schema, hdmi_ipcores_yamls, schemas_registry):
     """Validate generated specification for HDMI design."""
     hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
-    assert len(hdmi_specification["nodes"]) == 15  # 12 IP cores + 3 External metanodes
+    assert len(hdmi_specification["nodes"]) == HDMI_ALL_UNIQUE_NODES
 
     Draft202012Validator(specification_schema, registry=schemas_registry).validate(
         hdmi_specification
