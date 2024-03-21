@@ -70,7 +70,7 @@ run_lint() {
     end_command_group
 
     begin_command_group "Run lint checks"
-    log_cmd nox -s lint_check
+    log_cmd nox -s test_lint
     end_command_group
 }
 

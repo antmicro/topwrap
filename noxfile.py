@@ -10,13 +10,13 @@ import nox
 PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
 
-@nox.session()
+@nox.session(reuse_venv=True)
 def pre_commit(session: nox.Session) -> None:
     session.run("pre-commit", "install")
     session.run("pre-commit", "run", "--all-files")
 
 
-@nox.session()
+@nox.session(reuse_venv=True)
 def lint(session: nox.Session) -> None:
     """Options are defined in pyproject.toml and .flake8 files"""
     session.install(".[lint]")
@@ -27,7 +27,7 @@ def lint(session: nox.Session) -> None:
 
 
 @nox.session()
-def lint_check(session: nox.Session) -> None:
+def test_lint(session: nox.Session) -> None:
     session.install(".[lint]")
     session.run("isort", "--check", ".")
     session.run("black", "--check", ".")

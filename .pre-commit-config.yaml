@@ -28,7 +28,7 @@ repos:
     hooks:
     -   id: nox
         name: Nox Lint
-        entry: nox -s lint --
+        entry: nox -R -s lint --
         language: system
         types: [python]
         require_serial: true
