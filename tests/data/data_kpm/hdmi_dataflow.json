@@ -339,6 +339,46 @@
         "from": "ni_1693834425916186",
         "id": "0b6c8e3b-a56b-441a-b282-230af50515f6",
         "to": "ni_1693834425916226"
+      },
+      {
+        "from": "ni_1711099327043496",
+        "id": "add36d9e-a56c-449a-bdfc-120b8ccaceea",
+        "to": "ni_169383442591621"
+      },
+      {
+        "from": "ni_1711099327043496",
+        "id": "db6f5c08-6207-4410-b354-b7b2595520b2",
+        "to": "ni_169383442591622"
+      },
+      {
+        "from": "ni_1711099327043496",
+        "id": "6359c4bc-b2cc-4088-8528-10e1d5ac6792",
+        "to": "ni_169383442591623"
+      },
+      {
+        "from": "ni_1711099327043496",
+        "id": "10e13ebf-7508-4653-8b52-02022d169ec7",
+        "to": "ni_169383442591669"
+      },
+      {
+        "from": "ni_1711099327043496",
+        "id": "98953ba1-c503-4614-a6a2-d2a5cf700f15",
+        "to": "ni_169383442591670"
+      },
+      {
+        "from": "ni_1711099327043496",
+        "id": "787e3ce9-27c6-4c02-92a3-5a32e7b814da",
+        "to": "ni_169383442591671"
+      },
+      {
+        "from": "ni_1711099327043499",
+        "id": "7fab5dc3-a2eb-4d0e-b4d5-d8d4bb8e28c6",
+        "to": "ni_169383442591624"
+      },
+      {
+        "from": "ni_1711099327043499",
+        "id": "fb7982f3-d394-4bec-b31b-67d51976a4d3",
+        "to": "ni_169383442591672"
       }
     ],
     "id": "1693834425917295",
@@ -2036,6 +2076,62 @@
             "id": "1693834425916225",
             "name": "External Name",
             "value": "HDMI_D2_N"
+          }
+        ],
+        "twoColumn": false,
+        "width": 200
+      },
+      {
+        "enabledInterfaceGroups": [],
+        "id": "node_1711099327043497",
+        "instanceName": "Constant",
+        "interfaces": [
+          {
+            "direction": "output",
+            "id": "ni_1711099327043496",
+            "name": "constant",
+            "side": "right",
+            "sidePosition": 0
+          }
+        ],
+        "name": "Constant",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "properties": [
+          {
+            "id": "1711099327043495",
+            "name": "Constant Value",
+            "value": 0
+          }
+        ],
+        "twoColumn": false,
+        "width": 200
+      },
+      {
+        "enabledInterfaceGroups": [],
+        "id": "node_1711099327043500",
+        "instanceName": "Constant",
+        "interfaces": [
+          {
+            "direction": "output",
+            "id": "ni_1711099327043499",
+            "name": "constant",
+            "side": "right",
+            "sidePosition": 0
+          }
+        ],
+        "name": "Constant",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "properties": [
+          {
+            "id": "1711099327043498",
+            "name": "Constant Value",
+            "value": 1
           }
         ],
         "twoColumn": false,
