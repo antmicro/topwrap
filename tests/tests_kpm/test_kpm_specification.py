@@ -5,12 +5,18 @@ import importlib.resources
 from pathlib import Path
 
 import pytest
-from common import HDMI_ALL_UNIQUE_NODES, PWM_ALL_UNIQUE_NODES, read_json_file
+from common import read_json_file
 from jsonschema import Draft202012Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+
+SPEC_METANODES = 4  # Unique metanodes: Input, Output, Inout, Constant
+PWM_UNIQUE_IPCORE_NODES = 3  # Unique IP Cores from examples/pwm/project.yml
+PWM_ALL_UNIQUE_NODES = PWM_UNIQUE_IPCORE_NODES + SPEC_METANODES
+HDMI_UNIQUE_IPCORE_NODES = 12  # Unique IP Cores from examples/hdmi/project.yml
+HDMI_ALL_UNIQUE_NODES = HDMI_UNIQUE_IPCORE_NODES + SPEC_METANODES
 
 
 def get_schema_path(schema_name) -> Path:

@@ -1,22 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from common import (
-    HDMI_CONSTANT_CONNECTIONS,
-    HDMI_CONSTANT_METANODES,
-    HDMI_EXTERNAL_CONNECTIONS,
-    HDMI_EXTERNAL_METANODES,
-    HDMI_IPCORE_NODES,
-    HDMI_IPCORES_CONNECTIONS,
-    HDMI_METANODES,
-    PWM_CONSTANT_METANODES,
-    PWM_CORE_AXI_CONNECTIONS,
-    PWM_CORE_PS7_CONNECTIONS,
-    PWM_CORE_PWM_CONNECTIONS,
-    PWM_EXTERNAL_METANODES,
-    PWM_IPCORE_NODES,
-    PWM_METANODES,
-)
+from common import AXI_NAME, PS7_NAME, PWM_NAME
 
 from topwrap.design_to_kpm_dataflow_parser import (
     kpm_connections_from_design_descr,
@@ -28,9 +13,27 @@ from topwrap.design_to_kpm_dataflow_parser import (
 )
 from topwrap.kpm_common import EXT_OUTPUT_NAME
 
-AXI_NAME = "axi_bridge"
-PS7_NAME = "ps7"
-PWM_NAME = "litex_pwm_top"
+# PWM
+PWM_IPCORE_NODES = 3  # All IP Cores from examples/pwm/project.yml
+
+PWM_EXTERNAL_METANODES = 1  # Unique external metanodes
+PWM_CONSTANT_METANODES = 0  # Unique constant metanodes
+PWM_METANODES = PWM_EXTERNAL_METANODES + PWM_CONSTANT_METANODES
+
+PWM_CORE_AXI_CONNECTIONS = 4  # Connections to AXI bridge
+PWM_CORE_PS7_CONNECTIONS = 7  # Connections to PS7 module
+PWM_CORE_PWM_CONNECTIONS = 3  # Connections to PWM module
+
+# HDMI
+HDMI_IPCORE_NODES = 15  # All IP Cores from examples/hdmi/project.yml
+
+HDMI_EXTERNAL_METANODES = 29  # Unique external metanodes
+HDMI_CONSTANT_METANODES = 2  # Unique constant metanodes
+HDMI_METANODES = HDMI_EXTERNAL_METANODES + HDMI_CONSTANT_METANODES
+
+HDMI_IPCORES_CONNECTIONS = 59  # Connections between IP Cores
+HDMI_EXTERNAL_CONNECTIONS = 29  # Connections to external metanodes
+HDMI_CONSTANT_CONNECTIONS = 8  # Connections to constant metanodes
 
 
 class TestPWMDataflowImport:
@@ -93,7 +96,7 @@ class TestPWMDataflowImport:
         ]
 
     def test_pwm_metanodes(self, pwm_design_yaml, pwm_specification):
-        """Check the number of generated external metanodes and their contents. Metanodes should
+        """Check the number of generated metanodes and their contents. External metanodes should
         always contain one "External Name" property and one "external" interface.
         """
         kpm_ext_metanodes = kpm_external_metanodes_from_design_descr(pwm_design_yaml)
@@ -152,12 +155,13 @@ class TestPWMDataflowImport:
         assert node_names.count(PS7_NAME) == PWM_CORE_PS7_CONNECTIONS
         assert node_names.count(PWM_NAME) == PWM_CORE_PWM_CONNECTIONS
 
-    def test_pwm_external_metanodes_connections(self, pwm_design_yaml, pwm_specification):
+    def test_pwm_metanodes_connections(self, pwm_design_yaml, pwm_specification):
         """Check the number of generated connections between a node representing IP core and
-        an external metanode (i.e. `ipcore`<->`metanode` connections).
+        an metanode (i.e. `ipcore`<->`metanode` connections).
         """
         kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
         kpm_metanodes = kpm_external_metanodes_from_design_descr(pwm_design_yaml)
+
         connections_json = [
             conn.to_json_format()
             for conn in kpm_metanodes_connections_from_design_descr(
@@ -216,7 +220,7 @@ class TestHDMIDataflowImport:
 
     def test_hdmi_metanodes_connections(self, hdmi_design_yaml, hdmi_specification):
         """Check the number of generated connections between a node representing IP core and
-        an external metanode (i.e. `ipcore`<->`metanode` connections).
+        a metanode (i.e. `ipcore`<->`metanode` connections).
         """
         kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
         ext_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design_yaml)

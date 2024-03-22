@@ -1,6 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from common import AXI_NAME, PS7_NAME, PWM_NAME
 from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_constant,
     _kpm_connections_to_external,
@@ -8,10 +9,6 @@ from topwrap.kpm_dataflow_parser import (
     _kpm_nodes_to_ips,
     _kpm_properties_to_parameters,
 )
-
-AXI_NAME = "axi_bridge"
-PS7_NAME = "ps7"
-PWM_NAME = "litex_pwm_top"
 
 
 class TestPWMDataflowExport:
@@ -73,7 +70,7 @@ class TestPWMDataflowExport:
         }
 
     def test_constants(self, pwm_dataflow, pwm_specification):
-        """Check whether generated constant ports description match the values
+        """Check whether generated constant ports descriptions match the values
         from `examples/pwm/project.yml`.
         """
         assert _kpm_connections_to_constant(pwm_dataflow, pwm_specification) == {"ports": {}}
