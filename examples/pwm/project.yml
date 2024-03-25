@@ -28,7 +28,7 @@ design:
       sys_clk: [ps7, FCLK0]
       sys_rst: [ps7, FCLK_RESET0_N]
       pwm: pwm
- 
+
   interfaces:
     axi_bridge:
       s_axi: [ps7, M_AXI_GP0]

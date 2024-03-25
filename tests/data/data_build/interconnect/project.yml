@@ -81,4 +81,3 @@ external:
       - sim_serial_sink_ready
       - sim_serial_source_valid
       - sim_serial_source_data
-

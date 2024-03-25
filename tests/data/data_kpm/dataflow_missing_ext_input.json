@@ -1,157 +1,157 @@
 {
-    "graph": {
-        "id": "169383254977833",
-        "nodes": [
-            {
-                "id": "e64c4941-34b1-4aab-963e-7138199482b3",
-                "position": {
-                    "x": -1665,
-                    "y": 255
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "MAXIGP0ACLK",
-                        "id": "f7c1c790-dcd0-472c-945d-2276e68ff9f3",
-                        "direction": "input",
-                        "side": "left",
-                        "sidePosition": 0
-                    },
-                    {
-                        "name": "FCLK0",
-                        "id": "4ac46b96-b079-4985-acf0-1ecd54ddc8a1",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 0
-                    },
-                    {
-                        "name": "MAXIGP0ARESETN",
-                        "id": "9d8645e9-86f9-43f2-9ffb-5eaf237e96c8",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 1
-                    },
-                    {
-                        "name": "FCLK_RESET0_N",
-                        "id": "442bc824-abb3-4528-bd9d-ff5549ba681f",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 2
-                    },
-                    {
-                        "name": "M_AXI_GP0",
-                        "id": "6d57a318-ac09-400d-976f-7f07b598e3de",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 3
-                    }
-                ],
-                "properties": [],
-                "enabledInterfaceGroups": [],
-                "instanceName": "ps7_1",
-                "name": "ps7"
-            },
-            {
-                "id": "c43f6e8c-a066-4f84-9572-81787e4176a3",
-                "position": {
-                    "x": -1665,
-                    "y": 615
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "MAXIGP0ACLK",
-                        "id": "f24afc33-b970-48e5-b9d9-1757e43fcb20",
-                        "direction": "input",
-                        "side": "left",
-                        "sidePosition": 0
-                    },
-                    {
-                        "name": "FCLK0",
-                        "id": "4e9568bd-674f-4d1f-886e-abacfbb29b9d",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 0
-                    },
-                    {
-                        "name": "MAXIGP0ARESETN",
-                        "id": "0e42e124-868c-4800-829e-772eff969c92",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 1
-                    },
-                    {
-                        "name": "FCLK_RESET0_N",
-                        "id": "b33e220e-9077-4802-8d18-5f42087ebcf7",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 2
-                    },
-                    {
-                        "name": "M_AXI_GP0",
-                        "id": "9e51f9df-3d3c-4e15-8254-d5c65f4a9e38",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 3
-                    }
-                ],
-                "properties": [],
-                "enabledInterfaceGroups": [],
-                "instanceName": "ps7_2",
-                "name": "ps7"
-            },
-            {
-                "id": "e96ae5e0-f570-42a1-ab7f-0e46c92b83ac",
-                "position": {
-                    "x": -2145,
-                    "y": 465
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "external",
-                        "id": "3b48f66d-e134-47ff-afaa-e977953bfc2a",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 0
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "External Name",
-                        "id": "ba833343-a5b6-4ca5-bb09-7a51c055ad42",
-                        "value": ""
-                    }
-                ],
-                "enabledInterfaceGroups": [],
-                "instanceName": "External Input",
-                "name": "External Input"
-            }
+  "version": "20230830.11",
+  "metadata": {
+    "randomizedOffset": true
+  },
+  "graph": {
+    "connections": [
+      {
+        "from": "3b48f66d-e134-47ff-afaa-e977953bfc2a",
+        "id": "3ac4e45d-5485-4ffc-bd12-5f82aa7ba5c0",
+        "to": "f7c1c790-dcd0-472c-945d-2276e68ff9f3"
+      },
+      {
+        "from": "3b48f66d-e134-47ff-afaa-e977953bfc2a",
+        "id": "6c1eefd2-a3cb-4700-af6a-61acacbe992b",
+        "to": "f24afc33-b970-48e5-b9d9-1757e43fcb20"
+      }
+    ],
+    "id": "169383254977833",
+    "nodes": [
+      {
+        "enabledInterfaceGroups": [],
+        "id": "e64c4941-34b1-4aab-963e-7138199482b3",
+        "instanceName": "ps7_1",
+        "interfaces": [
+          {
+            "direction": "input",
+            "id": "f7c1c790-dcd0-472c-945d-2276e68ff9f3",
+            "name": "MAXIGP0ACLK",
+            "side": "left",
+            "sidePosition": 0
+          },
+          {
+            "direction": "output",
+            "id": "4ac46b96-b079-4985-acf0-1ecd54ddc8a1",
+            "name": "FCLK0",
+            "side": "right",
+            "sidePosition": 0
+          },
+          {
+            "direction": "output",
+            "id": "9d8645e9-86f9-43f2-9ffb-5eaf237e96c8",
+            "name": "MAXIGP0ARESETN",
+            "side": "right",
+            "sidePosition": 1
+          },
+          {
+            "direction": "output",
+            "id": "442bc824-abb3-4528-bd9d-ff5549ba681f",
+            "name": "FCLK_RESET0_N",
+            "side": "right",
+            "sidePosition": 2
+          },
+          {
+            "direction": "output",
+            "id": "6d57a318-ac09-400d-976f-7f07b598e3de",
+            "name": "M_AXI_GP0",
+            "side": "right",
+            "sidePosition": 3
+          }
         ],
-        "connections": [
-            {
-                "id": "3ac4e45d-5485-4ffc-bd12-5f82aa7ba5c0",
-                "from": "3b48f66d-e134-47ff-afaa-e977953bfc2a",
-                "to": "f7c1c790-dcd0-472c-945d-2276e68ff9f3"
-            },
-            {
-                "id": "6c1eefd2-a3cb-4700-af6a-61acacbe992b",
-                "from": "3b48f66d-e134-47ff-afaa-e977953bfc2a",
-                "to": "f24afc33-b970-48e5-b9d9-1757e43fcb20"
-            }
-        ],
-        "panning": {
-            "x": 2683,
-            "y": 60
+        "name": "ps7",
+        "position": {
+          "x": -1665,
+          "y": 255
         },
-        "scaling": 0.5952100070290618
+        "properties": [],
+        "twoColumn": false,
+        "width": 200
+      },
+      {
+        "enabledInterfaceGroups": [],
+        "id": "c43f6e8c-a066-4f84-9572-81787e4176a3",
+        "instanceName": "ps7_2",
+        "interfaces": [
+          {
+            "direction": "input",
+            "id": "f24afc33-b970-48e5-b9d9-1757e43fcb20",
+            "name": "MAXIGP0ACLK",
+            "side": "left",
+            "sidePosition": 0
+          },
+          {
+            "direction": "output",
+            "id": "4e9568bd-674f-4d1f-886e-abacfbb29b9d",
+            "name": "FCLK0",
+            "side": "right",
+            "sidePosition": 0
+          },
+          {
+            "direction": "output",
+            "id": "0e42e124-868c-4800-829e-772eff969c92",
+            "name": "MAXIGP0ARESETN",
+            "side": "right",
+            "sidePosition": 1
+          },
+          {
+            "direction": "output",
+            "id": "b33e220e-9077-4802-8d18-5f42087ebcf7",
+            "name": "FCLK_RESET0_N",
+            "side": "right",
+            "sidePosition": 2
+          },
+          {
+            "direction": "output",
+            "id": "9e51f9df-3d3c-4e15-8254-d5c65f4a9e38",
+            "name": "M_AXI_GP0",
+            "side": "right",
+            "sidePosition": 3
+          }
+        ],
+        "name": "ps7",
+        "position": {
+          "x": -1665,
+          "y": 615
+        },
+        "properties": [],
+        "twoColumn": false,
+        "width": 200
+      },
+      {
+        "enabledInterfaceGroups": [],
+        "id": "e96ae5e0-f570-42a1-ab7f-0e46c92b83ac",
+        "instanceName": "External Input",
+        "interfaces": [
+          {
+            "direction": "output",
+            "id": "3b48f66d-e134-47ff-afaa-e977953bfc2a",
+            "name": "external",
+            "side": "right",
+            "sidePosition": 0
+          }
+        ],
+        "name": "External Input",
+        "position": {
+          "x": -2145,
+          "y": 465
+        },
+        "properties": [
+          {
+            "id": "ba833343-a5b6-4ca5-bb09-7a51c055ad42",
+            "name": "External Name",
+            "value": ""
+          }
+        ],
+        "twoColumn": false,
+        "width": 200
+      }
+    ],
+    "panning": {
+      "x": 2683,
+      "y": 60
     },
-    "subgraphs": [],
-    "version": "20230830.11",
-    "metadata": {
-        "randomizedOffset": true
-    }
+    "scaling": 0.5952100070290618
+  },
+  "subgraphs": []
 }

@@ -13,4 +13,3 @@ Top modules connect IPs and/or Wrappers by either ports\` names or interfaces\` 
 
 ```{image} img/ipconnect.png
 ```
-

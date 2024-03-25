@@ -1,95 +1,95 @@
 {
-    "graph": {
-        "id": "169383254977833",
-        "nodes": [
-            {
-                "id": "0c7c9066-3c9f-471e-b1b3-9317b671d025",
-                "position": {
-                    "x": -1110,
-                    "y": 405
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "sys_clk",
-                        "id": "dfec5672-934f-48c6-8f2f-6eff96068a48",
-                        "direction": "input",
-                        "side": "left",
-                        "sidePosition": 0
-                    },
-                    {
-                        "name": "sys_rst",
-                        "id": "400d926a-8c71-47dd-8c32-6144cf4d8b70",
-                        "direction": "input",
-                        "side": "left",
-                        "sidePosition": 1
-                    },
-                    {
-                        "name": "s_axi",
-                        "id": "aa62a475-caf2-4b80-9b94-4b119bd28133",
-                        "direction": "input",
-                        "side": "left",
-                        "sidePosition": 2
-                    },
-                    {
-                        "name": "pwm",
-                        "id": "e501a7e7-f3c3-429b-8733-d0213d6fa94a",
-                        "direction": "output",
-                        "side": "right",
-                        "sidePosition": 0
-                    }
-                ],
-                "properties": [],
-                "enabledInterfaceGroups": [],
-                "instanceName": "litex_pwm",
-                "name": "litex_pwm"
-            },
-            {
-                "id": "4179b3ec-159d-4906-8bed-74e4b6f60bcd",
-                "position": {
-                    "x": -615,
-                    "y": 180
-                },
-                "width": 200,
-                "twoColumn": false,
-                "interfaces": [
-                    {
-                        "name": "external",
-                        "id": "13778494-9092-4b2c-a917-eff5b3d88d4e",
-                        "direction": "inout",
-                        "side": "left",
-                        "sidePosition": 0
-                    }
-                ],
-                "properties": [
-                    {
-                        "name": "External Name",
-                        "id": "ab2d330d-e6a4-4bcd-aa84-28803e3641bb",
-                        "value": ""
-                    }
-                ],
-                "enabledInterfaceGroups": [],
-                "instanceName": "External Inout",
-                "name": "External Inout"
-            }
+  "version": "20230830.11",
+  "metadata": {
+    "randomizedOffset": true
+  },
+  "graph": {
+    "connections": [
+      {
+        "from": "e501a7e7-f3c3-429b-8733-d0213d6fa94a",
+        "id": "50e3f8f0-323e-48a0-9d0b-4cbfcb106437",
+        "to": "13778494-9092-4b2c-a917-eff5b3d88d4e"
+      }
+    ],
+    "id": "169383254977833",
+    "nodes": [
+      {
+        "enabledInterfaceGroups": [],
+        "id": "0c7c9066-3c9f-471e-b1b3-9317b671d025",
+        "instanceName": "litex_pwm",
+        "interfaces": [
+          {
+            "direction": "input",
+            "id": "dfec5672-934f-48c6-8f2f-6eff96068a48",
+            "name": "sys_clk",
+            "side": "left",
+            "sidePosition": 0
+          },
+          {
+            "direction": "input",
+            "id": "400d926a-8c71-47dd-8c32-6144cf4d8b70",
+            "name": "sys_rst",
+            "side": "left",
+            "sidePosition": 1
+          },
+          {
+            "direction": "input",
+            "id": "aa62a475-caf2-4b80-9b94-4b119bd28133",
+            "name": "s_axi",
+            "side": "left",
+            "sidePosition": 2
+          },
+          {
+            "direction": "output",
+            "id": "e501a7e7-f3c3-429b-8733-d0213d6fa94a",
+            "name": "pwm",
+            "side": "right",
+            "sidePosition": 0
+          }
         ],
-        "connections": [
-            {
-                "id": "50e3f8f0-323e-48a0-9d0b-4cbfcb106437",
-                "from": "e501a7e7-f3c3-429b-8733-d0213d6fa94a",
-                "to": "13778494-9092-4b2c-a917-eff5b3d88d4e"
-            }
-        ],
-        "panning": {
-            "x": 2379,
-            "y": 43
+        "name": "litex_pwm",
+        "position": {
+          "x": -1110,
+          "y": 405
         },
-        "scaling": 0.5952100070290618
+        "properties": [],
+        "twoColumn": false,
+        "width": 200
+      },
+      {
+        "enabledInterfaceGroups": [],
+        "id": "4179b3ec-159d-4906-8bed-74e4b6f60bcd",
+        "instanceName": "External Inout",
+        "interfaces": [
+          {
+            "direction": "inout",
+            "id": "13778494-9092-4b2c-a917-eff5b3d88d4e",
+            "name": "external",
+            "side": "left",
+            "sidePosition": 0
+          }
+        ],
+        "name": "External Inout",
+        "position": {
+          "x": -615,
+          "y": 180
+        },
+        "properties": [
+          {
+            "id": "ab2d330d-e6a4-4bcd-aa84-28803e3641bb",
+            "name": "External Name",
+            "value": ""
+          }
+        ],
+        "twoColumn": false,
+        "width": 200
+      }
+    ],
+    "panning": {
+      "x": 2379,
+      "y": 43
     },
-    "subgraphs": [],
-    "version": "20230830.11",
-    "metadata": {
-        "randomizedOffset": true
-    }
+    "scaling": 0.5952100070290618
+  },
+  "subgraphs": []
 }

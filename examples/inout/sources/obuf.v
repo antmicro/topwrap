@@ -23,4 +23,3 @@ module obuf (
   end
 
 endmodule
-
