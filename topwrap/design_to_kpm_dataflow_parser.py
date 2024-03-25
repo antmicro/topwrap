@@ -38,10 +38,8 @@ class KPMDataflowNodeInterface:
     KPM_DIR_INPUT = "input"
     KPM_DIR_OUTPUT = "output"
     KPM_DIR_INOUT = "inout"
-    __EXT_IFACE_NAME = "external"
-    __CONST_IFACE_NAME = "constant"
 
-    def __init__(self, name: str, direction: str, value: str):
+    def __init__(self, name: str, direction: str, value: str = None):
         if direction not in [
             KPMDataflowNodeInterface.KPM_DIR_INPUT,
             KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
@@ -55,36 +53,35 @@ class KPMDataflowNodeInterface:
         self.direction = direction
         self.value = value
 
-    @staticmethod
-    def new_external_interface(direction: str) -> KPMDataflowNodeInterface:
-        return KPMDataflowNodeInterface(KPMDataflowNodeInterface.__EXT_IFACE_NAME, direction, None)
 
-    @staticmethod
-    def new_constant_interface(value: str) -> KPMDataflowNodeInterface:
-        return KPMDataflowNodeInterface(
-            KPMDataflowNodeInterface.__CONST_IFACE_NAME,
-            KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
-            value,
-        )
+class KPMDataflowMetanodeInterface(KPMDataflowNodeInterface):
+    EXT_IFACE_NAME = "external"
+    CONST_IFACE_NAME = "constant"
+
+    def __init__(self, name, direction, **kwargs):
+        if name not in [self.EXT_IFACE_NAME, self.CONST_IFACE_NAME]:
+            raise ValueError(f"Invalid metanode interface name: {name}")
+
+        super().__init__(name, direction, **kwargs)
 
 
 class KPMDataflowNodeProperty:
-    KPM_EXT_PROP_NAME = "External Name"
-    KPM_CONST_VALUE_PROP_NAME = "Constant Value"
-
     def __init__(self, name: str, value: str):
         generator = IDGenerator()
         self.id = generator.generate_id()
         self.name = name
         self.value = value
 
-    @staticmethod
-    def new_external_name_property(value: str) -> KPMDataflowNodeProperty:
-        return KPMDataflowNodeProperty(KPMDataflowNodeProperty.KPM_EXT_PROP_NAME, value)
 
-    @staticmethod
-    def new_const_value_property(value: str) -> KPMDataflowNodeProperty:
-        return KPMDataflowNodeProperty(KPMDataflowNodeProperty.KPM_CONST_VALUE_PROP_NAME, value)
+class KPMDataflowMetanodeProperty(KPMDataflowNodeProperty):
+    KPM_EXT_PROP_NAME = "External Name"
+    KPM_CONST_VALUE_PROP_NAME = "Constant Value"
+
+    def __init__(self, name, value):
+        if name not in [self.KPM_EXT_PROP_NAME, self.KPM_CONST_VALUE_PROP_NAME]:
+            raise ValueError(f"Invalid metanode property name: {name}")
+
+        super().__init__(name, value)
 
 
 class KPMDataflowNode:
@@ -103,39 +100,6 @@ class KPMDataflowNode:
         self.type = type
         self.properties = properties
         self.interfaces = interfaces
-
-    @staticmethod
-    def new_external_node(node_name: str, property_name: str) -> KPMDataflowNode:
-        if node_name not in [EXT_OUTPUT_NAME, EXT_INPUT_NAME, EXT_INOUT_NAME]:
-            raise ValueError(f"Invalid external node name: {node_name}")
-
-        interface_dir_by_node_name = {
-            EXT_OUTPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INPUT,
-            EXT_INPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
-            EXT_INOUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INOUT,
-        }
-        return KPMDataflowNode(
-            node_name,
-            node_name,
-            [KPMDataflowNodeProperty.new_external_name_property(property_name)],
-            [
-                KPMDataflowNodeInterface.new_external_interface(
-                    interface_dir_by_node_name[node_name]
-                )
-            ],
-        )
-
-    @staticmethod
-    def new_constant_node(node_name: str, value: int = None) -> KPMDataflowNode:
-        if node_name != CONST_NAME:
-            raise ValueError(f"Invalid constant node name: {node_name}")
-
-        return KPMDataflowNode(
-            CONST_NAME,
-            CONST_NAME,
-            [KPMDataflowNodeProperty.new_const_value_property(value)],
-            [KPMDataflowNodeInterface.new_constant_interface(CONST_NAME)],
-        )
 
     def to_json_format(self) -> dict:
         return {
@@ -162,6 +126,59 @@ class KPMDataflowNode:
                 for property in self.properties
             ],
         }
+
+
+class KPMDataflowMetanode(KPMDataflowNode):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class KPMDataflowExternalMetanode(KPMDataflowMetanode):
+    def __init__(self, node_name: str, property_name: str):
+        if node_name not in [EXT_OUTPUT_NAME, EXT_INPUT_NAME, EXT_INOUT_NAME]:
+            raise ValueError(f"Invalid external node name: {node_name}")
+
+        interface_dir_by_node_name = {
+            EXT_OUTPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INPUT,
+            EXT_INPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+            EXT_INOUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INOUT,
+        }
+
+        super().__init__(
+            name=node_name,
+            type=node_name,
+            properties=[
+                KPMDataflowMetanodeProperty(
+                    KPMDataflowMetanodeProperty.KPM_EXT_PROP_NAME, property_name
+                )
+            ],
+            interfaces=[
+                KPMDataflowMetanodeInterface(
+                    KPMDataflowMetanodeInterface.EXT_IFACE_NAME,
+                    interface_dir_by_node_name[node_name],
+                )
+            ],
+        )
+
+
+class KPMDataflowConstantMetanode(KPMDataflowMetanode):
+    def __init__(self, value: int):
+        super().__init__(
+            name=CONST_NAME,
+            type=CONST_NAME,
+            properties=[
+                KPMDataflowMetanodeProperty(
+                    KPMDataflowMetanodeProperty.KPM_CONST_VALUE_PROP_NAME, value
+                )
+            ],
+            interfaces=[
+                KPMDataflowMetanodeInterface(
+                    KPMDataflowMetanodeInterface.CONST_IFACE_NAME,
+                    KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+                    value=value,
+                )
+            ],
+        )
 
 
 class KPMDataflowConnection:
@@ -439,9 +456,7 @@ def kpm_external_metanodes_from_design_descr(design_descr: dict) -> List[KPMData
                     _, ext_name = external_name
                 else:
                     ext_name = external_name
-                metanodes.append(
-                    KPMDataflowNode.new_external_node(dir_to_metanode_type[dir], ext_name)
-                )
+                metanodes.append(KPMDataflowExternalMetanode(dir_to_metanode_type[dir], ext_name))
 
     return metanodes
 
@@ -463,7 +478,7 @@ def kpm_constant_metanodes_from_nodes(nodes: list) -> List[KPMDataflowNode]:
             if value in created:
                 continue
 
-            metanodes.append(KPMDataflowNode.new_constant_node("Constant", value))
+            metanodes.append(KPMDataflowConstantMetanode(value))
             created.append(value)
 
     return metanodes

@@ -1,7 +1,6 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-
 CONST_NAME = "Constant"
 EXT_INPUT_NAME = "External Input"
 EXT_OUTPUT_NAME = "External Output"
