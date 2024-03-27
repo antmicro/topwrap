@@ -1,8 +1,6 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-
 from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_external,
     _kpm_connections_to_ports_ifaces,

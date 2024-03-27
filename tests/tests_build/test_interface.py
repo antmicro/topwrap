@@ -1,6 +1,53 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+
 from pytest import raises
+
+from topwrap.interface import (
+    get_interface_by_name,
+    get_interface_by_prefix,
+    interface_definitions,
+)
+
+
+def match_interface(ports_matches):
+    """
+    :param ports_matches: a list of pairs (port_name, signal_name), where
+    signal_name is compatible with interface definition.
+    The list must belong to a single instance of the interface
+    :return: interface name if the list matches an interface correctly
+    """
+
+    g_prefix = ports_matches[0][1].split("_")[0]
+    g_instance = ports_matches[0][1].split("_")[1]
+    iface = get_interface_by_prefix(g_prefix)
+
+    for _, signal_name in ports_matches:
+        prefix = signal_name.split("_")[0]
+        instance = signal_name.split("_")[1]
+        signal = signal_name.split("_")[2]
+
+        # every port must belong to the same interface
+        if prefix != iface.prefix:
+            raise ValueError(
+                f"signal prefix: {prefix} does not match"
+                f"the prefix of this interface: {iface.prefix}"
+            )
+        # every port must belong to the same instance
+        if instance != g_instance:
+            raise ValueError(
+                f"interface instance number: {instance} "
+                "does not match with other ports of "
+                f"this interface : {g_instance}"
+            )
+
+        if signal not in iface.signals["required"] + iface.signals["optional"]:
+            raise ValueError(
+                f"signal name: {signal_name} does not match any "
+                f"signal in interface definition: {iface.name}"
+            )
+
+    return {"name": iface.name, "ports": ports_matches}
 
 
 class TestInterfaceDef:
@@ -12,39 +59,27 @@ class TestInterfaceDef:
         assert interfaces
 
     def test_predefined(self):
-        from topwrap import interface
-
-        assert interface.interface_definitions, "No predefined interfaces " "could be retrieved"
+        assert interface_definitions, "No predefined interfaces " "could be retrieved"
 
     def test_iface_retrieve_by_name(self):
-        from topwrap import interface
-
         name = "AXI4Stream"
-        assert interface.get_interface_by_name(name)
+        assert get_interface_by_name(name)
 
     def test_iface_retrieve_by_name_negative(self):
-        from topwrap import interface
-
         name = "zxcvbnm"
-        assert interface.get_interface_by_name(name) is None
+        assert get_interface_by_name(name) is None
 
     def test_iface_retrieve_by_prefix(self):
-        from topwrap import interface
-
         prefix = "AXIS"
-        assert interface.get_interface_by_prefix(prefix)
+        assert get_interface_by_prefix(prefix)
 
     def test_iface_retrieve_by_prefix_negative(self):
-        from topwrap import interface
-
         prefix = "zxcvbnm"
-        assert interface.get_interface_by_prefix(prefix) is None
+        assert get_interface_by_prefix(prefix) is None
 
 
 class TestInterfaces:
     def test_iface_match(self):
-        from topwrap import util
-
         ports_correct = (("port1", "AXIS_0_TVALID"), ("port2", "AXIS_0_TREADY"))
         # signal name does not belong to the interface
         ports_incorrect = (("port1", "AXIS_0_TVALID"), ("port2", "AXIS_0_000000"))
@@ -52,12 +87,13 @@ class TestInterfaces:
         ports_incorrect2 = (("port1", "AXIS_0_TVALID"), ("port2", "AXI_0_TREADY"))
         # interface instances don't match
         ports_incorrect3 = (("port1", "AXIS_0_TVALID"), ("port2", "AXIS_1_TREADY"))
-        correct = util.match_interface(ports_correct)
+        correct = match_interface(ports_correct)
+
         assert correct["name"] == "AXI4Stream"
         assert correct["ports"]
         with raises(ValueError):
-            util.match_interface(ports_incorrect)
+            match_interface(ports_incorrect)
         with raises(ValueError):
-            util.match_interface(ports_incorrect2)
+            match_interface(ports_incorrect2)
         with raises(ValueError):
-            util.match_interface(ports_incorrect3)
+            match_interface(ports_incorrect3)

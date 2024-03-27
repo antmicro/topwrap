@@ -3,7 +3,6 @@
 
 import logging
 import os
-from itertools import cycle
 
 from .kpm_common import EXT_INOUT_NAME, EXT_INPUT_NAME, EXT_OUTPUT_NAME
 from .parsers import parse_port_map

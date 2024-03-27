@@ -1,27 +1,16 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from collections import defaultdict
-from logging import error, info, warning
-from os import makedirs, path
+from logging import info, warning
+from os import path
 
-from amaranth import Elaboratable, Fragment, Instance, Module, Signal
+from amaranth import Fragment, Module
 from amaranth.back import verilog
 from amaranth.build import Platform
 from amaranth.hdl.ast import Const
-from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 
-from .amaranth_helpers import (
-    DIR_IN,
-    DIR_INOUT,
-    DIR_OUT,
-    PortDirection,
-    WrapperPort,
-    port_direction_to_prefix,
-    strip_port_prefix,
-)
-from .elaboratable_wrapper import ElaboratableWrapper
+from .amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT, WrapperPort
 from .fuse_helper import FuseSocBuilder
-from .ipwrapper import IPWrapper
 from .util import removeprefix
 from .wrapper import Wrapper
 

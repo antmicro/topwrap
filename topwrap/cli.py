@@ -5,12 +5,9 @@ import asyncio
 import logging
 import os
 import subprocess
-import sys
 from pathlib import Path
 
 import click
-from pipeline_manager.scripts.build import script_build
-from pipeline_manager.scripts.run import script_run
 
 from .config import config
 from .design import build_design_from_yaml
@@ -77,7 +74,7 @@ def build_main(sources, design, build_dir, part, iface_compliance, log_level):
     "--use-yosys",
     default=False,
     is_flag=True,
-    help="Use yosys's read_verilog_feature to parse Verilog files",
+    help="Use Yosys command `read_verilog` to parse Verilog files",
 )
 @click.option(
     "--iface-deduce",

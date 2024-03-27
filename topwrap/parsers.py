@@ -42,7 +42,7 @@ def _default_bounds(signal):
 
 
 def parse_interface_definitions(dir_name=DIR):
-    """Parseinterfaces described in YAML files, bundled with the package
+    """Parse interfaces described in YAML files, bundled with the package
 
     :param dir_name: directory that contains YAML files for interfaces
     :raises OSError: when dir_name directory cannot be listed

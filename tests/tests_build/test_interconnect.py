@@ -1,7 +1,6 @@
 # Copyright (C) 2023 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import re
 import shutil
 import subprocess

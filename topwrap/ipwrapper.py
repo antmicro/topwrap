@@ -220,7 +220,7 @@ class IPWrapper(Wrapper):
             # fill the empty slices in the list with Signals
             # the list is iterated starting from last position
             # in order not to change indices
-            # or mess up when en alement is inserted
+            # or mess up when en element is inserted
             for i in range(len(ports_sorted) - 2, -1, -1):
                 port1 = ports_sorted[i]
                 port2 = ports_sorted[i + 1]

@@ -4,7 +4,6 @@
 import re
 
 from .kpm_common import (
-    EXT_INOUT_NAME,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
     find_dataflow_interface_by_id,

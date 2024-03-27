@@ -1,8 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-import json
+
 import re
-from enum import Enum
 from typing import NamedTuple, Union
 
 import numexpr as ex
@@ -101,7 +100,7 @@ def _check_ext_in_to_ext_out_connections(dataflow_data, specification) -> CheckR
 
 def _check_ambigous_ports(dataflow_data, specification) -> CheckResult:
     """Check for ports which are connected to another ipcore port
-    and to external meanode at the same time
+    and to external metanode at the same time
     """
     ext_ifaces_ids = get_dataflow_externals_interfaces(dataflow_data).keys()
 

@@ -8,7 +8,6 @@ from typing import Dict
 import pytest
 from amaranth.hdl import ast
 
-from topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
 from topwrap.ipconnect import IPConnect
 from topwrap.ipwrapper import IPWrapper
 

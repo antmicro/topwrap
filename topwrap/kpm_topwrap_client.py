@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 from base64 import b64encode
 from datetime import datetime
 
@@ -10,7 +9,7 @@ import yaml
 from pipeline_manager_backend_communication.communication_backend import (
     CommunicationBackend,
 )
-from pipeline_manager_backend_communication.misc_structures import MessageType, Status
+from pipeline_manager_backend_communication.misc_structures import MessageType
 from pipeline_manager_backend_communication.utils import convert_message_to_string
 
 from .design import build_design
@@ -100,8 +99,6 @@ async def kpm_run_client(host: str, port: int, yamlfiles: list, build_dir: str):
                 }
             else:
                 return {"type": MessageType.OK.value, "content": "Design is valid"}
-
-            return {"type": MessageType.OK.value}
 
         def dataflow_run(self, dataflow: dict) -> dict:
             logging.info(f"Dataflow run request received from {host}:{port}")
