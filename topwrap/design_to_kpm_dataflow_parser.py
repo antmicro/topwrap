@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 import os
 from time import time
-from typing import List
+from typing import List, Optional
 
 from .design import get_hierarchies_names, get_interconnects_names, get_ipcores_names
 from .kpm_common import (
@@ -192,7 +192,7 @@ class KPMDataflowConnection:
         return {"id": self.id, "from": self.id_from, "to": self.id_to}
 
 
-def _get_specification_node_by_type(type: str, specification: dict) -> dict:
+def _get_specification_node_by_type(type: str, specification: dict) -> Optional[dict]:
     """Return a node of type `type` from specification"""
     for node in specification["nodes"]:
         if type == node["layer"]:
@@ -271,7 +271,7 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
 
 def _get_dataflow_interface_by_name(
     name: str, node_name: str, nodes: List[KPMDataflowNode]
-) -> KPMDataflowNodeInterface:
+) -> Optional[KPMDataflowNodeInterface]:
     """Find `name` interface of a node
     (representing an IP core) named `node_name`.
     """
@@ -285,7 +285,7 @@ def _get_dataflow_interface_by_name(
     logging.warning(f"Node '{node_name}' not found")
 
 
-def _get_flattened_connections(design_descr: dict) -> list:
+def _get_flattened_connections(design_descr: dict) -> List[dict]:
     """Helper function to get a list of flattened connections
     from a design description yaml.
     """
@@ -312,7 +312,7 @@ def _get_flattened_connections(design_descr: dict) -> list:
     return conn_descrs
 
 
-def _get_inout_connections(ports: dict) -> list:
+def _get_inout_connections(ports: dict) -> List[dict]:
     conn_descrs = []
     inouts = ports["inout"] if "inout" in ports else {}
 
@@ -323,7 +323,7 @@ def _get_inout_connections(ports: dict) -> list:
     return conn_descrs
 
 
-def _get_external_connections(design_descr: dict) -> list:
+def _get_external_connections(design_descr: dict) -> List[dict]:
     """Get connections to externals from 'ports' and 'interfaces'
     sections of design description.
     """
@@ -351,7 +351,7 @@ def _get_external_connections(design_descr: dict) -> list:
     ]
 
 
-def _get_ipcores_connections(design_descr: dict) -> list:
+def _get_ipcores_connections(design_descr: dict) -> List[dict]:
     """Get connections between IP cores from 'ports' and 'interfaces'
     sections of design description.
     """
@@ -391,7 +391,7 @@ def _get_ipcores_connections(design_descr: dict) -> list:
 
 def _create_connection(
     kpm_iface_from: KPMDataflowNodeInterface, kpm_iface_to: KPMDataflowNodeInterface
-) -> KPMDataflowConnection:
+) -> Optional[KPMDataflowConnection]:
     dir_from = kpm_iface_from.direction
     dir_to = kpm_iface_to.direction
 
@@ -439,7 +439,9 @@ def kpm_connections_from_design_descr(
     return [conn for conn in result if conn is not None]
 
 
-def kpm_external_metanodes_from_design_descr(design_descr: dict) -> List[KPMDataflowNode]:
+def kpm_external_metanodes_from_design_descr(
+    design_descr: dict,
+) -> List[KPMDataflowExternalMetanode]:
     """Generate a list of external metanodes based on the contents of
     'external' section of Topwrap's design description
     """
@@ -461,7 +463,9 @@ def kpm_external_metanodes_from_design_descr(design_descr: dict) -> List[KPMData
     return metanodes
 
 
-def kpm_constant_metanodes_from_nodes(nodes: list) -> List[KPMDataflowNode]:
+def kpm_constant_metanodes_from_nodes(
+    nodes: List[KPMDataflowNode],
+) -> List[KPMDataflowConstantMetanode]:
     """Generate a list of constant metanodes based on values assigned to ip core
     ports of Topwrap's design description
     """
@@ -486,7 +490,7 @@ def kpm_constant_metanodes_from_nodes(nodes: list) -> List[KPMDataflowNode]:
 
 def kpm_constant_metanodes_from_design_descr(
     design_descr: dict, specification: dict
-) -> List[KPMDataflowNode]:
+) -> List[KPMDataflowConstantMetanode]:
     """Generate a list of constant metanodes based on values assigned to ip core
     ports of Topwrap's design description
     """
@@ -496,7 +500,7 @@ def kpm_constant_metanodes_from_design_descr(
 
 def kpm_metanodes_from_design_descr(
     design_descr: dict, specification: dict
-) -> List[KPMDataflowNode]:
+) -> List[KPMDataflowMetanode]:
     """Generate a list of all metanodes based on values assigned to ip core
     ports and an 'external' section of Topwrap's design description
     """
@@ -507,8 +511,8 @@ def kpm_metanodes_from_design_descr(
 
 
 def _find_dataflow_metanode_by_external_name(
-    metanodes: List[KPMDataflowNode], external_name: str
-) -> KPMDataflowNode:
+    metanodes: List[KPMDataflowMetanode], external_name: str
+) -> KPMDataflowMetanode:
     for metanode in metanodes:
         prop_val = get_metanode_property_value(metanode.to_json_format())
         if prop_val == external_name:
@@ -518,7 +522,7 @@ def _find_dataflow_metanode_by_external_name(
 
 def _find_dataflow_metanode_by_constant_value(
     metanodes: List[KPMDataflowNode], value: int
-) -> KPMDataflowNode:
+) -> Optional[KPMDataflowNode]:
     for metanode in metanodes:
         prop_val = get_metanode_property_value(metanode.to_json_format())
         if prop_val == str(value):
@@ -527,7 +531,7 @@ def _find_dataflow_metanode_by_constant_value(
 
 
 def kpm_metanodes_connections_from_design_descr(
-    design_descr: dict, nodes: List[KPMDataflowNode], metanodes: List[KPMDataflowNode]
+    design_descr: dict, nodes: List[KPMDataflowNode], metanodes: List[KPMDataflowMetanode]
 ) -> List[KPMDataflowConnection]:
     """Create a list of connections between external metanodes and
     appropriate  nodes' interfaces, based on the contents of 'external'
