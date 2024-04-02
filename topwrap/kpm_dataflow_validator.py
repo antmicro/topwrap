@@ -22,7 +22,6 @@ from .kpm_common import (
     get_dataflow_ips_interfaces,
     get_metanode_interface_id,
     get_metanode_property_value,
-    str_to_int,
 )
 
 
@@ -67,9 +66,10 @@ def _check_parameters_values(dataflow_data, specification) -> CheckResult:
     for node in get_dataflow_constant_metanodes(dataflow_data):
         name = node["properties"][0]["name"]
         value = node["properties"][0]["value"]
-        const_value = str_to_int(value)
 
-        if const_value is None:
+        try:
+            int(value, base=0)
+        except ValueError:
             invalid_params.append(f"{name}:{value}")
 
     if invalid_params:

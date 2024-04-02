@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from common import AXI_NAME, PS7_NAME, PWM_NAME
+
 from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_constant,
     _kpm_connections_to_external,
@@ -156,16 +157,16 @@ class TestHDMIDataflowExport:
         assert _kpm_connections_to_constant(hdmi_dataflow, hdmi_specification) == {
             "ports": {
                 "reset0": {
-                    "aux_reset_in": 0,
-                    "dcm_locked": 1,
-                    "ext_reset_in": 0,
-                    "mb_debug_sys_rst": 0,
+                    "aux_reset_in": "0",
+                    "dcm_locked": "1",
+                    "ext_reset_in": "0",
+                    "mb_debug_sys_rst": "0",
                 },
                 "reset1": {
-                    "aux_reset_in": 0,
-                    "dcm_locked": 1,
-                    "ext_reset_in": 0,
-                    "mb_debug_sys_rst": 0,
+                    "aux_reset_in": "0",
+                    "dcm_locked": "1",
+                    "ext_reset_in": "0",
+                    "mb_debug_sys_rst": "0",
                 },
             }
         }

@@ -7,50 +7,13 @@ EXT_OUTPUT_NAME = "External Output"
 EXT_INOUT_NAME = "External Inout"
 
 
-def str_to_int(string: str) -> int:
-    """Convert string to integer value while taking base prefix into account:
-    - '0b', '0B' - convert to binary,
-    - '0x', '0X' - convert to hexadecimal,
-    - '0o', '0O', '0' - convert to octal,
-    - others - convert to decimal.
-    Returns 'None' if conversion is not possible, otherwise returns converted
-    integer value.
-    """
-    conversion_dict = {
-        "0b": 2,
-        "0B": 2,
-        "0x": 16,
-        "0X": 16,
-        "0O": 8,
-        "0o": 8,
-        "0": 8,
-    }
-
-    if isinstance(string, int):
-        return string
-
-    try:
-        return int(string)
-    except ValueError:
-        pass
-
-    for str, base in conversion_dict.items():
-        if string.startswith(str):
-            try:
-                return int(string, base)
-            except ValueError:
-                return None
-
-    return None
-
-
 def is_external_metanode(node: dict) -> bool:
-    """Return True if a node is an external metanode, False elsewhere."""
+    """Return True if a node is an external metanode, False otherwise."""
     return node["name"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]
 
 
 def is_constant_metanode(node: dict) -> bool:
-    """Return True if a node is a constant metanode, False elsewhere."""
+    """Return True if a node is a constant metanode, False otherwise."""
     return node["name"] == CONST_NAME
 
 

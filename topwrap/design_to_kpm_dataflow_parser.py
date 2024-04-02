@@ -168,7 +168,7 @@ class KPMDataflowConstantMetanode(KPMDataflowMetanode):
             type=CONST_NAME,
             properties=[
                 KPMDataflowMetanodeProperty(
-                    KPMDataflowMetanodeProperty.KPM_CONST_VALUE_PROP_NAME, value
+                    KPMDataflowMetanodeProperty.KPM_CONST_VALUE_PROP_NAME, str(value)
                 )
             ],
             interfaces=[
@@ -298,7 +298,7 @@ def _get_flattened_connections(design_descr: dict) -> list:
         for ip_name in design[sec].keys():
             for port_iface_name, value in design[sec][ip_name].items():
                 if isinstance(value, int):
-                    connection = "Constant"
+                    connection = CONST_NAME
                 else:
                     connection = design[sec][ip_name][port_iface_name]
 
@@ -521,7 +521,7 @@ def _find_dataflow_metanode_by_constant_value(
 ) -> KPMDataflowNode:
     for metanode in metanodes:
         prop_val = get_metanode_property_value(metanode.to_json_format())
-        if prop_val == value:
+        if prop_val == str(value):
             return metanode
     logging.warning(f"Constant value '{value}' not found in design description")
 

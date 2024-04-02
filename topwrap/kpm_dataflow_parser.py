@@ -17,7 +17,6 @@ from .kpm_common import (
     get_metanode_property_value,
     is_constant_metanode,
     is_external_metanode,
-    str_to_int,
 )
 
 
@@ -44,10 +43,11 @@ def _kpm_properties_to_parameters(properties: dict) -> dict:
         param_val = property["value"]
         if re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
             result[param_name] = _parse_value_width_parameter(param_val)
-        else:
-            result[param_name] = str_to_int(param_val)
+            continue
 
-        if result[param_name] is None:
+        try:
+            result[param_name] = int(param_val, base=0)
+        except ValueError:
             result[param_name] = param_val
 
     return result
@@ -197,14 +197,13 @@ def _kpm_connections_to_constant(dataflow_data, specification) -> dict:
             raise ValueError("Invalid name of constant metanode")
 
         iface_name = ip_iface["iface_name"]
-        value = const_node["properties"][0]["value"]
-        const_value = str_to_int(value)
 
-        if const_value is None:
-            raise ValueError(f"Invalid value of constant metanode ({value})")
+        # Constant metanodes have exactly 1 property hence we can take 0th index
+        # of the `properties` array of a metanode to access the property
+        value = const_node["properties"][0]["value"]
 
         ports_conns["ports"].setdefault(ip_node["instanceName"], {})
-        ports_conns["ports"][ip_node["instanceName"]].setdefault(iface_name, const_value)
+        ports_conns["ports"][ip_node["instanceName"]].setdefault(iface_name, value)
 
     return ports_conns
 

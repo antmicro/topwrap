@@ -2103,7 +2103,7 @@
           {
             "id": "1711099327043495",
             "name": "Constant Value",
-            "value": 0
+            "value": "0"
           }
         ],
         "twoColumn": false,
@@ -2131,7 +2131,7 @@
           {
             "id": "1711099327043498",
             "name": "Constant Value",
-            "value": 1
+            "value": "1"
           }
         ],
         "twoColumn": false,
