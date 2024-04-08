@@ -79,10 +79,11 @@ class IPWrapper(Wrapper):
     or grouped ports as interfaces.
     """
 
-    def __init__(self, yamlfile: str, ip_name: str, instance_name: str, params={}):
+    def __init__(self, yamlfile: str, base_path: str, ip_name: str, instance_name: str, params={}):
         """
         :param yamlfile: name of a file describing
             ports and interfaces of the IP
+        :param base_path: path of the project for searching IP description
         :param ip_name: name of the module to wrap
         :param instance_name: name of this instance
         :param params: optional, HDL parameters of this instance
@@ -98,15 +99,15 @@ class IPWrapper(Wrapper):
         self.ip_name = ip_name
         self.instance_name = instance_name
 
-        self._create_ports(yamlfile)
+        self._create_ports(yamlfile, base_path)
 
-    def _create_ports(self, yamlfile: str):
+    def _create_ports(self, yamlfile: str, base_path: str):
         """Initialize object attributes with data found in the yamlfile
 
         :raises ValueError: when interface compliance is violated,
             e.g. the interfaces used don't match the predefined interfaces
         """
-        ip_yaml = parse_port_map(yamlfile)
+        ip_yaml = parse_port_map(yamlfile, base_path)
 
         parameters = dict()
 

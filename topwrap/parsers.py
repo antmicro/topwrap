@@ -61,16 +61,17 @@ def parse_interface_definitions(dir_name=DIR):
     return defs
 
 
-def parse_port_map(filename: str):
+def parse_port_map(filename: str, base_path: str = ""):
     """Read a yaml file to gather information about Port <-> Interface mapping.
     This is used for reading per-IP-instance port descriptions.
 
-    :param filename: name of the yaml file. Either in working directory,
+    :param filename: name of the yaml file. Either in project directory,
         or bundled with the package.
+    :param base_path: path of the project with custom IP descriptions
     :return: a dict describing the ports and the interfaces of the IP.
     """
     try:
-        with open(filename) as f:
+        with open(join(base_path, filename)) as f:
             ports = load(f, Loader=Loader)
 
     except FileNotFoundError:

@@ -16,7 +16,8 @@ from .ipwrapper import IPWrapper
 def build_design_from_yaml(yamlfile, build_dir, sources_dir=None, part=None):
     with open(yamlfile) as f:
         design = load(f, Loader=Loader)
-    build_design(design, build_dir, sources_dir, part)
+        design_dir = Path(yamlfile).resolve().parent
+    build_design(design, build_dir, sources_dir, part, design_dir)
 
 
 def get_hierarchies_names(design_descr: dict) -> set:
@@ -60,7 +61,7 @@ def get_interconnects_names(design_descr: dict) -> set:
     )
 
 
-def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
+def generate_design(ips: dict, design: dict, external: dict, design_dir: Path) -> IPConnect:
     ipc = IPConnect()
     ipc_params = design["parameters"] if "parameters" in design.keys() else dict()
     ipc_hiers = design["hierarchies"] if "hierarchies" in design.keys() else dict()
@@ -72,7 +73,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     # Generate hierarchies and add them to `ipc`.
     for hier_name in get_hierarchies_names(design):
         hier_ipc = generate_design(
-            ips, ipc_hiers[hier_name]["design"], ipc_hiers[hier_name]["external"]
+            ips, ipc_hiers[hier_name]["design"], ipc_hiers[hier_name]["external"], design_dir
         )
         ipc.add_component(hier_name, hier_ipc)
 
@@ -80,7 +81,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
         ip_file = ips[ip_name]["file"]
         ip_module = ips[ip_name]["module"]
         ip_params = ipc_params[ip_name] if ip_name in ipc_params.keys() else dict()
-        ipc.add_component(ip_name, IPWrapper(ip_file, ip_module, ip_name, ip_params))
+        ipc.add_component(ip_name, IPWrapper(ip_file, design_dir, ip_module, ip_name, ip_params))
 
     for interconnect_name in get_interconnects_names(design):
         ic = ipc_interconnects[interconnect_name]
@@ -104,7 +105,7 @@ def generate_design(ips: dict, design: dict, external: dict) -> IPConnect:
     return ipc
 
 
-def build_design(design_descr, build_dir, sources_dir=None, part=None):
+def build_design(design_descr, build_dir, sources_dir=None, part=None, design_dir=Path(".")):
     """Build a complete project
 
     :param design: dict describing the top design
@@ -125,5 +126,5 @@ def build_design(design_descr, build_dir, sources_dir=None, part=None):
         error(e)
         return
 
-    ipc = generate_design(design_descr["ips"], design, external)
+    ipc = generate_design(design_descr["ips"], design, external, design_dir)
     ipc.build(build_dir=build_dir, sources_dir=sources_dir, part=part, top_module_name=design_name)
