@@ -3,10 +3,10 @@
 
 ips:
   pwm:
-    file: tests/data/data_build/hierarchy/pwm.yml
+    file: pwm.yml
     module: pwm
   counter:
-    file: tests/data/data_build/hierarchy/counter.yml
+    file: counter.yml
     module: cnt
 
 # This design contains `pwm` module connected with `counter_hier`

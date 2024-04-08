@@ -19,21 +19,29 @@ def axi_dispctrl_name() -> str:
 
 @pytest.fixture
 def axi_dispctrl_yaml() -> Path:
-    return Path("tests/data/data_build/axi_dispctrl_v1_0.yaml")
+    return Path("axi_dispctrl_v1_0.yaml")
+
+
+@pytest.fixture
+def axi_dispctrl_path(axi_dispctrl_yaml) -> Path:
+    return Path("tests/data/data_build")
 
 
 # -----------------
 # IPWrapper objects
 # -----------------
 @pytest.fixture
-def axi_dispctrl_ipw(axi_dispctrl_name, axi_dispctrl_yaml) -> IPWrapper:
-    return IPWrapper(axi_dispctrl_yaml, axi_dispctrl_name, axi_dispctrl_name, {})
+def axi_dispctrl_ipw(axi_dispctrl_name, axi_dispctrl_path, axi_dispctrl_yaml) -> IPWrapper:
+    return IPWrapper(axi_dispctrl_yaml, axi_dispctrl_path, axi_dispctrl_name, axi_dispctrl_name, {})
 
 
 @pytest.fixture
-def axi_dispctrl_ipw_overriden(axi_dispctrl_name, axi_dispctrl_yaml) -> IPWrapper:
+def axi_dispctrl_ipw_overriden(
+    axi_dispctrl_name, axi_dispctrl_path, axi_dispctrl_yaml
+) -> IPWrapper:
     return IPWrapper(
         axi_dispctrl_yaml,
+        axi_dispctrl_path,
         axi_dispctrl_name,
         axi_dispctrl_name,
         {"C_S_AXIS_TDATA_WIDTH": 64, "C_S00_AXI_DATA_WIDTH": 64},

@@ -22,6 +22,11 @@ def hier_design_yaml() -> Path:
 
 
 @pytest.fixture
+def hier_design_path(hier_design_yaml) -> Path:
+    return Path(hier_design_yaml).resolve().parent
+
+
+@pytest.fixture
 def hier_design(hier_design_yaml) -> dict:
     with open(hier_design_yaml, "r") as f:
         design = load(f, Loader=Loader)
@@ -53,8 +58,10 @@ def counter_hier_conns() -> list:
 
 
 @pytest.fixture
-def hier_design_ipconnect(hier_design) -> IPConnect:
-    return generate_design(hier_design["ips"], hier_design["design"], hier_design["external"])
+def hier_design_ipconnect(hier_design, hier_design_path) -> IPConnect:
+    return generate_design(
+        hier_design["ips"], hier_design["design"], hier_design["external"], hier_design_path
+    )
 
 
 class TestHierarchyDesign:

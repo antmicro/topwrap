@@ -27,25 +27,35 @@ def axi_dispctrl_name() -> str:
 
 @pytest.fixture
 def dmatop_yaml() -> Path:
-    return Path("tests/data/data_build/DMATop.yaml")
+    return Path("DMATop.yaml")
 
 
 @pytest.fixture
 def axi_dispctrl_yaml() -> Path:
-    return Path("tests/data/data_build/axi_dispctrl_v1_0.yaml")
+    return Path("axi_dispctrl_v1_0.yaml")
+
+
+@pytest.fixture
+def dmatop_path(dmatop_yaml) -> Path:
+    return Path("tests/data/data_build").resolve()
+
+
+@pytest.fixture
+def axi_dispctrl_path(axi_dispctrl_yaml) -> Path:
+    return Path("tests/data/data_build").resolve()
 
 
 # -------------------------------------
 # IPWrapper and hierarchy IPConnect structures
 # -------------------------------------
 @pytest.fixture
-def dmatop_ipw(dmatop_yaml, dmatop_name) -> IPWrapper:
-    return IPWrapper(dmatop_yaml, dmatop_name, dmatop_name)
+def dmatop_ipw(dmatop_yaml, dmatop_path, dmatop_name) -> IPWrapper:
+    return IPWrapper(dmatop_yaml, dmatop_path, dmatop_name, dmatop_name)
 
 
 @pytest.fixture
-def axi_dispctrl_ipw(axi_dispctrl_yaml, axi_dispctrl_name) -> IPWrapper:
-    return IPWrapper(axi_dispctrl_yaml, axi_dispctrl_name, axi_dispctrl_name)
+def axi_dispctrl_ipw(axi_dispctrl_yaml, axi_dispctrl_path, axi_dispctrl_name) -> IPWrapper:
+    return IPWrapper(axi_dispctrl_yaml, axi_dispctrl_path, axi_dispctrl_name, axi_dispctrl_name)
 
 
 # -------------------------------------
