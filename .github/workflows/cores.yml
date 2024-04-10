@@ -1,0 +1,36 @@
+name: Package cores for Topwrap
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        core-name: ["verilog-axi"]
+
+    env:
+      python-version: "3.11"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.python-version }}
+
+    - name: Install Topwrap
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git build-essential antlr4 libantlr4-runtime-dev yosys
+        pip install -e .[topwrap-parse]
+
+    - name: Create ${{ matrix.core-name }} package
+      run: ./scripts/pack_core.py ${{ matrix.core-name }}
+
+    - name: Upload core package
+      uses: actions/upload-artifact@v4
+      with:
+        path: "*.tar.gz"
