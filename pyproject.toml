@@ -21,6 +21,7 @@ dependencies = [
   "PyYAML",
   "click",
   "amaranth==0.4.0.*",
+  "marshmallow_dataclass",
   "numexpr",
   "typing_extensions",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
