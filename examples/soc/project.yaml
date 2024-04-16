@@ -1,0 +1,70 @@
+# Copyright (c) 2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+ips:
+  vexriscv:
+    file: ipcores/gen_VexRiscv.yaml
+    module: VexRiscv
+  wb_ram_data:
+    file: ipcores/gen_mem.yaml
+    module: mem
+  wb_ram_instr:
+    file: ipcores/gen_mem.yaml
+    module: mem
+  crg:
+    file: ipcores/gen_crg.yaml
+    module: crg
+  wb_uart:
+    file: ipcores/gen_wb_uart.yaml
+    module: wb_uart
+  interconnect:
+    file: ipcores/gen_wb_interconnect.yaml
+    module: wb_interconnect
+
+design:
+  name: simple_soc
+  parameters:
+    wb_ram_data:
+      depth: 0x1000
+    wb_ram_instr:
+      depth: 0xA000
+      memfile: "build/bios.init"
+  ports:
+    wb_ram_data:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    wb_ram_instr:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    crg:
+      clk100: clk100
+    vexriscv:
+      clk: clk100
+      reset: [crg, sys_rst]
+      softwareInterrupt: 0
+      externalInterruptArray: 0
+      timerInterrupt: 0
+      externalResetVector: 0x00000000
+    wb_uart:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+      serial1_tx: serial_tx
+      serial1_rx: serial_rx
+    interconnect:
+      clk: clk100
+      rst: [crg, sys_rst]
+  interfaces:
+    interconnect:
+      wb_uart_csr_wishbone: [wb_uart, csr_wishbone]
+      wb_ram_instr_mem_bus: [wb_ram_instr, mem_bus]
+      wb_ram_data_mem_bus: [wb_ram_data, mem_bus]
+      vexriscv_iBusWishbone: [vexriscv, iBusWishbone]
+      vexriscv_dBusWishbone: [vexriscv, dBusWishbone]
+
+external:
+  ports:
+    in:
+      - clk100
+      - serial_rx
+    out:
+      - serial_tx
