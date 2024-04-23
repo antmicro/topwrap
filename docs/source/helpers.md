@@ -1,7 +1,7 @@
 # Helpers
 
 ```{eval-rst}
-.. autoclass:: topwrap.interface.InterfaceDef
+.. autoclass:: topwrap.interface.InterfaceDefinition
    :members:
 
    .. automethod:: __init__
@@ -12,10 +12,6 @@
 ```
 
 ```{eval-rst}
-.. autofunction:: topwrap.interface.get_interface_by_prefix
-```
-
-```{eval-rst}
 .. autoclass:: topwrap.config.Config
    :members:
 
@@ -23,5 +19,5 @@
 ```
 
 ```{eval-rst}
-.. autofunction:: topwrap.util.check_interface_compliance
+.. autofunction:: topwrap.interface.check_interface_compliance
 ```

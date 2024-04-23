@@ -1,4 +1,4 @@
-## Examples
+# Examples
 
 :::{note}
 Basic usage of examples is explained in the {ref}`getting-started` section.

@@ -49,8 +49,9 @@ class WrapperPort(Signal):
         """
         Wraps a port, adding a new name and optionally slicing the signal
 
-        :param bounds[0:1]: upper and lower bounds of reference signal
-        :param bounds[2:3]: upper and lower bounds of internal port,
+        :param bounds: 4-element list where:
+            [0:1] - upper and lower bounds of reference signal,
+            [2:3] - upper and lower bounds of internal port,
             which are either the same as reference port,
             or a slice of the reference port
 

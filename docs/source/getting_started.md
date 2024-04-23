@@ -31,7 +31,7 @@ pip3 install ".[topwrap-parse]"
 
 This section demonstrates the basic usage of Topwrap to generate IP wrappers and a top module.
 
-1. Create {class}`IPWrapper` objects for every IP Core you want to use:
+1. Create {class}`topwrap.ipwrapper.IPWrapper` objects for every IP Core you want to use:
 
 ```yaml
 ips:

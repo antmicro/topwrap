@@ -2,13 +2,13 @@
 
 Toprwap uses FuseSoC to automate project generation and build process.
 
-A `Core` file is needed in order to generate a project. The file can be generated from a template using {class}`FuseSocBuilder` class. The `Core` file contains information about source files and synthesis tools.
+A `Core` file is needed in order to generate a project. The file can be generated from a template using {class}`topwrap.fuse_helper.FuseSocBuilder` class. The `Core` file contains information about source files and synthesis tools.
 
 ## Core file template
 
 A template for the core file is bundled with Topwrap (`templates/core.yaml.j2`).
 You may need to edit the file to change the backend tool, set additional `Hooks` and change the FPGA part name or other parameters.
-By default, {class}`FuseSocBuilder` searches for the template file in the directory you work in, so you should first copy the template into the project's location.
+By default, {class}`topwrap.fuse_helper.FuseSocBuilder` searches for the template file in the directory you work in, so you should first copy the template into the project's location.
 
 ## Using the FuseSocBuilder
 
