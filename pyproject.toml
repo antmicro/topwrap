@@ -52,8 +52,15 @@ tests = [
 [project.scripts]
 topwrap = "topwrap.cli:main"
 
-[tool.setuptools]
-packages = ["topwrap"]
+[tool.setuptools.packages.find]
+include = ["topwrap*"]
+
+[tool.setuptools.package-data]
+topwrap = [
+  "interfaces/*",
+  "ips/**/*",
+  "templates/*"
+]
 
 [tool.black]
 line-length = 100

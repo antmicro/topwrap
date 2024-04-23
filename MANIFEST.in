@@ -1,5 +1,0 @@
-include topwrap/interfaces/*
-include topwrap/ips/*/*
-include topwrap/templates/core.yaml.j2
-include topwrap/templates/ipcore_desc.j2.yml
-include tests/data/*
