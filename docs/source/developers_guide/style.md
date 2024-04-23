@@ -7,14 +7,16 @@ Automatic formatting and linting of the code can be performed with either `nox` 
 After successful setup, `nox` sessions can be executed to perform lint checks:
 
 ```bash
-nox -s isort black flake8
+nox -s lint
 ```
+
+This runs `isort`, `black`, `flake8` and `codespell` and fixes almost all formatting and linting problems automatically, but a small minority has to be fixed by hand (e.g. unused imports).
 
 :::{note}
 To reuse current virtual environment and avoid long installation time use `-R` option:
 
 ```bash
-nox -R -s isort black flake8
+nox -R -s lint
 ```
 :::
 
@@ -48,7 +50,7 @@ pre-commit run --all-files
 ```
 
 :::{note}
-`pre-commit` by default also runs `nox` with `isort`,`flake8` and `black` sessions:
+`pre-commit` by default also runs `nox` with `isort`,`flake8`, `black` and `codespell` sessions
 :::
 
 ## Tools
@@ -64,3 +66,5 @@ Tools used in project for maintaining code style:
 [Visit flake8 website](https://flake8.pycqa.org/en/latest/)
 * `Isort` is a Python utility to sort imports alphabetically.
 [Visit isort website](https://pycqa.github.io/isort/)
+* `Codespell` is a Python tool to fix common spelling mistakes in text files
+[Visit codespell repository](https://github.com/codespell-project/codespell)

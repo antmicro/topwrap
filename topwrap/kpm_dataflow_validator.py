@@ -244,7 +244,7 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
 
 
 def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
-    """Check for connections between ports where one of them is has `inout` direction.
+    """Check for connections between ports where one of them has `inout` direction.
     Return a warning if such connections exist.
     """
     connected_inouts = []

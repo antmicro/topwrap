@@ -15,7 +15,3 @@ They should be sorted by increasing complexity and number of used features, e.g:
 Developers are encouraged to create/add new examples in the same spirit.
 Simple examples are used to teach how to use this tool and demonstrate its features.
 Real-world use cases are also welcome to prove that the implementation is mature enough to handle practical designs.
-
-:::{note}
-The goal of this project is not to create a library of cores and/or their functional validation. This need is fulfilled by projects like FuseSoC, SVUnit, etc.
-:::

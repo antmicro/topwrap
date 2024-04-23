@@ -3,11 +3,10 @@
 # Future enhancements
 
 (hierarchical-block-designs)=
-## Creating hierarchical block designs
+## Support for hierarchical block design in Pipeline Manager
 
-Currently, Topwrap supports only creating "flat" designs; one can add IP cores and create connections between them, but there is no way of organizing specific parts of the design into hierarchies. Having such a facility implemented would make it easier to create complex designs.
-
-Moreover, this feature is closely related to subgraphs, which will be supported shortly in Pipeline Manager. In the future, we'd also like to provide a possibility to create hierarchical designs in the Pipeline Manager, which would be a huge improvement in terms of organizing complex designs.
+Currently topwrap supports creating hierarchical designs only by manually writing the hierarchy in the design description YAML.
+Supporting such feature in the Pipeline Manager via its subgraphs would be a huge improvement in terms of organizing complex designs.
 
 (bus-management)=
 ## Bus management
@@ -20,6 +19,8 @@ This should include features such as:
 
 This will require writing or creating bus arbiters (round-robin, crossbar) and providing a mechanism for connecting master(s) and slave(s) together.
 As a result, the user should be able to create complex SoC with Topwrap.
+
+Currently only experimental support for Wishbone with a round-robin arbiter {ref}`is available <interconnect-generation>`.
 
 (improve-recreating-design)=
 ## Improve the process of recreating a design from a YAML file
@@ -42,3 +43,17 @@ Another issue related to HDL parsing is that the user has to manually parse HDL 
 ## Ability to produce top-level wrappers in VHDL
 
 Topwrap now uses Amaranth to generate top-level design in Verilog. We would also like to add the ability to produce such designs in VHDL.
+
+(core-library)=
+## Library of open-source cores
+
+Currently user has to supply all of the cores used in the design manually or semi-manually (e.g. through FuseSoC).
+A repository of open-source cores that could be easily reused in topwrap would improve convenience and allow quickly putting together a design from premade hardware blocks.
+
+(tools-integration)=
+## Integrating with other tools
+
+Topwrap can build the design but testing and synthesis rely on the user - they have to automate this process themselves (e.g. with makefiles).
+Ideally the user should be able to write scripts that integrate tools for synthesis, simulation and co-simulation (e.g. with Renode) with topwrap.
+Some would come pre-packaged with topwrap (e.g. simulation with verilator, synthesis with vivado).
+It should also be possible to invoke these from the Pipeline Manager GUI by using its ability to add custom buttons and integrated terminal.

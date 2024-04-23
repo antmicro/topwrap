@@ -3,17 +3,11 @@
 ```{toctree}
 :caption: Documentation
 :maxdepth: 2
-introduction
 getting_started
 description_files
 interconnect_gen
 cli
 pipeline_manager
-wrapper_port
-ipwrapper
-ipconnect
-elaboratable_wrapper
-helpers
 fusesoc
 ```
 
@@ -23,12 +17,15 @@ fusesoc
 developers_guide/setup
 developers_guide/style
 developers_guide/tests
-developers_guide/examples
+developers_guide/wrapper
+developers_guide/ipwrapper
+developers_guide/ipconnect
+developers_guide/elaboratable_wrapper
+developers_guide/wrapper_port
+developers_guide/fusesocbuilder
+developers_guide/interface
+developers_guide/config
 developers_guide/parsing
-```
-
-```{toctree}
-:caption: Future enhancements
-:maxdepth: 1
-future_enhancements
+developers_guide/examples
+developers_guide/future_enhancements
 ```

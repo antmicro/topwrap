@@ -85,7 +85,7 @@ interface_definitions = [
 def get_interface_by_name(name: str) -> Optional[InterfaceDefinition]:
     """Retrieve a predefined interface definition by its name
 
-    :return: `InterfaceDef` object, or `None` if there's no such interface
+    :return: `InterfaceDefinition` object, or `None` if there's no such interface
     """
     for definition in interface_definitions:
         if definition.name == name:

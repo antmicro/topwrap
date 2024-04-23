@@ -89,3 +89,7 @@ html_title = project
     latex_logo,
     latex_additional_files
 ) = antmicro_latex(basic_filename, authors, project)
+
+# prevent rendering full class names in automatically generated docs,
+# e.g. render "IPConnect" instead of "topwrap.ipconnect.IPConnect"
+add_module_names = False

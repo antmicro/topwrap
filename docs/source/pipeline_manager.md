@@ -63,7 +63,8 @@ While creating a custom block design, you can make use of the following Pipeline
 
 ### Export design to yaml description file
 
-Created block design can be saved to a {ref}`design description file <design-description>` in yaml format, using Pipeline Manager's `Save file` option. The design description file name will be generated automatically based on current timestamp.
+Created block design can be saved to a {ref}`design description file <design-description>` in yaml format, using Pipeline Manager's `Save file` option.
+Target location on the filesystem can then be browsed in a filesystem dialog window.
 
 (import-design)=
 
@@ -85,10 +86,12 @@ Pipeline Manager is capable of performing some basic checks at runtime such as i
 Topwrap can also generate warnings if:
 * some ports or interfaces remain unconnected.
 * multiple ports are connected to an `External Input` metanode with an empty `External Name` property.
+* `inout` ports of two modules are connected together (all `inout` ports are required to be directly connected to `External Inout` metanodes)
+
 If a block design validation returns a warning, it means that the block design can be successfully built, but it is recommended to follow the suggestion and resolve a particular issue.
 
 (build-design)=
 
 ### Building design
 
-Once the design has been created and tested for validity, you can build design using `Run` feature. If the design does not contain any errors, this will result in creating a top module, similarly when using Topwrap's `topwrap build` command.
+Once the design has been created and tested for validity, you can build design using `Run` button. If the design does not contain any errors, this will result in creating a top module in a directory where `topwrap kpm_client` was ran, similarly when using Topwrap's `topwrap build` command.

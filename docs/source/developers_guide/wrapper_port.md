@@ -1,6 +1,6 @@
 # Wrapper Port
 
-Class {class}`WrapperPort` is an extension to Amaranth's {class}`Signal`.
+Class {class}`~topwrap.amaranth_helpers.WrapperPort` is an extension to Amaranth's {class}`Signal`.
 It wraps a port, adding a new name and optionally slicing the signal.
 It adds these attributes:
 
@@ -14,7 +14,11 @@ WrapperPort.bounds            # range of bits that belong to the port
 
 See {ref}`Port slicing <port-slicing>` to know more about `bounds`.
 
-This is used in {code}`IPWrapper` class implementation and there should be no need to use {class}`WrapperPort` individually.
+This is used in {class}`~topwrap.ipwrapper.IPWrapper` class implementation and there should be no need to use {class}`~topwrap.amaranth_helpers.WrapperPort` individually.
+
+:::{warning}
+{class}`~topwrap.amaranth_helpers.WrapperPort` is scheduled to be replaced in favor of plain Amaranth's {class}`Signal` so it should not be used in any new functionality.
+:::
 
 ```{eval-rst}
 .. autoclass:: topwrap.amaranth_helpers.WrapperPort

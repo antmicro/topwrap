@@ -35,6 +35,7 @@ class FuseSocBuilder:
         self.part = part
 
     def add_source(self, filename, type):
+        """Adds an HDL source to the list of sources in the core file"""
         self.sources.append(SourceFile(filename, type))
 
     def add_sources_dir(self, sources_dir):
@@ -55,6 +56,7 @@ class FuseSocBuilder:
             self.add_source(f_name, f_type)
 
     def add_dependency(self, dependency: str):
+        """Adds a dependency to the list of dependencies in the core file"""
         self.dependencies.append(dependency)
 
     def add_external_ip(self, vlnv: str, name: str):

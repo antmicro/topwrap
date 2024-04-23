@@ -6,22 +6,44 @@
 
 1. Install required system packages:
 
+    Debian:
     ```bash
-    apt install -y git g++ make python3 python3-pip antlr4 libantlr4-runtime-dev yosys
+    apt install -y git g++ make python3 python3-pip antlr4 libantlr4-runtime-dev yosys npm
     ```
 
-2. It is highly recommended to run the following steps in a Python virtual environment (e.g. [venv](https://docs.python.org/3/library/venv.html)).
+    Arch:
+    ```bash
+    pacman -Syu git gcc make python3 python-pip antlr4 antlr4-runtime yosys npm
+    ```
 
-3. Install the Topwrap package:
+    Fedora:
+    ```bash
+    dnf install git g++ make python3 python3-pip python3-devel antlr4 antlr4-cpp-runtime-devel yosys npm
+    ```
+
+2. Install the Topwrap package (It is highly recommended to run this step in a Python virtual environment, e.g. [venv](https://docs.python.org/3/library/venv.html)):
 
     ```bash
-    pip3 install .
+    pip install .
     ```
 
 :::{note}
 To use `topwrap parse` command you also need to install optional dependencies:
 ```bash
-pip3 install ".[topwrap-parse]"
+pip install ".[topwrap-parse]"
+```
+On Arch-based distributions a symlink to antlr4 runtime library needs to created and an environment variable set:
+```bash
+ln -s /usr/share/java/antlr-complete.jar antlr4-complete.jar
+ANTLR_COMPLETE_PATH=`pwd` pip install ".[topwrap-parse]"
+```
+On Fedora-based distributions symlinks need to be made inside `/usr/share/java` directory itself:
+```bash
+sudo ln -s /usr/share/java/stringtemplate4/ST4.jar /usr/share/java/stringtemplate4.jar
+sudo ln -s /usr/share/java/antlr4/antlr4.jar /usr/share/java/antlr4.jar
+sudo ln -s /usr/share/java/antlr4/antlr4-runtime.jar /usr/share/java/antlr4-runtime.jar
+sudo ln -s /usr/share/java/treelayout/org.abego.treelayout.core.jar /usr/share/java/treelayout.jar
+pip install ".[topwrap-parse]"
 ```
 :::
 
@@ -31,89 +53,120 @@ pip3 install ".[topwrap-parse]"
 
 This section demonstrates the basic usage of Topwrap to generate IP wrappers and a top module.
 
-1. Create {class}`topwrap.ipwrapper.IPWrapper` objects for every IP Core you want to use:
+1. Create {ref}`IP core description <ip-description>` file for every IP Core you want to use or let {ref}`topwrap parse <generating-ip-yamls>` handle this for you. This file describes the ports, parameters and interfaces of an IP core.
+
+As an example, Verilog module such as:
+
+```verilog
+module ibuf (
+    input  wire clk,
+    input  wire rst,
+    input  wire a,
+    output reg z
+);
+    // ...
+endmodule
+```
+
+Needs this corresponding description:
+
+```yaml
+signals:
+  in:
+    - clk
+    - rst
+    - a
+  out:
+    - z
+```
+
+2. Create a {ref}`design description <design-description>` file where you can specify all instances of IP cores and connections between them (`project.yaml` in this example)
+
+- Create instances of IP cores:
 
 ```yaml
 ips:
-  dma:
-    file: ips/DMATop.yaml
-    module: DMATop
-  disp:
-    file: ips/axi_dispctrl_v1_0.yaml
-    module: axi_dispctrl_v1_0
+  vexriscv_instance:
+    file: ipcores/gen_VexRiscv.yaml
+    module: VexRiscv
+  wb_ram_data_instance:
+    file: ipcores/gen_mem.yaml
+    module: mem
+  wb_ram_instr_instance:
+    file: ipcores/gen_mem.yaml
+    module: mem
+
 ```
 
-`file` and `module` are mandatory fields providing the IP description and the name of the HDL module.
-You can optionally set parameter values for IP cores:
+`file` and `module` are mandatory fields providing the IP description file and the name of the HDL module as it appears in the source.
+
+- (Optional) Set parameters for IP core instances:
 
 ```yaml
-axi_interconnect0:
-  file: axi_interconnect.yaml
-  module: axi_interconnect
-  parameters:
-    S_COUNT: 1
-    M_COUNT: 3
-    ADDR_WIDTH: 32
-    DATA_WIDTH: 32
-    ID_WIDTH: 12
-    M_BASE_ADDR: 0x43c2000043c1000043c00000
-    M_ADDR_WIDTH:
-        value: 0x100000001000000010
-        width: 96
+parameters:
+  wb_ram_data_instance:
+    depth: 0x1000
+    memfile: "top_sram.init"
+  wb_ram_instr_instance:
+    depth: 0xA000
+    memfile: "bios.init"
 ```
 
-2. Connect desired ports of the IP cores:
+- Connect desired ports of the IP cores:
 
 ```yaml
 ports:
-  dma:
-    clock: [some_other_ip, clk_out]
-    reset: [reset_core, reset0]
-  axi_interconnect0:
+  wb_ram_data_instance:
     clk: [some_other_ip, clk_out]
+    rst: [reset_core, reset0]
+  wb_ram_instr_instance:
+    clk: [some_other_ip, clk_out]
+    rst: [reset_core, reset0]
+  vexriscv_instance:
+    softwareInterrupt: [some_other_ip, sw_interrupt]
+    ...
 ```
 
-3. Connect desired interfaces of the IP cores:
+Connections only need to be written once, i.e. if A connects to B, then only a connection A: B has to be specified (B: A is redundant).
+
+- Connect desired interfaces of the IP cores:
 
 ```yaml
 interfaces:
-  dma:
-    s_axi: [axi_interconnect0, m_axi_0]
-  axi_interconnect0:
-    m_axi: [some_other_ip, 's_axi']
+  vexriscv_instance:
+    iBusWishbone: [wb_ram_instr_instance, mem_bus]
+    dBusWishbone: [wb_ram_data_instance, mem_bus]
 ```
 
-4. Specify external ports or interfaces of the top module and connect them with chosen IP cores' ports or interfaces:
+- Specify external ports or interfaces of the top module and connect them with chosen IP cores' ports or interfaces:
 
 ```yaml
 ports:
-  dma:
-    io_irq_readerDone: readerDone
-    io_irq_writerDone: writerDone
+  vexriscv_instance:
+    timerInterrupt: ext_timer_interrupt
 
 ...
 
 external:
   ports:
     out:
-    - readerDone
-    - writerDone
+      - ext_timer_interrupt
   interfaces:
     ...
 ```
 
-5. Create a Core file template for FuseSoC, or use a default one bundled with Topwrap.
+3. Create a Core file template for FuseSoC, or use a default one bundled with Topwrap.
 
 You may want to modify the file to add dependencies, source files, or change the target board.
 The file should be named `core.yaml.j2`. You can find an example template in `examples/hdmi` directory of the project.
 If you don't create any template a default template bundled with Topwrap will be used (stored in `templates` directory).
 
-6. Place any additional source files in a directory, which we will be calling `sources` here.
+4. Place any additional source files in a directory (`sources` in this example).
 
-7. Run Topwrap:
+5. Run Topwrap:
 
    ```
-   python -m topwrap build --design project.yml --sources sources
+   python -m topwrap build --design project.yaml --sources sources
    ```
 
 ### Example PWM design

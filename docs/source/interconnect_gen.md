@@ -1,3 +1,4 @@
+(interconnect-generation)=
 # Interconnect generation
 
 Generating interconnects is an experimental feature of topwrap.
