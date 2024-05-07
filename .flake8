@@ -9,7 +9,6 @@ exclude =
     .eggs,
     .git,
     .gitignore,
-    .github,
     .nox,
     .pytest_cache,
     __pycache__,

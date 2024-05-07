@@ -134,6 +134,31 @@ generate_examples() {
     done
 }
 
+package_cores() {
+    install_common_system_packages
+    begin_command_group "Install system packages for packaging cores"
+    log_cmd apt-get install -y --no-install-recommends python3-dev
+    end_command_group
+    enter_venv
+
+    begin_command_group "Install python packages for packaging cores"
+    log_cmd pip install git+https://github.com/antmicro/tuttest
+    end_command_group
+
+    install_topwrap
+
+    begin_command_group "Install Topwrap's parsing dependencies"
+    log_cmd pip install ".[topwrap-parse]"
+    end_command_group
+
+    begin_command_group "Package cores for release"
+    log_cmd mkdir core_repo
+    log_cmd pushd core_repo
+    log_cmd python ../.github/scripts/package_cores.py
+    log_cmd popd
+    end_command_group
+}
+
 case "$1" in
 lint)
     run_lint
@@ -144,7 +169,10 @@ tests)
 examples)
     generate_examples
     ;;
+package_cores)
+    package_cores
+    ;;
 *)
-    echo "Usage: $0 {lint|tests|examples}"
+    echo "Usage: $0 {lint|tests|examples|package_cores}"
     ;;
 esac

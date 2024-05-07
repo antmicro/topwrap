@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
-    name: 'Generate examples'
+    name: "Generate examples"
 
     steps:
       - name: Install git package
@@ -72,3 +72,27 @@ jobs:
         with:
           name: examples
           path: examples/**/build
+
+  package_cores:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    name: "Package cores repository"
+
+    steps:
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+
+      - name: Pack cores into a Topwrap repository
+        run: |
+          ./.github/scripts/ci.sh package_cores
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: core_repo
+          path: core_repo/**

@@ -33,6 +33,16 @@ examples:
     paths:
       - examples/**/build
 
+package_cores:
+  stage: test
+  tags: ['ace-x86_64']
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh package_cores
+  artifacts:
+    paths:
+      - core_repo/**
+
 build_docs:
   image: $CI_DOCS_DOCKER_IMAGE
   stage: build_docs

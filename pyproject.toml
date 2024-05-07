@@ -75,7 +75,6 @@ exclude = '''
     | \.eggs
     | \.git
     | \.gitignore
-    | \.github
     | \.nox
     | \.pytest_cache
     | __pycache__
@@ -94,7 +93,6 @@ skip = [
     ".eggs",
     ".git",
     ".gitignore",
-    ".github",
     ".nox",
     ".pytest_cache",
     "__pycache__",
