@@ -24,6 +24,7 @@ developers_guide/setup
 developers_guide/style
 developers_guide/tests
 developers_guide/examples
+developers_guide/parsing
 ```
 
 ```{toctree}
