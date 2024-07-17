@@ -8,24 +8,23 @@ stages:
 
 variables:
   DEBIAN_FRONTEND: noninteractive
+  SCALENODE_RAM: 12288
+  SCALENODE_CPU: 6
 
 lint:
   stage: test
-  tags: ['ace-x86_64']
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh lint
 
 tests:
   stage: test
-  tags: ['ace-x86_64']
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh tests
 
 examples:
   stage: test
-  tags: ['ace-x86_64']
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh examples
@@ -35,7 +34,6 @@ examples:
 
 package_cores:
   stage: test
-  tags: ['ace-x86_64']
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh package_cores
@@ -46,7 +44,6 @@ package_cores:
 build_docs:
   image: $CI_DOCS_DOCKER_IMAGE
   stage: build_docs
-  tags: ['ace-x86_64']
   before_script:
     - pip3 install -r docs/requirements.txt
     - pip3 install .
