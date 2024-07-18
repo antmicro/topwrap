@@ -1,0 +1,10 @@
+name: inter1
+port_prefix: inter1
+signals:
+    required:
+        in:
+            CREADY: cready
+        out:
+            CDATA: cdata
+            CKEEP: ckeep
+            CVALID: cvalid

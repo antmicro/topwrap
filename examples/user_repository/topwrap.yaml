@@ -1,0 +1,4 @@
+force_interface_compliance: false
+repositories:
+  - name: Test loading config
+    path: ./repo/

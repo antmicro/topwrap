@@ -1,0 +1,19 @@
+signals:
+    in:
+        - in_1
+        - in_2
+        - in_3
+    out:
+        - out_1
+
+interfaces:
+    inter_1:
+      type: coreStream
+      mode: master
+      signals:
+          out:
+              CREADY: c_tready
+          in:
+              CDATA: [c_tdata, 31, 0]
+              CKEEP: [c_tkeep, 3, 0]
+              CVALID: c_tvalid

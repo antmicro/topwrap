@@ -7,6 +7,7 @@ getting_started
 description_files
 interconnect_gen
 cli
+user_repositories
 pipeline_manager
 fusesoc
 ```

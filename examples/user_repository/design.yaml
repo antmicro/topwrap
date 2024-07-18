@@ -1,0 +1,40 @@
+ips:
+  core1:
+    file: examples/user_repository/repo/cores/example_core1/core1.yaml
+    module: core1
+  core2:
+    file: examples/user_repository/repo/cores/example_core2/core2.yaml
+    module: core2
+design:
+  parameters:
+    core1: {}
+    core2: {}
+  ports:
+    core1:
+      in_1: ex_in_1
+      in_3: ex_in_2
+      in_2: ex_in_1
+    core2:
+      in_1:
+      - core1
+      - out_1
+      out_1: ex_out_1
+      in_2: ex_in_2
+  interfaces:
+    core1: {}
+    core2:
+      inter_2:
+      - core1
+      - inter_1
+external:
+  ports:
+    in:
+    - ex_in_1
+    - ex_in_2
+    out:
+    - ex_out_1
+    inout: []
+  interfaces:
+    in: []
+    out: []
+    inout: []
