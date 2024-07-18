@@ -382,7 +382,7 @@ class IPConnect(Wrapper):
         self,
         build_dir="build",
         template=None,
-        sources_dir=None,
+        sources_dir=[],
         top_module_name="project_top",
         part=None,
     ) -> None:

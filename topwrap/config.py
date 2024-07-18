@@ -11,6 +11,8 @@ import marshmallow
 import marshmallow_dataclass
 import yaml
 
+from topwrap.repo.user_repo import UserRepo
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,6 +51,24 @@ class Config:
                     if repo not in self.repositories:
                         self.repositories.append(repo)
 
+    def get_repositories_paths(self) -> List[Path]:
+        repositories_paths = []
+        if self.repositories is None:
+            return repositories_paths
+        for repository in self.repositories:
+            repositories_paths.append(Path(repository.path).expanduser())
+        return repositories_paths
+
+    def get_interface_paths(self) -> List[Path]:
+        interfaces_paths: List[Path] = list()
+        if self.repositories is None:
+            return interfaces_paths
+        for repository in self.repositories:
+            interface_path = UserRepo.get_interfaces_directory(Path(repository.path).expanduser())
+            if interface_path is not None:
+                interfaces_paths.append(interface_path)
+        return interfaces_paths
+
 
 class ConfigManager:
     """Manager used to load topwrap's configuration from files.
@@ -68,6 +88,8 @@ class ConfigManager:
         "~/.config/topwrap/topwrap.yaml",
         "~/.config/topwrap/config.yaml",
     ]
+
+    _interfaces_dir = Path("interfaces")
 
     def __init__(self, search_paths: Optional[List[PathLike]] = None):
         if search_paths is None:

@@ -42,18 +42,19 @@ class FuseSocBuilder:
         """Given a name of a directory, add all files found inside it.
         Recognize VHDL, Verilog, and XDC files.
         """
-        files = listdir(sources_dir)
-        for f in files:
-            f_name = path.join(sources_dir, f)
-            f_type = "user"
-            if f.endswith(".vhd") or f.endswith(".vhdl"):
-                f_type = "vhdlSource"
-            elif f.endswith(".v"):
-                f_type = "verilogSource"
-            elif f.endswith(".xdc"):
-                f_type = "xdc"
+        for dir in sources_dir:
+            files = listdir(dir)
+            for f in files:
+                f_name = path.join(dir, f)
+                f_type = "user"
+                if f.endswith(".vhd") or f.endswith(".vhdl"):
+                    f_type = "vhdlSource"
+                elif f.endswith(".v"):
+                    f_type = "verilogSource"
+                elif f.endswith(".xdc"):
+                    f_type = "xdc"
 
-            self.add_source(f_name, f_type)
+                self.add_source(f_name, f_type)
 
     def add_dependency(self, dependency: str):
         """Adds a dependency to the list of dependencies in the core file"""
@@ -65,7 +66,7 @@ class FuseSocBuilder:
         """
         self.external_ips.append(IP(name, vlnv))
 
-    def build(self, core_filename, sources_dir=None, template_name=None):
+    def build(self, core_filename, sources_dir=[], template_name=None):
         """Generate the final create .core file
 
         :param sources_dir: additional directory with source files to add
@@ -73,7 +74,7 @@ class FuseSocBuilder:
             either in working directory, or bundled with the package.
             defaults to a bundled template
         """
-        if sources_dir is not None:
+        if sources_dir:
             self.add_sources_dir(sources_dir)
         if template_name is None:
             template_name = "core.yaml.j2"

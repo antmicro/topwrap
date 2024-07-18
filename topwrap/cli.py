@@ -13,6 +13,7 @@ from .config import config
 from .design import build_design_from_yaml
 from .interface_grouper import standard_iface_grouper
 from .kpm_topwrap_client import kpm_run_client
+from .repo.user_repo import UserRepo
 
 click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True)
 click_opt_rw_dir = click.Path(
@@ -64,9 +65,15 @@ def build_main(sources, design, build_dir, part, iface_compliance, log_level):
             "and thus your implementation may fail."
         )
 
+    config_user_repo = UserRepo()
+    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
+    all_sources = config_user_repo.get_srcs_dirs_for_cores()
+    if sources is not None:
+        all_sources.append(sources)
+
     # following function does make sure that build directory exists
     # so we don't explicitly create build directory here
-    build_design_from_yaml(design, build_dir, sources, part)
+    build_design_from_yaml(design, build_dir, all_sources, part)
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")
@@ -155,8 +162,13 @@ DEFAULT_BACKEND_PORT = 5000
 def kpm_client_main(host, port, log_level, yamlfiles, build_dir):
     configure_log_level(log_level)
     logging.info("Starting kenning pipeline manager client")
+    config_user_repo = UserRepo()
+    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
+    extended_yamlfiles = config_user_repo.get_core_designs()
+    extended_yamlfiles += yamlfiles
+
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(kpm_run_client(host, port, yamlfiles, build_dir))
+    loop.run_until_complete(kpm_run_client(host, port, extended_yamlfiles, build_dir))
 
 
 @main.command("kpm_build_server", help="Build KPM server")

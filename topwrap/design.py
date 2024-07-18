@@ -13,7 +13,7 @@ from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
 
 
-def build_design_from_yaml(yamlfile, build_dir, sources_dir=None, part=None):
+def build_design_from_yaml(yamlfile, build_dir, sources_dir=[], part=None):
     with open(yamlfile) as f:
         design = load(f, Loader=Loader)
         design_dir = Path(yamlfile).resolve().parent
@@ -105,7 +105,7 @@ def generate_design(ips: dict, design: dict, external: dict, design_dir: Path) -
     return ipc
 
 
-def build_design(design_descr, build_dir, sources_dir=None, part=None, design_dir=Path(".")):
+def build_design(design_descr, build_dir, sources_dir=[], part=None, design_dir=Path(".")):
     """Build a complete project
 
     :param design: dict describing the top design

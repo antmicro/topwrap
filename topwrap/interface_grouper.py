@@ -20,7 +20,7 @@ from .interface import (
     InterfaceDefinition,
     InterfaceMode,
     InterfaceSignalType,
-    interface_definitions,
+    get_interfaces,
 )
 
 
@@ -508,7 +508,7 @@ def standard_iface_grouper(
         signal_grouper = GrouperByPrefix(ifaces_names)
 
     return Interface4StageGrouper(
-        interface_definitions,
+        get_interfaces(),
         signal_grouper,
         RegexInterfaceMatcher(),
         InterfaceMatchGroupScorer(),

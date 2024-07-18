@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from dataclasses import field
 from enum import Enum
+from functools import lru_cache
 from typing import List, Optional
 
 import marshmallow
@@ -13,6 +14,7 @@ from .common_serdes import (
     flatten_tree,
     unflatten_annotated_tree,
 )
+from .config import config
 from .hdl_parsers_utils import PortDirection
 from .parsers import parse_interface_definitions
 
@@ -76,18 +78,31 @@ class InterfaceDefinition:
         return list(filter(lambda sig: sig.type == InterfaceSignalType.REQUIRED, self.signals))
 
 
-# this holds all predefined interfaces
-interface_definitions = [
-    InterfaceDefinition.Schema().load(yaml_dict) for yaml_dict in parse_interface_definitions()
-]
+@lru_cache(maxsize=None)
+def get_predefined_interfaces() -> List[InterfaceDefinition]:
+    return [
+        InterfaceDefinition.Schema().load(yaml_dict) for yaml_dict in parse_interface_definitions()
+    ]
+
+
+@lru_cache(maxsize=None)
+def get_interfaces() -> List[InterfaceDefinition]:
+    user_interfaces = []
+    for path in config.get_interface_paths():
+        user_interfaces += [
+            InterfaceDefinition.Schema().load(yaml_dict)
+            for yaml_dict in parse_interface_definitions(path)
+        ]
+
+    return user_interfaces + get_predefined_interfaces()
 
 
 def get_interface_by_name(name: str) -> Optional[InterfaceDefinition]:
-    """Retrieve a predefined interface definition by its name
+    """Retrieve interface definition by its name
 
     :return: `InterfaceDefinition` object, or `None` if there's no such interface
     """
-    for definition in interface_definitions:
+    for definition in get_interfaces():
         if definition.name == name:
             return definition
     return None

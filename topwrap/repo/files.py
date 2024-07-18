@@ -128,8 +128,15 @@ class HttpGetFile(File):
 
     def __del__(self) -> None:
         if self._clean_on_del:
-            shutil.rmtree(self.download_dir)
-            logger.debug(f"GetHttpFile.__del__: Removed temporary {self.download_dir} directory")
+            try:
+                shutil.rmtree(self.download_dir)
+                logger.debug(
+                    f"GetHttpFile.__del__: Removed temporary {self.download_dir} directory"
+                )
+            except Exception:
+                logger.warning(
+                    f"GetHttpFile.__del__: Couldn't remove temporary {self.download_dir} directory"
+                )
 
     def download(self) -> Path:
         """Downloads the file using GET request.

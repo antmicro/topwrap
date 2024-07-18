@@ -7,16 +7,13 @@ import os
 from dataclasses import dataclass
 from os import PathLike
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-import yaml
 from typing_extensions import override
 
-from topwrap.interface_grouper import standard_iface_grouper
-from topwrap.repo.files import File, LocalFile, TemporaryFile
+from topwrap.repo.files import File, LocalFile
 from topwrap.repo.repo import Repo
-from topwrap.repo.resource import FileHandler, Resource, ResourceHandler
-from topwrap.verilog_parser import VerilogModuleGenerator
+from topwrap.repo.resource import Resource, ResourceHandler
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +61,8 @@ class CoreHandler(ResourceHandler[Core]):
     @override
     def load(self, repo_path: PathLike) -> List[Core]:
         """Handles a core-specific load action"""
-        cores_dir = Path(repo_path) / self._cores_rel_dir
+
+        cores_dir = repo_path / self._cores_rel_dir
 
         found_core_dirs = [Path(f.path) for f in os.scandir(cores_dir) if f.is_dir()]
 
@@ -143,48 +141,6 @@ class InterfaceDescriptionHandler(ResourceHandler[InterfaceDescription]):
         return ifaces
 
 
-# Handlers
-
-
-class VerilogFileHandler(FileHandler):
-    def __init__(self, files: List[File]):
-        self._files = files
-
-    @override
-    def parse(self) -> List[Resource]:
-        resources: List[Resource] = []
-        for file in self._files:
-            modules = VerilogModuleGenerator().get_modules(str(file.path))
-            iface_grouper = standard_iface_grouper(
-                hdl_filename=file.path, use_yosys=True, iface_deduce=True, ifaces_names=()
-            )
-            for module in modules:
-                desc_file = TemporaryFile()
-                ipcore_desc = module.to_ip_core_description(iface_grouper)
-                ipcore_desc.save(desc_file.path)
-
-                core = Core(module.module_name, desc_file, [file])
-                resources.append(core)
-
-        return resources
-
-
-class InterfaceFileHandler(FileHandler):
-    def __init__(self, files: List[File]):
-        self._files = files
-
-    @override
-    def parse(self) -> List[Resource]:
-        resources: List[Resource] = []
-        for f in self._files:
-            with open(f.path) as fd:
-                data = yaml.safe_load(fd)
-            name = data["name"]
-            iface_desc = InterfaceDescription(name, f)
-            resources.append(iface_desc)
-        return resources
-
-
 class UserRepo(Repo):
     def __init__(self):
         resource_handlers = [
@@ -192,3 +148,28 @@ class UserRepo(Repo):
             InterfaceDescriptionHandler(),
         ]
         super().__init__(resource_handlers)
+
+    def load_repositories_from_paths(self, repositories_paths: List[Path]) -> None:
+        """Loads all repositories from specified paths"""
+        for repository_path in repositories_paths:
+            self.load(repository_path)
+
+    @staticmethod
+    def get_interfaces_directory(repository_path: Path) -> Optional[Path]:
+        interfaces_directory = repository_path / InterfaceDescriptionHandler._ifaces_rel_dir
+        if interfaces_directory.exists():
+            return interfaces_directory
+        else:
+            return None
+
+    def get_core_designs(self) -> List[str]:
+        """Get list of yaml core paths from UserRepo resources"""
+        return [str(core.design.path) for core in self.resources[Core]]
+
+    def get_srcs_dirs_for_cores(self) -> List[str]:
+        """Gets all the paths of core src directories"""
+        dir_paths = set()
+        for resource in self.resources[Core]:
+            for file in resource.files:
+                dir_paths.add(str(Path(file.path.parent).expanduser()))
+        return list(dir_paths)

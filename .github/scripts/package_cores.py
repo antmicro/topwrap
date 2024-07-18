@@ -1,12 +1,13 @@
+#!/usr/bin/env python3
 # Copyright (c) 2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
+from topwrap.repo.file_handlers import VerilogFileHandler
 from topwrap.repo.files import HttpGetFile
-from topwrap.repo.user_repo import UserRepo, VerilogFileHandler
+from topwrap.repo.user_repo import UserRepo
 
 
 @dataclass
