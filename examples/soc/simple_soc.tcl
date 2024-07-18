@@ -63,7 +63,7 @@ set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
 
 # Bitstream generation
 
-write_bitstream -force build/simple_soc.bit 
+write_bitstream -force build/simple_soc.bit
 write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit "up 0x0 build/simple_soc.bit" -file build/simple_soc.bin
 
 # End

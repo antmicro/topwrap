@@ -267,6 +267,6 @@ Signals are either required or optional.
 Their direction is described from the the perspective of master (i.e. directionality of signals in the slave is flipped) - note that clock and reset are not included as these are usually inputs in both master and slave so they're not supported in interface specification.
 These distinctions are used when an option to check if all mandatory signals are present is enabled and when parsing an IP core with `topwrap parse` (not all required signals must necessarily be present but it's taken into account).
 Every signal is a key-value pair, where the key is a generic signal name (usually from interface specification) and value is a regex that is used to pair the generic name with a concrete signal name in the RTL source when using `topwrap parse`.
-This pairing is performed on signal names that are transformed to lowercase and have a common prefix of an interface they belong to removed. 
+This pairing is performed on signal names that are transformed to lowercase and have a common prefix of an interface they belong to removed.
 If a regexp occurs in such transformed signal name anywhere, that name is paired with the generic name.
 Since this occurs on names that have all characters in lowercase, regex must be written in lowercase as well.

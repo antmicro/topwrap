@@ -10,7 +10,7 @@ Algorithm implemented in topwrap works roughly as follows:
 2. For a given subset, try to pair each signal name (as it appears in the RTL) with the name of an interface signal (as it is defined in the specification of a particular interface).
 This pairing is called "a matching".
 Matching with signals from all defined interfaces is tried.
-3. For a given subset and matched interface, infer the interface direction (master/slave) based on the direction of some signal in this set. 
+3. For a given subset and matched interface, infer the interface direction (master/slave) based on the direction of some signal in this set.
 4. Compute score for each matching, e.g. if signal names contain `cyc`, `stb` and `ack` (and possibly more) it's likely that this set is a Wishbone interface.
 Among all interfaces, interface that has the highest matching score is selected.
 

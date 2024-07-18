@@ -33,4 +33,3 @@ set_max_delay 2 -quiet -from [get_pins -filter {REF_PIN_NAME == C} -of_objects [
 set_max_delay -quiet -through [get_pins -filter {REF_PIN_NAME == Q} -of_objects [get_cells -hierarchical -filter {slow_ff == TRUE}]] 250
 
 set_max_delay -quiet -to [get_pins -filter {REF_PIN_NAME == D} -of_objects [get_cells -hierarchical -filter {slow_in == TRUE}]] 250
-

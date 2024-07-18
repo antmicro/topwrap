@@ -22,4 +22,3 @@ signals:
             TSTRB: tstrb
             TUSER: tuser
             TWAKEUP: twakeup
-

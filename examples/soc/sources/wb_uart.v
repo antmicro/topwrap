@@ -768,8 +768,8 @@ end
 //------------------------------------------------------------------------------
 // Memory storage: 16-words x 10-bit
 //------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 10 
-// Port 1 | Read: Sync  | Write: ---- | 
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 10
+// Port 1 | Read: Sync  | Write: ---- |
 reg [9:0] storage[0:15];
 reg [9:0] storage_dat0;
 reg [9:0] storage_dat1;
@@ -789,8 +789,8 @@ assign tx_fifo_rdport_dat_r = storage_dat1;
 //------------------------------------------------------------------------------
 // Memory storage_1: 16-words x 10-bit
 //------------------------------------------------------------------------------
-// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 10 
-// Port 1 | Read: Sync  | Write: ---- | 
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 10
+// Port 1 | Read: Sync  | Write: ---- |
 reg [9:0] storage_1[0:15];
 reg [9:0] storage_1_dat0;
 reg [9:0] storage_1_dat1;
