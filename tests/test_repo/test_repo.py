@@ -56,7 +56,7 @@ class MySupportedResourceHandler(ResourceHandler):
 
 
 class MyRepo(Repo):
-    def __init__(self2):
+    def __init__(self):
         resource_handlers = [MySupportedResourceHandler()]
         super().__init__(resource_handlers)
 
@@ -68,7 +68,8 @@ class TestRepoBase:
 
     @pytest.mark.usefixtures("fs")
     def test_save_supported_resource(self, repo):
-        repo.add_files(MyFileHandler([TemporaryFile()]))
+        files = MyFileHandler([TemporaryFile()])
+        repo.add_files(files)
         repo.save("repo")
 
     @pytest.mark.usefixtures("fs")

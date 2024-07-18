@@ -6,14 +6,14 @@ from pathlib import Path
 
 import pytest
 
+from topwrap.repo.file_handlers import InterfaceFileHandler, VerilogFileHandler
 from topwrap.repo.files import LocalFile
 from topwrap.repo.user_repo import (
     Core,
     CoreHandler,
     InterfaceDescription,
     InterfaceDescriptionHandler,
-    InterfaceFileHandler,
-    VerilogFileHandler,
+    UserRepo,
 )
 
 
@@ -46,21 +46,38 @@ signals:
 """
 
 
+@pytest.fixture
+def cores(fs, request, num_cores=2):
+    cores = []
+    for i in range(num_cores):
+        additional_path = ""
+        if hasattr(request, "param"):
+            additional_path = request.param[i]
+        mod_name = f"{additional_path}mymod_{i}"
+        verilog_file = f"{mod_name}.v"
+        design_file = f"{mod_name}.yaml"
+
+        fs.create_file(verilog_file)
+        fs.create_file(design_file)
+        core = Core(mod_name, LocalFile(design_file), [LocalFile(verilog_file)])
+        cores.append(core)
+    return cores
+
+
+@pytest.fixture
+def ifaces(fs, num_ifaces=2, iface_path="example/path/"):
+    ifaces = []
+    for i in range(num_ifaces):
+        iface_name = f"{iface_path}iface_{i}"
+        iface_file = f"{iface_name}.yaml"
+
+        fs.create_file(iface_file)
+        iface = InterfaceDescription(iface_name, LocalFile(iface_file))
+        ifaces.append(iface)
+    return ifaces
+
+
 class TestCoreHandler:
-    @pytest.fixture
-    def cores(self, fs, num_cores=2):
-        cores = []
-        for i in range(num_cores):
-            mod_name = f"mymod_{i}"
-            verilog_file = f"{mod_name}.v"
-            design_file = f"{mod_name}.yaml"
-
-            fs.create_file(verilog_file)
-            fs.create_file(design_file)
-            core = Core(mod_name, LocalFile(design_file), [LocalFile(verilog_file)])
-            cores.append(core)
-        return cores
-
     def test_save(self, fs, cores):
         repo_dir = Path("myrepo")
         fs.create_dir(repo_dir)
@@ -121,18 +138,6 @@ class TestCoreHandler:
 
 
 class TestInterfaceDescriptionHandler:
-    @pytest.fixture
-    def ifaces(self, fs, num_ifaces=2):
-        ifaces = []
-        for i in range(num_ifaces):
-            iface_name = f"iface_{i}"
-            iface_file = f"{iface_name}.yaml"
-
-            fs.create_file(iface_file)
-            iface = InterfaceDescription(iface_name, LocalFile(iface_file))
-            ifaces.append(iface)
-        return ifaces
-
     def test_save(self, fs, ifaces):
         repo_dir = Path("myrepo")
         fs.create_dir(repo_dir)
@@ -200,3 +205,52 @@ class TestInterfaceFileHandler:
         handler = InterfaceFileHandler([LocalFile(my_interface.name)])
         resources = handler.parse()
         assert len(resources) == 1, "Should have 1 resources (InterfaceDescription)"
+
+
+class TestUserRepo:
+    @pytest.fixture
+    def yamlfiles(self):
+        return (
+            "example/path/ipcore/ipc1.yaml",
+            "example/path/ipcore/ipc2.yaml",
+        )
+
+    @pytest.fixture
+    def demo_user_repo(self, cores, ifaces):
+        demo_user_repo = UserRepo()
+        demo_user_repo.resources = {
+            Core: cores,
+            InterfaceDescription: ifaces,
+        }
+        return demo_user_repo
+
+    def test_getting_config_core_designs(self, yamlfiles, cores, demo_user_repo):
+        extended_yamlfiles = demo_user_repo.get_core_designs()
+        extended_yamlfiles += yamlfiles
+
+        assert len(extended_yamlfiles) == len(yamlfiles) + len(
+            cores
+        ), f"Number of yaml files differs. Expected {len(extended_yamlfiles)}, got {len(yamlfiles) + len(cores)}"
+
+        for yamlfile in yamlfiles:
+            assert yamlfile in extended_yamlfiles, "User yamlfile is missing"
+
+        for core in cores:
+            assert (
+                str(core.design.path) in extended_yamlfiles
+            ), "Core file from resources is missing"
+
+    EXAMPLE_PATH_MODIFIERS = ["~/test/path/long/", "/my/example/path/to/file/"]
+
+    @pytest.mark.parametrize("cores", [EXAMPLE_PATH_MODIFIERS], indirect=True)
+    def test_getting_srcs_dirs_for_cores(self, cores, demo_user_repo):
+        EXPECTED_PATHS = [str(Path(path).expanduser()) for path in self.EXAMPLE_PATH_MODIFIERS]
+        demo_user_repo.resources[Core] = cores
+        dirs_from_config = demo_user_repo.get_srcs_dirs_for_cores()
+
+        assert len(dirs_from_config) == len(
+            EXPECTED_PATHS
+        ), f"Number of paths is different. Expected {len(EXPECTED_PATHS)}, got {len(dirs_from_config)}"
+
+        for dir in dirs_from_config:
+            assert dir in EXPECTED_PATHS, f"The path to directory is incorrect. Got {dir} path"

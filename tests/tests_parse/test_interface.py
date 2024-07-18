@@ -73,7 +73,7 @@ class TestInterfaceDefinition:
         from topwrap import interface
 
         assert (
-            len(interface.interface_definitions) == 5
+            len(interface.get_predefined_interfaces()) == 5
         ), "No predefined interfaces could be retrieved"
 
     def test_iface_retrieve_by_name(self):

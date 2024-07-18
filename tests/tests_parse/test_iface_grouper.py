@@ -19,7 +19,7 @@ from topwrap.interface import (
     InterfaceDefinition,
     InterfaceMode,
     InterfaceSignalType,
-    interface_definitions,
+    get_interfaces,
 )
 from topwrap.interface_grouper import (
     BasicModeDeducer,
@@ -411,9 +411,9 @@ class TestModeDeducers:
         def invert_direction(port: PortDefinition) -> PortDefinition:
             return dataclasses.replace(
                 port,
-                direction=PortDirection.IN
-                if port.direction == PortDirection.OUT
-                else PortDirection.IN,
+                direction=(
+                    PortDirection.IN if port.direction == PortDirection.OUT else PortDirection.IN
+                ),
             )
 
         basic_deducer = BasicModeDeducer()
@@ -438,7 +438,7 @@ class TestInterfaceGroupers:
     @pytest.fixture
     def grouper(self):
         return Interface4StageGrouper(
-            interface_definitions,
+            get_interfaces(),
             GrouperByPrefixAuto(),
             RegexInterfaceMatcher(),
             InterfaceMatchGroupScorer(),

@@ -1,11 +1,11 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import importlib.resources
 from pathlib import Path
 
 import pytest
 from common import read_json_file
+from importlib_resources import _common
 from jsonschema import Draft202012Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
@@ -20,8 +20,9 @@ HDMI_ALL_UNIQUE_NODES = HDMI_UNIQUE_IPCORE_NODES + SPEC_METANODES
 
 
 def get_schema_path(schema_name) -> Path:
-    with importlib.resources.path("pipeline_manager.resources.schemas", schema_name) as fd:
-        return str(fd)
+    # Based on https://github.com/python/importlib_resources/blob/66ea2dc7eb12b1be2322b7ad002cefb12d364dff/importlib_resources/_legacy.py#L84
+    with _common.as_file(_common.files("pipeline_manager.resources.schemas") / schema_name) as fd:
+        return fd
 
 
 @pytest.fixture
