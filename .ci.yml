@@ -44,15 +44,9 @@ package_cores:
 build_docs:
   image: $CI_DOCS_DOCKER_IMAGE
   stage: build_docs
-  before_script:
-    - pip3 install -r docs/requirements.txt
-    - pip3 install .
   script:
-    - cd docs
-    - echo -en "\nhtml_js_files = [ '$ANNOTANT' ]" >> source/conf.py
-    - make html latexpdf
-    - cp build/latex/*.pdf build/html/
-    - tar cf ../$CI_DOCS_ARCHIVE -C build/html/ .
+    - ./.github/scripts/ci.sh docs
+    - tar cf "$CI_DOCS_ARCHIVE" -C docs/build/html/ .
   artifacts:
     paths:
       - docs/build

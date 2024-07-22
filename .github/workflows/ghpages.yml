@@ -3,52 +3,41 @@
 
 name: GH Pages
 
-on:
-  pull_request:
-  push:
-    branches:
-      - main
+on: [pull_request, push]
 
 jobs:
   docs-generation:
     runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-          sudo apt-get update
-          sudo apt-get install -y texlive-full
-          python3 -m pip install -r docs/requirements.txt
-          pip install .
+      - name: Generate documentation
+        run: |
+          ./.github/scripts/ci.sh docs
 
-    - name: Generate documentation
-      run: |
-        cd docs
-        make html latexpdf
-        cp build/latex/*.pdf build/html/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: gh-page
+          path: docs/build/html
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: gh-page
-        path: docs/build/html
-
-    - name: Deploy to Github Pages
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-      run: |
-        cd docs/build/html
-        touch .nojekyll
-        git init
-        cp ../../../.git/config ./.git/config
-        git add .
-        git config --local user.email "push@gha"
-        git config --local user.name "GHA"
-        git commit -am "update ${{ github.sha }}"
-        git push -u origin +HEAD:gh-pages
-        rm -rf .git
+      - name: Deploy to Github Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          cd docs/build/html
+          touch .nojekyll
+          git init
+          cp ../../../.git/config ./.git/config
+          git add .
+          git config --local user.email "push@gha"
+          git config --local user.name "GHA"
+          git commit -am "update ${{ github.sha }}"
+          git push -u origin +HEAD:gh-pages
+          rm -rf .git
