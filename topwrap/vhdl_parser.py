@@ -1,5 +1,6 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from functools import cached_property
 from logging import error
 from typing import Dict, Set
 
@@ -37,7 +38,7 @@ class VHDLModule(HDLModule):
     def module_name(self) -> str:
         return self.__data["name"]["val"]
 
-    @property
+    @cached_property
     @override
     def parameters(self) -> Dict[str, HDLParameter]:
         params = {}
@@ -47,7 +48,7 @@ class VHDLModule(HDLModule):
                 params[item["name"]["val"]] = param_val
         return params
 
-    @property
+    @cached_property
     @override
     def ports(self) -> Set[PortDefinition]:
         ports = set()

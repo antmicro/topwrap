@@ -9,6 +9,7 @@ from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
 from topwrap.interface import (
     IfacePortSpecification,
     InterfaceDefinition,
+    InterfaceDefinitionSignals,
     InterfaceMode,
     InterfaceSignalType,
     get_interfaces,
@@ -197,7 +198,7 @@ def foo_interface(foo_interface_ports: List[IfacePortSpecification]) -> Interfac
     return InterfaceDefinition(
         name="foo_iface",
         port_prefix="foo",
-        signals=foo_interface_ports,
+        signals=InterfaceDefinitionSignals.from_flat(foo_interface_ports),
     )
 
 
@@ -321,16 +322,19 @@ class TestInterfaceScorers:
         # 4 signals
         foo_interface4 = foo_interface
         # 4 signals, 4 matched
-        fullmatch4 = matcher.match(set(foo_interface4.signals), set(foo_a_ports))
+        fullmatch4 = matcher.match(set(foo_interface4.signals.flat), set(foo_a_ports))
         # 3 signals, 3 matched
-        fullmatch3 = matcher.match(set(foo_interface4.signals[1:]), set(foo_a_ports[1:]))
+        fullmatch3 = matcher.match(set(foo_interface4.signals.flat[1:]), set(foo_a_ports[1:]))
         # 4 signals, 3 matched
-        partialmatch4 = matcher.match(set(foo_interface4.signals), set(foo_a_ports[1:]))
+        partialmatch4 = matcher.match(set(foo_interface4.signals.flat), set(foo_a_ports[1:]))
 
         # 3 signals
-        foo_interface3 = dataclasses.replace(foo_interface4, signals=foo_interface4.signals[1:])
+        foo_interface3 = dataclasses.replace(
+            foo_interface4,
+            signals=InterfaceDefinitionSignals.from_flat(foo_interface4.signals.flat[1:]),
+        )
         # 3 signals, 2 matched
-        partialmatch3 = matcher.match(set(foo_interface3.signals), set(foo_a_ports[2:]))
+        partialmatch3 = matcher.match(set(foo_interface3.signals.flat), set(foo_a_ports[2:]))
 
         # invariant 1.
         assert group_scorer.score(foo_interface4, foo_a_ports, fullmatch4) == group_scorer.score(
@@ -368,7 +372,9 @@ class TestInterfaceScorers:
             make_optional(iface_valid): foo_a_valid,
             make_optional(iface_ready): foo_a_ready,
         }
-        iface_n1_m1 = dataclasses.replace(foo_interface, signals=list(n1_req_m1_opt.keys()))
+        iface_n1_m1 = dataclasses.replace(
+            foo_interface, signals=InterfaceDefinitionSignals.from_flat(list(n1_req_m1_opt.keys()))
+        )
         ports_n1_m1 = set(n1_req_m1_opt.values())
         score_n1_m1 = group_scorer.score(iface_n1_m1, ports_n1_m1, n1_req_m1_opt)
 
@@ -377,7 +383,9 @@ class TestInterfaceScorers:
             iface_data_out: foo_a_data_out,
             make_optional(iface_valid): foo_a_valid,
         }
-        iface_n1_m = dataclasses.replace(foo_interface, signals=list(n1_req_m_opt.keys()))
+        iface_n1_m = dataclasses.replace(
+            foo_interface, signals=InterfaceDefinitionSignals.from_flat(list(n1_req_m_opt.keys()))
+        )
         ports_n1_m = set(n1_req_m_opt.values())
         score_n1_m = group_scorer.score(iface_n1_m, ports_n1_m, n1_req_m_opt)
 
@@ -386,7 +394,9 @@ class TestInterfaceScorers:
             iface_data_out: foo_a_data_out,
             make_optional(iface_valid): foo_a_valid,
         }
-        iface_n_m1 = dataclasses.replace(foo_interface, signals=list(n_req_m1_opt.keys()))
+        iface_n_m1 = dataclasses.replace(
+            foo_interface, signals=InterfaceDefinitionSignals.from_flat(list(n_req_m1_opt.keys()))
+        )
         ports_n_m1 = set(n_req_m1_opt.values())
         score_n_m1 = group_scorer.score(iface_n_m1, ports_n_m1, n_req_m1_opt)
 
@@ -394,7 +404,9 @@ class TestInterfaceScorers:
             iface_data_in: foo_a_data_in,
             make_optional(iface_data_out): foo_a_data_out,
         }
-        iface_n_m = dataclasses.replace(foo_interface, signals=list(n_req_m_opt.keys()))
+        iface_n_m = dataclasses.replace(
+            foo_interface, signals=InterfaceDefinitionSignals.from_flat(list(n_req_m_opt.keys()))
+        )
         ports_n_m = set(n_req_m_opt.values())
         score_n_m = group_scorer.score(iface_n_m, ports_n_m, n_req_m_opt)
 
@@ -422,12 +434,12 @@ class TestModeDeducers:
 
         # if rtl ports directions' match iface ports directions' this it's a master
         # since convention is to describe directions in an interface from the master's perspective
-        matching_master = matcher.match(set(foo_interface.signals), foo_a_ports)
+        matching_master = matcher.match(set(foo_interface.signals.flat), foo_a_ports)
         assert basic_deducer.deduce_mode(foo_interface, matching_master) == InterfaceMode.MASTER
 
         # conversely if the directions are inverted it's a slave
         matching_slave = matcher.match(
-            set(foo_interface.signals), set(map(invert_direction, foo_a_ports))
+            set(foo_interface.signals.flat), set(map(invert_direction, foo_a_ports))
         )
         assert basic_deducer.deduce_mode(foo_interface, matching_slave) == InterfaceMode.SLAVE
 

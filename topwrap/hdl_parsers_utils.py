@@ -6,11 +6,16 @@ from logging import warning
 
 import numexpr as ex
 
+from topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
+
 
 class PortDirection(Enum):
     IN = "in"
     OUT = "out"
     INOUT = "inout"
+
+    def to_amaranth(self):
+        return DIR_IN if self == self.IN else DIR_OUT if self == self.OUT else DIR_INOUT
 
 
 @dataclass(frozen=True)

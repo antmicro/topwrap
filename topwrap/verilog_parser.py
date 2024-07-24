@@ -1,6 +1,6 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from functools import lru_cache
+from functools import cached_property
 from logging import error
 from typing import Dict, List, Set
 
@@ -28,7 +28,7 @@ class VerilogModule(HDLModule):
     def module_name(self) -> str:
         return self._data["module_name"]
 
-    @property
+    @cached_property
     @override
     def parameters(self) -> Dict[str, HDLParameter]:
         params = {}
@@ -38,7 +38,7 @@ class VerilogModule(HDLModule):
                 params[item["name"]["val"]] = param_val
         return params
 
-    @property
+    @cached_property
     @override
     def ports(self) -> Set[PortDefinition]:
         ports = set()
@@ -62,8 +62,7 @@ class VerilogModule(HDLModule):
 
         return ports
 
-    @property
-    @lru_cache(maxsize=None)
+    @cached_property
     def components(self) -> Set[str]:
         """Returns a set of other module names that get instantiated in this module"""
 

@@ -1,0 +1,35 @@
+name: [55]
+
+parameters:
+    param: {}
+    param2: []
+    param3: param2
+    param4: 24
+    param5:
+        width: foo
+        value: []
+    param6:
+        width: 3
+        value: param1
+
+signals:
+    outbar: {}
+    in:
+        - clk
+        - [rst, 0, 0, 0]
+        - [bar, a, a, a, a, a]
+        - {}
+    inout:
+
+interfaces:
+    foo_bar_adapter:
+        type: [34]
+        mode: {}
+        signals:
+            out:
+                ABC: []
+            foobar: {}
+            barfoo:
+
+invalid:
+    - 3

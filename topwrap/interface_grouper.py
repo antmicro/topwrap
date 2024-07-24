@@ -401,7 +401,7 @@ class BasicModeDeducer(ModeDeducer):
             # in interface specification file - if it matches then it's a master since we assume
             # the specification to be from the master's perspective, otherwise it's a slave
             iface_sig, rtl_sig = list(matched_signals.items())[0]
-            if iface_sig in iface_spec.signals and rtl_sig.direction == iface_sig.direction:
+            if iface_sig in iface_spec.signals.flat and rtl_sig.direction == iface_sig.direction:
                 return InterfaceMode.MASTER
             else:
                 return InterfaceMode.SLAVE
@@ -465,7 +465,7 @@ class Interface4StageGrouper(InterfaceGrouper):
     def group_to_interfaces(self, ports: Set[PortDefinition]) -> Iterable[InterfaceMatch]:
         def match_against_all_ifaces(iface_rtl_ports, iface_name):
             for iface in self.ifaces:
-                match = self._match_stage.match(set(iface.signals), iface_rtl_ports)
+                match = self._match_stage.match(set(iface.signals.flat), iface_rtl_ports)
                 mode = self._mode_stage.deduce_mode(iface, match)
                 score = self._score_stage.score(iface, iface_rtl_ports, match)
                 yield score, InterfaceMatch(

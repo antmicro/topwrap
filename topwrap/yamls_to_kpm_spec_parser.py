@@ -3,10 +3,18 @@
 
 import logging
 import os
+from typing import Dict
+
+from topwrap.hdl_parsers_utils import PortDirection
+from topwrap.ip_desc import (
+    IPCoreDescription,
+    IPCoreInterface,
+    IPCoreParameter,
+    IPCorePorts,
+)
 
 from .interface import InterfaceMode
 from .kpm_common import CONST_NAME, EXT_INOUT_NAME, EXT_INPUT_NAME, EXT_OUTPUT_NAME
-from .parsers import parse_port_map
 
 
 def _ipcore_param_to_kpm_value(param) -> str:
@@ -22,9 +30,9 @@ def _ipcore_param_to_kpm_value(param) -> str:
         return param
     elif isinstance(param, int):
         return str(param)
-    elif isinstance(param, dict) and param.keys() == {"value", "width"}:
-        width = str(param["width"])
-        value = hex(param["value"])[2:]
+    elif isinstance(param, IPCoreParameter):
+        width = str(param.width)
+        value = hex(int(param.value))[2:]
         return width + "'h" + value
 
 
@@ -43,7 +51,7 @@ def _ipcore_params_to_kpm(params: dict) -> list:
     ]
 
 
-def _ipcore_ports_to_kpm(ports: dict) -> list:
+def _ipcore_ports_to_kpm(ports: IPCorePorts) -> list:
     """Returns lists of ports grouped by direction (inputs/outputs)
     in a format used in KPM specification.
 
@@ -53,27 +61,24 @@ def _ipcore_ports_to_kpm(ports: dict) -> list:
     :return: a dict containing KPM "interfaces", which
         correspond to given IP core ports
     """
-    inputs = [
+    return [
         {
             # In ip core yamls each port is described as a separate,
             # one-element list. Here `port` is a one-element list containing a
             # single string (i.e. port name), which is accessed with `port[0]`
-            "name": port[0],
+            "name": port.name,
             "type": ["port"],
             "direction": "input",
         }
-        for port in ports["in"]
+        if port.direction == PortDirection.IN
+        else {"name": port.name, "type": ["port"], "direction": "output"}
+        if port.direction == PortDirection.OUT
+        else {"name": port.name, "type": ["port"], "direction": "inout", "side": "right"}
+        for port in ports.flat
     ]
-    outputs = [{"name": port[0], "type": ["port"], "direction": "output"} for port in ports["out"]]
-    inouts = [
-        {"name": port[0], "type": ["port"], "direction": "inout", "side": "right"}
-        for port in ports["inout"]
-    ]
-
-    return inputs + outputs + inouts
 
 
-def _ipcore_ifaces_to_kpm(ifaces: dict):
+def _ipcore_ifaces_to_kpm(ifaces: Dict[str, IPCoreInterface]):
     """Returns a list of interfaces grouped by direction (inputs/outputs)
     in a format used in KPM specification. Master interfaces are considered
     outputs, slave interfaces are considered inputs and interfaces with
@@ -87,19 +92,19 @@ def _ipcore_ifaces_to_kpm(ifaces: dict):
     """
     kpm_ifaces = []
     for name, iface in ifaces.items():
-        if iface["mode"] in (InterfaceMode.SLAVE.value, InterfaceMode.UNSPECIFIED.value):
+        if iface.mode in (InterfaceMode.SLAVE, InterfaceMode.UNSPECIFIED):
             kpm_ifaces.append(
                 {
                     "name": name,
-                    "type": [f'iface_{iface["type"]}'],
-                    "direction": "input" if iface["mode"] == InterfaceMode.SLAVE.value else "inout",
+                    "type": [f"iface_{iface.type}"],
+                    "direction": "input" if iface.mode == InterfaceMode.SLAVE else "inout",
                 }
             )
-        elif iface["mode"] == InterfaceMode.MASTER.value:
+        elif iface.mode == InterfaceMode.MASTER:
             kpm_ifaces.append(
                 {
                     "name": name,
-                    "type": [f'iface_{iface["type"]}'],
+                    "type": [f"iface_{iface.type}"],
                     "direction": "output",
                     "maxConnectionsCount": 1,
                 }
@@ -116,12 +121,12 @@ def _ipcore_to_kpm(yamlfile: str) -> dict:
 
     :return: a dict representing single KPM specification 'node'
     """
-    ip_yaml = parse_port_map(yamlfile)
+    ip = IPCoreDescription.load(yamlfile)
 
-    ip_name = os.path.splitext(os.path.basename(yamlfile))[0]
-    kpm_params = _ipcore_params_to_kpm(ip_yaml["parameters"])
-    kpm_ports = _ipcore_ports_to_kpm(ip_yaml["signals"])
-    kpm_ifaces = _ipcore_ifaces_to_kpm(ip_yaml["interfaces"])
+    ip_name = ip.name or os.path.splitext(os.path.basename(yamlfile))[0]
+    kpm_params = _ipcore_params_to_kpm(ip.parameters)
+    kpm_ports = _ipcore_ports_to_kpm(ip.signals)
+    kpm_ifaces = _ipcore_ifaces_to_kpm(ip.interfaces)
 
     return {
         "name": ip_name,

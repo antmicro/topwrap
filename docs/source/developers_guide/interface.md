@@ -16,7 +16,3 @@ These are used to match a given set of signals that appear in the HDL source wit
 ```{eval-rst}
 .. autofunction:: topwrap.interface.get_interface_by_name
 ```
-
-```{eval-rst}
-.. autofunction:: topwrap.interface.check_interface_compliance
-```

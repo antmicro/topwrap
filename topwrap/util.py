@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from collections import defaultdict
+from typing import Any, DefaultDict, Union
+
+
 def removeprefix(s: str, prefix: str) -> str:
     """Return string with a prefix removed if it contains it
 
@@ -11,3 +15,10 @@ def removeprefix(s: str, prefix: str) -> str:
     if s.startswith(prefix):
         return s[len(prefix) :]
     return s
+
+
+_R = DefaultDict[Any, Union["_R", Any]]
+
+
+def recursive_defaultdict() -> _R:
+    return defaultdict(recursive_defaultdict)

@@ -1,0 +1,40 @@
+name: correct_core
+
+parameters:
+  p1: 3
+  p2: "p1+4"
+  p3: &p3
+    width: 4
+    value: 5
+  p4:
+    <<: *p3
+    value: "p2"
+
+interfaces:
+  intf1:
+    type: wishbone
+    mode: master
+    signals:
+      out:
+        cyc: cyc
+        stb: [cyc, 3, 0, 1, 0]
+      in:
+        ack:
+          - ack
+          - 2
+          - 0
+
+signals:
+  in:
+  - clk
+  - [rst]
+  - [leds, 10, 0]
+  - - btns
+    - 32
+    - 0
+    - 15
+    - 10
+  - - useless
+    - 22
+    - 10
+  out: []

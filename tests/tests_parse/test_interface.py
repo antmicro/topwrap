@@ -11,7 +11,11 @@ from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.interface import (
     IfacePortSpecification,
     InterfaceDefinition,
+    InterfaceDefinitionSignals,
     InterfaceSignalType,
+    get_interface_by_name,
+    get_predefined_interfaces,
+    load_interface_definitions,
 )
 
 
@@ -21,32 +25,34 @@ class TestInterfaceDefinition:
         return InterfaceDefinition(
             name="barInterface",
             port_prefix="bar",
-            signals=[
-                IfacePortSpecification(
-                    name="foo",
-                    regexp=re.compile("foo"),
-                    direction=PortDirection.IN,
-                    type=InterfaceSignalType.REQUIRED,
-                ),
-                IfacePortSpecification(
-                    name="baz",
-                    regexp=re.compile("baz"),
-                    direction=PortDirection.OUT,
-                    type=InterfaceSignalType.REQUIRED,
-                ),
-                IfacePortSpecification(
-                    name="foobar",
-                    regexp=re.compile("foobar"),
-                    direction=PortDirection.IN,
-                    type=InterfaceSignalType.OPTIONAL,
-                ),
-                IfacePortSpecification(
-                    name="foobaz",
-                    regexp=re.compile("foobaz"),
-                    direction=PortDirection.OUT,
-                    type=InterfaceSignalType.OPTIONAL,
-                ),
-            ],
+            signals=InterfaceDefinitionSignals.from_flat(
+                [
+                    IfacePortSpecification(
+                        name="foo",
+                        regexp=re.compile("foo"),
+                        direction=PortDirection.IN,
+                        type=InterfaceSignalType.REQUIRED,
+                    ),
+                    IfacePortSpecification(
+                        name="baz",
+                        regexp=re.compile("baz"),
+                        direction=PortDirection.OUT,
+                        type=InterfaceSignalType.REQUIRED,
+                    ),
+                    IfacePortSpecification(
+                        name="foobar",
+                        regexp=re.compile("foobar"),
+                        direction=PortDirection.IN,
+                        type=InterfaceSignalType.OPTIONAL,
+                    ),
+                    IfacePortSpecification(
+                        name="foobaz",
+                        regexp=re.compile("foobaz"),
+                        direction=PortDirection.OUT,
+                        type=InterfaceSignalType.OPTIONAL,
+                    ),
+                ]
+            ),
         )
 
     @pytest.fixture
@@ -63,62 +69,17 @@ class TestInterfaceDefinition:
         }
 
     def test_interfaces_presence(self):
-        from topwrap import parsers as p
-
-        interfaces = p.parse_interface_definitions()
+        interfaces = load_interface_definitions()
         # parser returns non-empty list
         assert len(interfaces) == 5
 
     def test_predefined(self):
-        from topwrap import interface
-
-        assert (
-            len(interface.get_predefined_interfaces()) == 5
-        ), "No predefined interfaces could be retrieved"
+        assert len(get_predefined_interfaces()) == 5, "No predefined interfaces could be retrieved"
 
     def test_iface_retrieve_by_name(self):
-        from topwrap import interface
-
         name = "AXI4Stream"
-        assert interface.get_interface_by_name(name) is not None
+        assert get_interface_by_name(name) is not None
 
     def test_iface_retrieve_by_name_negative(self):
-        from topwrap import interface
-
         name = "zxcvbnm"
-        assert interface.get_interface_by_name(name) is None
-
-    def test_iface_compliance_all_present(
-        self, iface: InterfaceDefinition, signals: NestedDict[str, Any]
-    ):
-        from topwrap import interface
-
-        # all signals present
-        assert interface.check_interface_compliance(iface, signals)
-
-    def test_iface_compliance_opt_missing(
-        self, iface: InterfaceDefinition, signals: NestedDict[str, Any]
-    ):
-        from topwrap import interface
-
-        del signals["in"]["foobar"]
-        # optional signal missing
-        assert interface.check_interface_compliance(iface, signals)
-
-    def test_iface_compliance_req_missing(
-        self, iface: InterfaceDefinition, signals: NestedDict[str, Any]
-    ):
-        from topwrap import interface
-
-        del signals["in"]["foo"]
-        # required signal missing
-        assert interface.check_interface_compliance(iface, signals) is False
-
-    def test_iface_compliance_extra_signal(
-        self, iface: InterfaceDefinition, signals: NestedDict[str, Any]
-    ):
-        from topwrap import interface
-
-        signals["in"]["extra"] = ("extra_signal", 33, 0, 0, 0)
-        # extra signal added
-        assert interface.check_interface_compliance(iface, signals) is False
+        assert get_interface_by_name(name) is None

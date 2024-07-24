@@ -1,181 +1,265 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from collections import defaultdict
-from typing import Dict, Iterable, List, Set
-
-from strictyaml import (
-    EmptyDict,
-    EmptyList,
-    Enum,
-    FixedSeq,
-    Int,
-    Map,
-    MapPattern,
-    Seq,
-    Str,
-    as_document,
+from dataclasses import field
+from functools import cached_property, lru_cache
+from pathlib import Path
+from typing import (
+    Any,
+    ClassVar,
+    Collection,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
+    cast,
 )
 
-from .hdl_parsers_utils import PortDefinition, PortDirection
-from .interface import InterfaceMode
-from .interface_grouper import InterfaceMatch
+import marshmallow
+import marshmallow.validate
+import marshmallow_dataclass
+import yaml
+from importlib_resources import as_file, files
+
+from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
+
+from .common_serdes import optional_with
+from .config import config
+from .interface import InterfaceDefinition, InterfaceMode, get_interface_by_name
+
+_T = Union[str, int]
+
+Signal = Union[str, Tuple[str], Tuple[str, _T, _T], Tuple[str, _T, _T, _T, _T]]
 
 
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCorePort:
+    name: str
+    upper_bound: _T
+    lower_bound: _T
+    upper_slice: _T
+    lower_slice: _T
+    direction: PortDirection = field(metadata={"by_value": True})
+
+    @property
+    def bounds(self) -> Tuple[_T, _T, _T, _T]:
+        return (self.upper_bound, self.lower_bound, self.upper_slice, self.lower_slice)
+
+    @cached_property
+    def raw(self) -> Signal:
+        tdb = self.bounds
+        if tdb == (0, 0, 0, 0):
+            tdb = ()
+        elif tdb[:2] == tdb[2:]:
+            tdb = tdb[:2]
+        return (self.name, *tdb)
+
+    @staticmethod
+    def from_sig_and_dir(sig: Signal, dir: PortDirection) -> "IPCorePort":
+        data = [sig] if isinstance(sig, str) else sig
+        if len(data) == 1:
+            bounds = [0, 0, 0, 0]
+        elif len(data) == 3:
+            bounds = data[1:3] * 2
+        else:
+            bounds = data[1:]
+
+        [upper_bound, lower_bound, upper_slice, lower_slice] = bounds
+        return IPCorePort(
+            name=data[0],
+            direction=dir,
+            upper_bound=upper_bound,
+            lower_bound=lower_bound,
+            upper_slice=upper_slice,
+            lower_slice=lower_slice,
+        )
+
+    @staticmethod
+    def from_port_def(port: PortDefinition) -> "IPCorePort":
+        def _try_int(v: str) -> Union[int, str]:
+            try:
+                return int(v)
+            except ValueError:
+                return v
+
+        return IPCorePort(
+            name=port.name,
+            direction=port.direction,
+            upper_bound=_try_int(port.upper_bound),
+            lower_bound=_try_int(port.lower_bound),
+            upper_slice=_try_int(port.upper_bound),
+            lower_slice=_try_int(port.lower_bound),
+        )
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCorePorts:
+    input: Set[Signal] = optional_with(set, {"data_key": "in"})
+    output: Set[Signal] = optional_with(set, {"data_key": "out"})
+    inout: Set[Signal] = optional_with(set)
+
+    @cached_property
+    def flat(self):
+        ports: Set[IPCorePort] = set()
+        for dir, sigs in (
+            (PortDirection.IN, self.input),
+            (PortDirection.OUT, self.output),
+            (PortDirection.INOUT, self.inout),
+        ):
+            for sig in sigs:
+                ports.add(IPCorePort.from_sig_and_dir(sig, dir))
+        return ports
+
+    @staticmethod
+    def from_port_def_list(ports: Collection[PortDefinition]) -> "IPCorePorts":
+        (inp, out, ino) = (set(), set(), set())
+        for port in ports:
+            (
+                inp
+                if port.direction == PortDirection.IN
+                else out
+                if port.direction == PortDirection.OUT
+                else ino
+            ).add(IPCorePort.from_port_def(port).raw)
+        return IPCorePorts(input=inp, output=out, inout=ino)
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreIntfPorts:
+    input: Dict[str, Signal] = optional_with(dict, {"data_key": "in"})
+    output: Dict[str, Signal] = optional_with(dict, {"data_key": "out"})
+    inout: Dict[str, Signal] = optional_with(dict)
+
+    @cached_property
+    def flat(self):
+        ports: Dict[str, IPCorePort] = {}
+        for dir, sigs in (
+            (PortDirection.IN, self.input),
+            (PortDirection.OUT, self.output),
+            (PortDirection.INOUT, self.inout),
+        ):
+            for iport_name, sig in sigs.items():
+                ports[iport_name] = IPCorePort.from_sig_and_dir(sig, dir)
+        return ports
+
+    @staticmethod
+    def from_port_def_map(ports: Mapping[str, PortDefinition]) -> "IPCoreIntfPorts":
+        (inp, out, ino) = ({}, {}, {})
+        for name, port in ports.items():
+            (
+                inp
+                if port.direction == PortDirection.IN
+                else out
+                if port.direction == PortDirection.OUT
+                else ino
+            )[name] = IPCorePort.from_port_def(port).raw
+        return IPCoreIntfPorts(input=inp, output=out, inout=ino)
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreInterface:
+    type: str
+    mode: InterfaceMode = field(metadata={"by_value": True})
+    signals: IPCoreIntfPorts = optional_with(IPCoreIntfPorts)
+
+    @marshmallow.validates("type")
+    def _validate_type(self, type: str) -> bool:
+        if get_interface_by_name(type) is None:
+            raise marshmallow.ValidationError(f"Invalid interface type: {type}")
+        return True
+
+    @marshmallow.validates_schema
+    def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
+        if config.force_interface_compliance:
+            errors: List[str] = []
+            i_def = cast(InterfaceDefinition, get_interface_by_name(self_obj["type"]))
+            for sig in i_def.required_signals:
+                if sig.name not in self_obj["signals"].flat:
+                    errors.append(
+                        f'Required {sig.direction.value} port "{sig.name}" of interface "{self_obj["type"]}" not present'
+                    )
+            for dir in PortDirection:
+                for name in self_obj["signals"].flat:
+                    if self_obj["signals"].flat[name].direction == dir and name not in [
+                        s.name for s in i_def.signals.flat
+                    ]:
+                        errors.append(
+                            f'Unknown {dir.value} port "{name}", not present in interface "{self_obj["type"]}"'
+                        )
+            if errors:
+                raise marshmallow.ValidationError(errors)
+        return True
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreParameter:
+    width: int
+    value: Union[int, str]
+
+
+class BuiltinIPCoreException(Exception):
+    """Raised when an exception occurred during handling a built-in IP Core"""
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreDescription:
-    def __init__(
-        self,
-        name: str,
-        parameters: Dict[str, str],
-        ports: Set[PortDefinition],
-        iface_matches: Iterable[InterfaceMatch],
-    ):
-        self.name = name
-        self.parameters = parameters
-        self.ports = ports
-        self.iface_matches = iface_matches
+    """IP Core as described in YAML IP Core definition file"""
 
-        port_schema = FixedSeq([Str(), Str(), Str()])  # alternatively CommaSeparated(Str())
-        port_list_schema = Seq(port_schema) | EmptyList()
-        iface_port_list_schema = MapPattern(Str(), port_schema) | EmptyDict()
-        self.schema = Map(
-            {
-                "name": Str(),
-                "parameters": MapPattern(
-                    Str(), Int() | Str() | Map({"value": Int() | Str(), "width": Int()})
-                )
-                | EmptyDict(),
-                "signals": Map(
-                    {
-                        PortDirection.IN.value: port_list_schema,
-                        PortDirection.OUT.value: port_list_schema,
-                        PortDirection.INOUT.value: port_list_schema,
-                    }
-                )
-                | EmptyDict(),
-                "interfaces": MapPattern(
-                    Str(),
-                    Map(
-                        {
-                            "signals": Map(
-                                {
-                                    PortDirection.IN.value: iface_port_list_schema,
-                                    PortDirection.OUT.value: iface_port_list_schema,
-                                    PortDirection.INOUT.value: iface_port_list_schema,
-                                }
-                            ),
-                            "type": Str(),  # preferably enum of available interfaces
-                            "mode": Enum(list(map(lambda mode: mode.value, InterfaceMode))),
-                        }
-                    ),
-                )
-                | EmptyDict(),
-            }
-        )
+    name: str
+    signals: IPCorePorts = optional_with(IPCorePorts)
+    parameters: Dict[str, Union[int, str, IPCoreParameter]] = optional_with(dict)
+    interfaces: Dict[str, IPCoreInterface] = optional_with(dict)
 
-    def _group_ports_by_dir(self, ports: Iterable[PortDefinition]) -> Dict[str, List[List[str]]]:
-        """Group ports by direction and transform them
-        into 3-element lists of [name, upper_bound, lower_bound]
+    Schema: ClassVar[Type[marshmallow.Schema]]
 
-        :param ports: iterable of PortDefinition objects
-        :return: dictionary in the format expected by YAML dumper:
-        {
-            'in': [[port1_name, port1_upper_bound, port1_lower_bound], ...]
-            'out': <as above>
-            'inout': <as above>
-        }
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def get_builtins() -> Dict[str, "IPCoreDescription"]:
+        """Loads all builtin internal IP Cores
+
+        :return: a dict where keys are the IP Core names and values are the IP Core description objects
         """
-        ports_by_dir = {
-            PortDirection.IN.value: [],
-            PortDirection.OUT.value: [],
-            PortDirection.INOUT.value: [],
-        }
 
-        for rtl_port in ports:
-            ports_by_dir[rtl_port.direction.value].append(
-                [rtl_port.name, rtl_port.upper_bound, rtl_port.lower_bound]
-            )
+        ips: Dict[str, IPCoreDescription] = {}
+        with as_file(files("topwrap.ips")) as ip_res:
+            for path in ip_res.glob("**/*"):
+                if path.suffix.lower() in (".yaml", ".yml"):
+                    try:
+                        ip = IPCoreDescription.load(path, False)
+                        ips[ip.name] = ip
+                    except Exception as exc:
+                        raise BuiltinIPCoreException(
+                            f'Loading built-in IP core "{path.name}" failed'
+                        ) from exc
+        return ips
 
-        return ports_by_dir
+    @staticmethod
+    def load(ip_path: Union[str, Path], fallback: bool = True) -> "IPCoreDescription":
+        """Load an IP Core description yaml from the given path
 
-    def _group_iface_ports_by_dir(
-        self, iface_matches: Iterable[InterfaceMatch]
-    ) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
-        """Group ports in `iface_mappings` by direction and transform them
-        into 3-element lists of [name, upper_bound, lower_bound]
-
-        :param iface_mappings: iterable where every element has the form of:
-        InterfaceMatch(
-            prefix = iface_prefix,
-            bus_type = iface_bus_type,
-            signals = {
-                iface_port1_name: PortDefinition(
-                    name = rtl_port1_name
-                    direction = PortDirection.<direction>
-                    upper_bound = rtl_port1_upper_bound
-                    lower_bound = rtl_port1_lower_bound
-                ),
-                ...
-            }
-        )
-
-        :return: a dictionary in the format expected by YAML dumper:
-        {
-            iface_prefix: {
-                'signals': {
-                    'in': {
-                        iface1_port1_name: [rtl_port1_name, rtl_port1_upper_bound, rtl_port1_lower_bound],
-                        ...
-                    },
-                    'out': <as above>,
-                    'inout': <as above>,
-                },
-                'type': iface_bus_type,
-                'mode': 'master'|'slave'
-            },
-            ...
-        }
+        :param ip_path: the path to the .yaml file
+        :param fallback: if this is True and ip_path does not exist, try loading the file from the builtin directory
+        :return: the IP Core description object
         """
-        ifaces_by_dir = defaultdict(
-            lambda: {
-                "signals": {
-                    PortDirection.IN.value: {},
-                    PortDirection.OUT.value: {},
-                    PortDirection.INOUT.value: {},
-                }
-            }
-        )
 
-        for iface in iface_matches:
-            ifaces_by_dir[iface.name]["type"] = iface.bus_type
-            ifaces_by_dir[iface.name]["mode"] = iface.mode.value
-            for iface_port, rtl_port in iface.signals.items():
-                ifaces_by_dir[iface.name]["signals"][rtl_port.direction.value][iface_port.name] = [
-                    rtl_port.name,
-                    rtl_port.upper_bound,
-                    rtl_port.lower_bound,
-                ]
+        ip_path = Path(ip_path)
 
-        return ifaces_by_dir
+        try:
+            with open(ip_path) as f:
+                return cast(IPCoreDescription, IPCoreDescription.Schema().load(yaml.safe_load(f)))
+        except FileNotFoundError:
+            if fallback:
+                ips = IPCoreDescription.get_builtins()
+                if ip_path.stem in ips:
+                    return ips[ip_path.stem]
+            raise
 
-    def format(self):
-        ifaces_by_dir = self._group_iface_ports_by_dir(self.iface_matches)
+    def save(self, file_path: Optional[Union[str, Path]] = None):
+        if file_path is None:
+            file_path = self.name + ".yaml"
 
-        # ports that belong to some interface
-        iface_ports = set()
-        for iface in self.iface_matches:
-            iface_ports.update(iface.signals.values())
-        # only consider ports that aren't part of any interface
-        ports_by_dir = self._group_ports_by_dir(self.ports - iface_ports)
-        return {
-            "name": self.name,
-            "parameters": self.parameters,
-            "signals": ports_by_dir,
-            "interfaces": ifaces_by_dir,
-        }
-
-    def save(self, filename=None):
-        if filename is None:
-            filename = self.name + ".yaml"
-
-        with open(filename, "w") as f:
-            f.write(as_document(self.format(), self.schema).as_yaml())
+        with open(file_path, "w") as f:
+            yaml.safe_dump(self.Schema().dump(self), f, sort_keys=False)

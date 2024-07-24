@@ -3,7 +3,8 @@
 
 import itertools
 import re
-from typing import Dict, Iterable, List, Sequence, TypeVar, Union
+from dataclasses import field
+from typing import Any, Dict, Iterable, List, Mapping, Sequence, TypeVar, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -18,7 +19,7 @@ class RegexpField(marshmallow.fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
         return value.pattern
 
-    def _deserialize(self, value, attr, obj, **kwargs):
+    def _deserialize(self, value, attr, data, **kwargs):
         try:
             return re.compile(value)
         except Exception as e:
@@ -30,6 +31,7 @@ RegexpT = marshmallow_dataclass.NewType("RegexpT", re.Pattern, field=RegexpField
 
 T = TypeVar("T")
 U = TypeVar("U")
+W = TypeVar("W")
 NestedDict = Dict[T, Union[U, "NestedDict"]]
 FlatTree = List[Sequence[T]]
 AnnotatedFlatTree = Iterable[Dict[T, U]]
@@ -208,3 +210,34 @@ def unflatten_annotated_tree(
         res[key] = unflatten_annotated_tree(list(g), field_order[1:])
 
     return res
+
+
+def optional_with(default_factory: Any, meta_kw: Mapping[str, Any] = {}, **kwargs: Any):
+    """
+    A shorthand specification for a marshmallow_dataclasses field to be optional and default initialized
+
+    :param default_factory: A zero-argument callable to initialize the default value
+    :param meta_kw: kwargs passed to marshmallow.Field
+    :param **kwargs: Extra arguments passed to dataclass.field
+    """
+
+    return field(
+        default_factory=default_factory,
+        metadata={"load_default": default_factory, "required": False, **meta_kw},
+        **kwargs,
+    )
+
+
+def flatten_and_annotate(
+    data: NestedDict[T, U], field_names: List[W]
+) -> AnnotatedFlatTree[W, Union[T, U]]:
+    """
+    A combination of annotate_flat_tree(flatten_tree(data)) possibly
+    wrapped in marshmallow ValidationError commonly used in handlers
+    """
+
+    try:
+        data = annotate_flat_tree(flatten_tree(data), field_names)
+        return data
+    except ValueError as e:
+        raise marshmallow.ValidationError(str(e))

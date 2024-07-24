@@ -3,6 +3,7 @@
 from collections.abc import Mapping
 from itertools import groupby
 from logging import error
+from pathlib import Path
 from typing import List
 
 import numexpr as ex
@@ -10,16 +11,9 @@ from amaranth import Instance, Module, Signal
 from amaranth.build import Platform
 from amaranth.hdl.ast import Cat, Const
 
-from .amaranth_helpers import (
-    DIR_IN,
-    DIR_INOUT,
-    DIR_OUT,
-    WrapperPort,
-    port_direction_to_prefix,
-)
-from .config import config
-from .interface import check_interface_compliance, get_interface_by_name
-from .parsers import parse_port_map
+from topwrap.ip_desc import IPCoreDescription
+
+from .amaranth_helpers import WrapperPort, port_direction_to_prefix
 from .wrapper import Wrapper
 
 
@@ -106,76 +100,43 @@ class IPWrapper(Wrapper):
         :raises ValueError: when interface compliance is violated,
             e.g. the interfaces used don't match the predefined interfaces
         """
-        ip_yaml = parse_port_map(yamlfile, base_path)
+        ip_core = IPCoreDescription.load(Path(base_path) / yamlfile)
 
-        parameters = dict()
-
-        if "parameters" in ip_yaml.keys():
-            # those are default values of parameters
-            parameters = ip_yaml["parameters"]
-            _evaluate_parameters(parameters)
+        parameters = ip_core.parameters.copy()
+        _evaluate_parameters(parameters)
 
         # Overwrite default values with explicit values
         for key, value in self._parameters.items():
             # trim 'p_' in the beginning
             parameters[key[2:]] = value
 
-        signals_dirs = [
-            (ip_yaml["signals"]["in"], DIR_IN),
-            (ip_yaml["signals"]["out"], DIR_OUT),
-            (ip_yaml["signals"]["inout"], DIR_INOUT),
-        ]
-
         # generic signals that don't belong to any interface
-        for signals, direction in signals_dirs:
-            for port_name, *bounds in signals:
-                evaluated_bounds = _eval_bounds(bounds, parameters)
+        for sig in ip_core.signals.flat:
+            evaluated_bounds = _eval_bounds(list(sig.bounds), parameters)
+            self._ports.append(
+                WrapperPort(
+                    bounds=evaluated_bounds,
+                    name=sig.name,
+                    internal_name=sig.name,
+                    direction=sig.direction.to_amaranth(),
+                    interface_name=None,
+                )
+            )
+
+        for iface_name in ip_core.interfaces:
+            # sig_name is the name of the signal e.g. TREADY
+            for sig_name, port in ip_core.interfaces[iface_name].signals.flat.items():
+                external_full_name = iface_name + "_" + sig_name
+                evaluated_bounds = _eval_bounds(list(port.bounds), parameters)
                 self._ports.append(
                     WrapperPort(
                         bounds=evaluated_bounds,
-                        name=port_name,
-                        internal_name=port_name,
-                        direction=direction,
-                        interface_name=None,
+                        name=external_full_name,
+                        internal_name=port.name,
+                        direction=port.direction.to_amaranth(),
+                        interface_name=iface_name,
                     )
                 )
-
-        for iface_name in ip_yaml["interfaces"].keys():
-            iface_signals = ip_yaml["interfaces"][iface_name]["signals"]
-            iface_def_name = ip_yaml["interfaces"][iface_name]["type"]
-            iface_def = get_interface_by_name(iface_def_name)
-
-            if config.force_interface_compliance:
-                if not iface_def:
-                    raise ValueError("No such interface definition: " f"{iface_def_name}")
-
-                if not check_interface_compliance(iface_def, iface_signals):
-                    raise ValueError(
-                        f"Interface: {iface_name} is not "
-                        "compliant with interface definition: "
-                        f"{iface_def_name}"
-                    )
-
-            signals_dirs = [
-                (iface_signals["in"].items(), DIR_IN),
-                (iface_signals["out"].items(), DIR_OUT),
-                (iface_signals["inout"].items(), DIR_INOUT),
-            ]
-
-            # sig_name is the name of the signal e.g. TREADY
-            for signals, direction in signals_dirs:
-                for sig_name, (port_name, *bounds) in signals:
-                    external_full_name = iface_name + "_" + sig_name
-                    evaluated_bounds = _eval_bounds(bounds, parameters)
-                    self._ports.append(
-                        WrapperPort(
-                            bounds=evaluated_bounds,
-                            name=external_full_name,
-                            internal_name=port_name,
-                            direction=direction,
-                            interface_name=iface_name,
-                        )
-                    )
 
         # create an attribute for each WrapperPort
         for port in self._ports:
