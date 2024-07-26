@@ -1,8 +1,6 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from common import AXI_NAME, PS7_NAME, PWM_NAME
-
 from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_constant,
     _kpm_connections_to_external,
@@ -10,6 +8,8 @@ from topwrap.kpm_dataflow_parser import (
     _kpm_nodes_to_ips,
     _kpm_properties_to_parameters,
 )
+
+from .common import AXI_NAME, PS7_NAME, PWM_NAME
 
 
 class TestPWMDataflowExport:

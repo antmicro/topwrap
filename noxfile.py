@@ -93,6 +93,31 @@ def tests_in_env(session: nox.Session) -> None:
 
 
 @nox.session
+def build(session: nox.Session) -> None:
+    session.install("-e", ".[deploy]")
+    session.run("python3", "-m", "build")
+    if len(session.posargs) < 1 or session.posargs[0] != "--no-test":
+        session.notify("_install_test")
+
+
+# this exists separately in order to have a fresh venv without topwrap installed in development mode
+@nox.session
+def _install_test(session: nox.Session) -> None:
+    package_file = next(Path().glob("dist/topwrap*.tar.gz"), None)
+    assert package_file is not None, "Cannot find source package in the dist/ directory"
+    session.install(f"{package_file}[tests,topwrap-parse]")
+    session.run(
+        "pytest",
+        "-rs",
+        "--cov-report",
+        "html:cov_html",
+        "--cov=topwrap",
+        "--import-mode=append",
+        "tests",
+    )
+
+
+@nox.session
 def doc_gen(session) -> None:
     session.install(".")
     session.install("-r", "docs/requirements.txt")

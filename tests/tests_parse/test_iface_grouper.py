@@ -4,14 +4,6 @@ from pathlib import Path
 from typing import List, Set
 
 import pytest
-from parse_common import (
-    AXI_AXIL_ADAPTER_IFACES,
-    AXI_AXIL_ADAPTER_MASTER_PORTS,
-    AXI_AXIL_ADAPTER_PORTS,
-    AXI_AXIL_ADAPTER_SLAVE_PORTS,
-    AXI_DISPCTRL_IFACES,
-    AXI_DISPCTRL_PORTS,
-)
 
 from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
 from topwrap.interface import (
@@ -31,6 +23,15 @@ from topwrap.interface_grouper import (
     InterfaceGrouper,
     InterfaceMatchGroupScorer,
     RegexInterfaceMatcher,
+)
+
+from .parse_common import (
+    AXI_AXIL_ADAPTER_IFACES,
+    AXI_AXIL_ADAPTER_MASTER_PORTS,
+    AXI_AXIL_ADAPTER_PORTS,
+    AXI_AXIL_ADAPTER_SLAVE_PORTS,
+    AXI_DISPCTRL_IFACES,
+    AXI_DISPCTRL_PORTS,
 )
 
 

@@ -49,6 +49,24 @@ jobs:
         run: |
           ./.github/scripts/ci.sh tests
 
+  package_test:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    name: "Test package distribution"
+
+    steps:
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+
+      - name: Build and test distribution packages
+        run: |
+          ./.github/scripts/ci.sh package_dist
+
   examples:
     runs-on: ubuntu-latest
     container:

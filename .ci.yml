@@ -23,6 +23,12 @@ tests:
   script:
     - ./.github/scripts/ci.sh tests
 
+package_test:
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh package_dist
+
 examples:
   stage: test
   image: debian:bookworm

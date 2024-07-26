@@ -1,0 +1,36 @@
+# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: Release creation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-creation:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+
+    steps:
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+
+      - name: Build packages
+        run: ./.github/scripts/ci.sh package_dist
+
+      - name: Publish or update the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: topwrap
+          body: Built from ${{ github.sha }}
+          fail_on_unmatched_files: true
+          make_latest: true
+          files: dist/topwrap*.tar.gz

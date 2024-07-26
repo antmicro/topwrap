@@ -33,16 +33,9 @@ install_common_system_packages() {
     log_cmd apt-get update -qq
     log_cmd apt-get install -y --no-install-recommends \
         git \
+        python3-dev \
         python3-pip \
         python3-venv
-    end_command_group
-}
-
-install_pyenv() {
-    begin_command_group "Install pyenv"
-    log_cmd export PYENV_ROOT="$HOME/.pyenv"
-    log_cmd export PATH="$PYENV_ROOT/bin:$PATH"
-    log_cmd "curl https://pyenv.run | bash"
     end_command_group
 }
 
@@ -55,19 +48,60 @@ enter_venv() {
     end_command_group
 }
 
-install_topwrap() {
-    begin_command_group "Install Topwrap"
-    log_cmd "tuttest README.md | bash -"
+install_topwrap_system_deps() {
+    enter_venv
+
+    begin_command_group "Installing tuttest"
+    log_cmd pip install git+https://github.com/antmicro/tuttest
+    end_command_group
+
+    begin_command_group "Installing topwrap dependencies"
+    log_cmd "tuttest README.md | head -n 1 | bash -"
     end_command_group
 }
 
+install_interconnect_test_system_deps() {
+    begin_command_group "Installing system packages for the interconnect test"
+    log_cmd apt-get install -y --no-install-recommends \
+        make \
+        meson \
+        ninja-build \
+        gcc-riscv64-unknown-elf \
+        bsdextrautils \
+        verilator
+    end_command_group
+}
+
+install_nox() {
+    begin_command_group "Installing nox"
+    enter_venv
+    log_cmd pip3 install nox
+    end_command_group
+}
+
+install_pyenv() {
+    begin_command_group "Install pyenv"
+    log_cmd apt-get install -y --no-install-recommends \
+        curl \
+        wget \
+        libssl-dev \
+        libreadline-dev \
+        libffi-dev \
+        libbz2-dev \
+        libncurses-dev \
+        libsqlite3-dev \
+        liblzma-dev
+
+    log_cmd export PYENV_ROOT="$HOME/.pyenv"
+    log_cmd export PATH="$PYENV_ROOT/bin:$PATH"
+    log_cmd "curl https://pyenv.run | bash"
+    end_command_group
+}
+
+
 run_lint() {
     install_common_system_packages
-    enter_venv
-
-    begin_command_group "Install python packages for lint"
-    log_cmd pip install ".[lint]"
-    end_command_group
+    install_nox
 
     begin_command_group "Run lint checks"
     log_cmd nox -s test_lint
@@ -76,36 +110,10 @@ run_lint() {
 
 run_tests() {
     install_common_system_packages
-
-    begin_command_group "Install system packages for tests"
-    log_cmd apt-get install -y --no-install-recommends \
-        curl \
-        wget \
-        python3-dev \
-        make \
-        meson \
-        ninja-build \
-        gcc-riscv64-unknown-elf \
-        bsdextrautils \
-        verilator \
-        libssl-dev \
-        libreadline-dev \
-        libffi-dev \
-        libbz2-dev \
-        libncurses-dev \
-        libsqlite3-dev \
-        liblzma-dev
-    end_command_group
-
+    install_topwrap_system_deps
+    install_interconnect_test_system_deps
+    install_nox
     install_pyenv
-    enter_venv
-
-    begin_command_group "Install python packages for tests"
-    log_cmd pip install ".[tests]"
-    log_cmd pip install git+https://github.com/antmicro/tuttest
-    end_command_group
-
-    install_topwrap
 
     begin_command_group "Run Python tests"
     log_cmd nox -s tests_in_env
@@ -114,16 +122,11 @@ run_tests() {
 
 generate_examples() {
     install_common_system_packages
-    begin_command_group "Install system packages for examples"
-    log_cmd apt-get install -y --no-install-recommends python3-dev
-    end_command_group
-    enter_venv
+    install_topwrap_system_deps
 
-    begin_command_group "Install python packages for examples"
-    log_cmd pip install git+https://github.com/antmicro/tuttest
+    begin_command_group "Installing Topwrap"
+    log_cmd pip install "."
     end_command_group
-
-    install_topwrap
 
     for EXAMPLE in "${EXAMPLES[@]}"; do
         begin_command_group "Generate $EXAMPLE example"
@@ -140,31 +143,19 @@ generate_docs() {
     begin_command_group "Install system packages for doc generation"
     log_cmd apt-get install -y texlive-full make
     end_command_group
-    enter_venv
-
-    begin_command_group "Install python packages for doc generation"
-    log_cmd pip install nox
-    end_command_group
+    install_nox
 
     begin_command_group "Generating documentation"
     log_cmd nox -s doc_gen
     end_command_group
 }
 
+
 package_cores() {
     install_common_system_packages
-    begin_command_group "Install system packages for packaging cores"
-    log_cmd apt-get install -y --no-install-recommends python3-dev
-    end_command_group
-    enter_venv
+    install_topwrap_system_deps
 
-    begin_command_group "Install python packages for packaging cores"
-    log_cmd pip install git+https://github.com/antmicro/tuttest
-    end_command_group
-
-    install_topwrap
-
-    begin_command_group "Install Topwrap's parsing dependencies"
+    begin_command_group "Install Topwrap with parsing dependencies"
     log_cmd pip install ".[topwrap-parse]"
     end_command_group
 
@@ -173,6 +164,16 @@ package_cores() {
     log_cmd pushd core_repo
     log_cmd python ../.github/scripts/package_cores.py
     log_cmd popd
+    end_command_group
+}
+
+package_dist() {
+    install_common_system_packages
+    install_topwrap_system_deps
+    install_nox
+
+    begin_command_group "Build and test the topwrap package"
+    log_cmd nox -s build
     end_command_group
 }
 
@@ -189,10 +190,13 @@ examples)
 package_cores)
     package_cores
     ;;
+package_dist)
+    package_dist
+    ;;
 docs)
     generate_docs
     ;;
 *)
-    echo "Usage: $0 {lint|tests|examples|package_cores|docs}"
+    echo "Usage: $0 {lint|tests|examples|package_cores|package_dist|docs}"
     ;;
 esac

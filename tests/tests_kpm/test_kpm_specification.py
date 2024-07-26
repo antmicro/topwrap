@@ -4,13 +4,14 @@
 from pathlib import Path
 
 import pytest
-from common import read_json_file
 from importlib_resources import _common
 from jsonschema import Draft202012Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+
+from .common import read_json_file
 
 SPEC_METANODES = 4  # Unique metanodes: Input, Output, Inout, Constant
 PWM_UNIQUE_IPCORE_NODES = 3  # Unique IP Cores from examples/pwm/project.yml

@@ -1,9 +1,9 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from parse_common import AXI_AXIL_ADAPTER_PORTS, AXI_DISPCTRL_PORTS
-
 from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
+
+from .parse_common import AXI_AXIL_ADAPTER_PORTS, AXI_DISPCTRL_PORTS
 
 
 class TestVerilogParse:

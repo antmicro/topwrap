@@ -1,8 +1,6 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from common import AXI_NAME, PS7_NAME, PWM_NAME
-
 from topwrap.design_to_kpm_dataflow_parser import (
     kpm_connections_from_design_descr,
     kpm_constant_metanodes_from_design_descr,
@@ -12,6 +10,8 @@ from topwrap.design_to_kpm_dataflow_parser import (
     kpm_nodes_from_design_descr,
 )
 from topwrap.kpm_common import EXT_OUTPUT_NAME
+
+from .common import AXI_NAME, PS7_NAME, PWM_NAME
 
 # PWM
 PWM_IPCORE_NODES = 3  # All IP Cores from examples/pwm/project.yml

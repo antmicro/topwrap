@@ -53,6 +53,9 @@ tests = [
   "pyfakefs==5.3.5",
   "deepdiff==7.0.1",
 ]
+deploy = [
+  "build==1.2.1"
+]
 
 [project.scripts]
 topwrap = "topwrap.cli:main"

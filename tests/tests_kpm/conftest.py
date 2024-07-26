@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from common import read_json_file
 from yaml import Loader, load
+
+from .common import read_json_file
 
 
 @pytest.fixture
@@ -23,7 +24,7 @@ def hdmi_design_yaml() -> dict:
 @pytest.fixture
 def pwm_ipcores_yamls() -> list:
     return [
-        "topwrap/ips/axi/axi_axil_adapter.yaml",
+        "axi/axi_axil_adapter.yaml",
         "examples/pwm/ipcores/ps7.yaml",
         "examples/pwm/ipcores/litex_pwm.yml",
     ]
@@ -32,7 +33,7 @@ def pwm_ipcores_yamls() -> list:
 @pytest.fixture
 def hdmi_ipcores_yamls() -> list:
     _hdmi_yamls_prefix = "examples/hdmi/ipcores/"
-    _axi_yamls_prefix = "topwrap/ips/axi/"
+    _axi_yamls_prefix = "axi/"
     return [
         _hdmi_yamls_prefix + "axi_dispctrl.yaml",
         _hdmi_yamls_prefix + "clock_crossing.yaml",
