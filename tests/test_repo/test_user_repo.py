@@ -1,6 +1,7 @@
 # Copyright (c) 2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import tempfile
 from pathlib import Path
 
@@ -19,8 +20,9 @@ from topwrap.repo.user_repo import (
 
 @pytest.fixture()
 def verilog_modules():
-    MODULE_NAMES = ["myor", "myand"]
-    CONTENTS = """
+    MODULE_NAMES = ["myor", "myand", "mydep1", "mydep2", "mytop"]
+    CONTENTS = [
+        """
 module myand(input wire a, input wire b, output wire c);
     assign c = a & b;
 endmodule
@@ -28,7 +30,25 @@ endmodule
 module myor(input wire a, input wire b, output wire c);
     assign c = a | b;
 endmodule
-"""
+""",
+        """
+module mydep1(input wire a);
+    myand subdep(.a(a), .b(), .c());
+    myor subdep2(.a(), .b(), .c());
+    missing_dep subdep3();
+endmodule
+
+module mydep2(input wire a);
+    mydep1 dep(.a(a));
+endmodule
+""",
+        """
+module mytop(input wire a);
+    mydep1 dep(.a(a));
+    mydep2 dep2(.a(a));
+endmodule
+""",
+    ]
     return (MODULE_NAMES, CONTENTS)
 
 
@@ -183,18 +203,45 @@ class TestInterfaceDescriptionHandler:
 
 
 class TestVerilogFileHandler:
-    def test_parse(self, verilog_modules):
+    @staticmethod
+    def contains_warnings_in_log(caplog, contains: str):
+        for name, level, msg in caplog.record_tuples:
+            if (
+                name == "topwrap.repo.file_handlers"
+                and level == logging.WARNING
+                and msg.find(contains) > -1
+            ):
+                return True
+        return False
+
+    def test_parse(self, verilog_modules, caplog):
         module_names, content = verilog_modules
-        with tempfile.NamedTemporaryFile("w", suffix="_verilog.v") as f:
-            f.write(content)
+        files = []
+        for cnt_file in content:
+            f = tempfile.NamedTemporaryFile("w", suffix="_verilog.v")
+            f.write(cnt_file)
             f.flush()
+            files.append(f)
 
-            handler = VerilogFileHandler([LocalFile(f.name)])
-            resources = handler.parse()
+        repo = UserRepo()
+        repo.add_files(VerilogFileHandler([LocalFile(f.name) for f in files]))
 
-        assert len(resources) == 2, "Should have 2 resources (Core)"
-        for resource in resources:
+        assert self.contains_warnings_in_log(
+            caplog, '"missing_dep" of module "mydep1" was not found'
+        )
+
+        for f in files:
+            f.close()
+
+        assert len(repo.resources[Core]) == len(
+            module_names
+        ), f"Should have {len(module_names)} resources (Core)"
+        for resource in repo.resources[Core]:
             assert resource.name in module_names, "Resource names differ"
+
+        assert (
+            len(repo.get_core_by_name("mytop").files) == 3
+        ), "Core doesn't contain all required module sources"
 
 
 class TestInterfaceFileHandler:

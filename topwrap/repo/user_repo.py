@@ -173,3 +173,6 @@ class UserRepo(Repo):
             for file in resource.files:
                 dir_paths.add(str(Path(file.path.parent).expanduser()))
         return list(dir_paths)
+
+    def get_core_by_name(self, name: str) -> Optional[Core]:
+        return next((c for c in self.resources[Core] if c.name == name), None)
