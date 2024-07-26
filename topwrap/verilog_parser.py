@@ -1,5 +1,6 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from functools import lru_cache
 from logging import error
 from typing import Dict, List, Set
 
@@ -20,18 +21,18 @@ class VerilogModule(HDLModule):
 
     def __init__(self, verilog_file: str, verilog_module: dict):
         super().__init__(verilog_file)
-        self.__data = verilog_module
+        self._data = verilog_module
 
     @property
     @override
     def module_name(self) -> str:
-        return self.__data["module_name"]
+        return self._data["module_name"]
 
     @property
     @override
     def parameters(self) -> Dict[str, HDLParameter]:
         params = {}
-        for item in self.__data["dec"]["params"]:
+        for item in self._data["dec"]["params"]:
             param_val = resolve_ops(item["value"], params)
             if param_val is not None:
                 params[item["name"]["val"]] = param_val
@@ -42,7 +43,7 @@ class VerilogModule(HDLModule):
     def ports(self) -> Set[PortDefinition]:
         ports = set()
 
-        for item in self.__data["dec"]["ports"]:
+        for item in self._data["dec"]["ports"]:
             name = item["name"]["val"]
             direction = PortDirection(item["direction"].lower())
             type_or_bounds = item["type"]
@@ -60,6 +61,33 @@ class VerilogModule(HDLModule):
             ports.add(PortDefinition(name, ubound, lbound, direction))
 
         return ports
+
+    @property
+    @lru_cache(maxsize=None)
+    def components(self) -> Set[str]:
+        """Returns a set of other module names that get instantiated in this module"""
+
+        def _recurse_components(objs) -> Set[str]:
+            components: Set[str] = set()
+
+            if (
+                isinstance(objs, dict)
+                and "__class__" in objs
+                and objs["__class__"] == "HdlCompInst"
+            ):
+                components.add(objs["module_name"])
+            elif isinstance(objs, dict):
+                for obj in objs:
+                    components = components.union(_recurse_components(objs[obj]))
+            elif isinstance(objs, list):
+                for obj in objs:
+                    components = components.union(_recurse_components(obj))
+
+            return components
+
+        components = _recurse_components(self._data["objs"])
+        components.discard(self.module_name)
+        return components
 
 
 class VerilogModuleGenerator:

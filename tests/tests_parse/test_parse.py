@@ -27,6 +27,12 @@ class TestVerilogParse:
     def test_axi_module_ports(self, axi_verilog_module):
         assert axi_verilog_module.ports == set(AXI_AXIL_ADAPTER_PORTS)
 
+    def test_axi_module_components(self, axi_verilog_module):
+        assert axi_verilog_module.components == {"axi_axil_adapter_wr", "axi_axil_adapter_rd"}
+
+    def test_dependant_module_components(self, dependant_verilog_module):
+        assert dependant_verilog_module.components == {"submodule1", "submodule2", "submodule3"}
+
     def test_verilog_parse_multiple_modules(self, seg7_4d_ctrl_modules):
         assert len(seg7_4d_ctrl_modules) == 9
 
