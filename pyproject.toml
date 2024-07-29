@@ -24,7 +24,6 @@ dependencies = [
   "marshmallow_dataclass",
   "numexpr",
   "typing_extensions",
-  "strictyaml",
   "marshmallow-dataclass[enum]",
   "typing_extensions",
   "pygtrie",
