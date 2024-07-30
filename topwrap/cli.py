@@ -152,6 +152,14 @@ DEFAULT_BACKEND_PORT = 5000
 @click.option("--port", "-p", default=DEFAULT_SERVER_PORT, help="KPM server listening port")
 @click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 @click.option(
+    "--design",
+    "-d",
+    required=False,
+    default=None,
+    type=click.Path(file_okay=True, readable=True, dir_okay=False, exists=True),
+    help="Specify design file to load initially",
+)
+@click.option(
     "--build-dir",
     "-b",
     type=click_opt_rw_dir,
@@ -159,8 +167,9 @@ DEFAULT_BACKEND_PORT = 5000
     help="Specify directory name for output files",
 )
 @click.argument("yamlfiles", type=click_r_file, nargs=-1)
-def kpm_client_main(host, port, log_level, yamlfiles, build_dir):
+def kpm_client_main(host, port, log_level, design, yamlfiles, build_dir):
     configure_log_level(log_level)
+
     logging.info("Starting kenning pipeline manager client")
     config_user_repo = UserRepo()
     config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
@@ -168,7 +177,7 @@ def kpm_client_main(host, port, log_level, yamlfiles, build_dir):
     extended_yamlfiles += yamlfiles
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(kpm_run_client(host, port, extended_yamlfiles, build_dir))
+    loop.run_until_complete(kpm_run_client(host, port, extended_yamlfiles, build_dir, design))
 
 
 @main.command("kpm_build_server", help="Build KPM server")

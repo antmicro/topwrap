@@ -21,14 +21,14 @@ from .kpm_dataflow_validator import validate_kpm_design
 from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
-def _kpm_specification_handler(yamlfiles: list) -> str:
+def _kpm_specification_handler(yamlfiles: list) -> dict:
     """Return KPM specification containing info about IP cores.
     The specification is generated from given IP core description YAMLs.
     """
     return ipcore_yamls_to_kpm_spec(yamlfiles)
 
 
-def _kpm_import_handler(data: bytes, yamlfiles: list) -> str:
+def _kpm_import_handler(data: bytes, yamlfiles: list) -> dict:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
     return kpm_dataflow_from_design_descr(yaml.safe_load(data), specification)
 
@@ -62,7 +62,7 @@ def _generate_design_filename() -> str:
     return datetime.now().strftime("kpm_design_%Y%m%d_%H%M%S.yaml")
 
 
-def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> str:
+def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> tuple[str, str]:
     """Convert created dataflow into Topwrap's design description YAML.
 
     :param dataflow: dataflow JSON from KPM
@@ -77,7 +77,7 @@ def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> str:
     return (yaml.safe_dump(design, sort_keys=False), filename)
 
 
-async def kpm_run_client(host: str, port: int, yamlfiles: list, build_dir: str):
+async def kpm_run_client(host: str, port: int, yamlfiles: list[str], build_dir: str, design: str):
     class RPCMethods:
         def app_capabilities_get(self) -> dict:
             return {"stoppable_methods": ["dataflow_run"]}
@@ -131,13 +131,25 @@ async def kpm_run_client(host: str, port: int, yamlfiles: list, build_dir: str):
         ) -> dict:
             logging.info(f"Dataflow import request received from {host}:{port}")
             yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
-            dataflow = _kpm_import_handler(yaml_str, yamlfiles)
+            dataflow = _kpm_import_handler(yaml_str.encode("utf8"), yamlfiles)
             return {
                 "type": MessageType.OK.value,
                 "content": dataflow,
             }
 
+        async def frontend_on_connect(self) -> dict:
+            """Gets run when frontend connects, loads initial design"""
+            logging.debug("frontend on connect")
+            if design is not None:
+                with open(design) as design_file:
+                    read_file = design_file.read()
+                    dataflow = _kpm_import_handler(read_file.encode("utf8"), yamlfiles)
+                    await client.request("graph_change", {"dataflow": dataflow})
+            return {}
+
     client = CommunicationBackend(host, port)
     logging.debug("Initializing RPC client")
     await client.initialize_client(RPCMethods())
+
+    logging.debug("starting json rpc client")
     await client.start_json_rpc_client()
