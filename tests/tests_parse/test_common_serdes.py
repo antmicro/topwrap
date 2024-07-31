@@ -161,6 +161,29 @@ class TestCommonSerdes:
     def tree_multiple_leaves_entries(self) -> List[str]:
         return ["type", "direction", "name", "width"]
 
+    @pytest.fixture
+    def annot_tree_unsorted_order(self) -> AnnotatedFlatTree[str, Any]:
+        return [
+            {
+                "type": "required",
+                "direction": "out",
+                "name": "data_out",
+                "width": 16,
+            },
+            {
+                "type": "optional",
+                "direction": "in",
+                "name": "data_in",
+                "width": 32,
+            },
+            {
+                "type": "required",
+                "direction": "out",
+                "name": "valid",
+                "width": 1,
+            },
+        ]
+
     def test_flatten_tree(
         self,
         tree_samelength: NestedDict[str, Any],
@@ -223,3 +246,11 @@ class TestCommonSerdes:
             )
             == tree_samelength
         )
+
+    def test_unflatten_annotated_unsorted_tree(self, annot_tree_unsorted_order):
+        assert unflatten_annotated_tree(
+            annot_tree_unsorted_order, ["direction", "type", "name", "width"], sort=True
+        ) == {
+            "out": {"required": {"data_out": 16, "valid": 1}},
+            "in": {"optional": {"data_in": 32}},
+        }

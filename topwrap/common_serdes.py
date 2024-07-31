@@ -110,7 +110,7 @@ def annotate_flat_tree(flat_tree: FlatTree[U], field_names: List[T]) -> Annotate
 
 
 def unflatten_annotated_tree(
-    flat_annot_tree: AnnotatedFlatTree[T, U], field_order: List[T]
+    flat_annot_tree: AnnotatedFlatTree[T, U], field_order: List[T], sort: bool = False
 ) -> NestedDict[U, U]:
     """
     Transforms a flat annotated tree `flat_annot_tree` (such as one returned by `annotate_flat_tree`) back into
@@ -199,7 +199,12 @@ def unflatten_annotated_tree(
             # if there are more, return a list of them
             return [elem[leaf_field_name] for elem in flat_annot_tree]
 
-    for key, g in itertools.groupby(flat_annot_tree, key=lambda elem: elem[field_order[0]]):
+    def keyfunc(elem):
+        return elem[field_order[0]]
+
+    for key, g in itertools.groupby(
+        sorted(flat_annot_tree, key=keyfunc) if sort else flat_annot_tree, key=keyfunc
+    ):
         res[key] = unflatten_annotated_tree(list(g), field_order[1:])
 
     return res
