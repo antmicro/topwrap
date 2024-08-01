@@ -1,6 +1,8 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: apache-2.0
 
+# Signals specification
+# - https://developer.arm.com/documentation/ihi0051/latest (version B), page 52
 name: AXI4Stream
 port_prefix: AXIS
 signals:
@@ -8,17 +10,16 @@ signals:
     required:
         out:
             TVALID: tvalid
-            TDATA: tdata
-            TLAST: tlast
-
-        in:
-            TREADY: tready
 
     optional:
         out:
+            TDATA: tdata
+            TSTRB: tstrb
+            TKEEP: tkeep
+            TLAST: tlast
             TID: tid
             TDEST: tdest
-            TKEEP: tkeep
-            TSTRB: tstrb
             TUSER: tuser
-            TWAKEUP: twakeup
+
+        in:
+            TREADY: tready

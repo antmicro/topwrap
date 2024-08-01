@@ -88,7 +88,6 @@ interfaces:
                 AWLOCK: [m_axi_awlock, 1, 0]
                 AWCACHE: [m_axi_awcache, 3, 0]
                 AWPROT: [m_axi_awprot, 2, 0]
-                AWQOS: [m_axi_awqos, 3, 0]
                 AWVALID: m_axi_awvalid
                 WID: [m_axi_wid, 3, 0]
                 WDATA: [m_axi_wdata, 63, 0]
@@ -104,7 +103,6 @@ interfaces:
                 ARLOCK: [m_axi_arlock, 1, 0]
                 ARCACHE: [m_axi_arcache, 3, 0]
                 ARPROT: [m_axi_arprot, 2, 0]
-                ARQOS: [m_axi_arqos, 3, 0]
                 ARVALID: m_axi_arvalid
                 RREADY: m_axi_rready
 

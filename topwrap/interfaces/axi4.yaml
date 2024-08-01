@@ -1,6 +1,12 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: apache-2.0
 
+# AXI signal optionality can be different for the manager interface
+# and the subordinate interface. This definition marks as required only
+# signals that are required for both sides of the transaction.
+
+# Signal description
+# - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 31,101,113
 name: AXI4
 port_prefix: AXI4
 signals:
@@ -8,33 +14,13 @@ signals:
         out:
             AWADDR: awaddr
             AWVALID: awvalid
-            AWID: awid
-            AWREGION: awregion
-            AWLEN: awlen
-            AWSIZE: awsize
-            AWBURST: awburst
-            AWLOCK: awlock
-            AWCACHE: awcache
-            AWPROT: awprot
-            AWQOS: awqos
 
             WDATA: wdata
             WVALID: wvalid
-            WSTRB: wstrb
-            WLAST: wlast
 
             BREADY: bready
 
-            ARID: arid
             ARADDR: araddr
-            ARLEN: arlen
-            ARSIZE: arsize
-            ARBURST: arburst
-            ARLOCK: arlock
-            ARCACHE: arcache
-            ARPROT: arprot
-            ARQOS: arqos
-            ARREGION: arregion
             ARVALID: arvalid
 
             RREADY: rready
@@ -44,22 +30,46 @@ signals:
             WREADY: wready
 
             BVALID: bvalid
-            BID: bid
-            BRESP: bresp
 
             ARREADY: arready
 
-            RID: rid
             RDATA: rdata
-            RRESP: rresp
-            RLAST: rlast
             RVALID: rvalid
     optional:
         out:
+            AWID: awid
+            AWREGION: awregion
+            AWLEN: awlen
+            AWSIZE: awsize
+            AWBURST: awburst
+            AWLOCK: awlock
+            AWCACHE: awcache
+            AWPROT: awprot
+            AWQOS: awqos
+            WLAST: wlast
             AWUSER: awuser
+
+            WSTRB: wstrb
             WUSER: wuser
+
+            ARID: arid
+            ARREGION: arregion
+            ARLEN: arlen
+            ARSIZE: arsize
+            ARBURST: arburst
+            ARLOCK: arlock
+            ARCACHE: arcache
+            ARPROT: arprot
+            ARQOS: arqos
             ARUSER: aruser
 
         in:
-            BUSER: buser
             RUSER: ruser
+            BUSER: buser
+
+            BID: bid
+            BRESP: bresp
+
+            RID: rid
+            RRESP: rresp
+            RLAST: rlast

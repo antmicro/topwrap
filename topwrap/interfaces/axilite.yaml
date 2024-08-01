@@ -1,30 +1,27 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: apache-2.0
 
+# AXI signal optionality can be different for the manager interface
+# and the subordinate interface. This definition marks as required only
+# signals that are required for both sides of the transaction.
+
+# Signal description
+# - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 113,126
 name: AXI4Lite
 port_prefix: AXIL
 signals:
     required:
         out:
-            AWID: awid
-            AWADDR: awaddr
-            AWPROT: awprot
-            AWQOS: awqos
-            AWREGION: awregion
             AWVALID: awvalid
+            AWADDR: awaddr
 
-            WDATA: wdata
-            WSTRB: wstrb
             WVALID: wvalid
+            WDATA: wdata
 
             BREADY: bready
 
-            ARID: arid
-            ARADDR: araddr
-            ARPROT: arprot
-            ARQOS: arqos
-            ARREGION: arregion
             ARVALID: arvalid
+            ARADDR: araddr
 
             RREADY: rready
         in:
@@ -32,23 +29,21 @@ signals:
 
             WREADY: wready
 
-            BID: bid
-            BRESP: bresp
             BVALID: bvalid
 
             ARREADY: arready
 
-            RID: rid
-            RDATA: rdata
-            RRESP: rresp
             RVALID: rvalid
-
+            RDATA: rdata
     optional:
         out:
-            AWUSER: awuser
-            WUSER: wuser
-            ARUSER: aruser
-
+            AWID: awid
+            ARID: arid
+            WSTRB: wstrb
+            AWPROT: awprot
+            ARPROT: arprot
         in:
-            BUSER: buser
-            RUSER: ruser
+            BID: bid
+            RID: rid
+            BRESP: bresp
+            RRESP: rresp

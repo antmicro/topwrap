@@ -13,7 +13,6 @@ from marshmallow import ValidationError
 from topwrap.interface import InterfaceMode
 from topwrap.interface_grouper import standard_iface_grouper
 from topwrap.ip_desc import (
-    BuiltinIPCoreException,
     IPCoreDescription,
     IPCoreInterface,
     IPCoreIntfPorts,
@@ -139,10 +138,7 @@ interfaces:
 
     def test_builtins_compliance(self, force_compliance):
         IPCoreDescription.get_builtins.cache_clear()
-
-        # some interface definitions are incorrect, remove this assertion after fixing them
-        with pytest.raises(BuiltinIPCoreException, match='Loading built-in IP core ".*" failed'):
-            IPCoreDescription.get_builtins()
+        IPCoreDescription.get_builtins()
 
     def test_load_fallback(self):
         with pytest.raises(FileNotFoundError):

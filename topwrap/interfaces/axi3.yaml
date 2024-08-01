@@ -1,6 +1,12 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: apache-2.0
 
+# AXI signal optionality can be different for the manager interface
+# and the subordinate interface. This definition marks as required only
+# signals that are required for both sides of the transaction.
+
+# Signal description
+# - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 31,101,113
 name: AXI3
 port_prefix: AXI3
 signals:
@@ -8,30 +14,13 @@ signals:
         out:
             AWADDR: awaddr
             AWVALID: awvalid
-            AWID: awid
-            AWLEN: awlen
-            AWSIZE: awsize
-            AWBURST: awburst
-            AWLOCK: awlock
-            AWCACHE: awcache
-            AWPROT: awprot
 
-            WID: wid
             WDATA: wdata
-            WLAST: wlast
             WVALID: wvalid
-            WSTRB: wstrb
 
             BREADY: bready
 
-            ARID: arid
             ARADDR: araddr
-            ARLEN: arlen
-            ARSIZE: arsize
-            ARBURST: arburst
-            ARLOCK: arlock
-            ARCACHE: arcache
-            ARPROT: arprot
             ARVALID: arvalid
 
             RREADY: rready
@@ -41,13 +30,36 @@ signals:
             WREADY: wready
 
             BVALID: bvalid
-            BID: bid
-            BRESP: bresp
 
             ARREADY: arready
 
-            RID: rid
             RDATA: rdata
+            RVALID: rvalid
+    optional:
+        out:
+            AWID: awid
+            AWLEN: awlen
+            AWSIZE: awsize
+            AWBURST: awburst
+            AWLOCK: awlock
+            AWCACHE: awcache
+            AWPROT: awprot
+            WLAST: wlast
+
+            WID: wid
+            WSTRB: wstrb
+
+            ARID: arid
+            ARLEN: arlen
+            ARSIZE: arsize
+            ARBURST: arburst
+            ARLOCK: arlock
+            ARCACHE: arcache
+            ARPROT: arprot
+        in:
+            BID: bid
+            BRESP: bresp
+
+            RID: rid
             RRESP: rresp
             RLAST: rlast
-            RVALID: rvalid
