@@ -9,6 +9,8 @@
 # 1 <-> AXI3
 # 2 <-> AXILite
 
+name: axi_protocol_converter
+
 interfaces:
     # 1 slave
     S_AXI:

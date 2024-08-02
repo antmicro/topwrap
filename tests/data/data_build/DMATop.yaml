@@ -1,9 +1,11 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+name: DMATop
+
 interfaces:
     AXIS_m0:
-        type: AXIStream
+        type: AXI4Stream
         mode: master
         signals:
             in:
@@ -15,7 +17,7 @@ interfaces:
                 TUSER: io_write_tuser
 
     AXI_s0:
-        type: AXI
+        type: AXI4
         mode: slave
         signals:
             in:
@@ -41,7 +43,7 @@ interfaces:
                 RVALID: io_control_r_rvalid
 
     AXI_m1:
-        type: AXI
+        type: AXI4
         mode: master
         signals:
             in:

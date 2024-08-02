@@ -1,3 +1,5 @@
+name: core1
+
 signals:
     in:
         - in_1

@@ -1,6 +1,8 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+name: axis_async_fifo
+
 parameters:
     DATA_WIDTH: 8
     KEEP_WIDTH: (DATA_WIDTH+7)/8
