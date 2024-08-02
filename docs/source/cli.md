@@ -38,12 +38,14 @@ python -m topwrap kpm_run_server
 2. Run Topwrap's client application, that will connect to a running Pipeline Manager server app.
 
 ```
-python -m topwrap kpm_client [-h ip_addr] [-p port] FILES
+python -m topwrap kpm_client [-h ip_addr] [-p port] [-d FILE] FILES
 ```
 
 Topwrap will then try to connect to the server running on `ip_addr:port` and send a specification generated from `FILES`, which should be IP core description yamls.
 
 If `-h` or `-p` options are not specified, ip address `127.0.0.1` and port `9000` will be chosen by default.
+
+If `-d` option is specified, kpm will start with specified design file loaded.
 
 (generating-ip-yamls)=
 

@@ -23,12 +23,13 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     * IP address (`127.0.0.1` is default)
     * listening port (`9000` is default)
     * yamls describing IP cores, that will be used in the block design
+    * design to load initially (`None` by default)
 
     An example command, that runs Topwrap's client, may look like this:
     ```
     python -m topwrap kpm_client -h 127.0.0.1 -p 9000 \
         topwrap/ips/axi/axi_axil_adapter.yaml \
-        examples/pwm/ipcores/{litex_pwm.yml,ps7.yaml}
+        examples/pwm/ipcores/{litex_pwm.yml,ps7.yaml} -d examples/pwm/project.yml
     ```
 
 3. Create block design in Pipeline Manager
