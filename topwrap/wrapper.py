@@ -19,7 +19,6 @@ class Wrapper(Elaboratable):
     def __init__(self, name: str) -> None:
         self.name = name
 
-    @property
     def get_ports(self) -> List[WrapperPort]:
         """Return a list of external ports."""
         raise NotImplementedError('Derived classes must implement "get_ports" method')

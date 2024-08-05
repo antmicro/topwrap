@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from pathlib import PurePath
 from time import time
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from typing_extensions import override
 
-from .design import get_interconnects_names, get_ipcores_names
+from topwrap.ip_desc import IPCoreParameter
+
+from .design import DesignDescription, DesignExternalPorts, DesignSection
 from .kpm_common import (
     CONST_NAME,
     EXT_INOUT_NAME,
@@ -102,7 +103,7 @@ class KPMDataflowMetanodeInterface(KPMDataflowNodeInterface):
 
 
 class KPMDataflowNodeProperty:
-    def __init__(self, name: str, value: str):
+    def __init__(self, name: str, value: IPCoreParameter):
         self.id = IDGenerator().generate_id()
         self.name = name
         self.value = value
@@ -266,7 +267,7 @@ def _get_specification_node_by_type(type: str, specification: dict) -> Optional[
     logging.warning(f'Node type "{type}" not found in specification')
 
 
-def _ipcore_param_to_kpm_value(param) -> str:
+def _ipcore_param_to_kpm_value(param: IPCoreParameter) -> str:
     """Return a string representing an IP core parameter,
     that will be placed in dataflow node property textbox
     """
@@ -274,25 +275,22 @@ def _ipcore_param_to_kpm_value(param) -> str:
         return str(param)
     if isinstance(param, str):
         return param
-    elif isinstance(param, dict) and param.keys() == {"value", "width"}:
-        width = str(param["width"])
-        value = hex(param["value"])[2:]
-        return width + "'h" + value
     else:
-        logging.warning(f"Param type: {type(param)} was not recognized")
-        return str(param)
+        width = str(param.width)
+        value = hex(int(param.value))[2:]
+        return width + "'h" + value
 
 
-def get_kpm_nodes_from_core_names(
-    design_descr: dict, specification: dict, names: set, ips: dict
+def get_kpm_nodes_from_design(
+    design_descr: DesignDescription, specification: dict
 ) -> List[KPMDataflowNode]:
     """Return list of nodes that will be created based on design and specification from names list"""
     nodes = []
-    design = design_descr["design"]
-    parameters = design["parameters"] if "parameters" in design.keys() else dict()
-    for ip_name in names:
-        ports = design["ports"][ip_name]
-        ip_type = PurePath(ips[ip_name]["file"]).stem
+    design = design_descr.design
+    parameters = design.parameters
+    for ip_name in design_descr.ips:
+        ports = design.ports[ip_name]
+        ip_type = design_descr.ips[ip_name].path.stem
         spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
             continue
@@ -323,24 +321,22 @@ def get_kpm_nodes_from_core_names(
 
 
 def kpm_nodes_from_design_descr(
-    design_descr: dict, specification: dict, ips: dict
+    design_descr: DesignDescription, specification: dict
 ) -> List[KPMDataflowNode]:
     """Generate KPM dataflow nodes based on Topwrap's design
     description yaml (e.g. generated from YAML design description)
     and already loaded KPM specification.
     """
 
-    design = design_descr["design"]
-    interconnect_names = get_interconnects_names(design)
+    design = design_descr.design
+    interconnect_names = list(design.interconnects.keys())
     if interconnect_names:
         logging.warning(
             f"Imported design contains interconnects ({interconnect_names}) which are not "
             "supported yet. The imported design will be incomplete"
         )
 
-    return get_kpm_nodes_from_core_names(
-        design_descr, specification, get_ipcores_names(design), ips
-    )
+    return get_kpm_nodes_from_design(design_descr, specification)
 
 
 def _get_dataflow_interface_by_name(
@@ -358,23 +354,21 @@ def _get_dataflow_interface_by_name(
     logging.warning(f"Node '{node_name}' not found")
 
 
-def _get_flattened_connections(design_descr: dict) -> List[dict]:
+def _get_flattened_connections(design_descr: DesignDescription) -> List[dict]:
     """Helper function to get a list of flattened connections
     from a design description yaml.
     """
 
     conn_descrs = []
-    design = design_descr["design"]
+    design = design_descr.design
 
-    for sec in ["ports", "interfaces"]:
-        if sec not in design.keys():
-            continue
-        for ip_name in design[sec].keys():
-            for port_iface_name, value in design[sec][ip_name].items():
+    for sec in (design.ports, design.interfaces):
+        for ip_name in sec.keys():
+            for port_iface_name, value in sec[ip_name].items():
                 if isinstance(value, int):
                     connection = CONST_NAME
                 else:
-                    connection = design[sec][ip_name][port_iface_name]
+                    connection = sec[ip_name][port_iface_name]
 
                 conn_descrs.append(
                     {
@@ -386,10 +380,10 @@ def _get_flattened_connections(design_descr: dict) -> List[dict]:
     return conn_descrs
 
 
-def _get_inout_connections(ports: dict) -> List[dict]:
+def _get_inout_connections(ports: DesignExternalPorts) -> List[dict]:
     """Return all inout connections from ports"""
     conn_descrs = []
-    inouts = ports["inout"] if "inout" in ports else {}
+    inouts = ports.inout
 
     for [ip_name, port_name] in inouts:
         conn_descrs.append(
@@ -398,7 +392,7 @@ def _get_inout_connections(ports: dict) -> List[dict]:
     return conn_descrs
 
 
-def _get_external_connections(design_descr: dict) -> List[dict]:
+def _get_external_connections(design_descr: DesignDescription) -> List[dict]:
     """Get connections to externals from 'ports' and 'interfaces'
     sections of design description.
     """
@@ -407,7 +401,7 @@ def _get_external_connections(design_descr: dict) -> List[dict]:
             lambda conn_descr: isinstance(conn_descr["connection"], str),
             _get_flattened_connections(design_descr),
         )
-    ) + _get_inout_connections(design_descr["external"]["ports"])
+    ) + _get_inout_connections(design_descr.external.ports)
 
     # `ext_connections` is now a list of all the external connections gathered
     # from a design yaml. Each such connection is in format:
@@ -424,7 +418,7 @@ def _get_external_connections(design_descr: dict) -> List[dict]:
     ]
 
 
-def _get_ipcores_connections(design_descr: dict) -> List[dict]:
+def _get_ipcores_connections(design_descr: DesignDescription) -> List[dict]:
     """Get connections between IP cores from 'ports' and 'interfaces'
     sections of design description.
     """
@@ -432,7 +426,7 @@ def _get_ipcores_connections(design_descr: dict) -> List[dict]:
     def _is_ipcore_connection(conn_descr: dict) -> bool:
         """Check if a connection is between two IP cores.
         If it's not a list then it is some external connection"""
-        return isinstance(conn_descr["connection"], list)
+        return isinstance(conn_descr["connection"], Sequence)
 
     ipcores_connections = list(
         filter(_is_ipcore_connection, _get_flattened_connections(design_descr))
@@ -486,7 +480,7 @@ def _create_connection(
 
 
 def kpm_connections_from_design_descr(
-    design_descr: dict,
+    design_descr: DesignDescription,
     all_nodes: List[KPMDataflowNode],
 ) -> List[KPMDataflowConnection]:
     """Generate KPM connections based on the data from `design_descr`.
@@ -510,25 +504,23 @@ def kpm_connections_from_design_descr(
 
 
 def kpm_external_metanodes_from_design_descr(
-    design_descr: dict,
+    design_descr: DesignDescription,
 ) -> List[KPMDataflowExternalMetanode]:
     """Generate a list of external metanodes based on the contents of
     'external' section of Topwrap's design description
     """
-    if "external" not in design_descr.keys():
-        return []
 
     metanodes = []
     dir_to_metanode_type = {"in": EXT_INPUT_NAME, "out": EXT_OUTPUT_NAME, "inout": EXT_INOUT_NAME}
 
-    for conn_type in design_descr["external"].keys():
-        for dir in design_descr["external"][conn_type].keys():
-            for external_name in design_descr["external"][conn_type][dir]:
-                if dir == "inout":
-                    _, ext_name = external_name
-                else:
-                    ext_name = external_name
-                metanodes.append(KPMDataflowExternalMetanode(dir_to_metanode_type[dir], ext_name))
+    for conn_group in (design_descr.external.ports, design_descr.external.interfaces):
+        for dir, conns in conn_group.as_dict.items():
+            for conn in conns:
+                metanodes.append(
+                    KPMDataflowExternalMetanode(
+                        dir_to_metanode_type[dir.value], conn if isinstance(conn, str) else conn[1]
+                    )
+                )
 
     return metanodes
 
@@ -559,17 +551,17 @@ def kpm_constant_metanodes_from_nodes(
 
 
 def kpm_constant_metanodes_from_design_descr(
-    design_descr: dict, specification: dict
+    design_descr: DesignDescription, specification: dict
 ) -> List[KPMDataflowConstantMetanode]:
     """Generate a list of constant metanodes based on values assigned to ip core
     ports of Topwrap's design description
     """
-    nodes = kpm_nodes_from_design_descr(design_descr, specification, design_descr["ips"])
+    nodes = kpm_nodes_from_design_descr(design_descr, specification)
     return kpm_constant_metanodes_from_nodes(nodes)
 
 
 def kpm_metanodes_from_design_descr(
-    design_descr: dict, specification: dict
+    design_descr: DesignDescription, specification: dict
 ) -> List[KPMDataflowMetanode]:
     """Generate a list of all metanodes based on values assigned to ip core
     ports and an 'external' section of Topwrap's design description
@@ -600,7 +592,9 @@ def _find_dataflow_metanode_by_constant_value(
 
 
 def kpm_metanodes_connections_from_design_descr(
-    design_descr: dict, nodes: List[KPMDataflowNode], metanodes: List[KPMDataflowMetanode]
+    design_descr: DesignDescription,
+    nodes: List[KPMDataflowNode],
+    metanodes: List[KPMDataflowMetanode],
 ) -> List[KPMDataflowConnection]:
     """Create a list of connections between external metanodes and
     appropriate  nodes' interfaces, based on the contents of 'external'
@@ -627,7 +621,7 @@ def kpm_metanodes_connections_from_design_descr(
                 metanodes, ext_conn["external_name"]
             )
 
-        if kpm_interface is not None and kpm_metanode is not None:
+        if kpm_metanode is not None:
             # Metanodes have exactly 1 interface; hence we can take 0th index
             # of the `interfaces` array of a metanode to access the interface.
             result.append(_create_connection(kpm_metanode.interfaces[0], kpm_interface))
@@ -635,15 +629,15 @@ def kpm_metanodes_connections_from_design_descr(
 
 
 def create_subgraph_external_interfaces(
-    subgraph_ports: dict,
+    subgraph_ports: DesignExternalPorts,
 ) -> Tuple[List[KPMDataflowSubgraphnodeInterface], Dict[str, str]]:
     """Creates subgraph node interfaces based on node "external" field in Topwrap design description"""
     interfaces = []
     interface_map_updates = {}
 
-    for direction, port_names in subgraph_ports.items():
+    for direction, port_names in subgraph_ports.as_dict.items():
         for port_name in port_names:
-            new_interface = KPMDataflowSubgraphnodeInterface(port_name, direction)
+            new_interface = KPMDataflowSubgraphnodeInterface(port_name, direction.value)
             interface_map_updates[port_name] = new_interface.id
             interfaces.append(new_interface)
 
@@ -651,25 +645,22 @@ def create_subgraph_external_interfaces(
 
 
 def kpm_subgraph_nodes_from_design_descr(
-    design_descr: dict,
+    design_descr: DesignDescription,
 ) -> Tuple[List[KPMDataflowSubgraphnode], SubgraphMaps]:
     """Creates a list of subgraph nodes based on current hierarchy level in Topwrap design description."""
     # Uses two dictionaries in order to avoid time consuming searching in graphs
 
-    if "hierarchies" not in design_descr["design"].keys():
-        return ([], SubgraphMaps())
-
     subgraph_nodes = []
     submap_updates = SubgraphMaps()
 
-    for subgraph_name, subgraph_data in design_descr["design"]["hierarchies"].items():
+    for subgraph_name, subgraph_data in design_descr.design.hierarchies.items():
         interfaces, interface_map_updates = create_subgraph_external_interfaces(
-            subgraph_data["external"]["ports"]
+            subgraph_data.external.ports
         )
         submap_updates.interface_name_id_map.update(interface_map_updates)
 
         subgraph_properties = []
-        property_data = design_descr["design"].get("parameters", {}).get(subgraph_name, None)
+        property_data = design_descr.design.parameters.get(subgraph_name, None)
 
         if property_data is not None:
             for property_name, property_value in property_data.items():
@@ -685,7 +676,7 @@ def kpm_subgraph_nodes_from_design_descr(
     return (subgraph_nodes, submap_updates)
 
 
-def _get_external_subgraph_connections(design_descr: dict) -> List[dict]:
+def _get_external_subgraph_connections(design_descr: DesignDescription) -> List[dict]:
     def _is_subgraph_reference(conn_descr: dict) -> bool:
         return isinstance(conn_descr["connection"], str)
 
@@ -693,7 +684,7 @@ def _get_external_subgraph_connections(design_descr: dict) -> List[dict]:
 
 
 def _expose_external_subgraph_interfaces(
-    subgraph_data: dict,
+    subgraph_data: DesignDescription,
     subgraph_nodes: List[KPMDataflowNode],
     subgraph_interface_name_id_map: Dict[str, str],
 ) -> Dict[str, str]:
@@ -722,20 +713,17 @@ def _expose_external_subgraph_interfaces(
 
 
 def create_subgraphs(
-    design_subgraphs: dict,
+    design_section: DesignSection,
     specification: dict,
     previous_nodes: list,
-    ips: dict,
     subgraph_maps: SubgraphMaps,
 ) -> List[KPMDataflowGraph]:
     """Creates all subgraphs from Topwrap design hierarchy section."""
-    if "hierarchies" not in design_subgraphs.keys():
-        return []
 
-    design_subgraphs = design_subgraphs["hierarchies"]
+    design_subgraphs = design_section.hierarchies
     subgraphs = []
     for subgraph_name, subgraph_data in design_subgraphs.items():
-        core_nodes = kpm_nodes_from_design_descr(subgraph_data, specification, ips)
+        core_nodes = kpm_nodes_from_design_descr(subgraph_data, specification)
         current_subgraph_nodes, submaps_updates = kpm_subgraph_nodes_from_design_descr(
             subgraph_data
         )
@@ -762,10 +750,9 @@ def create_subgraphs(
         # Recursively do dfs adding each graph along the way.
         # That's why "ips" is required as an argument because each recursion step is passed design from current hierarchy
         subgraphs += create_subgraphs(
-            subgraph_data["design"],
+            subgraph_data.design,
             specification,
             previous_nodes + all_subgraph_nodes,
-            ips,
             subgraph_maps,
         )
 
@@ -773,12 +760,13 @@ def create_subgraphs(
 
 
 def create_entry_graph(
-    design_descr: dict, specification: dict
+    design_descr: DesignDescription, specification: dict
 ) -> Tuple[KPMDataflowGraph, SubgraphMaps]:
     """Creates entry graph for kpm design.
     Main difference between entry graph and other subgraphs is that the "external" field
     does not specify it's interfaces but external metanodes"""
-    core_nodes = kpm_nodes_from_design_descr(design_descr, specification, design_descr["ips"])
+    core_nodes = kpm_nodes_from_design_descr(design_descr, specification)
+
     metanodes = kpm_metanodes_from_design_descr(design_descr, specification)
 
     subgraph_nodes, initial_subgraph_maps = kpm_subgraph_nodes_from_design_descr(design_descr)
@@ -796,17 +784,16 @@ def create_entry_graph(
     )
 
 
-def kpm_dataflow_from_design_descr(design_descr: dict, specification: dict) -> dict:
+def kpm_dataflow_from_design_descr(design_descr: DesignDescription, specification: dict) -> dict:
     """Generate Pipeline Manager dataflow from a design description
     in Topwrap's yaml format
     """
 
     entry_graph, initial_subgraph_maps = create_entry_graph(design_descr, specification)
     subgraphs = create_subgraphs(
-        design_descr["design"],
+        design_descr.design,
         specification,
         entry_graph.nodes,
-        design_descr["ips"],
         initial_subgraph_maps,
     )
     subgraphs.append(entry_graph)

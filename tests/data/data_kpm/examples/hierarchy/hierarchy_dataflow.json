@@ -1,490 +1,46 @@
 {
   "version": "20240723.13",
-  "entryGraph": "172319118957522",
+  "entryGraph": "172356035164622",
   "graphs": [
     {
       "connections": [
         {
-          "from": "ni_172319118957524",
-          "id": "172319118957534",
-          "to": "ni_172319118957530"
+          "from": "ni_172356035164615",
+          "id": "710568bb-1ad8-40f2-9da8-989c435229dd",
+          "to": "ni_17235603516469"
         },
         {
-          "from": "ni_172319118957528",
-          "id": "172319118957535",
-          "to": "ni_172319118957532"
+          "from": "ni_172356035164610",
+          "id": "e910afc0-f830-49d0-a32a-8cd45d9f30f6",
+          "to": "ni_17235603516467"
+        },
+        {
+          "from": "ni_17235603516461",
+          "id": "b31cf888-9dfc-4983-97da-0a24b5eccd4e",
+          "to": "ni_172356035164613"
+        },
+        {
+          "from": "ni_17235603516464",
+          "id": "80e6741b-d318-4f25-bad9-29cec9aa8ee9",
+          "to": "ni_172356035164614"
         }
       ],
-      "id": "172319118957512",
+      "id": "172356035164622",
       "nodes": [
         {
-          "id": "node_172319118957525",
-          "instanceName": "c_mod_2",
-          "interfaces": [
-            {
-              "direction": "input",
-              "externalName": "c_in_2",
-              "id": "ni_172319118957510",
-              "name": "c_mod_in_2",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "output",
-              "id": "ni_172319118957524",
-              "name": "c_int_out_2",
-              "side": "right",
-              "sidePosition": 1
-            }
-          ],
-          "name": "c_mod_2",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "width": 200
-        },
-        {
-          "id": "node_172319118957529",
-          "instanceName": "c_mod_1",
-          "interfaces": [
-            {
-              "direction": "input",
-              "externalName": "c_in_1",
-              "id": "ni_17231911895759",
-              "name": "c_mod_in_1",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "output",
-              "id": "ni_172319118957528",
-              "name": "c_int_out_1",
-              "side": "right",
-              "sidePosition": 1
-            }
-          ],
-          "name": "c_mod_1",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [
-            {
-              "id": "172319118957526",
-              "name": "MAX_VALUE",
-              "value": "16"
-            }
-          ],
-          "width": 200
-        },
-        {
-          "id": "node_172319118957533",
-          "instanceName": "c_mod_3",
-          "interfaces": [
-            {
-              "direction": "input",
-              "id": "ni_172319118957530",
-              "name": "c_int_in_1",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "output",
-              "externalName": "c_out_1",
-              "id": "ni_172319118957511",
-              "name": "c_mod_out_1",
-              "side": "right",
-              "sidePosition": 1
-            },
-            {
-              "direction": "input",
-              "id": "ni_172319118957532",
-              "name": "c_int_in_2",
-              "side": "left",
-              "sidePosition": 2
-            }
-          ],
-          "name": "c_mod_3",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "width": 200
-        }
-      ],
-      "scaling": 1
-    },
-    {
-      "connections": [
-        {
-          "from": "ni_172319118957537",
-          "id": "172319118957546",
-          "to": "ni_172319118957541"
-        },
-        {
-          "from": "ni_172319118957538",
-          "id": "172319118957547",
-          "to": "ni_172319118957542"
-        }
-      ],
-      "id": "172319118957516",
-      "nodes": [
-        {
-          "id": "node_172319118957540",
-          "instanceName": "sub_1",
-          "interfaces": [
-            {
-              "direction": "input",
-              "externalName": "cs_in_1",
-              "id": "ni_172319118957514",
-              "name": "cs_s1_mod_in_1",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "output",
-              "id": "ni_172319118957537",
-              "name": "cs_s1_int_out_1",
-              "side": "right",
-              "sidePosition": 1
-            },
-            {
-              "direction": "output",
-              "id": "ni_172319118957538",
-              "name": "cs_s1_int_out_2",
-              "side": "right",
-              "sidePosition": 2
-            }
-          ],
-          "name": "New Graph Node",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "subgraph": "172319118957539",
-          "width": 200
-        },
-        {
-          "id": "node_172319118957545",
-          "instanceName": "sub_2",
-          "interfaces": [
-            {
-              "direction": "input",
-              "id": "ni_172319118957541",
-              "name": "cs_s2_int_in_1",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "input",
-              "id": "ni_172319118957542",
-              "name": "cs_s2_int_in_2",
-              "side": "left",
-              "sidePosition": 1
-            },
-            {
-              "direction": "output",
-              "externalName": "cs_out_1",
-              "id": "ni_172319118957515",
-              "name": "cs_s2_mod_out_1",
-              "side": "right",
-              "sidePosition": 2
-            }
-          ],
-          "name": "New Graph Node",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "subgraph": "172319118957544",
-          "width": 200
-        }
-      ],
-      "scaling": 1
-    },
-    {
-      "connections": [
-        {
-          "from": "ni_172319118957551",
-          "id": "172319118957558",
-          "to": "ni_172319118957549"
-        },
-        {
-          "from": "ni_172319118957551",
-          "id": "172319118957559",
-          "to": "ni_172319118957555"
-        }
-      ],
-      "id": "172319118957539",
-      "nodes": [
-        {
-          "id": "node_172319118957550",
-          "instanceName": "s1_mod_2",
-          "interfaces": [
-            {
-              "direction": "output",
-              "externalName": "cs_s1_int_out_1",
-              "id": "ni_172319118957537",
-              "name": "cs_s1_f_int_out_1",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "input",
-              "id": "ni_172319118957549",
-              "name": "cs_s1_mint_in_1",
-              "side": "left",
-              "sidePosition": 1
-            }
-          ],
-          "name": "s1_mod_2",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "width": 200
-        },
-        {
-          "id": "node_172319118957553",
-          "instanceName": "s1_mod_1",
-          "interfaces": [
-            {
-              "direction": "output",
-              "id": "ni_172319118957551",
-              "name": "cs_s1_mint_out_1",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "input",
-              "externalName": "cs_s1_mod_in_1",
-              "id": "ni_172319118957514",
-              "name": "cs_s1_f_mod_in_1",
-              "side": "left",
-              "sidePosition": 1
-            }
-          ],
-          "name": "s1_mod_1",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "width": 200
-        },
-        {
-          "id": "node_172319118957557",
-          "instanceName": "s1_mod_3",
-          "interfaces": [
-            {
-              "direction": "input",
-              "id": "ni_172319118957555",
-              "name": "cs_s1_mint_in_2",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "output",
-              "externalName": "cs_s1_int_out_2",
-              "id": "ni_172319118957538",
-              "name": "cs_s1_f_int_out_2",
-              "side": "right",
-              "sidePosition": 1
-            }
-          ],
-          "name": "s1_mod_3",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [
-            {
-              "id": "172319118957554",
-              "name": "SUB_VALUE",
-              "value": "18"
-            }
-          ],
-          "width": 200
-        }
-      ],
-      "scaling": 1
-    },
-    {
-      "connections": [
-        {
-          "from": "ni_172319118957566",
-          "id": "172319118957669",
-          "to": "ni_172319118957561"
-        },
-        {
-          "from": "ni_172319118957565",
-          "id": "172319118957670",
-          "to": "ni_172319118957560"
-        }
-      ],
-      "id": "172319118957544",
-      "nodes": [
-        {
-          "id": "node_172319118957563",
-          "instanceName": "s2_mod_2",
-          "interfaces": [
-            {
-              "direction": "input",
-              "id": "ni_172319118957560",
-              "name": "cs_s2_mint_in_2",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "input",
-              "id": "ni_172319118957561",
-              "name": "cs_s2_mint_in_1",
-              "side": "left",
-              "sidePosition": 1
-            },
-            {
-              "direction": "output",
-              "externalName": "cs_s2_mod_out_1",
-              "id": "ni_172319118957515",
-              "name": "cs_s2_f_mod_out_1",
-              "side": "right",
-              "sidePosition": 2
-            }
-          ],
-          "name": "s2_mod_2",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "width": 200
-        },
-        {
-          "id": "node_172319118957568",
-          "instanceName": "s2_mod_1",
-          "interfaces": [
-            {
-              "direction": "input",
-              "externalName": "cs_s2_int_in_2",
-              "id": "ni_172319118957542",
-              "name": "cs_s2_f_int_in_2",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "output",
-              "id": "ni_172319118957565",
-              "name": "cs_s2_mint_out_2",
-              "side": "right",
-              "sidePosition": 1
-            },
-            {
-              "direction": "output",
-              "id": "ni_172319118957566",
-              "name": "cs_s2_mint_out_1",
-              "side": "right",
-              "sidePosition": 2
-            },
-            {
-              "direction": "input",
-              "externalName": "cs_s2_int_in_1",
-              "id": "ni_172319118957541",
-              "name": "cs_s2_f_int_in_1",
-              "side": "left",
-              "sidePosition": 3
-            }
-          ],
-          "name": "s2_mod_1",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "width": 200
-        }
-      ],
-      "scaling": 1
-    },
-    {
-      "connections": [
-        {
-          "from": "ni_172319118957511",
-          "id": "172319118957518",
-          "to": "ni_172319118957514"
-        },
-        {
-          "from": "ni_172319118957515",
-          "id": "172319118957519",
-          "to": "ni_17231911895757"
-        },
-        {
-          "from": "ni_17231911895759",
-          "id": "172319118957520",
-          "to": "ni_17231911895751"
-        },
-        {
-          "from": "ni_172319118957510",
-          "id": "172319118957521",
-          "to": "ni_17231911895754"
-        }
-      ],
-      "id": "172319118957522",
-      "nodes": [
-        {
-          "id": "node_172319118957513",
-          "instanceName": "counter",
-          "interfaces": [
-            {
-              "direction": "input",
-              "id": "ni_17231911895759",
-              "name": "c_in_1",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "input",
-              "id": "ni_172319118957510",
-              "name": "c_in_2",
-              "side": "left",
-              "sidePosition": 1
-            },
-            {
-              "direction": "output",
-              "id": "ni_172319118957511",
-              "name": "c_out_1",
-              "side": "right",
-              "sidePosition": 2
-            }
-          ],
-          "name": "New Graph Node",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "properties": [],
-          "subgraph": "172319118957512",
-          "width": 200
-        },
-        {
-          "id": "node_172319118957517",
+          "id": "85fe2adc-442d-4eb2-8cbf-5ba64658873b",
           "instanceName": "complex_sub",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172319118957514",
+              "id": "ni_17235603516469",
               "name": "cs_in_1",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "output",
-              "id": "ni_172319118957515",
+              "id": "ni_172356035164610",
               "name": "cs_out_1",
               "side": "right",
               "sidePosition": 1
@@ -495,17 +51,53 @@
             "x": 0,
             "y": 0
           },
-          "properties": [],
-          "subgraph": "172319118957516",
+          "subgraph": "172356035164611",
+          "twoColumn": false,
           "width": 200
         },
         {
-          "id": "node_17231911895752",
+          "id": "29ddb808-8a74-44c9-95d6-96d74dace7f8",
+          "instanceName": "counter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172356035164613",
+              "name": "c_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172356035164614",
+              "name": "c_in_2",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164615",
+              "name": "c_out_1",
+              "side": "right",
+              "sidePosition": 2
+            }
+          ],
+          "name": "New Graph Node",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "subgraph": "172356035164616",
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_17235603516462",
           "instanceName": "External Input",
           "interfaces": [
             {
               "direction": "output",
-              "id": "ni_17231911895751",
+              "id": "ni_17235603516461",
               "name": "external",
               "side": "right",
               "sidePosition": 0
@@ -518,20 +110,22 @@
           },
           "properties": [
             {
-              "id": "17231911895750",
+              "id": "17235603516460",
               "name": "External Name",
               "value": "ex_out_1"
             }
           ],
+          "twoColumn": false,
           "width": 200
         },
         {
-          "id": "node_17231911895755",
+          "enabledInterfaceGroups": [],
+          "id": "node_17235603516465",
           "instanceName": "External Input",
           "interfaces": [
             {
               "direction": "output",
-              "id": "ni_17231911895754",
+              "id": "ni_17235603516464",
               "name": "external",
               "side": "right",
               "sidePosition": 0
@@ -544,20 +138,22 @@
           },
           "properties": [
             {
-              "id": "17231911895753",
+              "id": "17235603516463",
               "name": "External Name",
               "value": "ex_out_2"
             }
           ],
+          "twoColumn": false,
           "width": 200
         },
         {
-          "id": "node_17231911895758",
+          "enabledInterfaceGroups": [],
+          "id": "node_17235603516468",
           "instanceName": "External Output",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_17231911895757",
+              "id": "ni_17235603516467",
               "name": "external",
               "side": "left",
               "sidePosition": 0
@@ -570,15 +166,436 @@
           },
           "properties": [
             {
-              "id": "17231911895756",
+              "id": "17235603516466",
               "name": "External Name",
               "value": "ex_in_1"
             }
           ],
+          "twoColumn": false,
           "width": 200
         }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "from": "ni_172356035164624",
+          "id": "abdb73b0-b590-47cb-9db4-3b5bb50a74f5",
+          "to": "ni_172356035164628"
+        },
+        {
+          "from": "ni_172356035164625",
+          "id": "cf5601e6-a88b-4927-8a8e-88e977d52171",
+          "to": "ni_172356035164629"
+        }
       ],
-      "scaling": 1
+      "id": "172356035164611",
+      "nodes": [
+        {
+          "id": "9952059e-1da2-4320-a456-3c345239e25a",
+          "instanceName": "sub_1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "cs_in_1",
+              "id": "ni_17235603516469",
+              "name": "cs_s1_mod_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164624",
+              "name": "cs_s1_int_out_1",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164625",
+              "name": "cs_s1_int_out_2",
+              "side": "right",
+              "sidePosition": 2
+            }
+          ],
+          "name": "New Graph Node",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "subgraph": "172356035164626",
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "id": "2c8a137f-2fb5-4362-b0a7-0acbbd664533",
+          "instanceName": "sub_2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172356035164628",
+              "name": "cs_s2_int_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172356035164629",
+              "name": "cs_s2_int_in_2",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "externalName": "cs_out_1",
+              "id": "ni_172356035164610",
+              "name": "cs_s2_mod_out_1",
+              "side": "right",
+              "sidePosition": 2
+            }
+          ],
+          "name": "New Graph Node",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "subgraph": "172356035164631",
+          "twoColumn": false,
+          "width": 200
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "from": "ni_172356035164636",
+          "id": "7818da45-3ca8-4a3e-b467-d39e86b2159b",
+          "to": "ni_172356035164638"
+        },
+        {
+          "from": "ni_172356035164636",
+          "id": "150f288b-58c1-47f0-a262-193509fcc047",
+          "to": "ni_172356035164642"
+        }
+      ],
+      "id": "172356035164626",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164637",
+          "instanceName": "s1_mod_1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "cs_s1_mod_in_1",
+              "id": "ni_17235603516469",
+              "name": "cs_s1_f_mod_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164636",
+              "name": "cs_s1_mint_out_1",
+              "side": "right",
+              "sidePosition": 1
+            }
+          ],
+          "name": "s1_mod_1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164640",
+          "instanceName": "s1_mod_2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172356035164638",
+              "name": "cs_s1_mint_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "externalName": "cs_s1_int_out_1",
+              "id": "ni_172356035164624",
+              "name": "cs_s1_f_int_out_1",
+              "side": "right",
+              "sidePosition": 1
+            }
+          ],
+          "name": "s1_mod_2",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164644",
+          "instanceName": "s1_mod_3",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172356035164642",
+              "name": "cs_s1_mint_in_2",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "externalName": "cs_s1_int_out_2",
+              "id": "ni_172356035164625",
+              "name": "cs_s1_f_int_out_2",
+              "side": "right",
+              "sidePosition": 1
+            }
+          ],
+          "name": "s1_mod_3",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "172356035164641",
+              "name": "SUB_VALUE",
+              "value": "18"
+            }
+          ],
+          "twoColumn": false,
+          "width": 200
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "from": "ni_172356035164648",
+          "id": "e4c63223-4db7-4343-a405-a4a65fbaa46d",
+          "to": "ni_172356035164653"
+        },
+        {
+          "from": "ni_172356035164650",
+          "id": "be382a4a-eb49-40c3-810e-4012f8bd0f9b",
+          "to": "ni_172356035164652"
+        }
+      ],
+      "id": "172356035164631",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164651",
+          "instanceName": "s2_mod_1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "cs_s2_int_in_1",
+              "id": "ni_172356035164628",
+              "name": "cs_s2_f_int_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "externalName": "cs_s2_int_in_2",
+              "id": "ni_172356035164629",
+              "name": "cs_s2_f_int_in_2",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164648",
+              "name": "cs_s2_mint_out_1",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164650",
+              "name": "cs_s2_mint_out_2",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "s2_mod_1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164655",
+          "instanceName": "s2_mod_2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172356035164652",
+              "name": "cs_s2_mint_in_2",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172356035164653",
+              "name": "cs_s2_mint_in_1",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "externalName": "cs_s2_mod_out_1",
+              "id": "ni_172356035164610",
+              "name": "cs_s2_f_mod_out_1",
+              "side": "right",
+              "sidePosition": 2
+            }
+          ],
+          "name": "s2_mod_2",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": false,
+          "width": 200
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "from": "ni_172356035164662",
+          "id": "edc508e7-642b-4350-a373-516e89d869a5",
+          "to": "ni_172356035164666"
+        },
+        {
+          "from": "ni_172356035164659",
+          "id": "de1af128-6f24-4f97-87e7-00816e65af19",
+          "to": "ni_172356035164665"
+        }
+      ],
+      "id": "172356035164616",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164661",
+          "instanceName": "c_mod_1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "c_in_1",
+              "id": "ni_172356035164613",
+              "name": "c_mod_in_1",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164659",
+              "name": "c_int_out_1",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "c_mod_1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "172356035164658",
+              "name": "MAX_VALUE",
+              "value": "16"
+            }
+          ],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164664",
+          "instanceName": "c_mod_2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "c_in_2",
+              "id": "ni_172356035164614",
+              "name": "c_mod_in_2",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172356035164662",
+              "name": "c_int_out_2",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "c_mod_2",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172356035164668",
+          "instanceName": "c_mod_3",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172356035164665",
+              "name": "c_int_in_2",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172356035164666",
+              "name": "c_int_in_1",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "externalName": "c_out_1",
+              "id": "ni_172356035164615",
+              "name": "c_mod_out_1",
+              "side": "right",
+              "sidePosition": 2
+            }
+          ],
+          "name": "c_mod_3",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": false,
+          "width": 200
+        }
+      ]
     }
   ]
 }

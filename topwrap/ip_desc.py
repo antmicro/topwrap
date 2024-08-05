@@ -195,9 +195,12 @@ class IPCoreInterface:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class IPCoreParameter:
+class IPCoreComplexParameter:
     width: int
     value: Union[int, str]
+
+
+IPCoreParameter = Union[int, str, IPCoreComplexParameter]
 
 
 class BuiltinIPCoreException(Exception):
@@ -210,7 +213,7 @@ class IPCoreDescription:
 
     name: str
     signals: IPCorePorts = optional_with(IPCorePorts)
-    parameters: Dict[str, Union[int, str, IPCoreParameter]] = optional_with(dict)
+    parameters: Dict[str, IPCoreParameter] = optional_with(dict)
     interfaces: Dict[str, IPCoreInterface] = optional_with(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]]

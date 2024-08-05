@@ -24,23 +24,20 @@ def axi_dispctrl_yaml() -> Path:
 
 @pytest.fixture
 def axi_dispctrl_path(axi_dispctrl_yaml) -> Path:
-    return Path("tests/data/data_build")
+    return Path("tests/data/data_build") / axi_dispctrl_yaml
 
 
 # -----------------
 # IPWrapper objects
 # -----------------
 @pytest.fixture
-def axi_dispctrl_ipw(axi_dispctrl_name, axi_dispctrl_path, axi_dispctrl_yaml) -> IPWrapper:
-    return IPWrapper(axi_dispctrl_yaml, axi_dispctrl_path, axi_dispctrl_name, axi_dispctrl_name, {})
+def axi_dispctrl_ipw(axi_dispctrl_path, axi_dispctrl_yaml) -> IPWrapper:
+    return IPWrapper(axi_dispctrl_path, axi_dispctrl_name, axi_dispctrl_name, {})
 
 
 @pytest.fixture
-def axi_dispctrl_ipw_overriden(
-    axi_dispctrl_name, axi_dispctrl_path, axi_dispctrl_yaml
-) -> IPWrapper:
+def axi_dispctrl_ipw_overriden(axi_dispctrl_name, axi_dispctrl_path) -> IPWrapper:
     return IPWrapper(
-        axi_dispctrl_yaml,
         axi_dispctrl_path,
         axi_dispctrl_name,
         axi_dispctrl_name,

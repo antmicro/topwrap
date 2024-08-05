@@ -6,6 +6,7 @@ from typing import List, Optional
 
 import pytest
 
+from topwrap.design import DesignDescription
 from topwrap.design_to_kpm_dataflow_parser import (
     create_entry_graph,
     create_subgraphs,
@@ -64,13 +65,11 @@ class TestPWMDataflowImport:
     (i.e. PWM dataflow import feature).
     """
 
-    def test_pwm_nodes(self, pwm_design_yaml, pwm_specification):
+    def test_pwm_nodes(self, pwm_design: DesignDescription, pwm_specification):
         """Check the validity of generated KPM nodes - test their properties values
         and interfaces names.
         """
-        kpm_nodes = kpm_nodes_from_design_descr(
-            pwm_design_yaml, pwm_specification, pwm_design_yaml["ips"]
-        )
+        kpm_nodes = kpm_nodes_from_design_descr(pwm_design, pwm_specification)
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == PWM_IPCORE_NODES
         [axi_node] = list(filter(lambda node: node["instanceName"] == AXI_NAME, nodes_json))
@@ -117,13 +116,13 @@ class TestPWMDataflowImport:
             {"name": "M_AXI_GP0", "direction": "output", "side": "right"},
         ]
 
-    def test_pwm_metanodes(self, pwm_design_yaml, pwm_specification):
+    def test_pwm_metanodes(self, pwm_design: DesignDescription, pwm_specification):
         """Check the number of generated metanodes and their contents. External metanodes should
         always contain one "External Name" property and one "external" interface.
         """
-        kpm_ext_metanodes = kpm_external_metanodes_from_design_descr(pwm_design_yaml)
+        kpm_ext_metanodes = kpm_external_metanodes_from_design_descr(pwm_design)
         kpm_const_metanodes = kpm_constant_metanodes_from_design_descr(
-            pwm_design_yaml, pwm_specification
+            pwm_design, pwm_specification
         )
         kpm_metanodes = kpm_ext_metanodes + kpm_const_metanodes
 
@@ -154,16 +153,14 @@ class TestPWMDataflowImport:
             if iface_id in [iface["id"] for iface in node["interfaces"]]:
                 return node["instanceName"]
 
-    def test_pwm_connections(self, pwm_design_yaml, pwm_specification):
+    def test_pwm_connections(self, pwm_design: DesignDescription, pwm_specification):
         """Check the number of generated connections between two nodes representing IP cores
         (i.e. `ipcore_1`<->`ipcore_2` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(
-            pwm_design_yaml, pwm_specification, pwm_design_yaml["ips"]
-        )
+        kpm_nodes = kpm_nodes_from_design_descr(pwm_design, pwm_specification)
         connections_json = [
             conn.to_json_format()
-            for conn in kpm_connections_from_design_descr(pwm_design_yaml, kpm_nodes)
+            for conn in kpm_connections_from_design_descr(pwm_design, kpm_nodes)
         ]
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(connections_json) == 7
@@ -179,19 +176,17 @@ class TestPWMDataflowImport:
         assert node_names.count(PS7_NAME) == PWM_CORE_PS7_CONNECTIONS
         assert node_names.count(PWM_NAME) == PWM_CORE_PWM_CONNECTIONS
 
-    def test_pwm_metanodes_connections(self, pwm_design_yaml, pwm_specification):
+    def test_pwm_metanodes_connections(self, pwm_design: DesignDescription, pwm_specification):
         """Check the number of generated connections between a node representing IP core and
         an metanode (i.e. `ipcore`<->`metanode` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(
-            pwm_design_yaml, pwm_specification, pwm_design_yaml["ips"]
-        )
-        kpm_metanodes = kpm_external_metanodes_from_design_descr(pwm_design_yaml)
+        kpm_nodes = kpm_nodes_from_design_descr(pwm_design, pwm_specification)
+        kpm_metanodes = kpm_external_metanodes_from_design_descr(pwm_design)
 
         connections_json = [
             conn.to_json_format()
             for conn in kpm_metanodes_connections_from_design_descr(
-                pwm_design_yaml, kpm_nodes, kpm_metanodes
+                pwm_design, kpm_nodes, kpm_metanodes
             )
         ]
         nodes_json = [node.to_json_format() for node in kpm_nodes]
@@ -205,11 +200,9 @@ class TestPWMDataflowImport:
 
 
 class TestHDMIDataflowImport:
-    def test_hdmi_nodes(self, hdmi_design_yaml, hdmi_specification):
+    def test_hdmi_nodes(self, hdmi_design: DesignDescription, hdmi_specification):
         """Check the validity of generated KPM nodes - test some of their properties values."""
-        kpm_nodes = kpm_nodes_from_design_descr(
-            hdmi_design_yaml, hdmi_specification, hdmi_design_yaml["ips"]
-        )
+        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design, hdmi_specification)
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == HDMI_IPCORE_NODES
         # check overrode {'value': ..., 'width': ...} parameter value
@@ -221,11 +214,11 @@ class TestHDMIDataflowImport:
         )
         assert m_addr_width["value"] == "96'h100000001000000010"
 
-    def test_hdmi_metanodes(self, hdmi_design_yaml, hdmi_specification):
+    def test_hdmi_metanodes(self, hdmi_design: DesignDescription, hdmi_specification):
         """Check the number of generated external and constant metanodes."""
-        kpm_ext_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design_yaml)
+        kpm_ext_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design)
         kpm_const_metanodes = kpm_constant_metanodes_from_design_descr(
-            hdmi_design_yaml, hdmi_specification
+            hdmi_design, hdmi_specification
         )
         kpm_metanodes = kpm_ext_metanodes + kpm_const_metanodes
 
@@ -237,31 +230,28 @@ class TestHDMIDataflowImport:
         assert len(const_metanodes_json) == HDMI_CONSTANT_METANODES
         assert len(metanodes_json) == HDMI_METANODES
 
-    def test_hdmi_connections(self, hdmi_design_yaml, hdmi_specification):
+    def test_hdmi_connections(self, hdmi_design: DesignDescription, hdmi_specification):
         """Check the number of generated connections between nodes representing IP cores
         (i.e. `ipcore_1`<->`ipcore_2` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(
-            hdmi_design_yaml, hdmi_specification, hdmi_design_yaml["ips"]
-        )
-        connections = kpm_connections_from_design_descr(hdmi_design_yaml, kpm_nodes)
+        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design, hdmi_specification)
+        connections = kpm_connections_from_design_descr(hdmi_design, kpm_nodes)
+
         assert len(connections) == HDMI_IPCORES_CONNECTIONS
 
-    def test_hdmi_metanodes_connections(self, hdmi_design_yaml, hdmi_specification):
+    def test_hdmi_metanodes_connections(self, hdmi_design: DesignDescription, hdmi_specification):
         """Check the number of generated connections between a node representing IP core and
         a metanode (i.e. `ipcore`<->`metanode` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(
-            hdmi_design_yaml, hdmi_specification, hdmi_design_yaml["ips"]
-        )
-        ext_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design_yaml)
+        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design, hdmi_specification)
+        ext_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design)
         const_metanodes = kpm_constant_metanodes_from_nodes(kpm_nodes)
 
         ext_metanodes_connections = kpm_metanodes_connections_from_design_descr(
-            hdmi_design_yaml, kpm_nodes, ext_metanodes
+            hdmi_design, kpm_nodes, ext_metanodes
         )
         const_metanodes_connections = kpm_metanodes_connections_from_design_descr(
-            hdmi_design_yaml, kpm_nodes, const_metanodes
+            hdmi_design, kpm_nodes, const_metanodes
         )
 
         assert len(ext_metanodes_connections) == HDMI_EXTERNAL_CONNECTIONS
@@ -270,15 +260,12 @@ class TestHDMIDataflowImport:
 
 class TestHierarchyDataflowImport:
     @pytest.fixture
-    def design_graphs(self, hierarchy_design_yaml, hierarchy_specification):
-        entry_graph, subgraph_maps = create_entry_graph(
-            hierarchy_design_yaml, hierarchy_specification
-        )
+    def design_graphs(self, hierarchy_design: DesignDescription, hierarchy_specification):
+        entry_graph, subgraph_maps = create_entry_graph(hierarchy_design, hierarchy_specification)
         subgraphs = create_subgraphs(
-            hierarchy_design_yaml["design"],
+            hierarchy_design.design,
             hierarchy_specification,
             entry_graph.nodes,
-            hierarchy_design_yaml["ips"],
             subgraph_maps,
         )
         subgraphs.append(entry_graph)

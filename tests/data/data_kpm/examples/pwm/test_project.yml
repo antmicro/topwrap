@@ -51,7 +51,6 @@ design:
 external:
   interfaces:
     in: []
-    inout: []
     out: []
   ports:
     in: []

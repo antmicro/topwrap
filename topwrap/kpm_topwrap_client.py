@@ -1,7 +1,6 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import logging
 from base64 import b64encode
 from datetime import datetime
@@ -13,9 +12,8 @@ from pipeline_manager_backend_communication.communication_backend import (
 )
 from pipeline_manager_backend_communication.misc_structures import MessageType
 from pipeline_manager_backend_communication.utils import convert_message_to_string
-from yaml.representer import Representer
 
-from .design import build_design
+from .design import DesignDescription
 from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from .kpm_common import RPCparams
 from .kpm_dataflow_parser import kpm_dataflow_to_design
@@ -110,10 +108,11 @@ def _kpm_specification_handler(yamlfiles: list) -> dict:
 
 def _kpm_import_handler(data: str, yamlfiles: list) -> dict:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
-    return kpm_dataflow_from_design_descr(yaml.safe_load(data), specification)
+    design_descr = DesignDescription.from_dict(yaml.safe_load(data))
+    return kpm_dataflow_from_design_descr(design_descr, specification)
 
 
-def _design_from_kpm_data(data: dict, yamlfiles: list) -> dict:
+def _design_from_kpm_data(data: dict, yamlfiles: list) -> DesignDescription:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
     return kpm_dataflow_to_design(data, specification)
 
@@ -126,8 +125,9 @@ def _kpm_run_handler(data: dict, yamlfiles: list, build_dir: str) -> list:
     messages = validate_kpm_design(data, specification)
     if not messages["errors"]:
         design = _design_from_kpm_data(data, yamlfiles)
-
-        build_design(design, build_dir)
+        design.generate_design().build(
+            build_dir=build_dir, top_module_name=design.design.name or "top"
+        )
     return messages["errors"]
 
 
@@ -154,8 +154,7 @@ def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> Tuple[str, str]:
     """
     filename = _generate_design_filename()
     design = _design_from_kpm_data(dataflow, yamlfiles)
-    yaml.SafeDumper.add_representer(collections.defaultdict, Representer.represent_dict)
-    return (yaml.safe_dump(design, sort_keys=True), filename)
+    return (design.to_yaml(), filename)
 
 
 async def kpm_run_client(rpc_params: RPCparams):

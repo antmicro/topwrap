@@ -1,13 +1,23 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from collections import defaultdict
 from logging import info, warning
 from os import path
+from typing import TYPE_CHECKING, Collection, Dict, List, Set, Tuple
 
 from amaranth import Fragment, Module
 from amaranth.back import verilog
 from amaranth.build import Platform
 from amaranth.hdl.ast import Const
+
+# Necessary to allow type checking and hinting without circular imports
+if TYPE_CHECKING:
+    from topwrap.design import (
+        DS_InterfacesT,
+        DS_PortsT,
+        DesignExternalPorts,
+        DesignExternalSection,
+        DesignSectionInterconnect,
+    )
 
 from .amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT, WrapperPort
 from .fuse_helper import FuseSocBuilder
@@ -22,7 +32,7 @@ class IPConnect(Wrapper):
 
     def __init__(self, name: str = "ip_connector"):
         super().__init__(name)
-        self._components = dict()
+        self._components: Dict[str, Wrapper] = dict()
         self._ports = []
         self._connections = []
 
@@ -242,7 +252,11 @@ class IPConnect(Wrapper):
         self._connections.append(port.eq(Const(target)))
 
     def _connect_to_external_port(
-        self, internal_port: str, internal_comp: str, external_port: str, external: dict
+        self,
+        internal_port: str,
+        internal_comp: str,
+        external_port: str,
+        external: "DesignExternalPorts",
     ) -> None:
         """Connect internal port of a component to an external port
 
@@ -255,13 +269,17 @@ class IPConnect(Wrapper):
         """
 
         # check if 'target' is present in the 'external' section
-        external_dd = defaultdict(list, **external)
-        if external_port not in [*external_dd["in"], *external_dd["out"], *external_dd["inout"]]:
+        if external_port not in external.flat:
             raise ValueError(f"External port {external_port} not found in the 'external' section")
 
         self._set_port(internal_comp, internal_port, external_port)
 
-    def make_connections(self, ports: dict, interfaces: dict, external: dict) -> None:
+    def make_connections(
+        self,
+        ports: "DS_PortsT",
+        interfaces: "DS_InterfacesT",
+        external: "DesignExternalSection",
+    ) -> None:
         """Use names of port and names of ips to make connections
 
         :param ports: "ports" section in the YAML design specification
@@ -278,9 +296,7 @@ class IPConnect(Wrapper):
                 if isinstance(target, int):
                     self.set_constant(comp1_name, comp1_port, target)
                 elif isinstance(target, str):
-                    self._connect_to_external_port(
-                        comp1_port, comp1_name, target, external["ports"]
-                    )
+                    self._connect_to_external_port(comp1_port, comp1_name, target, external.ports)
                 else:
                     (comp2_name, comp2_port) = target
                     self.connect_ports(comp1_port, comp1_name, comp2_port, comp2_name)
@@ -291,7 +307,7 @@ class IPConnect(Wrapper):
                 #   - an external interface name
                 #   - list of (comp2_name, comp2_iface)
                 if isinstance(target, str):
-                    if target not in external["interfaces"]:
+                    if target not in external.interfaces.flat:
                         raise ValueError(
                             f"External interface '{target}' not found in 'external' section"
                         )
@@ -300,24 +316,28 @@ class IPConnect(Wrapper):
                     (comp2_name, comp2_iface) = target
                     self.connect_interfaces(comp1_iface, comp1_name, comp2_iface, comp2_name)
 
-    def make_interconnect_connections(self, interconnects: dict, external: dict):
+    def make_interconnect_connections(
+        self,
+        interconnects: Dict[str, "DesignSectionInterconnect"],
+        external: "DesignExternalSection",
+    ):
         """Connect slaves and masters to their respective interfaces in the interconnect
 
         :param interconnects: "interconnects" section in the YAML design specification
         :param external: "external" section in the YAML design specification
         """
-        for ic_name, params in interconnects.items():
+        for ic_name, intrcnt_yml in interconnects.items():
             ic = self._get_component_by_name(ic_name)
 
-            masters, slaves = params["masters"], params["slaves"]
-            clk_src, rst_src = params["clock"], params["reset"]
+            masters, slaves = intrcnt_yml.masters, intrcnt_yml.slaves
+            clk_src, rst_src = intrcnt_yml.clock, intrcnt_yml.reset
 
             for dst_name, cd_sig in [("clk", clk_src), ("rst", rst_src)]:
                 # cd_sig is either
                 # - external port name
                 # - [component, port] - port of another component
                 if isinstance(cd_sig, str):
-                    self._connect_to_external_port(dst_name, ic_name, cd_sig, external["ports"])
+                    self._connect_to_external_port(dst_name, ic_name, cd_sig, external.ports)
                 else:
                     src_comp, src_sig = cd_sig
                     self.connect_ports(dst_name, ic_name, src_sig, src_comp)
@@ -326,8 +346,8 @@ class IPConnect(Wrapper):
                 for slave_iface_name, iface_params in slave_ifaces.items():
                     ic.elaboratable.add_peripheral(
                         name=f"{slave_name}_{slave_iface_name}",
-                        addr=iface_params["address"],
-                        size=iface_params["size"],
+                        addr=iface_params.address,
+                        size=iface_params.size,
                     )
 
             for master_name, master_ifaces in masters.items():
@@ -349,26 +369,27 @@ class IPConnect(Wrapper):
                         ic_name,
                     )
 
-    def validate_inout_connections(self, inouts):
+    def validate_inout_connections(self, inouts: Collection[Tuple[str, str]]):
         """Checks that all inout ports of any IP or hierarchy in the design are explicitly
         listed in the 'external' section.
 
         :param inouts: external.ports.inout section of the design description YAML
         """
-        inouts_tuples = list(map(tuple, inouts))
-        missing_externals = list()
-        all_inout_port_names = set()
+
+        missing_externals: List[Tuple[str, str]] = []
+        all_inout_port_names: Set[str] = set()
         for comp_name, comp in self._components.items():
-            comp_inouts = list(filter(lambda port: port.direction == DIR_INOUT, comp.get_ports()))
-            identical_port_names = all_inout_port_names.intersection(
-                (port.name for port in comp_inouts)
-            )
+            comp_inouts = [port for port in comp.get_ports() if port.direction == DIR_INOUT]
+            port_names = (port.name for port in comp_inouts)
+            identical_port_names = all_inout_port_names.intersection(port_names)
+            all_inout_port_names.update(port_names)
+
             if identical_port_names:
                 warning(
                     f"Identical port name(s) in {comp_name} - signals {identical_port_names} will get a suffix $<number> appended"
                 )
             for port in comp_inouts:
-                if (comp_name, port.name) not in inouts_tuples:
+                if (comp_name, port.name) not in inouts:
                     missing_externals.append((comp_name, port.name))
         if missing_externals:
             formatted_missing = "\n".join(

@@ -6,6 +6,7 @@ import logging
 import os
 import subprocess
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -57,7 +58,14 @@ def configure_log_level(log_level: str):
     help="Force compliance checks for predefined interfaces",
 )
 @click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
-def build_main(sources, design, build_dir, part, iface_compliance, log_level):
+def build_main(
+    sources: Optional[str],
+    design: str,
+    build_dir: str,
+    part: Optional[str],
+    iface_compliance: bool,
+    log_level: str,
+):
     configure_log_level(log_level)
     config.force_interface_compliance = iface_compliance
 

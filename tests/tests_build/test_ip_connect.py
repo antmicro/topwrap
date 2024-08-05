@@ -37,25 +37,25 @@ def axi_dispctrl_yaml() -> Path:
 
 @pytest.fixture
 def dmatop_path(dmatop_yaml) -> Path:
-    return Path("tests/data/data_build").resolve()
+    return Path("tests/data/data_build").resolve() / dmatop_yaml
 
 
 @pytest.fixture
 def axi_dispctrl_path(axi_dispctrl_yaml) -> Path:
-    return Path("tests/data/data_build").resolve()
+    return Path("tests/data/data_build").resolve() / axi_dispctrl_yaml
 
 
 # -------------------------------------
 # IPWrapper and hierarchy IPConnect structures
 # -------------------------------------
 @pytest.fixture
-def dmatop_ipw(dmatop_yaml, dmatop_path, dmatop_name) -> IPWrapper:
-    return IPWrapper(dmatop_yaml, dmatop_path, dmatop_name, dmatop_name)
+def dmatop_ipw(dmatop_path, dmatop_name) -> IPWrapper:
+    return IPWrapper(dmatop_path, dmatop_name, dmatop_name)
 
 
 @pytest.fixture
-def axi_dispctrl_ipw(axi_dispctrl_yaml, axi_dispctrl_path, axi_dispctrl_name) -> IPWrapper:
-    return IPWrapper(axi_dispctrl_yaml, axi_dispctrl_path, axi_dispctrl_name, axi_dispctrl_name)
+def axi_dispctrl_ipw(axi_dispctrl_path, axi_dispctrl_name) -> IPWrapper:
+    return IPWrapper(axi_dispctrl_path, axi_dispctrl_name, axi_dispctrl_name)
 
 
 # -------------------------------------
@@ -271,16 +271,16 @@ class TestIPConnect:
         with pytest.raises(ValueError):
             ipc.set_constant("non_existing_comp_name", "port", 0)
 
-    def test_validate_inout_connections(self, axi_dispctrl_name, axi_dispctrl_ipw):
+    def test_validate_inout_connections(self, axi_dispctrl_name: str, axi_dispctrl_ipw: IPWrapper):
         """Test validating that the user put all inout ports in the
         external.ports.inout section of YAML design file"""
         ipc = IPConnect("top")
         ipc.add_component(axi_dispctrl_name, axi_dispctrl_ipw)
-        conn1 = [axi_dispctrl_name, "some_inout1"]
-        conn2 = [axi_dispctrl_name, "some_inout2"]
+        conn1 = (axi_dispctrl_name, "some_inout1")
+        conn2 = (axi_dispctrl_name, "some_inout2")
 
         # Negative case: user didn't put all inout ports in the external.ports.inout section
         with pytest.raises(ValueError):
-            ipc.validate_inout_connections([conn1])
+            ipc.validate_inout_connections({conn1})
         # Positive case: user did put all inout ports in the external.ports.inout.section
-        ipc.validate_inout_connections([conn1, conn2])
+        ipc.validate_inout_connections({conn1, conn2})

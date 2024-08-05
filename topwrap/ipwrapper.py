@@ -1,6 +1,5 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from collections.abc import Mapping
 from itertools import groupby
 from logging import error
 from pathlib import Path
@@ -11,7 +10,7 @@ from amaranth import Instance, Module, Signal
 from amaranth.build import Platform
 from amaranth.hdl.ast import Cat, Const
 
-from topwrap.ip_desc import IPCoreDescription
+from topwrap.ip_desc import IPCoreComplexParameter, IPCoreDescription
 
 from .amaranth_helpers import WrapperPort, port_direction_to_prefix
 from .wrapper import Wrapper
@@ -43,8 +42,8 @@ def _evaluate_parameters(params: dict):
     """
     for name in params.keys():
         param = params[name]
-        if isinstance(param, Mapping):
-            params[name] = Const(param["value"], shape=(param["width"]))
+        if isinstance(param, IPCoreComplexParameter):
+            params[name] = Const(param.value, shape=(param.width))
         elif isinstance(param, str):
             if ex.validate(param, params) is None:
                 params[name] = int(ex.evaluate(param, params).take(0))
@@ -72,11 +71,9 @@ class IPWrapper(Wrapper):
     or grouped ports as interfaces.
     """
 
-    def __init__(self, yamlfile: str, base_path: str, ip_name: str, instance_name: str, params={}):
+    def __init__(self, yaml_path: Path, ip_name: str, instance_name: str, params={}):
         """
-        :param yamlfile: name of a file describing
-            ports and interfaces of the IP
-        :param base_path: path of the project for searching IP description
+        :param yaml_path: path to the IP Core description yaml file
         :param ip_name: name of the module to wrap
         :param instance_name: name of this instance
         :param params: optional, HDL parameters of this instance
@@ -92,15 +89,15 @@ class IPWrapper(Wrapper):
         self.ip_name = ip_name
         self.instance_name = instance_name
 
-        self._create_ports(yamlfile, base_path)
+        self._create_ports(yaml_path)
 
-    def _create_ports(self, yamlfile: str, base_path: str):
+    def _create_ports(self, yaml_path: Path):
         """Initialize object attributes with data found in the yamlfile
 
         :raises ValueError: when interface compliance is violated,
             e.g. the interfaces used don't match the predefined interfaces
         """
-        ip_core = IPCoreDescription.load(Path(base_path) / yamlfile)
+        ip_core = IPCoreDescription.load(yaml_path)
 
         parameters = ip_core.parameters.copy()
         _evaluate_parameters(parameters)

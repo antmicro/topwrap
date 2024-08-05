@@ -4,7 +4,7 @@
 import logging
 from dataclasses import dataclass
 from pathlib import PurePath
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from pipeline_manager.specification_builder import SpecificationBuilder
 
@@ -13,6 +13,7 @@ from topwrap.design_to_kpm_dataflow_parser import (
     KPMDataflowNodeInterface,
 )
 from topwrap.ip_desc import (
+    IPCoreComplexParameter,
     IPCoreDescription,
     IPCoreInterface,
     IPCoreParameter,
@@ -66,7 +67,7 @@ def _ipcore_param_to_kpm_value(param) -> str:
     """
     if isinstance(param, str):
         return param
-    elif isinstance(param, IPCoreParameter):
+    elif isinstance(param, IPCoreComplexParameter):
         width = str(param.width)
         value = hex(int(param.value))[2:]
         return width + "'h" + value
@@ -122,9 +123,7 @@ def _get_ifaces_types(specification: dict) -> List[str]:
     )
 
 
-def _ipcore_params_to_prop_type(
-    params: Dict[str, Union[int, str, IPCoreParameter]]
-) -> List[PropertyType]:
+def _ipcore_params_to_prop_type(params: Dict[str, IPCoreParameter]) -> List[PropertyType]:
     """Returns a list of parameters in a format used in KPM specification."""
     prop_list = []
     for param_name, param_value in params.items():

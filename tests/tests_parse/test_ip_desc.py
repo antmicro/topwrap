@@ -13,10 +13,10 @@ from marshmallow import ValidationError
 from topwrap.interface import InterfaceMode
 from topwrap.interface_grouper import standard_iface_grouper
 from topwrap.ip_desc import (
+    IPCoreComplexParameter,
     IPCoreDescription,
     IPCoreInterface,
     IPCoreIntfPorts,
-    IPCoreParameter,
     IPCorePorts,
 )
 from topwrap.verilog_parser import VerilogModule
@@ -274,8 +274,8 @@ interfaces:
             parameters={
                 "p1": 3,
                 "p2": "p1+4",
-                "p3": IPCoreParameter(width=4, value=5),
-                "p4": IPCoreParameter(width=4, value="p2"),
+                "p3": IPCoreComplexParameter(width=4, value=5),
+                "p4": IPCoreComplexParameter(width=4, value="p2"),
             },
             interfaces={
                 "intf1": IPCoreInterface(

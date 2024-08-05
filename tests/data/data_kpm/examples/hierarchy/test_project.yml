@@ -1,9 +1,20 @@
+
 design:
   hierarchies:
     complex_sub:
       design:
         hierarchies:
           sub_1:
+            ips:
+              s1_mod_1:
+                file: examples/hierarchy/repo/cores/s1_mod_1/s1_mod_1.yaml
+                module: s1_mod_1
+              s1_mod_2:
+                file: examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml
+                module: s1_mod_2
+              s1_mod_3:
+                file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+                module: s1_mod_3
             design:
               parameters:
                 s1_mod_1: {}
@@ -31,6 +42,13 @@ design:
                 - cs_s1_int_out_1
                 - cs_s1_int_out_2
           sub_2:
+            ips:
+              s2_mod_1:
+                file: examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+                module: s2_mod_1
+              s2_mod_2:
+                file: examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml
+                module: s2_mod_2
             design:
               parameters:
                 s2_mod_1: {}
@@ -72,6 +90,16 @@ design:
           out:
           - cs_out_1
     counter:
+      ips:
+        c_mod_1:
+          file: examples/hierarchy/repo/cores/c_mod_1/c_mod_1.yaml
+          module: c_mod_1
+        c_mod_2:
+          file: examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml
+          module: c_mod_2
+        c_mod_3:
+          file: examples/hierarchy/repo/cores/c_mod_3/c_mod_3.yaml
+          module: c_mod_3
       design:
         parameters:
           c_mod_1:
@@ -110,7 +138,6 @@ design:
 external:
   interfaces:
     in: []
-    inout: []
     out: []
   ports:
     in:
@@ -119,28 +146,3 @@ external:
     inout: []
     out:
     - ex_in_1
-ips:
-  c_mod_1:
-    file: examples/hierarchy/repo/cores/c_mod_1/c_mod_1.yaml
-    module: c_mod_1
-  c_mod_2:
-    file: examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml
-    module: c_mod_2
-  c_mod_3:
-    file: examples/hierarchy/repo/cores/c_mod_3/c_mod_3.yaml
-    module: c_mod_3
-  s1_mod_1:
-    file: examples/hierarchy/repo/cores/s1_mod_1/s1_mod_1.yaml
-    module: s1_mod_1
-  s1_mod_2:
-    file: examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml
-    module: s1_mod_2
-  s1_mod_3:
-    file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
-    module: s1_mod_3
-  s2_mod_1:
-    file: examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
-    module: s2_mod_1
-  s2_mod_2:
-    file: examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml
-    module: s2_mod_2

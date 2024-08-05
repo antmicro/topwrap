@@ -3,7 +3,9 @@
 
 import re
 from dataclasses import dataclass
+from typing import Any, Dict, List, Literal, Set, Tuple
 
+from topwrap.design import DesignDescription
 from topwrap.design_to_kpm_dataflow_parser import KPMDataflowSubgraphnode
 
 from .kpm_common import (
@@ -167,10 +169,10 @@ def _kpm_connections_to_ports_ifaces(dataflow_data: dict, specification: dict) -
         else:
             conns_dict = interfaces_conns
 
-        conns_dict[iface_to.node_name][iface_to.iface_name] = [
+        conns_dict[iface_to.node_name][iface_to.iface_name] = (
             iface_from.node_name,
             iface_from.iface_name,
-        ]
+        )
 
     ports_conns = recursive_defaultdict_to_dict(ports_conns)
     interfaces_conns = recursive_defaultdict_to_dict(interfaces_conns)
@@ -187,7 +189,7 @@ def _kpm_connections_to_external(dataflow_data: dict, specification: dict) -> di
     ifaces_ext_conns = {}
     external = {
         "ports": {"in": [], "out": [], "inout": []},
-        "interfaces": {"in": [], "out": [], "inout": []},
+        "interfaces": {"in": [], "out": []},
     }
 
     for conn in get_dataflow_external_connections(dataflow_data):
@@ -327,7 +329,21 @@ def _add_node_data_to_design(
         topwrap_design[design_field_name][node_instance_name] = nodes_data[node_instance_name]
 
 
+def _find_necessary_ips_for_hier(
+    ips: Dict[str, Dict[Literal["file", "module"], str]],
+    design_dict: Dict[str, Any],
+    inouts: List[Tuple[str, str]],
+):
+    keys: Set[str] = set()
+    for ip, _ in inouts:
+        keys.add(ip)
+    for key in (*design_dict["ports"].keys(), *design_dict["interfaces"].keys()):
+        keys.add(key)
+    return {key: ips[key] for key in keys if key in ips}
+
+
 def _create_topwrap_design(
+    ips: Dict[str, Dict[Literal["file", "module"], str]],
     dataflow_data: dict,
     properties: dict,
     ports: dict,
@@ -354,7 +370,8 @@ def _create_topwrap_design(
             topwrap_design["hierarchies"][node_instance_name] = subgraph_ports_external[
                 node_instance_name
             ]
-            topwrap_design["hierarchies"][node_instance_name]["design"] = _create_topwrap_design(
+            design = _create_topwrap_design(
+                ips,
                 dataflow_data,
                 properties,
                 ports,
@@ -363,13 +380,19 @@ def _create_topwrap_design(
                 subgraph_ports_external,
                 topwrap_design["hierarchies"][node_instance_name]["design"],
             )
+            topwrap_design["hierarchies"][node_instance_name]["design"] = design
+            ext_ports = subgraph_ports_external[node_instance_name]["external"]["ports"]
+            topwrap_design["hierarchies"][node_instance_name]["ips"] = _find_necessary_ips_for_hier(
+                ips, design, ext_ports.get("inout", [])
+            )
 
     return topwrap_design
 
 
-def kpm_dataflow_to_design(dataflow_data: dict, specification: dict) -> dict:
+def kpm_dataflow_to_design(dataflow_data: dict, specification: dict) -> DesignDescription:
     """Parse Pipeline Manager dataflow into Topwrap's design description yaml"""
-    ips = _kpm_nodes_to_ips(dataflow_data, specification)
+    all_ips = _kpm_nodes_to_ips(dataflow_data, specification)
+
     properties = _kpm_nodes_to_parameters(dataflow_data)
     ports_ifaces_dict = _kpm_connections_to_ports_ifaces(dataflow_data, specification)
     constants = _kpm_connections_to_constant(dataflow_data, specification)
@@ -385,19 +408,25 @@ def kpm_dataflow_to_design(dataflow_data: dict, specification: dict) -> dict:
     interfaces = _update_ports_ifaces_section(
         ports_ifaces_dict["interfaces"], externals["interfaces"]
     )
+    design = _create_topwrap_design(
+        all_ips,
+        dataflow_data,
+        properties,
+        ports,
+        interfaces,
+        dataflow_data.get(
+            "entryGraph", dataflow_data["graphs"][0]["id"]
+        ),  # if there is no entry graph then there is only one graph in design
+        subgraph_ports_external,
+        recursive_defaultdict(),
+    )
 
-    return {
-        "ips": ips,
-        "design": _create_topwrap_design(
-            dataflow_data,
-            properties,
-            ports,
-            interfaces,
-            dataflow_data.get(
-                "entryGraph", dataflow_data["graphs"][0]["id"]
-            ),  # if there is no entry graph then there is only one graph in design
-            subgraph_ports_external,
-            recursive_defaultdict(),
-        ),
-        "external": externals["external"],
-    }
+    return DesignDescription.from_dict(
+        {
+            "ips": _find_necessary_ips_for_hier(
+                all_ips, design, externals["external"]["ports"]["inout"]
+            ),
+            "design": design,
+            "external": externals["external"],
+        }
+    )

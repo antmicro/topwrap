@@ -1,6 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from topwrap.design import DesignDescription
 from topwrap.kpm_common import get_all_graph_nodes
 from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_constant,
@@ -38,13 +39,13 @@ class TestPWMDataflowExport:
             "AXIL_STRB_WIDTH": "AXIL_DATA_WIDTH/8",
         }
 
-    def test_nodes_to_ips(self, pwm_design_yaml, pwm_dataflow, pwm_specification):
+    def test_nodes_to_ips(self, pwm_design: DesignDescription, pwm_dataflow, pwm_specification):
         """Check whether generated IP cores names in "ips" section of a design description YAML
         match the values from `examples/pwm/project.yml`.
         """
 
         ips = _kpm_nodes_to_ips(pwm_dataflow, pwm_specification)
-        assert ips.keys() == pwm_design_yaml["ips"].keys()
+        assert ips.keys() == pwm_design.ips.keys()
 
     def test_port_interfaces(self, pwm_dataflow, pwm_specification):
         """Check whether generated connection descriptions in "ports" and "interfaces" sections
@@ -52,13 +53,13 @@ class TestPWMDataflowExport:
         """
         connections = _kpm_connections_to_ports_ifaces(pwm_dataflow, pwm_specification)
         assert connections["ports"] == {
-            PS7_NAME: {"MAXIGP0ACLK": [PS7_NAME, "FCLK0"]},
-            AXI_NAME: {"clk": [PS7_NAME, "FCLK0"], "rst": [PS7_NAME, "FCLK_RESET0_N"]},
-            PWM_NAME: {"sys_clk": [PS7_NAME, "FCLK0"], "sys_rst": [PS7_NAME, "FCLK_RESET0_N"]},
+            PS7_NAME: {"MAXIGP0ACLK": (PS7_NAME, "FCLK0")},
+            AXI_NAME: {"clk": (PS7_NAME, "FCLK0"), "rst": (PS7_NAME, "FCLK_RESET0_N")},
+            PWM_NAME: {"sys_clk": (PS7_NAME, "FCLK0"), "sys_rst": (PS7_NAME, "FCLK_RESET0_N")},
         }
         assert connections["interfaces"] == {
-            AXI_NAME: {"s_axi": [PS7_NAME, "M_AXI_GP0"]},
-            PWM_NAME: {"s_axi": [AXI_NAME, "m_axi"]},
+            AXI_NAME: {"s_axi": (PS7_NAME, "M_AXI_GP0")},
+            PWM_NAME: {"s_axi": (AXI_NAME, "m_axi")},
         }
 
     def test_externals(self, pwm_dataflow, pwm_specification):
@@ -70,7 +71,7 @@ class TestPWMDataflowExport:
             "interfaces": {},
             "external": {
                 "ports": {"in": [], "out": ["pwm"], "inout": []},
-                "interfaces": {"in": [], "out": [], "inout": []},
+                "interfaces": {"in": [], "out": []},
             },
         }
 
@@ -100,14 +101,14 @@ class TestHDMIDataflowExport:
         assert parameters["ADDR_WIDTH"] == 32
         assert parameters["M_ADDR_WIDTH"] == {"value": int("0x100000001000000010", 16), "width": 96}
 
-    def test_nodes_to_ips(self, hdmi_design_yaml, hdmi_dataflow, hdmi_specification):
+    def test_nodes_to_ips(self, hdmi_design: DesignDescription, hdmi_dataflow, hdmi_specification):
         """Check whether generated IP cores names in "ips" section of a design description YAML
         match the values from `examples/hdmi/project.yml`.
         """
         ips = _kpm_nodes_to_ips(hdmi_dataflow, hdmi_specification)
-        assert ips.keys() == hdmi_design_yaml["ips"].keys()
+        assert ips.keys() == hdmi_design.ips.keys()
 
-    def test_interfaces(self, hdmi_design_yaml, hdmi_dataflow, hdmi_specification):
+    def test_interfaces(self, hdmi_design: DesignDescription, hdmi_dataflow, hdmi_specification):
         """Check whether generated connection descriptions in "interfaces" sections
         of a design description YAML match the values from `examples/hdmi/project.yml`.
 
@@ -115,7 +116,7 @@ class TestHDMIDataflowExport:
         some ports are driven by constants. This feature is not yet supported in KPM.
         """
         connections = _kpm_connections_to_ports_ifaces(hdmi_dataflow, hdmi_specification)
-        assert connections["interfaces"] == hdmi_design_yaml["design"]["interfaces"]
+        assert connections["interfaces"] == hdmi_design.design.interfaces
 
     def test_externals(self, hdmi_dataflow, hdmi_specification):
         """Check whether generated external ports/interfaces descriptions in "externals" section
@@ -174,7 +175,7 @@ class TestHDMIDataflowExport:
                         ["ps7", "ps_srstb"],
                     ],
                 },
-                "interfaces": {"in": [], "out": [], "inout": []},
+                "interfaces": {"in": [], "out": []},
             },
         }
 
@@ -211,28 +212,24 @@ class TestHierarchyDataflowExport:
         parameters = _kpm_properties_to_parameters(c_mod_1["properties"])
         assert parameters["MAX_VALUE"] == 16
 
-    def test_nodes_to_ips(self, hierarchy_design_yaml, hierarchy_dataflow, hierarchy_specification):
-        ips = _kpm_nodes_to_ips(hierarchy_dataflow, hierarchy_specification)
-        assert ips.keys() == hierarchy_design_yaml["ips"].keys()
-
     def test_port_interfaces(self, hierarchy_dataflow, hierarchy_specification):
         connections = _kpm_connections_to_ports_ifaces(hierarchy_dataflow, hierarchy_specification)
 
         assert connections["ports"] == {
-            "complex_sub": {"cs_in_1": ["counter", "c_out_1"]},
+            "complex_sub": {"cs_in_1": ("counter", "c_out_1")},
             "c_mod_3": {
-                "c_int_in_1": ["c_mod_2", "c_int_out_2"],
-                "c_int_in_2": ["c_mod_1", "c_int_out_1"],
+                "c_int_in_1": ("c_mod_2", "c_int_out_2"),
+                "c_int_in_2": ("c_mod_1", "c_int_out_1"),
             },
             "sub_2": {
-                "cs_s2_int_in_1": ["sub_1", "cs_s1_int_out_1"],
-                "cs_s2_int_in_2": ["sub_1", "cs_s1_int_out_2"],
+                "cs_s2_int_in_1": ("sub_1", "cs_s1_int_out_1"),
+                "cs_s2_int_in_2": ("sub_1", "cs_s1_int_out_2"),
             },
-            "s1_mod_2": {"cs_s1_mint_in_1": ["s1_mod_1", "cs_s1_mint_out_1"]},
-            "s1_mod_3": {"cs_s1_mint_in_2": ["s1_mod_1", "cs_s1_mint_out_1"]},
+            "s1_mod_2": {"cs_s1_mint_in_1": ("s1_mod_1", "cs_s1_mint_out_1")},
+            "s1_mod_3": {"cs_s1_mint_in_2": ("s1_mod_1", "cs_s1_mint_out_1")},
             "s2_mod_2": {
-                "cs_s2_mint_in_1": ["s2_mod_1", "cs_s2_mint_out_1"],
-                "cs_s2_mint_in_2": ["s2_mod_1", "cs_s2_mint_out_2"],
+                "cs_s2_mint_in_1": ("s2_mod_1", "cs_s2_mint_out_1"),
+                "cs_s2_mint_in_2": ("s2_mod_1", "cs_s2_mint_out_2"),
             },
         }
 
@@ -247,7 +244,7 @@ class TestHierarchyDataflowExport:
             "interfaces": {},
             "external": {
                 "ports": {"in": ["ex_out_1", "ex_out_2"], "out": ["ex_in_1"], "inout": []},
-                "interfaces": {"in": [], "out": [], "inout": []},
+                "interfaces": {"in": [], "out": []},
             },
         }
 

@@ -5,7 +5,8 @@ from base64 import b64encode
 from typing import Dict, List
 
 import pytest
-import yaml
+
+from topwrap.design import DesignDescription
 
 from .common import read_json_file, read_yaml_file
 
@@ -16,7 +17,7 @@ def ip_names() -> List[str]:
 
 
 @pytest.fixture
-def pwm_ipcores_yamls() -> list:
+def pwm_ipcores_yamls() -> List[str]:
     _pwm_yamls_prefix = "examples/pwm/ipcores/"
     return [
         "topwrap/ips/axi/axi_axil_adapter.yaml",
@@ -90,7 +91,7 @@ def all_dataflow_files(ip_names: List[str]) -> Dict[str, dict]:
 
 
 @pytest.fixture
-def all_design_files(ip_names: List[str]) -> Dict[str, dict]:
+def all_designs(ip_names: List[str]) -> Dict[str, DesignDescription]:
     return {
         ip_name: read_yaml_file(f"tests/data/data_kpm/examples/{ip_name}/test_project.yml")
         for ip_name in ip_names
@@ -98,12 +99,10 @@ def all_design_files(ip_names: List[str]) -> Dict[str, dict]:
 
 
 @pytest.fixture
-def all_encoded_design_files(all_design_files: Dict[str, dict]) -> Dict[str, str]:
+def all_encoded_design_files(all_designs: Dict[str, DesignDescription]) -> Dict[str, str]:
     return {
-        test_name: b64encode(yaml.safe_dump(design_yaml, sort_keys=True).encode("utf-8")).decode(
-            "utf-8"
-        )
-        for test_name, design_yaml in all_design_files.items()
+        test_name: b64encode(design.to_yaml().encode("utf-8")).decode("utf-8")
+        for test_name, design in all_designs.items()
     }
 
 
@@ -138,15 +137,15 @@ def hierarchy_dataflow(all_dataflow_files: Dict[str, dict]) -> dict:
 
 
 @pytest.fixture
-def pwm_design_yaml(all_design_files: Dict[str, dict]) -> dict:
-    return all_design_files["pwm"]
+def pwm_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
+    return all_designs["pwm"]
 
 
 @pytest.fixture
-def hdmi_design_yaml(all_design_files: Dict[str, dict]) -> dict:
-    return all_design_files["hdmi"]
+def hdmi_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
+    return all_designs["hdmi"]
 
 
 @pytest.fixture
-def hierarchy_design_yaml(all_design_files: Dict[str, dict]) -> dict:
-    return all_design_files["hierarchy"]
+def hierarchy_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
+    return all_designs["hierarchy"]
