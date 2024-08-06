@@ -39,6 +39,13 @@ class KPMDataflowNodeInterface:
     KPM_DIR_OUTPUT = "output"
     KPM_DIR_INOUT = "inout"
 
+    # will be used from subgraph merge
+    kpm_direction_extensions_dict = {
+        "in": KPM_DIR_INPUT,
+        "out": KPM_DIR_OUTPUT,
+        "inout": KPM_DIR_INOUT,
+    }
+
     def __init__(self, name: str, direction: str, value: str = None):
         if direction not in [
             KPMDataflowNodeInterface.KPM_DIR_INPUT,
@@ -134,15 +141,19 @@ class KPMDataflowMetanode(KPMDataflowNode):
 
 
 class KPMDataflowExternalMetanode(KPMDataflowMetanode):
-    def __init__(self, node_name: str, property_name: str):
-        if node_name not in [EXT_OUTPUT_NAME, EXT_INPUT_NAME, EXT_INOUT_NAME]:
-            raise ValueError(f"Invalid external node name: {node_name}")
+    @staticmethod
+    def valid_node_name(node_name: str) -> bool:
+        return node_name in [EXT_OUTPUT_NAME, EXT_INPUT_NAME, EXT_INOUT_NAME]
 
-        interface_dir_by_node_name = {
-            EXT_OUTPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INPUT,
-            EXT_INPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
-            EXT_INOUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INOUT,
-        }
+    interface_dir_by_node_name = {
+        EXT_OUTPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INPUT,
+        EXT_INPUT_NAME: KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+        EXT_INOUT_NAME: KPMDataflowNodeInterface.KPM_DIR_INOUT,
+    }
+
+    def __init__(self, node_name: str, property_name: str):
+        if not self.valid_node_name(node_name):
+            raise ValueError(f"Invalid external node name: {node_name}")
 
         super().__init__(
             name=node_name,
@@ -155,7 +166,7 @@ class KPMDataflowExternalMetanode(KPMDataflowMetanode):
             interfaces=[
                 KPMDataflowMetanodeInterface(
                     KPMDataflowMetanodeInterface.EXT_IFACE_NAME,
-                    interface_dir_by_node_name[node_name],
+                    self.interface_dir_by_node_name[node_name],
                 )
             ],
         )
@@ -246,7 +257,7 @@ def kpm_nodes_from_design_descr(design_descr: dict, specification: dict) -> List
 
         kpm_properties = {
             prop["name"]: KPMDataflowNodeProperty(prop["name"], prop["default"])
-            for prop in spec_node["properties"]
+            for prop in spec_node.get("properties", [])
         }
         if ip_name in parameters.keys():
             for param_name, param_val in parameters[ip_name].items():

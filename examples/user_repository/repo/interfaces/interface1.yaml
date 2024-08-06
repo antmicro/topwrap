@@ -1,4 +1,4 @@
-name: inter1
+name: coreStream
 port_prefix: inter1
 signals:
     required:
