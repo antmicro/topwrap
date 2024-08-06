@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Signals specification:
-# - https://cdn.opencores.org/downloads/wbspec_b3.pdf#page=32
-# - https://cdn.opencores.org/downloads/wbspec_b3.pdf#page=73
+# - https://cdn.opencores.org/downloads/wbspec_b4.pdf#page=27
+# - https://cdn.opencores.org/downloads/wbspec_b4.pdf#page=69
 name: wishbone
 port_prefix: wishbone
 signals:
@@ -15,6 +15,15 @@ signals:
             ack: ack
     optional:
         out:
+            # mosi/miso is a naming convention that is currently unsupported
+            # in Topwrap since it's semantically the same signal but it has
+            # a different name depending on the peripheral being a master or
+            # a slave, so if the RTL source uses this convention grouping ports
+            # under interfaces might not be performed correctly.
+            # 
+            # Many implementations use saner dat_w/dat_r convention that does
+            # not depend on whether the peripheral is a master or a slave. This
+            # is reflected in an additional regex pattern below and in dat_r.
             dat_w: dat_w|mosi
             adr: adr
             tgd_w: tgd_w
@@ -23,6 +32,7 @@ signals:
             tga: tga
             tgc: tgc
             we: we
+            # Wishbone Registered Feedback extension signals
             cti: cti
             bte: bte
         in:
