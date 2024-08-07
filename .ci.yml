@@ -12,6 +12,9 @@ variables:
   SCALENODE_CPU: 6
 
 lint:
+  variables:
+    SCALENODE_RAM: 2048
+    SCALENODE_CPU: 2
   stage: test
   image: debian:bookworm
   script:
@@ -47,7 +50,20 @@ package_cores:
     paths:
       - core_repo/**
 
+pyright_check:
+  variables:
+    SCALENODE_RAM: 12288
+    SCALENODE_CPU: 2
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh pyright_check
+  allow_failure: true
+
 build_docs:
+  variables:
+    SCALENODE_RAM: 2048
+    SCALENODE_CPU: 2
   image: debian:bookworm
   stage: build_docs
   script:

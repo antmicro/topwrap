@@ -1,11 +1,16 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 import shutil
+from collections import defaultdict
 from pathlib import Path, PurePath
+from tempfile import TemporaryDirectory, TemporaryFile
+from typing import Any, Dict, List, Tuple
 
 import nox
+from nox.command import CommandFailed
 
 PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
@@ -118,8 +123,83 @@ def _install_test(session: nox.Session) -> None:
 
 
 @nox.session
-def doc_gen(session) -> None:
+def doc_gen(session: nox.Session) -> None:
     session.install(".[docs]")
     session.run("make", "-C", "docs", "html", external=True)
     session.run("make", "-C", "docs", "latexpdf", external=True)
     session.run("cp", "docs/build/latex/topwrap.pdf", "docs/build/html", external=True)
+
+
+@nox.session
+def pyright_check(session: nox.Session) -> None:
+    # this is a wrapper for _pyright_check that installs dependencies
+    session.install(".[topwrap-parse]")
+    session.install(".[tests]")
+    compare_with_main = "compare" in session.posargs
+
+    if compare_with_main:
+        session.run("nox", "-s", "_pyright_check", "--", "compare")
+    else:
+        session.run("nox", "-s", "_pyright_check")
+
+
+@nox.session
+def _pyright_check(session: nox.Session) -> None:
+    # this is not supposed to be called outright, use `pyright_check`
+    compare_with_main = "compare" in session.posargs
+
+    # counting down errors on branch
+    def count_down_errors() -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        errortypes = defaultdict(int)
+        errorfiles = defaultdict(int)
+        with TemporaryFile() as f:
+            session.run("pyright", "--outputjson", stdout=f, success_codes=[0, 1], external=True)
+            f.seek(0)
+            errors_data = json.load(f)
+            for errno in errors_data["generalDiagnostics"]:
+                errortypes[errno["rule"]] += 1
+                errorfiles[str(Path(errno["file"]).relative_to(Path(".").resolve()))] += 1
+        return (errortypes, errorfiles)
+
+    errortypes, errorfiles = count_down_errors()
+
+    errortypes_main = defaultdict(int)
+    errorfiles_main = defaultdict(int)
+    if compare_with_main:
+        # save location of used config
+        pyproject_origin = Path(os.getcwd(), "pyproject.toml")
+
+        with TemporaryDirectory() as dir:
+            # copy into temp dir and go into it
+            shutil.copytree(Path("."), dir, dirs_exist_ok=True)
+            with session.chdir(Path(dir)):
+                # switch to main and replace pyproject
+                session.run("git", "switch", "main", "--force", external=True)
+                session.run("rm", "pyproject.toml", external=True)
+                shutil.copy(pyproject_origin, dir)
+
+                # counting down errors on main
+                errortypes_main, errorfiles_main = count_down_errors()
+
+    # human readable pyright output
+    session.run("pyright", success_codes=[0, 1], external=True)
+
+    columns = 3 if compare_with_main else 2
+
+    from prettytable import PrettyTable
+
+    def print_table(
+        header: List[str], columns: int, errtypes: Dict[str, int], errtypes_main: Dict[str, int]
+    ) -> None:
+        t = PrettyTable(header[:columns])
+        for errtype, num in sorted(errtypes.items(), key=lambda x: x[1], reverse=True):
+            t.add_row([errtype, num, num - errtypes_main[errtype]][:columns])
+        print(t)
+
+    print_table(["Error", "Count", "Change"], columns, errortypes, errortypes_main)
+    print_table(["File", "Errors", "Change"], columns, errorfiles, errorfiles_main)
+
+    if compare_with_main:
+        for errtype, num in errorfiles.items():
+            if num - errorfiles_main[errtype] > 0:
+                raise CommandFailed()

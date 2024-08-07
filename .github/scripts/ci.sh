@@ -36,7 +36,9 @@ install_common_system_packages() {
         git \
         python3-dev \
         python3-pip \
-        python3-venv
+        python3-venv \
+        nodejs \
+        npm
     end_command_group
 }
 
@@ -186,6 +188,16 @@ package_dist() {
     end_command_group
 }
 
+pyright_check(){
+    install_common_system_packages
+    install_topwrap_system_deps
+    install_nox
+
+    begin_command_group "checking types"
+    log_cmd nox -s pyright_check -- compare
+    end_command_group
+}
+
 case "$1" in
 lint)
     run_lint
@@ -202,10 +214,13 @@ package_cores)
 package_dist)
     package_dist
     ;;
+pyright_check)
+    pyright_check
+    ;;
 docs)
     generate_docs
     ;;
 *)
-    echo "Usage: $0 {lint|tests|examples|package_cores|package_dist|docs}"
+    echo "Usage: $0 {lint|tests|examples|package_cores|package_dist|docs|pyright_check}"
     ;;
 esac

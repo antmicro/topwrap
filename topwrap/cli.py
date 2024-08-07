@@ -177,7 +177,7 @@ DEFAULT_BACKEND_PORT = 5000
     help="Specify directory name for output files",
 )
 @click.argument("yamlfiles", type=click_r_file, nargs=-1)
-def kpm_client_main(host, port, log_level, design, yamlfiles, build_dir):
+def kpm_client_main(host, port, log_level, design, yamlfiles: list[str], build_dir):
     configure_log_level(log_level)
 
     logging.info("Starting kenning pipeline manager client")
