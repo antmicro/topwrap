@@ -1,0 +1,7 @@
+name: s1_mod_2
+
+signals:
+  in:
+    - cs_s1_mint_in_1
+  out:
+    - cs_s1_f_int_out_1

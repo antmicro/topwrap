@@ -1,0 +1,4 @@
+force_interface_compliance: false
+repositories:
+  - name: Hierarchies example
+    path: ./repo/

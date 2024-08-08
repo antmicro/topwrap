@@ -8,6 +8,7 @@ description_files
 interconnect_gen
 cli
 user_repositories
+hierarchies
 pipeline_manager
 fusesoc
 ```

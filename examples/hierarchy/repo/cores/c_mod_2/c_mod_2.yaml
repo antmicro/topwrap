@@ -1,0 +1,7 @@
+name: c_mod_2
+
+signals:
+  in:
+    - c_mod_in_2
+  out:
+    - c_int_out_2

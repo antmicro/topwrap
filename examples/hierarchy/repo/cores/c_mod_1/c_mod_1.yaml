@@ -1,0 +1,10 @@
+name: c_mod_1
+
+parameters:
+  MAX_VALUE: 32
+
+signals:
+  in:
+    - c_mod_in_1
+  out:
+    - c_int_out_1

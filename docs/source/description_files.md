@@ -23,24 +23,9 @@ ips:
 
 design:
   name: {design_name} # optional name of the toplevel
-  hierarchies: # specify hierarchies designs
-    {hierarchy_name_1}:
-      design:
-        parameters:
-          ...
-        ports: # ports connections internal to this hierarchy
-          ...
-        interfaces: # interfaces connections internal to this hierarchy
-          ...
-        {nested_hierarchy_name}:
-          ...
-      external:
-        # external ports and/or interfaces of this hierarchy; these can be
-        # referenced in the upper-level `ports`, `interfaces` or `external` section
-        ...
-    {hierarchy_name_2}:
+  hierarchies:
+      # see "Hierarchies" page for a detailed description of the format
       ...
-
   parameters: # specify IPs parameter values to be overridden
     {ip_instance_name}:
       {param_name} : {param_value}
