@@ -1,6 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import collections
 import logging
 from base64 import b64encode
 from datetime import datetime
@@ -11,6 +12,7 @@ from pipeline_manager_backend_communication.communication_backend import (
 )
 from pipeline_manager_backend_communication.misc_structures import MessageType
 from pipeline_manager_backend_communication.utils import convert_message_to_string
+from yaml.representer import Representer
 
 from .design import build_design
 from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
@@ -71,6 +73,7 @@ def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> str:
     """
     filename = _generate_design_filename()
     design = _design_from_kpm_data(dataflow, yamlfiles)
+    yaml.SafeDumper.add_representer(collections.defaultdict, Representer.represent_dict)
     return (yaml.safe_dump(design, sort_keys=False), filename)
 
 

@@ -28,7 +28,7 @@ dependencies = [
   "typing_extensions",
   "pygtrie",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
-  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@f00e45573bb91ff5ac8760b1c4b73e8ff67085a0",
+  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@f45289d7073e885b5e3f461db9a8667807b69380",
   "soc_generator @ git+https://github.com/antmicro/soc-generator@76ac5b3743bea1bb6e5d2ac7ecae31ab39d5e8b3"
 ]
 

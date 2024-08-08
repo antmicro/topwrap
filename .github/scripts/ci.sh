@@ -5,7 +5,7 @@
 set -e
 
 ROOT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")"/../.. &>/dev/null && pwd)
-EXAMPLES=(hdmi inout pwm soc)
+EXAMPLES=(hdmi inout pwm soc hierarchy)
 
 begin_command_group() {
     if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then

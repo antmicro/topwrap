@@ -153,12 +153,12 @@ def _ipcore_ifaces_to_iface_type(ifaces: Dict[str, IPCoreInterface]) -> List[Int
 
     iface_list = []
     for iface_name, iface_data in ifaces.items():
-        if iface_data.mode in (InterfaceMode.SLAVE.value, InterfaceMode.UNSPECIFIED.value):
+        if iface_data.mode in (InterfaceMode.SLAVE, InterfaceMode.UNSPECIFIED):
             iface_list.append(
                 InterfaceType(
                     iface_name,
                     [f"iface_{iface_data.type}"],
-                    "input" if iface_data.mode == InterfaceMode.SLAVE.value else "inout",
+                    "input" if iface_data.mode == InterfaceMode.SLAVE else "inout",
                 )
             )
         else:

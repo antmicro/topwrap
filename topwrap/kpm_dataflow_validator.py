@@ -10,10 +10,13 @@ from pipeline_manager_backend_communication.misc_structures import MessageType
 from .kpm_common import (
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
+    InterfaceFromConnection,
     find_connected_interfaces,
     find_dataflow_interface_by_id,
-    find_dataflow_node_by_interface_id,
+    find_dataflow_node_by_interface_name_id,
     find_spec_interface_by_name,
+    get_all_graph_connections,
+    get_all_graph_nodes,
     get_dataflow_constant_metanodes,
     get_dataflow_external_interfaces,
     get_dataflow_external_metanodes,
@@ -32,6 +35,7 @@ class CheckResult(NamedTuple):
 
 def _check_duplicate_ip_names(dataflow_data, specification) -> CheckResult:
     """Check for duplicate IP core names in the design."""
+
     names_set = set()
     duplicates = set()
     for node in get_dataflow_ip_nodes(dataflow_data):
@@ -82,20 +86,19 @@ def _check_unconnected_ports_interfaces(dataflow_data, specification) -> CheckRe
     unconn_ifaces = set(
         [
             interface["id"]
-            for node in dataflow_data["graph"]["nodes"]
+            for node in get_all_graph_nodes(dataflow_data)
             for interface in node["interfaces"]
         ]
     )
 
-    for conn in dataflow_data["graph"]["connections"]:
+    for conn in get_all_graph_connections(dataflow_data):
         unconn_ifaces.discard(conn["from"])
         unconn_ifaces.discard(conn["to"])
 
     if unconn_ifaces:
         unconn_ifaces_descrs = []
         for unconn_iface_id in unconn_ifaces:
-            interface = find_dataflow_interface_by_id(dataflow_data, unconn_iface_id)
-            unconn_ifaces_descrs.append(f"{interface['node_name']}:{interface['iface_name']}")
+            unconn_ifaces_descrs.append(f"{unconn_iface_id}")
         return CheckResult(MessageType.WARNING, f"Unconnected interfaces: {unconn_ifaces_descrs}")
     return CheckResult(MessageType.OK, None)
 
@@ -104,7 +107,7 @@ def _check_ext_in_to_ext_out_connections(dataflow_data, specification) -> CheckR
     """Check for connections between external metanodes"""
     ext_ifaces_ids = get_dataflow_external_interfaces(dataflow_data).keys()
 
-    for conn in dataflow_data["graph"]["connections"]:
+    for conn in get_all_graph_connections(dataflow_data):
         if conn["from"] in ext_ifaces_ids and conn["to"] in ext_ifaces_ids:
             return CheckResult(MessageType.ERROR, "Existing connections between external metanodes")
 
@@ -121,21 +124,19 @@ def _check_ambigous_ports(dataflow_data, specification) -> CheckResult:
     for iface_id, iface in get_dataflow_ips_interfaces(dataflow_data).items():
         iface_conns = [
             conn
-            for conn in dataflow_data["graph"]["connections"]
+            for conn in get_all_graph_connections(dataflow_data)
             if conn["from"] == iface_id or conn["to"] == iface_id
         ]
         for conn in iface_conns:
-            if (
-                (conn["from"] in ext_ifaces_ids or conn["to"] in ext_ifaces_ids)
-                and len(iface_conns)
+            if (conn["from"] in ext_ifaces_ids or conn["to"] in ext_ifaces_ids) and len(
+                iface_conns
             ) > 1:
-                ambig_ifaces.append(iface)
+                ambig_ifaces.append(iface[0])
                 break
 
     if ambig_ifaces:
         ambig_ifaces_descrs = [
-            f"{ambig_iface['node_name']}:{ambig_iface['iface_name']}"
-            for ambig_iface in ambig_ifaces
+            f"{ambig_iface.node_name}:{ambig_iface.iface_name}" for ambig_iface in ambig_ifaces
         ]
         return CheckResult(
             MessageType.ERROR, f"External ports having >1 connections: {ambig_ifaces_descrs}"
@@ -151,19 +152,33 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> 
     for metanode in get_dataflow_external_metanodes(dataflow_data):
         if metanode["instanceName"] != EXT_INPUT_NAME:
             continue
-        for iface_id in find_connected_interfaces(
+        for iface_conn in find_connected_interfaces(
             dataflow_data, get_metanode_interface_id(metanode)
         ):
-            iface = find_dataflow_interface_by_id(dataflow_data, iface_id)
-            node = find_dataflow_node_by_interface_id(dataflow_data, iface_id)
-            iface_types = find_spec_interface_by_name(
-                specification, node["name"], iface["iface_name"]
-            )["type"]
+            iface = find_dataflow_interface_by_id(dataflow_data, iface_conn)
+            if iface is None:
+                raise ValueError(
+                    f"Interface with id {iface_conn.iface_id} was not found in connection {iface_conn.connection_id}"
+                )
+
+            node = find_dataflow_node_by_interface_name_id(
+                dataflow_data, iface.iface_name, iface_conn.iface_id
+            )
+            if node is None:
+                raise ValueError(
+                    f"Node with interface name {iface.iface_name} and interface id {iface_conn.iface_id} was not found"
+                )
+
+            iface_types = find_spec_interface_by_name(specification, node["name"], iface.iface_name)
+            if iface_types is None:
+                raise ValueError(f"Interface {iface.iface_name} was not found in specification")
+
+            iface_types = iface_types["type"]
 
             if "port" not in iface_types:
                 external_name = get_metanode_property_value(metanode)
                 if not external_name:
-                    external_name = iface["iface_name"]
+                    external_name = iface.iface_name
                 if external_name in ext_names_set:
                     duplicates.add(external_name)
                 else:
@@ -195,9 +210,13 @@ def _check_external_inputs_missing_val(dataflow_data, specification) -> CheckRes
             dataflow_data, get_metanode_interface_id(metanode)
         )
         if len(conn_ifaces_ids) > 1:
-            for iface_id in conn_ifaces_ids:
-                iface = find_dataflow_interface_by_id(dataflow_data, iface_id)
-                err_ports.append(f"{iface['node_name']}:{iface['iface_name']}")
+            for iface_conn in conn_ifaces_ids:
+                iface = find_dataflow_interface_by_id(dataflow_data, iface_conn)
+                if iface is None:
+                    raise ValueError(
+                        f"Interface {iface_conn.iface_id} is used in connection {iface_conn.connection_id} but is not defined"
+                    )
+                err_ports.append(f"{iface.node_name}:{iface.iface_name}")
 
     if err_ports:
         return CheckResult(
@@ -212,6 +231,7 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
     """Check for duplicate names of external outputs"""
     ext_names_set = set()
     duplicates = set()
+
     for metanode in get_dataflow_external_metanodes(dataflow_data):
         if metanode["instanceName"] == EXT_OUTPUT_NAME:
             # Get external port/interface name. If user didn't specify external
@@ -227,9 +247,14 @@ def _check_duplicate_external_out_names(dataflow_data, specification) -> CheckRe
                 # Here we have an Input interface, which can have only 1
                 # existing connection hence, we use index 0 to retrieve it
                 assert len(conn_ifaces_ids) == 1
-                external_name = find_dataflow_interface_by_id(dataflow_data, conn_ifaces_ids[0])[
-                    "iface_name"
-                ]
+                external_interface = find_dataflow_interface_by_id(
+                    dataflow_data, conn_ifaces_ids[0]
+                )
+                if external_interface is None:
+                    raise ValueError(
+                        f"Interface {conn_ifaces_ids[0].iface_id} was not found in connection {conn_ifaces_ids[0].connection_id}"
+                    )
+                external_name = external_interface.iface_name
 
             if external_name in ext_names_set:
                 duplicates.add(external_name)
@@ -249,12 +274,26 @@ def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
     """
     connected_inouts = []
     for connection in get_dataflow_ip_connections(dataflow_data):
-        iface_from = find_dataflow_interface_by_id(dataflow_data, connection["from"])
-        iface_to = find_dataflow_interface_by_id(dataflow_data, connection["to"])
-        if iface_from["iface_dir"] == "inout":
-            connected_inouts.append(f"{iface_from['node_name']}:{iface_from['iface_name']}")
-        if iface_to["iface_dir"] == "inout":
-            connected_inouts.append(f"{iface_to['node_name']}:{iface_to['iface_name']}")
+        iface_from = find_dataflow_interface_by_id(
+            dataflow_data, InterfaceFromConnection(connection["from"], connection["id"])
+        )
+        if iface_from is None:
+            raise ValueError(
+                f"Interface with id {connection['from']} was not found in connection {connection['id']}"
+            )
+
+        iface_to = find_dataflow_interface_by_id(
+            dataflow_data, InterfaceFromConnection(connection["to"], connection["id"])
+        )
+        if iface_to is None:
+            raise ValueError(
+                f"Interface with id {connection['to']} was not found in connection {connection['id']}"
+            )
+
+        if iface_from.iface_direction == "inout":
+            connected_inouts.append(f"{iface_from.node_name}:{iface_from.iface_name}")
+        if iface_to.iface_direction == "inout":
+            connected_inouts.append(f"{iface_to.node_name}:{iface_to.iface_name}")
 
     if connected_inouts:
         return CheckResult(
@@ -265,7 +304,7 @@ def _check_inouts_connections(dataflow_data, specification) -> CheckResult:
     return CheckResult(MessageType.OK, None)
 
 
-def validate_kpm_design(data: dict, specification) -> dict:
+def validate_kpm_design(data: dict, specification: dict) -> dict:
     """Run some checks to validate user-created design in KPM.
     Return a dict of warning and error messages to be sent to the KPM.
     """
