@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 from importlib_resources import _common
-from jsonschema import Draft202012Validator
+from jsonschema import Draft201909Validator
 from referencing import Registry
-from referencing.jsonschema import DRAFT202012
+from referencing.jsonschema import DRAFT201909
 
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
@@ -37,7 +37,7 @@ def schemas_names() -> list:
     """Return a list of helper schemas necessary for specification validation.
     These are "included" by the main `speficication_schema.json`.
     """
-    return ["unresolved_specification_schema", "metadata_schema"]
+    return ["unresolved_specification_schema", "metadata_schema", "graph_schema"]
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def schemas_registry(schemas_names) -> Registry:
         [
             (
                 schema_name,
-                DRAFT202012.create_resource(read_json_file(get_schema_path(f"{schema_name}.json"))),
+                DRAFT201909.create_resource(read_json_file(get_schema_path(f"{schema_name}.json"))),
             )
             for schema_name in schemas_names
         ]
@@ -58,7 +58,7 @@ def test_pwm_specification_generation(specification_schema, pwm_ipcores_yamls, s
     pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
     assert len(pwm_specification["nodes"]) == PWM_ALL_UNIQUE_NODES
 
-    Draft202012Validator(specification_schema, registry=schemas_registry).validate(
+    Draft201909Validator(specification_schema, registry=schemas_registry).validate(
         pwm_specification
     )
 
@@ -68,6 +68,6 @@ def test_hdmi_specification_generation(specification_schema, hdmi_ipcores_yamls,
     hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
     assert len(hdmi_specification["nodes"]) == HDMI_ALL_UNIQUE_NODES
 
-    Draft202012Validator(specification_schema, registry=schemas_registry).validate(
+    Draft201909Validator(specification_schema, registry=schemas_registry).validate(
         hdmi_specification
     )

@@ -1,6 +1,6 @@
 {
-  "version": "20230830.11",
-  "graph": {
+  "version": "20240723.13",
+  "graphs": [{
     "connections": [
       {
         "from": "630668e0-46e5-4e50-98c2-01aa888ae3cf",
@@ -116,6 +116,5 @@
       "y": -52
     },
     "scaling": 1
-  },
-  "subgraphs": []
+  }]
 }

@@ -1,7 +1,12 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+
+import pytest
+
 from topwrap.design_to_kpm_dataflow_parser import (
+    create_entry_graph,
+    create_subgraphs,
     kpm_connections_from_design_descr,
     kpm_constant_metanodes_from_design_descr,
     kpm_constant_metanodes_from_nodes,
@@ -35,6 +40,16 @@ HDMI_IPCORES_CONNECTIONS = 59  # Connections between IP Cores
 HDMI_EXTERNAL_CONNECTIONS = 29  # Connections to external metanodes
 HDMI_CONSTANT_CONNECTIONS = 8  # Connections to constant metanodes
 
+# HIERARCHY
+HIERARCHY_IPCORE_NODES = 8
+HIERARCHY_SUBGRAPH_NODES = 4
+
+HIERARCHY_EXTERNAL_METANODES = 3
+HIERARCHY_CONSTANT_METANODES = 0
+HIERARCHY_METANODES = HIERARCHY_EXTERNAL_METANODES + HIERARCHY_CONSTANT_METANODES
+
+HIERARCHY_CONNECTIONS = 12
+
 
 class TestPWMDataflowImport:
     """Tests that check validity of generated PWM dataflow from design description YAML
@@ -45,7 +60,9 @@ class TestPWMDataflowImport:
         """Check the validity of generated KPM nodes - test their properties values
         and interfaces names.
         """
-        kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
+        kpm_nodes = kpm_nodes_from_design_descr(
+            pwm_design_yaml, pwm_specification, pwm_design_yaml["ips"]
+        )
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == PWM_IPCORE_NODES
         [axi_node] = list(filter(lambda node: node["instanceName"] == AXI_NAME, nodes_json))
@@ -70,29 +87,29 @@ class TestPWMDataflowImport:
         for prop in axi_node["interfaces"]:
             del prop["id"]
         assert sorted(axi_node["interfaces"], key=lambda iface: iface["name"]) == [
-            {"name": "clk", "direction": "input", "connectionSide": "left"},
-            {"name": "m_axi", "direction": "output", "connectionSide": "right"},
-            {"name": "rst", "direction": "input", "connectionSide": "left"},
-            {"name": "s_axi", "direction": "input", "connectionSide": "left"},
+            {"name": "clk", "direction": "input", "side": "left", "sidePosition": 0},
+            {"name": "m_axi", "direction": "output", "side": "right", "sidePosition": 3},
+            {"name": "rst", "direction": "input", "side": "left", "sidePosition": 1},
+            {"name": "s_axi", "direction": "input", "side": "left", "sidePosition": 2},
         ]
 
         for prop in pwm_node["interfaces"]:
             del prop["id"]
         assert sorted(pwm_node["interfaces"], key=lambda iface: iface["name"]) == [
-            {"name": "pwm", "direction": "output", "connectionSide": "right"},
-            {"name": "s_axi", "direction": "input", "connectionSide": "left"},
-            {"name": "sys_clk", "direction": "input", "connectionSide": "left"},
-            {"name": "sys_rst", "direction": "input", "connectionSide": "left"},
+            {"name": "pwm", "direction": "output", "side": "right", "sidePosition": 2},
+            {"name": "s_axi", "direction": "input", "side": "left", "sidePosition": 3},
+            {"name": "sys_clk", "direction": "input", "side": "left", "sidePosition": 0},
+            {"name": "sys_rst", "direction": "input", "side": "left", "sidePosition": 1},
         ]
 
         for prop in ps7_node["interfaces"]:
             del prop["id"]
         assert sorted(ps7_node["interfaces"], key=lambda iface: iface["name"]) == [
-            {"name": "FCLK0", "direction": "output", "connectionSide": "right"},
-            {"name": "FCLK_RESET0_N", "direction": "output", "connectionSide": "right"},
-            {"name": "MAXIGP0ACLK", "direction": "input", "connectionSide": "left"},
-            {"name": "MAXIGP0ARESETN", "direction": "output", "connectionSide": "right"},
-            {"name": "M_AXI_GP0", "direction": "output", "connectionSide": "right"},
+            {"name": "FCLK0", "direction": "output", "side": "right", "sidePosition": 1},
+            {"name": "FCLK_RESET0_N", "direction": "output", "side": "right", "sidePosition": 3},
+            {"name": "MAXIGP0ACLK", "direction": "input", "side": "left", "sidePosition": 0},
+            {"name": "MAXIGP0ARESETN", "direction": "output", "side": "right", "sidePosition": 2},
+            {"name": "M_AXI_GP0", "direction": "output", "side": "right", "sidePosition": 4},
         ]
 
     def test_pwm_metanodes(self, pwm_design_yaml, pwm_specification):
@@ -124,7 +141,8 @@ class TestPWMDataflowImport:
         assert metanodes_json[0]["interfaces"][0] == {
             "name": "external",
             "direction": "input",
-            "connectionSide": "left",
+            "side": "left",
+            "sidePosition": 0,
         }
 
     def _find_node_name_by_iface_id(self, iface_id: str, nodes_json: list) -> str:
@@ -136,7 +154,9 @@ class TestPWMDataflowImport:
         """Check the number of generated connections between two nodes representing IP cores
         (i.e. `ipcore_1`<->`ipcore_2` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
+        kpm_nodes = kpm_nodes_from_design_descr(
+            pwm_design_yaml, pwm_specification, pwm_design_yaml["ips"]
+        )
         connections_json = [
             conn.to_json_format()
             for conn in kpm_connections_from_design_descr(pwm_design_yaml, kpm_nodes)
@@ -159,7 +179,9 @@ class TestPWMDataflowImport:
         """Check the number of generated connections between a node representing IP core and
         an metanode (i.e. `ipcore`<->`metanode` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(pwm_design_yaml, pwm_specification)
+        kpm_nodes = kpm_nodes_from_design_descr(
+            pwm_design_yaml, pwm_specification, pwm_design_yaml["ips"]
+        )
         kpm_metanodes = kpm_external_metanodes_from_design_descr(pwm_design_yaml)
 
         connections_json = [
@@ -182,7 +204,9 @@ class TestPWMDataflowImport:
 class TestHDMIDataflowImport:
     def test_hdmi_nodes(self, hdmi_design_yaml, hdmi_specification):
         """Check the validity of generated KPM nodes - test some of their properties values."""
-        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
+        kpm_nodes = kpm_nodes_from_design_descr(
+            hdmi_design_yaml, hdmi_specification, hdmi_design_yaml["ips"]
+        )
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         assert len(nodes_json) == HDMI_IPCORE_NODES
         # check overrode {'value': ..., 'width': ...} parameter value
@@ -214,7 +238,9 @@ class TestHDMIDataflowImport:
         """Check the number of generated connections between nodes representing IP cores
         (i.e. `ipcore_1`<->`ipcore_2` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
+        kpm_nodes = kpm_nodes_from_design_descr(
+            hdmi_design_yaml, hdmi_specification, hdmi_design_yaml["ips"]
+        )
         connections = kpm_connections_from_design_descr(hdmi_design_yaml, kpm_nodes)
         assert len(connections) == HDMI_IPCORES_CONNECTIONS
 
@@ -222,7 +248,9 @@ class TestHDMIDataflowImport:
         """Check the number of generated connections between a node representing IP core and
         a metanode (i.e. `ipcore`<->`metanode` connections).
         """
-        kpm_nodes = kpm_nodes_from_design_descr(hdmi_design_yaml, hdmi_specification)
+        kpm_nodes = kpm_nodes_from_design_descr(
+            hdmi_design_yaml, hdmi_specification, hdmi_design_yaml["ips"]
+        )
         ext_metanodes = kpm_external_metanodes_from_design_descr(hdmi_design_yaml)
         const_metanodes = kpm_constant_metanodes_from_nodes(kpm_nodes)
 
@@ -235,3 +263,156 @@ class TestHDMIDataflowImport:
 
         assert len(ext_metanodes_connections) == HDMI_EXTERNAL_CONNECTIONS
         assert len(const_metanodes_connections) == HDMI_CONSTANT_CONNECTIONS
+
+
+class TestHierarchyDataflowImport:
+    @pytest.fixture
+    def design_graphs(self, hierarchy_design_yaml, hierarchy_specification):
+        entry_graph, subgraph_maps = create_entry_graph(
+            hierarchy_design_yaml, hierarchy_specification
+        )
+        subgraphs = create_subgraphs(
+            hierarchy_design_yaml["design"],
+            hierarchy_specification,
+            entry_graph.nodes,
+            hierarchy_design_yaml["ips"],
+            subgraph_maps,
+        )
+        subgraphs.append(entry_graph)
+        return subgraphs
+
+    @pytest.fixture
+    def nodes_from_graphs(self, design_graphs):
+        all_nodes = []
+        for graph in design_graphs:
+            all_nodes += graph.nodes
+        return all_nodes
+
+    def test_core_nodes(self, nodes_from_graphs):
+        core_nodes = filter(
+            lambda node: (not hasattr(node, "subgraph") and "External" not in node.name),
+            nodes_from_graphs,
+        )
+        nodes_json = [node.to_json_format() for node in core_nodes]
+        assert len(nodes_json) == HIERARCHY_IPCORE_NODES
+        [c_mod_1] = list(filter(lambda node: node["instanceName"] == "c_mod_1", nodes_json))
+        [s1_mod_2] = list(filter(lambda node: node["instanceName"] == "s1_mod_2", nodes_json))
+
+        [max_value] = list(filter(lambda prop: prop["name"] == "MAX_VALUE", c_mod_1["properties"]))
+        assert max_value["value"] == "16"
+        assert s1_mod_2["properties"] == []
+
+        # check interfaces on nodes that are on different depths
+        for prop in c_mod_1["interfaces"]:
+            del prop["id"]
+        assert sorted(c_mod_1["interfaces"], key=lambda iface: iface["name"]) == [
+            {"direction": "output", "name": "c_int_out_1", "side": "right", "sidePosition": 1},
+            {
+                "direction": "input",
+                "externalName": "c_in_1",
+                "name": "c_mod_in_1",
+                "side": "left",
+                "sidePosition": 0,
+            },
+        ]
+
+        for prop in s1_mod_2["interfaces"]:
+            del prop["id"]
+
+        assert sorted(s1_mod_2["interfaces"], key=lambda iface: iface["name"]) == [
+            {
+                "direction": "output",
+                "externalName": "cs_s1_int_out_1",
+                "name": "cs_s1_f_int_out_1",
+                "side": "right",
+                "sidePosition": 1,
+            },
+            {"direction": "input", "name": "cs_s1_mint_in_1", "side": "left", "sidePosition": 0},
+        ]
+
+    def test_subgraph_nodes(self, nodes_from_graphs):
+        subgraph_nodes = filter(lambda node: hasattr(node, "subgraph"), nodes_from_graphs)
+        nodes_json = [node.to_json_format() for node in subgraph_nodes]
+        assert len(nodes_json) == HIERARCHY_SUBGRAPH_NODES
+
+        [counter] = list(filter(lambda node: node["instanceName"] == "counter", nodes_json))
+        [complex_sub] = list(filter(lambda node: node["instanceName"] == "complex_sub", nodes_json))
+        [sub_2] = list(filter(lambda node: node["instanceName"] == "sub_2", nodes_json))
+
+        for prop in counter["interfaces"]:
+            del prop["id"]
+        assert sorted(counter["interfaces"], key=lambda iface: iface["name"]) == [
+            {"direction": "input", "name": "c_in_1", "side": "left", "sidePosition": 0},
+            {"direction": "input", "name": "c_in_2", "side": "left", "sidePosition": 1},
+            {"direction": "output", "name": "c_out_1", "side": "right", "sidePosition": 2},
+        ]
+
+        for prop in complex_sub["interfaces"]:
+            del prop["id"]
+        assert sorted(complex_sub["interfaces"], key=lambda iface: iface["name"]) == [
+            {"direction": "input", "name": "cs_in_1", "side": "left", "sidePosition": 0},
+            {"direction": "output", "name": "cs_out_1", "side": "right", "sidePosition": 1},
+        ]
+
+        for prop in sub_2["interfaces"]:
+            del prop["id"]
+        assert sorted(sub_2["interfaces"], key=lambda iface: iface["name"]) == [
+            {"direction": "input", "name": "cs_s2_int_in_1", "side": "left", "sidePosition": 0},
+            {"direction": "input", "name": "cs_s2_int_in_2", "side": "left", "sidePosition": 1},
+            {
+                "direction": "output",
+                "externalName": "cs_out_1",
+                "name": "cs_s2_mod_out_1",
+                "side": "right",
+                "sidePosition": 2,
+            },
+        ]
+
+    def test_hierarchy_metanodes(self, nodes_from_graphs):
+        metanodes = list(filter(lambda node: "External" in node.name, nodes_from_graphs))
+        assert len(metanodes) == HIERARCHY_METANODES
+
+    def test_hierarchy_connections(self, design_graphs):
+        def all_connections(design_graphs):
+            all_conn = []
+            for graph in design_graphs:
+                all_conn += graph.connections
+            return all_conn
+
+        def find_node_with_interface_id(design_graphs, iface_id, conn_id):
+            for graph in design_graphs:
+                # find correct graph
+                for conn in graph.connections:
+                    if conn.id == conn_id:
+                        # find correct node
+                        for node in graph.nodes:
+                            for interface in node.interfaces:
+                                if interface.id == iface_id:
+                                    return node.name
+
+        design_connections_json = [conn.to_json_format() for conn in all_connections(design_graphs)]
+        assert len(design_connections_json) == HIERARCHY_CONNECTIONS
+
+        node_names = []
+        for conn in design_connections_json:
+            node_names.append(find_node_with_interface_id(design_graphs, conn["to"], conn["id"]))
+            node_names.append(find_node_with_interface_id(design_graphs, conn["from"], conn["id"]))
+        node_occurrence_dict = {item: node_names.count(item) for item in node_names}
+        conn_dict = {
+            "External Input": 2,
+            "External Output": 1,
+            "c_mod_1": 1,
+            "c_mod_2": 1,
+            "c_mod_3": 2,
+            "complex_sub": 2,
+            "counter": 3,
+            "s1_mod_1": 2,
+            "s1_mod_2": 1,
+            "s1_mod_3": 1,
+            "s2_mod_1": 2,
+            "s2_mod_2": 2,
+            "sub_1": 2,
+            "sub_2": 2,
+        }
+
+        assert node_occurrence_dict == conn_dict

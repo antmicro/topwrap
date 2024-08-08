@@ -1,9 +1,9 @@
 {
-  "version": "20230830.11",
+  "version": "20240723.13",
   "metadata": {
     "randomizedOffset": true
   },
-  "graph": {
+  "graphs": [{
     "connections": [
       {
         "from": "e501a7e7-f3c3-429b-8733-d0213d6fa94a",
@@ -90,6 +90,5 @@
       "y": 43
     },
     "scaling": 0.5952100070290618
-  },
-  "subgraphs": []
+  }]
 }

@@ -22,11 +22,19 @@ def hdmi_design_yaml() -> dict:
 
 
 @pytest.fixture
+def hierarchy_design_yaml() -> dict:
+    with open("examples/hierarchy/design.yaml", "r") as yamlfile:
+        design = load(yamlfile, Loader=Loader)
+    return design
+
+
+@pytest.fixture
 def pwm_ipcores_yamls() -> list:
+    _pwm_yamls_prefix = "examples/pwm/ipcores/"
     return [
-        "axi/axi_axil_adapter.yaml",
-        "examples/pwm/ipcores/ps7.yaml",
-        "examples/pwm/ipcores/litex_pwm.yml",
+        "topwrap/ips/axi/axi_axil_adapter.yaml",
+        _pwm_yamls_prefix + "ps7.yaml",
+        _pwm_yamls_prefix + "litex_pwm.yml",
     ]
 
 
@@ -51,6 +59,21 @@ def hdmi_ipcores_yamls() -> list:
 
 
 @pytest.fixture
+def hierarchy_ipcores_yamls() -> list:
+    _hierarchy_yamls_prefix = "examples/hierarchy/repo/cores/"
+    return [
+        _hierarchy_yamls_prefix + "c_mod_1/c_mod_1.yaml",
+        _hierarchy_yamls_prefix + "c_mod_2/c_mod_2.yaml",
+        _hierarchy_yamls_prefix + "c_mod_3/c_mod_3.yaml",
+        _hierarchy_yamls_prefix + "s1_mod_1/s1_mod_1.yaml",
+        _hierarchy_yamls_prefix + "s1_mod_2/s1_mod_2.yaml",
+        _hierarchy_yamls_prefix + "s1_mod_3/s1_mod_3.yaml",
+        _hierarchy_yamls_prefix + "s2_mod_1/s2_mod_1.yaml",
+        _hierarchy_yamls_prefix + "s2_mod_2/s2_mod_2.yaml",
+    ]
+
+
+@pytest.fixture
 def pwm_specification() -> dict:
     return read_json_file("tests/data/data_kpm/specification_pwm.json")
 
@@ -68,3 +91,13 @@ def hdmi_specification() -> dict:
 @pytest.fixture
 def hdmi_dataflow() -> dict:
     return read_json_file("tests/data/data_kpm/hdmi_dataflow.json")
+
+
+@pytest.fixture
+def hierarchy_specification() -> dict:
+    return read_json_file("tests/data/data_kpm/specification_hierarchy.json")
+
+
+@pytest.fixture
+def hierarchy_dataflow() -> dict:
+    return read_json_file("tests/data/data_kpm/hierarchy_dataflow.json")

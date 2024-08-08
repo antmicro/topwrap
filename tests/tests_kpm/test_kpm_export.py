@@ -1,6 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from topwrap.kpm_common import get_all_graph_nodes
 from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_constant,
     _kpm_connections_to_external,
@@ -22,7 +23,10 @@ class TestPWMDataflowExport:
         `examples/pwm/project.yml` and default values from IP core description YAMLs.
         """
         [axi_node] = list(
-            filter(lambda node: node["instanceName"] == AXI_NAME, pwm_dataflow["graph"]["nodes"])
+            filter(
+                lambda node: node["instanceName"] == AXI_NAME,
+                get_all_graph_nodes(pwm_dataflow),
+            )
         )
         parameters = _kpm_properties_to_parameters(axi_node["properties"])
         assert parameters == {
@@ -38,6 +42,7 @@ class TestPWMDataflowExport:
         """Check whether generated IP cores names in "ips" section of a design description YAML
         match the values from `examples/pwm/project.yml`.
         """
+
         ips = _kpm_nodes_to_ips(pwm_dataflow, pwm_specification)
         assert ips.keys() == pwm_design_yaml["ips"].keys()
 
@@ -52,7 +57,6 @@ class TestPWMDataflowExport:
             PWM_NAME: {"sys_clk": [PS7_NAME, "FCLK0"], "sys_rst": [PS7_NAME, "FCLK_RESET0_N"]},
         }
         assert connections["interfaces"] == {
-            PS7_NAME: {},
             AXI_NAME: {"s_axi": [PS7_NAME, "M_AXI_GP0"]},
             PWM_NAME: {"s_axi": [AXI_NAME, "m_axi"]},
         }
@@ -89,7 +93,7 @@ class TestHDMIDataflowExport:
         [axi_node] = list(
             filter(
                 lambda node: node["instanceName"] == "axi_interconnect0",
-                hdmi_dataflow["graph"]["nodes"],
+                get_all_graph_nodes(hdmi_dataflow),
             )
         )
         parameters = _kpm_properties_to_parameters(axi_node["properties"])
@@ -169,4 +173,61 @@ class TestHDMIDataflowExport:
                     "mb_debug_sys_rst": "0",
                 },
             }
+        }
+
+
+class TestHierarchyDataflowExport:
+    def test_parameters(self, hierarchy_dataflow):
+        [c_mod_1] = list(
+            filter(
+                lambda node: node["instanceName"] == "c_mod_1",
+                get_all_graph_nodes(hierarchy_dataflow),
+            )
+        )
+        parameters = _kpm_properties_to_parameters(c_mod_1["properties"])
+        assert parameters["MAX_VALUE"] == 16
+
+    def test_nodes_to_ips(self, hierarchy_design_yaml, hierarchy_dataflow, hierarchy_specification):
+        ips = _kpm_nodes_to_ips(hierarchy_dataflow, hierarchy_specification)
+        assert ips.keys() == hierarchy_design_yaml["ips"].keys()
+
+    def test_port_interfaces(self, hierarchy_dataflow, hierarchy_specification):
+        connections = _kpm_connections_to_ports_ifaces(hierarchy_dataflow, hierarchy_specification)
+
+        assert connections["ports"] == {
+            "complex_sub": {"cs_in_1": ["counter", "c_out_1"]},
+            "c_mod_3": {
+                "c_int_in_1": ["c_mod_2", "c_int_out_2"],
+                "c_int_in_2": ["c_mod_1", "c_int_out_1"],
+            },
+            "sub_2": {
+                "cs_s2_int_in_1": ["sub_1", "cs_s1_int_out_1"],
+                "cs_s2_int_in_2": ["sub_1", "cs_s1_int_out_2"],
+            },
+            "s1_mod_2": {"cs_s1_mint_in_1": ["s1_mod_1", "cs_s1_mint_out_1"]},
+            "s1_mod_3": {"cs_s1_mint_in_2": ["s1_mod_1", "cs_s1_mint_out_1"]},
+            "s2_mod_2": {
+                "cs_s2_mint_in_1": ["s2_mod_1", "cs_s2_mint_out_1"],
+                "cs_s2_mint_in_2": ["s2_mod_1", "cs_s2_mint_out_2"],
+            },
+        }
+
+        assert connections["interfaces"] == {}
+
+    def test_externals(self, hierarchy_dataflow, hierarchy_specification):
+        assert _kpm_connections_to_external(hierarchy_dataflow, hierarchy_specification) == {
+            "ports": {
+                "complex_sub": {"cs_out_1": "ex_in_1"},
+                "counter": {"c_in_1": "ex_out_1", "c_in_2": "ex_out_2"},
+            },
+            "interfaces": {},
+            "external": {
+                "ports": {"in": ["ex_out_1", "ex_out_2"], "out": ["ex_in_1"], "inout": []},
+                "interfaces": {"in": [], "out": [], "inout": []},
+            },
+        }
+
+    def test_constants(self, hierarchy_dataflow, hierarchy_specification):
+        assert _kpm_connections_to_constant(hierarchy_dataflow, hierarchy_specification) == {
+            "ports": {}
         }
