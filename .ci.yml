@@ -48,7 +48,7 @@ package_cores:
       - core_repo/**
 
 build_docs:
-  image: $CI_DOCS_DOCKER_IMAGE
+  image: debian:bookworm
   stage: build_docs
   script:
     - ./.github/scripts/ci.sh docs
@@ -59,7 +59,7 @@ build_docs:
       - $CI_DOCS_ARCHIVE
 
 deploy_docs:
-  image: $CI_DOCS_DOCKER_IMAGE
+  image: debian:bookworm
   variables:
     GIT_STRATEGY: none
   dependencies: [ build_docs ]

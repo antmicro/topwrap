@@ -55,6 +55,14 @@ tests = [
 deploy = [
   "build==1.2.1"
 ]
+docs = [
+  'myst-parser==4.0.0',
+  'sphinx==7.3.7',
+  'sphinxcontrib-mermaid==0.9.2',
+  'sphinx-immaterial @ https://github.com/antmicro/sphinx-immaterial/releases/download/tip/sphinx_immaterial-0.0.post1.tip-py3-none-any.whl',  # noqa: E501
+  'sphinx_tabs==3.4.5',
+  'antmicro-sphinx-utils @ git+https://github.com/antmicro/antmicro-sphinx-utils@f5873e116c40a3b6087e49ccad7db3497402ee81'
+]
 
 [project.scripts]
 topwrap = "topwrap.cli:main"

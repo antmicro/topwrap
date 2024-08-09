@@ -3,7 +3,12 @@
 
 name: Pipeline
 
-on: [pull_request, push, workflow_dispatch]
+on: 
+  pull_request:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '59 23 * * SUN'
 
 defaults:
   run:
