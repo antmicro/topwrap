@@ -7,6 +7,8 @@ from typing import NamedTuple, Union
 import numexpr as ex
 from pipeline_manager_backend_communication.misc_structures import MessageType
 
+from topwrap.design_to_kpm_dataflow_parser import KPMDataflowSubgraphnode
+
 from .kpm_common import (
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
@@ -168,6 +170,9 @@ def _check_duplicate_external_input_interfaces(dataflow_data, specification) -> 
                 raise ValueError(
                     f"Node with interface name {iface.iface_name} and interface id {iface_conn.iface_id} was not found"
                 )
+
+            if node["name"] == KPMDataflowSubgraphnode.DUMMY_NAME_BASE:
+                return CheckResult(MessageType.OK, None)
 
             iface_types = find_spec_interface_by_name(specification, node["name"], iface.iface_name)
             if iface_types is None:

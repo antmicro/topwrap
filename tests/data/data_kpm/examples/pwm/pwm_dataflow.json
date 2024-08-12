@@ -1,0 +1,241 @@
+{
+  "version": "20240723.13",
+  "entryGraph": "172319796020155",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "ni_17231979602011",
+          "id": "172319796020147",
+          "to": "ni_17231979602010"
+        },
+        {
+          "from": "ni_17231979602011",
+          "id": "172319796020148",
+          "to": "ni_172319796020118"
+        },
+        {
+          "from": "ni_17231979602012",
+          "id": "172319796020149",
+          "to": "ni_172319796020117"
+        },
+        {
+          "from": "ni_17231979602011",
+          "id": "172319796020150",
+          "to": "ni_17231979602017"
+        },
+        {
+          "from": "ni_17231979602012",
+          "id": "172319796020151",
+          "to": "ni_17231979602016"
+        },
+        {
+          "from": "ni_17231979602014",
+          "id": "172319796020152",
+          "to": "ni_172319796020119"
+        },
+        {
+          "from": "ni_172319796020120",
+          "id": "172319796020153",
+          "to": "ni_17231979602019"
+        },
+        {
+          "from": "ni_172319796020123",
+          "id": "172319796020154",
+          "to": "ni_17231979602018"
+        }
+      ],
+      "id": "172319796020155",
+      "nodes": [
+        {
+          "id": "node_17231979602015",
+          "instanceName": "ps7",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_17231979602010",
+              "name": "MAXIGP0ACLK",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_17231979602011",
+              "name": "FCLK0",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_17231979602012",
+              "name": "FCLK_RESET0_N",
+              "side": "right",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_17231979602013",
+              "name": "MAXIGP0ARESETN",
+              "side": "right",
+              "sidePosition": 3
+            },
+            {
+              "direction": "output",
+              "id": "ni_17231979602014",
+              "name": "M_AXI_GP0",
+              "side": "right",
+              "sidePosition": 4
+            }
+          ],
+          "name": "ps7",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_172319796020110",
+          "instanceName": "litex_pwm_top",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_17231979602016",
+              "name": "sys_rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_17231979602017",
+              "name": "sys_clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_17231979602018",
+              "name": "pwm",
+              "side": "right",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "ni_17231979602019",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 3
+            }
+          ],
+          "name": "litex_pwm",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_172319796020121",
+          "instanceName": "axi_bridge",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172319796020117",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319796020118",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319796020119",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319796020120",
+              "name": "m_axi",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "axi_axil_adapter",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "172319796020111",
+              "name": "ADDR_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "172319796020112",
+              "name": "AXI_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "172319796020113",
+              "name": "AXI_ID_WIDTH",
+              "value": "12"
+            },
+            {
+              "id": "172319796020114",
+              "name": "AXI_STRB_WIDTH",
+              "value": "AXI_DATA_WIDTH/8"
+            },
+            {
+              "id": "172319796020115",
+              "name": "AXIL_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "172319796020116",
+              "name": "AXIL_STRB_WIDTH",
+              "value": "AXIL_DATA_WIDTH/8"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_172319796020124",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172319796020123",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "172319796020122",
+              "name": "External Name",
+              "value": "pwm"
+            }
+          ],
+          "width": 200
+        }
+      ],
+      "scaling": 1
+    }
+  ]
+}

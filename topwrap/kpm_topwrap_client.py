@@ -5,6 +5,7 @@ import collections
 import logging
 from base64 import b64encode
 from datetime import datetime
+from typing import Optional, Tuple
 
 import yaml
 from pipeline_manager_backend_communication.communication_backend import (
@@ -16,9 +17,88 @@ from yaml.representer import Representer
 
 from .design import build_design
 from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
+from .kpm_common import RPCparams
 from .kpm_dataflow_parser import kpm_dataflow_to_design
 from .kpm_dataflow_validator import validate_kpm_design
 from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
+
+
+class RPCMethods:
+    def __init__(self, params: RPCparams, client: Optional[CommunicationBackend] = None):
+        self.host = params.host
+        self.port = params.port
+        self.yamlfiles = params.yamlfiles
+        self.build_dir = params.build_dir
+        self.design = params.design
+        self.client = client
+
+    def app_capabilities_get(self) -> dict:
+        return {"stoppable_methods": ["dataflow_run"]}
+
+    def specification_get(self) -> dict:
+        logging.info(f"Specification get request from {self.host}:{self.port}")
+
+        specification = ipcore_yamls_to_kpm_spec(self.yamlfiles)
+        return {"type": MessageType.OK.value, "content": specification}
+
+    def dataflow_validate(self, dataflow: dict) -> dict:
+        logging.info(f"Dataflow validation request received from {self.host}:{self.port}")
+        messages = _kpm_validate_handler(dataflow, self.yamlfiles)
+        if messages["errors"]:
+            # note: only the first error is sent to the KPM frontend
+            return {"type": MessageType.ERROR.value, "content": messages["errors"][0]}
+        elif messages["warnings"]:
+            return {
+                "type": MessageType.WARNING.value,
+                "content": messages["warnings"][0],
+            }
+        else:
+            return {"type": MessageType.OK.value, "content": "Design is valid"}
+
+    def dataflow_run(self, dataflow: dict) -> dict:
+        logging.info(f"Dataflow run request received from {self.host}:{self.port}")
+        errors = _kpm_run_handler(dataflow, self.yamlfiles, self.build_dir)
+        if errors:
+            # note: only the first error is sent to the KPM frontend
+            return {"type": MessageType.ERROR.value, "content": errors[0]}
+        else:
+            return {"type": MessageType.OK.value, "content": "Build succeeded"}
+
+    def dataflow_stop(self, method: str) -> dict:
+        logging.info(f"Dataflow stop request from {self.host}:{self.port}")
+        return {"type": MessageType.OK.value}
+
+    def dataflow_export(self, dataflow: dict, *args, **kwargs) -> dict:
+        logging.info(f"Dataflow export request received from {self.host}:{self.port}")
+        yaml_str, filename = _kpm_export_handler(dataflow, self.yamlfiles)
+        # content sent to KPM frontend needs to be base64 encoded, but
+        # b64encode expects a bytes-like object as an argument therefore
+        # the string needs to be converted to bytes first and then converted
+        # back to string because "content" field is expected to be a string
+        yaml_b64encoded = b64encode(yaml_str.encode("utf-8")).decode("utf-8")
+        return {"type": MessageType.OK.value, "content": yaml_b64encoded, "filename": filename}
+
+    def dataflow_import(self, external_application_dataflow: str, mime: str, base64: bool) -> dict:
+        logging.info(f"Dataflow import request received from {self.host}:{self.port}")
+        yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
+        dataflow = _kpm_import_handler(yaml_str, self.yamlfiles)
+        return {
+            "type": MessageType.OK.value,
+            "content": dataflow,
+        }
+
+    async def frontend_on_connect(self) -> dict:
+        """Gets run when frontend connects, loads initial design"""
+        logging.debug("frontend on connect")
+        if self.design is not None:
+            with open(self.design) as design_file:
+                read_file = design_file.read()
+                dataflow = _kpm_import_handler(read_file.encode("utf8"), self.yamlfiles)
+                if self.client is None:
+                    logging.debug("There client to send request to is not defined")
+                    return {}
+                await self.client.request("graph_change", {"dataflow": dataflow})
+        return {}
 
 
 def _kpm_specification_handler(yamlfiles: list) -> dict:
@@ -28,7 +108,7 @@ def _kpm_specification_handler(yamlfiles: list) -> dict:
     return ipcore_yamls_to_kpm_spec(yamlfiles)
 
 
-def _kpm_import_handler(data: bytes, yamlfiles: list) -> dict:
+def _kpm_import_handler(data: str, yamlfiles: list) -> dict:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
     return kpm_dataflow_from_design_descr(yaml.safe_load(data), specification)
 
@@ -46,6 +126,7 @@ def _kpm_run_handler(data: dict, yamlfiles: list, build_dir: str) -> list:
     messages = validate_kpm_design(data, specification)
     if not messages["errors"]:
         design = _design_from_kpm_data(data, yamlfiles)
+
         build_design(design, build_dir)
     return messages["errors"]
 
@@ -62,7 +143,7 @@ def _generate_design_filename() -> str:
     return datetime.now().strftime("kpm_design_%Y%m%d_%H%M%S.yaml")
 
 
-def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> tuple[str, str]:
+def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> Tuple[str, str]:
     """Convert created dataflow into Topwrap's design description YAML.
 
     :param dataflow: dataflow JSON from KPM
@@ -74,82 +155,13 @@ def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> tuple[str, str]:
     filename = _generate_design_filename()
     design = _design_from_kpm_data(dataflow, yamlfiles)
     yaml.SafeDumper.add_representer(collections.defaultdict, Representer.represent_dict)
-    return (yaml.safe_dump(design, sort_keys=False), filename)
+    return (yaml.safe_dump(design, sort_keys=True), filename)
 
 
-async def kpm_run_client(host: str, port: int, yamlfiles: list[str], build_dir: str, design: str):
-    class RPCMethods:
-        def app_capabilities_get(self) -> dict:
-            return {"stoppable_methods": ["dataflow_run"]}
-
-        def specification_get(self) -> dict:
-            logging.info(f"Specification get request from {host}:{port}")
-            from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
-            specification = ipcore_yamls_to_kpm_spec(yamlfiles)
-            return {"type": MessageType.OK.value, "content": specification}
-
-        def dataflow_validate(self, dataflow: dict) -> dict:
-            logging.info(f"Dataflow validation request received from {host}:{port}")
-            messages = _kpm_validate_handler(dataflow, yamlfiles)
-            if messages["errors"]:
-                # note: only the first error is sent to the KPM frontend
-                return {"type": MessageType.ERROR.value, "content": messages["errors"][0]}
-            elif messages["warnings"]:
-                return {
-                    "type": MessageType.WARNING.value,
-                    "content": messages["warnings"][0],
-                }
-            else:
-                return {"type": MessageType.OK.value, "content": "Design is valid"}
-
-        def dataflow_run(self, dataflow: dict) -> dict:
-            logging.info(f"Dataflow run request received from {host}:{port}")
-            errors = _kpm_run_handler(dataflow, yamlfiles, build_dir)
-            if errors:
-                # note: only the first error is sent to the KPM frontend
-                return {"type": MessageType.ERROR.value, "content": errors[0]}
-            else:
-                return {"type": MessageType.OK.value, "content": "Build succeeded"}
-
-        def dataflow_stop(self, method: str) -> dict:
-            logging.info(f"Dataflow stop request from {host}:{port}")
-            return {"type": MessageType.OK.value}
-
-        def dataflow_export(self, dataflow: dict, *args, **kwargs) -> dict:
-            logging.info(f"Dataflow export request received from {host}:{port}")
-            yaml_str, filename = _kpm_export_handler(dataflow, yamlfiles)
-            # content sent to KPM frontend needs to be base64 encoded, but
-            # b64encode expects a bytes-like object as an argument therefore
-            # the string needs to be converted to bytes first and then converted
-            # back to string because "content" field is expected to be a string
-            yaml_b64encoded = b64encode(yaml_str.encode("utf-8")).decode("utf-8")
-            return {"type": MessageType.OK.value, "content": yaml_b64encoded, "filename": filename}
-
-        def dataflow_import(
-            self, external_application_dataflow: str, mime: str, base64: bool
-        ) -> dict:
-            logging.info(f"Dataflow import request received from {host}:{port}")
-            yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
-            dataflow = _kpm_import_handler(yaml_str.encode("utf8"), yamlfiles)
-            return {
-                "type": MessageType.OK.value,
-                "content": dataflow,
-            }
-
-        async def frontend_on_connect(self) -> dict:
-            """Gets run when frontend connects, loads initial design"""
-            logging.debug("frontend on connect")
-            if design is not None:
-                with open(design) as design_file:
-                    read_file = design_file.read()
-                    dataflow = _kpm_import_handler(read_file.encode("utf8"), yamlfiles)
-                    await client.request("graph_change", {"dataflow": dataflow})
-            return {}
-
-    client = CommunicationBackend(host, port)
+async def kpm_run_client(rpc_params: RPCparams):
+    client = CommunicationBackend(rpc_params.host, rpc_params.port)
     logging.debug("Initializing RPC client")
-    await client.initialize_client(RPCMethods())
+    await client.initialize_client(RPCMethods(rpc_params, client))
 
     logging.debug("starting json rpc client")
     await client.start_json_rpc_client()

@@ -1,12 +1,12 @@
 ips:
   axi_bridge:
-    file: axi/axi_axil_adapter.yaml
+    file: topwrap/ips/axi/axi_axil_adapter.yaml
     module: axi_axil_adapter
   litex_pwm_top:
-    file: ipcores/litex_pwm.yml
+    file: examples/pwm/ipcores/litex_pwm.yml
     module: litex_pwm
   ps7:
-    file: ipcores/ps7.yaml
+    file: examples/pwm/ipcores/ps7.yaml
     module: ps7
 design:
   interfaces:

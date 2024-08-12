@@ -244,7 +244,7 @@ def _kpm_connections_to_external(dataflow_data: dict, specification: dict) -> di
         else:
             # don't put inout connections in ext_conns as the rule is to specify them
             # in the "external" section of the YAML
-            connection = (ip_node["instanceName"], external_name)
+            connection = [ip_node["instanceName"], external_name]
             if connection not in external[ext_section][dir]:
                 external[ext_section][dir].append(connection)
 
@@ -270,7 +270,7 @@ def _kpm_connections_to_constant(dataflow_data: dict, specification: dict) -> di
 
         # Constant metanodes have exactly 1 property hence we can take 0th index
         # of the `properties` array of a metanode to access the property
-        value = const_node["properties"][0]["value"]
+        value = int(const_node["properties"][0]["value"])
 
         ports_conns["ports"].setdefault(ip_node["instanceName"], {})
         ports_conns["ports"][ip_node["instanceName"]].setdefault(iface_name, value)

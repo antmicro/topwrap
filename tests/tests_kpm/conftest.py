@@ -1,31 +1,18 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from base64 import b64encode
+from typing import Dict, List
+
 import pytest
-from yaml import Loader, load
+import yaml
 
-from .common import read_json_file
-
-
-@pytest.fixture
-def pwm_design_yaml() -> dict:
-    with open("examples/pwm/project.yml", "r") as yamlfile:
-        design = load(yamlfile, Loader=Loader)
-    return design
+from .common import read_json_file, read_yaml_file
 
 
 @pytest.fixture
-def hdmi_design_yaml() -> dict:
-    with open("examples/hdmi/project.yml", "r") as yamlfile:
-        design = load(yamlfile, Loader=Loader)
-    return design
-
-
-@pytest.fixture
-def hierarchy_design_yaml() -> dict:
-    with open("examples/hierarchy/design.yaml", "r") as yamlfile:
-        design = load(yamlfile, Loader=Loader)
-    return design
+def ip_names() -> List[str]:
+    return ["pwm", "hdmi", "hierarchy"]
 
 
 @pytest.fixture
@@ -39,9 +26,9 @@ def pwm_ipcores_yamls() -> list:
 
 
 @pytest.fixture
-def hdmi_ipcores_yamls() -> list:
+def hdmi_ipcores_yamls() -> List[str]:
     _hdmi_yamls_prefix = "examples/hdmi/ipcores/"
-    _axi_yamls_prefix = "axi/"
+    _axi_yamls_prefix = "topwrap/ips/axi/"
     return [
         _hdmi_yamls_prefix + "axi_dispctrl.yaml",
         _hdmi_yamls_prefix + "clock_crossing.yaml",
@@ -59,7 +46,7 @@ def hdmi_ipcores_yamls() -> list:
 
 
 @pytest.fixture
-def hierarchy_ipcores_yamls() -> list:
+def hierarchy_ipcores_yamls() -> List[str]:
     _hierarchy_yamls_prefix = "examples/hierarchy/repo/cores/"
     return [
         _hierarchy_yamls_prefix + "c_mod_1/c_mod_1.yaml",
@@ -74,30 +61,92 @@ def hierarchy_ipcores_yamls() -> list:
 
 
 @pytest.fixture
-def pwm_specification() -> dict:
-    return read_json_file("tests/data/data_kpm/specification_pwm.json")
+def all_yaml_files(
+    pwm_ipcores_yamls: List[str], hdmi_ipcores_yamls: List[str], hierarchy_ipcores_yamls: List[str]
+) -> Dict[str, List[str]]:
+    return {
+        "pwm": pwm_ipcores_yamls,
+        "hdmi": hdmi_ipcores_yamls,
+        "hierarchy": hierarchy_ipcores_yamls,
+    }
 
 
 @pytest.fixture
-def pwm_dataflow() -> dict:
-    return read_json_file("tests/data/data_kpm/pwm_dataflow.json")
+def all_specification_files(ip_names: List[str]) -> Dict[str, dict]:
+    return {
+        ip_name: read_json_file(
+            f"tests/data/data_kpm/examples/{ip_name}/specification_{ip_name}.json"
+        )
+        for ip_name in ip_names
+    }
 
 
 @pytest.fixture
-def hdmi_specification() -> dict:
-    return read_json_file("tests/data/data_kpm/specification_hdmi.json")
+def all_dataflow_files(ip_names: List[str]) -> Dict[str, dict]:
+    return {
+        ip_name: read_json_file(f"tests/data/data_kpm/examples/{ip_name}/{ip_name}_dataflow.json")
+        for ip_name in ip_names
+    }
 
 
 @pytest.fixture
-def hdmi_dataflow() -> dict:
-    return read_json_file("tests/data/data_kpm/hdmi_dataflow.json")
+def all_design_files(ip_names: List[str]) -> Dict[str, dict]:
+    return {
+        ip_name: read_yaml_file(f"tests/data/data_kpm/examples/{ip_name}/test_project.yml")
+        for ip_name in ip_names
+    }
 
 
 @pytest.fixture
-def hierarchy_specification() -> dict:
-    return read_json_file("tests/data/data_kpm/specification_hierarchy.json")
+def all_encoded_design_files(all_design_files: Dict[str, dict]) -> Dict[str, str]:
+    return {
+        test_name: b64encode(yaml.safe_dump(design_yaml, sort_keys=True).encode("utf-8")).decode(
+            "utf-8"
+        )
+        for test_name, design_yaml in all_design_files.items()
+    }
 
 
 @pytest.fixture
-def hierarchy_dataflow() -> dict:
-    return read_json_file("tests/data/data_kpm/hierarchy_dataflow.json")
+def pwm_specification(all_specification_files: Dict[str, dict]) -> dict:
+    return all_specification_files["pwm"]
+
+
+@pytest.fixture
+def hdmi_specification(all_specification_files: Dict[str, dict]) -> dict:
+    return all_specification_files["hdmi"]
+
+
+@pytest.fixture
+def hierarchy_specification(all_specification_files: Dict[str, dict]) -> dict:
+    return all_specification_files["hierarchy"]
+
+
+@pytest.fixture
+def pwm_dataflow(all_dataflow_files: Dict[str, dict]) -> dict:
+    return all_dataflow_files["pwm"]
+
+
+@pytest.fixture
+def hdmi_dataflow(all_dataflow_files: Dict[str, dict]) -> dict:
+    return all_dataflow_files["hdmi"]
+
+
+@pytest.fixture
+def hierarchy_dataflow(all_dataflow_files: Dict[str, dict]) -> dict:
+    return all_dataflow_files["hierarchy"]
+
+
+@pytest.fixture
+def pwm_design_yaml(all_design_files: Dict[str, dict]) -> dict:
+    return all_design_files["pwm"]
+
+
+@pytest.fixture
+def hdmi_design_yaml(all_design_files: Dict[str, dict]) -> dict:
+    return all_design_files["hdmi"]
+
+
+@pytest.fixture
+def hierarchy_design_yaml(all_design_files: Dict[str, dict]) -> dict:
+    return all_design_files["hierarchy"]

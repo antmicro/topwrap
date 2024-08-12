@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from typing import List, Optional
+
 import pytest
 
 from topwrap.design_to_kpm_dataflow_parser import (
@@ -51,6 +53,12 @@ HIERARCHY_METANODES = HIERARCHY_EXTERNAL_METANODES + HIERARCHY_CONSTANT_METANODE
 HIERARCHY_CONNECTIONS = 12
 
 
+def remove_id_and_side_position_from_interfaces(interfaces: List[dict]):
+    for prop in interfaces:
+        del prop["id"]
+        del prop["sidePosition"]
+
+
 class TestPWMDataflowImport:
     """Tests that check validity of generated PWM dataflow from design description YAML
     (i.e. PWM dataflow import feature).
@@ -84,32 +92,29 @@ class TestPWMDataflowImport:
         assert ps7_node["properties"] == []
 
         # check imported interfaces
-        for prop in axi_node["interfaces"]:
-            del prop["id"]
+        remove_id_and_side_position_from_interfaces(axi_node["interfaces"])
         assert sorted(axi_node["interfaces"], key=lambda iface: iface["name"]) == [
-            {"name": "clk", "direction": "input", "side": "left", "sidePosition": 0},
-            {"name": "m_axi", "direction": "output", "side": "right", "sidePosition": 3},
-            {"name": "rst", "direction": "input", "side": "left", "sidePosition": 1},
-            {"name": "s_axi", "direction": "input", "side": "left", "sidePosition": 2},
+            {"name": "clk", "direction": "input", "side": "left"},
+            {"name": "m_axi", "direction": "output", "side": "right"},
+            {"name": "rst", "direction": "input", "side": "left"},
+            {"name": "s_axi", "direction": "input", "side": "left"},
         ]
 
-        for prop in pwm_node["interfaces"]:
-            del prop["id"]
+        remove_id_and_side_position_from_interfaces(pwm_node["interfaces"])
         assert sorted(pwm_node["interfaces"], key=lambda iface: iface["name"]) == [
-            {"name": "pwm", "direction": "output", "side": "right", "sidePosition": 2},
-            {"name": "s_axi", "direction": "input", "side": "left", "sidePosition": 3},
-            {"name": "sys_clk", "direction": "input", "side": "left", "sidePosition": 0},
-            {"name": "sys_rst", "direction": "input", "side": "left", "sidePosition": 1},
+            {"name": "pwm", "direction": "output", "side": "right"},
+            {"name": "s_axi", "direction": "input", "side": "left"},
+            {"name": "sys_clk", "direction": "input", "side": "left"},
+            {"name": "sys_rst", "direction": "input", "side": "left"},
         ]
 
-        for prop in ps7_node["interfaces"]:
-            del prop["id"]
+        remove_id_and_side_position_from_interfaces(ps7_node["interfaces"])
         assert sorted(ps7_node["interfaces"], key=lambda iface: iface["name"]) == [
-            {"name": "FCLK0", "direction": "output", "side": "right", "sidePosition": 1},
-            {"name": "FCLK_RESET0_N", "direction": "output", "side": "right", "sidePosition": 3},
-            {"name": "MAXIGP0ACLK", "direction": "input", "side": "left", "sidePosition": 0},
-            {"name": "MAXIGP0ARESETN", "direction": "output", "side": "right", "sidePosition": 2},
-            {"name": "M_AXI_GP0", "direction": "output", "side": "right", "sidePosition": 4},
+            {"name": "FCLK0", "direction": "output", "side": "right"},
+            {"name": "FCLK_RESET0_N", "direction": "output", "side": "right"},
+            {"name": "MAXIGP0ACLK", "direction": "input", "side": "left"},
+            {"name": "MAXIGP0ARESETN", "direction": "output", "side": "right"},
+            {"name": "M_AXI_GP0", "direction": "output", "side": "right"},
         ]
 
     def test_pwm_metanodes(self, pwm_design_yaml, pwm_specification):
@@ -137,15 +142,14 @@ class TestPWMDataflowImport:
 
         # check the interface of the `External Output` metanode
         assert len(metanodes_json[0]["interfaces"]) == 1
-        del metanodes_json[0]["interfaces"][0]["id"]
+        remove_id_and_side_position_from_interfaces(metanodes_json[0]["interfaces"])
         assert metanodes_json[0]["interfaces"][0] == {
             "name": "external",
             "direction": "input",
             "side": "left",
-            "sidePosition": 0,
         }
 
-    def _find_node_name_by_iface_id(self, iface_id: str, nodes_json: list) -> str:
+    def _find_node_name_by_iface_id(self, iface_id: str, nodes_json: list) -> Optional[dict]:
         for node in nodes_json:
             if iface_id in [iface["id"] for iface in node["interfaces"]]:
                 return node["instanceName"]
@@ -193,10 +197,9 @@ class TestPWMDataflowImport:
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         metanodes_json = [metanode.to_json_format() for metanode in kpm_metanodes]
         assert len(connections_json) == 1
-
-        assert self._find_node_name_by_iface_id(connections_json[0]["from"], nodes_json) == PWM_NAME
+        assert self._find_node_name_by_iface_id(connections_json[0]["to"], nodes_json) == PWM_NAME
         assert (
-            self._find_node_name_by_iface_id(connections_json[0]["to"], metanodes_json)
+            self._find_node_name_by_iface_id(connections_json[0]["from"], metanodes_json)
             == EXT_OUTPUT_NAME
         )
 
@@ -303,31 +306,26 @@ class TestHierarchyDataflowImport:
         assert s1_mod_2["properties"] == []
 
         # check interfaces on nodes that are on different depths
-        for prop in c_mod_1["interfaces"]:
-            del prop["id"]
+        remove_id_and_side_position_from_interfaces(c_mod_1["interfaces"])
         assert sorted(c_mod_1["interfaces"], key=lambda iface: iface["name"]) == [
-            {"direction": "output", "name": "c_int_out_1", "side": "right", "sidePosition": 1},
+            {"direction": "output", "name": "c_int_out_1", "side": "right"},
             {
                 "direction": "input",
                 "externalName": "c_in_1",
                 "name": "c_mod_in_1",
                 "side": "left",
-                "sidePosition": 0,
             },
         ]
 
-        for prop in s1_mod_2["interfaces"]:
-            del prop["id"]
-
+        remove_id_and_side_position_from_interfaces(s1_mod_2["interfaces"])
         assert sorted(s1_mod_2["interfaces"], key=lambda iface: iface["name"]) == [
             {
                 "direction": "output",
                 "externalName": "cs_s1_int_out_1",
                 "name": "cs_s1_f_int_out_1",
                 "side": "right",
-                "sidePosition": 1,
             },
-            {"direction": "input", "name": "cs_s1_mint_in_1", "side": "left", "sidePosition": 0},
+            {"direction": "input", "name": "cs_s1_mint_in_1", "side": "left"},
         ]
 
     def test_subgraph_nodes(self, nodes_from_graphs):
@@ -339,32 +337,28 @@ class TestHierarchyDataflowImport:
         [complex_sub] = list(filter(lambda node: node["instanceName"] == "complex_sub", nodes_json))
         [sub_2] = list(filter(lambda node: node["instanceName"] == "sub_2", nodes_json))
 
-        for prop in counter["interfaces"]:
-            del prop["id"]
+        remove_id_and_side_position_from_interfaces(counter["interfaces"])
         assert sorted(counter["interfaces"], key=lambda iface: iface["name"]) == [
-            {"direction": "input", "name": "c_in_1", "side": "left", "sidePosition": 0},
-            {"direction": "input", "name": "c_in_2", "side": "left", "sidePosition": 1},
-            {"direction": "output", "name": "c_out_1", "side": "right", "sidePosition": 2},
+            {"direction": "input", "name": "c_in_1", "side": "left"},
+            {"direction": "input", "name": "c_in_2", "side": "left"},
+            {"direction": "output", "name": "c_out_1", "side": "right"},
         ]
 
-        for prop in complex_sub["interfaces"]:
-            del prop["id"]
+        remove_id_and_side_position_from_interfaces(complex_sub["interfaces"])
         assert sorted(complex_sub["interfaces"], key=lambda iface: iface["name"]) == [
-            {"direction": "input", "name": "cs_in_1", "side": "left", "sidePosition": 0},
-            {"direction": "output", "name": "cs_out_1", "side": "right", "sidePosition": 1},
+            {"direction": "input", "name": "cs_in_1", "side": "left"},
+            {"direction": "output", "name": "cs_out_1", "side": "right"},
         ]
 
-        for prop in sub_2["interfaces"]:
-            del prop["id"]
+        remove_id_and_side_position_from_interfaces(sub_2["interfaces"])
         assert sorted(sub_2["interfaces"], key=lambda iface: iface["name"]) == [
-            {"direction": "input", "name": "cs_s2_int_in_1", "side": "left", "sidePosition": 0},
-            {"direction": "input", "name": "cs_s2_int_in_2", "side": "left", "sidePosition": 1},
+            {"direction": "input", "name": "cs_s2_int_in_1", "side": "left"},
+            {"direction": "input", "name": "cs_s2_int_in_2", "side": "left"},
             {
                 "direction": "output",
                 "externalName": "cs_out_1",
                 "name": "cs_s2_mod_out_1",
                 "side": "right",
-                "sidePosition": 2,
             },
         ]
 

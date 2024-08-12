@@ -56,6 +56,15 @@ def get_graph_with_id(dataflow_json: dict, graph_id: str) -> Optional[dict]:
             return graph
 
 
+@dataclass
+class RPCparams:
+    host: str
+    port: int
+    yamlfiles: list
+    build_dir: str
+    design: str
+
+
 def is_external_metanode(node: dict) -> bool:
     """Return True if a node is an external metanode, False otherwise."""
     return node["name"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]

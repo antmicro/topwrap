@@ -1,0 +1,2744 @@
+{
+  "version": "20240723.13",
+  "entryGraph": "1723196875773597",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773501",
+          "to": "ni_172319687577257"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773502",
+          "to": "ni_172319687577267"
+        },
+        {
+          "from": "ni_172319687577239",
+          "id": "1723196875773503",
+          "to": "ni_172319687577288"
+        },
+        {
+          "from": "ni_172319687577241",
+          "id": "1723196875773504",
+          "to": "ni_172319687577290"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773505",
+          "to": "ni_172319687577236"
+        },
+        {
+          "from": "ni_172319687577232",
+          "id": "1723196875773506",
+          "to": "ni_172319687577238"
+        },
+        {
+          "from": "ni_1723196875772144",
+          "id": "1723196875773507",
+          "to": "ni_172319687577240"
+        },
+        {
+          "from": "ni_1723196875772144",
+          "id": "1723196875773508",
+          "to": "ni_172319687577237"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773509",
+          "to": "ni_17231968757720"
+        },
+        {
+          "from": "ni_172319687577226",
+          "id": "1723196875773510",
+          "to": "ni_17231968757721"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773511",
+          "to": "ni_172319687577225"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773512",
+          "to": "ni_1723196875772150"
+        },
+        {
+          "from": "ni_172319687577232",
+          "id": "1723196875773513",
+          "to": "ni_1723196875772148"
+        },
+        {
+          "from": "ni_172319687577274",
+          "id": "1723196875773514",
+          "to": "ni_1723196875772153"
+        },
+        {
+          "from": "ni_1723196875772151",
+          "id": "1723196875773515",
+          "to": "ni_172319687577246"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773516",
+          "to": "ni_172319687577219"
+        },
+        {
+          "from": "ni_172319687577227",
+          "id": "1723196875773517",
+          "to": "ni_172319687577218"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773518",
+          "to": "ni_1723196875772170"
+        },
+        {
+          "from": "ni_172319687577227",
+          "id": "1723196875773519",
+          "to": "ni_1723196875772169"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773520",
+          "to": "ni_1723196875772101"
+        },
+        {
+          "from": "ni_172319687577227",
+          "id": "1723196875773521",
+          "to": "ni_1723196875772100"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773522",
+          "to": "ni_1723196875772200"
+        },
+        {
+          "from": "ni_172319687577227",
+          "id": "1723196875773523",
+          "to": "ni_1723196875772199"
+        },
+        {
+          "from": "ni_1723196875772151",
+          "id": "1723196875773524",
+          "to": "ni_1723196875772146"
+        },
+        {
+          "from": "ni_1723196875772111",
+          "id": "1723196875773525",
+          "to": "ni_1723196875772145"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773526",
+          "to": "ni_1723196875772143"
+        },
+        {
+          "from": "ni_1723196875772151",
+          "id": "1723196875773527",
+          "to": "ni_1723196875772106"
+        },
+        {
+          "from": "ni_1723196875772152",
+          "id": "1723196875773528",
+          "to": "ni_1723196875772114"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773529",
+          "to": "ni_1723196875772117"
+        },
+        {
+          "from": "ni_172319687577234",
+          "id": "1723196875773530",
+          "to": "ni_1723196875772113"
+        },
+        {
+          "from": "ni_1723196875772151",
+          "id": "1723196875773531",
+          "to": "ni_1723196875772158"
+        },
+        {
+          "from": "ni_172319687577247",
+          "id": "1723196875773532",
+          "to": "ni_1723196875772159"
+        },
+        {
+          "from": "ni_172319687577227",
+          "id": "1723196875773533",
+          "to": "ni_1723196875772183"
+        },
+        {
+          "from": "ni_172319687577284",
+          "id": "1723196875773534",
+          "to": "ni_1723196875772182"
+        },
+        {
+          "from": "ni_1723196875772151",
+          "id": "1723196875773535",
+          "to": "ni_1723196875772181"
+        },
+        {
+          "from": "ni_1723196875772151",
+          "id": "1723196875773536",
+          "to": "ni_1723196875772124"
+        },
+        {
+          "from": "ni_1723196875772149",
+          "id": "1723196875773537",
+          "to": "ni_1723196875772140"
+        },
+        {
+          "from": "ni_1723196875772152",
+          "id": "1723196875773538",
+          "to": "ni_1723196875772132"
+        },
+        {
+          "from": "ni_1723196875772105",
+          "id": "1723196875773539",
+          "to": "ni_1723196875772127"
+        },
+        {
+          "from": "ni_1723196875772107",
+          "id": "1723196875773540",
+          "to": "ni_1723196875772133"
+        },
+        {
+          "from": "ni_1723196875772118",
+          "id": "1723196875773541",
+          "to": "ni_1723196875772139"
+        },
+        {
+          "from": "ni_1723196875772109",
+          "id": "1723196875773542",
+          "to": "ni_1723196875772125"
+        },
+        {
+          "from": "ni_1723196875772110",
+          "id": "1723196875773543",
+          "to": "ni_1723196875772137"
+        },
+        {
+          "from": "ni_1723196875772112",
+          "id": "1723196875773544",
+          "to": "ni_1723196875772126"
+        },
+        {
+          "from": "ni_1723196875772116",
+          "id": "1723196875773545",
+          "to": "ni_1723196875772131"
+        },
+        {
+          "from": "ni_1723196875772108",
+          "id": "1723196875773546",
+          "to": "ni_1723196875772134"
+        },
+        {
+          "from": "ni_1723196875772115",
+          "id": "1723196875773547",
+          "to": "ni_1723196875772122"
+        },
+        {
+          "from": "ni_172319687577244",
+          "id": "1723196875773548",
+          "to": "ni_17231968757722"
+        },
+        {
+          "from": "ni_17231968757723",
+          "id": "1723196875773549",
+          "to": "ni_172319687577292"
+        },
+        {
+          "from": "ni_1723196875772202",
+          "id": "1723196875773550",
+          "to": "ni_172319687577243"
+        },
+        {
+          "from": "ni_172319687577291",
+          "id": "1723196875773551",
+          "to": "ni_172319687577220"
+        },
+        {
+          "from": "ni_172319687577223",
+          "id": "1723196875773552",
+          "to": "ni_1723196875772171"
+        },
+        {
+          "from": "ni_172319687577222",
+          "id": "1723196875773553",
+          "to": "ni_1723196875772201"
+        },
+        {
+          "from": "ni_172319687577221",
+          "id": "1723196875773554",
+          "to": "ni_1723196875772102"
+        },
+        {
+          "from": "ni_1723196875772103",
+          "id": "1723196875773555",
+          "to": "ni_1723196875772154"
+        },
+        {
+          "from": "ni_172319687577242",
+          "id": "1723196875773556",
+          "to": "ni_1723196875772190"
+        },
+        {
+          "from": "ni_1723196875772191",
+          "id": "1723196875773557",
+          "to": "ni_1723196875772160"
+        },
+        {
+          "from": "ni_1723196875772161",
+          "id": "1723196875773558",
+          "to": "ni_1723196875772120"
+        },
+        {
+          "from": "ni_1723196875772172",
+          "id": "1723196875773559",
+          "to": "ni_1723196875772119"
+        },
+        {
+          "from": "ni_1723196875773496",
+          "id": "1723196875773560",
+          "to": "ni_172319687577229"
+        },
+        {
+          "from": "ni_1723196875773499",
+          "id": "1723196875773561",
+          "to": "ni_172319687577230"
+        },
+        {
+          "from": "ni_1723196875773496",
+          "id": "1723196875773562",
+          "to": "ni_172319687577233"
+        },
+        {
+          "from": "ni_1723196875773496",
+          "id": "1723196875773563",
+          "to": "ni_172319687577228"
+        },
+        {
+          "from": "ni_1723196875773496",
+          "id": "1723196875773564",
+          "to": "ni_172319687577250"
+        },
+        {
+          "from": "ni_1723196875773499",
+          "id": "1723196875773565",
+          "to": "ni_172319687577251"
+        },
+        {
+          "from": "ni_1723196875773496",
+          "id": "1723196875773566",
+          "to": "ni_172319687577254"
+        },
+        {
+          "from": "ni_1723196875773496",
+          "id": "1723196875773567",
+          "to": "ni_172319687577249"
+        },
+        {
+          "from": "ni_1723196875772205",
+          "id": "1723196875773568",
+          "to": "ni_1723196875772123"
+        },
+        {
+          "from": "ni_1723196875772208",
+          "id": "1723196875773569",
+          "to": "ni_1723196875772136"
+        },
+        {
+          "from": "ni_1723196875772211",
+          "id": "1723196875773570",
+          "to": "ni_1723196875772128"
+        },
+        {
+          "from": "ni_1723196875772214",
+          "id": "1723196875773571",
+          "to": "ni_1723196875772129"
+        },
+        {
+          "from": "ni_1723196875772217",
+          "id": "1723196875773572",
+          "to": "ni_1723196875772138"
+        },
+        {
+          "from": "ni_1723196875772220",
+          "id": "1723196875773573",
+          "to": "ni_1723196875772135"
+        },
+        {
+          "from": "ni_1723196875772223",
+          "id": "1723196875773574",
+          "to": "ni_1723196875772141"
+        },
+        {
+          "from": "ni_1723196875772226",
+          "id": "1723196875773575",
+          "to": "ni_1723196875772130"
+        },
+        {
+          "from": "ni_1723196875772229",
+          "id": "1723196875773576",
+          "to": "ni_172319687577276"
+        },
+        {
+          "from": "ni_1723196875772232",
+          "id": "1723196875773577",
+          "to": "ni_172319687577275"
+        },
+        {
+          "from": "ni_1723196875772235",
+          "id": "1723196875773578",
+          "to": "ni_172319687577262"
+        },
+        {
+          "from": "ni_1723196875772238",
+          "id": "1723196875773579",
+          "to": "ni_172319687577280"
+        },
+        {
+          "from": "ni_1723196875772241",
+          "id": "1723196875773580",
+          "to": "ni_172319687577278"
+        },
+        {
+          "from": "ni_1723196875772244",
+          "id": "1723196875773581",
+          "to": "ni_172319687577260"
+        },
+        {
+          "from": "ni_1723196875772247",
+          "id": "1723196875773582",
+          "to": "ni_172319687577263"
+        },
+        {
+          "from": "ni_1723196875772250",
+          "id": "1723196875773583",
+          "to": "ni_172319687577282"
+        },
+        {
+          "from": "ni_1723196875772253",
+          "id": "1723196875773584",
+          "to": "ni_172319687577269"
+        },
+        {
+          "from": "ni_1723196875772256",
+          "id": "1723196875773585",
+          "to": "ni_172319687577261"
+        },
+        {
+          "from": "ni_1723196875772259",
+          "id": "1723196875773586",
+          "to": "ni_172319687577273"
+        },
+        {
+          "from": "ni_1723196875772262",
+          "id": "1723196875773587",
+          "to": "ni_172319687577283"
+        },
+        {
+          "from": "ni_1723196875772265",
+          "id": "1723196875773588",
+          "to": "ni_172319687577272"
+        },
+        {
+          "from": "ni_1723196875772268",
+          "id": "1723196875773589",
+          "to": "ni_172319687577258"
+        },
+        {
+          "from": "ni_1723196875772271",
+          "id": "1723196875773590",
+          "to": "ni_172319687577279"
+        },
+        {
+          "from": "ni_1723196875772274",
+          "id": "1723196875773591",
+          "to": "ni_172319687577285"
+        },
+        {
+          "from": "ni_1723196875772277",
+          "id": "1723196875773592",
+          "to": "ni_172319687577270"
+        },
+        {
+          "from": "ni_1723196875772280",
+          "id": "1723196875773593",
+          "to": "ni_172319687577287"
+        },
+        {
+          "from": "ni_1723196875772283",
+          "id": "1723196875773594",
+          "to": "ni_172319687577268"
+        },
+        {
+          "from": "ni_1723196875772286",
+          "id": "1723196875773595",
+          "to": "ni_172319687577277"
+        },
+        {
+          "from": "ni_1723196875772289",
+          "id": "1723196875773596",
+          "to": "ni_172319687577266"
+        }
+      ],
+      "id": "1723196875773597",
+      "nodes": [
+        {
+          "id": "node_17231968757724",
+          "instanceName": "axi_protocol_converter0",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_17231968757720",
+              "name": "aclk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_17231968757721",
+              "name": "aresetn",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_17231968757722",
+              "name": "S_AXI",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_17231968757723",
+              "name": "M_AXI",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "axi_protocol_converter",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_172319687577224",
+          "instanceName": "axi_interconnect0",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172319687577218",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577219",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577220",
+              "name": "s_axi_0",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577221",
+              "name": "m_axi_0",
+              "side": "right",
+              "sidePosition": 3
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577222",
+              "name": "m_axi_1",
+              "side": "right",
+              "sidePosition": 4
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577223",
+              "name": "m_axi_2",
+              "side": "right",
+              "sidePosition": 5
+            }
+          ],
+          "name": "axi_interconnect",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "17231968757725",
+              "name": "S_COUNT",
+              "value": "1"
+            },
+            {
+              "id": "17231968757726",
+              "name": "M_COUNT",
+              "value": "3"
+            },
+            {
+              "id": "17231968757727",
+              "name": "DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "17231968757728",
+              "name": "ADDR_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "17231968757729",
+              "name": "ID_WIDTH",
+              "value": "12"
+            },
+            {
+              "id": "172319687577210",
+              "name": "M_BASE_ADDR",
+              "value": "118'h43c2000043c1000043c00000"
+            },
+            {
+              "id": "172319687577211",
+              "name": "M_ADDR_WIDTH",
+              "value": "96'h100000001000000010"
+            },
+            {
+              "id": "172319687577212",
+              "name": "AWUSER_WIDTH",
+              "value": "1"
+            },
+            {
+              "id": "172319687577213",
+              "name": "WUSER_WIDTH",
+              "value": "1"
+            },
+            {
+              "id": "172319687577214",
+              "name": "ARUSER_WIDTH",
+              "value": "1"
+            },
+            {
+              "id": "172319687577215",
+              "name": "BUSER_WIDTH",
+              "value": "1"
+            },
+            {
+              "id": "172319687577216",
+              "name": "RUSER_WIDTH",
+              "value": "1"
+            },
+            {
+              "id": "172319687577217",
+              "name": "STRB_WIDTH",
+              "value": "DATA_WIDTH/8"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_172319687577235",
+          "instanceName": "reset0",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172319687577225",
+              "name": "slowest_sync_clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577226",
+              "name": "interconnect_aresetn",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577227",
+              "name": "bus_struct_reset",
+              "side": "right",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577228",
+              "name": "mb_debug_sys_rst",
+              "side": "left",
+              "sidePosition": 3
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577229",
+              "name": "ext_reset_in",
+              "side": "left",
+              "sidePosition": 4
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577230",
+              "name": "dcm_locked",
+              "side": "left",
+              "sidePosition": 5
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577231",
+              "name": "mb_reset",
+              "side": "right",
+              "sidePosition": 6
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577232",
+              "name": "peripheral_reset",
+              "side": "right",
+              "sidePosition": 7
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577233",
+              "name": "aux_reset_in",
+              "side": "left",
+              "sidePosition": 8
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577234",
+              "name": "peripheral_aresetn",
+              "side": "right",
+              "sidePosition": 9
+            }
+          ],
+          "name": "proc_sys_reset",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_172319687577245",
+          "instanceName": "dma",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172319687577236",
+              "name": "clock",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577237",
+              "name": "io_sync_writerSync",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577238",
+              "name": "reset",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577239",
+              "name": "io_irq_readerDone",
+              "side": "right",
+              "sidePosition": 3
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577240",
+              "name": "io_sync_readerSync",
+              "side": "left",
+              "sidePosition": 4
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577241",
+              "name": "io_irq_writerDone",
+              "side": "right",
+              "sidePosition": 5
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577242",
+              "name": "m_axis",
+              "side": "right",
+              "sidePosition": 6
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577243",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 7
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577244",
+              "name": "m_axi",
+              "side": "right",
+              "sidePosition": 8
+            }
+          ],
+          "name": "dma_axi_in_axis_out",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_172319687577256",
+          "instanceName": "reset1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172319687577246",
+              "name": "slowest_sync_clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577247",
+              "name": "interconnect_aresetn",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577248",
+              "name": "bus_struct_reset",
+              "side": "right",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577249",
+              "name": "mb_debug_sys_rst",
+              "side": "left",
+              "sidePosition": 3
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577250",
+              "name": "ext_reset_in",
+              "side": "left",
+              "sidePosition": 4
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577251",
+              "name": "dcm_locked",
+              "side": "left",
+              "sidePosition": 5
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577252",
+              "name": "mb_reset",
+              "side": "right",
+              "sidePosition": 6
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577253",
+              "name": "peripheral_reset",
+              "side": "right",
+              "sidePosition": 7
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577254",
+              "name": "aux_reset_in",
+              "side": "left",
+              "sidePosition": 8
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577255",
+              "name": "peripheral_aresetn",
+              "side": "right",
+              "sidePosition": 9
+            }
+          ],
+          "name": "proc_sys_reset",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_172319687577293",
+          "instanceName": "ps7",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172319687577257",
+              "name": "MAXIGP0ACLK",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577258",
+              "name": "ddr_ras_n",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577259",
+              "name": "FCLK_RESET0_N",
+              "side": "right",
+              "sidePosition": 2
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577260",
+              "name": "ddr_clk_n",
+              "side": "right",
+              "sidePosition": 3
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577261",
+              "name": "ddr_dqs",
+              "side": "right",
+              "sidePosition": 4
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577262",
+              "name": "ddr_cas_n",
+              "side": "right",
+              "sidePosition": 5
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577263",
+              "name": "ddr_cs_n",
+              "side": "right",
+              "sidePosition": 6
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577264",
+              "name": "SAXIHP0ARESETN",
+              "side": "right",
+              "sidePosition": 7
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577265",
+              "name": "SAXIHP0RACOUNT",
+              "side": "right",
+              "sidePosition": 8
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577266",
+              "name": "ps_srstb",
+              "side": "right",
+              "sidePosition": 9
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577267",
+              "name": "SAXIHP0ACLK",
+              "side": "left",
+              "sidePosition": 10
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577268",
+              "name": "ps_clk",
+              "side": "right",
+              "sidePosition": 11
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577269",
+              "name": "ddr_dq",
+              "side": "right",
+              "sidePosition": 12
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577270",
+              "name": "ddr_web",
+              "side": "right",
+              "sidePosition": 13
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577271",
+              "name": "SAXIHP0WACOUNT",
+              "side": "right",
+              "sidePosition": 14
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577272",
+              "name": "ddr_odt",
+              "side": "right",
+              "sidePosition": 15
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577273",
+              "name": "ddr_dqs_n",
+              "side": "right",
+              "sidePosition": 16
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577274",
+              "name": "FCLK1",
+              "side": "right",
+              "sidePosition": 17
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577275",
+              "name": "ddr_bankaddr",
+              "side": "right",
+              "sidePosition": 18
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577276",
+              "name": "ddr_addr",
+              "side": "right",
+              "sidePosition": 19
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577277",
+              "name": "ps_porb",
+              "side": "right",
+              "sidePosition": 20
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577278",
+              "name": "ddr_clk",
+              "side": "right",
+              "sidePosition": 21
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577279",
+              "name": "ddr_vr_n",
+              "side": "right",
+              "sidePosition": 22
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577280",
+              "name": "ddr_cke",
+              "side": "right",
+              "sidePosition": 23
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577281",
+              "name": "SAXIHP0RCOUNT",
+              "side": "right",
+              "sidePosition": 24
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577282",
+              "name": "ddr_dm",
+              "side": "right",
+              "sidePosition": 25
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577283",
+              "name": "ddr_drstb",
+              "side": "right",
+              "sidePosition": 26
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577284",
+              "name": "FCLK0",
+              "side": "right",
+              "sidePosition": 27
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577285",
+              "name": "ddr_vr",
+              "side": "right",
+              "sidePosition": 28
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577286",
+              "name": "MAXIGP0ARESETN",
+              "side": "right",
+              "sidePosition": 29
+            },
+            {
+              "direction": "inout",
+              "id": "ni_172319687577287",
+              "name": "ps_mio",
+              "side": "right",
+              "sidePosition": 30
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577288",
+              "name": "IRQ_F2P_0",
+              "side": "left",
+              "sidePosition": 31
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577289",
+              "name": "SAXIHP0WCOUNT",
+              "side": "right",
+              "sidePosition": 32
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577290",
+              "name": "IRQ_F2P_1",
+              "side": "left",
+              "sidePosition": 33
+            },
+            {
+              "direction": "output",
+              "id": "ni_172319687577291",
+              "name": "M_AXI_GP0",
+              "side": "right",
+              "sidePosition": 34
+            },
+            {
+              "direction": "input",
+              "id": "ni_172319687577292",
+              "name": "S_AXI_HP0",
+              "side": "left",
+              "sidePosition": 35
+            }
+          ],
+          "name": "ps7",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772104",
+          "instanceName": "axi_bridge_mmcm",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772100",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772101",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772102",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772103",
+              "name": "m_axi",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "axi_axil_adapter",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "172319687577294",
+              "name": "ADDR_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "172319687577295",
+              "name": "AXI_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "172319687577296",
+              "name": "AXI_ID_WIDTH",
+              "value": "12"
+            },
+            {
+              "id": "172319687577297",
+              "name": "AXI_STRB_WIDTH",
+              "value": "AXI_DATA_WIDTH/8"
+            },
+            {
+              "id": "172319687577298",
+              "name": "AXIL_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "172319687577299",
+              "name": "AXIL_STRB_WIDTH",
+              "value": "AXIL_DATA_WIDTH/8"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772121",
+          "instanceName": "disp",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "ni_1723196875772105",
+              "name": "HSYNC_O",
+              "side": "right",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772106",
+              "name": "S_AXIS_ACLK",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772107",
+              "name": "VSYNC_O",
+              "side": "right",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772108",
+              "name": "DIEN_O",
+              "side": "right",
+              "sidePosition": 3
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772109",
+              "name": "DATA_O",
+              "side": "right",
+              "sidePosition": 4
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772110",
+              "name": "CTL_O",
+              "side": "right",
+              "sidePosition": 5
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772111",
+              "name": "FSYNC_O",
+              "side": "right",
+              "sidePosition": 6
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772112",
+              "name": "VGUARD_O",
+              "side": "right",
+              "sidePosition": 7
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772113",
+              "name": "s00_axi_aresetn",
+              "side": "left",
+              "sidePosition": 8
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772114",
+              "name": "LOCKED_I",
+              "side": "left",
+              "sidePosition": 9
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772115",
+              "name": "DIH_O",
+              "side": "right",
+              "sidePosition": 10
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772116",
+              "name": "DGUARD_O",
+              "side": "right",
+              "sidePosition": 11
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772117",
+              "name": "s00_axi_aclk",
+              "side": "left",
+              "sidePosition": 12
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772118",
+              "name": "DE_O",
+              "side": "right",
+              "sidePosition": 13
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772119",
+              "name": "S00_AXI",
+              "side": "left",
+              "sidePosition": 14
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772120",
+              "name": "S_AXIS",
+              "side": "left",
+              "sidePosition": 15
+            }
+          ],
+          "name": "axi_dispctrl",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772142",
+          "instanceName": "hdmi",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772122",
+              "name": "DIH",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772123",
+              "name": "HDMI_CLK_P",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772124",
+              "name": "PXLCLK_I",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772125",
+              "name": "DATA_I",
+              "side": "left",
+              "sidePosition": 3
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772126",
+              "name": "VGUARD",
+              "side": "left",
+              "sidePosition": 4
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772127",
+              "name": "VGA_HS",
+              "side": "left",
+              "sidePosition": 5
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772128",
+              "name": "HDMI_D0_P",
+              "side": "right",
+              "sidePosition": 6
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772129",
+              "name": "HDMI_D0_N",
+              "side": "right",
+              "sidePosition": 7
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772130",
+              "name": "HDMI_D2_N",
+              "side": "right",
+              "sidePosition": 8
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772131",
+              "name": "DGUARD",
+              "side": "left",
+              "sidePosition": 9
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772132",
+              "name": "LOCKED_I",
+              "side": "left",
+              "sidePosition": 10
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772133",
+              "name": "VGA_VS",
+              "side": "left",
+              "sidePosition": 11
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772134",
+              "name": "DIEN",
+              "side": "left",
+              "sidePosition": 12
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772135",
+              "name": "HDMI_D1_N",
+              "side": "right",
+              "sidePosition": 13
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772136",
+              "name": "HDMI_CLK_N",
+              "side": "right",
+              "sidePosition": 14
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772137",
+              "name": "CTL",
+              "side": "left",
+              "sidePosition": 15
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772138",
+              "name": "HDMI_D1_P",
+              "side": "right",
+              "sidePosition": 16
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772139",
+              "name": "VGA_DE",
+              "side": "left",
+              "sidePosition": 17
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772140",
+              "name": "PXLCLK_5X_I",
+              "side": "left",
+              "sidePosition": 18
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772141",
+              "name": "HDMI_D2_P",
+              "side": "right",
+              "sidePosition": 19
+            }
+          ],
+          "name": "hdmi_tx",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772147",
+          "instanceName": "clock_crossing",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772143",
+              "name": "clkB",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772144",
+              "name": "B",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772145",
+              "name": "A",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772146",
+              "name": "clkA",
+              "side": "left",
+              "sidePosition": 3
+            }
+          ],
+          "name": "clock_crossing",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772155",
+          "instanceName": "mmcm",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772148",
+              "name": "sys_rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772149",
+              "name": "clkgen_out1",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772150",
+              "name": "sys_clk",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772151",
+              "name": "clkgen_out0",
+              "side": "right",
+              "sidePosition": 3
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772152",
+              "name": "clkgen_locked",
+              "side": "right",
+              "sidePosition": 4
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772153",
+              "name": "clkgen_ref",
+              "side": "left",
+              "sidePosition": 5
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772154",
+              "name": "axi",
+              "side": "left",
+              "sidePosition": 6
+            }
+          ],
+          "name": "litex_mmcm",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772162",
+          "instanceName": "axis_dwidth_converter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772158",
+              "name": "aclk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772159",
+              "name": "aresetn",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772160",
+              "name": "s_axis",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772161",
+              "name": "m_axis",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "axis_dwidth_converter",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772156",
+              "name": "IN_DATA_WIDTH",
+              "value": "64"
+            },
+            {
+              "id": "1723196875772157",
+              "name": "OUT_DATA_WIDTH",
+              "value": "32"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772173",
+          "instanceName": "axi_bridge_disp",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772169",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772170",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772171",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772172",
+              "name": "m_axi",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "axi_axil_adapter",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772163",
+              "name": "ADDR_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "1723196875772164",
+              "name": "AXI_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "1723196875772165",
+              "name": "AXI_ID_WIDTH",
+              "value": "12"
+            },
+            {
+              "id": "1723196875772166",
+              "name": "AXI_STRB_WIDTH",
+              "value": "AXI_DATA_WIDTH/8"
+            },
+            {
+              "id": "1723196875772167",
+              "name": "AXIL_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "1723196875772168",
+              "name": "AXIL_STRB_WIDTH",
+              "value": "AXIL_DATA_WIDTH/8"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772192",
+          "instanceName": "axis_clock_converter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772181",
+              "name": "m_clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772182",
+              "name": "s_clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772183",
+              "name": "async_rst",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772184",
+              "name": "s_status_bad_frame",
+              "side": "right",
+              "sidePosition": 3
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772185",
+              "name": "m_status_bad_frame",
+              "side": "right",
+              "sidePosition": 4
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772186",
+              "name": "m_status_overflow",
+              "side": "right",
+              "sidePosition": 5
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772187",
+              "name": "s_status_good_frame",
+              "side": "right",
+              "sidePosition": 6
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772188",
+              "name": "s_status_overflow",
+              "side": "right",
+              "sidePosition": 7
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772189",
+              "name": "m_status_good_frame",
+              "side": "right",
+              "sidePosition": 8
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772190",
+              "name": "s_axis",
+              "side": "left",
+              "sidePosition": 9
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772191",
+              "name": "m_axis",
+              "side": "right",
+              "sidePosition": 10
+            }
+          ],
+          "name": "axis_async_fifo",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772174",
+              "name": "DATA_WIDTH",
+              "value": "64"
+            },
+            {
+              "id": "1723196875772175",
+              "name": "KEEP_WIDTH",
+              "value": "(DATA_WIDTH+7)/8"
+            },
+            {
+              "id": "1723196875772176",
+              "name": "ID_WIDTH",
+              "value": "8"
+            },
+            {
+              "id": "1723196875772177",
+              "name": "DEST_WIDTH",
+              "value": "8"
+            },
+            {
+              "id": "1723196875772178",
+              "name": "USER_WIDTH",
+              "value": "1"
+            },
+            {
+              "id": "1723196875772179",
+              "name": "ID_ENABLE",
+              "value": "0"
+            },
+            {
+              "id": "1723196875772180",
+              "name": "USER_ENABLE",
+              "value": "0"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772203",
+          "instanceName": "axi_bridge_dma",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772199",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772200",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_1723196875772201",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_1723196875772202",
+              "name": "m_axi",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "axi_axil_adapter",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772193",
+              "name": "ADDR_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "1723196875772194",
+              "name": "AXI_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "1723196875772195",
+              "name": "AXI_ID_WIDTH",
+              "value": "12"
+            },
+            {
+              "id": "1723196875772196",
+              "name": "AXI_STRB_WIDTH",
+              "value": "AXI_DATA_WIDTH/8"
+            },
+            {
+              "id": "1723196875772197",
+              "name": "AXIL_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "1723196875772198",
+              "name": "AXIL_STRB_WIDTH",
+              "value": "AXIL_DATA_WIDTH/8"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772206",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772205",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772204",
+              "name": "External Name",
+              "value": "HDMI_CLK_P"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772209",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772208",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772207",
+              "name": "External Name",
+              "value": "HDMI_CLK_N"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772212",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772211",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772210",
+              "name": "External Name",
+              "value": "HDMI_D0_P"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772215",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772214",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772213",
+              "name": "External Name",
+              "value": "HDMI_D0_N"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772218",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772217",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772216",
+              "name": "External Name",
+              "value": "HDMI_D1_P"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772221",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772220",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772219",
+              "name": "External Name",
+              "value": "HDMI_D1_N"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772224",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772223",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772222",
+              "name": "External Name",
+              "value": "HDMI_D2_P"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772227",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_1723196875772226",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772225",
+              "name": "External Name",
+              "value": "HDMI_D2_N"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772230",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772229",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772228",
+              "name": "External Name",
+              "value": "ddr_addr"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772233",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772232",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772231",
+              "name": "External Name",
+              "value": "ddr_bankaddr"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772236",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772235",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772234",
+              "name": "External Name",
+              "value": "ddr_cas_n"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772239",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772238",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772237",
+              "name": "External Name",
+              "value": "ddr_cke"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772242",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772241",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772240",
+              "name": "External Name",
+              "value": "ddr_clk"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772245",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772244",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772243",
+              "name": "External Name",
+              "value": "ddr_clk_n"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772248",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772247",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772246",
+              "name": "External Name",
+              "value": "ddr_cs_n"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772251",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772250",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772249",
+              "name": "External Name",
+              "value": "ddr_dm"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772254",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772253",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772252",
+              "name": "External Name",
+              "value": "ddr_dq"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772257",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772256",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772255",
+              "name": "External Name",
+              "value": "ddr_dqs"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772260",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772259",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772258",
+              "name": "External Name",
+              "value": "ddr_dqs_n"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772263",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772262",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772261",
+              "name": "External Name",
+              "value": "ddr_drstb"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772266",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772265",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772264",
+              "name": "External Name",
+              "value": "ddr_odt"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772269",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772268",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772267",
+              "name": "External Name",
+              "value": "ddr_ras_n"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772272",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772271",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772270",
+              "name": "External Name",
+              "value": "ddr_vr_n"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772275",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772274",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772273",
+              "name": "External Name",
+              "value": "ddr_vr"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772278",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772277",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772276",
+              "name": "External Name",
+              "value": "ddr_web"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772281",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772280",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772279",
+              "name": "External Name",
+              "value": "ps_mio"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772284",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772283",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772282",
+              "name": "External Name",
+              "value": "ps_clk"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772287",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772286",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772285",
+              "name": "External Name",
+              "value": "ps_porb"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875772290",
+          "instanceName": "External Inout",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "id": "ni_1723196875772289",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875772288",
+              "name": "External Name",
+              "value": "ps_srstb"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875773497",
+          "instanceName": "Constant",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "ni_1723196875773496",
+              "name": "constant",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Constant",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875773495",
+              "name": "Constant Value",
+              "value": "0"
+            }
+          ],
+          "width": 200
+        },
+        {
+          "id": "node_1723196875773500",
+          "instanceName": "Constant",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "ni_1723196875773499",
+              "name": "constant",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Constant",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "1723196875773498",
+              "name": "Constant Value",
+              "value": "1"
+            }
+          ],
+          "width": 200
+        }
+      ],
+      "scaling": 1
+    }
+  ]
+}

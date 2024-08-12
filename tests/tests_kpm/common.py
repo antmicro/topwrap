@@ -3,12 +3,20 @@
 
 import json
 
+from yaml import Loader, load
+
 AXI_NAME = "axi_bridge"
 PS7_NAME = "ps7"
 PWM_NAME = "litex_pwm_top"
 
 
-def read_json_file(json_file_path: str) -> str:
+def read_json_file(json_file_path: str) -> dict:
     with open(json_file_path, "r") as json_file:
         json_contents = json.load(json_file)
     return json_contents
+
+
+def read_yaml_file(yaml_file_path: str) -> dict:
+    with open(yaml_file_path, "r") as yamlfile:
+        design = load(yamlfile, Loader=Loader)
+    return design

@@ -9,6 +9,8 @@ from pathlib import Path
 
 import click
 
+from topwrap.kpm_common import RPCparams
+
 from .config import config
 from .design import build_design_from_yaml
 from .interface_grouper import standard_iface_grouper
@@ -177,7 +179,9 @@ def kpm_client_main(host, port, log_level, design, yamlfiles, build_dir):
     extended_yamlfiles += yamlfiles
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(kpm_run_client(host, port, extended_yamlfiles, build_dir, design))
+    loop.run_until_complete(
+        kpm_run_client(RPCparams(host, port, extended_yamlfiles, build_dir, design))
+    )
 
 
 @main.command("kpm_build_server", help="Build KPM server")

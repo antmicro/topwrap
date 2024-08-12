@@ -20,40 +20,44 @@ from topwrap.kpm_dataflow_validator import (
 from .common import read_json_file
 
 
+def get_dataflow_test(test_name: str) -> dict:
+    return read_json_file(f"tests/data/data_kpm/dataflow_tests/{test_name}.json")
+
+
 @pytest.fixture
 def dataflow_duplicate_ip_names():
     """Dataflow containing 2 IP cores with the same name."""
-    return read_json_file("tests/data/data_kpm/dataflow_duplicate_ips.json")
+    return get_dataflow_test("dataflow_duplicate_ips")
 
 
 @pytest.fixture
 def dataflow_invalid_parameters_values():
     """Dataflow containing an IP core with parameter in wrong format"""
-    return read_json_file("tests/data/data_kpm/dataflow_invalid_params.json")
+    return get_dataflow_test("dataflow_invalid_params")
 
 
 @pytest.fixture
 def dataflow_ext_in_to_ext_out_connections():
     """Dataflow containing Metanode<->Metanode connection"""
-    return read_json_file("tests/data/data_kpm/dataflow_meta_to_meta_conn.json")
+    return get_dataflow_test("dataflow_meta_to_meta_conn")
 
 
 @pytest.fixture
 def dataflow_ambigous_ports():
     """Dataflow containing a port connected to another port and a metanode simultaneously"""
-    return read_json_file("tests/data/data_kpm/dataflow_ambigous_ports.json")
+    return get_dataflow_test("dataflow_ambigous_ports")
 
 
 @pytest.fixture
 def dataflow_external_metanodes_types_mismatch():
     """Dataflow containing a connection from output port to External Inout"""
-    return read_json_file("tests/data/data_kpm/dataflow_external_metanodes_mismatch.json")
+    return get_dataflow_test("dataflow_external_metanodes_mismatch")
 
 
 @pytest.fixture
 def dataflow_duplicate_ext_out_port_names():
     """Dataflow containing two External Output metanodes with the same "External Name" value"""
-    return read_json_file("tests/data/data_kpm/dataflow_duplicate_ext_out_ports.json")
+    return get_dataflow_test("dataflow_duplicate_ext_out_ports")
 
 
 @pytest.fixture
@@ -61,25 +65,19 @@ def dataflow_missing_ext_input_value():
     """Dataflow containing External Input metanode connected to 2 nodes representing IP cores
     with missing "External Name" value
     """
-    return read_json_file("tests/data/data_kpm/dataflow_missing_ext_input.json")
+    return get_dataflow_test("dataflow_missing_ext_input")
 
 
 @pytest.fixture
 def dataflow_duplicate_external_input_interfaces():
     """Dataflow containing two external input interfaces with the same name"""
-    return read_json_file("tests/data/data_kpm/dataflow_duplicate_ext_input_ifaces.json")
+    return get_dataflow_test("dataflow_duplicate_ext_input_ifaces")
 
 
 @pytest.fixture
 def dataflow_inouts_connections():
     """Dataflow containing a connection between two inout ports"""
-    return read_json_file("tests/data/data_kpm/dataflow_inouts_connections.json")
-
-
-@pytest.fixture
-def specification_duplicate_external_input_interfaces():
-    """Specification compatible with `dataflow_duplicate_external_input_interfaces`"""
-    return read_json_file("tests/data/data_kpm/spec_duplicate_ext_input_ifaces.json")
+    return get_dataflow_test("dataflow_inouts_connections")
 
 
 # Test validation checks by running them on PWM dataflow

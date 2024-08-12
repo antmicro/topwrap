@@ -121,6 +121,7 @@ class TestHDMIDataflowExport:
         """Check whether generated external ports/interfaces descriptions in "externals" section
         of a design description YAML match the values from `examples/hdmi/project.yml`.
         """
+
         assert _kpm_connections_to_external(hdmi_dataflow, hdmi_specification) == {
             "ports": {
                 "hdmi": {
@@ -132,7 +133,8 @@ class TestHDMIDataflowExport:
                     "HDMI_D1_N": "HDMI_D1_N",
                     "HDMI_D2_P": "HDMI_D2_P",
                     "HDMI_D2_N": "HDMI_D2_N",
-                }
+                },
+                "ps7": {},
             },
             "interfaces": {},
             "external": {
@@ -148,7 +150,29 @@ class TestHDMIDataflowExport:
                         "HDMI_D2_P",
                         "HDMI_D2_N",
                     ],
-                    "inout": [],
+                    "inout": [
+                        ["ps7", "ddr_addr"],
+                        ["ps7", "ddr_bankaddr"],
+                        ["ps7", "ddr_cas_n"],
+                        ["ps7", "ddr_cke"],
+                        ["ps7", "ddr_clk"],
+                        ["ps7", "ddr_clk_n"],
+                        ["ps7", "ddr_cs_n"],
+                        ["ps7", "ddr_dm"],
+                        ["ps7", "ddr_dq"],
+                        ["ps7", "ddr_dqs"],
+                        ["ps7", "ddr_dqs_n"],
+                        ["ps7", "ddr_drstb"],
+                        ["ps7", "ddr_odt"],
+                        ["ps7", "ddr_ras_n"],
+                        ["ps7", "ddr_vr_n"],
+                        ["ps7", "ddr_vr"],
+                        ["ps7", "ddr_web"],
+                        ["ps7", "ps_mio"],
+                        ["ps7", "ps_clk"],
+                        ["ps7", "ps_porb"],
+                        ["ps7", "ps_srstb"],
+                    ],
                 },
                 "interfaces": {"in": [], "out": [], "inout": []},
             },
@@ -161,16 +185,16 @@ class TestHDMIDataflowExport:
         assert _kpm_connections_to_constant(hdmi_dataflow, hdmi_specification) == {
             "ports": {
                 "reset0": {
-                    "aux_reset_in": "0",
-                    "dcm_locked": "1",
-                    "ext_reset_in": "0",
-                    "mb_debug_sys_rst": "0",
+                    "aux_reset_in": 0,
+                    "dcm_locked": 1,
+                    "ext_reset_in": 0,
+                    "mb_debug_sys_rst": 0,
                 },
                 "reset1": {
-                    "aux_reset_in": "0",
-                    "dcm_locked": "1",
-                    "ext_reset_in": "0",
-                    "mb_debug_sys_rst": "0",
+                    "aux_reset_in": 0,
+                    "dcm_locked": 1,
+                    "ext_reset_in": 0,
+                    "mb_debug_sys_rst": 0,
                 },
             }
         }

@@ -1,0 +1,108 @@
+{
+  "version": "20240723.13",
+  "metadata": {
+    "randomizedOffset": true
+  },
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "c55412bd-bc31-49c5-a44d-45e1617995f6",
+          "id": "4f7e1a8e-5ce2-4144-a224-795e752e8693",
+          "to": "8eb056f8-17b9-4ab4-af73-f8c953020dc2"
+        },
+        {
+          "from": "c55412bd-bc31-49c5-a44d-45e1617995f6",
+          "id": "4ea8fbf7-1a19-46a7-b18d-8dc0ef279506",
+          "to": "08f15445-09c3-409e-9e73-bb059e069321"
+        }
+      ],
+      "id": "169383254977833",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "8863c553-29cb-452d-8ae1-4c62089947a9",
+          "instanceName": "ps7",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "08f15445-09c3-409e-9e73-bb059e069321",
+              "name": "MAXIGP0ACLK",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "c55412bd-bc31-49c5-a44d-45e1617995f6",
+              "name": "FCLK0",
+              "side": "right",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "93af285d-3500-43fd-8f03-7d0c881702b3",
+              "name": "MAXIGP0ARESETN",
+              "side": "right",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "e5bf2889-a6c6-41f3-8eb3-c3d332acbf8b",
+              "name": "FCLK_RESET0_N",
+              "side": "right",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "59de0437-127c-453f-b625-96d2dacfab98",
+              "name": "M_AXI_GP0",
+              "side": "right",
+              "sidePosition": 3
+            }
+          ],
+          "name": "ps7",
+          "position": {
+            "x": -1260,
+            "y": 90
+          },
+          "properties": [],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "d8594cde-ae77-4e02-9cfa-d58a2cc77015",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "8eb056f8-17b9-4ab4-af73-f8c953020dc2",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": -720,
+            "y": 30
+          },
+          "properties": [
+            {
+              "id": "9622a069-b133-4fb3-841c-67cd94e5f47c",
+              "name": "External Name",
+              "value": ""
+            }
+          ],
+          "twoColumn": false,
+          "width": 200
+        }
+      ],
+      "panning": {
+        "x": 1980.6135804359978,
+        "y": 131.39612752830675
+      },
+      "scaling": 0.7543196738637923
+    }
+  ]
+}

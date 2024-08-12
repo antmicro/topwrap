@@ -1,0 +1,146 @@
+design:
+  hierarchies:
+    complex_sub:
+      design:
+        hierarchies:
+          sub_1:
+            design:
+              parameters:
+                s1_mod_1: {}
+                s1_mod_2: {}
+                s1_mod_3:
+                  SUB_VALUE: 18
+              ports:
+                s1_mod_1:
+                  cs_s1_f_mod_in_1: cs_s1_mod_in_1
+                s1_mod_2:
+                  cs_s1_f_int_out_1: cs_s1_int_out_1
+                  cs_s1_mint_in_1:
+                  - s1_mod_1
+                  - cs_s1_mint_out_1
+                s1_mod_3:
+                  cs_s1_f_int_out_2: cs_s1_int_out_2
+                  cs_s1_mint_in_2:
+                  - s1_mod_1
+                  - cs_s1_mint_out_1
+            external:
+              ports:
+                in:
+                - cs_s1_mod_in_1
+                out:
+                - cs_s1_int_out_1
+                - cs_s1_int_out_2
+          sub_2:
+            design:
+              parameters:
+                s2_mod_1: {}
+                s2_mod_2: {}
+              ports:
+                s2_mod_1:
+                  cs_s2_f_int_in_1: cs_s2_int_in_1
+                  cs_s2_f_int_in_2: cs_s2_int_in_2
+                s2_mod_2:
+                  cs_s2_f_mod_out_1: cs_s2_mod_out_1
+                  cs_s2_mint_in_1:
+                  - s2_mod_1
+                  - cs_s2_mint_out_1
+                  cs_s2_mint_in_2:
+                  - s2_mod_1
+                  - cs_s2_mint_out_2
+            external:
+              ports:
+                in:
+                - cs_s2_int_in_1
+                - cs_s2_int_in_2
+                out:
+                - cs_s2_mod_out_1
+        ports:
+          sub_1:
+            cs_s1_mod_in_1: cs_in_1
+          sub_2:
+            cs_s2_int_in_1:
+            - sub_1
+            - cs_s1_int_out_1
+            cs_s2_int_in_2:
+            - sub_1
+            - cs_s1_int_out_2
+            cs_s2_mod_out_1: cs_out_1
+      external:
+        ports:
+          in:
+          - cs_in_1
+          out:
+          - cs_out_1
+    counter:
+      design:
+        parameters:
+          c_mod_1:
+            MAX_VALUE: 16
+          c_mod_2: {}
+          c_mod_3: {}
+        ports:
+          c_mod_1:
+            c_mod_in_1: c_in_1
+          c_mod_2:
+            c_mod_in_2: c_in_2
+          c_mod_3:
+            c_int_in_1:
+            - c_mod_2
+            - c_int_out_2
+            c_int_in_2:
+            - c_mod_1
+            - c_int_out_1
+            c_mod_out_1: c_out_1
+      external:
+        ports:
+          in:
+          - c_in_1
+          - c_in_2
+          out:
+          - c_out_1
+  ports:
+    complex_sub:
+      cs_in_1:
+      - counter
+      - c_out_1
+      cs_out_1: ex_in_1
+    counter:
+      c_in_1: ex_out_1
+      c_in_2: ex_out_2
+external:
+  interfaces:
+    in: []
+    inout: []
+    out: []
+  ports:
+    in:
+    - ex_out_1
+    - ex_out_2
+    inout: []
+    out:
+    - ex_in_1
+ips:
+  c_mod_1:
+    file: examples/hierarchy/repo/cores/c_mod_1/c_mod_1.yaml
+    module: c_mod_1
+  c_mod_2:
+    file: examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml
+    module: c_mod_2
+  c_mod_3:
+    file: examples/hierarchy/repo/cores/c_mod_3/c_mod_3.yaml
+    module: c_mod_3
+  s1_mod_1:
+    file: examples/hierarchy/repo/cores/s1_mod_1/s1_mod_1.yaml
+    module: s1_mod_1
+  s1_mod_2:
+    file: examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml
+    module: s1_mod_2
+  s1_mod_3:
+    file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+    module: s1_mod_3
+  s2_mod_1:
+    file: examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+    module: s2_mod_1
+  s2_mod_2:
+    file: examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml
+    module: s2_mod_2

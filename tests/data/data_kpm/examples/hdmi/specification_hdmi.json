@@ -1,0 +1,1317 @@
+{
+  "version": "20240723.13",
+  "metadata": {
+    "allowLoopbacks": true,
+    "backgroundSize": 15,
+    "connectionStyle": "orthogonal",
+    "interfaces": {
+      "iface_AXI3": {
+        "interfaceColor": "#00ca7c",
+        "interfaceConnectionColor": "#ffffff",
+        "interfaceConnectionPattern": "dashed"
+      },
+      "iface_AXI4": {
+        "interfaceColor": "#00ca7c",
+        "interfaceConnectionColor": "#ffffff",
+        "interfaceConnectionPattern": "dashed"
+      },
+      "iface_AXI4Lite": {
+        "interfaceColor": "#00ca7c",
+        "interfaceConnectionColor": "#ffffff",
+        "interfaceConnectionPattern": "dashed"
+      },
+      "iface_AXI4Stream": {
+        "interfaceColor": "#00ca7c",
+        "interfaceConnectionColor": "#ffffff",
+        "interfaceConnectionPattern": "dashed"
+      },
+      "port": {
+        "interfaceColor": "#00ca7c",
+        "interfaceConnectionColor": "#ffffff",
+        "interfaceConnectionPattern": "solid"
+      }
+    },
+    "layout": "CytoscapeEngine - grid",
+    "movementStep": 15,
+    "twoColumn": true
+  },
+  "nodes": [
+    {
+      "abstract": false,
+      "additionalData": "examples/hdmi/ipcores/axi_dispctrl.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "FSYNC_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "DIEN_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HSYNC_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "DIH_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "s00_axi_aresetn",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "s00_axi_aclk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "DATA_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "LOCKED_I",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "DE_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "VGUARD_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "CTL_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "S_AXIS_ACLK",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "VSYNC_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "DGUARD_O",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "S00_AXI",
+          "type": [
+            "iface_AXI4Lite"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "S_AXIS",
+          "type": [
+            "iface_AXI4Stream"
+          ]
+        }
+      ],
+      "layer": "axi_dispctrl",
+      "name": "axi_dispctrl"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hdmi/ipcores/clock_crossing.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "clkA",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "B",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "clkB",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "A",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "clock_crossing",
+      "name": "clock_crossing"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hdmi/ipcores/dma_axi_in_axis_out.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "clock",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "io_irq_writerDone",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "io_sync_readerSync",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "io_sync_writerSync",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "io_irq_readerDone",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "reset",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axis",
+          "type": [
+            "iface_AXI4Stream"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "s_axi",
+          "type": [
+            "iface_AXI4Lite"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axi",
+          "type": [
+            "iface_AXI4"
+          ]
+        }
+      ],
+      "layer": "dma_axi_in_axis_out",
+      "name": "dma_axi_in_axis_out"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hdmi/ipcores/hdmi_tx.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "VGA_HS",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_D0_N",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "CTL",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "VGA_VS",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "PXLCLK_I",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_D2_N",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "DATA_I",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_D1_N",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_CLK_N",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "DGUARD",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "DIH",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_D1_P",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "PXLCLK_5X_I",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "VGA_DE",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_D2_P",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "VGUARD",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "DIEN",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "LOCKED_I",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_D0_P",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "HDMI_CLK_P",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "hdmi_tx",
+      "name": "hdmi_tx"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hdmi/ipcores/litex_mmcm.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "clkgen_locked",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "sys_rst",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "sys_clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "clkgen_out0",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "clkgen_out1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "clkgen_ref",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "axi",
+          "type": [
+            "iface_AXI4Lite"
+          ]
+        }
+      ],
+      "layer": "litex_mmcm",
+      "name": "litex_mmcm"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hdmi/ipcores/proc_sys_reset.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "slowest_sync_clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "ext_reset_in",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "bus_struct_reset",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "interconnect_aresetn",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "mb_reset",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "aux_reset_in",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "peripheral_reset",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "dcm_locked",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "mb_debug_sys_rst",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "peripheral_aresetn",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "proc_sys_reset",
+      "name": "proc_sys_reset"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hdmi/ipcores/ps7.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "inout",
+          "name": "ddr_vr",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_addr",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "SAXIHP0RCOUNT",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_ras_n",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "MAXIGP0ARESETN",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "SAXIHP0WCOUNT",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_drstb",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "IRQ_F2P_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_clk_n",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_bankaddr",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ps_mio",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_cke",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_odt",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "FCLK0",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_vr_n",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_web",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ps_srstb",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_dq",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_cas_n",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "SAXIHP0ACLK",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_cs_n",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "SAXIHP0WACOUNT",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "MAXIGP0ACLK",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "FCLK_RESET0_N",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_dqs",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ps_porb",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "SAXIHP0RACOUNT",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "FCLK1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ps_clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "IRQ_F2P_0",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_dqs_n",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "ddr_dm",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "SAXIHP0ARESETN",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "M_AXI_GP0",
+          "type": [
+            "iface_AXI4"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "S_AXI_HP0",
+          "type": [
+            "iface_AXI3"
+          ]
+        }
+      ],
+      "layer": "ps7",
+      "name": "ps7"
+    },
+    {
+      "abstract": false,
+      "additionalData": "topwrap/ips/axi/axi_axil_adapter.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "rst",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "s_axi",
+          "type": [
+            "iface_AXI4"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axi",
+          "type": [
+            "iface_AXI4Lite"
+          ]
+        }
+      ],
+      "layer": "axi_axil_adapter",
+      "name": "axi_axil_adapter",
+      "properties": [
+        {
+          "default": "32",
+          "name": "ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "AXI_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "8",
+          "name": "AXI_ID_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "AXI_DATA_WIDTH/8",
+          "name": "AXI_STRB_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "AXIL_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "AXIL_DATA_WIDTH/8",
+          "name": "AXIL_STRB_WIDTH",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": "topwrap/ips/axi/axis_async_fifo.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "s_clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "m_clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "s_status_bad_frame",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_status_good_frame",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "s_status_good_frame",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "async_rst",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_status_overflow",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "s_status_overflow",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_status_bad_frame",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "s_axis",
+          "type": [
+            "iface_AXI4Stream"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axis",
+          "type": [
+            "iface_AXI4Stream"
+          ]
+        }
+      ],
+      "layer": "axis_async_fifo",
+      "name": "axis_async_fifo",
+      "properties": [
+        {
+          "default": "8",
+          "name": "DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "(DATA_WIDTH+7)/8",
+          "name": "KEEP_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "8",
+          "name": "ID_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "8",
+          "name": "DEST_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "USER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "0",
+          "name": "ID_ENABLE",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "USER_ENABLE",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": "topwrap/ips/axi/axis_dwidth_converter.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "aclk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "aresetn",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "s_axis",
+          "type": [
+            "iface_AXI4Stream"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axis",
+          "type": [
+            "iface_AXI4Stream"
+          ]
+        }
+      ],
+      "layer": "axis_dwidth_converter",
+      "name": "axis_dwidth_converter",
+      "properties": [
+        {
+          "default": "64",
+          "name": "IN_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "OUT_DATA_WIDTH",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": "topwrap/ips/axi/axi_protocol_converter.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "aclk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "aresetn",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "S_AXI",
+          "type": [
+            "iface_AXI4"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "M_AXI",
+          "type": [
+            "iface_AXI3"
+          ]
+        }
+      ],
+      "layer": "axi_protocol_converter",
+      "name": "axi_protocol_converter"
+    },
+    {
+      "abstract": false,
+      "additionalData": "topwrap/ips/axi/axi_interconnect.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "rst",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "s_axi_0",
+          "type": [
+            "iface_AXI4"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axi_0",
+          "type": [
+            "iface_AXI4"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axi_1",
+          "type": [
+            "iface_AXI4"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "m_axi_2",
+          "type": [
+            "iface_AXI4"
+          ]
+        }
+      ],
+      "layer": "axi_interconnect",
+      "name": "axi_interconnect",
+      "properties": [
+        {
+          "default": "1",
+          "name": "S_COUNT",
+          "type": "text"
+        },
+        {
+          "default": "4",
+          "name": "M_COUNT",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "12",
+          "name": "ID_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "0",
+          "name": "M_BASE_ADDR",
+          "type": "text"
+        },
+        {
+          "default": "96'h100000001000000010",
+          "name": "M_ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "AWUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "WUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "ARUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "BUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "RUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "DATA_WIDTH/8",
+          "name": "STRB_WIDTH",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "external",
+          "type": [
+            "port",
+            "iface_AXI3",
+            "iface_AXI4Stream",
+            "iface_AXI4",
+            "iface_AXI4Lite"
+          ]
+        }
+      ],
+      "layer": "External Output",
+      "name": "External Output",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "external",
+          "type": [
+            "port",
+            "iface_AXI3",
+            "iface_AXI4Stream",
+            "iface_AXI4",
+            "iface_AXI4Lite"
+          ]
+        }
+      ],
+      "layer": "External Input",
+      "name": "External Input",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "inout",
+          "name": "external",
+          "type": [
+            "port",
+            "iface_AXI3",
+            "iface_AXI4Stream",
+            "iface_AXI4",
+            "iface_AXI4Lite"
+          ]
+        }
+      ],
+      "layer": "External Inout",
+      "name": "External Inout",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "constant",
+          "type": [
+            "port",
+            "iface_AXI3",
+            "iface_AXI4Stream",
+            "iface_AXI4",
+            "iface_AXI4Lite"
+          ]
+        }
+      ],
+      "layer": "Constant",
+      "name": "Constant",
+      "properties": [
+        {
+          "default": "0",
+          "name": "Constant Value",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

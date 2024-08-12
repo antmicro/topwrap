@@ -217,7 +217,8 @@ def add_node_type_to_specfication(specification_builder: SpecificationBuilder, n
             node.name, interface.name, interface.type, interface.direction
         )
 
-    specification_builder.add_node_type_additional_data(node.name, node.additional_data)
+    if node.additional_data is not None:
+        specification_builder.add_node_type_additional_data(node.name, node.additional_data)
 
 
 def add_metadata_to_specification(

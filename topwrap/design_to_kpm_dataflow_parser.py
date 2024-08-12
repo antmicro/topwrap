@@ -630,7 +630,7 @@ def kpm_metanodes_connections_from_design_descr(
         if kpm_interface is not None and kpm_metanode is not None:
             # Metanodes have exactly 1 interface; hence we can take 0th index
             # of the `interfaces` array of a metanode to access the interface.
-            result.append(_create_connection(kpm_interface, kpm_metanode.interfaces[0]))
+            result.append(_create_connection(kpm_metanode.interfaces[0], kpm_interface))
     return [conn for conn in result if conn is not None]
 
 

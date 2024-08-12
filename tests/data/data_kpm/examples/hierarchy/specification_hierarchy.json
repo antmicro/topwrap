@@ -1,0 +1,334 @@
+{
+  "version": "20240723.13",
+  "metadata": {
+    "allowLoopbacks": true,
+    "backgroundSize": 15,
+    "connectionStyle": "orthogonal",
+    "interfaces": {
+      "port": {
+        "interfaceColor": "#00ca7c",
+        "interfaceConnectionColor": "#ffffff",
+        "interfaceConnectionPattern": "solid"
+      }
+    },
+    "layout": "CytoscapeEngine - grid",
+    "movementStep": 15,
+    "twoColumn": true
+  },
+  "nodes": [
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/c_mod_1/c_mod_1.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "c_mod_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "c_int_out_1",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "c_mod_1",
+      "name": "c_mod_1",
+      "properties": [
+        {
+          "default": "32",
+          "name": "MAX_VALUE",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "c_mod_in_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "c_int_out_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "c_mod_2",
+      "name": "c_mod_2"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/c_mod_3/c_mod_3.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "c_mod_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "c_int_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "c_int_in_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "c_mod_3",
+      "name": "c_mod_3"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/s1_mod_1/s1_mod_1.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "cs_s1_f_mod_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "cs_s1_mint_out_1",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "s1_mod_1",
+      "name": "s1_mod_1"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "cs_s1_f_int_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "cs_s1_mint_in_1",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "s1_mod_2",
+      "name": "s1_mod_2"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "cs_s1_mint_in_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "cs_s1_f_int_out_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "s1_mod_3",
+      "name": "s1_mod_3",
+      "properties": [
+        {
+          "default": "18",
+          "name": "SUB_VALUE",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "cs_s2_mint_out_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "cs_s2_mint_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "cs_s2_f_int_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "cs_s2_f_int_in_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "s2_mod_1",
+      "name": "s2_mod_1"
+    },
+    {
+      "abstract": false,
+      "additionalData": "examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "cs_s2_f_mod_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "cs_s2_mint_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "name": "cs_s2_mint_in_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "s2_mod_2",
+      "name": "s2_mod_2"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "external",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "External Output",
+      "name": "External Output",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "external",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "External Input",
+      "name": "External Input",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "inout",
+          "name": "external",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "External Inout",
+      "name": "External Inout",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "constant",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "Constant",
+      "name": "Constant",
+      "properties": [
+        {
+          "default": "0",
+          "name": "Constant Value",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}
