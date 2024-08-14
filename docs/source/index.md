@@ -3,6 +3,7 @@
 ```{toctree}
 :caption: Documentation
 :maxdepth: 2
+introduction
 getting_started
 description_files
 interconnect_gen
