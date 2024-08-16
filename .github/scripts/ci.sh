@@ -51,12 +51,13 @@ enter_venv() {
 install_topwrap_system_deps() {
     enter_venv
 
-    begin_command_group "Installing tuttest"
-    log_cmd pip install git+https://github.com/antmicro/tuttest
-    end_command_group
-
     begin_command_group "Installing topwrap dependencies"
-    log_cmd "tuttest README.md | head -n 1 | bash -"
+    log_cmd apt-get install -y --no-install-recommends \
+        g++ \
+        make \
+        antlr4 \
+        libantlr4-runtime-dev \
+        yosys
     end_command_group
 }
 
