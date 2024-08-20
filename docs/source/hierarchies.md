@@ -41,4 +41,4 @@ hierarchies:
       ...
 ```
 
-More complex hierarchy example can be found in [examples/hierarchies](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy).
+More complex hierarchy example can be found in [examples/hierarchy](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy).

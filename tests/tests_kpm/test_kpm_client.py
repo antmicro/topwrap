@@ -63,6 +63,7 @@ class TestClient:
             all_yaml_files.items(), all_dataflow_files.values(), all_encoded_design_files.values()
         ):
             default_rpc_params.yamlfiles = ip_core_yamls
+
             response_message = RPCMethods(default_rpc_params).dataflow_export(dataflow_json)
             assert (
                 response_message["content"] == encoded_design

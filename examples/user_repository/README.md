@@ -18,7 +18,7 @@ python -m topwrap kpm_run_server
 Navigate to `/examples/user_repository/` directory and run:
 
 ```
-python -m topwrap kpm_client
+python -m topwrap kpm_client -d project.yml
 ```
 
 Connect to the web GUI frontend in your browser on `http://127.0.0.1:5000`
@@ -28,10 +28,6 @@ Connect to the web GUI frontend in your browser on `http://127.0.0.1:5000`
 Topwrap will load two cores from the `cores` directory that use an interface from the `interfaces` directory.
 
 In the side panel under `IPcore` should be visible two loaded cores: `core1` and `core2`.
-
-Additionally, You can load the `design.yaml` in kpm by choosing "Load file" from the first dropdown menu in the main navigation bar.
-
-![Loading design](loading_design.png)
 
 The loaded design should look like this:
 

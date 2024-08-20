@@ -3,5 +3,6 @@ name: s1_mod_1
 signals:
   in:
     - cs_s1_f_mod_in_1
+    - cs_s1_f_ext_const_in
   out:
     - cs_s1_mint_out_1

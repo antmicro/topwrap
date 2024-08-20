@@ -4,17 +4,11 @@ design:
       design:
         hierarchies:
           sub_1:
-            ips:
-              s1_mod_1:
-                file: repo/repo/cores/s1_mod_1/s1_mod_1.yaml
-                module: s1_mod_1
-              s1_mod_2:
-                file: repo/repo/cores/s1_mod_2/s1_mod_2.yaml
-                module: s1_mod_2
-              s1_mod_3:
-                file: repo/repo/cores/s1_mod_3/s1_mod_3.yaml
-                module: s1_mod_3
             design:
+              hierarchies: {}
+              interconnects: {}
+              interfaces: {}
+              name: null
               parameters:
                 s1_mod_1: {}
                 s1_mod_2: {}
@@ -22,6 +16,7 @@ design:
                   SUB_VALUE: 18
               ports:
                 s1_mod_1:
+                  cs_s1_f_ext_const_in: cs_s1_int_const_in
                   cs_s1_f_mod_in_1: cs_s1_mod_in_1
                 s1_mod_2:
                   cs_s1_f_int_out_1: cs_s1_int_out_1
@@ -34,22 +29,33 @@ design:
                   - s1_mod_1
                   - cs_s1_mint_out_1
             external:
+              interfaces:
+                in: []
+                out: []
               ports:
                 in:
+                - cs_s1_int_const_in
                 - cs_s1_mod_in_1
+                inout: []
                 out:
                 - cs_s1_int_out_1
                 - cs_s1_int_out_2
-          sub_2:
             ips:
-              s2_mod_1:
-                file: repo/repo/cores/s2_mod_1/s2_mod_1.yaml
-                module: s2_mod_1
-              s2_mod_2:
-                file: repo/repo/cores/s2_mod_2/s2_mod_2.yaml
-                module: s2_mod_2
-
+              s1_mod_1:
+                file: repo/cores/s1_mod_1/s1_mod_1.yaml
+                module: s1_mod_1
+              s1_mod_2:
+                file: repo/cores/s1_mod_2/s1_mod_2.yaml
+                module: s1_mod_2
+              s1_mod_3:
+                file: repo/cores/s1_mod_3/s1_mod_3.yaml
+                module: s1_mod_3
+          sub_2:
             design:
+              hierarchies: {}
+              interconnects: {}
+              interfaces: {}
+              name: null
               parameters:
                 s2_mod_1: {}
                 s2_mod_2: {}
@@ -66,14 +72,30 @@ design:
                   - s2_mod_1
                   - cs_s2_mint_out_2
             external:
+              interfaces:
+                in: []
+                out: []
               ports:
                 in:
-                - cs_s2_int_in_1
                 - cs_s2_int_in_2
+                - cs_s2_int_in_1
+                inout: []
                 out:
                 - cs_s2_mod_out_1
+            ips:
+              s2_mod_1:
+                file: repo/cores/s2_mod_1/s2_mod_1.yaml
+                module: s2_mod_1
+              s2_mod_2:
+                file: repo/cores/s2_mod_2/s2_mod_2.yaml
+                module: s2_mod_2
+        interconnects: {}
+        interfaces: {}
+        name: null
+        parameters: {}
         ports:
           sub_1:
+            cs_s1_int_const_in: 1
             cs_s1_mod_in_1: cs_in_1
           sub_2:
             cs_s2_int_in_1:
@@ -84,23 +106,22 @@ design:
             - cs_s1_int_out_2
             cs_s2_mod_out_1: cs_out_1
       external:
+        interfaces:
+          in: []
+          out: []
         ports:
           in:
           - cs_in_1
+          inout: []
           out:
           - cs_out_1
+      ips: {}
     counter:
-      ips:
-        c_mod_1:
-          file: repo/repo/cores/c_mod_1/c_mod_1.yaml
-          module: c_mod_1
-        c_mod_2:
-          file: repo/repo/cores/c_mod_2/c_mod_2.yaml
-          module: c_mod_2
-        c_mod_3:
-          file: repo/repo/cores/c_mod_3/c_mod_3.yaml
-          module: c_mod_3
       design:
+        hierarchies: {}
+        interconnects: {}
+        interfaces: {}
+        name: null
         parameters:
           c_mod_1:
             MAX_VALUE: 16
@@ -112,6 +133,7 @@ design:
           c_mod_2:
             c_mod_in_2: c_in_2
           c_mod_3:
+            c_int_const_in: 1
             c_int_in_1:
             - c_mod_2
             - c_int_out_2
@@ -120,12 +142,30 @@ design:
             - c_int_out_1
             c_mod_out_1: c_out_1
       external:
+        interfaces:
+          in: []
+          out: []
         ports:
           in:
           - c_in_1
           - c_in_2
+          inout: []
           out:
           - c_out_1
+      ips:
+        c_mod_1:
+          file: repo/cores/c_mod_1/c_mod_1.yaml
+          module: c_mod_1
+        c_mod_2:
+          file: repo/cores/c_mod_2/c_mod_2.yaml
+          module: c_mod_2
+        c_mod_3:
+          file: repo/cores/c_mod_3/c_mod_3.yaml
+          module: c_mod_3
+  interconnects: {}
+  interfaces: {}
+  name: null
+  parameters: {}
   ports:
     complex_sub:
       cs_in_1:
@@ -146,3 +186,4 @@ external:
     inout: []
     out:
     - ex_in_1
+ips: {}

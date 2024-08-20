@@ -1,49 +1,49 @@
 {
   "version": "20240723.13",
-  "entryGraph": "172356035164622",
+  "entryGraph": "172415658463022",
   "graphs": [
     {
       "connections": [
         {
-          "from": "ni_172356035164615",
-          "id": "710568bb-1ad8-40f2-9da8-989c435229dd",
-          "to": "ni_17235603516469"
+          "from": "ni_172415658463015",
+          "id": "9b52ff33-550b-40e2-8146-7e7c7f0e6a2d",
+          "to": "ni_17241565846309"
         },
         {
-          "from": "ni_172356035164610",
-          "id": "e910afc0-f830-49d0-a32a-8cd45d9f30f6",
-          "to": "ni_17235603516467"
+          "from": "ni_172415658463010",
+          "id": "82e512a1-7064-469b-a50c-b14e76262614",
+          "to": "ni_17241565846307"
         },
         {
-          "from": "ni_17235603516461",
-          "id": "b31cf888-9dfc-4983-97da-0a24b5eccd4e",
-          "to": "ni_172356035164613"
+          "from": "ni_17241565846301",
+          "id": "15740a14-2451-4ad2-ab4f-89bafe123b50",
+          "to": "ni_172415658463013"
         },
         {
-          "from": "ni_17235603516464",
-          "id": "80e6741b-d318-4f25-bad9-29cec9aa8ee9",
-          "to": "ni_172356035164614"
+          "from": "ni_17241565846304",
+          "id": "c68d2686-0186-42dd-8e69-7d69fde34186",
+          "to": "ni_172415658463014"
         }
       ],
-      "id": "172356035164622",
+      "id": "172415658463022",
       "nodes": [
         {
-          "id": "85fe2adc-442d-4eb2-8cbf-5ba64658873b",
+          "id": "552902fd-7bb3-4a4a-95fa-2ae27ae1b79a",
           "instanceName": "complex_sub",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_17235603516469",
+              "id": "ni_17241565846309",
               "name": "cs_in_1",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "output",
-              "id": "ni_172356035164610",
+              "id": "ni_172415658463010",
               "name": "cs_out_1",
               "side": "right",
-              "sidePosition": 1
+              "sidePosition": 0
             }
           ],
           "name": "New Graph Node",
@@ -51,34 +51,34 @@
             "x": 0,
             "y": 0
           },
-          "subgraph": "172356035164611",
-          "twoColumn": false,
+          "subgraph": "172415658463011",
+          "twoColumn": true,
           "width": 200
         },
         {
-          "id": "29ddb808-8a74-44c9-95d6-96d74dace7f8",
+          "id": "1584c854-bcdd-46d6-8ff7-ec9e22b3f500",
           "instanceName": "counter",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172356035164613",
+              "id": "ni_172415658463013",
               "name": "c_in_1",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "input",
-              "id": "ni_172356035164614",
+              "id": "ni_172415658463014",
               "name": "c_in_2",
               "side": "left",
               "sidePosition": 1
             },
             {
               "direction": "output",
-              "id": "ni_172356035164615",
+              "id": "ni_172415658463015",
               "name": "c_out_1",
               "side": "right",
-              "sidePosition": 2
+              "sidePosition": 0
             }
           ],
           "name": "New Graph Node",
@@ -86,18 +86,18 @@
             "x": 0,
             "y": 0
           },
-          "subgraph": "172356035164616",
-          "twoColumn": false,
+          "subgraph": "172415658463016",
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_17235603516462",
+          "id": "node_17241565846302",
           "instanceName": "External Input",
           "interfaces": [
             {
               "direction": "output",
-              "id": "ni_17235603516461",
+              "id": "ni_17241565846301",
               "name": "external",
               "side": "right",
               "sidePosition": 0
@@ -110,22 +110,22 @@
           },
           "properties": [
             {
-              "id": "17235603516460",
+              "id": "17241565846300",
               "name": "External Name",
               "value": "ex_out_1"
             }
           ],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_17235603516465",
+          "id": "node_17241565846305",
           "instanceName": "External Input",
           "interfaces": [
             {
               "direction": "output",
-              "id": "ni_17235603516464",
+              "id": "ni_17241565846304",
               "name": "external",
               "side": "right",
               "sidePosition": 0
@@ -138,22 +138,22 @@
           },
           "properties": [
             {
-              "id": "17235603516463",
+              "id": "17241565846303",
               "name": "External Name",
               "value": "ex_out_2"
             }
           ],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_17235603516468",
+          "id": "node_17241565846308",
           "instanceName": "External Output",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_17235603516467",
+              "id": "ni_17241565846307",
               "name": "external",
               "side": "left",
               "sidePosition": 0
@@ -166,12 +166,12 @@
           },
           "properties": [
             {
-              "id": "17235603516466",
+              "id": "17241565846306",
               "name": "External Name",
               "value": "ex_in_1"
             }
           ],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         }
       ]
@@ -179,43 +179,55 @@
     {
       "connections": [
         {
-          "from": "ni_172356035164624",
-          "id": "abdb73b0-b590-47cb-9db4-3b5bb50a74f5",
-          "to": "ni_172356035164628"
+          "from": "ni_172415658463125",
+          "id": "87d9af84-4d41-4d12-ba32-d2c42e78620f",
+          "to": "ni_172415658463129"
         },
         {
-          "from": "ni_172356035164625",
-          "id": "cf5601e6-a88b-4927-8a8e-88e977d52171",
-          "to": "ni_172356035164629"
+          "from": "ni_172415658463126",
+          "id": "3b29cb08-800f-435b-bb76-95908ee1cc42",
+          "to": "ni_172415658463130"
+        },
+        {
+          "from": "ni_172415658463137",
+          "id": "dab99c30-836e-4e7d-8b3b-74186d4dc969",
+          "to": "ni_172415658463124"
         }
       ],
-      "id": "172356035164611",
+      "id": "172415658463011",
       "nodes": [
         {
-          "id": "9952059e-1da2-4320-a456-3c345239e25a",
+          "id": "721f3c63-badc-4ca1-b7cc-d4dcbe156613",
           "instanceName": "sub_1",
           "interfaces": [
             {
               "direction": "input",
+              "id": "ni_172415658463124",
+              "name": "cs_s1_int_const_in",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
               "externalName": "cs_in_1",
-              "id": "ni_17235603516469",
+              "id": "ni_17241565846309",
               "name": "cs_s1_mod_in_1",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "output",
-              "id": "ni_172356035164624",
+              "id": "ni_172415658463125",
               "name": "cs_s1_int_out_1",
               "side": "right",
-              "sidePosition": 1
+              "sidePosition": 0
             },
             {
               "direction": "output",
-              "id": "ni_172356035164625",
+              "id": "ni_172415658463126",
               "name": "cs_s1_int_out_2",
               "side": "right",
-              "sidePosition": 2
+              "sidePosition": 1
             }
           ],
           "name": "New Graph Node",
@@ -223,35 +235,35 @@
             "x": 0,
             "y": 0
           },
-          "subgraph": "172356035164626",
-          "twoColumn": false,
+          "subgraph": "172415658463127",
+          "twoColumn": true,
           "width": 200
         },
         {
-          "id": "2c8a137f-2fb5-4362-b0a7-0acbbd664533",
+          "id": "f27fb2d7-e447-4c2a-bb5c-52649005c27b",
           "instanceName": "sub_2",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172356035164628",
-              "name": "cs_s2_int_in_1",
-              "side": "left",
-              "sidePosition": 0
-            },
-            {
-              "direction": "input",
-              "id": "ni_172356035164629",
+              "id": "ni_172415658463130",
               "name": "cs_s2_int_in_2",
               "side": "left",
               "sidePosition": 1
             },
             {
+              "direction": "input",
+              "id": "ni_172415658463129",
+              "name": "cs_s2_int_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
               "direction": "output",
               "externalName": "cs_out_1",
-              "id": "ni_172356035164610",
+              "id": "ni_172415658463010",
               "name": "cs_s2_mod_out_1",
               "side": "right",
-              "sidePosition": 2
+              "sidePosition": 0
             }
           ],
           "name": "New Graph Node",
@@ -259,8 +271,36 @@
             "x": 0,
             "y": 0
           },
-          "subgraph": "172356035164631",
-          "twoColumn": false,
+          "subgraph": "172415658463132",
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172415658463138",
+          "instanceName": "Constant",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "ni_172415658463137",
+              "name": "constant",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Constant",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "172415658463136",
+              "name": "Constant Value",
+              "value": "1"
+            }
+          ],
+          "twoColumn": true,
           "width": 200
         }
       ]
@@ -268,37 +308,45 @@
     {
       "connections": [
         {
-          "from": "ni_172356035164636",
-          "id": "7818da45-3ca8-4a3e-b467-d39e86b2159b",
-          "to": "ni_172356035164638"
+          "from": "ni_172415658463140",
+          "id": "6fb2c6a6-1498-4a04-8f8a-47534cce4f05",
+          "to": "ni_172415658463145"
         },
         {
-          "from": "ni_172356035164636",
-          "id": "150f288b-58c1-47f0-a262-193509fcc047",
-          "to": "ni_172356035164642"
+          "from": "ni_172415658463140",
+          "id": "86b57e9a-ae5b-4f17-87d4-895ba3be83f9",
+          "to": "ni_172415658463148"
         }
       ],
-      "id": "172356035164626",
+      "id": "172415658463127",
       "nodes": [
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164637",
+          "id": "node_172415658463143",
           "instanceName": "s1_mod_1",
           "interfaces": [
             {
               "direction": "input",
-              "externalName": "cs_s1_mod_in_1",
-              "id": "ni_17235603516469",
-              "name": "cs_s1_f_mod_in_1",
+              "externalName": "cs_s1_int_const_in",
+              "id": "ni_172415658463124",
+              "name": "cs_s1_f_ext_const_in",
               "side": "left",
               "sidePosition": 0
             },
             {
+              "direction": "input",
+              "externalName": "cs_s1_mod_in_1",
+              "id": "ni_17241565846309",
+              "name": "cs_s1_f_mod_in_1",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
               "direction": "output",
-              "id": "ni_172356035164636",
+              "id": "ni_172415658463140",
               "name": "cs_s1_mint_out_1",
               "side": "right",
-              "sidePosition": 1
+              "sidePosition": 0
             }
           ],
           "name": "s1_mod_1",
@@ -307,17 +355,17 @@
             "y": 0
           },
           "properties": [],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164640",
+          "id": "node_172415658463146",
           "instanceName": "s1_mod_2",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172356035164638",
+              "id": "ni_172415658463145",
               "name": "cs_s1_mint_in_1",
               "side": "left",
               "sidePosition": 0
@@ -325,10 +373,10 @@
             {
               "direction": "output",
               "externalName": "cs_s1_int_out_1",
-              "id": "ni_172356035164624",
+              "id": "ni_172415658463125",
               "name": "cs_s1_f_int_out_1",
               "side": "right",
-              "sidePosition": 1
+              "sidePosition": 0
             }
           ],
           "name": "s1_mod_2",
@@ -337,17 +385,17 @@
             "y": 0
           },
           "properties": [],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164644",
+          "id": "node_172415658463150",
           "instanceName": "s1_mod_3",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172356035164642",
+              "id": "ni_172415658463148",
               "name": "cs_s1_mint_in_2",
               "side": "left",
               "sidePosition": 0
@@ -355,10 +403,10 @@
             {
               "direction": "output",
               "externalName": "cs_s1_int_out_2",
-              "id": "ni_172356035164625",
+              "id": "ni_172415658463126",
               "name": "cs_s1_f_int_out_2",
               "side": "right",
-              "sidePosition": 1
+              "sidePosition": 0
             }
           ],
           "name": "s1_mod_3",
@@ -368,12 +416,12 @@
           },
           "properties": [
             {
-              "id": "172356035164641",
+              "id": "172415658463147",
               "name": "SUB_VALUE",
               "value": "18"
             }
           ],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         }
       ]
@@ -381,52 +429,52 @@
     {
       "connections": [
         {
-          "from": "ni_172356035164648",
-          "id": "e4c63223-4db7-4343-a405-a4a65fbaa46d",
-          "to": "ni_172356035164653"
+          "from": "ni_172415658463153",
+          "id": "e4313b1a-848d-48dd-9add-e7d21c3038f2",
+          "to": "ni_172415658463160"
         },
         {
-          "from": "ni_172356035164650",
-          "id": "be382a4a-eb49-40c3-810e-4012f8bd0f9b",
-          "to": "ni_172356035164652"
+          "from": "ni_172415658463154",
+          "id": "0c61293b-bc82-40e2-be8c-08e036abb537",
+          "to": "ni_172415658463159"
         }
       ],
-      "id": "172356035164631",
+      "id": "172415658463132",
       "nodes": [
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164651",
+          "id": "node_172415658463157",
           "instanceName": "s2_mod_1",
           "interfaces": [
             {
               "direction": "input",
-              "externalName": "cs_s2_int_in_1",
-              "id": "ni_172356035164628",
-              "name": "cs_s2_f_int_in_1",
+              "externalName": "cs_s2_int_in_2",
+              "id": "ni_172415658463130",
+              "name": "cs_s2_f_int_in_2",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "input",
-              "externalName": "cs_s2_int_in_2",
-              "id": "ni_172356035164629",
-              "name": "cs_s2_f_int_in_2",
+              "externalName": "cs_s2_int_in_1",
+              "id": "ni_172415658463129",
+              "name": "cs_s2_f_int_in_1",
               "side": "left",
-              "sidePosition": 2
-            },
-            {
-              "direction": "output",
-              "id": "ni_172356035164648",
-              "name": "cs_s2_mint_out_1",
-              "side": "right",
               "sidePosition": 1
             },
             {
               "direction": "output",
-              "id": "ni_172356035164650",
+              "id": "ni_172415658463153",
+              "name": "cs_s2_mint_out_1",
+              "side": "right",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172415658463154",
               "name": "cs_s2_mint_out_2",
               "side": "right",
-              "sidePosition": 3
+              "sidePosition": 1
             }
           ],
           "name": "s2_mod_1",
@@ -435,24 +483,24 @@
             "y": 0
           },
           "properties": [],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164655",
+          "id": "node_172415658463161",
           "instanceName": "s2_mod_2",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172356035164652",
+              "id": "ni_172415658463159",
               "name": "cs_s2_mint_in_2",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "input",
-              "id": "ni_172356035164653",
+              "id": "ni_172415658463160",
               "name": "cs_s2_mint_in_1",
               "side": "left",
               "sidePosition": 1
@@ -460,10 +508,10 @@
             {
               "direction": "output",
               "externalName": "cs_s2_mod_out_1",
-              "id": "ni_172356035164610",
+              "id": "ni_172415658463010",
               "name": "cs_s2_f_mod_out_1",
               "side": "right",
-              "sidePosition": 2
+              "sidePosition": 0
             }
           ],
           "name": "s2_mod_2",
@@ -472,7 +520,7 @@
             "y": 0
           },
           "properties": [],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         }
       ]
@@ -480,34 +528,39 @@
     {
       "connections": [
         {
-          "from": "ni_172356035164662",
-          "id": "edc508e7-642b-4350-a373-516e89d869a5",
-          "to": "ni_172356035164666"
+          "from": "ni_172415658463169",
+          "id": "b44232c8-e740-4884-9652-461f3198ccd7",
+          "to": "ni_172415658463172"
         },
         {
-          "from": "ni_172356035164659",
-          "id": "de1af128-6f24-4f97-87e7-00816e65af19",
-          "to": "ni_172356035164665"
+          "from": "ni_172415658463166",
+          "id": "960c0358-a9cc-45c8-89ea-5cbcd6930371",
+          "to": "ni_172415658463173"
+        },
+        {
+          "from": "ni_172415658463179",
+          "id": "7819465e-4154-4537-9761-ccccbf8b44f8",
+          "to": "ni_172415658463174"
         }
       ],
-      "id": "172356035164616",
+      "id": "172415658463016",
       "nodes": [
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164661",
+          "id": "node_172415658463167",
           "instanceName": "c_mod_1",
           "interfaces": [
             {
               "direction": "input",
               "externalName": "c_in_1",
-              "id": "ni_172356035164613",
+              "id": "ni_172415658463013",
               "name": "c_mod_in_1",
               "side": "left",
-              "sidePosition": 1
+              "sidePosition": 0
             },
             {
               "direction": "output",
-              "id": "ni_172356035164659",
+              "id": "ni_172415658463166",
               "name": "c_int_out_1",
               "side": "right",
               "sidePosition": 0
@@ -520,30 +573,30 @@
           },
           "properties": [
             {
-              "id": "172356035164658",
+              "id": "172415658463164",
               "name": "MAX_VALUE",
               "value": "16"
             }
           ],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164664",
+          "id": "node_172415658463170",
           "instanceName": "c_mod_2",
           "interfaces": [
             {
               "direction": "input",
               "externalName": "c_in_2",
-              "id": "ni_172356035164614",
+              "id": "ni_172415658463014",
               "name": "c_mod_in_2",
               "side": "left",
-              "sidePosition": 1
+              "sidePosition": 0
             },
             {
               "direction": "output",
-              "id": "ni_172356035164662",
+              "id": "ni_172415658463169",
               "name": "c_int_out_2",
               "side": "right",
               "sidePosition": 0
@@ -555,35 +608,42 @@
             "y": 0
           },
           "properties": [],
-          "twoColumn": false,
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "node_172356035164668",
+          "id": "node_172415658463175",
           "instanceName": "c_mod_3",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172356035164665",
-              "name": "c_int_in_2",
+              "id": "ni_172415658463172",
+              "name": "c_int_in_1",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "input",
-              "id": "ni_172356035164666",
-              "name": "c_int_in_1",
+              "id": "ni_172415658463173",
+              "name": "c_int_in_2",
               "side": "left",
               "sidePosition": 1
             },
             {
+              "direction": "input",
+              "id": "ni_172415658463174",
+              "name": "c_int_const_in",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
               "direction": "output",
               "externalName": "c_out_1",
-              "id": "ni_172356035164615",
+              "id": "ni_172415658463015",
               "name": "c_mod_out_1",
               "side": "right",
-              "sidePosition": 2
+              "sidePosition": 0
             }
           ],
           "name": "c_mod_3",
@@ -592,7 +652,35 @@
             "y": 0
           },
           "properties": [],
-          "twoColumn": false,
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172415658463180",
+          "instanceName": "Constant",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "ni_172415658463179",
+              "name": "constant",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Constant",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "172415658463178",
+              "name": "Constant Value",
+              "value": "1"
+            }
+          ],
+          "twoColumn": true,
           "width": 200
         }
       ]

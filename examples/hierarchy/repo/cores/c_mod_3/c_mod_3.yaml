@@ -4,5 +4,6 @@ signals:
   in:
     - c_int_in_1
     - c_int_in_2
+    - c_int_const_in
   out:
     - c_mod_out_1

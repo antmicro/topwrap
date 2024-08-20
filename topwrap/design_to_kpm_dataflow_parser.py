@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from time import time
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from typing_extensions import override
 
@@ -69,15 +69,14 @@ class KPMDataflowNodeInterface:
         self.name = name
         self.direction = direction
         self.value = value
-        self.external_name = None
+        self.external_name: Optional[str] = None
 
-    def to_json_format(self, index: int):
+    def to_json_format(self):
         json_format = {
             "name": self.name,
             "id": self.id,
             "direction": self.direction,
             "side": ("left" if (self.direction == self.KPM_DIR_INPUT) else "right"),
-            "sidePosition": index,
         }
         if self.external_name is not None:
             json_format["externalName"] = self.external_name
@@ -144,9 +143,8 @@ class KPMDataflowNode:
             "name": self.type,
             "id": self.id,
             "instanceName": self.name,
-            "interfaces": [
-                interface.to_json_format(index) for index, interface in enumerate(self.interfaces)
-            ],
+            "twoColumn": True,
+            "interfaces": [interface.to_json_format() for interface in self.interfaces],
             "position": {"x": 0, "y": 0},
             "width": KPMDataflowNode.__default_width,
             "properties": [property.to_json_format() for property in self.properties],
@@ -289,7 +287,7 @@ def get_kpm_nodes_from_design(
     design = design_descr.design
     parameters = design.parameters
     for ip_name in design_descr.ips:
-        ports = design.ports.get(ip_name)
+        ports = design.ports.get(ip_name, {})
         ip_type = design_descr.ips[ip_name].path.stem
         spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
@@ -311,7 +309,7 @@ def get_kpm_nodes_from_design(
             dir = interface["direction"]
             value = (
                 None
-                if ((dir != "input") or ("iface" in interface["type"][0])) or ports is None
+                if ((dir != "input") or ("iface" in interface["type"][0]))
                 else ports.get(interface["name"])
             )
             interfaces.append(KPMDataflowNodeInterface(interface["name"], dir, value))
@@ -365,18 +363,22 @@ def _get_flattened_connections(design_descr: DesignDescription) -> List[dict]:
     for sec in (design.ports, design.interfaces):
         for ip_name in sec.keys():
             for port_iface_name, value in sec[ip_name].items():
+                const_value = None
                 if isinstance(value, int):
                     connection = CONST_NAME
+                    const_value = value
                 else:
                     connection = sec[ip_name][port_iface_name]
 
-                conn_descrs.append(
-                    {
-                        "ip_name": ip_name,
-                        "port_iface_name": port_iface_name,
-                        "connection": connection,
-                    }
-                )
+                conn_descr = {
+                    "ip_name": ip_name,
+                    "port_iface_name": port_iface_name,
+                    "connection": connection,
+                }
+                if const_value is not None:
+                    conn_descr["const_val"] = const_value
+                conn_descrs.append(conn_descr)
+
     return conn_descrs
 
 
@@ -426,7 +428,9 @@ def _get_ipcores_connections(design_descr: DesignDescription) -> List[dict]:
     def _is_ipcore_connection(conn_descr: dict) -> bool:
         """Check if a connection is between two IP cores.
         If it's not a list then it is some external connection"""
-        return isinstance(conn_descr["connection"], Sequence)
+        return isinstance(conn_descr["connection"], list) or isinstance(
+            conn_descr["connection"], tuple
+        )
 
     ipcores_connections = list(
         filter(_is_ipcore_connection, _get_flattened_connections(design_descr))
@@ -608,7 +612,7 @@ def kpm_metanodes_connections_from_design_descr(
             ext_conn["port_iface_name"], ext_conn["ip_name"], nodes
         )
         if kpm_interface is None:
-            raise Exception("Node interface was not found")
+            raise Exception(f"Node {ext_conn['ip_name']} interface was not found")
 
         if isinstance(kpm_interface.value, int):
             if kpm_interface.direction != KPMDataflowNodeInterface.KPM_DIR_INPUT:
@@ -629,7 +633,7 @@ def kpm_metanodes_connections_from_design_descr(
 
 
 def create_subgraph_external_interfaces(
-    subgraph_ports: DesignExternalPorts,
+    subgraph_ports: DesignExternalPorts, subgraph_name: str
 ) -> Tuple[List[KPMDataflowSubgraphnodeInterface], Dict[str, str]]:
     """Creates subgraph node interfaces based on node "external" field in Topwrap design description"""
     interfaces = []
@@ -638,7 +642,7 @@ def create_subgraph_external_interfaces(
     for direction, port_names in subgraph_ports.as_dict.items():
         for port_name in port_names:
             new_interface = KPMDataflowSubgraphnodeInterface(port_name, direction.value)
-            interface_map_updates[port_name] = new_interface.id
+            interface_map_updates[f"{subgraph_name}_{port_name}"] = new_interface.id
             interfaces.append(new_interface)
 
     return (interfaces, interface_map_updates)
@@ -655,7 +659,7 @@ def kpm_subgraph_nodes_from_design_descr(
 
     for subgraph_name, subgraph_data in design_descr.design.hierarchies.items():
         interfaces, interface_map_updates = create_subgraph_external_interfaces(
-            subgraph_data.external.ports
+            subgraph_data.external.ports, subgraph_name
         )
         submap_updates.interface_name_id_map.update(interface_map_updates)
 
@@ -686,6 +690,7 @@ def _get_external_subgraph_connections(design_descr: DesignDescription) -> List[
 def _expose_external_subgraph_interfaces(
     subgraph_data: DesignDescription,
     subgraph_nodes: List[KPMDataflowNode],
+    subgraph_name: str,
     subgraph_interface_name_id_map: Dict[str, str],
 ) -> Dict[str, str]:
     """Creates "externalName" reference in subgraph node interface.
@@ -695,21 +700,45 @@ def _expose_external_subgraph_interfaces(
     _conns = _get_external_subgraph_connections(subgraph_data)
     for conn in _conns:
         conn_name = conn["connection"]
+        if conn_name == CONST_NAME:
+            continue
 
-        kpm_subgraph_iface = _get_dataflow_interface_by_name(
+        kpm_core_iface = _get_dataflow_interface_by_name(
             conn["port_iface_name"], conn["ip_name"], subgraph_nodes
         )
-        if kpm_subgraph_iface is None:
+        if kpm_core_iface is None:
             logging.warning(
                 f"Not found interface with name {conn['port_iface_name']} and because of that can't expose this interface"
             )
             return interface_map_updates
 
-        kpm_subgraph_iface.id = subgraph_interface_name_id_map[conn_name]
-        kpm_subgraph_iface.external_name = conn_name
-        interface_map_updates[kpm_subgraph_iface.name] = kpm_subgraph_iface.id
+        kpm_core_iface.id = subgraph_interface_name_id_map[f"{subgraph_name}_{conn_name}"]
+        kpm_core_iface.external_name = conn_name
+        interface_map_updates[f"{conn['ip_name']}_{kpm_core_iface.name}"] = kpm_core_iface.id
 
     return interface_map_updates
+
+
+def connections_to_constants(
+    subgraph_data: dict, subgraph_nodes: List[KPMDataflowNode]
+) -> Tuple[List[KPMDataflowConnection], List[KPMDataflowConstantMetanode]]:
+    _conns = _get_external_subgraph_connections(subgraph_data)
+    result = []
+    metanodes = []
+    for conn in _conns:
+        conn_name = conn["connection"]
+        if conn_name != CONST_NAME:
+            continue
+        constant_metanode = KPMDataflowConstantMetanode(conn["const_val"])
+        metanodes.append(constant_metanode)
+        kpm_interface = _get_dataflow_interface_by_name(
+            conn["port_iface_name"], conn["ip_name"], subgraph_nodes
+        )
+        if kpm_interface is None:
+            raise Exception(f"Node {conn['ip_name']} interface was not found")
+        result.append(_create_connection(constant_metanode.interfaces[0], kpm_interface))
+    result = [conn for conn in result if conn is not None]
+    return result, metanodes
 
 
 def create_subgraphs(
@@ -735,15 +764,20 @@ def create_subgraphs(
             _expose_external_subgraph_interfaces(
                 subgraph_data,
                 all_subgraph_nodes + previous_nodes,
+                subgraph_name,
                 subgraph_maps.interface_name_id_map,
             )
         )
 
         connections = kpm_connections_from_design_descr(subgraph_data, all_subgraph_nodes)
 
+        meta_connections, meta_nodes = connections_to_constants(subgraph_data, all_subgraph_nodes)
+
         subgraphs.append(
             KPMDataflowGraph(
-                connections, all_subgraph_nodes, subgraph_maps.subgraph_name_id_map[subgraph_name]
+                connections + meta_connections,
+                all_subgraph_nodes + meta_nodes,
+                subgraph_maps.subgraph_name_id_map[subgraph_name],
             )
         )
 

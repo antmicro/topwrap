@@ -10,11 +10,9 @@ For more information about hierarchies see [hierarchies docs](https://antmicro.g
 ## Usage
 This example contains [user repo](https://antmicro.github.io/topwrap/user_repositories.html) (`repo` directory) and a configuration file for topwrap (`topwrap.yaml`) so it can be loaded by running
 ```
-python -m topwrap kpm_client
+python -m topwrap kpm_client -d project.yml
 ```
 in this example's directory.
-
-Design file has to be [manually loaded in kpm](https://github.com/antmicro/topwrap/blob/main/examples/user_repository/loading_design.png).
 
 Detailed information about loading user repositories and design files can be found [here](https://github.com/antmicro/topwrap/tree/main/examples/user_repository#usage).
 

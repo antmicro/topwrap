@@ -250,5 +250,5 @@ class TestHierarchyDataflowExport:
 
     def test_constants(self, hierarchy_dataflow, hierarchy_specification):
         assert _kpm_connections_to_constant(hierarchy_dataflow, hierarchy_specification) == {
-            "ports": {}
+            "ports": {"sub_1": {"cs_s1_int_const_in": 1}, "c_mod_3": {"c_int_const_in": 1}}
         }

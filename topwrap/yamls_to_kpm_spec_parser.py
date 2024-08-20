@@ -69,7 +69,10 @@ def _ipcore_param_to_kpm_value(param) -> str:
         return param
     elif isinstance(param, IPCoreComplexParameter):
         width = str(param.width)
-        value = hex(int(param.value))[2:]
+        if isinstance(param.value, str) and "x" in param.value:
+            value = param.value[2:]
+        else:
+            value = hex(int(param.value))[2:]
         return width + "'h" + value
 
     return str(param)
@@ -230,6 +233,22 @@ def add_metadata_to_specification(
         "backgroundSize": 15,
         "layout": "CytoscapeEngine - grid",
         "twoColumn": True,
+        "navbarItems": [
+            {
+                "name": "Validate",
+                "stopName": "Stop",
+                "iconName": "Validate",
+                "procedureName": "dataflow_validate",
+                "allowToRunInParallelWith": ["dataflow_run", "custom_lint_files"],
+            },
+            {
+                "name": "Run",
+                "stopName": "Stop",
+                "iconName": "Run",
+                "procedureName": "dataflow_run",
+                "allowToRunInParallelWith": ["dataflow_validate", "custom_lint_files"],
+            },
+        ],
     }
     for meta_name, meta_value in metadata.items():
         specification_builder.metadata_add_param(meta_name, meta_value)

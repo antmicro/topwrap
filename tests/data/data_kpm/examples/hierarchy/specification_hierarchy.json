@@ -13,6 +13,28 @@
     },
     "layout": "CytoscapeEngine - grid",
     "movementStep": 15,
+    "navbarItems": [
+      {
+        "allowToRunInParallelWith": [
+          "dataflow_run",
+          "custom_lint_files"
+        ],
+        "iconName": "Validate",
+        "name": "Validate",
+        "procedureName": "dataflow_validate",
+        "stopName": "Stop"
+      },
+      {
+        "allowToRunInParallelWith": [
+          "dataflow_validate",
+          "custom_lint_files"
+        ],
+        "iconName": "Run",
+        "name": "Run",
+        "procedureName": "dataflow_run",
+        "stopName": "Stop"
+      }
+    ],
     "twoColumn": true
   },
   "nodes": [
@@ -75,6 +97,13 @@
       "category": "IPcore",
       "interfaces": [
         {
+          "direction": "input",
+          "name": "c_int_const_in",
+          "type": [
+            "port"
+          ]
+        },
+        {
           "direction": "output",
           "name": "c_mod_out_1",
           "type": [
@@ -117,6 +146,13 @@
           "type": [
             "port"
           ]
+        },
+        {
+          "direction": "input",
+          "name": "cs_s1_f_ext_const_in",
+          "type": [
+            "port"
+          ]
         }
       ],
       "layer": "s1_mod_1",
@@ -151,15 +187,15 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "input",
-          "name": "cs_s1_mint_in_2",
+          "direction": "output",
+          "name": "cs_s1_f_int_out_2",
           "type": [
             "port"
           ]
         },
         {
-          "direction": "output",
-          "name": "cs_s1_f_int_out_2",
+          "direction": "input",
+          "name": "cs_s1_mint_in_2",
           "type": [
             "port"
           ]
@@ -181,8 +217,8 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "output",
-          "name": "cs_s2_mint_out_2",
+          "direction": "input",
+          "name": "cs_s2_f_int_in_2",
           "type": [
             "port"
           ]
@@ -202,8 +238,8 @@
           ]
         },
         {
-          "direction": "input",
-          "name": "cs_s2_f_int_in_2",
+          "direction": "output",
+          "name": "cs_s2_mint_out_2",
           "type": [
             "port"
           ]
@@ -218,6 +254,13 @@
       "category": "IPcore",
       "interfaces": [
         {
+          "direction": "input",
+          "name": "cs_s2_mint_in_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
           "direction": "output",
           "name": "cs_s2_f_mod_out_1",
           "type": [
@@ -227,13 +270,6 @@
         {
           "direction": "input",
           "name": "cs_s2_mint_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "name": "cs_s2_mint_in_2",
           "type": [
             "port"
           ]

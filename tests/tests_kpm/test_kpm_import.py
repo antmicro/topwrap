@@ -44,20 +44,19 @@ HDMI_EXTERNAL_CONNECTIONS = 29  # Connections to external metanodes
 HDMI_CONSTANT_CONNECTIONS = 8  # Connections to constant metanodes
 
 # HIERARCHY
-HIERARCHY_IPCORE_NODES = 8
+HIERARCHY_IPCORE_NODES = 10
 HIERARCHY_SUBGRAPH_NODES = 4
 
 HIERARCHY_EXTERNAL_METANODES = 3
 HIERARCHY_CONSTANT_METANODES = 0
 HIERARCHY_METANODES = HIERARCHY_EXTERNAL_METANODES + HIERARCHY_CONSTANT_METANODES
 
-HIERARCHY_CONNECTIONS = 12
+HIERARCHY_CONNECTIONS = 14
 
 
 def remove_id_and_side_position_from_interfaces(interfaces: List[dict]):
     for prop in interfaces:
         del prop["id"]
-        del prop["sidePosition"]
 
 
 class TestPWMDataflowImport:
@@ -379,12 +378,14 @@ class TestHierarchyDataflowImport:
             node_names.append(find_node_with_interface_id(design_graphs, conn["to"], conn["id"]))
             node_names.append(find_node_with_interface_id(design_graphs, conn["from"], conn["id"]))
         node_occurrence_dict = {item: node_names.count(item) for item in node_names}
+        breakpoint()
         conn_dict = {
+            "Constant": 2,
             "External Input": 2,
             "External Output": 1,
             "c_mod_1": 1,
             "c_mod_2": 1,
-            "c_mod_3": 2,
+            "c_mod_3": 3,
             "complex_sub": 2,
             "counter": 3,
             "s1_mod_1": 2,
@@ -392,7 +393,7 @@ class TestHierarchyDataflowImport:
             "s1_mod_3": 1,
             "s2_mod_1": 2,
             "s2_mod_2": 2,
-            "sub_1": 2,
+            "sub_1": 3,
             "sub_2": 2,
         }
 
