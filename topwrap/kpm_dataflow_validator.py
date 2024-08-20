@@ -4,8 +4,8 @@
 import re
 from typing import NamedTuple, Union
 
-import numexpr as ex
 from pipeline_manager_backend_communication.misc_structures import MessageType
+from simpleeval import simple_eval
 
 from topwrap.design_to_kpm_dataflow_parser import KPMDataflowSubgraphnode
 
@@ -65,7 +65,7 @@ def _check_parameters_values(dataflow_data, specification) -> CheckResult:
 
             if not re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
                 try:
-                    evaluated[param_name] = int(ex.evaluate(param_val, evaluated).take(0))
+                    evaluated[param_name] = simple_eval(param_val, names=evaluated)
                 except (ValueError, KeyError, SyntaxError, OverflowError):
                     invalid_params.append(f"{node['name']}:{param_name}")
 

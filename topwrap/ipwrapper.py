@@ -5,10 +5,10 @@ from logging import error
 from pathlib import Path
 from typing import List
 
-import numexpr as ex
 from amaranth import Instance, Module, Signal
 from amaranth.build import Platform
 from amaranth.hdl.ast import Cat, Const
+from simpleeval import simple_eval
 
 from topwrap.ip_desc import IPCoreComplexParameter, IPCoreDescription
 
@@ -45,8 +45,10 @@ def _evaluate_parameters(params: dict):
         if isinstance(param, IPCoreComplexParameter):
             params[name] = Const(param.value, shape=(param.width))
         elif isinstance(param, str):
-            if ex.validate(param, params) is None:
-                params[name] = int(ex.evaluate(param, params).take(0))
+            try:
+                params[name] = simple_eval(param, names=params)
+            except Exception as e:
+                error(f"evaluating expression {name} failed with the following message: {str(e)}")
 
 
 def _eval_bounds(bounds, params):
@@ -55,7 +57,7 @@ def _eval_bounds(bounds, params):
     for i, item in enumerate(bounds):
         if isinstance(item, str):
             try:
-                result[i] = int(ex.evaluate(item, params).take(0))
+                result[i] = int(simple_eval(item, names=params))
             except TypeError:
                 error(
                     "Could not evaluate expression with parameter: "

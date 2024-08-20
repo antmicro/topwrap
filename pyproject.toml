@@ -22,7 +22,7 @@ dependencies = [
   "click",
   "amaranth==0.4.0.*",
   "marshmallow_dataclass",
-  "numexpr",
+  "simpleeval",
   "typing_extensions",
   "marshmallow-dataclass[enum]",
   "typing_extensions",

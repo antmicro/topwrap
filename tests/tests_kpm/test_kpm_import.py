@@ -378,7 +378,6 @@ class TestHierarchyDataflowImport:
             node_names.append(find_node_with_interface_id(design_graphs, conn["to"], conn["id"]))
             node_names.append(find_node_with_interface_id(design_graphs, conn["from"], conn["id"]))
         node_occurrence_dict = {item: node_names.count(item) for item in node_names}
-        breakpoint()
         conn_dict = {
             "Constant": 2,
             "External Input": 2,

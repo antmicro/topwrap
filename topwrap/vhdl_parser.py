@@ -7,6 +7,7 @@ from typing import Dict, Set
 from hdlConvertor import HdlConvertor
 from hdlConvertorAst.language import Language
 from hdlConvertorAst.to.json import ToJson
+from simpleeval import SimpleEval
 from typing_extensions import override
 
 from .hdl_module import HDLModule, HDLParameter
@@ -43,7 +44,7 @@ class VHDLModule(HDLModule):
     def parameters(self) -> Dict[str, HDLParameter]:
         params = {}
         for item in self.__data["params"]:
-            param_val = resolve_ops(item["value"], params)
+            param_val = resolve_ops(item["value"], params, SimpleEval())
             if param_val is not None:
                 params[item["name"]["val"]] = param_val
         return params
@@ -61,7 +62,7 @@ class VHDLModule(HDLModule):
             if type_or_bounds == "std_logic" or type_or_bounds == "std_ulogic":
                 ubound, lbound = "0", "0"
             else:
-                resolved_ops = resolve_ops(type_or_bounds, self.parameters)
+                resolved_ops = resolve_ops(type_or_bounds, self.parameters, SimpleEval())
                 if resolved_ops is not None:
                     ubound, lbound = resolved_ops[1:-1].split(":")
                 else:

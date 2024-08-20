@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from logging import warning
 
-import numexpr as ex
+from simpleeval import SimpleEval
 
 from topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
 
@@ -26,7 +26,7 @@ class PortDefinition:
     direction: PortDirection
 
 
-def _eval_param(val, params: dict):
+def _eval_param(val, params: dict, simpleeval_instance: SimpleEval):
     """Function used to calculate parameter value.
     It is used for evaluating CONCAT and REPL_CONCAT in resolve_ops()"""
     if isinstance(val, int):
@@ -34,7 +34,7 @@ def _eval_param(val, params: dict):
     if isinstance(val, dict) and val.keys() == {"value", "width"}:
         return val
     if isinstance(val, str):
-        return _eval_param(params[val], params)
+        return _eval_param(params[val], params, simpleeval_instance)
 
     elif val["__class__"] == "HdlValueInt":
         value = int(val["val"], val["base"])
@@ -45,8 +45,8 @@ def _eval_param(val, params: dict):
 
     elif val["__class__"] == "HdlOp":
         if val["fn"] == "CONCAT":
-            bit_vector_l = _eval_param(val["ops"][0], params)
-            bit_vector_r = _eval_param(val["ops"][1], params)
+            bit_vector_l = _eval_param(val["ops"][0], params, simpleeval_instance)
+            bit_vector_r = _eval_param(val["ops"][1], params, simpleeval_instance)
             bin_l = bin(int(bit_vector_l["value"], 16))[2:].zfill(bit_vector_l["width"])
             bin_r = bin(int(bit_vector_r["value"], 16))[2:].zfill(bit_vector_r["width"])
             return {
@@ -55,16 +55,23 @@ def _eval_param(val, params: dict):
             }
 
         elif val["fn"] == "REPL_CONCAT":
-            repeat = _eval_param(val["ops"][0], params)
-            bit_vector = _eval_param(val["ops"][1], params)
+            repeat = _eval_param(val["ops"][0], params, simpleeval_instance)
+            bit_vector = _eval_param(val["ops"][1], params, simpleeval_instance)
             bin_val = bin(int(bit_vector["value"], 16))[2:].zfill(bit_vector["width"])
             return {"value": hex(int(repeat * bin_val, 2)), "width": repeat * bit_vector["width"]}
 
         else:
-            return int(ex.evaluate(resolve_ops(val, params)).take(0))
+            simpleeval_instance.names = params
+            return int(
+                simpleeval_instance.eval(
+                    _eval_param(
+                        resolve_ops(val, params, simpleeval_instance), params, simpleeval_instance
+                    ).replace("$", "")
+                )
+            )
 
 
-def resolve_ops(val, params: dict):
+def resolve_ops(val, params: dict, simpleeval_instance: SimpleEval):
     """Get 'val' representation, that will be used in ip core yaml
 
     :param val: expression gathered from HdlConvertor data.
@@ -106,35 +113,39 @@ def resolve_ops(val, params: dict):
             "GT": ">",
             "GE": ">=",
             "DOWNTO": ":",
+            "PART_SELECT_PRE": "-:",
         }
 
         if val["fn"] in bin_ops.keys():
             op = bin_ops[val["fn"]]
-            left = resolve_ops(val["ops"][0], params)
-            right = resolve_ops(val["ops"][1], params)
+            left = resolve_ops(val["ops"][0], params, simpleeval_instance)
+            right = resolve_ops(val["ops"][1], params, simpleeval_instance)
             if left is None or right is None:
                 return None
             else:
-                return "(" + str(left) + op + str(right) + ")"
+                return f"({left}{op}{right})"
 
         elif val["fn"] == "TERNARY":
-            cond = resolve_ops(val["ops"][0], params)
-            if_true = resolve_ops(val["ops"][1], params)
-            if_false = resolve_ops(val["ops"][2], params)
+            cond = resolve_ops(val["ops"][0], params, simpleeval_instance)
+            if_true = resolve_ops(val["ops"][1], params, simpleeval_instance)
+            if_false = resolve_ops(val["ops"][2], params, simpleeval_instance)
             if cond is None or if_true is None or if_false is None:
                 return None
             else:
-                return "where(" + str(cond) + ", " + str(if_true) + ", " + str(if_false) + ")"
+                return f"({str(if_true)} if {str(cond)} else {str(if_false)})"
 
-        elif val["fn"] == "CONCAT" or val["fn"] == "REPL_CONCAT":
+        elif val["fn"] in ["CONCAT", "REPL_CONCAT"]:
             # TODO - try to find a better way to get parameters default values
             # than copying params and evaluating them before each (REPL_)CONCAT
             params_cp = params.copy()
             for name in params_cp.keys():
                 if isinstance(params_cp[name], str):
-                    params_cp[name] = int(ex.evaluate(params_cp[name], params_cp).take(0))
+                    simpleeval_instance.names = params_cp
+                    params_cp[name] = int(
+                        simpleeval_instance.eval(params_cp[name].replace("$", ""))
+                    )
 
-            return _eval_param(val, params_cp)
+            return _eval_param(val, params_cp, simpleeval_instance)
 
         elif val["fn"] == "PARAMETRIZATION":
             if (
@@ -144,13 +155,16 @@ def resolve_ops(val, params: dict):
             ):
                 # corner case - this happens in Verilog's output/input reg
                 return "(0:0)"
-            return resolve_ops(val["ops"][1], params)
+            return resolve_ops(val["ops"][1], params, simpleeval_instance)
 
         elif val["fn"] == "INDEX":
             # this happens in VHDL's 'std_logic_vector({up_id DOWNTO low_id})
             # drop `std_logic_vector` and process the insides of parentheses
-            return resolve_ops(val["ops"][1], params)
+            if val["ops"][0] == "std_logic_vector":
+                return resolve_ops(val["ops"][1], params, simpleeval_instance)
+            else:
+                return f"{val['ops'][0]}[{resolve_ops(val['ops'][1], params, simpleeval_instance)}]"
         elif val["fn"] == "CALL":
-            return f"{resolve_ops(val['ops'][0], params)}({','.join(resolve_ops(arg, params) for arg in val['ops'][1:])})"
+            return f"{resolve_ops(val['ops'][0], params, simpleeval_instance)}({','.join(resolve_ops(str(arg), params, simpleeval_instance) for arg in val['ops'][1:])})"
         else:
             warning(f'resolve_ops: unhandled HdlOp function: {val["fn"]}')
