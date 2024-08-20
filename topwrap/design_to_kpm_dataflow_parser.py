@@ -289,7 +289,7 @@ def get_kpm_nodes_from_design(
     design = design_descr.design
     parameters = design.parameters
     for ip_name in design_descr.ips:
-        ports = design.ports[ip_name]
+        ports = design.ports.get(ip_name)
         ip_type = design_descr.ips[ip_name].path.stem
         spec_node = _get_specification_node_by_type(ip_type, specification)
         if spec_node is None:
@@ -311,8 +311,8 @@ def get_kpm_nodes_from_design(
             dir = interface["direction"]
             value = (
                 None
-                if ((dir != "input") or ("iface" in interface["type"][0]))
-                else ports[interface["name"]]
+                if ((dir != "input") or ("iface" in interface["type"][0])) or ports is None
+                else ports.get(interface["name"])
             )
             interfaces.append(KPMDataflowNodeInterface(interface["name"], dir, value))
 

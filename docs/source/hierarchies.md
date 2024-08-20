@@ -13,6 +13,10 @@ Format is as follows:
 ```yaml
 hierarchies:
     {hierarchy_name_1}:
+      ips: # ips that are used on this hierarchy level
+        {ip_name}:
+          ...
+
       design:
         parameters:
           ...
@@ -37,4 +41,4 @@ hierarchies:
       ...
 ```
 
-More complex hierarchy example can be found in [examples/hierarchies](https://github.com/antmicro/topwrap/tree/main/examples/hierarchies).
+More complex hierarchy example can be found in [examples/hierarchies](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy).

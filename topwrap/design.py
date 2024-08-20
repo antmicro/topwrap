@@ -107,7 +107,7 @@ DS_InterfacesT = Dict[str, Dict[str, Union[str, Tuple[str, str]]]]
 @marshmallow_dataclass.dataclass(frozen=True)
 class DesignSection:
     name: Optional[str] = optional_with(
-        None
+        lambda: None
     )  # This field is relevant only for the top-level design section
     parameters: Dict[str, Dict[str, IPCoreParameter]] = optional_with(dict)
     ports: DS_PortsT = optional_with(dict)

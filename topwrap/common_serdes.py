@@ -4,7 +4,17 @@
 import itertools
 import re
 from dataclasses import field
-from typing import Any, Dict, Iterable, List, Mapping, Sequence, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
 import marshmallow
 import marshmallow_dataclass
@@ -212,7 +222,9 @@ def unflatten_annotated_tree(
     return res
 
 
-def optional_with(default_factory: Any, meta_kw: Mapping[str, Any] = {}, **kwargs: Any):
+def optional_with(
+    default_factory: Callable[[], Any], meta_kw: Mapping[str, Any] = {}, **kwargs: Any
+):
     """
     A shorthand specification for a marshmallow_dataclasses field to be optional and default initialized
 

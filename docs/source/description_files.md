@@ -72,9 +72,8 @@ external: # specify names of external ports and interfaces of the top module
   interfaces:
     in:
       - {ext_iface_name}
+    # note that `inout:` is invalid in the interfaces section
 ```
-
-In order for an IP to be present in the generated design, it must be specified in `ports` or `interfaces` sections as a key. This means that even if it has no incoming connections from any other IP or hierarchy, the `ports` or `interfaces` sections must contain `ip_name: {}` entry.
 
 `inout` ports are handled differently than `in` and `out` ports. When any IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in `external.ports.inout` section of the parent design by specifying the name of the IP/hierarchy and port name that contains it. Name of the external port will be identical to the one in the IP core. In case of duplicate names a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
 
