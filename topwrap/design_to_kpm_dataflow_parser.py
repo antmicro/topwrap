@@ -3,10 +3,11 @@
 import logging
 from dataclasses import dataclass, field
 from time import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from typing_extensions import override
 
+from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.ip_desc import IPCoreParameter
 
 from .design import DesignDescription, DesignExternalPorts, DesignSection
@@ -677,7 +678,9 @@ def create_subgraph_external_interfaces(
 
     for direction, port_names in subgraph_ports.as_dict.items():
         for port_name in port_names:
-            new_interface = KPMDataflowSubgraphnodeInterface(port_name, direction.value)
+            if direction == PortDirection.INOUT:
+                raise ValueError("External inout ports inside hierarchies are not yet supported")
+            new_interface = KPMDataflowSubgraphnodeInterface(cast(str, port_name), direction.value)
             interface_map_updates[f"{subgraph_name} {port_name}"] = new_interface.id
             interfaces.append(new_interface)
 

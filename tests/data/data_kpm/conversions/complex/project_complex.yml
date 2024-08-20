@@ -1,0 +1,122 @@
+design:
+  hierarchies:
+    SUB:
+      design:
+        hierarchies:
+          BETWEEN:
+            external:
+              ports:
+                out:
+                - exposed
+            ips:
+              c_mod_2:
+                file: examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml
+            design:
+              ports:
+                c_mod_2:
+                  c_mod_in_2: 666
+                  c_int_out_2: exposed
+          SUB:
+            design:
+              parameters:
+                s1_mod_3:
+                  SUB_VALUE: 18
+                s1_mod_3_2:
+                  SUB_VALUE: 18
+              ports:
+                s1_mod_3:
+                  cs_s1_f_int_out_2:
+                  - s1_mod_3_2
+                  - cs_s1_mint_in_2
+                  cs_s1_mint_in_2:
+                  - s1_mod_3_2
+                  - cs_s1_f_int_out_2
+                s1_mod_3_2:
+                  cs_s1_mint_in_2: cs_s1_mint_in_2
+                s2_mod_1:
+                  cs_s2_f_int_in_2: cs_s2_f_int_in_2
+            external:
+              ports:
+                in:
+                - cs_s1_mint_in_2
+                - cs_s2_f_int_in_2
+            ips:
+              s1_mod_3:
+                file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+              s1_mod_3_2:
+                file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+              s2_mod_1:
+                file: examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+              s2_mod_1_2:
+                file: examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+          SUBEMPTY:
+            design:
+              hierarchies:
+                SUBEMPTY: {}
+        ports:
+          SUB:
+            cs_s1_mint_in_2:
+            - BETWEEN
+            - exposed
+            cs_s2_f_int_in_2: customized_ext_name_port
+          s1_mod_2_2:
+            cs_s1_mint_in_1:
+            - s1_mod_2
+            - cs_s1_f_int_out_1
+          s1_mod_2:
+            cs_s1_mint_in_1: legacy_external_type
+      external:
+        ports:
+          in:
+          - customized_ext_name_port
+          - legacy_external_type
+      ips:
+        s1_mod_2:
+          file: examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml
+        s1_mod_2_2:
+          file: examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml
+  parameters:
+    s1_mod_3:
+      SUB_VALUE: 12
+    s1_mod_3_2:
+      SUB_VALUE: 11
+    s1_mod_3_3:
+      SUB_VALUE: 13
+  ports:
+    SUB:
+      customized_ext_name_port: c_unt_in
+    s1_mod_3:
+      cs_s1_mint_in_2:
+      - s2_mod_1
+      - cs_s2_mint_out_2
+    s1_mod_3_2:
+      cs_s1_mint_in_2:
+      - s1_mod_3
+      - cs_s1_f_int_out_2
+    s1_mod_3_3:
+      cs_s1_f_int_out_2: cs_s1_f_int_out_2
+    s2_mod_1:
+      cs_s2_f_int_in_2:
+      - s1_mod_3_2
+      - cs_s1_f_int_out_2
+external:
+  ports:
+    in:
+    - c_unt_in
+    - cin
+    out:
+    - cs_s1_f_int_out_2
+    - cout
+    inout:
+    - [SUB, legacy_external_type]
+ips:
+  s1_mod_3:
+    file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+  s1_mod_3_2:
+    file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+  s1_mod_3_3:
+    file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+  s2_mod_1:
+    file: examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+  s2_mod_2:
+    file: examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml

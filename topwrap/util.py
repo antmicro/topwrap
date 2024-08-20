@@ -58,3 +58,10 @@ class MissingType:
 _T = TypeVar("_T")
 MaybeMissing = Union[_T, MissingType]
 MISSING = MissingType()
+
+
+class UnreachableError(RuntimeError):
+    """Marks a code path as unreachable, giving a hint to the typechecker, while still raising in case of a logic error"""
+
+    def __init__(self, *args: object) -> None:
+        super().__init__("Stepped into a code path marked as unreachable", *args)

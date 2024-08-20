@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+from typing import Union
 
 import yaml
 
@@ -14,13 +15,13 @@ PWM_NAME = "litex_pwm_top"
 TEST_DATA_PATH = "tests/data/data_kpm/examples/"
 
 
-def read_json_file(json_file_path: str) -> dict:
+def read_json_file(json_file_path: Union[str, Path]) -> dict:
     with open(json_file_path, "r") as json_file:
         json_contents = json.load(json_file)
     return json_contents
 
 
-def read_yaml_file(yaml_file_path: str) -> DesignDescription:
+def read_yaml_file(yaml_file_path: Union[str, Path]) -> DesignDescription:
     return DesignDescription.load(yaml_file_path)
 
 

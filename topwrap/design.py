@@ -48,7 +48,7 @@ class DesignExternalPorts(MarshmallowDataclassExtensions):
         return [*self.input, *self.output, *self.inout]
 
     @cached_property
-    def as_dict(self):
+    def as_dict(self) -> Dict[PortDirection, Union[List[str], List[Tuple[str, str]]]]:
         return {
             PortDirection.IN: self.input,
             PortDirection.OUT: self.output,

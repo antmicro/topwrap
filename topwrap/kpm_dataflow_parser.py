@@ -1,42 +1,59 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import re
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Set, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
-from topwrap.design import DesignDescription
-from topwrap.design_to_kpm_dataflow_parser import KPMDataflowSubgraphnode
+import marshmallow_dataclass
+from typing_extensions import Self
+
+from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
+from topwrap.design import (
+    DesignDescription,
+    DesignExternalSection,
+    DS_InterfacesT,
+    DS_PortsT,
+)
+from topwrap.design_to_kpm_dataflow_parser import KPMDataflowExternalMetanode
+from topwrap.hdl_parsers_utils import PortDirection
 
 from .kpm_common import (
-    EXPOSED_IFACE,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
-    SUBGRAPH_METANODE,
-    SUBGRAPH_NODE,
     InterfaceData,
     InterfaceFromConnection,
     find_connected_interfaces,
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_name_id,
-    find_dataflow_node_type_by_name,
-    find_spec_interface_by_name,
+    get_all_graph_connections,
+    get_all_graph_nodes,
     get_dataflow_constant_connections,
-    get_dataflow_external_connections,
-    get_dataflow_ip_connections,
     get_dataflow_ip_nodes,
-    get_dataflow_subgraph_connections,
-    get_dataflow_subgraph_metanodes,
-    get_dataflow_subgraph_nodes,
+    get_entry_graph,
     get_exposed_subgraph_meta_iface,
-    get_graph_with_id,
+    get_external_metanode_direction,
+    get_metanode_interface_id,
     get_metanode_property_value,
     get_unexposed_subgraph_meta_iface,
+    graph_to_isolated_dataflow,
     is_constant_metanode,
     is_external_metanode,
+    is_kpm_interface_a_topwrap_interface,
     is_metanode,
+    is_subgraph_metanode,
+    is_subgraph_node,
+    kpm_direction_to_port_dir,
 )
-from .util import JsonType, recursive_defaultdict, recursive_defaultdict_to_dict
+from .util import JsonType, UnreachableError
+
+logger = logging.getLogger(__name__)
+
+
+class KPMExportException(Exception):
+    """An exception thrown by KPM export handlers encountering a fatal error"""
 
 
 @dataclass
@@ -45,6 +62,59 @@ class ConnectionData:
     iface_from: InterfaceData
     node_to: JsonType
     node_from: JsonType
+
+
+@marshmallow_dataclass.dataclass
+class ExternalsAndConns(MarshmallowDataclassExtensions):
+    external: DesignExternalSection = ext_field(DesignExternalSection)
+    ports: DS_PortsT = ext_field(dict)
+    interfaces: DS_InterfacesT = ext_field(dict)
+
+    def add_external(
+        self,
+        intf: bool,
+        dir: PortDirection,
+        port_or_intf: Union[str, Tuple[str, str]],
+        raise_on_dups: bool = True,
+    ):
+        if dir == PortDirection.INOUT and (isinstance(port_or_intf, str) or intf):
+            raise UnreachableError  # arriving here can only be caused by our own logic fault
+        coll = (self.external.interfaces.as_dict if intf else self.external.ports.as_dict)[dir]
+        if port_or_intf not in coll:
+            coll.append(port_or_intf)
+        elif raise_on_dups:
+            raise KPMExportException(
+                f'{"Interface" if intf else "Port"} "{port_or_intf}" is duplicated'
+            )
+
+    def add_conn(
+        self, intf: bool, node_name: str, port_name: str, target: Union[int, str, Tuple[str, str]]
+    ):
+        group = self.interfaces if intf else self.ports
+        if intf and isinstance(target, int):
+            raise KPMExportException("Tried assigning a constant value to a topwrap interface")
+        if port_name in group.setdefault(node_name, {}):
+            if not isinstance(target, tuple) or target[1] in group.setdefault(target[0], {}):
+                raise KPMExportException(
+                    f'Cannot represent connection "{node_name}.{port_name}" -> "{target}" as they are already connected to something else'
+                )
+            group[target[0]][target[1]] = (node_name, port_name)
+        else:
+            group[node_name][port_name] = target
+
+    def merge_with(self, other: Self, raise_on_dups: bool = True):
+        for is_intf, realm in (
+            (True, other.external.interfaces.as_dict),
+            (False, other.external.ports.as_dict),
+        ):
+            for dir, targets in realm.items():
+                for target in targets:
+                    self.add_external(is_intf, dir, target, raise_on_dups)
+
+        for is_intf, realm in ((True, other.interfaces), (False, other.ports)):
+            for ip_name, ports in realm.items():
+                for port, target in ports.items():
+                    self.add_conn(is_intf, ip_name, port, target)
 
 
 def _parse_value_width_parameter(param: str) -> JsonType:
@@ -60,7 +130,7 @@ def _parse_value_width_parameter(param: str) -> JsonType:
     return {"value": int(value, radix_to_base[radix]), "width": int(width)}
 
 
-def _kpm_properties_to_parameters(properties: JsonType) -> JsonType:
+def _kpm_properties_to_parameters(properties: List[JsonType]) -> JsonType:
     """Parse `properties` taken from a dataflow node into
     Topwrap's IP core's parameters.
     """
@@ -89,17 +159,26 @@ def _kpm_nodes_to_parameters(dataflow_data: JsonType) -> JsonType:
 
 def _kpm_nodes_to_ips(dataflow_data: JsonType, specification: JsonType) -> JsonType:
     """Parse dataflow nodes into Topwrap's "ips" section
-    of a design description yaml
-    """
+    of a design description yaml"""
+
     ips = {}
     filename = None
+    instance_names = defaultdict(int)
     for node in get_dataflow_ip_nodes(dataflow_data):
         for spec_node in specification["nodes"]:
             if spec_node["layer"] == node["name"]:
+                if "additionalData" not in spec_node:
+                    raise KPMExportException(
+                        f'IP "{node["name"]}" does not contain the file path inside "additionalData"'
+                    )
                 filename = spec_node["additionalData"]
+                break
+        else:
+            raise KPMExportException(f'IP "{node["name"]}" not found in the specification')
 
-        if filename is None:
-            raise ValueError("Ip file was not found")
+        cnt = instance_names[node["instanceName"]] = instance_names[node["instanceName"]] + 1
+        if cnt > 1:
+            node["instanceName"] += f"_{cnt}"
         ips[node["instanceName"]] = {
             "file": filename,
         }
@@ -107,163 +186,75 @@ def _kpm_nodes_to_ips(dataflow_data: JsonType, specification: JsonType) -> JsonT
 
 
 def _get_conn_ifaces_and_nodes(conn: JsonType, dataflow_data: JsonType) -> ConnectionData:
+    def _err(node: bool, id: Any):
+        return KPMExportException(
+            "While parsing graph connections, "
+            + ("node with an interface " if node else "interface ")
+            + f"with the id {id} was not found"
+        )
+
     iface_to = find_dataflow_interface_by_id(
         dataflow_data, InterfaceFromConnection(conn["to"], conn["id"])
     )
     if iface_to is None:
-        raise ValueError(f"Interface with id {conn['to']} was not found")
+        raise _err(False, conn["to"])
 
     iface_from = find_dataflow_interface_by_id(
         dataflow_data, InterfaceFromConnection(conn["from"], conn["id"])
     )
     if iface_from is None:
-        raise ValueError(f"Interface with id {conn['from']} was not found")
+        raise _err(False, conn["from"])
 
     node_to = find_dataflow_node_by_interface_name_id(
         dataflow_data, iface_to.iface_name, conn["to"]
     )
     if node_to is None:
-        raise ValueError(f"Node with id {conn['to']} was not found")
+        raise _err(True, conn["to"])
 
     node_from = find_dataflow_node_by_interface_name_id(
         dataflow_data, iface_from.iface_name, conn["from"]
     )
     if node_from is None:
-        raise ValueError(f"Node with id {conn['from']} was not found")
+        raise _err(True, conn["from"])
 
     return ConnectionData(iface_to, iface_from, node_to, node_from)
 
 
-def _kpm_connections_to_ports_ifaces(dataflow_data: JsonType, specification: JsonType) -> JsonType:
-    """Parse dataflow connections between nodes representing IP cores into
-    "ports" and "interfaces" sections of a Topwrap's design description yaml
-    """
-    ports_conns = recursive_defaultdict()
-    interfaces_conns = recursive_defaultdict()
+def _kpm_parse_connections_between_nodes(
+    dataflow_data: JsonType, specification: JsonType
+) -> ExternalsAndConns:
+    """Parse dataflow connections between nodes representing IP cores and hierarchies"""
 
-    for conn in get_dataflow_ip_connections(dataflow_data):
-        iface_from = find_dataflow_interface_by_id(
-            dataflow_data, InterfaceFromConnection(conn["from"], conn["id"])
-        )
-        if iface_from is None:
-            raise ValueError(f"Interface with id {conn['id']} was not found")
+    data = ExternalsAndConns()
 
-        iface_to = find_dataflow_interface_by_id(
-            dataflow_data, InterfaceFromConnection(conn["to"], conn["id"])
-        )
-        if iface_to is None:
-            raise ValueError(f"Interface with id {conn['id']} was not found")
-
-        node_to_type = find_dataflow_node_type_by_name(dataflow_data, iface_to.node_name)
-        if node_to_type is None:
-            raise ValueError(f"Node with {iface_to.node_name} was not found")
-
-        if node_to_type == KPMDataflowSubgraphnode.DUMMY_NAME_BASE:
-            iface_to_types = ["port"]
-        else:
-            interface_in_spec = find_spec_interface_by_name(
-                specification, node_to_type, iface_to.iface_name
-            )
-            if interface_in_spec is None:
-                raise ValueError(
-                    f"Interface {iface_to.iface_name} was not found in {node_to_type} in specification"
-                )
-            iface_to_types = interface_in_spec["type"]
-
-        if "port" in iface_to_types:
-            conns_dict = ports_conns
-        else:
-            conns_dict = interfaces_conns
-
-        conns_dict[iface_to.node_name][iface_to.iface_name] = (
-            iface_from.node_name,
-            iface_from.iface_name,
+    for conn in get_all_graph_connections(dataflow_data):
+        cd = _get_conn_ifaces_and_nodes(conn, dataflow_data)
+        iface_to, iface_from, node_to, node_from = (
+            cd.iface_to,
+            cd.iface_from,
+            cd.node_to,
+            cd.node_from,
         )
 
-    ports_conns = recursive_defaultdict_to_dict(ports_conns)
-    interfaces_conns = recursive_defaultdict_to_dict(interfaces_conns)
+        if is_metanode(node_from) or is_metanode(node_to):
+            continue
 
-    return {"ports": ports_conns, "interfaces": interfaces_conns}
+        is_intf = is_kpm_interface_a_topwrap_interface(node_to, iface_to.iface_name, specification)
+        data.add_conn(
+            is_intf,
+            iface_to.node_name,
+            iface_to.iface_name,
+            (iface_from.node_name, iface_from.iface_name),
+        )
 
-
-def _kpm_connections_to_external(dataflow_data: JsonType, specification: JsonType) -> JsonType:
-    """Parse dataflow connections representing external ports/interfaces
-    (i.e. connections between IP cores and external metanodes) into 'external'
-    section of a Topwrap's design description yaml
-    """
-    ports_ext_conns = {}
-    ifaces_ext_conns = {}
-    external = {
-        "ports": {"in": [], "out": [], "inout": []},
-        "interfaces": {"in": [], "out": []},
-    }
-
-    for conn in get_dataflow_external_connections(dataflow_data):
-        conn_data = _get_conn_ifaces_and_nodes(conn, dataflow_data)
-
-        # Determine the name of the port/interface
-        # to be made external and its node
-        if is_external_metanode(conn_data.node_to):
-            iface_name = conn_data.iface_from.iface_name
-            ip_node, metanode = conn_data.node_from, conn_data.node_to
-        elif is_external_metanode(conn_data.node_from):
-            iface_name = conn_data.iface_to.iface_name
-            ip_node, metanode = conn_data.node_to, conn_data.node_from
-        else:
-            raise ValueError("Invalid name of external metanode")
-
-        # Determine the direction of external ports/interface
-        if metanode["instanceName"] == EXT_OUTPUT_NAME:
-            dir = "out"
-        elif metanode["instanceName"] == EXT_INPUT_NAME:
-            dir = "in"
-        else:
-            dir = "inout"
-
-        # Get user-defined external name.
-        # If none - get internal name as default
-        external_name = get_metanode_property_value(metanode)
-        if not external_name:
-            external_name = iface_name
-
-        if ip_node["name"] == KPMDataflowSubgraphnode.DUMMY_NAME_BASE:
-            iface_types = ["port"]
-        else:
-            # Determine whether we deal with a port or an interface
-            spec_inteface = find_spec_interface_by_name(specification, ip_node["name"], iface_name)
-            if spec_inteface is None:
-                raise ValueError(f"Interface {ip_node['name']} was not found in specification")
-
-            iface_types = spec_inteface["type"]
-
-        if "port" in iface_types:
-            ext_conns, ext_section = ports_ext_conns, "ports"
-        else:
-            ext_conns, ext_section = ifaces_ext_conns, "interfaces"
-
-        # Update 'ports'/'interfaces' and 'external' sections
-        if ip_node["instanceName"] not in ext_conns.keys():
-            ext_conns[ip_node["instanceName"]] = {}
-
-        if dir != "inout":
-            ext_conns[ip_node["instanceName"]][iface_name] = external_name
-            if external_name not in external[ext_section][dir]:
-                external[ext_section][dir].append(external_name)
-        else:
-            # don't put inout connections in ext_conns as the rule is to specify them
-            # in the "external" section of the YAML
-            connection = [ip_node["instanceName"], external_name]
-            if connection not in external[ext_section][dir]:
-                external[ext_section][dir].append(connection)
-
-    return {"ports": ports_ext_conns, "interfaces": ifaces_ext_conns, "external": external}
+    return data
 
 
-def _kpm_connections_to_constant(dataflow_data: JsonType) -> JsonType:
+def _kpm_connections_to_constant(dataflow_data: JsonType) -> ExternalsAndConns:
     """Parse dataflow connections representing constant ports into design
     'ports' section of a Topwrap's design description yaml
     """
-    ports_conns = {"ports": {}}
+    data = ExternalsAndConns()
 
     for conn in get_dataflow_constant_connections(dataflow_data):
         conn_data = _get_conn_ifaces_and_nodes(conn, dataflow_data)
@@ -272,197 +263,172 @@ def _kpm_connections_to_constant(dataflow_data: JsonType) -> JsonType:
 
         # Ensure the node is constant metanode
         if not is_constant_metanode(const_node):
-            raise ValueError(f"Invalid name of constant metanode got: {const_node['name']}")
+            raise KPMExportException(
+                "While parsing connections to constants, node_from was not a constant metanode"
+            )
 
         iface_name = conn_data.iface_to.iface_name
+        value = int(get_metanode_property_value(const_node))
 
-        # Constant metanodes have exactly 1 property hence we can take 0th index
-        # of the `properties` array of a metanode to access the property
-        value = int(const_node["properties"][0]["value"])
+        data.add_conn(False, ip_node["instanceName"], iface_name, value)
 
-        ports_conns["ports"].setdefault(ip_node["instanceName"], {})
-        ports_conns["ports"][ip_node["instanceName"]].setdefault(iface_name, value)
-
-    return ports_conns
+    return data
 
 
-def _kpm_connections_to_subgraph(dataflow_data: JsonType) -> JsonType:
-    """Function to create connections between subgraph nodes"""
-    conns_dict = recursive_defaultdict()
-    for conn in get_dataflow_subgraph_connections(dataflow_data):
-        conn_data = _get_conn_ifaces_and_nodes(conn, dataflow_data)
-        # Don't connect to subgraph metanode as it is not necessary in yaml format
-        if SUBGRAPH_METANODE in [conn_data.node_from["name"], conn_data.node_to["name"]]:
-            continue
-        iface_to = conn_data.iface_to
-        iface_from = conn_data.iface_from
-        conns_dict[iface_to.node_name][iface_to.iface_name] = (
-            iface_from.node_name,
-            iface_from.iface_name,
+def _kpm_ext_handle_ext_meta(
+    node: JsonType, dataflow: JsonType, specification: JsonType
+) -> ExternalsAndConns:
+    """Gather externals and their connections from an external metanode"""
+
+    data = ExternalsAndConns()
+
+    iname = get_metanode_property_value(node)
+    dir = get_external_metanode_direction(node)
+    id = get_metanode_interface_id(node)
+    conns = [c for c in find_connected_interfaces(dataflow, id) if c.iface_id != id]
+    if dir == PortDirection.INOUT:
+        if len(conns) != 1:
+            raise KPMExportException(
+                "An inout port has an invalid amount of connections. Only 1 is supported by the schema"
+            )
+        if iname:
+            logger.warning(
+                f'An inout port has a custom name: "{iname}". This is meaningless and will not be preserved'
+            )
+    if len(conns) == 0:
+        if not iname:
+            logger.warning(
+                "An external metanode without an external name that isn't connected to anything is meaningless and will not be preserved"
+            )
+            return data
+
+        data.add_external(False, dir, iname)
+
+    for conn in conns:
+        to_intf = find_dataflow_interface_by_id(dataflow, conn)
+        if to_intf is None:
+            raise KPMExportException(
+                f"External metanode connection target interface with id {conn.iface_id} was not found"
+            )
+
+        ip_node = find_dataflow_node_by_interface_name_id(
+            dataflow, to_intf.iface_name, conn.iface_id
         )
-    return recursive_defaultdict_to_dict(conns_dict)
+        if ip_node is None:
+            raise UnreachableError
 
+        if is_metanode(ip_node):
+            raise KPMExportException(
+                f'External metanode "{iname}" is connected to another metanode. This is impossible to represent in the schema'
+            )
 
-def _update_ports_ifaces_section(ports_ifaces: JsonType, externals: JsonType) -> JsonType:
-    """Helper function to update 'ports' or 'interfaces' section of a design
-    description yaml with the collected entries describing external connections
-    """
-    for ip_name in externals.keys():
-        if ip_name not in ports_ifaces.keys():
-            ports_ifaces[ip_name] = {}
-        ports_ifaces[ip_name].update(externals[ip_name])
-    return ports_ifaces
-
-
-def _kpm_expose_ports(dataflow_json: JsonType) -> JsonType:
-    exposed_ports = recursive_defaultdict()
-    for subgraph_metanode in get_dataflow_subgraph_metanodes(dataflow_json):
-        unexposed_iface = get_unexposed_subgraph_meta_iface(subgraph_metanode)
-        exposed_iface = get_exposed_subgraph_meta_iface(subgraph_metanode)
-        all_conn = find_connected_interfaces(dataflow_json, unexposed_iface["id"])
-        for conn in all_conn:
-            iface_data = find_dataflow_interface_by_id(dataflow_json, conn)
-            if iface_data is None:
-                raise ValueError(
-                    f"Interface with id {conn.iface_id} in connection {conn.connection_id} was not found"
+        iface_name = to_intf.iface_name
+        if not iname:
+            if len(conns) > 1:
+                raise KPMExportException(
+                    f'Unnamed external metanode connected to "{ip_node["instanceName"]}.{iface_name}", and multiple other ports. This is ambiguous'
                 )
-            exposed_ports[iface_data.node_name][iface_data.iface_name] = exposed_iface[
-                EXPOSED_IFACE
-            ]
-    return recursive_defaultdict_to_dict(exposed_ports)
+            iname = iface_name
+
+        if dir == PortDirection.INOUT:
+            data.add_external(False, dir, (ip_node["instanceName"], iname), raise_on_dups=False)
+        else:
+            is_intf = is_kpm_interface_a_topwrap_interface(ip_node, iface_name, specification)
+            data.add_external(is_intf, dir, iname, raise_on_dups=False)
+            data.add_conn(is_intf, ip_node["instanceName"], iface_name, iname)
+
+    return data
 
 
-def _kpm_subgraph_ports_definitions(
-    dataflow_json: JsonType, return_recursive_defaultdict: bool = False
-) -> JsonType:
-    ports_definitions = recursive_defaultdict()
-    directions_shorter = {"input": "in", "output": "out"}
-    for node in get_dataflow_subgraph_nodes(dataflow_json):
-        for direction in directions_shorter.values():
-            ports_definitions[node["instanceName"]]["external"]["ports"][direction] = []
+def _kpm_ext_handle_subgraph_meta(
+    node: JsonType, dataflow: JsonType, spec: JsonType
+) -> ExternalsAndConns:
+    """Gather externals and their connections from a subgraph metanode"""
 
-        for interface in node["interfaces"]:
-            ports_definitions[node["instanceName"]]["external"]["ports"][
-                directions_shorter[interface["direction"]]
-            ].append(interface["name"])
+    unexposed_iface = get_unexposed_subgraph_meta_iface(node)
+    exposed_iface = get_exposed_subgraph_meta_iface(node)
 
-    if return_recursive_defaultdict:
-        return ports_definitions
+    if len(find_connected_interfaces(dataflow, exposed_iface["id"])) > 0:
+        raise KPMExportException(
+            "A subgraph metanode's exposed interface can't be locally connected to any other nodes"
+        )
 
-    return recursive_defaultdict_to_dict(ports_definitions)
+    # transform the subgraph metanode into a regular
+    # external metanode and handle it like one
+    dir = kpm_direction_to_port_dir(exposed_iface["direction"])
+    meta = KPMDataflowExternalMetanode(
+        EXT_INPUT_NAME if dir == PortDirection.IN else EXT_OUTPUT_NAME,
+        exposed_iface["externalName"],
+    ).to_json_format()
+    meta["interfaces"] = [unexposed_iface]
 
-
-def _add_node_data_to_design(
-    topwrap_design: JsonType,
-    node_instance_name: str,
-    nodes_data: JsonType,
-    design_field_name: str,
-):
-    """If in "nodes_data" is data about given node then it adds it to "topwrap_design" """
-    if node_instance_name in nodes_data.keys():
-        topwrap_design[design_field_name][node_instance_name] = nodes_data[node_instance_name]
+    return _kpm_ext_handle_ext_meta(meta, dataflow, spec)
 
 
-def _find_necessary_ips_for_hier(
-    ips: Dict[str, Dict[Literal["file", "module"], str]],
-    design_dict: JsonType,
-    inouts: List[Tuple[str, str]],
-):
-    keys: Set[str] = set()
-    for ip, _ in inouts:
-        keys.add(ip)
-    for key in (*design_dict["ports"].keys(), *design_dict["interfaces"].keys()):
-        keys.add(key)
-    return {key: ips[key] for key in keys if key in ips}
+def _kpm_ext_handle_legacy_exposed(node: JsonType, spec: JsonType) -> ExternalsAndConns:
+    """Gather externals and their connections from 'exposed' ports on IP cores or subgraphs"""
+
+    data = ExternalsAndConns()
+
+    for interface in node["interfaces"]:
+        if "externalName" in interface:
+            dir = kpm_direction_to_port_dir(interface["direction"])
+            if dir == PortDirection.INOUT:
+                data.add_external(False, dir, (node["instanceName"], interface["externalName"]))
+            else:
+                is_intf = is_kpm_interface_a_topwrap_interface(node, interface["name"], spec)
+                data.add_external(is_intf, dir, interface["externalName"])
+                data.add_conn(
+                    is_intf, node["instanceName"], interface["name"], interface["externalName"]
+                )
+
+    return data
 
 
-def _create_topwrap_design(
-    ips: Dict[str, Dict[Literal["file", "module"], str]],
-    dataflow_data: JsonType,
-    properties: JsonType,
-    ports: JsonType,
-    interfaces: JsonType,
-    entry_graph_id: str,
-    subgraph_ports_external: JsonType,
-    topwrap_design: JsonType,
-) -> JsonType:
-    """Converts the collected data into Topwrap's design description yaml"""
-    parent_graph = get_graph_with_id(dataflow_data, entry_graph_id)
-    if parent_graph is None:
-        raise ValueError(f"Graph with id {entry_graph_id} was not found")
+def _kpm_gather_all_graph_externals(dataflow: JsonType, spec: JsonType) -> ExternalsAndConns:
+    data = ExternalsAndConns()
 
-    for node in parent_graph["nodes"]:
-        if is_metanode(node):
-            continue
+    for node in get_all_graph_nodes(dataflow):
+        if is_subgraph_metanode(node):
+            data.merge_with(_kpm_ext_handle_subgraph_meta(node, dataflow, spec))
+        elif is_external_metanode(node):
+            data.merge_with(_kpm_ext_handle_ext_meta(node, dataflow, spec))
+        elif not is_metanode(node):
+            data.merge_with(_kpm_ext_handle_legacy_exposed(node, spec))
 
-        node_instance_name = node["instanceName"]
-        _add_node_data_to_design(topwrap_design, node_instance_name, properties, "parameters")
-        _add_node_data_to_design(topwrap_design, node_instance_name, interfaces, "interfaces")
-        _add_node_data_to_design(topwrap_design, node_instance_name, ports, "ports")
-
-        if SUBGRAPH_NODE in node.keys():
-            topwrap_design["hierarchies"][node_instance_name] = subgraph_ports_external[
-                node_instance_name
-            ]
-            design = _create_topwrap_design(
-                ips,
-                dataflow_data,
-                properties,
-                ports,
-                interfaces,
-                node[SUBGRAPH_NODE],
-                subgraph_ports_external,
-                topwrap_design["hierarchies"][node_instance_name]["design"],
-            )
-            topwrap_design["hierarchies"][node_instance_name]["design"] = design
-            ext_ports = subgraph_ports_external[node_instance_name]["external"]["ports"]
-            topwrap_design["hierarchies"][node_instance_name]["ips"] = _find_necessary_ips_for_hier(
-                ips, design, ext_ports.get("inout", [])
-            )
-
-    return topwrap_design
+    return data
 
 
 def kpm_dataflow_to_design(dataflow_data: JsonType, specification: JsonType) -> DesignDescription:
-    """Parse Pipeline Manager dataflow into Topwrap's design description yaml"""
-    all_ips = _kpm_nodes_to_ips(dataflow_data, specification)
+    def _inner(graph_id: str, name: str, is_top: bool = False) -> Dict[str, Any]:
+        try:
+            df = graph_to_isolated_dataflow(dataflow_data, graph_id)
+            ips = _kpm_nodes_to_ips(df, specification)
+            exts_and_conns = _kpm_gather_all_graph_externals(df, specification)
 
-    properties = _kpm_nodes_to_parameters(dataflow_data)
-    ports_ifaces_dict = _kpm_connections_to_ports_ifaces(dataflow_data, specification)
-    constants = _kpm_connections_to_constant(dataflow_data)
-    externals = _kpm_connections_to_external(dataflow_data, specification)
-    subgraph_conns = _kpm_connections_to_subgraph(dataflow_data)
-    node_exposed_ports = _kpm_expose_ports(dataflow_data)
-    subgraph_ports_external = _kpm_subgraph_ports_definitions(
-        dataflow_data, return_recursive_defaultdict=True
-    )
+            exts_and_conns.merge_with(_kpm_connections_to_constant(df))
+            exts_and_conns.merge_with(_kpm_parse_connections_between_nodes(df, specification))
 
-    ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], externals["ports"])
-    ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], constants["ports"])
-    ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], subgraph_conns)
-    ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], node_exposed_ports)
-    interfaces = _update_ports_ifaces_section(
-        ports_ifaces_dict["interfaces"], externals["interfaces"]
-    )
-    design = _create_topwrap_design(
-        all_ips,
-        dataflow_data,
-        properties,
-        ports,
-        interfaces,
-        dataflow_data.get(
-            "entryGraph", dataflow_data["graphs"][0]["id"]
-        ),  # if there is no entry graph then there is only one graph in design
-        subgraph_ports_external,
-        recursive_defaultdict(),
-    )
+            if not is_top and len(exts_and_conns.external.ports.inout) > 0:
+                raise KPMExportException("Inouts inside hierarchies are not yet supported")
 
-    return DesignDescription.from_dict(
-        {
-            "ips": _find_necessary_ips_for_hier(
-                all_ips, design, externals["external"]["ports"]["inout"]
-            ),
-            "design": design,
-            "external": externals["external"],
-        }
-    )
+            return {
+                "ips": ips,
+                "external": exts_and_conns.external.to_dict(),
+                "design": {
+                    "ports": exts_and_conns.ports,
+                    "interfaces": exts_and_conns.interfaces,
+                    "parameters": _kpm_nodes_to_parameters(df),
+                    "hierarchies": {
+                        node["instanceName"]: _inner(node["subgraph"], node["instanceName"])
+                        for node in get_all_graph_nodes(df)
+                        if is_subgraph_node(node)
+                    },
+                },
+            }
+        except Exception as exc:
+            raise KPMExportException(
+                f'While parsing {"the top level" if is_top else f"hierarchy {name}"}, an exception occurred'
+            ) from exc
+
+    return DesignDescription.from_dict(_inner(get_entry_graph(dataflow_data)["id"], "top", True))

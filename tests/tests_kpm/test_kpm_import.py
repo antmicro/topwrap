@@ -13,11 +13,17 @@ from topwrap.design_to_kpm_dataflow_parser import (
     kpm_connections_from_design_descr,
     kpm_constant_metanodes_from_design_descr,
     kpm_constant_metanodes_from_nodes,
+    kpm_dataflow_from_design_descr,
     kpm_external_metanodes_from_design_descr,
     kpm_metanodes_connections_from_design_descr,
     kpm_nodes_from_design_descr,
 )
-from topwrap.kpm_common import EXT_OUTPUT_NAME, is_metanode, is_subgraph_node
+from topwrap.kpm_common import (
+    EXT_OUTPUT_NAME,
+    get_graph_with_id,
+    is_metanode,
+    is_subgraph_node,
+)
 
 from .common import AXI_NAME, PS7_NAME, PWM_NAME
 
@@ -411,3 +417,30 @@ class TestHierarchyDataflowImport:
         }
 
         assert node_occurrence_dict == conn_dict
+
+
+class TestComplexDesignImport:
+    @pytest.fixture
+    def _design_same_names(self) -> DesignDescription:
+        des = "design: { hierarchies: { SUB: { design: { hierarchies: { SUB: {}}}}}}"
+        return DesignDescription.from_yaml(des)
+
+    def test_has_hierarchies_same_names(
+        self, _design_same_names: DesignDescription, hierarchy_specification
+    ):
+        dataflow = kpm_dataflow_from_design_descr(_design_same_names, hierarchy_specification)
+        assert "entryGraph" in dataflow and dataflow["entryGraph"] and len(dataflow["graphs"]) == 3
+
+        graph0 = get_graph_with_id(dataflow, dataflow["entryGraph"])
+        assert graph0 is not None and len(graph0["nodes"]) == 1
+
+        graph1 = get_graph_with_id(dataflow, graph0["nodes"][0]["subgraph"])
+        assert graph1 is not None and graph0 != graph1 and len(graph1["nodes"]) == 1
+
+        graph2 = get_graph_with_id(dataflow, graph1["nodes"][0]["subgraph"])
+        assert (
+            graph2 is not None
+            and graph2 != graph0
+            and graph2 != graph1
+            and len(graph2["nodes"]) == 0
+        )

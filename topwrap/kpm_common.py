@@ -7,6 +7,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from topwrap.hdl_parsers_utils import PortDirection
+from topwrap.util import UnreachableError
+
 from .util import JsonType
 
 SPECIFICATION_VERSION = "20240723.13"
@@ -64,6 +67,32 @@ def get_graph_with_id(dataflow_json: JsonType, graph_id: str) -> Optional[JsonTy
             return graph
 
 
+def get_entry_graph(dataflow_json: JsonType) -> JsonType:
+    """Returns the "entry" graph of the dataflow (the top level one)"""
+
+    # if there is no "entryGraph" defined then there is only one graph in the design
+    graph = get_graph_with_id(
+        dataflow_json, dataflow_json.get("entryGraph", dataflow_json["graphs"][0]["id"])
+    )
+    if graph is None:
+        raise UnreachableError
+    return graph
+
+
+def graph_to_isolated_dataflow(dataflow: JsonType, graph_id: str) -> JsonType:
+    return {
+        "version": dataflow.get("version"),
+        "graphs": [get_graph_with_id(dataflow, graph_id)],
+        "metadata": dataflow.get("metadata"),
+    }
+
+
+def kpm_direction_to_port_dir(kpm_dir: str) -> PortDirection:
+    return {"input": PortDirection.IN, "output": PortDirection.OUT, "inout": PortDirection.INOUT}[
+        kpm_dir
+    ]
+
+
 @dataclass
 class RPCparams:
     host: str
@@ -101,6 +130,21 @@ def is_subgraph_node(node: JsonType) -> bool:
 def is_exposed_iface(iface: JsonType) -> bool:
     """Return True if a interfce is exposed in some subgraph node, False otherwise."""
     return EXPOSED_IFACE in iface.keys()
+
+
+def is_kpm_interface_a_topwrap_interface(node: JsonType, port_name: str, spec: JsonType) -> bool:
+    """Check whether a port on a node represents a topwrap interface"""
+
+    if is_subgraph_node(node):
+        return False
+
+    spec_inteface = find_spec_interface_by_name(spec, node["name"], port_name)
+    if spec_inteface is None:
+        raise ValueError(
+            f'Interface "{port_name}" of IP "{node["name"]}" was not found in the specification'
+        )
+
+    return spec_inteface["type"] != ["port"]
 
 
 def _get_subgraph_metanode_iface(subgraph_metanode: JsonType, exposed: bool) -> JsonType:
@@ -268,6 +312,22 @@ def get_metanode_property_value(metanode: JsonType) -> str:
     return metanode["properties"][0]["value"]
 
 
+def get_external_metanode_direction(metanode: JsonType) -> PortDirection:
+    """Gets a PortDirection of the external or subgraph port metanode"""
+
+    if is_subgraph_metanode(metanode):
+        dir = get_exposed_subgraph_meta_iface(metanode)["direction"]
+        return kpm_direction_to_port_dir(dir)
+    elif is_external_metanode(metanode):
+        return {
+            EXT_INPUT_NAME: PortDirection.IN,
+            EXT_OUTPUT_NAME: PortDirection.OUT,
+            EXT_INOUT_NAME: PortDirection.INOUT,
+        }[metanode["name"]]
+    else:
+        raise ValueError("Neither an external nor a subgraph port metanode")
+
+
 def find_dataflow_node_by_interface_name_id(
     dataflow_json: JsonType, iface_name: str, iface_id: str
 ) -> Optional[JsonType]:
@@ -307,13 +367,6 @@ def find_spec_interface_by_name(
         for interface in node["interfaces"]:
             if interface["name"] == iface_name:
                 return interface
-
-
-def find_dataflow_node_type_by_name(dataflow_data: JsonType, node_name: str) -> Optional[str]:
-    """Returns node type based on the provided instance name"""
-    for node in get_all_graph_nodes(dataflow_data):
-        if node["instanceName"] == node_name:
-            return node["name"]
 
 
 def find_connected_interfaces(

@@ -1,6 +1,8 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from pathlib import Path
+
 import pytest
 from pipeline_manager_backend_communication.misc_structures import MessageType
 from pytest_lazy_fixtures import lf
@@ -16,12 +18,13 @@ from topwrap.kpm_dataflow_validator import (
     _check_parameters_values,
     _check_unconnected_ports_interfaces,
 )
+from topwrap.util import JsonType
 
 from .common import read_json_file
 
 
-def get_dataflow_test(test_name: str) -> dict:
-    return read_json_file(f"tests/data/data_kpm/dataflow_tests/{test_name}.json")
+def get_dataflow_test(test_name: str) -> JsonType:
+    return read_json_file(Path(f"tests/data/data_kpm/dataflow_tests/{test_name}.json"))
 
 
 @pytest.fixture
