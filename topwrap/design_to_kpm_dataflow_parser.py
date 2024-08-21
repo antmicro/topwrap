@@ -1,12 +1,9 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-
-from __future__ import annotations
-
 import logging
 from dataclasses import dataclass, field
 from time import time
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from typing_extensions import override
 
@@ -15,9 +12,12 @@ from topwrap.ip_desc import IPCoreParameter
 from .design import DesignDescription, DesignExternalPorts, DesignSection
 from .kpm_common import (
     CONST_NAME,
+    EXPOSED_IFACE,
     EXT_INOUT_NAME,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
+    SPECIFICATION_VERSION,
+    SUBGRAPH_METANODE,
     get_metanode_property_value,
 )
 
@@ -29,7 +29,7 @@ class SubgraphMaps:
     interface_name_id_map: Dict[str, str] = field(default_factory=dict)
     subgraph_name_id_map: Dict[str, str] = field(default_factory=dict)
 
-    def update_maps(self, submaps_update: SubgraphMaps) -> None:
+    def update_maps(self, submaps_update: "SubgraphMaps") -> None:
         self.interface_name_id_map.update(submaps_update.interface_name_id_map)
         self.subgraph_name_id_map.update(submaps_update.subgraph_name_id_map)
 
@@ -61,7 +61,7 @@ class KPMDataflowNodeInterface:
         "inout": KPM_DIR_INOUT,
     }
 
-    def __init__(self, name: str, direction: str, value: Optional[str] = None):
+    def __init__(self, name: str, direction: str, value: Optional[int] = None):
         if direction not in self.kpm_direction_extensions_dict.values():
             raise ValueError(f"Invalid interface direction: {direction}")
 
@@ -79,12 +79,12 @@ class KPMDataflowNodeInterface:
             "side": ("left" if (self.direction == self.KPM_DIR_INPUT) else "right"),
         }
         if self.external_name is not None:
-            json_format["externalName"] = self.external_name
+            json_format[EXPOSED_IFACE] = self.external_name
         return json_format
 
 
 class KPMDataflowSubgraphnodeInterface(KPMDataflowNodeInterface):
-    def __init__(self, name, direction):
+    def __init__(self, name: str, direction: str):
         if direction not in KPMDataflowNodeInterface.kpm_direction_extensions_dict.keys():
             raise ValueError(f"Invalid subgraph direction: {direction}")
         super().__init__(name, KPMDataflowNodeInterface.kpm_direction_extensions_dict[direction])
@@ -93,9 +93,17 @@ class KPMDataflowSubgraphnodeInterface(KPMDataflowNodeInterface):
 class KPMDataflowMetanodeInterface(KPMDataflowNodeInterface):
     EXT_IFACE_NAME = "external"
     CONST_IFACE_NAME = "constant"
+    SUB_IFACE_IN_NAME = "subgraph in"
+    SUB_IFACE_OUT_NAME = "subgraph out"
 
-    def __init__(self, name, direction, **kwargs):
-        if name not in [self.EXT_IFACE_NAME, self.CONST_IFACE_NAME]:
+    def __init__(self, name: str, direction: str, **kwargs: Any):
+        meta_iface_names = [
+            self.EXT_IFACE_NAME,
+            self.CONST_IFACE_NAME,
+            self.SUB_IFACE_IN_NAME,
+            self.SUB_IFACE_OUT_NAME,
+        ]
+        if name not in meta_iface_names:
             raise ValueError(f"Invalid metanode interface name: {name}")
 
         super().__init__(name, direction, **kwargs)
@@ -115,7 +123,7 @@ class KPMDataflowMetanodeProperty(KPMDataflowNodeProperty):
     KPM_EXT_PROP_NAME = "External Name"
     KPM_CONST_VALUE_PROP_NAME = "Constant Value"
 
-    def __init__(self, name, value):
+    def __init__(self, name: str, value: IPCoreParameter):
         if name not in [self.KPM_EXT_PROP_NAME, self.KPM_CONST_VALUE_PROP_NAME]:
             raise ValueError(f"Invalid metanode property name: {name}")
 
@@ -123,8 +131,6 @@ class KPMDataflowMetanodeProperty(KPMDataflowNodeProperty):
 
 
 class KPMDataflowNode:
-    __default_width = 200
-
     def __init__(
         self,
         name: str,
@@ -145,8 +151,6 @@ class KPMDataflowNode:
             "instanceName": self.name,
             "twoColumn": True,
             "interfaces": [interface.to_json_format() for interface in self.interfaces],
-            "position": {"x": 0, "y": 0},
-            "width": KPMDataflowNode.__default_width,
             "properties": [property.to_json_format() for property in self.properties],
         }
 
@@ -173,7 +177,7 @@ class KPMDataflowSubgraphnode(KPMDataflowNode):
 
 
 class KPMDataflowMetanode(KPMDataflowNode):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
 
 
@@ -229,6 +233,33 @@ class KPMDataflowConstantMetanode(KPMDataflowMetanode):
         )
 
 
+class KPMDataflowSubgraphMetanode(KPMDataflowMetanode):
+    def __init__(self, port_name: str) -> None:
+        super().__init__(
+            name=port_name,
+            type=SUBGRAPH_METANODE,
+            properties=[],
+            interfaces=[
+                KPMDataflowMetanodeInterface(
+                    KPMDataflowMetanodeInterface.SUB_IFACE_OUT_NAME,
+                    KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
+                ),
+                KPMDataflowMetanodeInterface(
+                    KPMDataflowMetanodeInterface.SUB_IFACE_IN_NAME,
+                    KPMDataflowNodeInterface.KPM_DIR_INPUT,
+                ),
+            ],
+        )
+
+    def get_unexposed_port_id(self) -> str:
+        for idx, interface in enumerate(self.interfaces):
+            if interface.external_name is not None:
+                # Subgraph metanodes have two interfaces, we want to make connections to the interface that is not exposed
+                # (idx + 1) % 2 will select interface that is not exposed
+                return self.interfaces[(idx + 1) % 2].id
+        raise ValueError("No interface is exposed in subgraph metanode")
+
+
 class KPMDataflowConnection:
     def __init__(self, id_from: str, id_to: str) -> None:
         generator = IDGenerator()
@@ -242,7 +273,10 @@ class KPMDataflowConnection:
 
 class KPMDataflowGraph:
     def __init__(
-        self, connections: List[KPMDataflowConnection], nodes: List[KPMDataflowNode], id=None
+        self,
+        connections: List[KPMDataflowConnection],
+        nodes: List[KPMDataflowNode],
+        id: Optional[str] = None,
     ):
         self.connections = connections
         self.nodes = nodes
@@ -302,7 +336,7 @@ def get_kpm_nodes_from_design(
                 if param_name in kpm_properties.keys():
                     kpm_properties[param_name].value = _ipcore_param_to_kpm_value(param_val)
                 else:
-                    logging.warning(f"Parameter '{param_name}'" f"not found in node {ip_name}")
+                    logging.warning(f"Parameter '{param_name}' not found in node {ip_name}")
 
         interfaces = []
         for interface in spec_node["interfaces"]:
@@ -460,27 +494,29 @@ def _create_connection(
 
     dir_from = kpm_iface_from.direction
     dir_to = kpm_iface_to.direction
+    interface_input = KPMDataflowNodeInterface.KPM_DIR_INPUT
+    interface_output = KPMDataflowNodeInterface.KPM_DIR_OUTPUT
+    interface_inout = KPMDataflowNodeInterface.KPM_DIR_INOUT
 
-    if (
-        (
-            dir_from == KPMDataflowNodeInterface.KPM_DIR_OUTPUT
-            and dir_to != KPMDataflowNodeInterface.KPM_DIR_INPUT
-        )
-        or (
-            dir_from == KPMDataflowNodeInterface.KPM_DIR_INPUT
-            and dir_to != KPMDataflowNodeInterface.KPM_DIR_OUTPUT
-        )
-        or (
-            dir_from == KPMDataflowNodeInterface.KPM_DIR_INOUT
-            and dir_to != KPMDataflowNodeInterface.KPM_DIR_INOUT
-        )
-    ):
+    if dir_from == interface_input and dir_to in [interface_output, interface_inout]:
+        # Don't show warnings for external metanodes because connection input -> output is legal there
+        if kpm_iface_from.name != KPMDataflowMetanodeInterface.EXT_IFACE_NAME:
+            logging.warning(
+                "In connection: "
+                f"'{kpm_iface_from.name}<->{kpm_iface_to.name}' "
+                f"Input is connected to {dir_to}, connection will be automatically reversed to fix this issue"
+            )
+        return KPMDataflowConnection(kpm_iface_to.id, kpm_iface_from.id)
+
+    if dir_from == dir_to and dir_from != interface_inout:
         logging.warning(
             "Port/interface direction mismatch for connection: "
             f"'{kpm_iface_from.name}<->{kpm_iface_to.name}'"
+            f" {dir_from} is connected to {dir_to}"
         )
-    else:
-        return KPMDataflowConnection(kpm_iface_from.id, kpm_iface_to.id)
+        return
+
+    return KPMDataflowConnection(kpm_iface_from.id, kpm_iface_to.id)
 
 
 def kpm_connections_from_design_descr(
@@ -642,7 +678,7 @@ def create_subgraph_external_interfaces(
     for direction, port_names in subgraph_ports.as_dict.items():
         for port_name in port_names:
             new_interface = KPMDataflowSubgraphnodeInterface(port_name, direction.value)
-            interface_map_updates[f"{subgraph_name}_{port_name}"] = new_interface.id
+            interface_map_updates[f"{subgraph_name} {port_name}"] = new_interface.id
             interfaces.append(new_interface)
 
     return (interfaces, interface_map_updates)
@@ -689,63 +725,80 @@ def _get_external_subgraph_connections(design_descr: DesignDescription) -> List[
 
 def _expose_external_subgraph_interfaces(
     subgraph_data: DesignDescription,
-    subgraph_nodes: List[KPMDataflowNode],
     subgraph_name: str,
-    subgraph_interface_name_id_map: Dict[str, str],
-) -> Dict[str, str]:
+    interface_name_id_map: Dict[str, str],
+) -> List[KPMDataflowSubgraphMetanode]:
     """Creates "externalName" reference in subgraph node interface.
     Reference has to be to exactly one level higher to preserve hierarchy.
     Additionally changes the id to be the same as exposed interface"""
-    interface_map_updates = {}
-    _conns = _get_external_subgraph_connections(subgraph_data)
-    for conn in _conns:
-        conn_name = conn["connection"]
-        if conn_name == CONST_NAME:
-            continue
+    interface_metanodes = []
+    sub_ports = subgraph_data.external.ports
+    sub_inter = subgraph_data.external.interfaces
+    input_names = sub_ports.input + sub_inter.input
+    output_names = sub_ports.output + sub_inter.output
 
-        kpm_core_iface = _get_dataflow_interface_by_name(
-            conn["port_iface_name"], conn["ip_name"], subgraph_nodes
-        )
-        if kpm_core_iface is None:
-            logging.warning(
-                f"Not found interface with name {conn['port_iface_name']} and because of that can't expose this interface"
-            )
-            return interface_map_updates
-
-        kpm_core_iface.id = subgraph_interface_name_id_map[f"{subgraph_name}_{conn_name}"]
-        kpm_core_iface.external_name = conn_name
-        interface_map_updates[f"{conn['ip_name']}_{kpm_core_iface.name}"] = kpm_core_iface.id
-
-    return interface_map_updates
+    for sub_external_interface in input_names + output_names:
+        metanode_name = f"{subgraph_name} {sub_external_interface}"
+        interface_metanode = KPMDataflowSubgraphMetanode(metanode_name)
+        # in subgraph metanode at index 1 is input, at 0 is output
+        iface_index = 1 if sub_external_interface in input_names else 0
+        interface_metanode.interfaces[iface_index].id = interface_name_id_map[metanode_name]
+        interface_metanode.interfaces[iface_index].external_name = sub_external_interface
+        interface_metanodes.append(interface_metanode)
+    return interface_metanodes
 
 
-def connections_to_constants(
-    subgraph_data: dict, subgraph_nodes: List[KPMDataflowNode]
+def _get_metanode_with_interface(
+    iface_id: str, metanodes_list: List[KPMDataflowSubgraphMetanode]
+) -> KPMDataflowSubgraphMetanode:
+    for metanode in metanodes_list:
+        for meta_iface in metanode.interfaces:
+            if meta_iface.id == iface_id:
+                return metanode
+    raise ValueError(f"Interface with id {iface_id} was not found")
+
+
+def subgraph_connections_to_metanodes(
+    subgraph_data: DesignDescription,
+    subgraph_nodes: List[KPMDataflowNode],
+    subgraph_name: str,
+    interface_name_id_map: Dict[str, str],
+    interface_metanodes: List[KPMDataflowSubgraphMetanode],
 ) -> Tuple[List[KPMDataflowConnection], List[KPMDataflowConstantMetanode]]:
     _conns = _get_external_subgraph_connections(subgraph_data)
     result = []
     metanodes = []
+
     for conn in _conns:
-        conn_name = conn["connection"]
-        if conn_name != CONST_NAME:
-            continue
-        constant_metanode = KPMDataflowConstantMetanode(conn["const_val"])
-        metanodes.append(constant_metanode)
-        kpm_interface = _get_dataflow_interface_by_name(
+        kpm_core_iface = _get_dataflow_interface_by_name(
             conn["port_iface_name"], conn["ip_name"], subgraph_nodes
         )
-        if kpm_interface is None:
+        if kpm_core_iface is None:
             raise Exception(f"Node {conn['ip_name']} interface was not found")
-        result.append(_create_connection(constant_metanode.interfaces[0], kpm_interface))
-    result = [conn for conn in result if conn is not None]
+
+        conn_name = conn["connection"]
+        meta_interface_id = None
+        if conn_name == CONST_NAME:
+            constant_metanode = KPMDataflowConstantMetanode(conn["const_val"])
+            metanodes.append(constant_metanode)
+            meta_interface_id = constant_metanode.interfaces[0].id
+            result.append(KPMDataflowConnection(meta_interface_id, kpm_core_iface.id))
+        else:
+            metanode = _get_metanode_with_interface(
+                interface_name_id_map[f"{subgraph_name} {conn['connection']}"],
+                interface_metanodes,
+            )
+            meta_interface_id = metanode.get_unexposed_port_id()
+            result.append(KPMDataflowConnection(kpm_core_iface.id, meta_interface_id))
+
     return result, metanodes
 
 
 def create_subgraphs(
     design_section: DesignSection,
     specification: dict,
-    previous_nodes: list,
-    subgraph_maps: SubgraphMaps,
+    previous_nodes: List[KPMDataflowNode],
+    parent_subgraph_maps: SubgraphMaps,
 ) -> List[KPMDataflowGraph]:
     """Creates all subgraphs from Topwrap design hierarchy section."""
 
@@ -756,33 +809,33 @@ def create_subgraphs(
         current_subgraph_nodes, submaps_updates = kpm_subgraph_nodes_from_design_descr(
             subgraph_data
         )
+
+        subgraph_maps = SubgraphMaps()
         subgraph_maps.update_maps(submaps_updates)
 
         all_subgraph_nodes = core_nodes + current_subgraph_nodes
-
-        subgraph_maps.interface_name_id_map.update(
-            _expose_external_subgraph_interfaces(
-                subgraph_data,
-                all_subgraph_nodes + previous_nodes,
-                subgraph_name,
-                subgraph_maps.interface_name_id_map,
-            )
+        interface_metanodes = _expose_external_subgraph_interfaces(
+            subgraph_data, subgraph_name, parent_subgraph_maps.interface_name_id_map
         )
 
         connections = kpm_connections_from_design_descr(subgraph_data, all_subgraph_nodes)
 
-        meta_connections, meta_nodes = connections_to_constants(subgraph_data, all_subgraph_nodes)
+        meta_connections, constant_metanodes = subgraph_connections_to_metanodes(
+            subgraph_data,
+            all_subgraph_nodes,
+            subgraph_name,
+            parent_subgraph_maps.interface_name_id_map,
+            interface_metanodes,
+        )
 
         subgraphs.append(
             KPMDataflowGraph(
                 connections + meta_connections,
-                all_subgraph_nodes + meta_nodes,
-                subgraph_maps.subgraph_name_id_map[subgraph_name],
+                all_subgraph_nodes + constant_metanodes + interface_metanodes,
+                parent_subgraph_maps.subgraph_name_id_map[subgraph_name],
             )
         )
 
-        # Recursively do dfs adding each graph along the way.
-        # That's why "ips" is required as an argument because each recursion step is passed design from current hierarchy
         subgraphs += create_subgraphs(
             subgraph_data.design,
             specification,
@@ -835,7 +888,7 @@ def kpm_dataflow_from_design_descr(design_descr: DesignDescription, specificatio
     dataflow = {
         "graphs": [graph.to_json_format() for graph in subgraphs],
         "entryGraph": entry_graph.id,
-        "version": "20240723.13",
+        "version": SPECIFICATION_VERSION,
     }
 
     return dataflow

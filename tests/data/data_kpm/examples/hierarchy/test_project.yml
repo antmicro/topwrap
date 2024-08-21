@@ -27,9 +27,11 @@ design:
                 in:
                 - cs_s1_int_const_in
                 - cs_s1_mod_in_1
+                - cs_s1_empty_in
                 out:
                 - cs_s1_int_out_1
                 - cs_s1_int_out_2
+                - cs_s1_empty_out
             ips:
               s1_mod_1:
                 file: examples/hierarchy/repo/cores/s1_mod_1/s1_mod_1.yaml
@@ -79,6 +81,7 @@ design:
         ports:
           in:
           - cs_in_1
+          - cs_empty_port_in
           out:
           - cs_out_1
     counter:

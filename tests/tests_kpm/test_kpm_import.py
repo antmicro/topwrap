@@ -17,7 +17,7 @@ from topwrap.design_to_kpm_dataflow_parser import (
     kpm_metanodes_connections_from_design_descr,
     kpm_nodes_from_design_descr,
 )
-from topwrap.kpm_common import EXT_OUTPUT_NAME
+from topwrap.kpm_common import EXT_OUTPUT_NAME, is_metanode, is_subgraph_node
 
 from .common import AXI_NAME, PS7_NAME, PWM_NAME
 
@@ -44,14 +44,17 @@ HDMI_EXTERNAL_CONNECTIONS = 29  # Connections to external metanodes
 HDMI_CONSTANT_CONNECTIONS = 8  # Connections to constant metanodes
 
 # HIERARCHY
-HIERARCHY_IPCORE_NODES = 10
+HIERARCHY_IPCORE_NODES = 8
 HIERARCHY_SUBGRAPH_NODES = 4
 
 HIERARCHY_EXTERNAL_METANODES = 3
-HIERARCHY_CONSTANT_METANODES = 0
-HIERARCHY_METANODES = HIERARCHY_EXTERNAL_METANODES + HIERARCHY_CONSTANT_METANODES
+HIERARCHY_CONSTANT_METANODES = 2
+HIERARCHY_SUBGRAPH_METANODES = 15
+HIERARCHY_METANODES = (
+    HIERARCHY_EXTERNAL_METANODES + HIERARCHY_CONSTANT_METANODES + HIERARCHY_SUBGRAPH_METANODES
+)
 
-HIERARCHY_CONNECTIONS = 14
+HIERARCHY_CONNECTIONS = 26
 
 
 def remove_id_and_side_position_from_interfaces(interfaces: List[dict]):
@@ -167,6 +170,7 @@ class TestPWMDataflowImport:
         # we have 7 ipcore<->ipcore connections, each one is represented as a pair of ids
         # let's check the number of connections for each node
         node_names = []
+
         for conn in connections_json:
             assert sorted(list(conn.keys())) == ["from", "id", "to"]
             node_names.append(self._find_node_name_by_iface_id(conn["from"], nodes_json))
@@ -185,15 +189,15 @@ class TestPWMDataflowImport:
         connections_json = [
             conn.to_json_format()
             for conn in kpm_metanodes_connections_from_design_descr(
-                pwm_design, kpm_nodes, kpm_metanodes
+                pwm_design, kpm_nodes, list(kpm_metanodes)
             )
         ]
         nodes_json = [node.to_json_format() for node in kpm_nodes]
         metanodes_json = [metanode.to_json_format() for metanode in kpm_metanodes]
         assert len(connections_json) == 1
-        assert self._find_node_name_by_iface_id(connections_json[0]["to"], nodes_json) == PWM_NAME
+        assert self._find_node_name_by_iface_id(connections_json[0]["from"], nodes_json) == PWM_NAME
         assert (
-            self._find_node_name_by_iface_id(connections_json[0]["from"], metanodes_json)
+            self._find_node_name_by_iface_id(connections_json[0]["to"], metanodes_json)
             == EXT_OUTPUT_NAME
         )
 
@@ -278,14 +282,15 @@ class TestHierarchyDataflowImport:
         return all_nodes
 
     def test_core_nodes(self, nodes_from_graphs):
-        core_nodes = filter(
-            lambda node: (not hasattr(node, "subgraph") and "External" not in node.name),
-            nodes_from_graphs,
+        core_nodes = list(
+            filter(
+                lambda node: (not is_metanode(node) and not is_subgraph_node(node)),
+                [node.to_json_format() for node in nodes_from_graphs],
+            )
         )
-        nodes_json = [node.to_json_format() for node in core_nodes]
-        assert len(nodes_json) == HIERARCHY_IPCORE_NODES
-        [c_mod_1] = list(filter(lambda node: node["instanceName"] == "c_mod_1", nodes_json))
-        [s1_mod_2] = list(filter(lambda node: node["instanceName"] == "s1_mod_2", nodes_json))
+        assert len(core_nodes) == HIERARCHY_IPCORE_NODES
+        [c_mod_1] = list(filter(lambda node: node["instanceName"] == "c_mod_1", core_nodes))
+        [s1_mod_2] = list(filter(lambda node: node["instanceName"] == "s1_mod_2", core_nodes))
 
         [max_value] = list(filter(lambda prop: prop["name"] == "MAX_VALUE", c_mod_1["properties"]))
         assert max_value["value"] == "16"
@@ -295,33 +300,29 @@ class TestHierarchyDataflowImport:
         remove_id_and_side_position_from_interfaces(c_mod_1["interfaces"])
         assert sorted(c_mod_1["interfaces"], key=lambda iface: iface["name"]) == [
             {"direction": "output", "name": "c_int_out_1", "side": "right"},
-            {
-                "direction": "input",
-                "externalName": "c_in_1",
-                "name": "c_mod_in_1",
-                "side": "left",
-            },
+            {"direction": "input", "name": "c_mod_in_1", "side": "left"},
         ]
 
         remove_id_and_side_position_from_interfaces(s1_mod_2["interfaces"])
         assert sorted(s1_mod_2["interfaces"], key=lambda iface: iface["name"]) == [
-            {
-                "direction": "output",
-                "externalName": "cs_s1_int_out_1",
-                "name": "cs_s1_f_int_out_1",
-                "side": "right",
-            },
+            {"direction": "output", "name": "cs_s1_f_int_out_1", "side": "right"},
             {"direction": "input", "name": "cs_s1_mint_in_1", "side": "left"},
         ]
 
     def test_subgraph_nodes(self, nodes_from_graphs):
-        subgraph_nodes = filter(lambda node: hasattr(node, "subgraph"), nodes_from_graphs)
-        nodes_json = [node.to_json_format() for node in subgraph_nodes]
-        assert len(nodes_json) == HIERARCHY_SUBGRAPH_NODES
+        subgraph_nodes = list(
+            filter(
+                lambda node: is_subgraph_node(node),
+                [node.to_json_format() for node in nodes_from_graphs],
+            )
+        )
+        assert len(subgraph_nodes) == HIERARCHY_SUBGRAPH_NODES
 
-        [counter] = list(filter(lambda node: node["instanceName"] == "counter", nodes_json))
-        [complex_sub] = list(filter(lambda node: node["instanceName"] == "complex_sub", nodes_json))
-        [sub_2] = list(filter(lambda node: node["instanceName"] == "sub_2", nodes_json))
+        [counter] = list(filter(lambda node: node["instanceName"] == "counter", subgraph_nodes))
+        [complex_sub] = list(
+            filter(lambda node: node["instanceName"] == "complex_sub", subgraph_nodes)
+        )
+        [sub_2] = list(filter(lambda node: node["instanceName"] == "sub_2", subgraph_nodes))
 
         remove_id_and_side_position_from_interfaces(counter["interfaces"])
         assert sorted(counter["interfaces"], key=lambda iface: iface["name"]) == [
@@ -332,6 +333,7 @@ class TestHierarchyDataflowImport:
 
         remove_id_and_side_position_from_interfaces(complex_sub["interfaces"])
         assert sorted(complex_sub["interfaces"], key=lambda iface: iface["name"]) == [
+            {"direction": "input", "name": "cs_empty_port_in", "side": "left"},
             {"direction": "input", "name": "cs_in_1", "side": "left"},
             {"direction": "output", "name": "cs_out_1", "side": "right"},
         ]
@@ -340,16 +342,16 @@ class TestHierarchyDataflowImport:
         assert sorted(sub_2["interfaces"], key=lambda iface: iface["name"]) == [
             {"direction": "input", "name": "cs_s2_int_in_1", "side": "left"},
             {"direction": "input", "name": "cs_s2_int_in_2", "side": "left"},
-            {
-                "direction": "output",
-                "externalName": "cs_out_1",
-                "name": "cs_s2_mod_out_1",
-                "side": "right",
-            },
+            {"direction": "output", "name": "cs_s2_mod_out_1", "side": "right"},
         ]
 
     def test_hierarchy_metanodes(self, nodes_from_graphs):
-        metanodes = list(filter(lambda node: "External" in node.name, nodes_from_graphs))
+        metanodes = list(
+            filter(
+                lambda node: is_metanode(node),
+                [node.to_json_format() for node in nodes_from_graphs],
+            )
+        )
         assert len(metanodes) == HIERARCHY_METANODES
 
     def test_hierarchy_connections(self, design_graphs):
@@ -382,18 +384,30 @@ class TestHierarchyDataflowImport:
             "Constant": 2,
             "External Input": 2,
             "External Output": 1,
-            "c_mod_1": 1,
-            "c_mod_2": 1,
-            "c_mod_3": 3,
+            "c_mod_1": 2,
+            "c_mod_2": 2,
+            "c_mod_3": 4,
             "complex_sub": 2,
+            "complex_sub cs_in_1": 1,
+            "complex_sub cs_out_1": 1,
             "counter": 3,
-            "s1_mod_1": 2,
-            "s1_mod_2": 1,
-            "s1_mod_3": 1,
-            "s2_mod_1": 2,
-            "s2_mod_2": 2,
-            "sub_1": 3,
-            "sub_2": 2,
+            "counter c_in_1": 1,
+            "counter c_in_2": 1,
+            "counter c_out_1": 1,
+            "s1_mod_1": 4,
+            "s1_mod_2": 2,
+            "s1_mod_3": 2,
+            "s2_mod_1": 4,
+            "s2_mod_2": 3,
+            "sub_1": 4,
+            "sub_1 cs_s1_int_const_in": 1,
+            "sub_1 cs_s1_int_out_1": 1,
+            "sub_1 cs_s1_int_out_2": 1,
+            "sub_1 cs_s1_mod_in_1": 1,
+            "sub_2": 3,
+            "sub_2 cs_s2_int_in_1": 1,
+            "sub_2 cs_s2_int_in_2": 1,
+            "sub_2 cs_s2_mod_out_1": 1,
         }
 
         assert node_occurrence_dict == conn_dict

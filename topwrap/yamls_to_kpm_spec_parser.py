@@ -4,12 +4,13 @@
 import logging
 from dataclasses import dataclass
 from pathlib import PurePath
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pipeline_manager.specification_builder import SpecificationBuilder
 
 from topwrap.design_to_kpm_dataflow_parser import (
     KPMDataflowExternalMetanode,
+    KPMDataflowMetanodeInterface,
     KPMDataflowNodeInterface,
 )
 from topwrap.ip_desc import (
@@ -21,7 +22,12 @@ from topwrap.ip_desc import (
 )
 
 from .interface import InterfaceMode
-from .kpm_common import CONST_NAME
+from .kpm_common import (
+    CONST_NAME,
+    METANODE_CATEGORY,
+    SPECIFICATION_VERSION,
+    SUBGRAPH_METANODE,
+)
 
 
 @dataclass
@@ -56,7 +62,7 @@ class InterfaceStyle:
     conn_pattern: str
 
 
-def _ipcore_param_to_kpm_value(param) -> str:
+def _ipcore_param_to_kpm_value(param: IPCoreParameter) -> str:
     """Returns a parameter default value, that will be displayed
     as an option in Pipeline Manager Node.
 
@@ -78,7 +84,7 @@ def _ipcore_param_to_kpm_value(param) -> str:
     return str(param)
 
 
-def _duplicate_ipcore_types_check(specification: dict):
+def _duplicate_ipcore_types_check(specification: Dict[str, Any]):
     """Function to check for any duplicate node types in specification."""
     # If the layer is already in types_set then it means that it's a duplicate
     types_set = set()
@@ -189,20 +195,32 @@ def create_external_metanode(meta_name: str, interfaces_types: list) -> NodeType
 
     metanode_prop = PropertyType("External Name")
     metanode_iface = InterfaceType(
-        "external",
+        KPMDataflowMetanodeInterface.EXT_IFACE_NAME,
         ["port"] + interfaces_types,
         KPMDataflowExternalMetanode.interface_dir_by_node_name[meta_name],
     )
 
-    return NodeType(meta_name, "Metanode", meta_name, [metanode_prop], [metanode_iface])
+    return NodeType(meta_name, METANODE_CATEGORY, meta_name, [metanode_prop], [metanode_iface])
 
 
 def create_constantant_metanode(interfaces_types: List[str]) -> NodeType:
     """Creates constant metanode"""
     metanode_prop = PropertyType("Constant Value", "text", "0")
-    metanode_iface = InterfaceType("constant", ["port"] + interfaces_types, "output")
+    metanode_iface = InterfaceType(
+        KPMDataflowMetanodeInterface.CONST_IFACE_NAME, ["port"] + interfaces_types, "output"
+    )
 
-    return NodeType(CONST_NAME, "Metanode", CONST_NAME, [metanode_prop], [metanode_iface])
+    return NodeType(CONST_NAME, METANODE_CATEGORY, CONST_NAME, [metanode_prop], [metanode_iface])
+
+
+def create_subgraph_metanode() -> NodeType:
+    """Create subgraph metanode that is used as a representation of subgraph port"""
+    sub_meta_in = InterfaceType(KPMDataflowMetanodeInterface.SUB_IFACE_OUT_NAME, ["port"], "output")
+    sub_meta_out = InterfaceType(KPMDataflowMetanodeInterface.SUB_IFACE_IN_NAME, ["port"], "input")
+
+    return NodeType(
+        SUBGRAPH_METANODE, METANODE_CATEGORY, SUBGRAPH_METANODE, [], [sub_meta_in, sub_meta_out]
+    )
 
 
 def add_node_type_to_specfication(specification_builder: SpecificationBuilder, node: NodeType):
@@ -216,7 +234,7 @@ def add_node_type_to_specfication(specification_builder: SpecificationBuilder, n
 
     for interface in node.interfaces:
         specification_builder.add_node_type_interface(
-            node.name, interface.name, interface.type, interface.direction
+            node.name, interface.name, interface.type, interface.direction, maxcount=-1
         )
 
     if node.additional_data is not None:
@@ -265,7 +283,6 @@ def add_metadata_to_specification(
 
 def new_spec_builder(yamlfiles: List[str]) -> dict:
     """Build specification based on yamlfiles using SpecificationBuilder API"""
-    SPECIFICATION_VERSION = "20240723.13"
     specification_builder = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
 
     for yamlfile in yamlfiles:
@@ -282,6 +299,9 @@ def new_spec_builder(yamlfiles: List[str]) -> dict:
 
     const_metanode = create_constantant_metanode(interfaces_types)
     add_node_type_to_specfication(specification_builder, const_metanode)
+
+    subgraph_metanode = create_subgraph_metanode()
+    add_node_type_to_specfication(specification_builder, subgraph_metanode)
 
     add_metadata_to_specification(specification_builder, interfaces_types)
 

@@ -9,22 +9,29 @@ from topwrap.design import DesignDescription
 from topwrap.design_to_kpm_dataflow_parser import KPMDataflowSubgraphnode
 
 from .kpm_common import (
+    EXPOSED_IFACE,
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
+    SUBGRAPH_METANODE,
+    SUBGRAPH_NODE,
     InterfaceData,
     InterfaceFromConnection,
+    find_connected_interfaces,
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_name_id,
     find_dataflow_node_type_by_name,
     find_spec_interface_by_name,
-    get_all_graph_nodes,
     get_dataflow_constant_connections,
     get_dataflow_external_connections,
     get_dataflow_ip_connections,
     get_dataflow_ip_nodes,
+    get_dataflow_subgraph_connections,
+    get_dataflow_subgraph_metanodes,
     get_dataflow_subgraph_nodes,
+    get_exposed_subgraph_meta_iface,
     get_graph_with_id,
     get_metanode_property_value,
+    get_unexposed_subgraph_meta_iface,
     is_constant_metanode,
     is_external_metanode,
     is_metanode,
@@ -36,11 +43,11 @@ from .util import recursive_defaultdict, recursive_defaultdict_to_dict
 class ConnectionData:
     iface_to: InterfaceData
     iface_from: InterfaceData
-    node_to: dict
-    node_from: dict
+    node_to: Dict[str, Any]
+    node_from: Dict[str, Any]
 
 
-def _parse_value_width_parameter(param: str) -> dict:
+def _parse_value_width_parameter(param: str) -> Dict[str, Any]:
     """`param` is a string representing a bit vector in Verilog format
     (e.g. "16'h5A5A") which is parsed to a value/width parameter
     """
@@ -53,7 +60,7 @@ def _parse_value_width_parameter(param: str) -> dict:
     return {"value": int(value, radix_to_base[radix]), "width": int(width)}
 
 
-def _kpm_properties_to_parameters(properties: dict) -> dict:
+def _kpm_properties_to_parameters(properties: Dict[str, Any]) -> Dict[str, Any]:
     """Parse `properties` taken from a dataflow node into
     Topwrap's IP core's parameters.
     """
@@ -73,14 +80,16 @@ def _kpm_properties_to_parameters(properties: dict) -> dict:
     return result
 
 
-def _kpm_nodes_to_parameters(dataflow_data) -> dict:
+def _kpm_nodes_to_parameters(dataflow_data: Dict[str, Any]) -> Dict[str, Any]:
     result = dict()
     for node in get_dataflow_ip_nodes(dataflow_data):
         result[node["instanceName"]] = _kpm_properties_to_parameters(node["properties"])
     return result
 
 
-def _kpm_nodes_to_ips(dataflow_data: dict, specification: dict) -> dict:
+def _kpm_nodes_to_ips(
+    dataflow_data: Dict[str, Any], specification: Dict[str, Any]
+) -> Dict[str, Any]:
     """Parse dataflow nodes into Topwrap's "ips" section
     of a design description yaml
     """
@@ -99,7 +108,9 @@ def _kpm_nodes_to_ips(dataflow_data: dict, specification: dict) -> dict:
     return ips
 
 
-def _get_conn_ifaces_and_nodes(conn: dict, dataflow_data: dict) -> ConnectionData:
+def _get_conn_ifaces_and_nodes(
+    conn: Dict[str, Any], dataflow_data: Dict[str, Any]
+) -> ConnectionData:
     iface_to = find_dataflow_interface_by_id(
         dataflow_data, InterfaceFromConnection(conn["to"], conn["id"])
     )
@@ -127,7 +138,9 @@ def _get_conn_ifaces_and_nodes(conn: dict, dataflow_data: dict) -> ConnectionDat
     return ConnectionData(iface_to, iface_from, node_to, node_from)
 
 
-def _kpm_connections_to_ports_ifaces(dataflow_data: dict, specification: dict) -> dict:
+def _kpm_connections_to_ports_ifaces(
+    dataflow_data: Dict[str, Any], specification: Dict[str, Any]
+) -> Dict[str, Any]:
     """Parse dataflow connections between nodes representing IP cores into
     "ports" and "interfaces" sections of a Topwrap's design description yaml
     """
@@ -179,7 +192,9 @@ def _kpm_connections_to_ports_ifaces(dataflow_data: dict, specification: dict) -
     return {"ports": ports_conns, "interfaces": interfaces_conns}
 
 
-def _kpm_connections_to_external(dataflow_data: dict, specification: dict) -> dict:
+def _kpm_connections_to_external(
+    dataflow_data: Dict[str, Any], specification: Dict[str, Any]
+) -> Dict[str, Any]:
     """Parse dataflow connections representing external ports/interfaces
     (i.e. connections between IP cores and external metanodes) into 'external'
     section of a Topwrap's design description yaml
@@ -252,7 +267,7 @@ def _kpm_connections_to_external(dataflow_data: dict, specification: dict) -> di
     return {"ports": ports_ext_conns, "interfaces": ifaces_ext_conns, "external": external}
 
 
-def _kpm_connections_to_constant(dataflow_data: dict, specification: dict) -> dict:
+def _kpm_connections_to_constant(dataflow_data: Dict[str, Any]) -> Dict[str, Any]:
     """Parse dataflow connections representing constant ports into design
     'ports' section of a Topwrap's design description yaml
     """
@@ -265,7 +280,7 @@ def _kpm_connections_to_constant(dataflow_data: dict, specification: dict) -> di
 
         # Ensure the node is constant metanode
         if not is_constant_metanode(const_node):
-            raise ValueError("Invalid name of constant metanode")
+            raise ValueError(f"Invalid name of constant metanode got: {const_node['name']}")
 
         iface_name = conn_data.iface_to.iface_name
 
@@ -279,7 +294,26 @@ def _kpm_connections_to_constant(dataflow_data: dict, specification: dict) -> di
     return ports_conns
 
 
-def _update_ports_ifaces_section(ports_ifaces: dict, externals: dict) -> dict:
+def _kpm_connections_to_subgraph(dataflow_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Function to create connections between subgraph nodes"""
+    conns_dict = recursive_defaultdict()
+    for conn in get_dataflow_subgraph_connections(dataflow_data):
+        conn_data = _get_conn_ifaces_and_nodes(conn, dataflow_data)
+        # Don't connect to subgraph metanode as it is not necessary in yaml format
+        if SUBGRAPH_METANODE in [conn_data.node_from["name"], conn_data.node_to["name"]]:
+            continue
+        iface_to = conn_data.iface_to
+        iface_from = conn_data.iface_from
+        conns_dict[iface_to.node_name][iface_to.iface_name] = (
+            iface_from.node_name,
+            iface_from.iface_name,
+        )
+    return recursive_defaultdict_to_dict(conns_dict)
+
+
+def _update_ports_ifaces_section(
+    ports_ifaces: Dict[str, Any], externals: Dict[str, Any]
+) -> Dict[str, Any]:
     """Helper function to update 'ports' or 'interfaces' section of a design
     description yaml with the collected entries describing external connections
     """
@@ -290,19 +324,27 @@ def _update_ports_ifaces_section(ports_ifaces: dict, externals: dict) -> dict:
     return ports_ifaces
 
 
-def _kpm_expose_ports(dataflow_json: dict) -> dict:
+def _kpm_expose_ports(dataflow_json: Dict[str, Any]) -> Dict[str, Any]:
     exposed_ports = recursive_defaultdict()
-    for node in get_all_graph_nodes(dataflow_json):
-        for interface in node["interfaces"]:
-            if "externalName" in interface.keys():
-                exposed_ports[node["instanceName"]][interface["name"]] = interface["externalName"]
-
+    for subgraph_metanode in get_dataflow_subgraph_metanodes(dataflow_json):
+        unexposed_iface = get_unexposed_subgraph_meta_iface(subgraph_metanode)
+        exposed_iface = get_exposed_subgraph_meta_iface(subgraph_metanode)
+        all_conn = find_connected_interfaces(dataflow_json, unexposed_iface["id"])
+        for conn in all_conn:
+            iface_data = find_dataflow_interface_by_id(dataflow_json, conn)
+            if iface_data is None:
+                raise ValueError(
+                    f"Interface with id {conn.iface_id} in connection {conn.connection_id} was not found"
+                )
+            exposed_ports[iface_data.node_name][iface_data.iface_name] = exposed_iface[
+                EXPOSED_IFACE
+            ]
     return recursive_defaultdict_to_dict(exposed_ports)
 
 
 def _kpm_subgraph_ports_definitions(
-    dataflow_json: dict, return_recursive_defaultdict: bool = False
-) -> dict:
+    dataflow_json: Dict[str, Any], return_recursive_defaultdict: bool = False
+) -> Dict[str, Any]:
     ports_definitions = recursive_defaultdict()
     directions_shorter = {"input": "in", "output": "out"}
     for node in get_dataflow_subgraph_nodes(dataflow_json):
@@ -321,7 +363,10 @@ def _kpm_subgraph_ports_definitions(
 
 
 def _add_node_data_to_design(
-    topwrap_design: dict, node_instance_name: str, nodes_data: dict, design_field_name: str
+    topwrap_design: Dict[str, Any],
+    node_instance_name: str,
+    nodes_data: Dict[str, Any],
+    design_field_name: str,
 ):
     """If in "nodes_data" is data about given node then it adds it to "topwrap_design" """
     if node_instance_name in nodes_data.keys():
@@ -343,14 +388,14 @@ def _find_necessary_ips_for_hier(
 
 def _create_topwrap_design(
     ips: Dict[str, Dict[Literal["file", "module"], str]],
-    dataflow_data: dict,
-    properties: dict,
-    ports: dict,
-    interfaces: dict,
+    dataflow_data: Dict[str, Any],
+    properties: Dict[str, Any],
+    ports: Dict[str, Any],
+    interfaces: Dict[str, Any],
     entry_graph_id: str,
-    subgraph_ports_external: dict,
-    topwrap_design: dict,
-) -> dict:
+    subgraph_ports_external: Dict[str, Any],
+    topwrap_design: Dict[str, Any],
+) -> Dict[str, Any]:
     """Converts the collected data into Topwrap's design description yaml"""
     parent_graph = get_graph_with_id(dataflow_data, entry_graph_id)
     if parent_graph is None:
@@ -365,7 +410,7 @@ def _create_topwrap_design(
         _add_node_data_to_design(topwrap_design, node_instance_name, interfaces, "interfaces")
         _add_node_data_to_design(topwrap_design, node_instance_name, ports, "ports")
 
-        if "subgraph" in node.keys():
+        if SUBGRAPH_NODE in node.keys():
             topwrap_design["hierarchies"][node_instance_name] = subgraph_ports_external[
                 node_instance_name
             ]
@@ -375,7 +420,7 @@ def _create_topwrap_design(
                 properties,
                 ports,
                 interfaces,
-                node["subgraph"],
+                node[SUBGRAPH_NODE],
                 subgraph_ports_external,
                 topwrap_design["hierarchies"][node_instance_name]["design"],
             )
@@ -388,14 +433,17 @@ def _create_topwrap_design(
     return topwrap_design
 
 
-def kpm_dataflow_to_design(dataflow_data: dict, specification: dict) -> DesignDescription:
+def kpm_dataflow_to_design(
+    dataflow_data: Dict[str, Any], specification: Dict[str, Any]
+) -> DesignDescription:
     """Parse Pipeline Manager dataflow into Topwrap's design description yaml"""
     all_ips = _kpm_nodes_to_ips(dataflow_data, specification)
 
     properties = _kpm_nodes_to_parameters(dataflow_data)
     ports_ifaces_dict = _kpm_connections_to_ports_ifaces(dataflow_data, specification)
-    constants = _kpm_connections_to_constant(dataflow_data, specification)
+    constants = _kpm_connections_to_constant(dataflow_data)
     externals = _kpm_connections_to_external(dataflow_data, specification)
+    subgraph_conns = _kpm_connections_to_subgraph(dataflow_data)
     node_exposed_ports = _kpm_expose_ports(dataflow_data)
     subgraph_ports_external = _kpm_subgraph_ports_definitions(
         dataflow_data, return_recursive_defaultdict=True
@@ -403,6 +451,7 @@ def kpm_dataflow_to_design(dataflow_data: dict, specification: dict) -> DesignDe
 
     ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], externals["ports"])
     ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], constants["ports"])
+    ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], subgraph_conns)
     ports = _update_ports_ifaces_section(ports_ifaces_dict["ports"], node_exposed_ports)
     interfaces = _update_ports_ifaces_section(
         ports_ifaces_dict["interfaces"], externals["interfaces"]

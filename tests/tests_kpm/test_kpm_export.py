@@ -1,12 +1,15 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from deepdiff import DeepDiff
+
 from topwrap.design import DesignDescription
 from topwrap.kpm_common import get_all_graph_nodes
 from topwrap.kpm_dataflow_parser import (
     _kpm_connections_to_constant,
     _kpm_connections_to_external,
     _kpm_connections_to_ports_ifaces,
+    _kpm_connections_to_subgraph,
     _kpm_nodes_to_ips,
     _kpm_properties_to_parameters,
 )
@@ -75,11 +78,11 @@ class TestPWMDataflowExport:
             },
         }
 
-    def test_constants(self, pwm_dataflow, pwm_specification):
+    def test_constants(self, pwm_dataflow):
         """Check whether generated constant ports descriptions match the values
         from `examples/pwm/project.yml`.
         """
-        assert _kpm_connections_to_constant(pwm_dataflow, pwm_specification) == {"ports": {}}
+        assert _kpm_connections_to_constant(pwm_dataflow) == {"ports": {}}
 
 
 class TestHDMIDataflowExport:
@@ -123,7 +126,8 @@ class TestHDMIDataflowExport:
         of a design description YAML match the values from `examples/hdmi/project.yml`.
         """
 
-        assert _kpm_connections_to_external(hdmi_dataflow, hdmi_specification) == {
+        current_external_conn = _kpm_connections_to_external(hdmi_dataflow, hdmi_specification)
+        expected_external_conn = {
             "ports": {
                 "hdmi": {
                     "HDMI_CLK_P": "HDMI_CLK_P",
@@ -178,12 +182,14 @@ class TestHDMIDataflowExport:
                 "interfaces": {"in": [], "out": []},
             },
         }
+        difference = DeepDiff(current_external_conn, expected_external_conn, ignore_order=True)
+        assert difference == {}
 
-    def test_constants(self, hdmi_dataflow, hdmi_specification):
+    def test_constants(self, hdmi_dataflow):
         """Check whether generated constant ports description match the values
         from `examples/hdmi/project.yml`.
         """
-        assert _kpm_connections_to_constant(hdmi_dataflow, hdmi_specification) == {
+        assert _kpm_connections_to_constant(hdmi_dataflow) == {
             "ports": {
                 "reset0": {
                     "aux_reset_in": 0,
@@ -214,6 +220,7 @@ class TestHierarchyDataflowExport:
 
     def test_port_interfaces(self, hierarchy_dataflow, hierarchy_specification):
         connections = _kpm_connections_to_ports_ifaces(hierarchy_dataflow, hierarchy_specification)
+        connections["ports"].update(_kpm_connections_to_subgraph(hierarchy_dataflow))
 
         assert connections["ports"] == {
             "complex_sub": {"cs_in_1": ("counter", "c_out_1")},
@@ -248,7 +255,7 @@ class TestHierarchyDataflowExport:
             },
         }
 
-    def test_constants(self, hierarchy_dataflow, hierarchy_specification):
-        assert _kpm_connections_to_constant(hierarchy_dataflow, hierarchy_specification) == {
+    def test_constants(self, hierarchy_dataflow):
+        assert _kpm_connections_to_constant(hierarchy_dataflow) == {
             "ports": {"sub_1": {"cs_s1_int_const_in": 1}, "c_mod_3": {"c_int_const_in": 1}}
         }
