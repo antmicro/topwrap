@@ -95,7 +95,6 @@ def _kpm_nodes_to_ips(dataflow_data: dict, specification: dict) -> dict:
             raise ValueError("Ip file was not found")
         ips[node["instanceName"]] = {
             "file": filename,
-            "module": node["name"],
         }
     return ips
 

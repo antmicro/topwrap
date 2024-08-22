@@ -4,10 +4,8 @@
 ips:
   dma:
     file: DMATop.yaml
-    module: DMATop
   disp:
     file: axi_dispctrl_v1_0.yaml
-    module: axi_dispctrl_v1_0
 
 design:
   ports:

@@ -4,7 +4,6 @@
 ips:
   pwm:
     file: pwm.yml
-    module: pwm
 
 # This design contains `pwm` module connected with `counter_hier`
 # which is a hierarchy containing a single `counter` module
@@ -18,7 +17,6 @@ design:
       ips:
         counter:
           file: counter.yml
-          module: cnt
       design:
         parameters:
           counter:

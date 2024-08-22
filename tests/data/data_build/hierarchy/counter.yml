@@ -1,7 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-name: counter
+name: cnt
 
 parameters:
   CNT_WIDTH: 32

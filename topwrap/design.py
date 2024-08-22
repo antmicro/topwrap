@@ -25,7 +25,7 @@ from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 
 from topwrap.common_serdes import optional_with
 from topwrap.hdl_parsers_utils import PortDirection
-from topwrap.ip_desc import IPCoreParameter
+from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 
 from .elaboratable_wrapper import ElaboratableWrapper
 from .ipconnect import IPConnect
@@ -36,10 +36,13 @@ class InterconnectType(Enum):
     wishbone_roundrobin = WishboneRRInterconnect
 
 
-@marshmallow_dataclass.dataclass(frozen=True)
+@marshmallow_dataclass.dataclass()
 class DesignIP:
     file: str
-    module: str
+
+    @property
+    def module(self):
+        return IPCoreDescription.load(self.file).name
 
     @property
     def path(self):
@@ -133,10 +136,11 @@ class DesignDescription:
             ipc.add_component(hier_name, hier_ipc)
 
         for ip_name, ip in self.ips.items():
+            ip.file = str(design_dir / ip.path)
             ipc.add_component(
                 ip_name,
                 IPWrapper(
-                    design_dir / ip.path,
+                    ip.path,
                     ip.module,
                     ip_name,
                     self.design.parameters.get(ip_name, {}),

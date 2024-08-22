@@ -43,13 +43,10 @@ design:
             ips:
               s1_mod_1:
                 file: repo/cores/s1_mod_1/s1_mod_1.yaml
-                module: s1_mod_1
               s1_mod_2:
                 file: repo/cores/s1_mod_2/s1_mod_2.yaml
-                module: s1_mod_2
               s1_mod_3:
                 file: repo/cores/s1_mod_3/s1_mod_3.yaml
-                module: s1_mod_3
           sub_2:
             design:
               hierarchies: {}
@@ -85,10 +82,8 @@ design:
             ips:
               s2_mod_1:
                 file: repo/cores/s2_mod_1/s2_mod_1.yaml
-                module: s2_mod_1
               s2_mod_2:
                 file: repo/cores/s2_mod_2/s2_mod_2.yaml
-                module: s2_mod_2
         interconnects: {}
         interfaces: {}
         name: null
@@ -155,13 +150,10 @@ design:
       ips:
         c_mod_1:
           file: repo/cores/c_mod_1/c_mod_1.yaml
-          module: c_mod_1
         c_mod_2:
           file: repo/cores/c_mod_2/c_mod_2.yaml
-          module: c_mod_2
         c_mod_3:
           file: repo/cores/c_mod_3/c_mod_3.yaml
-          module: c_mod_3
   interconnects: {}
   interfaces: {}
   name: null

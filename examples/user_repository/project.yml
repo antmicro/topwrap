@@ -1,10 +1,8 @@
 ips:
   core1:
     file: examples/user_repository/repo/cores/example_core1/core1.yaml
-    module: core1
   core2:
     file: examples/user_repository/repo/cores/example_core2/core2.yaml
-    module: core2
 design:
   parameters:
     core1: {}

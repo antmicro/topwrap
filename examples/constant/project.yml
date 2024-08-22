@@ -4,7 +4,6 @@
 ips:
   ip_ibuf:
     file: ipcores/ibuf.yaml
-    module: ibuf
 
 design:
   name: project_top

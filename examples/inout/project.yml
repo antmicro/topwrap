@@ -4,13 +4,10 @@
 ips:
   ip_ibuf:
     file: ipcores/gen_ibuf.yaml
-    module: ibuf
   ip_obuf:
     file: ipcores/gen_obuf.yaml
-    module: obuf
   ip_iobuf:
     file: ipcores/gen_iobuf.yaml
-    module: iobuf
 
 design:
   name: project_top

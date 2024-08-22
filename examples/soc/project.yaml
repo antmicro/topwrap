@@ -4,22 +4,16 @@
 ips:
   vexriscv:
     file: ipcores/gen_VexRiscv.yaml
-    module: VexRiscv
   wb_ram_data:
     file: ipcores/gen_mem.yaml
-    module: mem
   wb_ram_instr:
     file: ipcores/gen_mem.yaml
-    module: mem
   crg:
     file: ipcores/gen_crg.yaml
-    module: crg
   wb_uart:
     file: ipcores/gen_wb_uart.yaml
-    module: wb_uart
   interconnect:
     file: ipcores/gen_wb_interconnect.yaml
-    module: wb_interconnect
 
 design:
   name: simple_soc

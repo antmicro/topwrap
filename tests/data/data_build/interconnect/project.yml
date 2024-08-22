@@ -4,16 +4,12 @@
 ips:
   soc:
     file: ipcores/soc.yaml
-    module: soc
   wb_ram_data:
     file: ipcores/litex_mem.yaml
-    module: mem
   wb_ram_instr:
     file: ipcores/litex_mem.yaml
-    module: mem
   crg:
     file: ipcores/crg.yaml
-    module: crg
 
 design:
   name: top

@@ -1,49 +1,34 @@
 ips:
   axis_clock_converter:
     file: topwrap/ips/axi/axis_async_fifo.yaml
-    module: axis_async_fifo
   reset1:
     file: examples/hdmi/ipcores/proc_sys_reset.yaml
-    module: proc_sys_reset
   ps7:
     file: examples/hdmi/ipcores/ps7.yaml
-    module: ps7
   disp:
     file: examples/hdmi/ipcores/axi_dispctrl.yaml
-    module: axi_dispctrl
   axis_dwidth_converter:
     file: topwrap/ips/axi/axis_dwidth_converter.yaml
-    module: axis_dwidth_converter
   hdmi:
     file: examples/hdmi/ipcores/hdmi_tx.yaml
-    module: hdmi_tx
   clock_crossing:
     file: examples/hdmi/ipcores/clock_crossing.yaml
-    module: clock_crossing
   axi_bridge_dma:
     file: topwrap/ips/axi/axi_axil_adapter.yaml
-    module: axi_axil_adapter
   axi_bridge_disp:
     file: topwrap/ips/axi/axi_axil_adapter.yaml
-    module: axi_axil_adapter
   reset0:
     file: examples/hdmi/ipcores/proc_sys_reset.yaml
-    module: proc_sys_reset
   dma:
     file: examples/hdmi/ipcores/dma_axi_in_axis_out.yaml
-    module: dma_axi_in_axis_out
   axi_protocol_converter0:
     file: topwrap/ips/axi/axi_protocol_converter.yaml
-    module: axi_protocol_converter
   axi_interconnect0:
     file: topwrap/ips/axi/axi_interconnect.yaml
-    module: axi_interconnect
   axi_bridge_mmcm:
     file: topwrap/ips/axi/axi_axil_adapter.yaml
-    module: axi_axil_adapter
   mmcm:
     file: examples/hdmi/ipcores/litex_mmcm.yaml
-    module: litex_mmcm
 design:
   parameters:
     axis_clock_converter:
