@@ -72,3 +72,24 @@ python -m pytest --cov=topwrap --cov-report html
 ```
 
 Generated report is available at `htmlcov/index.html`
+
+## Updating kpm test data
+
+All kpm data from examples can be generated using nox.
+This is useful when changing topwrap functionality related to kpm in order to avoid manually changing every example's test data.
+You can either update only one part of examples data like specification or update everything (dataflows, specifications, designs).
+
+To update everything run:
+```bash
+nox -s update_test_data
+```
+
+To update only specifications run:
+```bash
+nox -s update_test_data -- specification
+```
+
+Possible options for `update_test_data` session:
+* `specification` - updates specifications
+* `dataflow` - updates dataflows
+* `design` - updates designs

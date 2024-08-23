@@ -51,6 +51,16 @@ def tests(session: nox.Session) -> None:
     session.run("pytest", "-rs", "--cov-report", "html:cov_html", "--cov=topwrap", "tests")
 
 
+@nox.session
+def update_test_data(session: nox.Session) -> None:
+    session.install("-e", ".[tests]")
+    tests_to_update = (
+        ["dataflow", "specification", "design"] if not session.posargs else session.posargs
+    )
+    tests_to_update = [f"--{test_data}" for test_data in tests_to_update]
+    session.run("python3", "tests/update_test_data.py", *tests_to_update)
+
+
 def prepare_pyenv(session: nox.Session) -> dict:
     env = os.environ.copy()
     path = env.get("PATH")
