@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, Union
+from typing import Any, DefaultDict, Dict, TypeVar, Union
 
 
 def removeprefix(s: str, prefix: str) -> str:
@@ -30,3 +30,29 @@ def recursive_defaultdict_to_dict(recursive_defaultdict: _R) -> Dict[Any, Any]:
         if isinstance(value, dict):
             recursive_defaultdict[key] = recursive_defaultdict_to_dict(value)
     return dict(recursive_defaultdict)
+
+
+class MissingType:
+    """
+    Marker type to be used when it's necessary to mark a field or a parameter as
+    optional but when `None` should be treated as a supplied value, not a missing one.
+
+    Example::
+
+        def func(param1: MaybeMissing[Any] = MISSING):
+            if param1 is not MISSING:
+                print(f"User passed: {param1}")
+            else:
+                print("missing value")
+
+        func(None)
+        >>> User passed: None
+
+        func()
+        >>> missing value
+    """
+
+
+_T = TypeVar("_T")
+MaybeMissing = Union[_T, MissingType]
+MISSING = MissingType()

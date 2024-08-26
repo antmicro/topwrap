@@ -17,4 +17,4 @@ def read_json_file(json_file_path: str) -> dict:
 
 
 def read_yaml_file(yaml_file_path: str) -> DesignDescription:
-    return DesignDescription.from_file(yaml_file_path)
+    return DesignDescription.load(yaml_file_path)

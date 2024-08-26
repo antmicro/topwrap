@@ -1,6 +1,5 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from dataclasses import field
 from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import (
@@ -21,12 +20,11 @@ from typing import (
 import marshmallow
 import marshmallow.validate
 import marshmallow_dataclass
-import yaml
 from importlib_resources import as_file, files
 
 from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
 
-from .common_serdes import optional_with
+from .common_serdes import MarshmallowDataclassExtensions, ext_field
 from .config import config
 from .interface import InterfaceDefinition, InterfaceMode, get_interface_by_name
 
@@ -42,7 +40,7 @@ class IPCorePort:
     lower_bound: _T
     upper_slice: _T
     lower_slice: _T
-    direction: PortDirection = field(metadata={"by_value": True})
+    direction: PortDirection = ext_field(by_value=True)
 
     @property
     def bounds(self) -> Tuple[_T, _T, _T, _T]:
@@ -50,12 +48,14 @@ class IPCorePort:
 
     @cached_property
     def raw(self) -> Signal:
-        tdb = self.bounds
-        if tdb == (0, 0, 0, 0):
-            tdb = ()
-        elif tdb[:2] == tdb[2:]:
-            tdb = tdb[:2]
-        return (self.name, *tdb)
+        out = self.bounds
+        if out == (0, 0, 0, 0):
+            out = (self.name,)
+        elif out[:2] == out[2:]:
+            out = (self.name, *out[:2])
+        else:
+            out = (self.name, *out)
+        return out
 
     @staticmethod
     def from_sig_and_dir(sig: Signal, dir: PortDirection) -> "IPCorePort":
@@ -96,10 +96,10 @@ class IPCorePort:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class IPCorePorts:
-    input: Set[Signal] = optional_with(set, {"data_key": "in"})
-    output: Set[Signal] = optional_with(set, {"data_key": "out"})
-    inout: Set[Signal] = optional_with(set)
+class IPCorePorts(MarshmallowDataclassExtensions):
+    input: Set[Signal] = ext_field(set, data_key="in")
+    output: Set[Signal] = ext_field(set, data_key="out")
+    inout: Set[Signal] = ext_field(set)
 
     @cached_property
     def flat(self):
@@ -128,10 +128,10 @@ class IPCorePorts:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class IPCoreIntfPorts:
-    input: Dict[str, Signal] = optional_with(dict, {"data_key": "in"})
-    output: Dict[str, Signal] = optional_with(dict, {"data_key": "out"})
-    inout: Dict[str, Signal] = optional_with(dict)
+class IPCoreIntfPorts(MarshmallowDataclassExtensions):
+    input: Dict[str, Signal] = ext_field(dict, data_key="in", deep_cleanup=True)
+    output: Dict[str, Signal] = ext_field(dict, data_key="out", deep_cleanup=True)
+    inout: Dict[str, Signal] = ext_field(dict, deep_cleanup=True)
 
     @cached_property
     def flat(self):
@@ -160,10 +160,10 @@ class IPCoreIntfPorts:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class IPCoreInterface:
+class IPCoreInterface(MarshmallowDataclassExtensions):
     type: str
-    mode: InterfaceMode = field(metadata={"by_value": True})
-    signals: IPCoreIntfPorts = optional_with(IPCoreIntfPorts)
+    mode: InterfaceMode = ext_field(by_value=True)
+    signals: IPCoreIntfPorts = ext_field(IPCoreIntfPorts)
 
     @marshmallow.validates("type")
     def _validate_type(self, type: str) -> bool:
@@ -195,7 +195,7 @@ class IPCoreInterface:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class IPCoreComplexParameter:
+class IPCoreComplexParameter(MarshmallowDataclassExtensions):
     width: int
     value: Union[int, str]
 
@@ -208,13 +208,13 @@ class BuiltinIPCoreException(Exception):
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class IPCoreDescription:
+class IPCoreDescription(MarshmallowDataclassExtensions):
     """IP Core as described in YAML IP Core definition file"""
 
     name: str
-    signals: IPCorePorts = optional_with(IPCorePorts)
-    parameters: Dict[str, IPCoreParameter] = optional_with(dict)
-    interfaces: Dict[str, IPCoreInterface] = optional_with(dict)
+    signals: IPCorePorts = ext_field(IPCorePorts)
+    parameters: Dict[str, IPCoreParameter] = ext_field(dict, deep_cleanup=True)
+    interfaces: Dict[str, IPCoreInterface] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]]
 
@@ -239,30 +239,25 @@ class IPCoreDescription:
                         ) from exc
         return ips
 
-    @staticmethod
-    def load(ip_path: Union[str, Path], fallback: bool = True) -> "IPCoreDescription":
+    @classmethod
+    def load(cls, path: Union[str, Path], fallback: bool = True, **kwargs: Any):
         """Load an IP Core description yaml from the given path
 
-        :param ip_path: the path to the .yaml file
+        :param path: the path to the .yaml file
         :param fallback: if this is True and ip_path does not exist, try loading the file from the builtin directory
         :return: the IP Core description object
         """
 
-        ip_path = Path(ip_path)
+        path = Path(path)
 
         try:
-            with open(ip_path) as f:
-                return cast(IPCoreDescription, IPCoreDescription.Schema().load(yaml.safe_load(f)))
+            return super().load(path, **kwargs)
         except FileNotFoundError:
             if fallback:
-                ips = IPCoreDescription.get_builtins()
-                if ip_path.stem in ips:
-                    return ips[ip_path.stem]
+                ips = cls.get_builtins()
+                if path.stem in ips:
+                    return ips[path.stem]
             raise
 
-    def save(self, file_path: Optional[Union[str, Path]] = None):
-        if file_path is None:
-            file_path = self.name + ".yaml"
-
-        with open(file_path, "w") as f:
-            yaml.safe_dump(self.Schema().dump(self), f, sort_keys=False)
+    def save(self, path: Optional[Union[str, Path]] = None, **kwargs: Any):
+        super().save(path or self.name + ".yaml", **kwargs)

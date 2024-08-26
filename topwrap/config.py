@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from dataclasses import field
 from os import PathLike
 from pathlib import Path
 from typing import List, Optional
@@ -11,6 +10,7 @@ import marshmallow
 import marshmallow_dataclass
 import yaml
 
+from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.repo.user_repo import UserRepo
 
 logger = logging.getLogger(__name__)
@@ -29,15 +29,11 @@ class RepositoryEntry:
 
 
 @marshmallow_dataclass.dataclass
-class Config:
+class Config(MarshmallowDataclassExtensions):
     """Global topwrap configuration"""
 
-    force_interface_compliance: Optional[bool] = field(
-        default=False, metadata={"load_default": None}
-    )
-    repositories: Optional[List[RepositoryEntry]] = field(
-        default_factory=list, metadata={"load_default": None}
-    )
+    force_interface_compliance: Optional[bool] = ext_field(False)
+    repositories: Optional[List[RepositoryEntry]] = ext_field(list)
 
     def update(self, config: "Config"):
         if config.force_interface_compliance is not None:
@@ -114,7 +110,7 @@ class ConfigManager:
                     continue
 
             try:
-                new_config = Config.Schema().load(yaml_dict)
+                new_config = Config.from_dict(yaml_dict)
                 config.update(new_config)
             except marshmallow.ValidationError as e:
                 logger.warning(f"{path} configuration file is not valid ({e.messages})")

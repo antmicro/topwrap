@@ -5,25 +5,13 @@
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import (
-    Any,
-    ClassVar,
-    Collection,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any, ClassVar, Collection, Dict, List, Optional, Tuple, Type, Union
 
 import marshmallow
 import marshmallow_dataclass
-import yaml
 from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 
-from topwrap.common_serdes import optional_with
+from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 
@@ -36,7 +24,7 @@ class InterconnectType(Enum):
     wishbone_roundrobin = WishboneRRInterconnect
 
 
-@marshmallow_dataclass.dataclass()
+@marshmallow_dataclass.dataclass
 class DesignIP:
     file: str
 
@@ -50,10 +38,10 @@ class DesignIP:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignExternalPorts:
-    input: List[str] = optional_with(list, {"data_key": "in"})
-    output: List[str] = optional_with(list, {"data_key": "out"})
-    inout: List[Tuple[str, str]] = optional_with(list)
+class DesignExternalPorts(MarshmallowDataclassExtensions):
+    input: List[str] = ext_field(list, data_key="in")
+    output: List[str] = ext_field(list, data_key="out")
+    inout: List[Tuple[str, str]] = ext_field(list)
 
     @cached_property
     def flat(self):
@@ -69,9 +57,9 @@ class DesignExternalPorts:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignExternalIntfs:
-    input: List[str] = optional_with(list, {"data_key": "in"})
-    output: List[str] = optional_with(list, {"data_key": "out"})
+class DesignExternalIntfs(MarshmallowDataclassExtensions):
+    input: List[str] = ext_field(list, data_key="in")
+    output: List[str] = ext_field(list, data_key="out")
 
     @cached_property
     def flat(self):
@@ -83,13 +71,13 @@ class DesignExternalIntfs:
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignExternalSection:
-    ports: DesignExternalPorts = optional_with(DesignExternalPorts)
-    interfaces: DesignExternalIntfs = optional_with(DesignExternalIntfs)
+class DesignExternalSection(MarshmallowDataclassExtensions):
+    ports: DesignExternalPorts = ext_field(DesignExternalPorts)
+    interfaces: DesignExternalIntfs = ext_field(DesignExternalIntfs)
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignSectionInterconnect:
+class DesignSectionInterconnect(MarshmallowDataclassExtensions):
     @marshmallow_dataclass.dataclass(frozen=True)
     class Slave:
         address: int
@@ -98,9 +86,9 @@ class DesignSectionInterconnect:
     clock: Union[str, Tuple[str, str]]
     reset: Union[str, Tuple[str, str]]
     type: InterconnectType
-    params: Dict[str, Any] = optional_with(dict)
-    masters: Dict[str, List[str]] = optional_with(dict)
-    slaves: Dict[str, Dict[str, Slave]] = optional_with(dict)
+    params: Dict[str, Any] = ext_field(dict)
+    masters: Dict[str, List[str]] = ext_field(dict, deep_cleanup=True)
+    slaves: Dict[str, Dict[str, Slave]] = ext_field(dict)
 
 
 DS_PortsT = Dict[str, Dict[str, Union[int, str, Tuple[str, str]]]]
@@ -108,22 +96,22 @@ DS_InterfacesT = Dict[str, Dict[str, Union[str, Tuple[str, str]]]]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignSection:
-    name: Optional[str] = optional_with(
-        lambda: None
+class DesignSection(MarshmallowDataclassExtensions):
+    name: Optional[str] = ext_field(
+        None
     )  # This field is relevant only for the top-level design section
-    parameters: Dict[str, Dict[str, IPCoreParameter]] = optional_with(dict)
-    ports: DS_PortsT = optional_with(dict)
-    interfaces: DS_InterfacesT = optional_with(dict)
-    interconnects: Dict[str, DesignSectionInterconnect] = optional_with(dict)
-    hierarchies: Dict[str, "DesignDescription"] = optional_with(dict)
+    parameters: Dict[str, Dict[str, IPCoreParameter]] = ext_field(dict, deep_cleanup=True)
+    ports: DS_PortsT = ext_field(dict, deep_cleanup=True)
+    interfaces: DS_InterfacesT = ext_field(dict, deep_cleanup=True)
+    interconnects: Dict[str, DesignSectionInterconnect] = ext_field(dict)
+    hierarchies: Dict[str, "DesignDescription"] = ext_field(dict)
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignDescription:
-    design: DesignSection = optional_with(DesignSection)
-    external: DesignExternalSection = optional_with(DesignExternalSection)
-    ips: Dict[str, DesignIP] = optional_with(dict)
+class DesignDescription(MarshmallowDataclassExtensions):
+    design: DesignSection = ext_field(DesignSection)
+    external: DesignExternalSection = ext_field(DesignExternalSection)
+    ips: Dict[str, DesignIP] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
 
@@ -160,32 +148,14 @@ class DesignDescription:
         ipc.validate_inout_connections(self.external.ports.inout)
         return ipc
 
-    @staticmethod
-    def from_file(design_path: Union[str, Path]) -> "DesignDescription":
-        design_path = Path(design_path)
-
-        with open(design_path) as f:
-            return DesignDescription.from_dict(yaml.safe_load(f))
-
-    @staticmethod
-    def from_dict(ast: Any) -> "DesignDescription":
-        return cast(DesignDescription, DesignDescription.Schema().load(ast))
-
-    def to_dict(self) -> Any:
-        return cast(Any, self.Schema().dump(self))
-
-    def to_yaml(self) -> str:
-        return yaml.safe_dump(self.to_dict(), sort_keys=True)
-
-    def save(self, path: Optional[Union[str, Path]]):
+    def save(self, path: Optional[Union[str, Path]] = None, **kwargs: Any):
         if path is None:
             if self.design.name is None:
                 path = "top.yaml"
             else:
                 path = self.design.name + ".yaml"
 
-        with open(Path(path), "w") as f:
-            f.write(self.to_yaml())
+        super().save(path, **kwargs)
 
 
 def build_design_from_yaml(
@@ -197,7 +167,7 @@ def build_design_from_yaml(
     design_path = Path(design_path)
     design_dir = design_path.parent
 
-    desc = DesignDescription.from_file(design_path)
+    desc = DesignDescription.load(design_path)
     desc.generate_design(design_dir).build(
         build_dir=build_dir,
         sources_dir=sources_dir,

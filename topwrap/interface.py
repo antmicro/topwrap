@@ -1,20 +1,23 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from contextlib import nullcontext
-from dataclasses import field
 from enum import Enum
 from functools import cached_property, lru_cache
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Type
+from typing import Dict, List, Optional
 
-import marshmallow
 import marshmallow_dataclass
 import yaml
 from importlib_resources import as_file, files
 
 from topwrap.util import recursive_defaultdict
 
-from .common_serdes import RegexpT, flatten_and_annotate, optional_with
+from .common_serdes import (
+    MarshmallowDataclassExtensions,
+    RegexpT,
+    ext_field,
+    flatten_and_annotate,
+)
 from .config import config
 from .hdl_parsers_utils import PortDirection
 
@@ -31,32 +34,32 @@ class InterfaceSignalType(Enum):
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class IfacePortSpecification:
+class IfacePortSpecification(MarshmallowDataclassExtensions):
     """Specification of a port in an interface described in YAML interface definition file"""
 
     name: str
     regexp: RegexpT
-    direction: PortDirection = field(metadata={"by_value": True})
-    type: InterfaceSignalType = field(metadata={"by_value": True})
+    direction: PortDirection = ext_field(by_value=True)
+    type: InterfaceSignalType = ext_field(by_value=True)
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class InterfaceDefinitionSignals:
+class InterfaceDefinitionSignals(MarshmallowDataclassExtensions):
     @marshmallow_dataclass.dataclass(frozen=True)
     class Inner:
-        input: Dict[str, RegexpT] = optional_with(dict, {"data_key": "in"})
-        output: Dict[str, RegexpT] = optional_with(dict, {"data_key": "out"})
-        inout: Dict[str, RegexpT] = optional_with(dict)
+        input: Dict[str, RegexpT] = ext_field(dict, data_key="in")
+        output: Dict[str, RegexpT] = ext_field(dict, data_key="out")
+        inout: Dict[str, RegexpT] = ext_field(dict)
 
-    required: Inner = optional_with(Inner)
-    optional: Inner = optional_with(Inner)
+    required: Inner = ext_field(Inner)
+    optional: Inner = ext_field(Inner)
 
     @cached_property
     def flat(self) -> List[IfacePortSpecification]:
         return [
-            IfacePortSpecification.Schema().load(port)
+            IfacePortSpecification.from_dict(port)
             for port in flatten_and_annotate(
-                self.Schema().dump(self), ["type", "direction", "name", "regexp"]
+                self.to_dict(), ["type", "direction", "name", "regexp"]
             )
         ]
 
@@ -65,18 +68,16 @@ class InterfaceDefinitionSignals:
         data = recursive_defaultdict()
         for sig in arr:
             data[sig.type.value][sig.direction.value][sig.name] = sig.regexp
-        return InterfaceDefinitionSignals.Schema().load(data)
+        return InterfaceDefinitionSignals.from_dict(data)
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class InterfaceDefinition:
+class InterfaceDefinition(MarshmallowDataclassExtensions):
     """Interface described in YAML interface definition file"""
 
     name: str
     port_prefix: str
-    signals: InterfaceDefinitionSignals
-
-    Schema: ClassVar[Type[marshmallow.Schema]]
+    signals: InterfaceDefinitionSignals = ext_field(InterfaceDefinitionSignals)
 
     @cached_property
     def optional_signals(self) -> List[IfacePortSpecification]:
@@ -108,9 +109,7 @@ def load_interface_definitions(dir_name: Optional[Path] = None):
 
 @lru_cache(maxsize=None)
 def get_predefined_interfaces() -> List[InterfaceDefinition]:
-    return [
-        InterfaceDefinition.Schema().load(yaml_dict) for yaml_dict in load_interface_definitions()
-    ]
+    return [InterfaceDefinition.from_dict(yaml_dict) for yaml_dict in load_interface_definitions()]
 
 
 @lru_cache(maxsize=None)
@@ -118,7 +117,7 @@ def get_interfaces() -> List[InterfaceDefinition]:
     user_interfaces = []
     for path in config.get_interface_paths():
         user_interfaces += [
-            InterfaceDefinition.Schema().load(yaml_dict)
+            InterfaceDefinition.from_dict(yaml_dict)
             for yaml_dict in load_interface_definitions(path)
         ]
 

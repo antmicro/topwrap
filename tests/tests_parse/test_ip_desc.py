@@ -106,7 +106,7 @@ interfaces:
         with pytest.raises(
             ValidationError, match="'Invalid interface type: IDONTEXIST'"
         ) and pytest.raises(ValidationError, match="'Must be one of: master,"):
-            IPCoreDescription.Schema().load(invalid_interface_type_core)
+            IPCoreDescription.from_dict(invalid_interface_type_core)
 
     def test_invalid_interface_compliance(
         self, invalid_interface_compliance_core, force_compliance
@@ -116,15 +116,15 @@ interfaces:
         ) and pytest.raises(
             ValidationError, match='Unknown out port "TBUBU", not present in interface "AXI4Stream"'
         ):
-            IPCoreDescription.Schema().load(invalid_interface_compliance_core)
+            IPCoreDescription.from_dict(invalid_interface_compliance_core)
 
     def test_optional_signal_missing_compliance(
         self, optional_missing_interface_compliance_core, force_compliance
     ):
-        IPCoreDescription.Schema().load(optional_missing_interface_compliance_core)
+        IPCoreDescription.from_dict(optional_missing_interface_compliance_core)
 
     def test_interface_compliance_off(self, invalid_interface_compliance_core):
-        IPCoreDescription.Schema().load(invalid_interface_compliance_core)
+        IPCoreDescription.from_dict(invalid_interface_compliance_core)
 
     def test_builtins_presence(self):
         for ip in (
@@ -251,12 +251,12 @@ interfaces:
             return norm
 
         try:
-            IPCoreDescription.Schema().load(completely_invalid_core)
+            IPCoreDescription.from_dict(completely_invalid_core)
         except ValidationError as e:
             assert DeepDiff(deep_normalize(e), deep_normalize(EXPECTED)) == {}
 
     def test_valid_syntax(self, completely_valid_core, force_compliance):
-        ip: IPCoreDescription = IPCoreDescription.Schema().load(completely_valid_core)
+        ip: IPCoreDescription = IPCoreDescription.from_dict(completely_valid_core)
 
         assert ip == IPCoreDescription(
             name="correct_core",

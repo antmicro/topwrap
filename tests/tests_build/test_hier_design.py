@@ -27,7 +27,7 @@ def hier_design_path(hier_design_yaml: Path) -> Path:
 
 @pytest.fixture
 def hier_design(hier_design_yaml: Path) -> DesignDescription:
-    return DesignDescription.from_file(hier_design_yaml)
+    return DesignDescription.load(hier_design_yaml)
 
 
 @pytest.fixture
