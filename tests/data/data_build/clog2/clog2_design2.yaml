@@ -1,0 +1,21 @@
+# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+ips:
+  core1:
+    file: clog2_tester2.yaml
+design:
+  name: top
+  ports:
+    core1:
+      i_clk: PORT_CLK
+      i_waddr: PORT_VEC_IN
+      o_waddr: PORT_VEC_OUT
+
+external:
+  ports:
+    in:
+      - PORT_CLK
+      - PORT_VEC_IN
+    out:
+      - PORT_VEC_OUT

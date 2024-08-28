@@ -6,7 +6,13 @@ from typing import Dict, Mapping, Set, Union
 
 from .hdl_parsers_utils import PortDefinition
 from .interface_grouper import InterfaceGrouper
-from .ip_desc import IPCoreDescription, IPCoreInterface, IPCoreIntfPorts, IPCorePorts
+from .ip_desc import (
+    IPCoreComplexParameter,
+    IPCoreDescription,
+    IPCoreInterface,
+    IPCoreIntfPorts,
+    IPCorePorts,
+)
 
 HDLParameter = Union[int, str, Dict[str, int]]
 
@@ -46,9 +52,16 @@ class HDLModule(ABC):
                 ),
             )
 
+        p = {}
+        for pname, par in self.parameters.items():
+            if isinstance(par, dict):
+                p[pname] = IPCoreComplexParameter(width=par["width"], value=par["value"])
+            else:
+                p[pname] = par
+
         return IPCoreDescription(
             name=self.module_name,
             signals=IPCorePorts.from_port_def_list(ports - iface_ports),
-            parameters=self.parameters,
+            parameters=p,
             interfaces=ifaces_by_name,
         )

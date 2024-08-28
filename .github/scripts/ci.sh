@@ -142,7 +142,6 @@ generate_examples() {
     done
 }
 
-
 generate_docs() {
     install_common_system_packages
     install_topwrap_system_deps
@@ -156,20 +155,13 @@ generate_docs() {
     end_command_group
 }
 
-
 package_cores() {
     install_common_system_packages
     install_topwrap_system_deps
-
-    begin_command_group "Install Topwrap with parsing dependencies"
-    log_cmd pip install ".[topwrap-parse]"
-    end_command_group
+    install_nox
 
     begin_command_group "Package cores for release"
-    log_cmd mkdir core_repo
-    log_cmd pushd core_repo
-    log_cmd python ../.github/scripts/package_cores.py
-    log_cmd popd
+    log_cmd nox -s package_cores
     end_command_group
 }
 

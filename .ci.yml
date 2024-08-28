@@ -79,9 +79,10 @@ package_cores:
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh package_cores
+    - tar -cf build/cores_export.tar -C build/export .
   artifacts:
     paths:
-      - core_repo/**
+      - build/cores_export.tar
 
 pyright_check:
   variables:

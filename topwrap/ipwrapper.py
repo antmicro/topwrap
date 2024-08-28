@@ -1,5 +1,6 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+import math
 from itertools import groupby
 from logging import error
 from pathlib import Path
@@ -8,12 +9,15 @@ from typing import List
 from amaranth import Instance, Module, Signal
 from amaranth.build import Platform
 from amaranth.hdl.ast import Cat, Const
-from simpleeval import simple_eval
+from simpleeval import DEFAULT_FUNCTIONS, simple_eval
 
 from topwrap.ip_desc import IPCoreComplexParameter, IPCoreDescription
 
 from .amaranth_helpers import WrapperPort, port_direction_to_prefix
 from .wrapper import Wrapper
+
+my_functions = DEFAULT_FUNCTIONS.copy()
+my_functions.update(clog2=(lambda n: math.ceil(math.log2(n))))
 
 
 def _group_by_internal_name(ports: List[WrapperPort]):
@@ -58,7 +62,7 @@ def _eval_bounds(bounds, params: dict):
     for i, item in enumerate(bounds):
         if isinstance(item, str):
             try:
-                result[i] = int(simple_eval(item, names=params))
+                result[i] = int(simple_eval(item, names=params, functions=my_functions))
             except TypeError:
                 error(
                     "Could not evaluate expression with parameter: "

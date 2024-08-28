@@ -1,0 +1,15 @@
+name: clog2_tester
+parameters:
+  depth: ((32*(32+p4))/w)
+  p4: 4
+  w: 1
+signals:
+  in:
+  - i_clk
+  - - i_waddr
+    - (clog2(depth*2)-2)
+    - 0
+  out:
+  - - o_waddr
+    - (clog2(depth*2)-2)
+    - 0

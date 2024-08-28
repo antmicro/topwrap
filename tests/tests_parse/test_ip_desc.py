@@ -89,6 +89,14 @@ interfaces:
         return IPCoreDescription.load("tests/data/data_parse/axi_axil_adapter.yaml", False)
 
     @pytest.fixture
+    def clog2_ip_core_description(self, clog2_test_module: VerilogModule) -> IPCoreDescription:
+        return clog2_test_module.to_ip_core_description(standard_iface_grouper())
+
+    @pytest.fixture
+    def clog2_expected_output(self) -> IPCoreDescription:
+        return IPCoreDescription.load("tests/data/data_parse/clog2_core.yaml", False)
+
+    @pytest.fixture
     def force_compliance(self):
         from topwrap.config import config
 

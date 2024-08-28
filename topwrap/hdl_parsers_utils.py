@@ -3,8 +3,9 @@
 from dataclasses import dataclass
 from enum import Enum
 from logging import warning
+from typing import Any, Dict, Union
 
-from simpleeval import SimpleEval
+from simpleeval import DEFAULT_FUNCTIONS, SimpleEval, simple_eval
 
 from topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
 
@@ -26,14 +27,23 @@ class PortDefinition:
     direction: PortDirection
 
 
-def _eval_param(val, params: dict, simpleeval_instance: SimpleEval):
+def _eval_param(
+    val: Union[int, dict, str], params: Dict[str, Any], simpleeval_instance: SimpleEval
+):
     """Function used to calculate parameter value.
     It is used for evaluating CONCAT and REPL_CONCAT in resolve_ops()"""
+
     if isinstance(val, int):
         return val
     if isinstance(val, dict) and val.keys() == {"value", "width"}:
         return val
     if isinstance(val, str):
+        if val not in params.keys():
+            keying = DEFAULT_FUNCTIONS.copy()
+            for k in params.keys():
+                keying[k] = params[k]
+            return str(simple_eval(val, functions=keying))
+
         return _eval_param(params[val], params, simpleeval_instance)
 
     elif val["__class__"] == "HdlValueInt":
@@ -71,7 +81,9 @@ def _eval_param(val, params: dict, simpleeval_instance: SimpleEval):
             )
 
 
-def resolve_ops(val, params: dict, simpleeval_instance: SimpleEval):
+def resolve_ops(
+    val: Union[str, int, Dict[str, Any]], params: Dict[str, Any], simpleeval_instance: SimpleEval
+):
     """Get 'val' representation, that will be used in ip core yaml
 
     :param val: expression gathered from HdlConvertor data.
@@ -87,6 +99,9 @@ def resolve_ops(val, params: dict, simpleeval_instance: SimpleEval):
     * if 'val' is 'HdlOp' and is an expression of type (REPL_)CONCAT evaluate
     its default value and return as a { 'value': ..., 'width': ... } dict
     """
+
+    if isinstance(val, str):
+        val = val.replace("$", "")
 
     if isinstance(val, int) or isinstance(val, str):
         return val

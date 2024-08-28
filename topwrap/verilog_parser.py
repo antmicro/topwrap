@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from functools import cached_property
 from logging import error
-from typing import Dict, List, Set
+from typing import Any, Dict, List, Set
 
 from hdlConvertor import HdlConvertor
 from hdlConvertorAst.language import Language
@@ -20,7 +20,7 @@ class VerilogModule(HDLModule):
     using HdlConvertor.
     """
 
-    def __init__(self, verilog_file: str, verilog_module: dict):
+    def __init__(self, verilog_file: str, verilog_module: Dict[str, Any]):
         super().__init__(verilog_file)
         self._data = verilog_module
 
@@ -99,8 +99,8 @@ class VerilogModuleGenerator:
             hdl_context = self.conv.parse(
                 [file], Language.VERILOG, [], hierarchyOnly=False, debug=True
             )
+            modules = ToJson().visit_HdlContext(hdl_context)
+            return [VerilogModule(file, module) for module in modules]
         except IndexError:
             error(f"No module found in {file}!")
-
-        modules = ToJson().visit_HdlContext(hdl_context)
-        return [VerilogModule(file, module) for module in modules]
+            return []

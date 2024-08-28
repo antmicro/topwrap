@@ -271,3 +271,13 @@ def _pyright_check(session: nox.Session) -> None:
         for errtype, num in errorfiles.items():
             if num - errorfiles_main[errtype] > 0:
                 raise CommandFailed()
+
+
+@nox.session
+def package_cores(session: nox.Session) -> None:
+    session.install("-e", ".[topwrap-parse]")
+    session.install("fusesoc")
+    if len(session.posargs) > 0:
+        session.run("python", ".github/scripts/package_cores.py", "--log-level", session.posargs[0])
+    else:
+        session.run("python", ".github/scripts/package_cores.py")

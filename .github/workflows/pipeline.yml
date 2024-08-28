@@ -206,9 +206,10 @@ jobs:
       - name: Pack cores into a Topwrap repository
         run: |
           ./.github/scripts/ci.sh package_cores
+          tar -cf build/cores_export.tar -C build/export .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: core_repo
-          path: core_repo/**
+          name: export_cores
+          path: build/cores_export.tar

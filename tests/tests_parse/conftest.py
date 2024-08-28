@@ -21,6 +21,17 @@ def axi_verilog_module() -> VerilogModule:
 
 
 @pytest.fixture
+def clog2_test_module() -> VerilogModule:
+    from topwrap.verilog_parser import VerilogModuleGenerator
+
+    verilog_modules = VerilogModuleGenerator().get_modules(
+        "tests/data/data_build/clog2/clog2_tester.v"
+    )
+    assert len(verilog_modules) == 1
+    return verilog_modules[0]
+
+
+@pytest.fixture
 def dependant_verilog_module() -> VerilogModule:
     from tempfile import NamedTemporaryFile
 

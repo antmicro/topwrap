@@ -18,6 +18,21 @@ class TestVerilogParse:
         "CONVERT_NARROW_BURST": 0,
     }
 
+    def test_clog2_parameters(self, clog2_test_module):
+        assert clog2_test_module.parameters == {"w": 1, "p4": 4, "depth": "((32*(32+p4))/w)"}
+
+    def test_clog2_ports(self, clog2_test_module):
+        assert clog2_test_module.ports == set(
+            [
+                PortDefinition("i_clk", "0", "0", PortDirection.IN),
+                PortDefinition("i_waddr", "(clog2(depth)-1)", "0", PortDirection.IN),
+                PortDefinition("o_waddr", "(clog2(depth)-1)", "0", PortDirection.OUT),
+            ]
+        )
+
+    def test_clog2_module_name(self, clog2_test_module):
+        assert clog2_test_module.module_name == "clog2_tester"
+
     def test_axi_module_parameters(self, axi_verilog_module):
         assert axi_verilog_module.parameters == self.AXI_AXIL_ADAPTER_PARAMS
 
