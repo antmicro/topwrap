@@ -25,7 +25,6 @@ dependencies = [
   "simpleeval",
   "typing_extensions",
   "marshmallow-dataclass[enum]",
-  "typing_extensions",
   "pygtrie",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@f45289d7073e885b5e3f461db9a8667807b69380",
@@ -51,8 +50,8 @@ tests = [
   "pytest-lazy-fixtures==1.0.1",
   "pyfakefs==5.3.5",
   "deepdiff==7.0.1",
-  "pyright",
-  "prettytable",
+  "pyright==1.1.378",
+  "prettytable==3.11.0",
 ]
 deploy = [
   "build==1.2.1"

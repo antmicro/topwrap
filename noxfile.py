@@ -133,7 +133,6 @@ def doc_gen(session: nox.Session) -> None:
 @nox.session
 def pyright_check(session: nox.Session) -> None:
     # this is a wrapper for _pyright_check that installs dependencies
-    session.install(".[topwrap-parse]")
     session.install(".[tests]")
     compare_with_main = "compare" in session.posargs
 
@@ -146,6 +145,7 @@ def pyright_check(session: nox.Session) -> None:
 @nox.session
 def _pyright_check(session: nox.Session) -> None:
     # this is not supposed to be called outright, use `pyright_check`
+    session.install(".")
     compare_with_main = "compare" in session.posargs
 
     # counting down errors on branch
