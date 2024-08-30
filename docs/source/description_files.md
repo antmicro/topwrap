@@ -14,11 +14,10 @@ You can see example design files in `examples` directory. The structure is as be
 
 ```yaml
 ips:
-  # specify relations between IPs names in the design yaml
-  # and IP cores description yamls and modules
+  # specify relations between IPs instance names in the
+  # design yaml and IP cores description yamls
   {ip_instance_name}:
     file: {path_to_yaml_file_of_the_ip}
-    module: {name_of_the_HDL_module}
   ...
 
 design:

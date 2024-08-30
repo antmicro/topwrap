@@ -88,13 +88,10 @@ signals:
 ips:
   vexriscv_instance:
     file: ipcores/gen_VexRiscv.yaml
-    module: VexRiscv
   wb_ram_data_instance:
     file: ipcores/gen_mem.yaml
-    module: mem
   wb_ram_instr_instance:
     file: ipcores/gen_mem.yaml
-    module: mem
 
 ```
 
