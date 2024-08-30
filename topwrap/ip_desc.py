@@ -258,9 +258,6 @@ class IPCoreDescription:
                 ips = IPCoreDescription.get_builtins()
                 if ip_path.stem in ips:
                     return ips[ip_path.stem]
-                ips = IPCoreDescription.get_builtins_by_file()
-                if ip_path.stem in ips:
-                    return ips[ip_path.stem]
             raise
 
     def save(self, file_path: Optional[Union[str, Path]] = None):

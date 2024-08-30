@@ -132,7 +132,7 @@ interfaces:
             "axi_interconnect",
             "axi_protocol_converter",
             "axis_async_fifo",
-            "dwidth_converter",
+            "axis_dwidth_converter",
         ):
             assert ip in IPCoreDescription.get_builtins(), f'Builtin IP "{ip}" is missing'
 
