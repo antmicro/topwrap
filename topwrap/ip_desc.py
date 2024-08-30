@@ -223,30 +223,8 @@ class IPCoreDescription:
     def get_builtins() -> Dict[str, "IPCoreDescription"]:
         """Loads all builtin internal IP Cores
 
-        :return: a dict where keys are the IP Core names and values are the IP Core description objects
+        :return: a dict where keys are the IP Core file names and values are the IP Core description objects
         """
-
-        ips: Dict[str, IPCoreDescription] = {}
-        with as_file(files("topwrap.ips")) as ip_res:
-            for path in ip_res.glob("**/*"):
-                if path.suffix.lower() in (".yaml", ".yml"):
-                    try:
-                        ip = IPCoreDescription.load(path, False)
-                        ips[ip.name] = ip
-                    except Exception as exc:
-                        raise BuiltinIPCoreException(
-                            f'Loading built-in IP core "{path.name}" failed'
-                        ) from exc
-        return ips
-
-    @staticmethod
-    @lru_cache(maxsize=None)
-    def get_builtins_by_file() -> Dict[str, "IPCoreDescription"]:
-        """Loads all builtin internal IP Cores
-
-        :return: a dict where keys are IP Core file names and values are IP Core definition objects
-        """
-        # this is needed for when loading builtin by file name not by module name
 
         ips: Dict[str, IPCoreDescription] = {}
         with as_file(files("topwrap.ips")) as ip_res:
