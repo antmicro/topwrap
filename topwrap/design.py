@@ -189,20 +189,17 @@ class DesignDescription:
 
 
 def build_design_from_yaml(
-    design_path: Union[str, Path],
-    build_dir: Union[str, Path],
-    sources_dir: Collection[Union[str, Path]] = [],
+    design_path: Path,
+    build_dir: Path,
+    sources_dir: Collection[Path] = [],
     part: Optional[str] = None,
 ):
     design_path = Path(design_path)
     design_dir = design_path.parent
-    build_dir = Path(build_dir)
-
-    build_dir.mkdir(exist_ok=True)
 
     desc = DesignDescription.from_file(design_path)
     desc.generate_design(design_dir).build(
-        build_dir=str(build_dir),
+        build_dir=build_dir,
         sources_dir=sources_dir,
         part=part,
         top_module_name=desc.design.name or "top",

@@ -6,7 +6,7 @@ import logging
 import os
 import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import click
 
@@ -83,7 +83,9 @@ def build_main(
 
     # following function does make sure that build directory exists
     # so we don't explicitly create build directory here
-    build_design_from_yaml(design, build_dir, all_sources, part)
+    build_design_from_yaml(
+        Path(design), Path(build_dir), [Path(source) for source in all_sources], part
+    )
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")
@@ -177,7 +179,9 @@ DEFAULT_BACKEND_PORT = 5000
     help="Specify directory name for output files",
 )
 @click.argument("yamlfiles", type=click_r_file, nargs=-1)
-def kpm_client_main(host, port, log_level, design, yamlfiles: list[str], build_dir):
+def kpm_client_main(
+    host: str, port: str, log_level: str, design: str, yamlfiles: List[str], build_dir: str
+):
     configure_log_level(log_level)
 
     logging.info("Starting kenning pipeline manager client")
@@ -188,7 +192,7 @@ def kpm_client_main(host, port, log_level, design, yamlfiles: list[str], build_d
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
-        kpm_run_client(RPCparams(host, port, extended_yamlfiles, build_dir, design))
+        kpm_run_client(RPCparams(host, int(port), extended_yamlfiles, Path(build_dir), design))
     )
 
 

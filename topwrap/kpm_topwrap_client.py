@@ -4,7 +4,8 @@
 import logging
 from base64 import b64encode
 from datetime import datetime
-from typing import Optional, Tuple
+from pathlib import Path
+from typing import List, Optional, Tuple
 
 import yaml
 from pipeline_manager_backend_communication.communication_backend import (
@@ -99,25 +100,25 @@ class RPCMethods:
         return {}
 
 
-def _kpm_specification_handler(yamlfiles: list) -> dict:
+def _kpm_specification_handler(yamlfiles: List[str]) -> dict:
     """Return KPM specification containing info about IP cores.
     The specification is generated from given IP core description YAMLs.
     """
     return ipcore_yamls_to_kpm_spec(yamlfiles)
 
 
-def _kpm_import_handler(data: str, yamlfiles: list) -> dict:
+def _kpm_import_handler(data: str, yamlfiles: List[str]) -> dict:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
     design_descr = DesignDescription.from_dict(yaml.safe_load(data))
     return kpm_dataflow_from_design_descr(design_descr, specification)
 
 
-def _design_from_kpm_data(data: dict, yamlfiles: list) -> DesignDescription:
+def _design_from_kpm_data(data: dict, yamlfiles: List[str]) -> DesignDescription:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
     return kpm_dataflow_to_design(data, specification)
 
 
-def _kpm_run_handler(data: dict, yamlfiles: list, build_dir: str) -> list:
+def _kpm_run_handler(data: dict, yamlfiles: List[str], build_dir: Path) -> list:
     """Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """
@@ -131,7 +132,7 @@ def _kpm_run_handler(data: dict, yamlfiles: list, build_dir: str) -> list:
     return messages["errors"]
 
 
-def _kpm_validate_handler(data: dict, yamlfiles: list) -> dict:
+def _kpm_validate_handler(data: dict, yamlfiles: List[str]) -> dict:
     specification = ipcore_yamls_to_kpm_spec(yamlfiles)
     return validate_kpm_design(data, specification)
 
@@ -143,7 +144,7 @@ def _generate_design_filename() -> str:
     return datetime.now().strftime("kpm_design_%Y%m%d_%H%M%S.yaml")
 
 
-def _kpm_export_handler(dataflow: dict, yamlfiles: list) -> Tuple[str, str]:
+def _kpm_export_handler(dataflow: dict, yamlfiles: List[str]) -> Tuple[str, str]:
     """Convert created dataflow into Topwrap's design description YAML.
 
     :param dataflow: dataflow JSON from KPM

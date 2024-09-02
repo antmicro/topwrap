@@ -4,6 +4,7 @@ import pytest
 from deepdiff import DeepDiff
 from pipeline_manager_backend_communication.misc_structures import MessageType
 
+from tests.tests_build.test_design import Path
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import RPCMethods
 
@@ -11,7 +12,7 @@ from topwrap.kpm_topwrap_client import RPCMethods
 class TestClient:
     @pytest.fixture
     def default_rpc_params(self):
-        return RPCparams("127.0.0.1", 9000, [], "build", "")
+        return RPCparams("127.0.0.1", 9000, [], Path("build"), Path())
 
     def test_specification(self, all_yaml_files, all_specification_files, default_rpc_params):
         # Testing all cores

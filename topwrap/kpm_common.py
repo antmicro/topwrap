@@ -4,6 +4,7 @@
 import logging
 from collections import defaultdict
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Optional
 
 CONST_NAME = "Constant"
@@ -60,9 +61,9 @@ def get_graph_with_id(dataflow_json: dict, graph_id: str) -> Optional[dict]:
 class RPCparams:
     host: str
     port: int
-    yamlfiles: list
-    build_dir: str
-    design: str
+    yamlfiles: List[str]
+    build_dir: Path
+    design: Path
 
 
 def is_external_metanode(node: dict) -> bool:

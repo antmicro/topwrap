@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from logging import info, warning
 from os import path
-from typing import TYPE_CHECKING, Collection, Dict, List, Set, Tuple
+from pathlib import Path
+from typing import TYPE_CHECKING, Collection, Dict, List, Optional, Set, Tuple
 
 from amaranth import Fragment, Module
 from amaranth.back import verilog
@@ -401,12 +402,14 @@ class IPConnect(Wrapper):
 
     def build(
         self,
-        build_dir="build",
+        build_dir: Path = Path("build"),
         template=None,
-        sources_dir=[],
-        top_module_name="project_top",
-        part=None,
+        sources_dir: Collection[Path] = [],
+        top_module_name: str = "project_top",
+        part: Optional[str] = None,
     ) -> None:
+        build_dir.mkdir(exist_ok=True)
+
         # This class is used for generating FuseSoC Core file
         fuse = FuseSocBuilder(part)
 
