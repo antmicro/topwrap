@@ -16,10 +16,10 @@ design:
   parameters:
     wb_ram_data:
       depth: 0x1000
-      memfile: "top_sram.init"
+      memfile: '"top_sram.init"'
     wb_ram_instr:
       depth: 0xA000
-      memfile: "top_rom.init"
+      memfile: '"top_rom.init"'
   ports:
     wb_ram_data:
       sys_clk: clk100

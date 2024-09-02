@@ -22,7 +22,7 @@ design:
       depth: 0x1000
     wb_ram_instr:
       depth: 0xA000
-      memfile: "build/bios.init"
+      memfile: '"build/bios.init"'
   ports:
     wb_ram_data:
       sys_clk: clk100

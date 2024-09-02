@@ -45,6 +45,16 @@ def axi_dispctrl_ipw_overriden(axi_dispctrl_name, axi_dispctrl_path) -> IPWrappe
     )
 
 
+@pytest.fixture
+def axi_dispctrl_ipw_custom_params(axi_dispctrl_name, axi_dispctrl_path) -> IPWrapper:
+    return IPWrapper(
+        axi_dispctrl_path,
+        axi_dispctrl_name,
+        axi_dispctrl_name,
+        {"EX_WIDTH": 8, "EVAL_WIDTH": "EX_WIDTH/2", "EX_STRING": '"STRING"'},
+    )
+
+
 # ----------------------------------------------------------------------------
 # Names of ports that should be created while initializing `IPWrapper` objects
 # ----------------------------------------------------------------------------
@@ -169,3 +179,10 @@ class TestIPWrapper:
 
         with pytest.raises(ValueError):
             axi_dispctrl_ipw.get_ports_of_interface("non_existing_iface_name")
+
+    def test_params_evalutaion(self, axi_dispctrl_ipw_custom_params):
+        assert axi_dispctrl_ipw_custom_params._parameters == {
+            "p_EX_WIDTH": 8,
+            "p_EVAL_WIDTH": 4.0,
+            "p_EX_STRING": "STRING",
+        }

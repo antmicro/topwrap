@@ -49,9 +49,10 @@ def _evaluate_parameters(params: dict):
                 params[name] = simple_eval(param, names=params)
             except Exception as e:
                 error(f"evaluating expression {name} failed with the following message: {str(e)}")
+                raise
 
 
-def _eval_bounds(bounds, params):
+def _eval_bounds(bounds, params: dict):
     """Replace parameter-dependent values with numbers"""
     result = bounds[:]
     for i, item in enumerate(bounds):

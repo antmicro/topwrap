@@ -103,11 +103,13 @@ ips:
 parameters:
   wb_ram_data_instance:
     depth: 0x1000
-    memfile: "top_sram.init"
+    memfile: '"top_sram.init"'
   wb_ram_instr_instance:
     depth: 0xA000
-    memfile: "bios.init"
+    memfile: '"bios.init"'
 ```
+
+Note that string parameters have to be wrapped in single quotation marks like this: `'"string value"'`.
 
 - Connect desired ports of the IP cores:
 
