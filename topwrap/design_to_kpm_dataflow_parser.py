@@ -286,7 +286,6 @@ class KPMDataflowGraph:
     def to_json_format(self) -> dict:
         return {
             "id": self.id,
-            "scaling": 1,
             "nodes": [node.to_json_format() for node in self.nodes],
             "connections": [connection.to_json_format() for connection in self.connections],
         }

@@ -93,7 +93,6 @@ exclude = '''
     | build
     | workspace
   )/
-  | docs/source/conf.py
 )
 '''
 target-version = ["py38", "py39", "py310", "py311", "py312"]
@@ -110,7 +109,6 @@ skip = [
     "__pycache__",
     "venv",
     "build",
-    "docs/source/conf.py",
     "workspace",
 ]
 

@@ -6,7 +6,7 @@ set -e
 set -o pipefail
 
 ROOT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")"/../.. &>/dev/null && pwd)
-EXAMPLES=(hdmi inout pwm soc hierarchy)
+EXAMPLES=(constant hdmi inout pwm soc)
 
 begin_command_group() {
     if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
@@ -83,12 +83,6 @@ install_nox() {
     end_command_group
 }
 
-install_tuttest(){
-    begin_command_group "Installing tuttest"
-    log_cmd pip install git+https://github.com/antmicro/tuttest
-    end_command_group
-}
-
 install_pyenv() {
     begin_command_group "Install pyenv"
     log_cmd apt-get install -y --no-install-recommends \
@@ -134,7 +128,6 @@ run_python_tests() {
 generate_examples() {
     install_common_system_packages
     install_topwrap_system_deps
-    install_tuttest
 
     begin_command_group "Installing Topwrap"
     log_cmd pip install "."
@@ -143,7 +136,7 @@ generate_examples() {
     for EXAMPLE in "${EXAMPLES[@]}"; do
         begin_command_group "Generate $EXAMPLE example"
         log_cmd pushd "$ROOT_DIR"/examples/"$EXAMPLE"
-        log_cmd "tuttest README.md install-deps,generate | bash -"
+        log_cmd make ci
         log_cmd popd
         end_command_group
     done
@@ -152,6 +145,7 @@ generate_examples() {
 
 generate_docs() {
     install_common_system_packages
+    install_topwrap_system_deps
     begin_command_group "Install system packages for doc generation"
     log_cmd apt-get install -y texlive-full make
     end_command_group

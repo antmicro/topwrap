@@ -11,11 +11,17 @@ BUILD_DIR 	:=	build
 SOURCE_FILES := \
 	${SOURCE_DIR}/ibuf.v
 
+JSONS = kpm_spec.json kpm_dataflow.json
+
 # -------------------------------------
 # Topwrap
 # -------------------------------------
 generate: copy_sources
 	topwrap build --design ${DESIGN} --sources ${SOURCE_DIR}
+
+$(JSONS):
+	topwrap specification ipcores/*
+	topwrap dataflow -d project.yml ipcores/*
 
 # -------------------------------------
 # Utilities
@@ -28,4 +34,6 @@ clean:
 	rm -f sources/*.json gen_*.yml gen_*.yaml
 	rm -rf ${BUILD_DIR}/*
 
-.PHONY: setup clean generate copy_sources all
+ci: generate
+
+.PHONY: setup clean generate copy_sources ci all

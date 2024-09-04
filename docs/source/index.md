@@ -6,6 +6,7 @@
 introduction
 installation
 getting_started
+examples
 description_files
 usage
 user_repositories

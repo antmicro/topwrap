@@ -15,6 +15,10 @@ from nox.command import CommandFailed
 PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
 
+def argument(session: nox.Session, *args: str) -> bool:
+    return any(arg in session.posargs for arg in args)
+
+
 @nox.session(reuse_venv=True)
 def pre_commit(session: nox.Session) -> None:
     session.run("pre-commit", "install")
@@ -120,7 +124,7 @@ def tests_in_env(session: nox.Session) -> None:
 def build(session: nox.Session) -> None:
     session.install("-e", ".[deploy]")
     session.run("python3", "-m", "build")
-    if len(session.posargs) < 1 or session.posargs[0] != "--no-test":
+    if not argument(session, "--no-test", "-t"):
         session.notify("_install_test")
 
 
@@ -143,18 +147,46 @@ def _install_test(session: nox.Session) -> None:
 
 @nox.session
 def doc_gen(session: nox.Session) -> None:
+    if not argument(session, "--no-jsons", "-j"):
+        # generate specs and dataflows for all examples and put them in docs/build/kpm_jsons
+        # so that they can be used in the documentation without committing them to repo.
+        Path("docs/build/kpm_jsons").mkdir(exist_ok=True, parents=True)
+        session.install(".[topwrap-parse]")
+        with TemporaryDirectory() as tmpdir, TemporaryFile(mode="w+") as err:
+            shutil.copytree(Path("."), tmpdir, dirs_exist_ok=True)
+            for example in (Path(tmpdir) / "examples").iterdir():
+                with session.chdir(example):
+                    try:
+                        session.run(
+                            "make", "kpm_spec.json", "kpm_dataflow.json", external=True, stderr=err
+                        )
+                    except CommandFailed:
+                        err.seek(0)
+                        if "No rule to make target" in err.readlines()[-1]:
+                            continue
+                        raise
+                shutil.move(
+                    example / "kpm_spec.json", f"docs/build/kpm_jsons/spec_{example.name}.json"
+                )
+                shutil.move(
+                    example / "kpm_dataflow.json", f"docs/build/kpm_jsons/data_{example.name}.json"
+                )
+
     session.install(".[docs]")
     session.run("make", "-C", "docs", "html", external=True)
     session.run("make", "-C", "docs", "latexpdf", external=True)
-    session.run(
-        "pipeline_manager",
-        "build",
-        "static-html",
-        "--output-directory",
-        "docs/build/html/_static/kpm",
-        "--workspace-directory",
-        "docs/build/kpm",
-    )
+
+    if not argument(session, "--no-kpm-build", "-k"):
+        session.run(
+            "pipeline_manager",
+            "build",
+            "static-html",
+            "--output-directory",
+            "docs/build/html/_static/kpm",
+            "--workspace-directory",
+            "docs/build/kpm",
+        )
+
     session.run("cp", "docs/build/latex/topwrap.pdf", "docs/build/html", external=True)
 
 
@@ -162,7 +194,7 @@ def doc_gen(session: nox.Session) -> None:
 def pyright_check(session: nox.Session) -> None:
     # this is a wrapper for _pyright_check that installs dependencies
     session.install(".[tests]")
-    compare_with_main = "compare" in session.posargs
+    compare_with_main = argument(session, "compare")
 
     if compare_with_main:
         session.run("nox", "-s", "_pyright_check", "--", "compare")
@@ -174,7 +206,7 @@ def pyright_check(session: nox.Session) -> None:
 def _pyright_check(session: nox.Session) -> None:
     # this is not supposed to be called outright, use `pyright_check`
     session.install(".")
-    compare_with_main = "compare" in session.posargs
+    compare_with_main = argument(session, "compare")
 
     # counting down errors on branch
     def count_down_errors() -> Tuple[Dict[str, int], Dict[str, int]]:

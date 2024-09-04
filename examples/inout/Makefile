@@ -14,6 +14,8 @@ SOURCE_FILES := \
 	${SOURCE_DIR}/obuf.v \
 	${SOURCE_DIR}/iobuf.v
 
+JSONS = kpm_spec.json kpm_dataflow.json
+
 # -------------------------------------
 # Toolchain
 # -------------------------------------
@@ -58,4 +60,13 @@ clean:
 	rm -f sources/*.json gen_*.yml gen_*.yaml
 	rm -rf ${BUILD_DIR}/* ${IPCORES_DIR}/*
 
-.PHONY: setup clean fusesoc_init generate copy_sources bit parse all
+deps:
+	pip install -r requirements.txt
+
+ci: deps generate
+
+$(JSONS): parse
+	topwrap specification ${IPCORES_DIR}/*.yaml
+	topwrap dataflow -d project.yml ${IPCORES_DIR}/*.yaml
+
+.PHONY: setup clean fusesoc_init generate copy_sources bit parse deps ci all

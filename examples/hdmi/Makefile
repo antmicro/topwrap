@@ -1,6 +1,8 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+JSONS = kpm_spec.json kpm_dataflow.json
+
 all: zvb
 
 build:
@@ -32,4 +34,13 @@ clean:
 	rm -f sources/*.json gen_*.yml
 	rm -rf build/*
 
-.PHONY: clean copy_sources fusesoc_init generate copy_sources snickerdoodle zvb
+deps:
+	pip install -r requirements.txt
+
+ci: deps generate
+
+$(JSONS):
+	topwrap specification ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
+	topwrap dataflow -d project.yml ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
+
+.PHONY: clean copy_sources fusesoc_init generate copy_sources snickerdoodle zvb deps ci all

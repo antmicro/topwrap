@@ -1,38 +1,5 @@
-# Topwrap HDMI example setup
+# Example of a HDMI design in Topwrap
 
-Copyright (c) 2021-2024 [Antmicro](https://antmicro.com)
+Documentation for this example is available at https://antmicro.github.io/topwrap/examples.html#hdmi
 
-This is an example on how to use [Topwrap](https://github.com/antmicro/topwrap) to build a complex, synthesizable design.
-
-## Usage
-
-Install Vivado and add it to your `PATH`.
-
-Install example's dependencies:
-<!-- name="install-deps" -->
-```
-pip install -r requirements.txt
-```
-
-### Generate bitstream for desired target:
-
-Snickerdoodle Black:
-
-<!-- name="snickerdoodle" -->
-```
-make snickerdoodle
-```
-
-Zynq Video Board:
-
-<!-- name="zvb" -->
-```
-make zvb
-```
-
-### If you wish to generate HDL sources without running Vivado, you can use:
-
-<!-- name="generate" -->
-```
-make generate
-```
+Copyright (c) 2024 [Antmicro](https://antmicro.com)
