@@ -5,13 +5,7 @@ design:
         hierarchies:
           sub_1:
             design:
-              hierarchies: {}
-              interconnects: {}
-              interfaces: {}
-              name: null
               parameters:
-                s1_mod_1: {}
-                s1_mod_2: {}
                 s1_mod_3:
                   SUB_VALUE: 18
               ports:
@@ -29,14 +23,10 @@ design:
                   - s1_mod_1
                   - cs_s1_mint_out_1
             external:
-              interfaces:
-                in: []
-                out: []
               ports:
                 in:
                 - cs_s1_int_const_in
                 - cs_s1_mod_in_1
-                inout: []
                 out:
                 - cs_s1_int_out_1
                 - cs_s1_int_out_2
@@ -49,13 +39,6 @@ design:
                 file: examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
           sub_2:
             design:
-              hierarchies: {}
-              interconnects: {}
-              interfaces: {}
-              name: null
-              parameters:
-                s2_mod_1: {}
-                s2_mod_2: {}
               ports:
                 s2_mod_1:
                   cs_s2_f_int_in_1: cs_s2_int_in_1
@@ -69,14 +52,10 @@ design:
                   - s2_mod_1
                   - cs_s2_mint_out_2
             external:
-              interfaces:
-                in: []
-                out: []
               ports:
                 in:
                 - cs_s2_int_in_2
                 - cs_s2_int_in_1
-                inout: []
                 out:
                 - cs_s2_mod_out_1
             ips:
@@ -84,10 +63,6 @@ design:
                 file: examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
               s2_mod_2:
                 file: examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml
-        interconnects: {}
-        interfaces: {}
-        name: null
-        parameters: {}
         ports:
           sub_1:
             cs_s1_int_const_in: 1
@@ -101,27 +76,16 @@ design:
             - cs_s1_int_out_2
             cs_s2_mod_out_1: cs_out_1
       external:
-        interfaces:
-          in: []
-          out: []
         ports:
           in:
           - cs_in_1
-          inout: []
           out:
           - cs_out_1
-      ips: {}
     counter:
       design:
-        hierarchies: {}
-        interconnects: {}
-        interfaces: {}
-        name: null
         parameters:
           c_mod_1:
             MAX_VALUE: 16
-          c_mod_2: {}
-          c_mod_3: {}
         ports:
           c_mod_1:
             c_mod_in_1: c_in_1
@@ -137,14 +101,10 @@ design:
             - c_int_out_1
             c_mod_out_1: c_out_1
       external:
-        interfaces:
-          in: []
-          out: []
         ports:
           in:
           - c_in_1
           - c_in_2
-          inout: []
           out:
           - c_out_1
       ips:
@@ -154,10 +114,6 @@ design:
           file: examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml
         c_mod_3:
           file: examples/hierarchy/repo/cores/c_mod_3/c_mod_3.yaml
-  interconnects: {}
-  interfaces: {}
-  name: null
-  parameters: {}
   ports:
     complex_sub:
       cs_in_1:
@@ -168,14 +124,9 @@ design:
       c_in_1: ex_out_1
       c_in_2: ex_out_2
 external:
-  interfaces:
-    in: []
-    out: []
   ports:
     in:
     - ex_out_1
     - ex_out_2
-    inout: []
     out:
     - ex_in_1
-ips: {}

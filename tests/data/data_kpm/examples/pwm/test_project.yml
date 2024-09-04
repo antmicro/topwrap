@@ -1,10 +1,3 @@
-ips:
-  axi_bridge:
-    file: topwrap/ips/axi/axi_axil_adapter.yaml
-  litex_pwm_top:
-    file: examples/pwm/ipcores/litex_pwm.yml
-  ps7:
-    file: examples/pwm/ipcores/ps7.yaml
 design:
   interfaces:
     axi_bridge:
@@ -23,8 +16,6 @@ design:
       AXI_DATA_WIDTH: 32
       AXI_ID_WIDTH: 12
       AXI_STRB_WIDTH: AXI_DATA_WIDTH/8
-    litex_pwm_top: {}
-    ps7: {}
   ports:
     axi_bridge:
       clk:
@@ -46,11 +37,13 @@ design:
       - ps7
       - FCLK0
 external:
-  interfaces:
-    in: []
-    out: []
   ports:
-    in: []
-    inout: []
     out:
     - pwm
+ips:
+  axi_bridge:
+    file: topwrap/ips/axi/axi_axil_adapter.yaml
+  litex_pwm_top:
+    file: examples/pwm/ipcores/litex_pwm.yml
+  ps7:
+    file: examples/pwm/ipcores/ps7.yaml
