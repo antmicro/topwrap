@@ -1,10 +1,13 @@
-(kenning-pipeline-manager)=
+# Using topwrap
 
-# Kenning Pipeline Manager
+(GUI)=
+## GUI
 
 Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/kenning-pipeline-manager) to visualize the process of creating block design.
 
-## Run Topwrap with Pipeline Manager
+(kenning-pipeline-manager)=
+
+### Run Topwrap with Pipeline Manager
 
 1. Build and run Pipeline Manager server
 
@@ -31,10 +34,9 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
         topwrap/ips/axi/axi_axil_adapter.yaml \
         examples/pwm/ipcores/{litex_pwm.yml,ps7.yaml} -d examples/pwm/project.yml
     ```
-
 3. Create block design in Pipeline Manager
 
-    Upon successful connection to a Pipeline Manager server, Topwrap will generate and send to the server a specification describing the structure of previously selected IP cores. After that, you are free to create a custom block design by means of:
+    Upon successful connection to a Pipeline Manager server, Topwrap will generate and send to the server a specification describing the structure of previously selected IP cores. If the `-d` option was used a design will be shown in gui. From there you can create or modify designs by:
     * adding IP core instances to the block design. Each Pipeline Manager's node has `delete` and `rename` options, which make it possible to remove the selected node and change its name respectively. This means that you can create multiple instances of the same IP core.
     * adjusting IP cores' parameters values. Each node may have input boxes in which you can enter parameters' values (default parameter values are added while adding an IP core to the block design):
     ```{image} img/node_parameters.png
@@ -52,7 +54,7 @@ Topwrap can make use of [Kenning Pipeline Manager](https://github.com/antmicro/k
     ```{image} img/pwm_design.png
     ```
 
-## Pipeline Manager features
+### Pipeline Manager features
 
 While creating a custom block design, you can make use of the following Pipeline Manager's features:
 * export (save) design to a file
@@ -62,20 +64,20 @@ While creating a custom block design, you can make use of the following Pipeline
 
 (export-design)=
 
-### Export design to yaml description file
+#### Export design to yaml description file
 
 Created block design can be saved to a {ref}`design description file <design-description>` in yaml format, using Pipeline Manager's `Save file` option.
 Target location on the filesystem can then be browsed in a filesystem dialog window.
 
 (import-design)=
 
-### Import design from yaml description file
+#### Import design from yaml description file
 
 Topwrap also supports conversion in the opposite way - block design in Pipeline Manager can be generated from a yaml design description file using `Load file` feature.
 
 (validate-design)=
 
-### Design validation
+#### Design validation
 
 Pipeline Manager is capable of performing some basic checks at runtime such as interface type checking while creating a connection. However you can also run more complex tests by using Pipeline Manager's `Validate` option. Topwrap will then respond with a validity confirmation or error messages. The rules you need to follow in order to keep your block design valid are:
 * multiple IP cores with the same name are not allowed (except from external metanodes).
@@ -93,6 +95,61 @@ If a block design validation returns a warning, it means that the block design c
 
 (build-design)=
 
-### Building design
+#### Building design
 
 Once the design has been created and tested for validity, you can build design using `Run` button. If the design does not contain any errors, this will result in creating a top module in a directory where `topwrap kpm_client` was ran, similarly when using Topwrap's `topwrap build` command.
+
+## CLI
+
+Topwrap has a couple CLI only functions that expand gui functionality.
+
+(generating-ip-yamls)=
+### Generating IP core description YAMLs
+
+You can use Topwrap to generate ip core description yamls from HDL sources to use them in your `project.yml`.
+To learn how project and core yamls work check {ref}`design description <design-description>` and {ref}`ip description <ip-description>`
+
+```
+python -m topwrap parse HDL_FILES
+```
+
+In HDL source files, ports that belong to the same interface (e.g. wishbone or AXI),
+have often a common prefix, which corresponds to the interface name. If such naming
+convention is followed in the HDL sources, Topwrap can also divide ports into user-specified
+interfaces, or automatically deduce interfaces names when generating yaml file:
+
+```
+python -m topwrap parse --iface wishbone --iface s_axi HDL_FILES
+
+python -m topwrap parse --iface-deduce HDL_FILES
+```
+
+To get help, use:
+
+```
+python -m topwrap [build|kpm_client|parse] --help
+```
+
+(building-design)=
+
+### Building design
+
+Topwrap can build a synthesizable design from source files connected in a way described by a design file, to do this run:
+
+```
+python -m topwrap build --design project.yml
+```
+
+Where `project.yml` should be your file with description of the top module.
+
+You can specify a directory to be scanned for additional sources:
+
+```
+python -m topwrap build --sources src --design project.yml
+```
+
+To implement the design for a specific FPGA chip, provide the part name:
+
+```
+python -m topwrap build --sources src --design project.yml --part 'xc7z020clg400-3'
+```

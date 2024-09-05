@@ -7,7 +7,7 @@ Topwrap is an open source command line toolkit for connecting individual HDL mod
 The toolkit is designed to take advantage of the ever-growing availability of open source digital logic designs and offers a user-friendly graphical interface which lets you mix-and-match GUI-driven design with CLI-based adjustments and present designs in a diagram form thanks to the integration with Antmicro’s [Pipeline Manager](https://github.com/antmicro/kenning-pipeline-manager).
 
 Topwrap's most notable features are:
+* User-friendly GUI
 * Parsing HDL design files with automatic recognition of common interfaces
 * Simple YAML-based description for command-line use
-* Capability to create a custom libraries for reuse across projects
-* User-friendly GUI powered by [Kenning Pipeline Manager](https://github.com/antmicro/kenning-pipeline-manager).
+* Capability to create custom libraries for reuse across projects

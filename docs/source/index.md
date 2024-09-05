@@ -6,11 +6,9 @@
 introduction
 getting_started
 description_files
-interconnect_gen
-cli
+usage
 user_repositories
-hierarchies
-pipeline_manager
+interconnect_gen
 fusesoc
 ```
 

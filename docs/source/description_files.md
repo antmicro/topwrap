@@ -1,6 +1,6 @@
 (description-files)=
 
-# Description files
+# Creating a design
 
 (design-description)=
 
@@ -17,13 +17,13 @@ ips:
   # specify relations between IPs instance names in the
   # design yaml and IP cores description yamls
   {ip_instance_name}:
-    file: {path_to_yaml_file_of_the_ip}
+    file: {path_to_ip_description}
   ...
 
 design:
   name: {design_name} # optional name of the toplevel
   hierarchies:
-      # see "Hierarchies" page for a detailed description of the format
+      # see "Hierarchies" below for a detailed description of the format
       ...
   parameters: # specify IPs parameter values to be overridden
     {ip_instance_name}:
@@ -80,6 +80,54 @@ The design description yaml format allows creating hierarchical designs. In orde
 
 Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it's correct to have `ip_name` key in this section and `ip_name` in the `design` section of some hierarchy.
 
+
+(hierarchies)=
+### Hierarchies
+
+Hierarchies allow for creating designs with subgraphs in them.
+Subgraphs can contain multiple IP-cores and other subgraphs.
+This allows creating nested designs in topwrap.
+
+### Format
+
+All information about hierarchies is specified in [design description](description_files.md).
+`hierarchies` key must be a direct descendant of the `design` key.
+Format is as follows:
+
+```yaml
+hierarchies:
+    {hierarchy_name_1}:
+      ips: # ips that are used on this hierarchy level
+        {ip_name}:
+          ...
+
+      design:
+        parameters:
+          ...
+        ports: # ports connections internal to this hierarchy
+          # note that also you have to connect port to it's external port equivalent (if exists)
+          {ip1_name}:
+              {port1_name} : [{ip2_name}, {port2_name}]
+              {port2_name} : {port2_external_equivalent} # connection to external port equivalent. Note that it has to be to the parent port
+            ...
+        hierarchies:
+          {nested_hierarchy_name}:
+            # structure here will be the same as for {hierarchy_name_1}
+            ...
+      external:
+        # external ports and/or interfaces of this hierarchy; these can be
+        # referenced in the upper-level `ports`, `interfaces` or `external` section
+        ports:
+            in:
+              - {port2_external_equivalent}
+        ...
+    {hierarchy_name_2}:
+      ...
+```
+
+More complex hierarchy example can be found in [examples/hierarchy](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy).
+
+
 (ip-description)=
 
 ## IP description files
@@ -87,10 +135,12 @@ Note that IPs and hierarchies names cannot be duplicated on the same hierarchy l
 Every IP wrapped by Topwrap needs a description file in YAML format.
 
 The ports of an IP should be placed in global `signals` node, followed by the direction of `in`, `out` or `inout`.
+The module name of an IP should be placed in global `name` node, it should be consistent with how it is defined in HDL file.
 Here's an example description of ports of Clock Crossing IP:
 
 ```yaml
 # file: clock_crossing.yaml
+name: cdc_flag
 signals:
     in:
         - clkA
@@ -104,6 +154,7 @@ The previous example is enough to make use of any IP. However, in order to benef
 
 ```yaml
 #file: axis_width_converter.yaml
+name: axis_width_converter
 interfaces:
     s_axis:
         type: AXIStream

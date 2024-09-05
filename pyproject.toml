@@ -91,6 +91,7 @@ exclude = '''
     | __pycache__
     | venv
     | build
+    | workspace
   )/
   | docs/source/conf.py
 )
@@ -110,10 +111,11 @@ skip = [
     "venv",
     "build",
     "docs/source/conf.py",
+    "workspace",
 ]
 
 [tool.codespell]
-skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__"
+skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace"
 ignore-words-list = "convertor, inout, inouts"
 
 [tool.pyright]

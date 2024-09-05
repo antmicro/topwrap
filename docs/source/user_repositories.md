@@ -1,9 +1,8 @@
-# User repositories
-Repositories allow for easy loading packages with IP-cores.
+# Packaging multiple files
 
-You can add repositories to be loaded each time topwrap is ran by specifying them in configuration file.
+Repositories allow for easy packaging and loading multiple IP-cores and custom interfaces.
 
-It has to be located in one of the following locations:
+You can specify repositories to be loaded each time topwrap is ran by listing them in a configuration file that should be located in one of the following locations:
 ```
 topwrap.yaml
 ~/.config/topwrap/topwrap.yaml
@@ -14,11 +13,11 @@ Example contents of user config:
 ```
 force_interface_compliance: true
 repositories:
-  - name: name of repo
+  - name: name_of_repo
     path: ~/path_to_repo/repo
 ```
 
-Topwrap provides internal API for constructing repositories in python code which can be [found here](https://github.com/antmicro/topwrap/blob/main/topwrap/repo/user_repo.py#L144)
+Topwrap provides internal API for constructing repositories in python code which can be [found here](https://github.com/antmicro/topwrap/blob/main/topwrap/repo/user_repo.py)
 
 Structure of repository has to be as follows:
 ```
@@ -38,8 +37,10 @@ path_to_repository/
 |   interface1.yaml
 |   interface2.yaml
 ```
-Repository has two main catalogs: `cores` and `interfaces`. Inside `cores` each core has it's own catalog with it's design file and `srcs` where are stored verilog/VHDL files.
+Repository has two main directories: `cores` and `interfaces`.
 
-There is optional interfaces catalog where can be stored interfaces for cores.
+Inside `cores` each core has it's own directory with it's description file and `srcs` where the verilog/VHDL files are stored.
+
+The `interfaces` directory is optional, and contains interface description files.
 
 Example User Repo can be found in [examples/user_repository](https://github.com/antmicro/topwrap/tree/main/examples/user_repository).

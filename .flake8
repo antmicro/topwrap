@@ -15,6 +15,7 @@ exclude =
     venv,
     build,
     docs/source/conf.py,
+    workspace,
 count = True
 show-source = True
 statistics = True
