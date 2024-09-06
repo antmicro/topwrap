@@ -15,6 +15,8 @@
 
 from datetime import datetime
 from os import environ
+import os
+import sys
 
 from antmicro_sphinx_utils.defaults import antmicro_html, antmicro_latex
 from antmicro_sphinx_utils.defaults import extensions as default_extensions
@@ -29,7 +31,7 @@ from antmicro_sphinx_utils.defaults import numfig_format
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('./_extensions'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -51,7 +53,7 @@ numfig = True
 
 # If you need to add extensions just add to those lists
 extensions = list(set(default_extensions + [
-    'sphinx.ext.autodoc',
+    'sphinx.ext.autodoc', 'kpm_plugin'
 ]))
 myst_enable_extensions = default_myst_enable_extensions
 myst_fence_as_directive = default_myst_fence_as_directive

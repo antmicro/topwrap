@@ -137,6 +137,15 @@ def doc_gen(session: nox.Session) -> None:
     session.install(".[docs]")
     session.run("make", "-C", "docs", "html", external=True)
     session.run("make", "-C", "docs", "latexpdf", external=True)
+    session.run(
+        "pipeline_manager",
+        "build",
+        "static-html",
+        "--output-directory",
+        "docs/build/html/_static/kpm",
+        "--workspace-directory",
+        "docs/build/kpm",
+    )
     session.run("cp", "docs/build/latex/topwrap.pdf", "docs/build/html", external=True)
 
 
