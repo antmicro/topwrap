@@ -1,2 +1,4 @@
 ../../.[topwrap-parse]
 fusesoc
+# TODO: Remove when simplesat fixes the issue: https://github.com/enthought/sat-solver/issues/286
+simplesat==0.8.2
