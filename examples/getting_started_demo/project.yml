@@ -1,0 +1,24 @@
+design:
+  ports:
+    simple_core_1:
+      clk: clk
+      rst: rst
+    simple_core_2:
+      a:
+      - simple_core_1
+      - z
+      c: Output_c
+      y: Output_y
+external:
+  ports:
+    in:
+    - rst
+    - clk
+    out:
+    - Output_y
+    - Output_c
+ips:
+  simple_core_1:
+    file: gen_simple_core_1.yaml
+  simple_core_2:
+    file: gen_simple_core_2.yaml

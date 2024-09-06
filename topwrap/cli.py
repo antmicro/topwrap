@@ -71,7 +71,7 @@ def build_main(
 
     if part is None:
         logging.warning(
-            "You didn't specify part number. 'None' will be used"
+            "You didn't specify part number. 'None' will be used "
             "and thus your implementation may fail."
         )
 

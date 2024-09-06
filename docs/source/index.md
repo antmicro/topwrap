@@ -4,6 +4,7 @@
 :caption: Documentation
 :maxdepth: 2
 introduction
+installation
 getting_started
 description_files
 usage

@@ -2,221 +2,219 @@
 
 # Getting started
 
-## Installation
+Goal of this chapter is to show step by step how to create simple design with topwrap.
 
-1. Install required system packages:
+All necessary files to follow this guide are in `examples/getting_started_demo` directory.
 
-    Debian:
-    ```bash
-    apt install -y git g++ make python3 python3-pip antlr4 libantlr4-runtime-dev yosys npm
-    ```
-
-    Arch:
-    ```bash
-    pacman -Syu git gcc make python3 python-pip antlr4 antlr4-runtime yosys npm
-    ```
-
-    Fedora:
-    ```bash
-    dnf install git g++ make python3 python3-pip python3-devel antlr4 antlr4-cpp-runtime-devel yosys npm
-    ```
-
-2. Install the Topwrap package (It is highly recommended to run this step in a Python virtual environment, e.g. [venv](https://docs.python.org/3/library/venv.html)):
-
-    ```bash
-    pip install .
-    ```
-
-:::{note}
-To use `topwrap parse` command you also need to install optional dependencies:
-```bash
-pip install ".[topwrap-parse]"
-```
-On Arch-based distributions a symlink to antlr4 runtime library needs to created and an environment variable set:
-```bash
-ln -s /usr/share/java/antlr-complete.jar antlr4-complete.jar
-ANTLR_COMPLETE_PATH=`pwd` pip install ".[topwrap-parse]"
-```
-On Fedora-based distributions symlinks need to be made inside `/usr/share/java` directory itself:
-```bash
-sudo ln -s /usr/share/java/stringtemplate4/ST4.jar /usr/share/java/stringtemplate4.jar
-sudo ln -s /usr/share/java/antlr4/antlr4.jar /usr/share/java/antlr4.jar
-sudo ln -s /usr/share/java/antlr4/antlr4-runtime.jar /usr/share/java/antlr4-runtime.jar
-sudo ln -s /usr/share/java/treelayout/org.abego.treelayout.core.jar /usr/share/java/treelayout.jar
-pip install ".[topwrap-parse]"
-```
+:::{admonition} Important
+:class: attention
+This is just an example, if you haven't installed the topwrap yet go to the [Installation chapter](installation.md) and make sure to install additional dependencies for `topwrap parse`.
 :::
 
-(example-usage)=
+## Design overview
 
-## Example usage
+The design we are going to create is visually represented below:
 
-This section demonstrates the basic usage of Topwrap to generate IP wrappers and a top module.
-
-1. Create {ref}`IP core description <ip-description>` file for every IP Core you want to use or let {ref}`topwrap parse <generating-ip-yamls>` handle this for you. This file describes the ports, parameters and interfaces of an IP core.
-
-As an example, Verilog module such as:
-
-```verilog
-module ibuf (
-    input  wire clk,
-    input  wire rst,
-    input  wire a,
-    output reg z
-);
-    // ...
-endmodule
+```{kpm_iframe}
+:spec: ../../examples/getting_started_demo/kpm/specification.json
+:dataflow: ../../examples/getting_started_demo/kpm/dataflow.json
 ```
 
-Needs this corresponding description:
+It consists of two cores: `simple_core_1` and `simple_core_2` that are connected to each other and to some external metanodes.
 
-```yaml
-signals:
-  in:
-    - clk
-    - rst
-    - a
-  out:
-    - z
+## Parsing verilog files
+
+First step in creating own designs is to parse verilog files into ip core description yamls that are understood by topwrap.
+
+In the `verilogs` directory you can find two verilog files which describe `simple_core_1` and `simple_core_2`.
+
+To generate ip core descriptions from these verilogs run:
+
+```bash
+topwrap parse verilogs/{simple_core_1.v,simple_core_2.v}
 ```
 
-2. Create a {ref}`design description <design-description>` file where you can specify all instances of IP cores and connections between them (`project.yaml` in this example)
+Topwrap will generate two files `gen_simple_core_1.yaml` and `gen_simple_core_2.yaml` that represent corresponding verilogs.
 
-- Create instances of IP cores:
+## Building design with topwrap
+
+### Creating the design
+
+Generated ip core yamls can be loaded into GUI.
+
+1. Build and run gui server
+```bash
+topwrap kpm_build_server && topwrap kpm_run_server &
+```
+
+2. Run gui client with the generated ip core yamls
+```bash
+topwrap kpm_client gen_simple_core_1.yaml gen_simple_core_2.yaml
+```
+
+Now when you connect to [http://127.0.0.1:5000](http://127.0.0.1:5000) there should be kpm gui.
+
+Loaded ip cores can be found under IPcore section:
+
+```{image} img/side_bar_kpm.png
+```
+
+With these IPcores and default metanodes you can easily create designs by dragging cores and connecting them.
+
+Let's make the design from the demo that was shown at the beginning of this guide.
+
+```{image} img/getting_started_project.png
+```
+
+:::{note}
+You can change name of node by right clicking on it and selecting `rename`.
+:::
+
+You can save the project to the [Design Description](description_files.md) format, which is used by topwrap to represent the created design.
+
+To do this select the graph button and select `Save file`.
+
+```{image} img/save_graph_kpm.png
+```
+
+:::{note}
+The difference between `Save file` and `Save graph file` lays in which format will be used for saving.
+
+`Save file` will save the design description in yaml format which topwrap uses.
+
+`Save graph file` will save the design in graph json format which kpm uses. You should only choose this one if you have some specific custom layout of nodes in design and you want to save it.
+:::
+
+### Generating verilog
+
+You can generate verilog from design created in previous section.
+
+
+If you have the example running as described in previous section then on the top bar you should see these 4 buttons:
+
+```{image} img/kpm_buttons.png
+```
+
+First one is for loading or saving designs.
+Second is for toggling node browser.
+Third one is for validating the design.
+And the fourth is for running the design which will generate the verilog file in `/build` directory of the current example and run the design.
+
+## Appendix: Command-line flow
+
+### Creating the design
+
+Manual creation of designs requires familiarity with [Design Description](description_files.md) format.
+
+First let's include all the ip core files we will need in the `ips` section.
 
 ```yaml
 ips:
-  vexriscv_instance:
-    file: ipcores/gen_VexRiscv.yaml
-  wb_ram_data_instance:
-    file: ipcores/gen_mem.yaml
-  wb_ram_instr_instance:
-    file: ipcores/gen_mem.yaml
-
+  simple_core_1:
+    file: gen_simple_core_1.yaml
+  simple_core_2:
+    file: gen_simple_core_2.yaml
 ```
 
-`file` and `module` are mandatory fields providing the IP description file and the name of the HDL module as it appears in the source.
-
-- (Optional) Set parameters for IP core instances:
+Notice that here we also declare how to node will be named.
+Ip core `gen_simple_core_1.yaml` will be named `simple_core_1` in gui.
+Now we can start creating the design under the `design` section.
+Our design doesn't have any parameters so we can skip this part and go straight into `ports` section.
+There we define connections between ip cores.
+In demo example there is only one connection - between `gen_simple_core_1` and `gen_simple_core_2`.
+In our design it will look like below:
 
 ```yaml
-parameters:
-  wb_ram_data_instance:
-    depth: 0x1000
-    memfile: '"top_sram.init"'
-  wb_ram_instr_instance:
-    depth: 0xA000
-    memfile: '"bios.init"'
+design:
+  ports:
+    simple_core_2:
+      a:
+      - simple_core_1
+      - z
 ```
 
-Note that string parameters have to be wrapped in single quotation marks like this: `'"string value"'`.
-
-- Connect desired ports of the IP cores:
-
-```yaml
-ports:
-  wb_ram_data_instance:
-    clk: [some_other_ip, clk_out]
-    rst: [reset_core, reset0]
-  wb_ram_instr_instance:
-    clk: [some_other_ip, clk_out]
-    rst: [reset_core, reset0]
-  vexriscv_instance:
-    softwareInterrupt: [some_other_ip, sw_interrupt]
-    ...
-```
-
-Connections only need to be written once, i.e. if A connects to B, then only a connection A: B has to be specified (B: A is redundant).
-
-- Connect desired interfaces of the IP cores:
+Notice that we connect `input` to `output`.
+All left to do are external connections to metanodes.
+We declare them like this:
 
 ```yaml
-interfaces:
-  vexriscv_instance:
-    iBusWishbone: [wb_ram_instr_instance, mem_bus]
-    dBusWishbone: [wb_ram_data_instance, mem_bus]
-```
-
-- Specify external ports or interfaces of the top module and connect them with chosen IP cores' ports or interfaces:
-
-```yaml
-ports:
-  vexriscv_instance:
-    timerInterrupt: ext_timer_interrupt
-
-...
-
 external:
   ports:
+    in:
+    - rst
+    - clk
     out:
-      - ext_timer_interrupt
-  interfaces:
-    ...
+    - Output_y
+    - Output_c
 ```
 
-3. Create a Core file template for FuseSoC, or use a default one bundled with Topwrap.
+Now connect them to ip cores.
 
-You may want to modify the file to add dependencies, source files, or change the target board.
-The file should be named `core.yaml.j2`. You can find an example template in `examples/hdmi` directory of the project.
-If you don't create any template a default template bundled with Topwrap will be used (stored in `templates` directory).
-
-4. Place any additional source files in a directory (`sources` in this example).
-
-5. Run Topwrap:
-
-   ```
-   python -m topwrap build --design project.yaml --sources sources
-   ```
-
-### Example PWM design
-
-There's an example setup in `examples/pwm`.
-
-In order to generate the top module, run:
-
-```
-make generate
+```yaml
+design:
+  ports:
+    simple_core_1:
+      clk: clk
+      rst: rst
+    simple_core_2:
+      a:
+      - simple_core_1
+      - z
+      c: Output_c
+      y: Output_y
 ```
 
-In order to generate bitstream, add Vivado to your path and run:
+Final design:
 
-```
-make
-```
-
-The FPGA design utilizes an AXI-mapped PWM IP Core.
-You can access its registers starting from address `0x4000000` (that's the base address of `AXI_GP0` on ZYNQ).
-Each IP Core used in the project is declared in `ips` section in `project.yml` file.
-`ports` section allows to connect individual ports of IP Cores, and `interfaces` is used analogously for connecting whole interfaces.
-Finally, you can specify which ports will be used as external I/O in `external` section.
-
-To connect the I/O signals to specific FPGA pins, you need proper mappings in a constraints file. See `zynq.xdc` used in the setup and modify it accordingly.
-
-```{image} img/pwm.png
-```
-
-### Example HDMI design
-
-There's an example setup stored in `examples/hdmi`.
-
-You can generate bitstream for desired target:
-
-> - Snickerdoodle Black:
->
->   ```
->   make snickerdoodle
->   ```
->
-> - Zynq Video Board:
->
->   ```
->   make zvb
->   ```
-
-If you wish to generate HDL sources without running Vivado, you can use:
-
-```
-make generate
+```yaml
+ips:
+  simple_core_1:
+    file: gen_simple_core_1.yaml
+  simple_core_2:
+    file: gen_simple_core_2.yaml
+design:
+  ports:
+    simple_core_1:
+      clk: clk
+      rst: rst
+    simple_core_2:
+      a:
+      - simple_core_1
+      - z
+      c: Output_c
+      y: Output_y
+external:
+  ports:
+    in:
+    - rst
+    - clk
+    out:
+    - Output_y
+    - Output_c
 ```
 
-You can find more information in README of the example setup.
+### Generating verilog
+
+:::{info}
+Topwrap uses [Amaranth](https://github.com/amaranth-lang/amaranth) for generating verilog top file.
+:::
+
+To generate top file use `topwrap build` and provide the design.
+
+Ensure you are in the `examples/getting_started_demo` directory and run:
+
+```bash
+topwrap build --design {design_name.yaml}
+```
+
+Where the `{design_name.yaml}` is the design saved at the end of previous section.
+The generated verilog file can be found in `/build` directory.
+
+Notice that you will get warning:
+
+```
+WARNING:root:You did not specify part number. 'None' will be used and thus your implementation may fail.
+```
+
+It's because we didn't specify any part with `--part` flag since it's just a dummy example that is not for any specific FPGA chip.
+For building your designs we recommend specifying the `--part`.
