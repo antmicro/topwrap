@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections import defaultdict
-from typing import Any, DefaultDict, Union
+from typing import Any, DefaultDict, Dict, Union
 
 
 def removeprefix(s: str, prefix: str) -> str:
@@ -24,7 +24,7 @@ def recursive_defaultdict() -> _R:
     return defaultdict(recursive_defaultdict)
 
 
-def recursive_defaultdict_to_dict(recursive_defaultdict: _R) -> dict:
+def recursive_defaultdict_to_dict(recursive_defaultdict: _R) -> Dict[Any, Any]:
     """Convert recursive defaultdict to a dict"""
     for key, value in recursive_defaultdict.items():
         if isinstance(value, dict):

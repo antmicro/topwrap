@@ -181,6 +181,14 @@ def _pyright_check(session: nox.Session) -> None:
                 # counting down errors on main
                 errortypes_main, errorfiles_main = count_down_errors()
 
+        for type in errortypes_main:
+            if type not in errortypes:
+                errortypes[type] = 0
+
+        for file in errorfiles_main:
+            if file not in errorfiles:
+                errorfiles[file] = 0
+
     # human readable pyright output
     session.run("pyright", success_codes=[0, 1], external=True)
 
