@@ -383,11 +383,11 @@ class MarshmallowDataclassExtensions:
     def from_yaml(cls, yaml_str: str, **kwargs: Any) -> Self:
         return cls.from_dict(yaml.safe_load(yaml_str, **kwargs))
 
-    def save(self, path: Union[str, Path], **kwargs: Any):
+    def save(self, path: Path, **kwargs: Any):
         with open(path, "w") as f:
             f.write(self.to_yaml(**kwargs))
 
     @classmethod
-    def load(cls, path: Union[str, Path], **kwargs: Any) -> Self:
+    def load(cls, path: Path, **kwargs: Any) -> Self:
         with open(path) as f:
             return cls.from_dict(yaml.safe_load(f, **kwargs))

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from functools import cached_property
 from logging import error
+from pathlib import Path
 from typing import Any, Dict, List, Set
 
 from hdlConvertor import HdlConvertor
@@ -20,7 +21,7 @@ class VerilogModule(HDLModule):
     using HdlConvertor.
     """
 
-    def __init__(self, verilog_file: str, verilog_module: Dict[str, Any]):
+    def __init__(self, verilog_file: Path, verilog_module: Dict[str, Any]):
         super().__init__(verilog_file)
         self._data = verilog_module
 
@@ -67,7 +68,7 @@ class VerilogModule(HDLModule):
     def components(self) -> Set[str]:
         """Returns a set of other module names that get instantiated in this module"""
 
-        def _recurse_components(objs) -> Set[str]:
+        def _recurse_components(objs: Any) -> Set[str]:
             components: Set[str] = set()
 
             if (
@@ -94,10 +95,10 @@ class VerilogModuleGenerator:
     def __init__(self):
         self.conv = HdlConvertor()
 
-    def get_modules(self, file: str) -> List[VerilogModule]:
+    def get_modules(self, file: Path) -> List[VerilogModule]:
         try:
             hdl_context = self.conv.parse(
-                [file], Language.VERILOG, [], hierarchyOnly=False, debug=True
+                [str(file)], Language.VERILOG, [], hierarchyOnly=False, debug=True
             )
             modules = ToJson().visit_HdlContext(hdl_context)
             return [VerilogModule(file, module) for module in modules]

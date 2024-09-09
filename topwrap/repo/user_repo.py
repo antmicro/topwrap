@@ -5,9 +5,8 @@ import logging
 import logging.config
 import os
 from dataclasses import dataclass
-from os import PathLike
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from typing_extensions import override
 
@@ -38,28 +37,27 @@ class CoreHandler(ResourceHandler[Core]):
     _srcs_dir_name = "srcs"
 
     @override
-    def save(self, core: Core, repo_path: PathLike) -> None:
+    def save(self, res: Core, repo_path: Path) -> None:
         """Handles a core-specific save action"""
 
-        repo_path = Path(repo_path)
-        core_dir = Path(repo_path) / self._cores_rel_dir / core.name
+        core_dir = repo_path / self._cores_rel_dir / res.name
         yaml_dir = core_dir
         srcs_dir = core_dir / self._srcs_dir_name
 
-        logger.info(f"CoreHandler.save: Saving {core.name} in {core_dir}")
+        logger.info(f"CoreHandler.save: Saving {res.name} in {core_dir}")
         srcs_dir.mkdir(parents=True, exist_ok=True)
 
-        for f in core.files:
+        for f in res.files:
             core_output_path = srcs_dir / f.path.name
             f.copy(core_output_path)
             logger.debug(f"CoreHandler.save: Copied {f.path} to {core_output_path}")
 
-        design_output_path = yaml_dir / f"{core.name}.yaml"
-        core.design.copy(design_output_path)
-        logger.debug(f"CoreHandler.save: Copied {core.design.path} to {design_output_path}")
+        design_output_path = yaml_dir / f"{res.name}.yaml"
+        res.design.copy(design_output_path)
+        logger.debug(f"CoreHandler.save: Copied {res.design.path} to {design_output_path}")
 
     @override
-    def load(self, repo_path: PathLike) -> List[Core]:
+    def load(self, repo_path: Path) -> List[Core]:
         """Handles a core-specific load action"""
 
         cores_dir = repo_path / self._cores_rel_dir
@@ -109,18 +107,18 @@ class InterfaceDescriptionHandler(ResourceHandler[InterfaceDescription]):
     _ifaces_rel_dir = Path("interfaces")
 
     @override
-    def save(self, iface: InterfaceDescription, repo_path: PathLike) -> None:
+    def save(self, res: InterfaceDescription, repo_path: Path) -> None:
         """Handles interface-specific save action"""
         ifaces_dir = repo_path / self._ifaces_rel_dir
         ifaces_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"InterfaceDescriptionHandler.save: Saving {iface.name} in {ifaces_dir}")
-        output_path = ifaces_dir / iface.file.path.name
-        iface.file.copy(output_path)
-        logger.debug(f"InterfaceDescriptionHandler.save: Copied {iface.name} to {output_path}")
+        logger.info(f"InterfaceDescriptionHandler.save: Saving {res.name} in {ifaces_dir}")
+        output_path = ifaces_dir / res.file.path.name
+        res.file.copy(output_path)
+        logger.debug(f"InterfaceDescriptionHandler.save: Copied {res.name} to {output_path}")
 
     @override
-    def load(self, repo_path: PathLike) -> List[InterfaceDescription]:
+    def load(self, repo_path: Path) -> List[InterfaceDescription]:
         """Handles interface-specific load action"""
         ifaces_dir = repo_path / self._ifaces_rel_dir
 
@@ -162,17 +160,17 @@ class UserRepo(Repo):
         else:
             return None
 
-    def get_core_designs(self) -> List[str]:
+    def get_core_designs(self) -> List[Path]:
         """Get list of yaml core paths from UserRepo resources"""
-        return [str(core.design.path) for core in self.resources[Core]]
+        return [core.design.path for core in self.get_resources(Core)]
 
-    def get_srcs_dirs_for_cores(self) -> List[str]:
+    def get_srcs_dirs_for_cores(self) -> List[Path]:
         """Gets all the paths of core src directories"""
-        dir_paths = set()
-        for resource in self.resources[Core]:
+        dir_paths: Set[Path] = set()
+        for resource in self.get_resources(Core):
             for file in resource.files:
-                dir_paths.add(str(Path(file.path.parent).expanduser()))
+                dir_paths.add(Path(file.path.parent).expanduser())
         return list(dir_paths)
 
     def get_core_by_name(self, name: str) -> Optional[Core]:
-        return next((c for c in self.resources[Core] if c.name == name), None)
+        return next((c for c in self.get_resources(Core) if c.name == name), None)

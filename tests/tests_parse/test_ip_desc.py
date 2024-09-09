@@ -4,6 +4,7 @@
 import tempfile
 from collections import defaultdict
 from collections.abc import Mapping
+from pathlib import Path
 
 import pytest
 import yaml
@@ -86,7 +87,7 @@ interfaces:
 
     @pytest.fixture
     def expected_output(self) -> IPCoreDescription:
-        return IPCoreDescription.load("tests/data/data_parse/axi_axil_adapter.yaml", False)
+        return IPCoreDescription.load(Path("tests/data/data_parse/axi_axil_adapter.yaml"), False)
 
     @pytest.fixture
     def clog2_ip_core_description(self, clog2_test_module: VerilogModule) -> IPCoreDescription:
@@ -94,7 +95,7 @@ interfaces:
 
     @pytest.fixture
     def clog2_expected_output(self) -> IPCoreDescription:
-        return IPCoreDescription.load("tests/data/data_parse/clog2_core.yaml", False)
+        return IPCoreDescription.load(Path("tests/data/data_parse/clog2_core.yaml"), False)
 
     @pytest.fixture
     def force_compliance(self):
@@ -150,14 +151,14 @@ interfaces:
 
     def test_load_fallback(self):
         with pytest.raises(FileNotFoundError):
-            IPCoreDescription.load("axi_interconnect.yaml", False)
+            IPCoreDescription.load(Path("axi_interconnect.yaml"), False)
 
-        IPCoreDescription.load("axi_interconnect.yaml")
+        IPCoreDescription.load(Path("axi_interconnect.yaml"))
 
     def test_save(self, expected_output: IPCoreDescription):
         with tempfile.NamedTemporaryFile(suffix=".yaml") as f:
-            expected_output.save(f.name)
-            loaded = IPCoreDescription.load(f.name, False)
+            expected_output.save(Path(f.name))
+            loaded = IPCoreDescription.load(Path(f.name), False)
             assert DeepDiff(expected_output, loaded) == {}
 
     def test_invalid_syntax(self, completely_invalid_core):

@@ -13,64 +13,64 @@ from topwrap.util import JsonType
 from .common import read_json_file
 
 
-def pwm_ipcores_yamls_data() -> List[str]:
-    _pwm_yamls_prefix = "examples/pwm/ipcores/"
+def pwm_ipcores_yamls_data() -> List[Path]:
+    _pwm_yamls_prefix = Path("examples/pwm/ipcores/")
     return [
-        "topwrap/ips/axi/axi_axil_adapter.yaml",
-        _pwm_yamls_prefix + "ps7.yaml",
-        _pwm_yamls_prefix + "litex_pwm.yml",
+        Path("topwrap/ips/axi/axi_axil_adapter.yaml"),
+        _pwm_yamls_prefix / "ps7.yaml",
+        _pwm_yamls_prefix / "litex_pwm.yml",
     ]
 
 
 @pytest.fixture
-def pwm_ipcores_yamls() -> List[str]:
+def pwm_ipcores_yamls() -> List[Path]:
     return pwm_ipcores_yamls_data()
 
 
-def hdmi_ipcores_yamls_data() -> List[str]:
-    _hdmi_yamls_prefix = "examples/hdmi/ipcores/"
-    _axi_yamls_prefix = "topwrap/ips/axi/"
+def hdmi_ipcores_yamls_data() -> List[Path]:
+    _hdmi_yamls_prefix = Path("examples/hdmi/ipcores/")
+    _axi_yamls_prefix = Path("topwrap/ips/axi/")
     return [
-        _hdmi_yamls_prefix + "axi_dispctrl.yaml",
-        _hdmi_yamls_prefix + "clock_crossing.yaml",
-        _hdmi_yamls_prefix + "dma_axi_in_axis_out.yaml",
-        _hdmi_yamls_prefix + "hdmi_tx.yaml",
-        _hdmi_yamls_prefix + "litex_mmcm.yaml",
-        _hdmi_yamls_prefix + "proc_sys_reset.yaml",
-        _hdmi_yamls_prefix + "ps7.yaml",
-        _axi_yamls_prefix + "axi_axil_adapter.yaml",
-        _axi_yamls_prefix + "axi_interconnect.yaml",
-        _axi_yamls_prefix + "axi_protocol_converter.yaml",
-        _axi_yamls_prefix + "axis_dwidth_converter.yaml",
-        _axi_yamls_prefix + "axis_async_fifo.yaml",
+        _hdmi_yamls_prefix / "axi_dispctrl.yaml",
+        _hdmi_yamls_prefix / "clock_crossing.yaml",
+        _hdmi_yamls_prefix / "dma_axi_in_axis_out.yaml",
+        _hdmi_yamls_prefix / "hdmi_tx.yaml",
+        _hdmi_yamls_prefix / "litex_mmcm.yaml",
+        _hdmi_yamls_prefix / "proc_sys_reset.yaml",
+        _hdmi_yamls_prefix / "ps7.yaml",
+        _axi_yamls_prefix / "axi_axil_adapter.yaml",
+        _axi_yamls_prefix / "axi_interconnect.yaml",
+        _axi_yamls_prefix / "axi_protocol_converter.yaml",
+        _axi_yamls_prefix / "axis_dwidth_converter.yaml",
+        _axi_yamls_prefix / "axis_async_fifo.yaml",
     ]
 
 
 @pytest.fixture
-def hdmi_ipcores_yamls() -> List[str]:
+def hdmi_ipcores_yamls() -> List[Path]:
     return hdmi_ipcores_yamls_data()
 
 
-def hierarchy_ipcores_yamls_data() -> List[str]:
-    _hierarchy_yamls_prefix = "examples/hierarchy/repo/cores/"
+def hierarchy_ipcores_yamls_data() -> List[Path]:
+    _hierarchy_yamls_prefix = Path("examples/hierarchy/repo/cores/")
     return [
-        _hierarchy_yamls_prefix + "c_mod_1/c_mod_1.yaml",
-        _hierarchy_yamls_prefix + "c_mod_2/c_mod_2.yaml",
-        _hierarchy_yamls_prefix + "c_mod_3/c_mod_3.yaml",
-        _hierarchy_yamls_prefix + "s1_mod_1/s1_mod_1.yaml",
-        _hierarchy_yamls_prefix + "s1_mod_2/s1_mod_2.yaml",
-        _hierarchy_yamls_prefix + "s1_mod_3/s1_mod_3.yaml",
-        _hierarchy_yamls_prefix + "s2_mod_1/s2_mod_1.yaml",
-        _hierarchy_yamls_prefix + "s2_mod_2/s2_mod_2.yaml",
+        _hierarchy_yamls_prefix / "c_mod_1/c_mod_1.yaml",
+        _hierarchy_yamls_prefix / "c_mod_2/c_mod_2.yaml",
+        _hierarchy_yamls_prefix / "c_mod_3/c_mod_3.yaml",
+        _hierarchy_yamls_prefix / "s1_mod_1/s1_mod_1.yaml",
+        _hierarchy_yamls_prefix / "s1_mod_2/s1_mod_2.yaml",
+        _hierarchy_yamls_prefix / "s1_mod_3/s1_mod_3.yaml",
+        _hierarchy_yamls_prefix / "s2_mod_1/s2_mod_1.yaml",
+        _hierarchy_yamls_prefix / "s2_mod_2/s2_mod_2.yaml",
     ]
 
 
 @pytest.fixture
-def hierarchy_ipcores_yamls() -> List[str]:
+def hierarchy_ipcores_yamls() -> List[Path]:
     return hierarchy_ipcores_yamls_data()
 
 
-def all_yaml_files_data() -> Dict[str, List[str]]:
+def all_yaml_files_data() -> Dict[str, List[Path]]:
     return {
         "pwm": pwm_ipcores_yamls_data(),
         "hdmi": hdmi_ipcores_yamls_data(),
@@ -80,7 +80,7 @@ def all_yaml_files_data() -> Dict[str, List[str]]:
 
 
 @pytest.fixture
-def all_yaml_files() -> Dict[str, List[str]]:
+def all_yaml_files() -> Dict[str, List[Path]]:
     return all_yaml_files_data()
 
 

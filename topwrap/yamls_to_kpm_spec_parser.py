@@ -3,7 +3,7 @@
 
 import logging
 from dataclasses import dataclass
-from pathlib import PurePath
+from pathlib import Path, PurePath
 from typing import Dict, List, Optional
 
 from pipeline_manager.specification_builder import SpecificationBuilder
@@ -118,7 +118,7 @@ def _generate_ifaces_styling(interfaces_types: List[str]) -> List[InterfaceStyle
     return iface_styles
 
 
-def _get_ifaces_types(specification: dict) -> List[str]:
+def _get_ifaces_types(specification: JsonType) -> List[str]:
     """Return a list of all interfaces types from specification that are interfaces types."""
     return list(
         set(
@@ -175,19 +175,19 @@ def _ipcore_ifaces_to_iface_type(ifaces: Dict[str, IPCoreInterface]) -> List[Int
     return iface_list
 
 
-def create_core_node_from_yaml(yamlfile: str) -> NodeType:
+def create_core_node_from_yaml(yamlfile: Path) -> NodeType:
     """Returns single KPM specification 'node' representing given IP core description YAML file"""
-    ip_yaml = IPCoreDescription.load(yamlfile)
+    ip_yaml = IPCoreDescription.load(Path(yamlfile))
 
     ip_name = PurePath(yamlfile).stem
     ip_props = _ipcore_params_to_prop_type(ip_yaml.parameters)
     ip_ports = _ipcore_ports_to_iface_type(ip_yaml.signals)
     ip_ifaces = _ipcore_ifaces_to_iface_type(ip_yaml.interfaces)
 
-    return NodeType(ip_name, "IPcore", ip_name, ip_props, ip_ports + ip_ifaces, yamlfile)
+    return NodeType(ip_name, "IPcore", ip_name, ip_props, ip_ports + ip_ifaces, str(yamlfile))
 
 
-def create_external_metanode(meta_name: str, interfaces_types: list) -> NodeType:
+def create_external_metanode(meta_name: str, interfaces_types: List[str]) -> NodeType:
     """Creates external metanode.
     :param meta_name: string representing which external metanode will it be. It has to be one of "External (Input, Output, Inout)"
     """
@@ -282,7 +282,7 @@ def add_metadata_to_specification(
         )
 
 
-def new_spec_builder(yamlfiles: List[str]) -> dict:
+def new_spec_builder(yamlfiles: List[Path]) -> JsonType:
     """Build specification based on yamlfiles using SpecificationBuilder API"""
     specification_builder = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
 
@@ -314,7 +314,7 @@ def new_spec_builder(yamlfiles: List[str]) -> dict:
     return specification_builder._construct_specification(sort_spec=False)
 
 
-def ipcore_yamls_to_kpm_spec(yamlfiles: List[str]) -> dict:
+def ipcore_yamls_to_kpm_spec(yamlfiles: List[Path]) -> JsonType:
     """Translate Topwrap's IP core description YAMLs into
     KPM specification 'nodes'.
 

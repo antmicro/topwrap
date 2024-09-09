@@ -44,7 +44,7 @@ class VerilogFileHandler(FileHandler):
         modulesdict: Dict[str, FileAwareModule] = {}
 
         for file in self._files:
-            modules = VerilogModuleGenerator().get_modules(str(file.path))
+            modules = VerilogModuleGenerator().get_modules(file.path)
 
             for mod in modules:
                 modulesdict[mod.module_name] = FileAwareModule(mod, file)
@@ -57,7 +57,7 @@ class VerilogFileHandler(FileHandler):
             ipcore_desc = data.module.to_ip_core_description(iface_grouper)
             ipcore_desc.save(desc_file.path)
 
-            file_deps = _get_file_list(modulesdict, FileAwareModule(data.module, file))
+            file_deps = _get_file_list(modulesdict, FileAwareModule(data.module, data.file))
             core = Core(data.module.module_name, desc_file, list(file_deps))
             resources.append(core)
 

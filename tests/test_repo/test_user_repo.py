@@ -4,6 +4,7 @@
 import logging
 import tempfile
 from pathlib import Path
+from typing import List, Tuple
 
 import pytest
 
@@ -67,15 +68,15 @@ signals:
 
 
 @pytest.fixture
-def cores(fs, request, num_cores=2):
+def cores(fs, request, num_cores=2) -> List[Core]:
     cores = []
     for i in range(num_cores):
         additional_path = ""
         if hasattr(request, "param"):
             additional_path = request.param[i]
         mod_name = f"{additional_path}mymod_{i}"
-        verilog_file = f"{mod_name}.v"
-        design_file = f"{mod_name}.yaml"
+        verilog_file = Path(f"{mod_name}.v")
+        design_file = Path(f"{mod_name}.yaml")
 
         fs.create_file(verilog_file)
         fs.create_file(design_file)
@@ -89,7 +90,7 @@ def ifaces(fs, num_ifaces=2, iface_path="example/path/"):
     ifaces = []
     for i in range(num_ifaces):
         iface_name = f"{iface_path}iface_{i}"
-        iface_file = f"{iface_name}.yaml"
+        iface_file = Path(f"{iface_name}.yaml")
 
         fs.create_file(iface_file)
         iface = InterfaceDescription(iface_name, LocalFile(iface_file))
@@ -224,7 +225,7 @@ class TestVerilogFileHandler:
             files.append(f)
 
         repo = UserRepo()
-        repo.add_files(VerilogFileHandler([LocalFile(f.name) for f in files]))
+        repo.add_files(VerilogFileHandler([LocalFile(Path(f.name)) for f in files]))
 
         assert self.contains_warnings_in_log(
             caplog, '"missing_dep" of module "mydep1" was not found'
@@ -236,7 +237,7 @@ class TestVerilogFileHandler:
         assert len(repo.resources[Core]) == len(
             module_names
         ), f"Should have {len(module_names)} resources (Core)"
-        for resource in repo.resources[Core]:
+        for resource in repo.get_resources(Core):
             assert resource.name in module_names, "Resource names differ"
 
         assert (
@@ -249,7 +250,7 @@ class TestInterfaceFileHandler:
         my_interface = Path("my_interface.yaml")
         fs.create_file(my_interface.name, contents=iface_desc)
 
-        handler = InterfaceFileHandler([LocalFile(my_interface.name)])
+        handler = InterfaceFileHandler([LocalFile(my_interface)])
         resources = handler.parse()
         assert len(resources) == 1, "Should have 1 resources (InterfaceDescription)"
 
@@ -271,27 +272,27 @@ class TestUserRepo:
         }
         return demo_user_repo
 
-    def test_getting_config_core_designs(self, yamlfiles, cores, demo_user_repo):
+    def test_getting_config_core_designs(
+        self, yamlfiles: Tuple[str, ...], cores: List[Core], demo_user_repo: UserRepo
+    ):
         extended_yamlfiles = demo_user_repo.get_core_designs()
-        extended_yamlfiles += yamlfiles
+        extended_yamlfiles += [Path(p) for p in yamlfiles]
 
         assert len(extended_yamlfiles) == len(yamlfiles) + len(
             cores
         ), f"Number of yaml files differs. Expected {len(extended_yamlfiles)}, got {len(yamlfiles) + len(cores)}"
 
         for yamlfile in yamlfiles:
-            assert yamlfile in extended_yamlfiles, "User yamlfile is missing"
+            assert Path(yamlfile) in extended_yamlfiles, "User yamlfile is missing"
 
         for core in cores:
-            assert (
-                str(core.design.path) in extended_yamlfiles
-            ), "Core file from resources is missing"
+            assert core.design.path in extended_yamlfiles, "Core file from resources is missing"
 
     EXAMPLE_PATH_MODIFIERS = ["~/test/path/long/", "/my/example/path/to/file/"]
 
     @pytest.mark.parametrize("cores", [EXAMPLE_PATH_MODIFIERS], indirect=True)
-    def test_getting_srcs_dirs_for_cores(self, cores, demo_user_repo):
-        EXPECTED_PATHS = [str(Path(path).expanduser()) for path in self.EXAMPLE_PATH_MODIFIERS]
+    def test_getting_srcs_dirs_for_cores(self, cores, demo_user_repo: UserRepo):
+        EXPECTED_PATHS = [Path(path).expanduser() for path in self.EXAMPLE_PATH_MODIFIERS]
         demo_user_repo.resources[Core] = cores
         dirs_from_config = demo_user_repo.get_srcs_dirs_for_cores()
 

@@ -240,15 +240,13 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
         return ips
 
     @classmethod
-    def load(cls, path: Union[str, Path], fallback: bool = True, **kwargs: Any):
+    def load(cls, path: Path, fallback: bool = True, **kwargs: Any):
         """Load an IP Core description yaml from the given path
 
         :param path: the path to the .yaml file
         :param fallback: if this is True and ip_path does not exist, try loading the file from the builtin directory
         :return: the IP Core description object
         """
-
-        path = Path(path)
 
         try:
             return super().load(path, **kwargs)
@@ -259,5 +257,5 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
                     return ips[path.stem]
             raise
 
-    def save(self, path: Optional[Union[str, Path]] = None, **kwargs: Any):
-        super().save(path or self.name + ".yaml", **kwargs)
+    def save(self, path: Optional[Path] = None, **kwargs: Any):
+        super().save(path if path is not None else Path(self.name + ".yaml"), **kwargs)

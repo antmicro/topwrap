@@ -7,6 +7,7 @@ import urllib.parse
 from pathlib import Path
 
 import pytest
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from topwrap.repo.files import HttpGetFile, LocalFile, TemporaryFile
 
@@ -39,7 +40,7 @@ class TestFile:
         EXISTING_FILE_NAME = "existing_file.txt"
         fs.create_file(EXISTING_FILE_NAME)
         with pytest.raises(FileExistsError):
-            file.copy(EXISTING_FILE_NAME)
+            file.copy(Path(EXISTING_FILE_NAME))
 
         DEST_DIR_NAME = "dest_dir"
         DEST_FILE_NAME = "dest_file.txt"
@@ -130,15 +131,15 @@ class TestTemporaryFile(TestFile):
 
 class TestLocalFile(TestFile):
     @pytest.fixture()
-    def create_file(self, fs):
-        return lambda: LocalFile(fs.create_file("myfile.v").path)
+    def create_file(self, fs: FakeFilesystem):
+        return lambda: LocalFile(Path(fs.create_file("myfile.v").path))
 
     @pytest.mark.usefixtures("fs")
     def test_using_non_existing_file(self):
         with pytest.raises(FileNotFoundError):
-            LocalFile("non_existing_file.txt")
+            LocalFile(Path("non_existing_file.txt"))
 
-    def test_using_existing_file(self, fs):
+    def test_using_existing_file(self, fs: FakeFilesystem):
         file_path = Path(fs.create_file("existing_file.txt").path)
         local_file = LocalFile(file_path)
         assert local_file.path == file_path, "The file has an incorrect path"

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Dict, Mapping, Set, Union
 
 from .hdl_parsers_utils import PortDefinition
@@ -18,8 +19,8 @@ HDLParameter = Union[int, str, Dict[str, int]]
 
 
 class HDLModule(ABC):
-    def __init__(self, filename: str):
-        self.filename = filename
+    def __init__(self, path: Path):
+        self.path = path
 
     @property
     @abstractmethod

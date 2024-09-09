@@ -97,9 +97,9 @@ def kpm_direction_to_port_dir(kpm_dir: str) -> PortDirection:
 class RPCparams:
     host: str
     port: int
-    yamlfiles: List[str]
+    yamlfiles: List[Path]
     build_dir: Path
-    design: Path
+    design: Optional[Path]
 
 
 def is_external_metanode(node: JsonType) -> bool:

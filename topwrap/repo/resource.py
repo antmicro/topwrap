@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
-from os import PathLike
+from pathlib import Path
 from typing import Generic, List, Type, TypeVar
 
 
@@ -19,11 +19,11 @@ class ResourceHandler(Generic[ResourceType], ABC):
     resource_type: Type[ResourceType]
 
     @abstractmethod
-    def save(self, res: ResourceType, repo_path: PathLike) -> None:
+    def save(self, res: ResourceType, repo_path: Path) -> None:
         """Saves a resource in the repo_path repository"""
 
     @abstractmethod
-    def load(self, repo_path: PathLike) -> List[ResourceType]:
+    def load(self, repo_path: Path) -> List[ResourceType]:
         """Loads list of resources from the repo_path repository"""
 
 

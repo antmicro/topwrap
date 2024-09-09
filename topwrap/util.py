@@ -29,7 +29,7 @@ def recursive_defaultdict() -> _R:
 def recursive_defaultdict_to_dict(recursive_defaultdict: _R) -> Dict[Any, Any]:
     """Convert recursive defaultdict to a dict"""
     for key, value in recursive_defaultdict.items():
-        if isinstance(value, dict):
+        if isinstance(value, DefaultDict):
             recursive_defaultdict[key] = recursive_defaultdict_to_dict(value)
     return dict(recursive_defaultdict)
 

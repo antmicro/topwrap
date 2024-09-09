@@ -8,8 +8,7 @@ import tempfile
 import urllib.parse
 import urllib.request
 from abc import ABC, abstractmethod
-from functools import cached_property
-from os import PathLike
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Union
 
@@ -60,13 +59,13 @@ class TemporaryFile(File):
         os.remove(self._path)
         logger.debug(f"TemporaryFile.__del__: Removed the temporary {self._path} file")
 
-    @override
     @property
+    @override
     def path(self) -> Path:
         return self._path
 
     @override
-    def copy(self, dst: PathLike) -> None:
+    def copy(self, dst: Path) -> None:
         dst = Path(dst)
         if dst.exists():
             raise FileExistsError(f"Cannot copy a file to {dst}. The file already exists")
@@ -76,20 +75,18 @@ class TemporaryFile(File):
 class LocalFile(File):
     """Holds information about local files"""
 
-    def __init__(self, path: PathLike):
-        path = Path(path)
+    def __init__(self, path: Path):
         if not path.is_file():
             raise FileNotFoundError(f"{path} does not exist or is not a file")
         self._path = path
 
-    @override
     @property
+    @override
     def path(self) -> Path:
         return self._path
 
     @override
-    def copy(self, dst: PathLike):
-        dst = Path(dst)
+    def copy(self, dst: Path):
         if dst.exists():
             raise FileExistsError(f"Cannot copy a file to {dst}. The file already exists")
         dst.write_bytes(self._path.read_bytes())
@@ -107,7 +104,10 @@ class HttpGetFile(File):
     """Holds information about files obtained using GET request"""
 
     def __init__(
-        self, url: str, download_dir: Optional[PathLike] = None, clean_on_del: Optional[bool] = None
+        self,
+        url: str,
+        download_dir: Optional[Path] = None,
+        clean_on_del: Optional[bool] = None,
     ) -> None:
         if download_dir is not None:
             self.download_dir = Path(download_dir)
@@ -138,6 +138,7 @@ class HttpGetFile(File):
                     f"GetHttpFile.__del__: Couldn't remove temporary {self.download_dir} directory"
                 )
 
+    @lru_cache(maxsize=None)
     def download(self) -> Path:
         """Downloads the file using GET request.
         Because it is cached, the file will be downloaded only once"""
@@ -164,14 +165,13 @@ class HttpGetFile(File):
         return download_path
 
     @override
-    def copy(self, dst: PathLike) -> None:
-        dst = Path(dst)
+    def copy(self, dst: Path) -> None:
         if dst.exists():
             raise FileExistsError(f"Cannot copy a file to {dst}. The file already exists")
 
         dst.write_bytes(self.path.read_bytes())
 
-    @cached_property
+    @property
     @override
     def path(self) -> Path:
         return self.download()

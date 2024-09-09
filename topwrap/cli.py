@@ -4,10 +4,9 @@
 import asyncio
 import json
 import logging
-import os
 import subprocess
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, Tuple
 
 import click
 
@@ -21,11 +20,13 @@ from .interface_grouper import standard_iface_grouper
 from .kpm_topwrap_client import kpm_run_client
 from .repo.user_repo import UserRepo
 
-click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True)
+click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path)
 click_opt_rw_dir = click.Path(
-    exists=False, file_okay=False, dir_okay=True, readable=True, writable=True
+    exists=False, file_okay=False, dir_okay=True, readable=True, writable=True, path_type=Path
 )
-click_r_file = click.Path(exists=True, file_okay=True, dir_okay=False, readable=True)
+click_r_file = click.Path(
+    exists=True, file_okay=True, dir_okay=False, readable=True, path_type=Path
+)
 click_w_file = click.Path(
     exists=False, file_okay=True, dir_okay=False, writable=True, path_type=Path
 )
@@ -47,7 +48,11 @@ def configure_log_level(log_level: str):
 
 @main.command("build", help="Generate top module")
 @click.option(
-    "--sources", "-s", type=click_r_dir, help="Specify directory to scan for additional sources"
+    "--sources",
+    "-s",
+    type=click_r_dir,
+    multiple=True,
+    help="Specify directory to scan for additional sources",
 )
 @click.option("--design", "-d", type=click_r_file, required=True, help="Specify top design file")
 @click.option(
@@ -65,9 +70,9 @@ def configure_log_level(log_level: str):
 )
 @click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 def build_main(
-    sources: Optional[str],
-    design: str,
-    build_dir: str,
+    sources: Tuple[Path, ...],
+    design: Path,
+    build_dir: Path,
     part: Optional[str],
     iface_compliance: bool,
     log_level: str,
@@ -84,14 +89,11 @@ def build_main(
     config_user_repo = UserRepo()
     config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
     all_sources = config_user_repo.get_srcs_dirs_for_cores()
-    if sources is not None:
-        all_sources.append(sources)
+    all_sources.extend(sources)
 
     # following function does make sure that build directory exists
     # so we don't explicitly create build directory here
-    build_design_from_yaml(
-        Path(design), Path(build_dir), [Path(source) for source in all_sources], part
-    )
+    build_design_from_yaml(design, build_dir, all_sources, part)
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")
@@ -119,7 +121,14 @@ def build_main(
 )
 @click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 @click.argument("files", type=click_r_file, nargs=-1)
-def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
+def parse_main(
+    use_yosys: bool,
+    iface_deduce: bool,
+    iface: Tuple[str, ...],
+    dest_dir: Path,
+    log_level: str,
+    files: Tuple[Path, ...],
+):
     try:
         from .verilog_parser import VerilogModuleGenerator
         from .vhdl_parser import VHDLModule
@@ -130,30 +139,27 @@ def parse_main(use_yosys, iface_deduce, iface, dest_dir, log_level, files):
         )
 
     configure_log_level(log_level)
-    dest_dir = Path(dest_dir)
     dest_dir.mkdir(exist_ok=True, parents=True)
 
-    for filename in list(filter(lambda name: os.path.splitext(name)[-1] == ".v", files)):  # noqa
-        modules = VerilogModuleGenerator().get_modules(filename)
-        iface_grouper = standard_iface_grouper(Path(filename), use_yosys, iface_deduce, iface)
-        for verilog_mod in modules:
-            ipcore_desc = verilog_mod.to_ip_core_description(iface_grouper)
+    for filepath in files:
+        if filepath.suffix == ".v":
+            modules = VerilogModuleGenerator().get_modules(filepath)
+            iface_grouper = standard_iface_grouper(filepath, use_yosys, iface_deduce, iface)
+            for verilog_mod in modules:
+                ipcore_desc = verilog_mod.to_ip_core_description(iface_grouper)
+                yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
+                ipcore_desc.save(yaml_path)
+                logging.info(
+                    f"Verilog module '{verilog_mod.module_name}'" f"saved in file '{yaml_path}'"
+                )
+        elif filepath.suffix in (".vhdl", ".vhd"):
+            # TODO - handle case with multiple VHDL modules in one file
+            vhdl_mod = VHDLModule(filepath)
+            iface_grouper = standard_iface_grouper(filepath, False, iface_deduce, iface)
+            ipcore_desc = vhdl_mod.to_ip_core_description(iface_grouper)
             yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
             ipcore_desc.save(yaml_path)
-            logging.info(
-                f"Verilog module '{verilog_mod.module_name}'" f"saved in file '{yaml_path}'"
-            )
-
-    for filename in list(
-        filter(lambda name: os.path.splitext(name)[-1] in [".vhd", ".vhdl"], files)
-    ):  # noqa
-        # TODO - handle case with multiple VHDL modules in one file
-        vhdl_mod = VHDLModule(filename)
-        iface_grouper = standard_iface_grouper(Path(filename), False, iface_deduce, iface)
-        ipcore_desc = vhdl_mod.to_ip_core_description(iface_grouper)
-        yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
-        ipcore_desc.save(yaml_path)
-        logging.info(f"VHDL Module '{vhdl_mod.module_name}'" f"saved in file '{yaml_path}'")
+            logging.info(f"VHDL Module '{vhdl_mod.module_name}'" f"saved in file '{yaml_path}'")
 
 
 DEFAULT_WORKSPACE_DIR = Path("build", "workspace")
@@ -172,9 +178,7 @@ DEFAULT_BACKEND_PORT = 5000
 @click.option(
     "--design",
     "-d",
-    required=False,
-    default=None,
-    type=click.Path(file_okay=True, readable=True, dir_okay=False, exists=True),
+    type=click_r_file,
     help="Specify design file to load initially",
 )
 @click.option(
@@ -186,7 +190,12 @@ DEFAULT_BACKEND_PORT = 5000
 )
 @click.argument("yamlfiles", type=click_r_file, nargs=-1)
 def kpm_client_main(
-    host: str, port: str, log_level: str, design: str, yamlfiles: List[str], build_dir: str
+    host: str,
+    port: int,
+    log_level: str,
+    design: Optional[Path],
+    yamlfiles: Tuple[Path, ...],
+    build_dir: Path,
 ):
     configure_log_level(log_level)
 
@@ -198,7 +207,7 @@ def kpm_client_main(
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
-        kpm_run_client(RPCparams(host, int(port), extended_yamlfiles, Path(build_dir), design))
+        kpm_run_client(RPCparams(host, port, extended_yamlfiles, build_dir, design))
     )
 
 
@@ -216,9 +225,9 @@ def kpm_client_main(
     help="Directory where the built frontend should be stored",
 )
 @click.pass_context
-def kpm_build_server(ctx, workspace_directory, output_directory):
-    Path(workspace_directory).mkdir(exist_ok=True, parents=True)
-    Path(output_directory).mkdir(exist_ok=True, parents=True)
+def kpm_build_server(ctx: click.Context, workspace_directory: Path, output_directory: Path):
+    workspace_directory.mkdir(exist_ok=True, parents=True)
+    output_directory.mkdir(exist_ok=True, parents=True)
     args = ["pipeline_manager", "build", "server-app"]
     for k, v in ctx.params.items():
         args += [f"--{k}".replace("_", "-"), f"{v}"]
@@ -251,14 +260,7 @@ def kpm_build_server(ctx, workspace_directory, output_directory):
     help="The port of the backend of Pipeline Manager",
 )
 @click.pass_context
-def kpm_run_server(
-    ctx,
-    frontend_directory,
-    server_host,
-    server_port,
-    backend_host,
-    backend_port,
-):
+def kpm_run_server(ctx: click.Context, **_):
     args = ["pipeline_manager", "run"]
     for k, v in ctx.params.items():
         args += [f"--{k}".replace("_", "-"), f"{v}"]
@@ -274,7 +276,7 @@ def kpm_run_server(
     help="Destination file for the KPM specification",
 )
 @click.argument("files", type=click_r_file, nargs=-1)
-def generate_kpm_spec(output: Path, files):
+def generate_kpm_spec(output: Path, files: Tuple[Path, ...]):
     config_user_repo = UserRepo()
     config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
     extended_yamlfiles = config_user_repo.get_core_designs()
@@ -285,7 +287,7 @@ def generate_kpm_spec(output: Path, files):
         f.write(json.dumps(spec))
 
 
-@main.command("dataflow", help="Generate KPM dataflow from IP core YAMLs")
+@main.command("dataflow", help="Generate KPM dataflow from IP core YAMLs and a design YAML")
 @click.option(
     "--output",
     "-o",
@@ -293,9 +295,9 @@ def generate_kpm_spec(output: Path, files):
     default="kpm_dataflow.json",
     help="Destination file for the KPM dataflow",
 )
-@click.option("--design", "-d", type=click_r_file, help="Design YAML file")
+@click.option("--design", "-d", required=True, type=click_r_file, help="Design YAML file")
 @click.argument("files", type=click_r_file, nargs=-1)
-def generate_kpm_design(output: Path, design, files):
+def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     config_user_repo = UserRepo()
     config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
     extended_yamlfiles = config_user_repo.get_core_designs()

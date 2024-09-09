@@ -30,7 +30,7 @@ class DesignIP:
 
     @property
     def module(self):
-        return IPCoreDescription.load(self.file).name
+        return IPCoreDescription.load(self.path).name
 
     @property
     def path(self):
@@ -115,7 +115,7 @@ class DesignDescription(MarshmallowDataclassExtensions):
 
     Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
 
-    def generate_design(self, design_dir: Union[str, Path] = ".") -> IPConnect:
+    def generate_design(self, design_dir: Path = Path(".")) -> IPConnect:
         design_dir = Path(design_dir)
         ipc = IPConnect()
 
@@ -148,12 +148,12 @@ class DesignDescription(MarshmallowDataclassExtensions):
         ipc.validate_inout_connections(self.external.ports.inout)
         return ipc
 
-    def save(self, path: Optional[Union[str, Path]] = None, **kwargs: Any):
+    def save(self, path: Optional[Path] = None, **kwargs: Any):
         if path is None:
             if self.design.name is None:
-                path = "top.yaml"
+                path = Path("top.yaml")
             else:
-                path = self.design.name + ".yaml"
+                path = Path(self.design.name + ".yaml")
 
         super().save(path, **kwargs)
 
@@ -164,7 +164,6 @@ def build_design_from_yaml(
     sources_dir: Collection[Path] = [],
     part: Optional[str] = None,
 ):
-    design_path = Path(design_path)
     design_dir = design_path.parent
 
     desc = DesignDescription.load(design_path)

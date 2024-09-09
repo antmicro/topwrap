@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from functools import cached_property
 from logging import error
+from pathlib import Path
 from typing import Dict, Set
 
 from hdlConvertor import HdlConvertor
@@ -20,7 +21,7 @@ class VHDLModule(HDLModule):
     using HdlConvertor.
     """
 
-    def __init__(self, vhdl_file: str):
+    def __init__(self, vhdl_file: Path):
         super().__init__(vhdl_file)
         c = HdlConvertor()
         d = c.parse([vhdl_file], Language.VHDL, [], hierarchyOnly=False, debug=True)
