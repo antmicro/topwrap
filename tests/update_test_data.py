@@ -1,39 +1,40 @@
 from pathlib import Path
 
 import click
-from tests_kpm.common import TEST_DATA_PATH, save_file_to_json, save_file_to_yaml
-from tests_kpm.conftest import (
-    Dict,
-    List,
-    all_examples_designs_data,
-    all_yaml_files_data,
-)
+from tests_kpm.common import TEST_DATA_PATH, save_file_to_json
+from tests_kpm.conftest import Dict, List, all_yaml_files_data, test_dirs_data
 
 from topwrap.design import DesignDescription
 from topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
+def all_examples_designs_data() -> Dict[str, DesignDescription]:
+    examples = {}
+    for dir in (Path(TEST_DATA_PATH) / "examples").iterdir():
+        examples[dir.name] = DesignDescription.load(Path(f"examples/{dir.name}/project.yml"))
+    return examples
+
+
 def update_dataflows(
     all_yaml_files: Dict[str, List[str]], all_examples_designs: Dict[str, DesignDescription]
 ):
-    for (example_name, yamlfiles), example_design in zip(
-        all_yaml_files.items(), all_examples_designs.values()
-    ):
-        spec = ipcore_yamls_to_kpm_spec(yamlfiles)
+    for example_name, example_design in all_examples_designs.items():
+        spec = ipcore_yamls_to_kpm_spec(all_yaml_files[example_name])
         dataflow = kpm_dataflow_from_design_descr(example_design, spec)
         save_file_to_json(
-            Path(f"{TEST_DATA_PATH}{example_name}"),
+            Path(TEST_DATA_PATH) / "examples" / example_name,
             f"dataflow_{example_name}.json",
             dataflow,
         )
 
 
 def update_specifications(all_yaml_files: Dict[str, List[str]]):
+    test_dirs = test_dirs_data()
     for example_name, yamlfiles in all_yaml_files.items():
         specification = ipcore_yamls_to_kpm_spec(yamlfiles)
         save_file_to_json(
-            Path(f"{TEST_DATA_PATH}{example_name}"),
+            test_dirs[example_name],
             f"specification_{example_name}.json",
             specification,
         )
@@ -57,11 +58,7 @@ def update_designs(all_examples_designs: Dict[str, DesignDescription]):
 
     for example_name, example_design in all_examples_designs.items():
         change_ips_path(example_design, example_name)
-        save_file_to_yaml(
-            Path(f"{TEST_DATA_PATH}{example_name}"),
-            f"project_{example_name}.yml",
-            example_design.to_dict(),
-        )
+        example_design.save(Path(TEST_DATA_PATH) / example_name / f"project_{example_name}.yml")
 
 
 @click.command()

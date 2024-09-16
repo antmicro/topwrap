@@ -35,63 +35,9 @@
         "stopName": "Stop"
       }
     ],
-    "navbarItems": [
-      {
-        "allowToRunInParallelWith": [
-          "dataflow_run",
-          "custom_lint_files"
-        ],
-        "iconName": "Validate",
-        "name": "Validate",
-        "procedureName": "dataflow_validate",
-        "stopName": "Stop"
-      },
-      {
-        "allowToRunInParallelWith": [
-          "dataflow_validate",
-          "custom_lint_files"
-        ],
-        "iconName": "Run",
-        "name": "Run",
-        "procedureName": "dataflow_run",
-        "stopName": "Stop"
-      }
-    ],
     "twoColumn": true
   },
   "nodes": [
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/c_mod_1/c_mod_1.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_mod_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "c_int_out_1",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "c_mod_1",
-      "name": "c_mod_1",
-      "properties": [
-        {
-          "default": "32",
-          "name": "MAX_VALUE",
-          "type": "text"
-        }
-      ]
-    },
     {
       "abstract": false,
       "additionalData": "examples/hierarchy/repo/cores/c_mod_1/c_mod_1.yaml",
@@ -132,7 +78,6 @@
         {
           "direction": "output",
           "maxConnectionsCount": -1,
-          "maxConnectionsCount": -1,
           "name": "c_int_out_2",
           "type": [
             "port"
@@ -140,7 +85,6 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
           "maxConnectionsCount": -1,
           "name": "c_mod_in_2",
           "type": [
@@ -157,17 +101,8 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_int_in_1",
-          "maxConnectionsCount": -1,
-          "name": "c_int_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
           "direction": "output",
+          "maxConnectionsCount": -1,
           "name": "c_mod_out_1",
           "type": [
             "port"
@@ -175,7 +110,24 @@
         },
         {
           "direction": "input",
+          "maxConnectionsCount": -1,
           "name": "c_int_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_int_const_in",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_int_in_2",
           "type": [
             "port"
           ]
@@ -190,8 +142,15 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "output",
+          "direction": "input",
           "maxConnectionsCount": -1,
+          "name": "cs_s1_f_ext_const_in",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
           "maxConnectionsCount": -1,
           "name": "cs_s1_mint_out_1",
           "type": [
@@ -200,7 +159,6 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
           "maxConnectionsCount": -1,
           "name": "cs_s1_f_mod_in_1",
           "type": [
@@ -228,17 +186,11 @@
           "direction": "output",
           "maxConnectionsCount": -1,
           "name": "cs_s1_f_int_out_1",
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_int_out_1",
           "type": [
             "port"
           ]
         },
         {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_mint_in_1",
           "direction": "input",
           "maxConnectionsCount": -1,
           "name": "cs_s1_mint_in_1",
@@ -257,6 +209,7 @@
       "interfaces": [
         {
           "direction": "output",
+          "maxConnectionsCount": -1,
           "name": "cs_s1_f_int_out_2",
           "type": [
             "port"
@@ -264,6 +217,7 @@
         },
         {
           "direction": "input",
+          "maxConnectionsCount": -1,
           "name": "cs_s1_mint_in_2",
           "type": [
             "port"
@@ -287,23 +241,7 @@
       "interfaces": [
         {
           "direction": "input",
-          "name": "cs_s2_f_int_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "output",
           "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_out_2",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_out_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
           "name": "cs_s2_f_int_in_2",
           "type": [
             "port"
@@ -311,7 +249,24 @@
         },
         {
           "direction": "output",
+          "maxConnectionsCount": -1,
           "name": "cs_s2_mint_out_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_1",
           "type": [
             "port"
           ]
@@ -326,15 +281,9 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "input",
-          "name": "cs_s2_mint_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "name": "cs_s2_mint_in_2",
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_mod_out_1",
           "type": [
             "port"
           ]
@@ -342,7 +291,12 @@
         {
           "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_in_1",
+          "name": "cs_s2_mint_in_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
           "direction": "input",
           "maxConnectionsCount": -1,
           "name": "cs_s2_mint_in_1",
@@ -360,7 +314,6 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
           "maxConnectionsCount": -1,
           "name": "external",
           "type": [
@@ -385,7 +338,6 @@
         {
           "direction": "output",
           "maxConnectionsCount": -1,
-          "maxConnectionsCount": -1,
           "name": "external",
           "type": [
             "port"
@@ -408,7 +360,6 @@
       "interfaces": [
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
           "maxConnectionsCount": -1,
           "name": "external",
           "type": [
@@ -433,7 +384,6 @@
         {
           "direction": "output",
           "maxConnectionsCount": -1,
-          "maxConnectionsCount": -1,
           "name": "constant",
           "type": [
             "port"
@@ -449,30 +399,6 @@
           "type": "text"
         }
       ]
-    },
-    {
-      "abstract": false,
-      "category": "Metanode",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "subgraph out",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "subgraph in",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "Subgraph port",
-      "name": "Subgraph port"
     },
     {
       "abstract": false,

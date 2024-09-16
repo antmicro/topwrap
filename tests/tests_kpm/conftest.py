@@ -2,22 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from base64 import b64encode
+from pathlib import Path
 from typing import Dict, List
 
 import pytest
 
 from topwrap.design import DesignDescription
+from topwrap.util import JsonType
 
-from .common import TEST_DATA_PATH, read_json_file, read_yaml_file
-
-
-def ip_names_data():
-    return ["pwm", "hdmi", "hierarchy"]
-
-
-@pytest.fixture
-def ip_names() -> List[str]:
-    return ip_names_data()
+from .common import read_json_file
 
 
 def pwm_ipcores_yamls_data() -> List[str]:
@@ -82,6 +75,7 @@ def all_yaml_files_data() -> Dict[str, List[str]]:
         "pwm": pwm_ipcores_yamls_data(),
         "hdmi": hdmi_ipcores_yamls_data(),
         "hierarchy": hierarchy_ipcores_yamls_data(),
+        "complex": hierarchy_ipcores_yamls_data(),
     }
 
 
@@ -90,105 +84,108 @@ def all_yaml_files() -> Dict[str, List[str]]:
     return all_yaml_files_data()
 
 
-def all_specification_files_data() -> Dict[str, dict]:
+def test_dirs_data() -> Dict[str, Path]:
+    COMMON = "tests/data/data_kpm/"
+    paths = {}
+    for glob in (COMMON + "examples/*", COMMON + "conversions/*"):
+        for path in Path(".").glob(glob):
+            ip_name = path.stem
+            paths[ip_name] = path
+    return paths
+
+
+@pytest.fixture
+def test_dirs() -> Dict[str, Path]:
+    return test_dirs_data()
+
+
+@pytest.fixture
+def all_specification_files(test_dirs: Dict[str, Path]) -> Dict[str, JsonType]:
     return {
-        ip_name: read_json_file(f"{TEST_DATA_PATH}{ip_name}/specification_{ip_name}.json")
-        for ip_name in ip_names_data()
+        ip_name: read_json_file(dir / f"specification_{ip_name}.json")
+        for ip_name, dir in test_dirs.items()
     }
 
 
 @pytest.fixture
-def all_specification_files() -> Dict[str, dict]:
-    return all_specification_files_data()
-
-
-def all_dataflow_files_data() -> Dict[str, dict]:
+def all_dataflow_files(test_dirs: Dict[str, Path]) -> Dict[str, JsonType]:
     return {
-        ip_name: read_json_file(f"{TEST_DATA_PATH}{ip_name}/dataflow_{ip_name}.json")
-        for ip_name in ip_names_data()
+        ip_name: read_json_file(dir / f"dataflow_{ip_name}.json")
+        for ip_name, dir in test_dirs.items()
     }
 
 
 @pytest.fixture
-def all_dataflow_files() -> Dict[str, dict]:
-    return all_dataflow_files_data()
-
-
-def all_designs_data() -> Dict[str, DesignDescription]:
+def all_designs(test_dirs: Dict[str, Path]) -> Dict[str, DesignDescription]:
     return {
-        ip_name: read_yaml_file(f"{TEST_DATA_PATH}{ip_name}/project_{ip_name}.yml")
-        for ip_name in ip_names_data()
+        ip_name: DesignDescription.load(dir / f"project_{ip_name}.yml")
+        for ip_name, dir in test_dirs.items()
     }
 
 
 @pytest.fixture
-def all_designs() -> Dict[str, DesignDescription]:
-    return all_designs_data()
-
-
-def all_examples_designs_data() -> Dict[str, DesignDescription]:
-    return {
-        ip_name: read_yaml_file(f"examples/{ip_name}/project.yml") for ip_name in ip_names_data()
-    }
-
-
-@pytest.fixture
-def all_examples_designs() -> Dict[str, DesignDescription]:
-    return all_examples_designs_data()
-
-
-def all_encoded_design_files_data() -> Dict[str, str]:
+def all_encoded_design_files(all_designs: Dict[str, DesignDescription]) -> Dict[str, str]:
     return {
         test_name: b64encode(design.to_yaml().encode("utf-8")).decode("utf-8")
-        for test_name, design in all_designs_data().items()
+        for test_name, design in all_designs.items()
     }
 
 
 @pytest.fixture
-def all_encoded_design_files() -> Dict[str, str]:
-    return all_encoded_design_files_data()
+def pwm_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
+    return all_specification_files["pwm"]
 
 
 @pytest.fixture
-def pwm_specification() -> dict:
-    return all_specification_files_data()["pwm"]
+def hdmi_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
+    return all_specification_files["hdmi"]
 
 
 @pytest.fixture
-def hdmi_specification() -> dict:
-    return all_specification_files_data()["hdmi"]
+def hierarchy_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
+    return all_specification_files["hierarchy"]
 
 
 @pytest.fixture
-def hierarchy_specification() -> dict:
-    return all_specification_files_data()["hierarchy"]
+def complex_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
+    return all_specification_files["complex"]
 
 
 @pytest.fixture
-def pwm_dataflow() -> dict:
-    return all_dataflow_files_data()["pwm"]
+def pwm_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
+    return all_dataflow_files["pwm"]
 
 
 @pytest.fixture
-def hdmi_dataflow() -> dict:
-    return all_dataflow_files_data()["hdmi"]
+def hdmi_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
+    return all_dataflow_files["hdmi"]
 
 
 @pytest.fixture
-def hierarchy_dataflow() -> dict:
-    return all_dataflow_files_data()["hierarchy"]
+def hierarchy_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
+    return all_dataflow_files["hierarchy"]
 
 
 @pytest.fixture
-def pwm_design() -> DesignDescription:
-    return all_designs_data()["pwm"]
+def complex_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
+    return all_dataflow_files["complex"]
 
 
 @pytest.fixture
-def hdmi_design() -> DesignDescription:
-    return all_designs_data()["hdmi"]
+def pwm_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
+    return all_designs["pwm"]
 
 
 @pytest.fixture
-def hierarchy_design() -> DesignDescription:
-    return all_designs_data()["hierarchy"]
+def hdmi_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
+    return all_designs["hdmi"]
+
+
+@pytest.fixture
+def hierarchy_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
+    return all_designs["hierarchy"]
+
+
+@pytest.fixture
+def complex_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
+    return all_designs["complex"]
