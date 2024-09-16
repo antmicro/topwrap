@@ -7,7 +7,7 @@ import shutil
 from collections import defaultdict
 from pathlib import Path, PurePath
 from tempfile import TemporaryDirectory, TemporaryFile
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 import nox
 from nox.command import CommandFailed
@@ -149,7 +149,7 @@ def _pyright_check(session: nox.Session) -> None:
     compare_with_main = "compare" in session.posargs
 
     # counting down errors on branch
-    def count_down_errors() -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    def count_down_errors() -> Tuple[Dict[str, int], Dict[str, int]]:
         errortypes = defaultdict(int)
         errorfiles = defaultdict(int)
         with TemporaryFile() as f:

@@ -4,7 +4,7 @@
 import logging
 from dataclasses import dataclass
 from pathlib import PurePath
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from pipeline_manager.specification_builder import SpecificationBuilder
 
@@ -28,6 +28,7 @@ from .kpm_common import (
     SPECIFICATION_VERSION,
     SUBGRAPH_METANODE,
 )
+from .util import JsonType
 
 
 @dataclass
@@ -84,7 +85,7 @@ def _ipcore_param_to_kpm_value(param: IPCoreParameter) -> str:
     return str(param)
 
 
-def _duplicate_ipcore_types_check(specification: Dict[str, Any]):
+def _duplicate_ipcore_types_check(specification: JsonType):
     """Function to check for any duplicate node types in specification."""
     # If the layer is already in types_set then it means that it's a duplicate
     types_set = set()

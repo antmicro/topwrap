@@ -4,6 +4,8 @@
 from collections import defaultdict
 from typing import Any, DefaultDict, Dict, TypeVar, Union
 
+JsonType = Dict[str, Any]
+
 
 def removeprefix(s: str, prefix: str) -> str:
     """Returns string with a prefix removed if it contains it

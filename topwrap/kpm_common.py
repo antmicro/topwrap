@@ -5,7 +5,9 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
+
+from .util import JsonType
 
 SPECIFICATION_VERSION = "20240723.13"
 CONST_NAME = "Constant"
@@ -31,15 +33,15 @@ class InterfaceData:
     iface_direction: str
 
 
-def get_all_graph_nodes(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_all_graph_nodes(dataflow_json: JsonType) -> List[JsonType]:
     return _get_all_graph_values(dataflow_json, "nodes")
 
 
-def get_all_graph_connections(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_all_graph_connections(dataflow_json: JsonType) -> List[JsonType]:
     return _get_all_graph_values(dataflow_json, "connections")
 
 
-def _get_all_graph_values(dataflow_json: Dict[str, Any], value: str) -> List[Dict[str, Any]]:
+def _get_all_graph_values(dataflow_json: JsonType, value: str) -> List[JsonType]:
     """Return given value from all graphs. Example use: value="nodes" will return all nodes from all graphs"""
     all_values = []
     for graph in dataflow_json["graphs"]:
@@ -47,9 +49,7 @@ def _get_all_graph_values(dataflow_json: Dict[str, Any], value: str) -> List[Dic
     return all_values
 
 
-def _get_graph_with_conn_id(
-    dataflow_json: Dict[str, Any], conn_id: str
-) -> Optional[Dict[str, Any]]:
+def _get_graph_with_conn_id(dataflow_json: JsonType, conn_id: str) -> Optional[JsonType]:
     """Returns graph that has connections with given id"""
     for graph in dataflow_json["graphs"]:
         for conn in graph["connections"]:
@@ -57,7 +57,7 @@ def _get_graph_with_conn_id(
                 return graph
 
 
-def get_graph_with_id(dataflow_json: Dict[str, Any], graph_id: str) -> Optional[Dict[str, Any]]:
+def get_graph_with_id(dataflow_json: JsonType, graph_id: str) -> Optional[JsonType]:
     """Returns graph with given id"""
     for graph in dataflow_json["graphs"]:
         if graph["id"] == graph_id:
@@ -73,39 +73,37 @@ class RPCparams:
     design: Path
 
 
-def is_external_metanode(node: Dict[str, Any]) -> bool:
+def is_external_metanode(node: JsonType) -> bool:
     """Return True if a node is an external metanode, False otherwise."""
     return node["name"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]
 
 
-def is_constant_metanode(node: Dict[str, Any]) -> bool:
+def is_constant_metanode(node: JsonType) -> bool:
     """Return True if a node is a constant metanode, False otherwise."""
     return node["name"] == CONST_NAME
 
 
-def is_subgraph_metanode(node: Dict[str, Any]) -> bool:
+def is_subgraph_metanode(node: JsonType) -> bool:
     """Return True if a node is a subgraph metanode, False otherwise."""
     return node["name"] == SUBGRAPH_METANODE
 
 
-def is_metanode(node: Dict[str, Any]) -> bool:
+def is_metanode(node: JsonType) -> bool:
     """Return True if a node is a metanode, False otherwise."""
     return is_external_metanode(node) or is_constant_metanode(node) or is_subgraph_metanode(node)
 
 
-def is_subgraph_node(node: Dict[str, Any]) -> bool:
+def is_subgraph_node(node: JsonType) -> bool:
     """Return True if a node is a subgraph node, False otherwise."""
     return SUBGRAPH_NODE in node.keys()
 
 
-def is_exposed_iface(iface: Dict[str, Any]) -> bool:
+def is_exposed_iface(iface: JsonType) -> bool:
     """Return True if a interfce is exposed in some subgraph node, False otherwise."""
     return EXPOSED_IFACE in iface.keys()
 
 
-def _get_subgraph_metanode_iface(
-    subgraph_metanode: Dict[str, Any], exposed: bool
-) -> Dict[str, Any]:
+def _get_subgraph_metanode_iface(subgraph_metanode: JsonType, exposed: bool) -> JsonType:
     for idx, interface in enumerate(subgraph_metanode["interfaces"]):
         if is_exposed_iface(interface):
             # Subgraph metanodes have two ports - the external subgraph reference and the second one will the connections of subgraph port
@@ -119,15 +117,15 @@ def _get_subgraph_metanode_iface(
     )
 
 
-def get_exposed_subgraph_meta_iface(subgraph_metanode: Dict[str, Any]) -> Dict[str, Any]:
+def get_exposed_subgraph_meta_iface(subgraph_metanode: JsonType) -> JsonType:
     return _get_subgraph_metanode_iface(subgraph_metanode, True)
 
 
-def get_unexposed_subgraph_meta_iface(subgraph_metanode: Dict[str, Any]) -> Dict[str, Any]:
+def get_unexposed_subgraph_meta_iface(subgraph_metanode: JsonType) -> JsonType:
     return _get_subgraph_metanode_iface(subgraph_metanode, False)
 
 
-def get_dataflow_subgraph_metanodes(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_subgraph_metanodes(dataflow_json: JsonType) -> List[JsonType]:
     """Return a list of subgraph metanodes"""
     subgraph_metanodes = []
     for node in get_all_graph_nodes(dataflow_json):
@@ -136,7 +134,7 @@ def get_dataflow_subgraph_metanodes(dataflow_json: Dict[str, Any]) -> List[Dict[
     return subgraph_metanodes
 
 
-def get_dataflow_ip_nodes(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_ip_nodes(dataflow_json: JsonType) -> List[JsonType]:
     """Return a list of nodes which represent ip cores
     (i.e. filter out External Outputs, Inputs and Inouts)
     """
@@ -147,22 +145,22 @@ def get_dataflow_ip_nodes(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]
     return ip_nodes
 
 
-def get_dataflow_subgraph_nodes(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_subgraph_nodes(dataflow_json: JsonType) -> List[JsonType]:
     """Return subgraph nodes from every graph. Subgraph node is a node that has "subgraph" field"""
     return [node for node in get_all_graph_nodes(dataflow_json) if is_subgraph_node(node)]
 
 
-def get_dataflow_external_metanodes(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_external_metanodes(dataflow_json: JsonType) -> List[JsonType]:
     """Return a list of external metanodes (i.e. External Outputs and Inputs)"""
     return [node for node in get_all_graph_nodes(dataflow_json) if is_external_metanode(node)]
 
 
-def get_dataflow_constant_metanodes(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_constant_metanodes(dataflow_json: JsonType) -> List[JsonType]:
     """Return a list of constant metanodes"""
     return [node for node in get_all_graph_nodes(dataflow_json) if is_constant_metanode(node)]
 
 
-def _get_interfaces(nodes: List[Dict[str, Any]]) -> Dict[str, List[InterfaceData]]:
+def _get_interfaces(nodes: List[JsonType]) -> Dict[str, List[InterfaceData]]:
     """Return a dict of all the interfaces belonging to given nodes.
     The resulting dict consists of items:
     {"iface_id": [InterfaceData]}
@@ -176,7 +174,7 @@ def _get_interfaces(nodes: List[Dict[str, Any]]) -> Dict[str, List[InterfaceData
     return result
 
 
-def get_dataflow_ips_interfaces(dataflow_json: Dict[str, Any]) -> Dict[str, List[InterfaceData]]:
+def get_dataflow_ips_interfaces(dataflow_json: JsonType) -> Dict[str, List[InterfaceData]]:
     """Return a dict of all the interfaces of all the nodes representing ip cores.
     The resulting dict consists of items:
     {"iface_id": [InterfaceData]}"""
@@ -184,9 +182,7 @@ def get_dataflow_ips_interfaces(dataflow_json: Dict[str, Any]) -> Dict[str, List
     return _get_interfaces(get_dataflow_ip_nodes(dataflow_json))
 
 
-def get_dataflow_subgraph_interfaces(
-    dataflow_json: Dict[str, Any]
-) -> Dict[str, List[InterfaceData]]:
+def get_dataflow_subgraph_interfaces(dataflow_json: JsonType) -> Dict[str, List[InterfaceData]]:
     """Return a dict of all subgraph interfaces.
     The resulting dict consists of items:
     {"iface_id": [InterfaceData]}"""
@@ -194,7 +190,7 @@ def get_dataflow_subgraph_interfaces(
     return _get_interfaces(get_dataflow_subgraph_metanodes(dataflow_json))
 
 
-def get_dataflow_subgraph_connections(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_subgraph_connections(dataflow_json: JsonType) -> List[JsonType]:
     """Return connections that are related to subgraph metanodes"""
     ifaces_ids = get_dataflow_subgraph_interfaces(dataflow_json).keys()
     subgraph_connections = []
@@ -204,7 +200,7 @@ def get_dataflow_subgraph_connections(dataflow_json: Dict[str, Any]) -> List[Dic
     return subgraph_connections
 
 
-def get_dataflow_ip_connections(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_ip_connections(dataflow_json: JsonType) -> List[JsonType]:
     """Return connections between two IP cores
     (e.g. filter out connections to external metanodes)
     """
@@ -216,18 +212,14 @@ def get_dataflow_ip_connections(dataflow_json: Dict[str, Any]) -> List[Dict[str,
     return graph_ip_connections
 
 
-def get_dataflow_external_interfaces(
-    dataflow_json: Dict[str, Any]
-) -> Dict[str, List[InterfaceData]]:
+def get_dataflow_external_interfaces(dataflow_json: JsonType) -> Dict[str, List[InterfaceData]]:
     """Return a dict of all the interfaces of all the external metanodes.
     The resulting dict consists of items
     {"iface_id": [InterfaceData]}"""
     return _get_interfaces(get_dataflow_external_metanodes(dataflow_json))
 
 
-def get_dataflow_constant_interfaces(
-    dataflow_json: Dict[str, Any]
-) -> Dict[str, List[InterfaceData]]:
+def get_dataflow_constant_interfaces(dataflow_json: JsonType) -> Dict[str, List[InterfaceData]]:
     """Return a dict of all the interfaces of all the constant metanodes.
     The resulting dict consists of items
     {"iface_id": [InterfaceData]}"""
@@ -235,8 +227,8 @@ def get_dataflow_constant_interfaces(
 
 
 def _get_ifaces_metanodes_connections(
-    dataflow_json: Dict[str, Any], ifaces_ids: List[str]
-) -> List[Dict[str, Any]]:
+    dataflow_json: JsonType, ifaces_ids: List[str]
+) -> List[JsonType]:
     """Return all connections in which one of the connection node id is in "ifaces_ids" """
     graph_connections = []
     for conn in get_all_graph_connections(dataflow_json):
@@ -245,7 +237,7 @@ def _get_ifaces_metanodes_connections(
     return graph_connections
 
 
-def get_dataflow_external_connections(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_external_connections(dataflow_json: JsonType) -> List[JsonType]:
     """Return connections from/to metanodes representing
     external inputs/outputs
     """
@@ -253,7 +245,7 @@ def get_dataflow_external_connections(dataflow_json: Dict[str, Any]) -> List[Dic
     return _get_ifaces_metanodes_connections(dataflow_json, list(ifaces_ids))
 
 
-def get_dataflow_constant_connections(dataflow_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+def get_dataflow_constant_connections(dataflow_json: JsonType) -> List[JsonType]:
     """Return connections from/to metanodes representing
     external inputs/outputs
     """
@@ -261,14 +253,14 @@ def get_dataflow_constant_connections(dataflow_json: Dict[str, Any]) -> List[Dic
     return _get_ifaces_metanodes_connections(dataflow_json, list(ifaces_ids))
 
 
-def get_metanode_interface_id(metanode: Dict[str, Any]) -> str:
+def get_metanode_interface_id(metanode: JsonType) -> str:
     """Return given metanode's interface id. Metanodes always have exactly 1
     interface, so it suffices to take 0th element of the "interfaces" array.
     """
     return metanode["interfaces"][0]["id"]
 
 
-def get_metanode_property_value(metanode: Dict[str, Any]) -> str:
+def get_metanode_property_value(metanode: JsonType) -> str:
     """Return a value stored in an external metanode textbox.
     Metanodes always have exactly one property, so it suffices to take
     0th element of the "properties" array.
@@ -277,8 +269,8 @@ def get_metanode_property_value(metanode: Dict[str, Any]) -> str:
 
 
 def find_dataflow_node_by_interface_name_id(
-    dataflow_json: Dict[str, Any], iface_name: str, iface_id: str
-) -> Optional[Dict[str, Any]]:
+    dataflow_json: JsonType, iface_name: str, iface_id: str
+) -> Optional[JsonType]:
     """Return dataflow node which has an `iface_name` interface.
     Note that there can be multiple interfaces with given id so finding node by interface id is not reliable
     """
@@ -289,7 +281,7 @@ def find_dataflow_node_by_interface_name_id(
 
 
 def find_dataflow_interface_by_id(
-    dataflow_json: Dict[str, Any], iface_conn: InterfaceFromConnection
+    dataflow_json: JsonType, iface_conn: InterfaceFromConnection
 ) -> Optional[InterfaceData]:
     """Return InterfaceData object that corresponds to a given 'iface_id'"""
     graph_with_connection = _get_graph_with_conn_id(dataflow_json, iface_conn.connection_id)
@@ -306,8 +298,8 @@ def find_dataflow_interface_by_id(
 
 
 def find_spec_interface_by_name(
-    specification: Dict[str, Any], node_type: str, iface_name: str
-) -> Optional[Dict[str, Any]]:
+    specification: JsonType, node_type: str, iface_name: str
+) -> Optional[JsonType]:
     """Find `name` interface of `ip_type` IP core in `specification`"""
     for node in specification["nodes"]:
         if node["layer"] != node_type:
@@ -317,7 +309,7 @@ def find_spec_interface_by_name(
                 return interface
 
 
-def find_dataflow_node_type_by_name(dataflow_data: Dict[str, Any], node_name: str) -> Optional[str]:
+def find_dataflow_node_type_by_name(dataflow_data: JsonType, node_name: str) -> Optional[str]:
     """Returns node type based on the provided instance name"""
     for node in get_all_graph_nodes(dataflow_data):
         if node["instanceName"] == node_name:
@@ -325,7 +317,7 @@ def find_dataflow_node_type_by_name(dataflow_data: Dict[str, Any], node_name: st
 
 
 def find_connected_interfaces(
-    dataflow_json: Dict[str, Any], iface_id: str
+    dataflow_json: JsonType, iface_id: str
 ) -> List[InterfaceFromConnection]:
     """Return a list of InterfacefromConnection objects where 'iface_id' is referenced in a connection"""
     result = []
