@@ -3,36 +3,66 @@
 
 stages:
   - test
-  - build_docs
   - deploy_docs
 
 variables:
   DEBIAN_FRONTEND: noninteractive
-  SCALENODE_RAM: 12288
-  SCALENODE_CPU: 6
+  SCALENODE_RAM: 10240
+  SCALENODE_CPU: 8
+  SCALENODE_DISK: 20
 
 lint:
   variables:
-    SCALENODE_RAM: 2048
-    SCALENODE_CPU: 2
+    SCALENODE_RAM: 4096
+    SCALENODE_CPU: 4
   stage: test
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh lint
 
-tests:
+test_python_3_8:
   stage: test
   image: debian:bookworm
   script:
-    - ./.github/scripts/ci.sh tests
+    - ./.github/scripts/ci.sh test_python 3.8
+
+test_python_3_9:
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh test_python 3.9
+
+test_python_3_10:
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh test_python 3.10
+
+test_python_3_11:
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh test_python 3.11
+
+test_python_3_12:
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh test_python 3.12
 
 package_test:
+  variables:
+    SCALENODE_CPU: 4
+    SCALENODE_RAM: 8192
   stage: test
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh package_dist
 
 examples:
+  variables:
+    SCALENODE_CPU: 6
+    SCALENODE_RAM: 8192
   stage: test
   image: debian:bookworm
   script:
@@ -42,6 +72,9 @@ examples:
       - examples/**/build
 
 package_cores:
+  variables:
+    SCALENODE_CPU: 4
+    SCALENODE_RAM: 8192
   stage: test
   image: debian:bookworm
   script:
@@ -52,8 +85,8 @@ package_cores:
 
 pyright_check:
   variables:
-    SCALENODE_RAM: 12288
-    SCALENODE_CPU: 2
+    SCALENODE_RAM: 6144
+    SCALENODE_CPU: 4
   stage: test
   image: debian:bookworm
   script:
@@ -62,10 +95,10 @@ pyright_check:
 
 build_docs:
   variables:
-    SCALENODE_RAM: 2048
-    SCALENODE_CPU: 2
+    SCALENODE_RAM: 18432
+    SCALENODE_CPU: 5
   image: debian:bookworm
-  stage: build_docs
+  stage: test
   script:
     - ./.github/scripts/ci.sh docs
     - tar cf "$CI_DOCS_ARCHIVE" -C docs/build/html/ .
@@ -78,6 +111,8 @@ deploy_docs:
   image: debian:bookworm
   variables:
     GIT_STRATEGY: none
+    SCALENODE_RAM: 2048
+    SCALENODE_CPU: 1
   dependencies: [ build_docs ]
   stage: deploy_docs
   tags: ['docs']

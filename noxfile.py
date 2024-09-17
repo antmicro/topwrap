@@ -61,7 +61,7 @@ def update_test_data(session: nox.Session) -> None:
     session.run("python3", "tests/update_test_data.py", *tests_to_update)
 
 
-def prepare_pyenv(session: nox.Session) -> dict:
+def prepare_pyenv(session: nox.Session, python_versions: List[str]) -> Dict[str, str]:
     env = os.environ.copy()
     path = env.get("PATH")
 
@@ -82,14 +82,14 @@ def prepare_pyenv(session: nox.Session) -> dict:
         )
 
     # Install required Python versions if these don't exist
-    for ver in PYTHON_VERSIONS:
+    for ver in python_versions:
         if not shutil.which(f"python{ver}", path=path):
             session.log(f"Installing Python {ver}")
             session.run("pyenv", "install", ver, external=True, env=env)
 
     # Detect which versions are provided by Pyenv
     pythons_in_pyenv = []
-    for ver in PYTHON_VERSIONS:
+    for ver in python_versions:
         if shutil.which(f"python{ver}", path=pyenv_shims):
             pythons_in_pyenv += [ver]
 
@@ -103,8 +103,9 @@ def prepare_pyenv(session: nox.Session) -> dict:
 
 @nox.session
 def tests_in_env(session: nox.Session) -> None:
-    env = prepare_pyenv(session)
-    session.run("nox", "-s", "tests", external=True, env=env)
+    python_versions = PYTHON_VERSIONS if not session.posargs else session.posargs
+    env = prepare_pyenv(session, python_versions)
+    session.run("nox", "-s", "tests", "-p", *python_versions, external=True, env=env)
 
 
 @nox.session

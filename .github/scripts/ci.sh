@@ -119,15 +119,15 @@ run_lint() {
     end_command_group
 }
 
-run_tests() {
+run_python_tests() {
     install_common_system_packages
     install_topwrap_system_deps
     install_interconnect_test_system_deps
     install_nox
     install_pyenv
 
-    begin_command_group "Run Python tests"
-    log_cmd nox -s tests_in_env
+    begin_command_group "Run Python $1 tests"
+    log_cmd nox -s tests_in_env -- "$1"
     end_command_group
 }
 
@@ -203,8 +203,8 @@ case "$1" in
 lint)
     run_lint
     ;;
-tests)
-    run_tests
+test_python)
+    run_python_tests "$2"
     ;;
 examples)
     generate_examples
@@ -222,6 +222,6 @@ docs)
     generate_docs
     ;;
 *)
-    echo "Usage: $0 {lint|tests|examples|package_cores|package_dist|docs|pyright_check}"
+    echo "Usage: $0 {lint|test_python|examples|package_cores|package_dist|docs|pyright_check}"
     ;;
 esac
