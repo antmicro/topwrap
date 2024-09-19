@@ -13,32 +13,36 @@ from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 
 KPM_PATH = "_static/kpm/index.html"
+DEFAULT_ALT_TEXT = "An interactive KPM frame, where you can explore the block design for this section, is available here in the HTML version of this documentation."
 
 
 class KPMNode(nodes.container):
     def __init__(
         self,
+        *,
         depth: int,
-        preview: bool,
-        spec_ref: Optional[str],
-        graph_ref: Optional[str],
-        height: Optional[str],
+        preview: Optional[bool] = None,
+        spec: Optional[str] = None,
+        dataflow: Optional[str] = None,
+        height: Optional[str] = None,
+        alt: Optional[str] = None,
     ) -> None:
         # we're leveraging the builtin download_reference node
         # to automatically move necessary files from sources
         # into the build directory and have a path to them
         spec_node = graph_node = None
-        if spec_ref:
-            spec_node = download_reference("", "", reftarget=spec_ref, disabled=True)
-        if graph_ref:
-            graph_node = download_reference("", "", reftarget=graph_ref, disabled=True)
+        if spec:
+            spec_node = download_reference("", "", reftarget=spec, disabled=True)
+        if dataflow:
+            graph_node = download_reference("", "", reftarget=dataflow, disabled=True)
 
-        super().__init__("", *(node for node in (spec_node, graph_node) if node))
+        super().__init__("", *(node for node in (spec_node, graph_node) if node), self_ref=self)
         self.spec_node = spec_node
         self.graph_node = graph_node
         self.rel_pfx = "../" * depth
         self.preview = preview
         self.height = height
+        self.alt = alt if alt is not None else DEFAULT_ALT_TEXT
 
     def _node_to_target(self, node: download_reference) -> str:
         if "filename" in node:
@@ -71,14 +75,14 @@ class KPMNode(nodes.container):
         )
 
     @staticmethod
-    def visit_latex(trans: LaTeXTranslator, _: KPMNode):
+    def visit_latex(trans: LaTeXTranslator, node: KPMNode):
+        node = node.attributes["self_ref"]
         trans.body.append(
-            r"""
-\begin{sphinxadmonition}{warning}{Note:}
+            rf"""
+\begin{{sphinxadmonition}}{{warning}}{{Note:}}
 \sphinxAtStartPar
-An interactive KPM frame, where you can explore the block design for this section,
-is available here in the HTML version of this documentation.
-\end{sphinxadmonition}"""
+{node.alt}
+\end{{sphinxadmonition}}"""
         )
 
     @staticmethod
@@ -87,18 +91,10 @@ is available here in the HTML version of this documentation.
 
 
 class KPMDirective(SphinxDirective):
-    option_spec = {"spec": path, "dataflow": path, "preview": bool, "height": str}
+    option_spec = {"spec": path, "dataflow": path, "preview": bool, "height": str, "alt": str}
 
     def run(self) -> list[nodes.Node]:
-        return [
-            KPMNode(
-                self.env.docname.count("/"),
-                self.options.get("preview", False),
-                self.options.get("spec"),
-                self.options.get("dataflow"),
-                self.options.get("height"),
-            )
-        ]
+        return [KPMNode(depth=self.env.docname.count("/"), **self.options)]
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
