@@ -48,7 +48,15 @@ def test_lint(session: nox.Session) -> None:
 @nox.session(python=PYTHON_VERSIONS)
 def tests(session: nox.Session) -> None:
     session.install("-e", ".[tests,topwrap-parse]")
-    session.run("pytest", "-rs", "--cov-report", "html:cov_html", "--cov=topwrap", "tests")
+    session.run(
+        "pytest",
+        "-rs",
+        "--cov-report",
+        "html:cov_html",
+        "--cov=topwrap",
+        "--cov-config=pyproject.toml",
+        "tests",
+    )
 
 
 @nox.session
