@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import json
 import logging
 import os
 import subprocess
@@ -10,10 +11,12 @@ from typing import List, Optional
 
 import click
 
+from topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from topwrap.kpm_common import RPCparams
+from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 from .config import config
-from .design import build_design_from_yaml
+from .design import DesignDescription, build_design_from_yaml
 from .interface_grouper import standard_iface_grouper
 from .kpm_topwrap_client import kpm_run_client
 from .repo.user_repo import UserRepo
@@ -23,6 +26,9 @@ click_opt_rw_dir = click.Path(
     exists=False, file_okay=False, dir_okay=True, readable=True, writable=True
 )
 click_r_file = click.Path(exists=True, file_okay=True, dir_okay=False, readable=True)
+click_w_file = click.Path(
+    exists=False, file_okay=True, dir_okay=False, writable=True, path_type=Path
+)
 
 main = click.Group(help="Topwrap")
 
@@ -257,3 +263,45 @@ def kpm_run_server(
     for k, v in ctx.params.items():
         args += [f"--{k}".replace("_", "-"), f"{v}"]
     subprocess.check_call(args)
+
+
+@main.command("specification", help="Generate KPM specification from IP core YAMLs")
+@click.option(
+    "--output",
+    "-o",
+    type=click_w_file,
+    default="kpm_spec.json",
+    help="Destination file for the KPM specification",
+)
+@click.argument("files", type=click_r_file, nargs=-1)
+def generate_kpm_spec(output: Path, files):
+    config_user_repo = UserRepo()
+    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
+    extended_yamlfiles = config_user_repo.get_core_designs()
+    extended_yamlfiles += files
+
+    spec = ipcore_yamls_to_kpm_spec(extended_yamlfiles)
+    with open(output, "w") as f:
+        f.write(json.dumps(spec))
+
+
+@main.command("dataflow", help="Generate KPM dataflow from IP core YAMLs")
+@click.option(
+    "--output",
+    "-o",
+    type=click_w_file,
+    default="kpm_dataflow.json",
+    help="Destination file for the KPM dataflow",
+)
+@click.option("--design", "-d", type=click_r_file, help="Design YAML file")
+@click.argument("files", type=click_r_file, nargs=-1)
+def generate_kpm_design(output: Path, design, files):
+    config_user_repo = UserRepo()
+    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
+    extended_yamlfiles = config_user_repo.get_core_designs()
+    extended_yamlfiles += files
+
+    spec = ipcore_yamls_to_kpm_spec(extended_yamlfiles)
+    dataflow = kpm_dataflow_from_design_descr(DesignDescription.load(design), spec)
+    with open(output, "w") as f:
+        f.write(json.dumps(dataflow))
