@@ -10,8 +10,8 @@ parameters:
   CONVERT_NARROW_BURST: 0
 signals:
   in:
-  - - clk
-  - - rst
+  - clk
+  - rst
 interfaces:
   s_axi:
     signals:
@@ -28,14 +28,12 @@ interfaces:
         - s_axi_awburst
         - 1
         - 0
-        ARVALID:
-        - s_axi_arvalid
+        ARVALID: s_axi_arvalid
         AWCACHE:
         - s_axi_awcache
         - 3
         - 0
-        AWVALID:
-        - s_axi_awvalid
+        AWVALID: s_axi_awvalid
         ARPROT:
         - s_axi_arprot
         - 2
@@ -44,12 +42,9 @@ interfaces:
         - s_axi_awprot
         - 2
         - 0
-        BREADY:
-        - s_axi_bready
-        ARLOCK:
-        - s_axi_arlock
-        RREADY:
-        - s_axi_rready
+        BREADY: s_axi_bready
+        ARLOCK: s_axi_arlock
+        RREADY: s_axi_rready
         ARSIZE:
         - s_axi_arsize
         - 2
@@ -66,10 +61,8 @@ interfaces:
         - s_axi_awaddr
         - (ADDR_WIDTH-1)
         - 0
-        WVALID:
-        - s_axi_wvalid
-        AWLOCK:
-        - s_axi_awlock
+        WVALID: s_axi_wvalid
+        AWLOCK: s_axi_awlock
         AWLEN:
         - s_axi_awlen
         - 7
@@ -78,8 +71,7 @@ interfaces:
         - s_axi_wdata
         - (AXI_DATA_WIDTH-1)
         - 0
-        WLAST:
-        - s_axi_wlast
+        WLAST: s_axi_wlast
         WSTRB:
         - s_axi_wstrb
         - (AXI_STRB_WIDTH-1)
@@ -97,18 +89,12 @@ interfaces:
         - (AXI_ID_WIDTH-1)
         - 0
       out:
-        ARREADY:
-        - s_axi_arready
-        AWREADY:
-        - s_axi_awready
-        WREADY:
-        - s_axi_wready
-        RVALID:
-        - s_axi_rvalid
-        BVALID:
-        - s_axi_bvalid
-        RLAST:
-        - s_axi_rlast
+        ARREADY: s_axi_arready
+        AWREADY: s_axi_awready
+        WREADY: s_axi_wready
+        RVALID: s_axi_rvalid
+        BVALID: s_axi_bvalid
+        RLAST: s_axi_rlast
         RDATA:
         - s_axi_rdata
         - (AXI_DATA_WIDTH-1)
@@ -134,16 +120,11 @@ interfaces:
   m_axil:
     signals:
       in:
-        ARREADY:
-        - m_axil_arready
-        AWREADY:
-        - m_axil_awready
-        WREADY:
-        - m_axil_wready
-        RVALID:
-        - m_axil_rvalid
-        BVALID:
-        - m_axil_bvalid
+        ARREADY: m_axil_arready
+        AWREADY: m_axil_awready
+        WREADY: m_axil_wready
+        RVALID: m_axil_rvalid
+        BVALID: m_axil_bvalid
         RDATA:
         - m_axil_rdata
         - (AXIL_DATA_WIDTH-1)
@@ -157,18 +138,14 @@ interfaces:
         - 1
         - 0
       out:
-        ARVALID:
-        - m_axil_arvalid
-        AWVALID:
-        - m_axil_awvalid
+        ARVALID: m_axil_arvalid
+        AWVALID: m_axil_awvalid
         AWPROT:
         - m_axil_awprot
         - 2
         - 0
-        BREADY:
-        - m_axil_bready
-        WVALID:
-        - m_axil_wvalid
+        BREADY: m_axil_bready
+        WVALID: m_axil_wvalid
         ARADDR:
         - m_axil_araddr
         - (ADDR_WIDTH-1)
@@ -177,8 +154,7 @@ interfaces:
         - m_axil_awaddr
         - (ADDR_WIDTH-1)
         - 0
-        RREADY:
-        - m_axil_rready
+        RREADY: m_axil_rready
         ARPROT:
         - m_axil_arprot
         - 2

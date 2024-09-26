@@ -45,11 +45,11 @@ interfaces:
         type: AXI4Stream
         signals:
             out:
-                TDATA: [p1]
-                TVALID: [p2]
-                TBUBU: [p3]
+                TDATA: p1
+                TVALID: p2
+                TBUBU: p3
             in:
-                TREADY: [p4]"""
+                TREADY: p4"""
         )
 
     @pytest.fixture
@@ -63,11 +63,11 @@ interfaces:
         type: AXI4Stream
         signals:
             out:
-                TDATA: [p1]
-                TVALID: [p2]
-                TLAST: [p3]
+                TDATA: p1
+                TVALID: p2
+                TLAST: p3
             in:
-                TREADY: [p4]"""
+                TREADY: p4"""
         )
 
     @pytest.fixture
@@ -159,19 +159,16 @@ interfaces:
                 "in": {
                     1: [
                         {"_schema": ["Not a valid string."]},
-                        {"_schema": ["Length must be 1."]},
                         {"_schema": ["Length must be 3."]},
                         {"_schema": ["Length must be 5."]},
                     ],
                     2: [
                         {"_schema": ["Not a valid string."]},
-                        {"_schema": ["Length must be 1."]},
                         {"_schema": ["Length must be 3."]},
                         {"_schema": ["Length must be 5."]},
                     ],
                     3: [
                         {"_schema": ["Not a valid string."]},
-                        {"_schema": ["Not a valid tuple."]},
                         {"_schema": ["Not a valid tuple."]},
                         {"_schema": ["Not a valid tuple."]},
                     ],
@@ -221,11 +218,17 @@ interfaces:
                                 "ABC": {
                                     "value": [
                                         {"_schema": ["Not a valid string."]},
-                                        {"_schema": ["Length must be 1."]},
                                         {"_schema": ["Length must be 3."]},
                                         {"_schema": ["Length must be 5."]},
                                     ]
-                                }
+                                },
+                                "non": {
+                                    "value": [
+                                        {"_schema": ["Not a valid string."]},
+                                        {"_schema": ["Length must be 3."]},
+                                        {"_schema": ["Length must be 5."]},
+                                    ]
+                                },
                             },
                             "barfoo": ["Unknown field."],
                             "foobar": ["Unknown field."],
@@ -265,7 +268,7 @@ interfaces:
                     "clk",
                     ("btns", 32, 0, 15, 10),
                     ("leds", 10, 0),
-                    ("rst",),
+                    "rst",
                     ("useless", 22, 10),
                 },
                 output=set(),

@@ -27,7 +27,7 @@ interfaces:
 signals:
   in:
   - clk
-  - [rst]
+  - rst
   - [leds, 10, 0]
   - - btns
     - 32

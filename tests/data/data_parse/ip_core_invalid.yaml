@@ -28,6 +28,8 @@ interfaces:
         signals:
             out:
                 ABC: []
+                non:
+                - nested
             foobar: {}
             barfoo:
 

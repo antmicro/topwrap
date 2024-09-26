@@ -30,7 +30,7 @@ from .interface import InterfaceDefinition, InterfaceMode, get_interface_by_name
 
 _T = Union[str, int]
 
-Signal = Union[str, Tuple[str], Tuple[str, _T, _T], Tuple[str, _T, _T, _T, _T]]
+Signal = Union[str, Tuple[str, _T, _T], Tuple[str, _T, _T, _T, _T]]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -50,7 +50,7 @@ class IPCorePort:
     def raw(self) -> Signal:
         out = self.bounds
         if out == (0, 0, 0, 0):
-            out = (self.name,)
+            out = self.name
         elif out[:2] == out[2:]:
             out = (self.name, *out[:2])
         else:
