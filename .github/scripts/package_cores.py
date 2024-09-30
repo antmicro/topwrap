@@ -136,7 +136,7 @@ def package_cores(log_level: str):
 
     # iterating over fusesoc cores, note that fusesoc core is a topwrap repo, not topwrap core
     for core in cores_downloaded:
-        core_build_dir = "../../build/" + core
+        core_build_dir = "../../build/export"
         # finding the path of a fusesoc core - they have a suffix with version
         for path in [x for x in Path(".").glob(core + "*")]:
             os.chdir(
@@ -205,23 +205,21 @@ def package_cores(log_level: str):
                 if error_counter == err_ini:
                     full_good.append(core)
             os.chdir("..")  # root/build/fusesoc_workspace/cache_dir
-    for succ_core in full_good:
-        shutil.copytree(
-            Path("../build") / Path(succ_core),
-            Path("../../export") / Path(succ_core),
-            dirs_exist_ok=True,
-        )
+    Path("non_fusesoc").mkdir(exist_ok=True)
+    os.chdir("non_fusesoc")  # root/build/fusesoc_worskapce/cache_dir/non_fusesoc
+    package_repos()
+    for r in Path(".").glob("*/cores"):
+        shutil.copytree(r, Path("../../build/export/cores"), dirs_exist_ok=True)
+
+    os.chdir("../..")  # root/build/fusesoc_workspace
+    Path("../export").mkdir(exist_ok=True)
+    shutil.copytree(Path("./build/export"), Path("../export"), dirs_exist_ok=True)
+
     os.chdir("../..")  # root/build
     logger.warning(f"parses failed: {error_counter} out of {error_counter+pass_counter}")
     logger.warning(error_parses)
     logger.info(f"fully well parsed cores are {full_good} - a total of {len(full_good)}")
 
-    os.chdir("export")
-    logger.info("packaging cores")
-    package_repos()
-
 
 if __name__ == "__main__":
     package_cores()
-    os.chdir("export")
-    package_repos()
