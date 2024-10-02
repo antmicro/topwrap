@@ -98,7 +98,7 @@ If you have the example running as described in previous section then on the top
 First one is for loading or saving designs.
 Second is for toggling node browser.
 Third one is for validating the design.
-And the fourth is for running the design which will generate the verilog file in `/build` directory of the current example and run the design.
+And the fourth is for building the design which will generate the verilog file in `/build` directory of the current example and run the design.
 
 ## Appendix: Command-line flow
 
