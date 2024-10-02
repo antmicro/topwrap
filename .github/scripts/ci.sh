@@ -180,8 +180,17 @@ pyright_check(){
     install_topwrap_system_deps
     install_nox
 
-    begin_command_group "checking types"
+    begin_command_group "Checking types"
     log_cmd nox -s pyright_check -- compare
+    end_command_group
+}
+
+changelog_check(){
+    install_common_system_packages
+    install_nox
+
+    begin_command_group "Checking if changelog was changed"
+    log_cmd nox -s changed_changelog
     end_command_group
 }
 
@@ -204,10 +213,13 @@ package_dist)
 pyright_check)
     pyright_check
     ;;
+changelog_check)
+    changelog_check
+    ;;
 docs)
     generate_docs
     ;;
 *)
-    echo "Usage: $0 {lint|test_python|examples|package_cores|package_dist|docs|pyright_check}"
+    echo "Usage: $0 {lint|test_python|examples|package_cores|package_dist|docs|pyright_check|changelog_check}"
     ;;
 esac

@@ -281,3 +281,20 @@ def package_cores(session: nox.Session) -> None:
         session.run("python", ".github/scripts/package_cores.py", "--log-level", session.posargs[0])
     else:
         session.run("python", ".github/scripts/package_cores.py")
+
+
+@nox.session
+def changed_changelog(session: nox.Session) -> None:
+    changelog_file_name = "CHANGELOG.md"
+    changelog_changed = session.run(
+        "git",
+        "diff",
+        "--name-only",
+        "origin/main",
+        "--",
+        changelog_file_name,
+        external=True,
+        silent=True,
+    )
+    if not changelog_changed:
+        raise CommandFailed()

@@ -94,6 +94,16 @@ pyright_check:
     - ./.github/scripts/ci.sh pyright_check
   allow_failure: true
 
+changelog_check:
+  image: debian:bookworm
+  variables:
+    SCALENODE_RAM: 3072
+    SCALENODE_CPU: 3
+  stage: test
+  script:
+    - ./.github/scripts/ci.sh changelog_check
+  allow_failure: true
+
 build_docs:
   variables:
     SCALENODE_RAM: 18432

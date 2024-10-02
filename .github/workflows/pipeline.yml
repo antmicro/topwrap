@@ -57,6 +57,28 @@ jobs:
         run: |
           ./.github/scripts/ci.sh pyright_check
 
+  changelog_changed:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    name: "Check if changelog was changed"
+
+    steps:
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run changelog check
+        continue-on-error: true
+        run: |
+          git config --add safe.directory "$(pwd)"
+          ./.github/scripts/ci.sh changelog_check
+
   test_python_3_8:
     runs-on: ubuntu-latest
     container:
