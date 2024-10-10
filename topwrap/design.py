@@ -41,7 +41,7 @@ class DesignIP:
 class DesignExternalPorts(MarshmallowDataclassExtensions):
     input: List[str] = ext_field(list, data_key="in")
     output: List[str] = ext_field(list, data_key="out")
-    inout: List[Tuple[str, str]] = ext_field(list)
+    inout: List[Tuple[str, str]] = ext_field(list, inline_depth=1)
 
     @cached_property
     def flat(self):
@@ -83,11 +83,11 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
         address: int
         size: int
 
-    clock: Union[str, Tuple[str, str]]
-    reset: Union[str, Tuple[str, str]]
     type: InterconnectType
+    clock: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
+    reset: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
     params: Dict[str, Any] = ext_field(dict)
-    masters: Dict[str, List[str]] = ext_field(dict, deep_cleanup=True)
+    masters: Dict[str, List[str]] = ext_field(dict)
     slaves: Dict[str, Dict[str, Slave]] = ext_field(dict)
 
 
@@ -101,8 +101,8 @@ class DesignSection(MarshmallowDataclassExtensions):
         None
     )  # This field is relevant only for the top-level design section
     parameters: Dict[str, Dict[str, IPCoreParameter]] = ext_field(dict, deep_cleanup=True)
-    ports: DS_PortsT = ext_field(dict, deep_cleanup=True)
-    interfaces: DS_InterfacesT = ext_field(dict, deep_cleanup=True)
+    ports: DS_PortsT = ext_field(dict, deep_cleanup=True, inline_depth=2)
+    interfaces: DS_InterfacesT = ext_field(dict, deep_cleanup=True, inline_depth=2)
     interconnects: Dict[str, DesignSectionInterconnect] = ext_field(dict)
     hierarchies: Dict[str, "DesignDescription"] = ext_field(dict)
 

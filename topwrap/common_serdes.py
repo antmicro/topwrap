@@ -1,18 +1,23 @@
 # Copyright (c) 2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import itertools
 import re
-from dataclasses import field
+from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import (
     Any,
     Callable,
     ClassVar,
     Dict,
+    Generic,
     Iterable,
     List,
     Mapping,
+    Optional,
     Sequence,
     Type,
     TypeVar,
@@ -245,11 +250,20 @@ def flatten_and_annotate(
         raise marshmallow.ValidationError(str(e))
 
 
+class MetaKeys(Enum):
+    SELF_CLEANUP = "self_cleanup"
+    DEEP_CLEANUP = "deep_cleanup"
+    INLINE_DEPTH = "inline_depth"
+
+    SHOULD_INLINE = "should_inline"
+
+
 def ext_field(
     default: MaybeMissing[Union[T, Callable[[], T]]] = MISSING,
     *,
     self_cleanup: bool = True,
     deep_cleanup: bool = False,
+    inline_depth: Optional[int] = None,
     dcls_field_kws: Mapping[str, Any] = {},
     **kwargs: Any,
 ) -> T:
@@ -296,6 +310,9 @@ def ext_field(
         serialization this field would get recursively cleaned up of empty inner items. *Setting
         this to True on a field with type other than the above is a no-op.*
 
+    :param inline_depth: Nested fields starting from this depth will be represented in an inline
+        style (in other words, the "flow" style in YAML terminology).
+
     :param dcls_field_kws: Additional keyword params to be passed to the `dataclasses.field` function.
 
     :param **kwargs: Additional keyword params that get passed to the `marshmallow.Field` constructor.
@@ -303,8 +320,9 @@ def ext_field(
 
     if "metadata" not in kwargs:
         kwargs["metadata"] = {}
-    kwargs["metadata"]["self_cleanup"] = self_cleanup
-    kwargs["metadata"]["deep_cleanup"] = deep_cleanup
+    kwargs["metadata"][MetaKeys.SELF_CLEANUP.value] = self_cleanup
+    kwargs["metadata"][MetaKeys.DEEP_CLEANUP.value] = deep_cleanup
+    kwargs["metadata"][MetaKeys.INLINE_DEPTH.value] = inline_depth
 
     if default is MISSING:
         return field(metadata=kwargs, **dcls_field_kws)
@@ -314,7 +332,29 @@ def ext_field(
     if isinstance(default, Callable):
         return field(default_factory=default, metadata=opt_dcls_meta, **dcls_field_kws)
 
-    return field(default=cast(T, default), metadata=opt_dcls_meta, **dcls_field_kws)
+    return field(default=default, metadata=opt_dcls_meta, **dcls_field_kws)
+
+
+@dataclass
+class Inline(Generic[T]):
+    inner: T
+
+
+class InlineYamlDumper(yaml.SafeDumper):
+    """
+    A custom YAML dumper that represents data wrapped with the `Inline`
+    wrapper using the inline "flow style".
+    """
+
+    @staticmethod
+    def represent_inline(dumper: yaml.SafeDumper, data: Inline[T]) -> yaml.Node:
+        node = dumper.represent_data(data.inner)
+        if isinstance(node, yaml.CollectionNode):
+            node.flow_style = True
+        return node
+
+
+InlineYamlDumper.add_representer(Inline, InlineYamlDumper.represent_inline)
 
 
 class MarshmallowDataclassExtensions:
@@ -326,9 +366,18 @@ class MarshmallowDataclassExtensions:
 
     Schema: ClassVar[Type[marshmallow.Schema]]
 
+    @staticmethod
     @marshmallow.post_dump(pass_original=True)
-    def _post_dump_handler(self, data: Dict[str, Any], org: Self, **kw: Any):
-        return org._cleanup_nulls(data, org.Schema())
+    def _post_dump_handler(
+        sch: marshmallow.Schema,
+        data: Dict[str, Any],
+        org: MarshmallowDataclassExtensions,
+        **kw: Any,
+    ):
+        data = org._cleanup_nulls(data, sch)
+        if sch.context.get(MetaKeys.SHOULD_INLINE.value, False):
+            data = org._inline_wrap(data, sch)
+        return data
 
     @staticmethod
     def _cleanup_nulls(data: Dict[str, Any], sch: marshmallow.Schema) -> Any:
@@ -349,24 +398,51 @@ class MarshmallowDataclassExtensions:
                 for next_key in obj[key]:
                     _deep_del(obj[key], next_key)
                 obj[key] = {k: v for k, v in obj[key].items() if not _test_null(v)}
-            elif isinstance(obj[key], list):
+            elif isinstance(obj[key], (list, tuple)):
                 for idx in range(len(obj[key])):
                     _deep_del(obj[key], idx)
-                obj[key] = [x for x in obj[key] if not _test_null(x)]
+                obj[key] = type(obj[key])(x for x in obj[key] if not _test_null(x))
 
         for fname, fld in sch.fields.items():
             name = fld.data_key or fname
-            if fld.metadata.get("deep_cleanup", False) and isinstance(
+            if fld.metadata.get(MetaKeys.DEEP_CLEANUP.value, False) and isinstance(
                 fld, (marshmallow.fields.Dict, marshmallow.fields.List)
             ):
                 _deep_del(data, name)
             if (
                 not fld.required
-                and fld.metadata.get("self_cleanup", False)
+                and fld.metadata.get(MetaKeys.SELF_CLEANUP.value, False)
                 and _test_null(data[name])
             ):
                 del data[name]
 
+        return data
+
+    @classmethod
+    def _inline_wrap(cls, data: Dict[str, Any], sch: marshmallow.Schema) -> Any:
+        """Wraps fields pointed by the `inlined` field parameter with the `Inline`
+        wrapper which later gets caught by a custom PyYAML representer"""
+
+        def _wrap_at_depth(data: Any, key: Any, depth: int):
+            if depth <= 0:
+                data[key] = Inline(data[key])
+            else:
+                if isinstance(data[key], (Mapping, list, tuple)):
+                    keys = (
+                        data[key].keys()
+                        if isinstance(data[key], Mapping)
+                        else range(len(data[key]))
+                    )
+                    for next_key in keys:
+                        _wrap_at_depth(data[key], next_key, depth - 1)
+
+        for fname, fld in sch.fields.items():
+            name = fld.data_key or fname
+            if (
+                name in data
+                and (depth := fld.metadata.get(MetaKeys.INLINE_DEPTH.value)) is not None
+            ):
+                _wrap_at_depth(data, name, depth)
         return data
 
     def to_dict(self, **kwargs: Any) -> Dict[str, Any]:
@@ -377,7 +453,9 @@ class MarshmallowDataclassExtensions:
         return cast(Self, cls.Schema().load(data, **kwargs))
 
     def to_yaml(self, **kwargs: Any) -> str:
-        return yaml.safe_dump(self.to_dict(), sort_keys=True, **kwargs)
+        sch = self.Schema()
+        sch.context[MetaKeys.SHOULD_INLINE.value] = True
+        return yaml.dump(sch.dump(self), Dumper=InlineYamlDumper, sort_keys=True, **kwargs)
 
     @classmethod
     def from_yaml(cls, yaml_str: str, **kwargs: Any) -> Self:

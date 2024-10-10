@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections import defaultdict
+from enum import Enum
 from typing import Any, DefaultDict, Dict, TypeVar, Union
 
 JsonType = Dict[str, Any]
@@ -34,10 +35,16 @@ def recursive_defaultdict_to_dict(recursive_defaultdict: _R) -> Dict[Any, Any]:
     return dict(recursive_defaultdict)
 
 
-class MissingType:
+class MissingType(Enum):
     """
     Marker type to be used when it's necessary to mark a field or a parameter as
     optional but when `None` should be treated as a supplied value, not a missing one.
+
+    Implemented as an `Enum` because type-checkers know it's not possible to dynamically
+    create new instances or add fields to an enum class. Knowing the defined fields are
+    the only instances of the class, it's possible to narrow the type of a variable like
+    `x: Union[T, MissingType]` to `T` only by checking if `x is not MISSING`, since
+    `MISSING`/`MissingType.instance` is the only possible instance of the MissingType.
 
     Example::
 
@@ -54,10 +61,17 @@ class MissingType:
         >>> missing value
     """
 
+    # the value assigned to this field doesn't
+    # matter since there's no point in accessing it
+    instance = None
+
 
 _T = TypeVar("_T")
+# Note, that because an enum variant is an instance of its own type
+# `MISSING != None` and `MISSING is not None` despite what may seem
+# by just analyzing the assignments.
+MISSING = MissingType.instance
 MaybeMissing = Union[_T, MissingType]
-MISSING = MissingType()
 
 
 class UnreachableError(RuntimeError):

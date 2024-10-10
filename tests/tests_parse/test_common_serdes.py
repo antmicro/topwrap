@@ -1,7 +1,7 @@
 from dataclasses import fields
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import marshmallow_dataclass
 import pytest
@@ -389,3 +389,28 @@ class TestDataclassExtensions:
             dummy_instance.save(path)
 
             assert DummyDataclass.load(path) == dummy_instance
+
+    def test_yaml_inlining(self):
+        @marshmallow_dataclass.dataclass
+        class TestDataclass(MarshmallowDataclassExtensions):
+            this: Tuple[str, ...] = ext_field(tuple, inline_depth=0)
+            each_elem: List[Any] = ext_field(list, inline_depth=1)
+            dictf: Dict[str, Any] = ext_field(dict, inline_depth=2)
+
+        yaml = TestDataclass(
+            each_elem=[(1, 2, 3), [4, 5, 6]],
+            dictf={"foo": [{1: 2}]},
+            this=("a", "b", "c"),
+        ).to_yaml()
+
+        assert (
+            yaml
+            == r"""dictf:
+  foo:
+  - {1: 2}
+each_elem:
+- [1, 2, 3]
+- [4, 5, 6]
+this: [a, b, c]
+"""
+        )

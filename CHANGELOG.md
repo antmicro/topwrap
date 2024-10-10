@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Automatically generated YAML files are now more concise thanks to some arrays being serialized inline, instead of each element always occupying its own line
 - Added "IP Cores", "Externals", and "Constants" layers to the GUI which you can hide/show from the settings
 - Nox session for downloading and packaging FuseSoc libraries
 - Support Python 3.13 and dropped support for Python 3.8

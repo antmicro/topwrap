@@ -97,9 +97,9 @@ class IPCorePort:
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCorePorts(MarshmallowDataclassExtensions):
-    input: Set[Signal] = ext_field(set, data_key="in")
-    output: Set[Signal] = ext_field(set, data_key="out")
-    inout: Set[Signal] = ext_field(set)
+    input: Set[Signal] = ext_field(set, data_key="in", inline_depth=1)
+    output: Set[Signal] = ext_field(set, data_key="out", inline_depth=1)
+    inout: Set[Signal] = ext_field(set, inline_depth=1)
 
     @cached_property
     def flat(self):
@@ -127,9 +127,9 @@ class IPCorePorts(MarshmallowDataclassExtensions):
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreIntfPorts(MarshmallowDataclassExtensions):
-    input: Dict[str, Signal] = ext_field(dict, data_key="in", deep_cleanup=True)
-    output: Dict[str, Signal] = ext_field(dict, data_key="out", deep_cleanup=True)
-    inout: Dict[str, Signal] = ext_field(dict, deep_cleanup=True)
+    input: Dict[str, Signal] = ext_field(dict, data_key="in", deep_cleanup=True, inline_depth=1)
+    output: Dict[str, Signal] = ext_field(dict, data_key="out", deep_cleanup=True, inline_depth=1)
+    inout: Dict[str, Signal] = ext_field(dict, deep_cleanup=True, inline_depth=1)
 
     @cached_property
     def flat(self):
