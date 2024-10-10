@@ -4,9 +4,7 @@ design:
       clk: clk
       rst: rst
     simple_core_2:
-      a:
-      - simple_core_1
-      - z
+      a: [simple_core_1, z]
       c: Output_c
       y: Output_y
 external:

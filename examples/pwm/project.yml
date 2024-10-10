@@ -1,13 +1,9 @@
 design:
   interfaces:
     axi_bridge:
-      s_axi:
-      - ps7
-      - M_AXI_GP0
+      s_axi: [ps7, M_AXI_GP0]
     litex_pwm_top:
-      s_axi:
-      - axi_bridge
-      - m_axi
+      s_axi: [axi_bridge, m_axi]
   parameters:
     axi_bridge:
       ADDR_WIDTH: 32
@@ -18,24 +14,14 @@ design:
       AXI_STRB_WIDTH: AXI_DATA_WIDTH/8
   ports:
     axi_bridge:
-      clk:
-      - ps7
-      - FCLK0
-      rst:
-      - ps7
-      - FCLK_RESET0_N
+      clk: [ps7, FCLK0]
+      rst: [ps7, FCLK_RESET0_N]
     litex_pwm_top:
       pwm: pwm
-      sys_clk:
-      - ps7
-      - FCLK0
-      sys_rst:
-      - ps7
-      - FCLK_RESET0_N
+      sys_clk: [ps7, FCLK0]
+      sys_rst: [ps7, FCLK_RESET0_N]
     ps7:
-      MAXIGP0ACLK:
-      - ps7
-      - FCLK0
+      MAXIGP0ACLK: [ps7, FCLK0]
 external:
   ports:
     out:

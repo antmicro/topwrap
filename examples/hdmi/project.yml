@@ -1,52 +1,28 @@
 design:
   interfaces:
     axi_bridge_disp:
-      s_axi:
-      - axi_interconnect0
-      - m_axi_2
+      s_axi: [axi_interconnect0, m_axi_2]
     axi_bridge_dma:
-      s_axi:
-      - axi_interconnect0
-      - m_axi_1
+      s_axi: [axi_interconnect0, m_axi_1]
     axi_bridge_mmcm:
-      s_axi:
-      - axi_interconnect0
-      - m_axi_0
+      s_axi: [axi_interconnect0, m_axi_0]
     axi_interconnect0:
-      s_axi_0:
-      - ps7
-      - M_AXI_GP0
+      s_axi_0: [ps7, M_AXI_GP0]
     axi_protocol_converter0:
-      S_AXI:
-      - dma
-      - m_axi
+      S_AXI: [dma, m_axi]
     axis_clock_converter:
-      s_axis:
-      - dma
-      - m_axis
+      s_axis: [dma, m_axis]
     axis_dwidth_converter:
-      s_axis:
-      - axis_clock_converter
-      - m_axis
+      s_axis: [axis_clock_converter, m_axis]
     disp:
-      S00_AXI:
-      - axi_bridge_disp
-      - m_axi
-      S_AXIS:
-      - axis_dwidth_converter
-      - m_axis
+      S00_AXI: [axi_bridge_disp, m_axi]
+      S_AXIS: [axis_dwidth_converter, m_axis]
     dma:
-      s_axi:
-      - axi_bridge_dma
-      - m_axi
+      s_axi: [axi_bridge_dma, m_axi]
     mmcm:
-      axi:
-      - axi_bridge_mmcm
-      - m_axi
+      axi: [axi_bridge_mmcm, m_axi]
     ps7:
-      S_AXI_HP0:
-      - axi_protocol_converter0
-      - M_AXI
+      S_AXI_HP0: [axi_protocol_converter0, M_AXI]
   parameters:
     axi_bridge_disp:
       ADDR_WIDTH: 32
@@ -100,109 +76,47 @@ design:
       OUT_DATA_WIDTH: 32
   ports:
     axi_bridge_disp:
-      clk:
-      - ps7
-      - FCLK0
-      rst:
-      - reset0
-      - bus_struct_reset
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
     axi_bridge_dma:
-      clk:
-      - ps7
-      - FCLK0
-      rst:
-      - reset0
-      - bus_struct_reset
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
     axi_bridge_mmcm:
-      clk:
-      - ps7
-      - FCLK0
-      rst:
-      - reset0
-      - bus_struct_reset
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
     axi_interconnect0:
-      clk:
-      - ps7
-      - FCLK0
-      rst:
-      - reset0
-      - bus_struct_reset
+      clk: [ps7, FCLK0]
+      rst: [reset0, bus_struct_reset]
     axi_protocol_converter0:
-      aclk:
-      - ps7
-      - FCLK0
-      aresetn:
-      - reset0
-      - interconnect_aresetn
+      aclk: [ps7, FCLK0]
+      aresetn: [reset0, interconnect_aresetn]
     axis_clock_converter:
-      async_rst:
-      - reset0
-      - bus_struct_reset
-      m_clk:
-      - mmcm
-      - clkgen_out0
-      s_clk:
-      - ps7
-      - FCLK0
+      async_rst: [reset0, bus_struct_reset]
+      m_clk: [mmcm, clkgen_out0]
+      s_clk: [ps7, FCLK0]
     axis_dwidth_converter:
-      aclk:
-      - mmcm
-      - clkgen_out0
-      aresetn:
-      - reset1
-      - interconnect_aresetn
+      aclk: [mmcm, clkgen_out0]
+      aresetn: [reset1, interconnect_aresetn]
     clock_crossing:
-      A:
-      - disp
-      - FSYNC_O
-      clkA:
-      - mmcm
-      - clkgen_out0
-      clkB:
-      - ps7
-      - FCLK0
+      A: [disp, FSYNC_O]
+      clkA: [mmcm, clkgen_out0]
+      clkB: [ps7, FCLK0]
     disp:
-      LOCKED_I:
-      - mmcm
-      - clkgen_locked
-      S_AXIS_ACLK:
-      - mmcm
-      - clkgen_out0
-      s00_axi_aclk:
-      - ps7
-      - FCLK0
-      s00_axi_aresetn:
-      - reset0
-      - peripheral_aresetn
+      LOCKED_I: [mmcm, clkgen_locked]
+      S_AXIS_ACLK: [mmcm, clkgen_out0]
+      s00_axi_aclk: [ps7, FCLK0]
+      s00_axi_aresetn: [reset0, peripheral_aresetn]
     dma:
-      clock:
-      - ps7
-      - FCLK0
-      io_sync_readerSync:
-      - clock_crossing
-      - B
-      io_sync_writerSync:
-      - clock_crossing
-      - B
-      reset:
-      - reset0
-      - peripheral_reset
+      clock: [ps7, FCLK0]
+      io_sync_readerSync: [clock_crossing, B]
+      io_sync_writerSync: [clock_crossing, B]
+      reset: [reset0, peripheral_reset]
     hdmi:
-      CTL:
-      - disp
-      - CTL_O
-      DATA_I:
-      - disp
-      - DATA_O
-      DGUARD:
-      - disp
-      - DGUARD_O
-      DIEN:
-      - disp
-      - DIEN_O
-      DIH:
-      - disp
-      - DIH_O
+      CTL: [disp, CTL_O]
+      DATA_I: [disp, DATA_O]
+      DGUARD: [disp, DGUARD_O]
+      DIEN: [disp, DIEN_O]
+      DIH: [disp, DIH_O]
       HDMI_CLK_N: HDMI_CLK_N
       HDMI_CLK_P: HDMI_CLK_P
       HDMI_D0_N: HDMI_D0_N
@@ -211,111 +125,58 @@ design:
       HDMI_D1_P: HDMI_D1_P
       HDMI_D2_N: HDMI_D2_N
       HDMI_D2_P: HDMI_D2_P
-      LOCKED_I:
-      - mmcm
-      - clkgen_locked
-      PXLCLK_5X_I:
-      - mmcm
-      - clkgen_out1
-      PXLCLK_I:
-      - mmcm
-      - clkgen_out0
-      VGA_DE:
-      - disp
-      - DE_O
-      VGA_HS:
-      - disp
-      - HSYNC_O
-      VGA_VS:
-      - disp
-      - VSYNC_O
-      VGUARD:
-      - disp
-      - VGUARD_O
+      LOCKED_I: [mmcm, clkgen_locked]
+      PXLCLK_5X_I: [mmcm, clkgen_out1]
+      PXLCLK_I: [mmcm, clkgen_out0]
+      VGA_DE: [disp, DE_O]
+      VGA_HS: [disp, HSYNC_O]
+      VGA_VS: [disp, VSYNC_O]
+      VGUARD: [disp, VGUARD_O]
     mmcm:
-      clkgen_ref:
-      - ps7
-      - FCLK1
-      sys_clk:
-      - ps7
-      - FCLK0
-      sys_rst:
-      - reset0
-      - peripheral_reset
+      clkgen_ref: [ps7, FCLK1]
+      sys_clk: [ps7, FCLK0]
+      sys_rst: [reset0, peripheral_reset]
     ps7:
-      IRQ_F2P_0:
-      - dma
-      - io_irq_readerDone
-      IRQ_F2P_1:
-      - dma
-      - io_irq_writerDone
-      MAXIGP0ACLK:
-      - ps7
-      - FCLK0
-      SAXIHP0ACLK:
-      - ps7
-      - FCLK0
+      IRQ_F2P_0: [dma, io_irq_readerDone]
+      IRQ_F2P_1: [dma, io_irq_writerDone]
+      MAXIGP0ACLK: [ps7, FCLK0]
+      SAXIHP0ACLK: [ps7, FCLK0]
     reset0:
       aux_reset_in: 0
       dcm_locked: 1
       ext_reset_in: 0
       mb_debug_sys_rst: 0
-      slowest_sync_clk:
-      - ps7
-      - FCLK0
+      slowest_sync_clk: [ps7, FCLK0]
     reset1:
       aux_reset_in: 0
       dcm_locked: 1
       ext_reset_in: 0
       mb_debug_sys_rst: 0
-      slowest_sync_clk:
-      - mmcm
-      - clkgen_out0
+      slowest_sync_clk: [mmcm, clkgen_out0]
 external:
   ports:
     inout:
-    - - ps7
-      - ddr_addr
-    - - ps7
-      - ddr_bankaddr
-    - - ps7
-      - ddr_cas_n
-    - - ps7
-      - ddr_cke
-    - - ps7
-      - ddr_clk
-    - - ps7
-      - ddr_clk_n
-    - - ps7
-      - ddr_cs_n
-    - - ps7
-      - ddr_dm
-    - - ps7
-      - ddr_dq
-    - - ps7
-      - ddr_dqs
-    - - ps7
-      - ddr_dqs_n
-    - - ps7
-      - ddr_drstb
-    - - ps7
-      - ddr_odt
-    - - ps7
-      - ddr_ras_n
-    - - ps7
-      - ddr_vr_n
-    - - ps7
-      - ddr_vr
-    - - ps7
-      - ddr_web
-    - - ps7
-      - ps_mio
-    - - ps7
-      - ps_clk
-    - - ps7
-      - ps_porb
-    - - ps7
-      - ps_srstb
+    - [ps7, ddr_addr]
+    - [ps7, ddr_bankaddr]
+    - [ps7, ddr_cas_n]
+    - [ps7, ddr_cke]
+    - [ps7, ddr_clk]
+    - [ps7, ddr_clk_n]
+    - [ps7, ddr_cs_n]
+    - [ps7, ddr_dm]
+    - [ps7, ddr_dq]
+    - [ps7, ddr_dqs]
+    - [ps7, ddr_dqs_n]
+    - [ps7, ddr_drstb]
+    - [ps7, ddr_odt]
+    - [ps7, ddr_ras_n]
+    - [ps7, ddr_vr_n]
+    - [ps7, ddr_vr]
+    - [ps7, ddr_web]
+    - [ps7, ps_mio]
+    - [ps7, ps_clk]
+    - [ps7, ps_porb]
+    - [ps7, ps_srstb]
     out:
     - HDMI_CLK_P
     - HDMI_CLK_N
