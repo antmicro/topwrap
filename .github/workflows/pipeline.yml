@@ -79,24 +79,6 @@ jobs:
           git config --add safe.directory "$(pwd)"
           ./.github/scripts/ci.sh changelog_check
 
-  test_python_3_8:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
-    name: "Run tests on python 3.8"
-
-    steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
-
-      - uses: actions/checkout@v4
-
-      - name: Run Python tests on python 3.8
-        run: |
-          ./.github/scripts/ci.sh test_python 3.8
-
   test_python_3_9:
     runs-on: ubuntu-latest
     container:
