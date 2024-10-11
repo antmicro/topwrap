@@ -98,7 +98,7 @@ install_pyenv() {
 
     log_cmd export PYENV_ROOT="$HOME/.pyenv"
     log_cmd export PATH="$PYENV_ROOT/bin:$PATH"
-    log_cmd export PYENV_GIT_TAG=v2.4.10
+    log_cmd export PYENV_GIT_TAG=v2.4.15
     log_cmd "curl https://pyenv.run | bash"
     end_command_group
 }

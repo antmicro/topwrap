@@ -120,9 +120,7 @@ class IPCorePorts(MarshmallowDataclassExtensions):
             (
                 inp
                 if port.direction == PortDirection.IN
-                else out
-                if port.direction == PortDirection.OUT
-                else ino
+                else out if port.direction == PortDirection.OUT else ino
             ).add(IPCorePort.from_port_def(port).raw)
         return IPCorePorts(input=inp, output=out, inout=ino)
 
@@ -152,9 +150,7 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
             (
                 inp
                 if port.direction == PortDirection.IN
-                else out
-                if port.direction == PortDirection.OUT
-                else ino
+                else out if port.direction == PortDirection.OUT else ino
             )[name] = IPCorePort.from_port_def(port).raw
         return IPCoreIntfPorts(input=inp, output=out, inout=ino)
 

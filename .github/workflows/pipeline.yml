@@ -169,6 +169,24 @@ jobs:
         run: |
           ./.github/scripts/ci.sh test_python 3.12
 
+  test_python_3_13:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    name: "Run tests on python 3.13"
+
+    steps:
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+
+      - name: Run Python tests on python 3.13
+        run: |
+          ./.github/scripts/ci.sh test_python 3.13
+
   package_test:
     runs-on: ubuntu-latest
     container:

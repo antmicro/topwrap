@@ -97,8 +97,8 @@ def load_interface_definitions(dir_name: Optional[Path] = None):
     """
 
     defs = []
-    with as_file(files("topwrap.interfaces")) if dir_name is None else nullcontext(
-        dir_name
+    with (
+        as_file(files("topwrap.interfaces")) if dir_name is None else nullcontext(dir_name)
     ) as dir_name:
         for path in dir_name.glob("**/*"):
             if path.suffix.lower() in (".yaml", ".yml"):

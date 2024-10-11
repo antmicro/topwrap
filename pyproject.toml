@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "topwrap"
 version = "0.0.1"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [{name = "Antmicro"}]
 description = "Package for generating HDL wrappers and top modules for your HDL sources"
 readme = "README.md"
@@ -28,7 +28,7 @@ dependencies = [
   "pygtrie",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@f45289d7073e885b5e3f461db9a8667807b69380",
-  "soc_generator @ git+https://github.com/antmicro/soc-generator@76ac5b3743bea1bb6e5d2ac7ecae31ab39d5e8b3",
+  "soc_generator @ git+https://github.com/antmicro/soc-generator@4141f5c5720c9355d859d6098523173bdc306916",
 ]
 
 [project.optional-dependencies]
@@ -36,21 +36,21 @@ topwrap-parse = [
   "hdlConvertor @ git+https://github.com/Nic30/hdlConvertor@fae60effdb16574de152bf9bf7bc2e225b729797",
 ]
 lint = [
-  "nox==2023.4.22",
-  "flake8==7.0.0",
+  "nox==2024.10.09",
+  "flake8==7.1.1",
   "pre-commit==3.5.0",
-  "black==23.12.1",
+  "black==24.10.0",
   "isort==5.13.2",
-  "codespell==2.2.6",
+  "codespell==2.3.0",
 ]
 tests = [
-  "nox==2023.4.22",
-  "pytest==7.4.4",
-  "pytest-cov==4.1.0",
-  "pytest-lazy-fixtures==1.0.1",
-  "pyfakefs==5.3.5",
-  "deepdiff==7.0.1",
-  "pyright==1.1.378",
+  "nox==2024.10.09",
+  "pytest==8.3.3",
+  "pytest-cov==5.0.0",
+  "pytest-lazy-fixtures==1.1.1",
+  "pyfakefs==5.7.1",
+  "deepdiff==8.0.1",
+  "pyright==1.1.385",
   "prettytable==3.11.0",
 ]
 deploy = [
@@ -95,7 +95,7 @@ exclude = '''
   )/
 )
 '''
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py39", "py310", "py311", "py312", "py313"]
 
 [tool.isort]
 profile = "black"

@@ -20,12 +20,6 @@ lint:
   script:
     - ./.github/scripts/ci.sh lint
 
-test_python_3_8:
-  stage: test
-  image: debian:bookworm
-  script:
-    - ./.github/scripts/ci.sh test_python 3.8
-
 test_python_3_9:
   stage: test
   image: debian:bookworm
@@ -49,6 +43,12 @@ test_python_3_12:
   image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh test_python 3.12
+
+test_python_3_13:
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh test_python 3.13
 
 package_test:
   variables:
