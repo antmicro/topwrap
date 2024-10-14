@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 from typing_extensions import override
 
 from topwrap.hdl_parsers_utils import PortDirection
-from topwrap.ip_desc import IPCoreParameter
+from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 
 from .design import DesignDescription, DesignExternalPorts, DesignSection
 from .kpm_common import (
@@ -20,7 +20,9 @@ from .kpm_common import (
     SPECIFICATION_VERSION,
     SUBGRAPH_METANODE,
     get_metanode_property_value,
+    kpm_direction_to_port_dir,
 )
+from .util import JsonType
 
 
 @dataclass
@@ -62,14 +64,14 @@ class KPMDataflowNodeInterface:
         "inout": KPM_DIR_INOUT,
     }
 
-    def __init__(self, name: str, direction: str, value: Optional[int] = None):
+    def __init__(self, name: str, direction: str, constant_value: Optional[int] = None):
         if direction not in self.kpm_direction_extensions_dict.values():
             raise ValueError(f"Invalid interface direction: {direction}")
 
         self.id = "ni_" + IDGenerator().generate_id()
         self.name = name
         self.direction = direction
-        self.value = value
+        self.constant_value = constant_value
         self.external_name: Optional[str] = None
 
     def to_json_format(self):
@@ -97,7 +99,7 @@ class KPMDataflowMetanodeInterface(KPMDataflowNodeInterface):
     SUB_IFACE_IN_NAME = "subgraph in"
     SUB_IFACE_OUT_NAME = "subgraph out"
 
-    def __init__(self, name: str, direction: str, **kwargs: Any):
+    def __init__(self, name: str, direction: str, constant_value: Optional[int] = None):
         meta_iface_names = [
             self.EXT_IFACE_NAME,
             self.CONST_IFACE_NAME,
@@ -107,7 +109,7 @@ class KPMDataflowMetanodeInterface(KPMDataflowNodeInterface):
         if name not in meta_iface_names:
             raise ValueError(f"Invalid metanode interface name: {name}")
 
-        super().__init__(name, direction, **kwargs)
+        super().__init__(name, direction, constant_value)
 
 
 class KPMDataflowNodeProperty:
@@ -228,7 +230,7 @@ class KPMDataflowConstantMetanode(KPMDataflowMetanode):
                 KPMDataflowMetanodeInterface(
                     KPMDataflowMetanodeInterface.CONST_IFACE_NAME,
                     KPMDataflowNodeInterface.KPM_DIR_OUTPUT,
-                    value=value,
+                    constant_value=value,
                 )
             ],
         )
@@ -314,16 +316,16 @@ def _ipcore_param_to_kpm_value(param: IPCoreParameter) -> str:
 
 
 def get_kpm_nodes_from_design(
-    design_descr: DesignDescription, specification: dict
+    design_descr: DesignDescription, specification: JsonType
 ) -> List[KPMDataflowNode]:
     """Return list of nodes that will be created based on design and specification from names list"""
     nodes = []
     design = design_descr.design
     parameters = design.parameters
-    for ip_name in design_descr.ips:
-        ports = design.ports.get(ip_name, {})
-        ip_type = design_descr.ips[ip_name].path.stem
-        spec_node = _get_specification_node_by_type(ip_type, specification)
+    for inst_name in design_descr.ips:
+        ports = design.ports.get(inst_name, {})
+        ip_name = IPCoreDescription.load(design_descr.ips[inst_name].path).name
+        spec_node = _get_specification_node_by_type(ip_name, specification)
         if spec_node is None:
             continue
 
@@ -331,24 +333,26 @@ def get_kpm_nodes_from_design(
             prop["name"]: KPMDataflowNodeProperty(prop["name"], prop["default"])
             for prop in spec_node.get("properties", [])
         }
-        if ip_name in parameters.keys():
-            for param_name, param_val in parameters[ip_name].items():
+        if inst_name in parameters.keys():
+            for param_name, param_val in parameters[inst_name].items():
                 if param_name in kpm_properties.keys():
                     kpm_properties[param_name].value = _ipcore_param_to_kpm_value(param_val)
                 else:
-                    logging.warning(f"Parameter '{param_name}' not found in node {ip_name}")
+                    logging.warning(f"Parameter '{param_name}' not found in node {inst_name}")
 
         interfaces = []
         for interface in spec_node["interfaces"]:
             dir = interface["direction"]
-            value = (
-                None
-                if ((dir != "input") or ("iface" in interface["type"][0]))
-                else ports.get(interface["name"])
-            )
-            interfaces.append(KPMDataflowNodeInterface(interface["name"], dir, value))
+            const_val = ports.get(interface["name"])
+            if (
+                not isinstance(const_val, int)
+                or kpm_direction_to_port_dir(dir) != PortDirection.IN
+                or "iface" in interface["type"][0]
+            ):
+                const_val = None
+            interfaces.append(KPMDataflowNodeInterface(interface["name"], dir, const_val))
 
-        nodes.append(KPMDataflowNode(ip_name, ip_type, list(kpm_properties.values()), interfaces))
+        nodes.append(KPMDataflowNode(inst_name, ip_name, list(kpm_properties.values()), interfaces))
     return nodes
 
 
@@ -576,9 +580,9 @@ def kpm_constant_metanodes_from_nodes(
 
     for node in nodes:
         for port in node.interfaces:
-            value = port.value
+            value = port.constant_value
 
-            if not isinstance(value, int):
+            if value is None:
                 continue
 
             if value in created:
@@ -650,12 +654,14 @@ def kpm_metanodes_connections_from_design_descr(
         if kpm_interface is None:
             raise Exception(f"Node {ext_conn['ip_name']} interface was not found")
 
-        if isinstance(kpm_interface.value, int):
+        if kpm_interface.constant_value is not None:
             if kpm_interface.direction != KPMDataflowNodeInterface.KPM_DIR_INPUT:
                 logging.warning("Cannot assign output port to constant value")
                 continue
 
-            kpm_metanode = _find_dataflow_metanode_by_constant_value(metanodes, kpm_interface.value)
+            kpm_metanode = _find_dataflow_metanode_by_constant_value(
+                metanodes, kpm_interface.constant_value
+            )
         else:
             kpm_metanode = _find_dataflow_metanode_by_external_name(
                 metanodes, ext_conn["external_name"]

@@ -58,7 +58,9 @@ def update_designs(all_examples_designs: Dict[str, DesignDescription]):
 
     for example_name, example_design in all_examples_designs.items():
         change_ips_path(example_design, example_name)
-        example_design.save(Path(TEST_DATA_PATH) / example_name / f"project_{example_name}.yml")
+        example_design.save(
+            Path(TEST_DATA_PATH) / "examples" / example_name / f"project_{example_name}.yml"
+        )
 
 
 @click.command()

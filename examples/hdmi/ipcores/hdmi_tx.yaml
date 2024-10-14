@@ -1,7 +1,7 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-name: HDMI_Tx_v1_0
+name: hdmi_tx
 
 signals:
     in:

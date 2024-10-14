@@ -21,6 +21,26 @@
         "interfaceConnectionPattern": "solid"
       }
     },
+    "layers": [
+      {
+        "name": "IP Cores",
+        "nodeLayers": [
+          "IP Cores"
+        ]
+      },
+      {
+        "name": "Externals",
+        "nodeLayers": [
+          "Externals"
+        ]
+      },
+      {
+        "name": "Constants",
+        "nodeLayers": [
+          "Constants"
+        ]
+      }
+    ],
     "layout": "CytoscapeEngine - grid",
     "movementStep": 15,
     "navbarItems": [
@@ -86,7 +106,7 @@
           ]
         }
       ],
-      "layer": "axi_axil_adapter",
+      "layer": "IP Cores",
       "name": "axi_axil_adapter",
       "properties": [
         {
@@ -145,7 +165,7 @@
         {
           "direction": "output",
           "maxConnectionsCount": -1,
-          "name": "FCLK_RESET0_N",
+          "name": "FCLK0",
           "type": [
             "port"
           ]
@@ -153,7 +173,7 @@
         {
           "direction": "output",
           "maxConnectionsCount": -1,
-          "name": "FCLK0",
+          "name": "FCLK_RESET0_N",
           "type": [
             "port"
           ]
@@ -167,7 +187,7 @@
           ]
         }
       ],
-      "layer": "ps7",
+      "layer": "IP Cores",
       "name": "ps7"
     },
     {
@@ -208,7 +228,7 @@
           ]
         }
       ],
-      "layer": "litex_pwm",
+      "layer": "IP Cores",
       "name": "litex_pwm"
     },
     {
@@ -226,7 +246,7 @@
           ]
         }
       ],
-      "layer": "External Output",
+      "layer": "Externals",
       "name": "External Output",
       "properties": [
         {
@@ -251,7 +271,7 @@
           ]
         }
       ],
-      "layer": "External Input",
+      "layer": "Externals",
       "name": "External Input",
       "properties": [
         {
@@ -276,7 +296,7 @@
           ]
         }
       ],
-      "layer": "External Inout",
+      "layer": "Externals",
       "name": "External Inout",
       "properties": [
         {
@@ -301,7 +321,7 @@
           ]
         }
       ],
-      "layer": "Constant",
+      "layer": "Constants",
       "name": "Constant",
       "properties": [
         {
@@ -332,7 +352,7 @@
           ]
         }
       ],
-      "layer": "Subgraph port",
+      "layer": "Externals",
       "name": "Subgraph port"
     }
   ]

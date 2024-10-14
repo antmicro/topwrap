@@ -1,77 +1,77 @@
 {
   "version": "20240723.13",
-  "entryGraph": "172528132780655",
+  "entryGraph": "1728900283858653",
   "graphs": [
     {
       "connections": [
         {
-          "from": "ni_172528132780616",
-          "id": "172528132780647",
-          "to": "ni_17252813278067"
+          "from": "ni_1728900283858616",
+          "id": "1728900283858645",
+          "to": "ni_1728900283858604"
         },
         {
-          "from": "ni_172528132780619",
-          "id": "172528132780648",
-          "to": "ni_17252813278066"
+          "from": "ni_1728900283858617",
+          "id": "1728900283858646",
+          "to": "ni_1728900283858605"
         },
         {
-          "from": "ni_172528132780616",
-          "id": "172528132780649",
-          "to": "ni_172528132780611"
+          "from": "ni_1728900283858616",
+          "id": "1728900283858647",
+          "to": "ni_1728900283858611"
         },
         {
-          "from": "ni_172528132780619",
-          "id": "172528132780650",
-          "to": "ni_172528132780613"
+          "from": "ni_1728900283858617",
+          "id": "1728900283858648",
+          "to": "ni_1728900283858610"
         },
         {
-          "from": "ni_172528132780616",
-          "id": "172528132780651",
-          "to": "ni_172528132780618"
+          "from": "ni_1728900283858616",
+          "id": "1728900283858649",
+          "to": "ni_1728900283858614"
         },
         {
-          "from": "ni_172528132780620",
-          "id": "172528132780652",
-          "to": "ni_17252813278068"
+          "from": "ni_1728900283858618",
+          "id": "1728900283858650",
+          "to": "ni_1728900283858606"
         },
         {
-          "from": "ni_17252813278069",
-          "id": "172528132780653",
-          "to": "ni_172528132780614"
+          "from": "ni_1728900283858607",
+          "id": "1728900283858651",
+          "to": "ni_1728900283858612"
         },
         {
-          "from": "ni_172528132780612",
-          "id": "172528132780654",
-          "to": "ni_172528132780623"
+          "from": "ni_1728900283858609",
+          "id": "1728900283858652",
+          "to": "ni_1728900283858621"
         }
       ],
-      "id": "172528132780655",
+      "id": "1728900283858653",
       "nodes": [
         {
-          "id": "node_172528132780610",
+          "id": "node_1728900283858608",
           "instanceName": "axi_bridge",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_17252813278066",
-              "name": "rst",
-              "side": "left"
-            },
-            {
-              "direction": "input",
-              "id": "ni_17252813278067",
+              "id": "ni_1728900283858604",
               "name": "clk",
               "side": "left"
             },
             {
               "direction": "input",
-              "id": "ni_17252813278068",
+              "id": "ni_1728900283858605",
+              "name": "rst",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "ni_1728900283858606",
               "name": "s_axi",
               "side": "left"
             },
             {
               "direction": "output",
-              "id": "ni_17252813278069",
+              "id": "ni_1728900283858607",
               "name": "m_axi",
               "side": "right"
             }
@@ -79,32 +79,32 @@
           "name": "axi_axil_adapter",
           "properties": [
             {
-              "id": "17252813278060",
+              "id": "1728900283858598",
               "name": "ADDR_WIDTH",
               "value": "32"
             },
             {
-              "id": "17252813278061",
+              "id": "1728900283858599",
               "name": "AXI_DATA_WIDTH",
               "value": "32"
             },
             {
-              "id": "17252813278062",
+              "id": "1728900283858600",
               "name": "AXI_ID_WIDTH",
               "value": "12"
             },
             {
-              "id": "17252813278063",
+              "id": "1728900283858601",
               "name": "AXI_STRB_WIDTH",
               "value": "AXI_DATA_WIDTH/8"
             },
             {
-              "id": "17252813278064",
+              "id": "1728900283858602",
               "name": "AXIL_DATA_WIDTH",
               "value": "32"
             },
             {
-              "id": "17252813278065",
+              "id": "1728900283858603",
               "name": "AXIL_STRB_WIDTH",
               "value": "AXIL_DATA_WIDTH/8"
             }
@@ -112,30 +112,30 @@
           "twoColumn": true
         },
         {
-          "id": "node_172528132780615",
+          "id": "node_1728900283858613",
           "instanceName": "litex_pwm_top",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "ni_172528132780611",
-              "name": "sys_clk",
-              "side": "left"
-            },
-            {
               "direction": "output",
-              "id": "ni_172528132780612",
+              "id": "ni_1728900283858609",
               "name": "pwm",
               "side": "right"
             },
             {
               "direction": "input",
-              "id": "ni_172528132780613",
+              "id": "ni_1728900283858610",
               "name": "sys_rst",
               "side": "left"
             },
             {
               "direction": "input",
-              "id": "ni_172528132780614",
+              "id": "ni_1728900283858611",
+              "name": "sys_clk",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "ni_1728900283858612",
               "name": "s_axi",
               "side": "left"
             }
@@ -145,36 +145,36 @@
           "twoColumn": true
         },
         {
-          "id": "node_172528132780621",
+          "id": "node_1728900283858619",
           "instanceName": "ps7",
           "interfaces": [
             {
-              "direction": "output",
-              "id": "ni_172528132780616",
-              "name": "FCLK0",
-              "side": "right"
-            },
-            {
-              "direction": "output",
-              "id": "ni_172528132780617",
-              "name": "MAXIGP0ARESETN",
-              "side": "right"
-            },
-            {
               "direction": "input",
-              "id": "ni_172528132780618",
+              "id": "ni_1728900283858614",
               "name": "MAXIGP0ACLK",
               "side": "left"
             },
             {
               "direction": "output",
-              "id": "ni_172528132780619",
+              "id": "ni_1728900283858615",
+              "name": "MAXIGP0ARESETN",
+              "side": "right"
+            },
+            {
+              "direction": "output",
+              "id": "ni_1728900283858616",
+              "name": "FCLK0",
+              "side": "right"
+            },
+            {
+              "direction": "output",
+              "id": "ni_1728900283858617",
               "name": "FCLK_RESET0_N",
               "side": "right"
             },
             {
               "direction": "output",
-              "id": "ni_172528132780620",
+              "id": "ni_1728900283858618",
               "name": "M_AXI_GP0",
               "side": "right"
             }
@@ -184,12 +184,12 @@
           "twoColumn": true
         },
         {
-          "id": "node_172528132780624",
+          "id": "node_1728900283858622",
           "instanceName": "External Output",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_172528132780623",
+              "id": "ni_1728900283858621",
               "name": "external",
               "side": "left"
             }
@@ -197,15 +197,14 @@
           "name": "External Output",
           "properties": [
             {
-              "id": "172528132780622",
+              "id": "1728900283858620",
               "name": "External Name",
               "value": "pwm"
             }
           ],
           "twoColumn": true
         }
-      ],
-      "scaling": 1
+      ]
     }
   ]
 }

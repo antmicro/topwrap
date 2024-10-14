@@ -3,7 +3,7 @@
 
 import logging
 from dataclasses import dataclass
-from pathlib import Path, PurePath
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from pipeline_manager.specification_builder import SpecificationBuilder
@@ -179,7 +179,7 @@ def create_core_node_from_yaml(yamlfile: Path) -> NodeType:
     """Returns single KPM specification 'node' representing given IP core description YAML file"""
     ip_yaml = IPCoreDescription.load(Path(yamlfile))
 
-    ip_name = PurePath(yamlfile).stem
+    ip_name = ip_yaml.name
     ip_props = _ipcore_params_to_prop_type(ip_yaml.parameters)
     ip_ports = _ipcore_ports_to_iface_type(ip_yaml.signals)
     ip_ifaces = _ipcore_ifaces_to_iface_type(ip_yaml.interfaces)
@@ -305,11 +305,6 @@ def new_spec_builder(yamlfiles: List[Path]) -> JsonType:
     add_node_type_to_specfication(specification_builder, subgraph_metanode)
 
     add_metadata_to_specification(specification_builder, interfaces_types)
-
-    # TODO: Switch to using SpecificationBuilder.create_and_validate_spec() once the library is fixed.
-    # specification = specification_builder.create_and_validate_spec(
-    #     workspacedir=Path("../../build/workspace")
-    # )
 
     return specification_builder._construct_specification(sort_spec=False)
 

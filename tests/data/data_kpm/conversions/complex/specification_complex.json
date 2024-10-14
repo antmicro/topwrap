@@ -11,6 +11,26 @@
         "interfaceConnectionPattern": "solid"
       }
     },
+    "layers": [
+      {
+        "name": "IP Cores",
+        "nodeLayers": [
+          "IP Cores"
+        ]
+      },
+      {
+        "name": "Externals",
+        "nodeLayers": [
+          "Externals"
+        ]
+      },
+      {
+        "name": "Constants",
+        "nodeLayers": [
+          "Constants"
+        ]
+      }
+    ],
     "layout": "CytoscapeEngine - grid",
     "movementStep": 15,
     "navbarItems": [
@@ -44,23 +64,23 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_mod_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
           "direction": "output",
           "maxConnectionsCount": -1,
           "name": "c_int_out_1",
           "type": [
             "port"
           ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_mod_in_1",
+          "type": [
+            "port"
+          ]
         }
       ],
-      "layer": "c_mod_1",
+      "layer": "IP Cores",
       "name": "c_mod_1",
       "properties": [
         {
@@ -76,23 +96,23 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "c_int_out_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
           "direction": "input",
           "maxConnectionsCount": -1,
           "name": "c_mod_in_2",
           "type": [
             "port"
           ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "c_int_out_2",
+          "type": [
+            "port"
+          ]
         }
       ],
-      "layer": "c_mod_2",
+      "layer": "IP Cores",
       "name": "c_mod_2"
     },
     {
@@ -100,6 +120,14 @@
       "additionalData": "examples/hierarchy/repo/cores/c_mod_3/c_mod_3.yaml",
       "category": "IPcore",
       "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_int_const_in",
+          "type": [
+            "port"
+          ]
+        },
         {
           "direction": "output",
           "maxConnectionsCount": -1,
@@ -111,29 +139,21 @@
         {
           "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "c_int_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_int_const_in",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
           "name": "c_int_in_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_int_in_1",
           "type": [
             "port"
           ]
         }
       ],
-      "layer": "c_mod_3",
+      "layer": "IP Cores",
       "name": "c_mod_3"
     },
     {
@@ -150,14 +170,6 @@
           ]
         },
         {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_mint_out_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
           "direction": "input",
           "maxConnectionsCount": -1,
           "name": "cs_s1_f_mod_in_1",
@@ -166,15 +178,15 @@
           ]
         },
         {
-          "direction": "input",
+          "direction": "output",
           "maxConnectionsCount": -1,
-          "name": "cs_s1_f_ext_const_in",
+          "name": "cs_s1_mint_out_1",
           "type": [
             "port"
           ]
         }
       ],
-      "layer": "s1_mod_1",
+      "layer": "IP Cores",
       "name": "s1_mod_1"
     },
     {
@@ -199,7 +211,7 @@
           ]
         }
       ],
-      "layer": "s1_mod_2",
+      "layer": "IP Cores",
       "name": "s1_mod_2"
     },
     {
@@ -224,7 +236,7 @@
           ]
         }
       ],
-      "layer": "s1_mod_3",
+      "layer": "IP Cores",
       "name": "s1_mod_3",
       "properties": [
         {
@@ -240,22 +252,6 @@
       "category": "IPcore",
       "interfaces": [
         {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_f_int_in_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_out_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
           "direction": "output",
           "maxConnectionsCount": -1,
           "name": "cs_s2_mint_out_1",
@@ -270,9 +266,25 @@
           "type": [
             "port"
           ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_2",
+          "type": [
+            "port"
+          ]
         }
       ],
-      "layer": "s2_mod_1",
+      "layer": "IP Cores",
       "name": "s2_mod_1"
     },
     {
@@ -291,7 +303,7 @@
         {
           "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_in_2",
+          "name": "cs_s2_mint_in_1",
           "type": [
             "port"
           ]
@@ -299,13 +311,13 @@
         {
           "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_in_1",
+          "name": "cs_s2_mint_in_2",
           "type": [
             "port"
           ]
         }
       ],
-      "layer": "s2_mod_2",
+      "layer": "IP Cores",
       "name": "s2_mod_2"
     },
     {
@@ -321,7 +333,7 @@
           ]
         }
       ],
-      "layer": "External Output",
+      "layer": "Externals",
       "name": "External Output",
       "properties": [
         {
@@ -344,7 +356,7 @@
           ]
         }
       ],
-      "layer": "External Input",
+      "layer": "Externals",
       "name": "External Input",
       "properties": [
         {
@@ -367,7 +379,7 @@
           ]
         }
       ],
-      "layer": "External Inout",
+      "layer": "Externals",
       "name": "External Inout",
       "properties": [
         {
@@ -390,7 +402,7 @@
           ]
         }
       ],
-      "layer": "Constant",
+      "layer": "Constants",
       "name": "Constant",
       "properties": [
         {
@@ -421,7 +433,7 @@
           ]
         }
       ],
-      "layer": "Subgraph port",
+      "layer": "Externals",
       "name": "Subgraph port"
     }
   ]
