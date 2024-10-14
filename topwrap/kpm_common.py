@@ -362,7 +362,7 @@ def find_spec_interface_by_name(
 ) -> Optional[JsonType]:
     """Find `name` interface of `ip_type` IP core in `specification`"""
     for node in specification["nodes"]:
-        if node["layer"] != node_type:
+        if node["name"] != node_type:
             continue
         for interface in node["interfaces"]:
             if interface["name"] == iface_name:

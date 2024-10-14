@@ -147,7 +147,7 @@ class KPMDataflowNode:
         self.properties = properties
         self.interfaces = interfaces
 
-    def to_json_format(self) -> dict:
+    def to_json_format(self) -> JsonType:
         return {
             "name": self.type,
             "id": self.id,
@@ -172,7 +172,7 @@ class KPMDataflowSubgraphnode(KPMDataflowNode):
         self.subgraph = subgraph
 
     @override
-    def to_json_format(self) -> dict:
+    def to_json_format(self) -> JsonType:
         node_json = super().to_json_format()
         node_json["subgraph"] = self.subgraph
 
@@ -270,7 +270,7 @@ class KPMDataflowConnection:
         self.id_from = id_from
         self.id_to = id_to
 
-    def to_json_format(self) -> dict:
+    def to_json_format(self) -> JsonType:
         return {"id": self.id, "from": self.id_from, "to": self.id_to}
 
 
@@ -285,7 +285,7 @@ class KPMDataflowGraph:
         self.nodes = nodes
         self.id = id if id else IDGenerator().generate_id()
 
-    def to_json_format(self) -> dict:
+    def to_json_format(self) -> JsonType:
         return {
             "id": self.id,
             "nodes": [node.to_json_format() for node in self.nodes],
@@ -293,10 +293,10 @@ class KPMDataflowGraph:
         }
 
 
-def _get_specification_node_by_type(type: str, specification: dict) -> Optional[dict]:
+def _get_specification_node_by_type(type: str, specification: JsonType) -> Optional[JsonType]:
     """Return a node of type `type` from specification"""
     for node in specification["nodes"]:
-        if type == node["layer"]:
+        if type == node["name"]:
             return node
     logging.warning(f'Node type "{type}" not found in specification')
 
@@ -357,7 +357,7 @@ def get_kpm_nodes_from_design(
 
 
 def kpm_nodes_from_design_descr(
-    design_descr: DesignDescription, specification: dict
+    design_descr: DesignDescription, specification: JsonType
 ) -> List[KPMDataflowNode]:
     """Generate KPM dataflow nodes based on Topwrap's design
     description yaml (e.g. generated from YAML design description)
@@ -595,7 +595,7 @@ def kpm_constant_metanodes_from_nodes(
 
 
 def kpm_constant_metanodes_from_design_descr(
-    design_descr: DesignDescription, specification: dict
+    design_descr: DesignDescription, specification: JsonType
 ) -> List[KPMDataflowConstantMetanode]:
     """Generate a list of constant metanodes based on values assigned to ip core
     ports of Topwrap's design description
@@ -605,7 +605,7 @@ def kpm_constant_metanodes_from_design_descr(
 
 
 def kpm_metanodes_from_design_descr(
-    design_descr: DesignDescription, specification: dict
+    design_descr: DesignDescription, specification: JsonType
 ) -> List[KPMDataflowMetanode]:
     """Generate a list of all metanodes based on values assigned to ip core
     ports and an 'external' section of Topwrap's design description
@@ -804,7 +804,7 @@ def subgraph_connections_to_metanodes(
 
 def create_subgraphs(
     design_section: DesignSection,
-    specification: dict,
+    specification: JsonType,
     previous_nodes: List[KPMDataflowNode],
     parent_subgraph_maps: SubgraphMaps,
 ) -> List[KPMDataflowGraph]:
@@ -855,7 +855,7 @@ def create_subgraphs(
 
 
 def create_entry_graph(
-    design_descr: DesignDescription, specification: dict
+    design_descr: DesignDescription, specification: JsonType
 ) -> Tuple[KPMDataflowGraph, SubgraphMaps]:
     """Creates entry graph for kpm design.
     Main difference between entry graph and other subgraphs is that the "external" field
@@ -879,7 +879,9 @@ def create_entry_graph(
     )
 
 
-def kpm_dataflow_from_design_descr(design_descr: DesignDescription, specification: dict) -> dict:
+def kpm_dataflow_from_design_descr(
+    design_descr: DesignDescription, specification: JsonType
+) -> JsonType:
     """Generate Pipeline Manager dataflow from a design description
     in Topwrap's yaml format
     """

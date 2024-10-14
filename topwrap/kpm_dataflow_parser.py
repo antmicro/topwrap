@@ -166,7 +166,7 @@ def _kpm_nodes_to_ips(dataflow_data: JsonType, specification: JsonType) -> JsonT
     instance_names = defaultdict(int)
     for node in get_dataflow_ip_nodes(dataflow_data):
         for spec_node in specification["nodes"]:
-            if spec_node["layer"] == node["name"]:
+            if spec_node["name"] == node["name"]:
                 if "additionalData" not in spec_node:
                     raise KPMExportException(
                         f'IP "{node["name"]}" does not contain the file path inside "additionalData"'

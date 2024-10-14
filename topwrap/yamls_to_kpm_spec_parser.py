@@ -1,8 +1,8 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -45,11 +45,17 @@ class PropertyType:
     value: str = ""
 
 
+class LayerType(Enum):
+    IP_CORE = "IP Cores"
+    EXTERNAL = "Externals"
+    CONSTANT = "Constants"
+
+
 @dataclass
 class NodeType:
     name: str
     category: str
-    layer: str
+    layer: LayerType
     properties: List[PropertyType]
     interfaces: List[InterfaceType]
     additional_data: Optional[str] = None
@@ -87,20 +93,21 @@ def _ipcore_param_to_kpm_value(param: IPCoreParameter) -> str:
 
 def _duplicate_ipcore_types_check(specification: JsonType):
     """Function to check for any duplicate node types in specification."""
-    # If the layer is already in types_set then it means that it's a duplicate
+    # If the name is already in types_set then it means that it's a duplicate
     types_set = set()
     duplicates = set()
     for node in specification["nodes"]:
-        if node["layer"] in types_set:
-            duplicates.add(node["layer"])
+        if node["name"] in types_set:
+            duplicates.add(node["name"])
         else:
-            types_set.add(node["layer"])
-    for dup in list(duplicates):
-        logging.warning(f"Multiple IP cores of type '{dup}'")
+            types_set.add(node["name"])
+
+    if len(duplicates) > 0:
+        raise ValueError(f"Duplicate IP cores of types '{', '.join(duplicates)}'")
 
 
 def _generate_ifaces_styling(interfaces_types: List[str]) -> List[InterfaceStyle]:
-    """Generate interface styling definitinos that style interfaces and their connections.
+    """Generate interface styling definitions that style interfaces and their connections.
 
     :param interfaces_types: a list of interfaces types, e.g. ["iface_AXI4", "iface_AXILite"]
 
@@ -184,7 +191,9 @@ def create_core_node_from_yaml(yamlfile: Path) -> NodeType:
     ip_ports = _ipcore_ports_to_iface_type(ip_yaml.signals)
     ip_ifaces = _ipcore_ifaces_to_iface_type(ip_yaml.interfaces)
 
-    return NodeType(ip_name, "IPcore", ip_name, ip_props, ip_ports + ip_ifaces, str(yamlfile))
+    return NodeType(
+        ip_name, "IPcore", LayerType.IP_CORE, ip_props, ip_ports + ip_ifaces, str(yamlfile)
+    )
 
 
 def create_external_metanode(meta_name: str, interfaces_types: List[str]) -> NodeType:
@@ -201,7 +210,9 @@ def create_external_metanode(meta_name: str, interfaces_types: List[str]) -> Nod
         KPMDataflowExternalMetanode.interface_dir_by_node_name[meta_name],
     )
 
-    return NodeType(meta_name, METANODE_CATEGORY, meta_name, [metanode_prop], [metanode_iface])
+    return NodeType(
+        meta_name, METANODE_CATEGORY, LayerType.EXTERNAL, [metanode_prop], [metanode_iface]
+    )
 
 
 def create_constantant_metanode(interfaces_types: List[str]) -> NodeType:
@@ -211,7 +222,9 @@ def create_constantant_metanode(interfaces_types: List[str]) -> NodeType:
         KPMDataflowMetanodeInterface.CONST_IFACE_NAME, ["port"] + interfaces_types, "output"
     )
 
-    return NodeType(CONST_NAME, METANODE_CATEGORY, CONST_NAME, [metanode_prop], [metanode_iface])
+    return NodeType(
+        CONST_NAME, METANODE_CATEGORY, LayerType.CONSTANT, [metanode_prop], [metanode_iface]
+    )
 
 
 def create_subgraph_metanode() -> NodeType:
@@ -220,13 +233,13 @@ def create_subgraph_metanode() -> NodeType:
     sub_meta_out = InterfaceType(KPMDataflowMetanodeInterface.SUB_IFACE_IN_NAME, ["port"], "input")
 
     return NodeType(
-        SUBGRAPH_METANODE, METANODE_CATEGORY, SUBGRAPH_METANODE, [], [sub_meta_in, sub_meta_out]
+        SUBGRAPH_METANODE, METANODE_CATEGORY, LayerType.EXTERNAL, [], [sub_meta_in, sub_meta_out]
     )
 
 
 def add_node_type_to_specfication(specification_builder: SpecificationBuilder, node: NodeType):
     """Adds all information from NodeType to specification_builder"""
-    specification_builder.add_node_type(node.name, node.category, node.layer)
+    specification_builder.add_node_type(node.name, node.category, node.layer.value)
 
     for property in node.properties:
         specification_builder.add_node_type_property(
@@ -252,6 +265,7 @@ def add_metadata_to_specification(
         "backgroundSize": 15,
         "layout": "CytoscapeEngine - grid",
         "twoColumn": True,
+        "layers": [{"name": lr.value, "nodeLayers": [lr.value]} for lr in LayerType],
         "navbarItems": [
             {
                 "name": "Validate",

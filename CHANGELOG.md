@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added "IP Cores", "Externals", and "Constants" layers to the GUI which you can hide/show from the settings
 - Nox session for downloading and packaging FuseSoc libraries
 
 ### Fixed
