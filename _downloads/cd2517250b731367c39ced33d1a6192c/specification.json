@@ -1,0 +1,224 @@
+{
+  "version": "20240723.13",
+  "metadata": {
+    "allowLoopbacks": true,
+    "backgroundSize": 15,
+    "connectionStyle": "orthogonal",
+    "interfaces": {
+      "port": {
+        "interfaceColor": "#00ca7c",
+        "interfaceConnectionColor": "#ffffff",
+        "interfaceConnectionPattern": "solid"
+      }
+    },
+    "layout": "CytoscapeEngine - grid",
+    "movementStep": 15,
+    "navbarItems": [
+      {
+        "allowToRunInParallelWith": [
+          "dataflow_run",
+          "custom_lint_files"
+        ],
+        "iconName": "Validate",
+        "name": "Validate",
+        "procedureName": "dataflow_validate",
+        "stopName": "Stop"
+      },
+      {
+        "allowToRunInParallelWith": [
+          "dataflow_validate",
+          "custom_lint_files"
+        ],
+        "iconName": "Run",
+        "name": "Run",
+        "procedureName": "dataflow_run",
+        "stopName": "Stop"
+      }
+    ],
+    "twoColumn": true
+  },
+  "nodes": [
+    {
+      "abstract": false,
+      "additionalData": "gen_simple_core_1.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "z",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "gen_simple_core_1",
+      "name": "gen_simple_core_1"
+    },
+    {
+      "abstract": false,
+      "additionalData": "gen_simple_core_2.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "a",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "y",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "c",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "gen_simple_core_2",
+      "name": "gen_simple_core_2"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "external",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "External Output",
+      "name": "External Output",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "external",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "External Input",
+      "name": "External Input",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "external",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "External Inout",
+      "name": "External Inout",
+      "properties": [
+        {
+          "default": "",
+          "name": "External Name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "constant",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "Constant",
+      "name": "Constant",
+      "properties": [
+        {
+          "default": "0",
+          "name": "Constant Value",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "subgraph out",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "subgraph in",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "Subgraph port",
+      "name": "Subgraph port"
+    }
+  ]
+}
