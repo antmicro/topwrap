@@ -33,4 +33,5 @@ developers_guide/parsing
 developers_guide/examples
 developers_guide/future_enhancements
 developers_guide/inline_kpm_howto
+developers_guide/ir-examples
 ```

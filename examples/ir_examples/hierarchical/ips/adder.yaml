@@ -1,0 +1,11 @@
+name: adder
+
+parameters:
+  WIDTH: 4
+
+signals:
+  in:
+    - [a, WIDTH-1, 0]
+    - [b, WIDTH-1, 0]
+  out:
+    - [sum, WIDTH-1, 0]

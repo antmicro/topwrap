@@ -1,0 +1,20 @@
+name: axis_streamer
+
+signals:
+  in:
+    - clk
+    - rst
+
+interfaces:
+  io:
+    type: AXI4Stream
+    mode: manager
+    signals:
+      out:
+        TDATA: [dat_o, 31, 0]
+
+        # PORT SLICING
+        # Use bit 0 of the 5 bit "ctrl_o" signal for the TVALID signal
+        TVALID: [ctrl_o, 4, 0, 0, 0]
+        # Use bits 4..1 for the TKEEP signal
+        TKEEP: [ctrl_o, 4, 0, 4, 1]

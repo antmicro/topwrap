@@ -1,0 +1,12 @@
+name: D-flipflop
+
+parameters:
+  WIDTH: 4
+
+signals:
+  in:
+    - clk
+    - rst
+    - [D, WIDTH-1, 0]
+  out:
+    - [Q, WIDTH-1, 0]

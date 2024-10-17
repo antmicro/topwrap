@@ -1,0 +1,13 @@
+name: 2mux_compressor
+
+parameters:
+  WIDTH: 64
+  OUT_WIDTH: 1
+
+signals:
+  in:
+    - gen_sel
+    - [gen1, WIDTH-1, 0]
+    - [gen2, WIDTH-1, 0]
+  out:
+    - [out, OUT_WIDTH-1, 0]

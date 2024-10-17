@@ -1,0 +1,38 @@
+name: wishbone_passthrough
+
+parameters:
+  AW: 32
+  DW: 32
+
+interfaces:
+  wb_in:
+    type: wishbone
+    mode: subordinate
+    signals:
+      in:
+        cyc: i_cyc
+        stb: i_stb
+        adr: [i_adr, AW-1, 0]
+        dat_w: [i_dat_w, DW-1, 0]
+        we: i_we
+      out:
+        ack: o_ack
+        dat_r: [o_dat_r, DW-1, 0]
+        stall: o_stall
+        err: o_err
+
+  wb_out:
+    type: wishbone
+    mode: manager
+    signals:
+      out:
+        cyc: o_cyc
+        stb: o_stb
+        adr: [o_adr, AW-1, 0]
+        dat_w: [o_dat_w, DW-1, 0]
+        we: o_we
+      in:
+        ack: i_ack
+        dat_r: [i_dat_r, DW-1, 0]
+        stall: i_stall
+        err: i_err

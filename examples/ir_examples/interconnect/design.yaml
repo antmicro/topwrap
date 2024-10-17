@@ -1,0 +1,63 @@
+external:
+  ports:
+    in:
+      - clk
+      - rst
+  interfaces:
+    in:
+      - ext_manager
+
+ips:
+  cpu:
+    file: ips/cpu.yaml
+  wb_pass:
+    file: ips/wb_passthrough.yaml
+  mem:
+    file: ips/mem.yaml
+  dsp:
+    file: ips/dsp.yaml
+
+design:
+  ports:
+    cpu: &clkrst
+      clk: clk
+      rst: rst
+    mem: *clkrst
+    dsp: *clkrst
+
+  parameters:
+    mem:
+      WIDTH: 8
+      DEPTH: 0xFFFF
+    wb_pass:
+      DW: 8
+
+  interfaces:
+    wb_pass:
+      wb_in: ext_manager
+
+  interconnects:
+    wishbone_bus:
+      clock: clk
+      reset: rst
+      type: wishbone_roundrobin
+
+      params:
+        addr_width: 32
+        data_width: 8
+        granularity: 8
+        features: [err, stall]
+
+      managers:
+        cpu: [bus_manager]
+        wb_pass: [wb_out]
+
+      subordinates:
+        mem:
+          bus:
+            address: 0
+            size: 0xFFFF
+        dsp:
+          bus:
+            address: 0x10000
+            size: 0xFF

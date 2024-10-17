@@ -158,8 +158,8 @@ def doc_gen(session: nox.Session) -> None:
         session.install(".[parse]")
         with TemporaryDirectory() as tmpdir, TemporaryFile(mode="w+") as errfile:
             shutil.copytree(Path("."), tmpdir, dirs_exist_ok=True)
-            for example in (Path(tmpdir) / "examples").iterdir():
-                with session.chdir(example):
+            for example in (Path(tmpdir) / "examples").glob("**/Makefile"):
+                with session.chdir(example.parent):
                     try:
                         session.run(
                             "make",
@@ -176,11 +176,12 @@ def doc_gen(session: nox.Session) -> None:
                             continue
                         print("\n".join(stderr), file=sys.stderr)
                         raise
+                name = "_".join(example.parent.parts[len(Path(tmpdir).parts) + 1 :])
                 shutil.move(
-                    example / "kpm_spec.json", f"docs/build/kpm_jsons/spec_{example.name}.json"
+                    example.parent / "kpm_spec.json", f"docs/build/kpm_jsons/spec_{name}.json"
                 )
                 shutil.move(
-                    example / "kpm_dataflow.json", f"docs/build/kpm_jsons/data_{example.name}.json"
+                    example.parent / "kpm_dataflow.json", f"docs/build/kpm_jsons/data_{name}.json"
                 )
 
     session.install(".[docs]")

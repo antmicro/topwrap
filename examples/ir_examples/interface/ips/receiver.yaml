@@ -1,0 +1,17 @@
+name: axis_receiver
+
+signals:
+  in:
+    - clk
+    - rst
+    - [noise, 15, 0]
+  inout:
+    - [ext, 31, 0]
+
+interfaces:
+  io:
+    type: AXI4Stream
+    mode: subordinate
+    signals:
+      in:
+        TDATA: [dat_i, 31, 0]

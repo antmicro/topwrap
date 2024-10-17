@@ -1,0 +1,98 @@
+design:
+  hierarchies:
+    proc:
+      design:
+        hierarchies:
+          4-bit counter:
+            design:
+              parameters:
+                D-flipflop:
+                  WIDTH: 4
+                adder:
+                  WIDTH: 4
+              ports:
+                D-flipflop:
+                  D:
+                  - adder
+                  - sum
+                  Q: sum
+                  clk: impulse
+                  rst: rst
+                adder:
+                  a:
+                  - D-flipflop
+                  - Q
+                  b: impulse
+            external:
+              ports:
+                in:
+                - impulse
+                - rst
+                out:
+                - sum
+            ips:
+              D-flipflop:
+                file: ips/d_ff.yaml
+              adder:
+                file: ips/adder.yaml
+          encoder:
+            external:
+              ports:
+                in:
+                - number
+                - clk
+                out:
+                - enc0
+                - enc1
+                - enc2
+        parameters:
+          debouncer:
+            GRACE: 1000
+        ports:
+          4-bit counter:
+            impulse:
+            - debouncer
+            - filtered_out
+            rst: rst
+          debouncer:
+            clk: clk
+            in: btn
+          encoder:
+            clk: clk
+            enc0: enc0
+            enc1: enc1
+            enc2: enc2
+            number:
+            - 4-bit counter
+            - sum
+      external:
+        ports:
+          in:
+          - btn
+          - clk
+          - rst
+          out:
+          - enc0
+          - enc1
+          - enc2
+      ips:
+        debouncer:
+          file: ips/debouncer.yaml
+  ports:
+    proc:
+      btn: btn
+      clk: clk
+      enc0: disp0
+      enc1: disp1
+      enc2: disp2
+      rst: rst
+external:
+  ports:
+    in:
+    - clk
+    - btn
+    - rst
+    out:
+    - disp0
+    - disp1
+    - disp2

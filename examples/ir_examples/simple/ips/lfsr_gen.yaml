@@ -1,0 +1,12 @@
+name: lfsr_gen
+
+parameters:
+  WIDTH: 64
+  SEED: 1
+
+signals:
+  in:
+    - clk
+    - rst
+  out:
+    - [gen_out, WIDTH-1, 0]

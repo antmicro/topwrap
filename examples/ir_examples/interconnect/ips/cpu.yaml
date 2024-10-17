@@ -1,0 +1,23 @@
+name: example_cpu
+
+signals:
+  in:
+    - clk
+    - rst
+
+interfaces:
+  bus_manager:
+    type: wishbone
+    mode: manager
+    signals:
+      out:
+        cyc: o_wb_cyc
+        stb: o_wb_stb
+        adr: [o_wb_adr, 31, 0]
+        dat_w: [o_wb_dat, 7, 0]
+        we: o_wb_we
+      in:
+        dat_r: [i_wb_dat, 7, 0]
+        ack: i_wb_ack
+        stall: i_wb_stall
+        err: i_wb_err

@@ -1,0 +1,11 @@
+name: debouncer
+
+parameters:
+  GRACE: 1000
+
+signals:
+  in:
+    - clk
+    - in
+  out:
+    - filtered_out

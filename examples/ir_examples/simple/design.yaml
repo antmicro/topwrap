@@ -1,0 +1,36 @@
+external:
+  ports:
+    in:
+      - clk
+      - rst
+      - sel_gen
+    out:
+      - rnd_bit
+
+ips:
+  2mux:
+    file: ips/2mux.yaml
+  gen1:
+    file: ips/lfsr_gen.yaml
+  gen2:
+    file: ips/lfsr_gen.yaml
+
+design:
+  parameters:
+    2mux:
+      WIDTH: 128
+    gen1:
+      WIDTH: 128
+      SEED: 1337
+    gen2:
+      WIDTH: 128
+  ports:
+    2mux:
+      gen_sel: sel_gen
+      gen1: [gen1, gen_out]
+      gen2: [gen2, gen_out]
+      out: rnd_bit
+    gen1: &clkrst
+      clk: clk
+      rst: rst
+    gen2: *clkrst
