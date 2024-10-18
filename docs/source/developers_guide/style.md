@@ -10,10 +10,10 @@ After successful setup, `nox` sessions can be executed to perform lint checks:
 nox -s lint
 ```
 
-This runs `isort`, `black`, `flake8` and `codespell` and fixes almost all formatting and linting problems automatically, but a small minority has to be fixed by hand (e.g. unused imports).
+This runs `isort`, `black`, `flake8` and `codespell` and fixes almost all formatting and linting problems automatically, but a small minority of problems have to be fixed by hand (e.g. unused imports).
 
 :::{note}
-To reuse current virtual environment and avoid long installation time use `-R` option:
+To reuse the current virtual environment and avoid long installation times use the `-R` option:
 
 ```bash
 nox -R -s lint
@@ -29,15 +29,17 @@ nox -s pre_commit
 :::
 ## Lint with pre-commit
 
-Alternatively, you can use pre-commit to perform the same job.
-`Pre-commit` hooks need to be installed:
+Alternatively, you can use pre-commit to perform the same task.
+
+`Pre-commit` hooks must be installed:
 
 ```bash
 pre-commit install
 ```
 
 Now, each use of `git commit` in the shell will trigger actions defined in the `.pre-commit-config.yaml` file.
-Pre-commit can be easily disabled with a similar command:
+
+Pre-commit can be disabled with a similar command:
 
 ```bash
 pre-commit uninstall
@@ -55,14 +57,14 @@ pre-commit run --all-files
 
 ## Tools
 
-Tools used in project for maintaining code style:
+Tools used in the project for maintaining the code style:
 * `Nox` is a tool, which simplifies management of Python testing.
 [Visit nox website](https://nox.thea.codes/en/stable/)
 * `Pre-commit` is a framework for managing and maintaining multi-language pre-commit hooks.
 [Visit pre-commit website](https://pre-commit.com/)
 * `Black` is a code formatter.
 [Visit black website](https://black.readthedocs.io/en/stable/)
-* `Flake8` is a tool capable of linting, styling fixes and complexity analysis.
+* `Flake8` is a tool capable of linting, styling fixes and for performing a complexity analysis.
 [Visit flake8 website](https://flake8.pycqa.org/en/latest/)
 * `Isort` is a Python utility to sort imports alphabetically.
 [Visit isort website](https://pycqa.github.io/isort/)

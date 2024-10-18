@@ -1,8 +1,8 @@
 # Config
 
-A {class}`~topwrap.config.Config` object stores configuration values.
-A global `topwrap.config.config` object is used throughout the codebase to access topwrap's configuration.
-This is created by {class}`~topwrap.config.ConfigManager` that reads config files defined in {attr}`topwrap.config.ConfigManager.DEFAULT_SEARCH_PATHS`, with files most local to the project taking precedence.
+The {class}`~topwrap.config.Config` object stores configuration values.
+The global `topwrap.config.Config` object is used throughout the codebase to access the Topwrap configuration.
+This is created by {class}`~topwrap.config.ConfigManager` that reads the config files defined in {attr}`topwrap.config.ConfigManager.DEFAULT_SEARCH_PATHS`, with local files taking precedence.
 
 ```{eval-rst}
 .. autoclass:: topwrap.config.Config

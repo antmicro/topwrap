@@ -2,45 +2,50 @@
 
 # Getting started
 
-Goal of this chapter is to show step by step how to create simple design with topwrap.
+The purpose of this chapter is to provide a step by step guide on how to create a simple design with Topwrap.
 
-All necessary files to follow this guide are in `examples/getting_started_demo` directory.
+All the necessary files needed to follow this guide are in the `examples/getting_started_demo` directory.
 
 :::{admonition} Important
 :class: attention
-This is just an example, if you haven't installed the topwrap yet go to the [Installation chapter](installation.md) and make sure to install additional dependencies for `topwrap parse`.
+If you haven't installed Topwrap yet, go to the [Installation chapter](installation.md) and make sure to install the additional dependencies for `topwrap parse`.
 :::
 
 ## Design overview
 
-The design we are going to create is visually represented below:
+We are going to create a design that will be visually represented in an [interactive GUI](https://antmicro.github.io/topwrap/usage.html#gui), as seen below.
 
 ```{kpm_iframe}
 :spec: ../../examples/getting_started_demo/kpm/specification.json
 :dataflow: ../../examples/getting_started_demo/kpm/dataflow.json
 ```
 
-It consists of two cores: `simple_core_1` and `simple_core_2` that are connected to each other and to some external metanodes.
+It consists of two cores: `simple_core_1` and `simple_core_2` that connect to each other and to some external input/output.
 
-## Parsing verilog files
+:::{note}
+Metanodes are always utilized in designs to represent external input/output ports, module hierarchy ports or constant values.
+They can be found in the "Metanode" section.
+:::
 
-First step in creating own designs is to parse verilog files into ip core description yamls that are understood by topwrap.
+## Parsing Verilog files
 
-In the `verilogs` directory you can find two verilog files which describe `simple_core_1` and `simple_core_2`.
+The first step when creating designs is to parse Verilog files into [IP core description YAMLs](https://antmicro.github.io/topwrap/usage.html#generating-ip-core-description-yamls) that are understood by Topwrap.
 
-To generate ip core descriptions from these verilogs run:
+In the `verilogs` directory, there are two Verilog files described, `simple_core_1` and `simple_core_2`.
+
+To generate the IP core descriptions from these Verilog files run:
 
 ```bash
 topwrap parse verilogs/{simple_core_1.v,simple_core_2.v}
 ```
 
-Topwrap will generate two files `gen_simple_core_1.yaml` and `gen_simple_core_2.yaml` that represent corresponding verilogs.
+Topwrap will generate two files `gen_simple_core_1.yaml` and `gen_simple_core_2.yaml` that represent the corresponding Verilog files.
 
-## Building design with topwrap
+## Building designs with topwrap
 
 ### Creating the design
 
-Generated ip core yamls can be loaded into GUI.
+Generated IP core YAMLs can be loaded into a GUI.
 
 Run the GUI client:
 ```bash
@@ -48,59 +53,56 @@ topwrap gui gen_simple_core_1.yaml gen_simple_core_2.yaml
 ```
 It should build and start server, connect the client to it and open the browser with GUI.
 
-Loaded ip cores can be found under IPcore section:
+The loaded IP cores can be found in the IPcore section:
 
 ```{image} img/side_bar_kpm.png
 ```
 
-With these IPcores and default metanodes you can easily create designs by dragging cores and connecting them.
+With these IP cores and default metanodes, you can easily create designs by dragging and connecting the cores.
 
-Let's make the design from the demo that was shown at the beginning of this guide.
+Let's make a design from the demo at the beginning of this guide.
 
 ```{image} img/getting_started_project.png
 ```
 
 :::{note}
-You can change name of node by right clicking on it and selecting `rename`.
+You can change the name of an individual node by right clicking on it and selecting `rename`.
 :::
 
-You can save the project to the [Design Description](description_files.md) format, which is used by topwrap to represent the created design.
+You can save the project in the [Design Description](description_files.md) format, which is used by Topwrap to represent the created design.
 
-To do this select the graph button and select `Save file`.
+To do this, select the graph button and select `Save file`.
 
 ```{image} img/save_graph_kpm.png
 ```
 
 :::{note}
-The difference between `Save file` and `Save graph file` lays in which format will be used for saving.
+The difference between `Save file` and `Save graph file` lies in which format is used for saving.
 
-`Save file` will save the design description in yaml format which topwrap uses.
+`Save file` will save the design description in the YAML format which Topwrap uses.
 
-`Save graph file` will save the design in graph json format which kpm uses. You should only choose this one if you have some specific custom layout of nodes in design and you want to save it.
+`Save graph file` will save the design in the [graph JSON format](https://antmicro.github.io/kenning-pipeline-manager/specification-format.html) which the GUI uses. You should only choose this one if you have a specific custom layout of the nodes in the design and you want to save it.
 :::
 
-### Generating verilog
+### Generating Verilog in the GUI
 
-You can generate verilog from design created in previous section.
-
-
-If you have the example running as described in previous section then on the top bar you should see these 4 buttons:
+You can generate Verilog from the design created in the previous section if you have the example running as described in the previous section.  On the top bar, these four buttons are visible:
 
 ```{image} img/kpm_buttons.png
 ```
 
-First one is for loading or saving designs.
-Second is for toggling node browser.
-Third one is for validating the design.
-And the fourth is for building the design which will generate the verilog file in `/build` directory of the current example and run the design.
+1. Load or save designs.
+2. Toggles the node browser.
+3. Validates the design.
+4. Builds the design which generates the Verilog file in the `/build` directory of the current example and runs the design.
 
 ## Appendix: Command-line flow
 
-### Creating the design
+### Creating designs
 
-Manual creation of designs requires familiarity with [Design Description](description_files.md) format.
+The manual creation of designs requires familiarity with the [Design Description](description_files.md) format.
 
-First let's include all the ip core files we will need in the `ips` section.
+First, include all the IP core files needed in the `ips` section.
 
 ```yaml
 ips:
@@ -110,13 +112,11 @@ ips:
     file: gen_simple_core_2.yaml
 ```
 
-Notice that here we also declare how to node will be named.
-Ip core `gen_simple_core_1.yaml` will be named `simple_core_1` in gui.
-Now we can start creating the design under the `design` section.
-Our design doesn't have any parameters so we can skip this part and go straight into `ports` section.
-There we define connections between ip cores.
-In demo example there is only one connection - between `gen_simple_core_1` and `gen_simple_core_2`.
-In our design it will look like below:
+Here, the name of the node is declared, and the IP core `gen_simple_core_1.yaml` is named `simple_core_1` in the GUI.
+
+Now we can start creating the design under the `design` section. The design doesn't have any parameters set, so we can skip this part and go straight into the `ports` section. In there, the connections between IP cores are defined. In the demo example, there is only one connection - between `gen_simple_core_1` and `gen_simple_core_2`.
+
+In our design, it is represented like this:
 
 ```yaml
 design:
@@ -127,9 +127,8 @@ design:
       - z
 ```
 
-Notice that we connect `input` to `output`.
-All left to do are external connections to metanodes.
-We declare them like this:
+Notice that `input` is connected to `output`.
+All that is left to do is to declare the external connections to metanodes, like this:
 
 ```yaml
 external:
@@ -142,7 +141,7 @@ external:
     - Output_c
 ```
 
-Now connect them to ip cores.
+Now connect them to IP cores.
 
 ```yaml
 design:
@@ -158,7 +157,7 @@ design:
       y: Output_y
 ```
 
-Final design:
+The final design:
 
 ```yaml
 ips:
@@ -187,28 +186,28 @@ external:
     - Output_c
 ```
 
-### Generating verilog
+### Generating Verilog top files
 
 :::{info}
-Topwrap uses [Amaranth](https://github.com/amaranth-lang/amaranth) for generating verilog top file.
+Topwrap uses [Amaranth](https://github.com/amaranth-lang/amaranth) for generating Verilog top files.
 :::
 
-To generate top file use `topwrap build` and provide the design.
+To generate the top file, use `topwrap build` and provide the design.
 
-Ensure you are in the `examples/getting_started_demo` directory and run:
+To do this, ensure you are in the `examples/getting_started_demo` directory and run:
 
 ```bash
 topwrap build --design {design_name.yaml}
 ```
 
-Where the `{design_name.yaml}` is the design saved at the end of previous section.
-The generated verilog file can be found in `/build` directory.
+Where the `{design_name.yaml}` is the design saved at the end of the previous section.
+The generated Verilog file can be found in the `/build` directory.
 
-Notice that you will get warning:
+There will be a warning:
 
 ```
 WARNING:root:You did not specify part number. 'None' will be used and thus your implementation may fail.
 ```
 
-It's because we didn't specify any part with `--part` flag since it's just a dummy example that is not for any specific FPGA chip.
-For building your designs we recommend specifying the `--part`.
+This is because the  `--part` flag was omitted since it's just a example, and is not for any specific FPGA chip.
+For building your designs, we recommend always specifying the `--part` flag.

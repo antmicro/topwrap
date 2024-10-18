@@ -1,8 +1,10 @@
 # ElaboratableWrapper class
 
-{class}`~topwrap.elaboratable_wrapper.ElaboratableWrapper` encapsulates an Amaranth's Elaboratable and exposes an interface compatible with other wrappers which allows making connections with them.
-Supplied elaboratable must contain a `signature` property and a conforming interface as specified by [Amaranth docs](https://amaranth-lang.org/rfcs/0002-interfaces.html).
-Ports' directionality, their names and widths are inferred from it.
+{class}`~topwrap.elaboratable_wrapper.ElaboratableWrapper` encapsulates an Amaranth's Elaboratable and exposes an interface compatible with other wrappers which allows for making connections with them.
+
+The supplied elaboratable must contain the `signature` property and a conforming interface as specified by the [Amaranth docs](https://amaranth-lang.org/rfcs/0002-interfaces.html).
+
+The names, directionality and widths of ports are inferred from it.
 
 ```{eval-rst}
 .. autoclass:: topwrap.elaboratable_wrapper.ElaboratableWrapper

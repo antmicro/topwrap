@@ -1,6 +1,6 @@
 # IPConnect class
 
-{class}`~topwrap.ipconnect.IPConnect` provides means of connecting ports and interfaces of objects that are subclasses of {class}`~topwrap.wrapper.Wrapper`.
+{class}`~topwrap.ipconnect.IPConnect` provides the means of connecting ports and interfaces of objects that are subclasses of {class}`~topwrap.wrapper.Wrapper`.
 Since {class}`~topwrap.ipconnect.IPConnect` is a subclass of {class}`~topwrap.wrapper.Wrapper` itself, this means that it also has IO - ports and interfaces, and that multiple {class}`~topwrap.ipconnect.IPConnect`s can have their ports and interfaces connected to each other (or other objects that subclass {class}`~topwrap.wrapper.Wrapper`).
 
 ```{image} ../img/ipconnect.png
@@ -28,7 +28,7 @@ ipc._set_port("comp1_name", "comp1_port_name", "external_port_name")
 ipc._set_interface("comp1_name", "comp1_interface_name", "external_interface_name")
 ```
 
-This is done automatically in {meth}`~topwrap.ipconnect.IPConnect.make_connections` method when the design is built based on the data from the YAML design description.
+This is done automatically in the {meth}`~topwrap.ipconnect.IPConnect.make_connections` method when the design is built, based on the data from the YAML design description.
 
 ```{eval-rst}
 .. autoclass:: topwrap.ipconnect.IPConnect

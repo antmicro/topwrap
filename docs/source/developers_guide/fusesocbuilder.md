@@ -1,8 +1,8 @@
 #  FuseSocBuilder
 
-Topwrap has support for generating FuseSoC's core files with {class}`~topwrap.fuse_helper.FuseSocBuilder`.
-Such core file contains information about source files and synthesis tools.
-Generation is based on a jinja template that defaults to `topwrap/templates/core.yaml.j2` but can be overridden.
+Topwrap has support for generating FuseSoC core files with {class}`~topwrap.fuse_helper.FuseSocBuilder`.The core file contains information about source files and synthesis tools.
+
+Generation of the FuseSoC core files is based on a Jinja template that defaults to `topwrap/templates/core.yaml.j2`, but can be overridden.
 
 Here's an example of how to generate a simple project:
 
@@ -16,7 +16,7 @@ fuse.add_source('DMATop.v', 'verilogSource')
 # add source of the top file
 fuse.add_source('top.v', 'verilogSource')
 
-# specify the names of the Core file and the directory where sources are stored
+# specify the names of the core file and the directory where sources are stored
 # generate the project
 fuse.build('build/top.core', 'sources')
 ```

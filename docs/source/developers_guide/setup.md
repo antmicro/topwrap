@@ -1,7 +1,8 @@
 # Setup
 
-It is required for developers to keep code style and recommended to frequently run tests.
-In order to setup the developer's environment install optional dependency groups `topwrap-parse`, `tests` and `lint` specified in `pyproject.toml` which include `nox` and `pre-commit`:
+It is required for developers to keep the current code style and it is recommended to frequently run tests.
+
+In order to setup the development environment. install optional dependency groups `topwrap-parse`, `tests` and `lint` as specified in `pyproject.toml`, which includes `nox` and `pre-commit`:
 
 ```bash
 python -m venv venv

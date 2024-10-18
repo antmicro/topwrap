@@ -1,13 +1,11 @@
-# Introduction
+# Introduction to Topwrap
 
-ASIC and FPGA designs consist of distinct blocks of logic bound together by a top-level design. 
-To take advantage of this modularity and enable reuse of blocks across designs and so facilitate the shift towards automation in logic design, it is necessary to derive a generic way to aggregate the blocks in various configurations and make the top-level design easy to parse and process automatically.
+[comment]: Topwrap logo
 
-Topwrap is an open source command line toolkit for connecting individual HDL modules into full designs of varying complexity.
-The toolkit is designed to take advantage of the ever-growing availability of open source digital logic designs and offers a user-friendly graphical interface which lets you mix-and-match GUI-driven design with CLI-based adjustments and present designs in a diagram form thanks to the integration with Antmicro’s [Pipeline Manager](https://github.com/antmicro/kenning-pipeline-manager).
+Topwrap takes advantage of modularity by enabling the reuse of blocks across designs and facilitates the shift towards automation in logic design. It provides a standardized way of aggregating blocks in various configurations and makes top-level designs easy to parse as well as providing a method of processing them automatically. 
 
-Topwrap's most notable features are:
-* User-friendly GUI
-* Parsing HDL design files with automatic recognition of common interfaces
-* Simple YAML-based description for command-line use
-* Capability to create custom libraries for reuse across projects
+As a tool, Topwrap makes it [easy to build](https://antmicro.github.io/topwrap/getting_started.html) complex and [synthesizable designs](https://antmicro.github.io/topwrap/examples.html) with the help of the [design file](https://antmicro.github.io/topwrap/description_files.html), while the mix of a [GUI and CLI-based](https://antmicro.github.io/topwrap/usage.html) configuration allows for a limitless amount of fine tuning possibilities. These designs can be quickly shared at the click of a button. [Packaging multiple files](https://antmicro.github.io/topwrap/user_repositories.html) is also as simple as including them in a custom user repository, while an internal API allows for constructing repositories using Python.  
+
+Topwrap uses [FuseSoC](https://antmicro.github.io/topwrap/fusesoc.html) to automate project generation and build processes. 
+
+![GUI example](img/soc-diagram-anim.gif)

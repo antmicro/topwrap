@@ -4,18 +4,21 @@
 
 (design-description)=
 
-## Design Description
+## Design description
 
-To create a complete, fully synthesizable design, a proper design file is needed.
-It's used to specify interconnects, IP cores, set their parameters' values, describe hierarchies for the project,
-connect the IPs and hierarchies, and pick external ports (those which will be connected to physical I/O).
+To create a complete and fully synthesizable design, a design file is needed. It is used for: 
 
-You can see example design files in `examples` directory. The structure is as below:
+* specifying interconnects and IP cores
+* setting parameter values and describing hierarchies for the project
+* connecting the IPs and hierarchies
+* picking external ports (those which will be connected to the physical I/O).
+
+You can see example design files in the `examples` directory. The structure of the design file is below:
 
 ```yaml
 ips:
-  # specify relations between IPs instance names in the
-  # design yaml and IP cores description yamls
+  # specify relations between IP instance names in the
+  # design yaml and IP cores description YAMLs
   {ip_instance_name}:
     file: {path_to_ip_description}
   ...
@@ -25,44 +28,42 @@ design:
   hierarchies:
       # see "Hierarchies" below for a detailed description of the format
       ...
-  parameters: # specify IPs parameter values to be overridden
+  parameters: # specify IP parameter values to be overridden
     {ip_instance_name}:
-      {param_name} : {param_value}
+      {parameters_name} : {parameters_value}
       ...
-
   ports:
-    # specify incoming ports connections of an IP named `ip1_name`
+    # specify the incoming ports connections of an IP named `ip1_name`
     {ip1_name}:
       {port1_name} : [{ip2_name}, {port2_name}]
       ...
-    # specify incoming ports connections of a hierarchy named `hier_name`
+    # specify the incoming ports connections of a hierarchy named `hier_name`
     {hier_name}:
       {port1_name} : [{ip_name}, {port2_name}]
       ...
-    # specify external ports connections
+    # specify the external port connections
     {ip_instance_name}:
       {port_name} : ext_port_name
     ...
 
   interfaces:
-    # specify incoming interfaces connections of `ip1_name` IP
+    # specify the incoming interface connections of `ip1_name` IP
     {ip1_name}:
-      {iface1_name} : [{ip2_name}, {iface2_name}]
+      {interface1_name} : [{ip2_name}, {interface2_name}]
       ...
-    # specify incoming interfaces connections of `hier_name` hierarchy
+    # specify the incoming interface connections of `hier_name` hierarchy
     {hier_name}:
-      {iface1_name} : [{ip_name}, {iface2_name}]
+      {interface1_name} : [{ip_name}, {interface2_name}]
       ...
-    # specify external interfaces connections
+    # specify the external interface connections
     {ip_instance_name}:
-      {iface_name} : ext_iface_name
+      {interface_name} : ext_interface_name
     ...
 
   interconnects:
-    # see "Interconnect generation" page for a detailed description of the format
+    # see the "Interconnect generation" page for a detailed description of the format
     ...
-
-external: # specify names of external ports and interfaces of the top module
+external: # specify the names of external ports and interfaces of the top module
   ports:
     out:
       - {ext_port_name}
@@ -70,29 +71,26 @@ external: # specify names of external ports and interfaces of the top module
       - [{ip_name/hierarchy_name, port_name}]
   interfaces:
     in:
-      - {ext_iface_name}
+      - {ext_interface_name}
     # note that `inout:` is invalid in the interfaces section
 ```
 
-`inout` ports are handled differently than `in` and `out` ports. When any IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in `external.ports.inout` section of the parent design by specifying the name of the IP/hierarchy and port name that contains it. Name of the external port will be identical to the one in the IP core. In case of duplicate names a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
+`inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
 
-The design description yaml format allows creating hierarchical designs. In order to create a hierarchy, it suffices to add its name as a key in the `design` section and describe the hierarchy design "recursively" by using the same keys and values (`ports`, `parameters` etc.) as in the top-level design (see above). Hierarchies can be nested recursively, which means that you can create a hierarchy inside another one.
+The design description YAML format allows for creating hierarchical designs. In order to create a hierarchy, add its name as a key in the `design` section and describe the hierarchy design "recursively" by using the same keys and values (`ports`, `parameters` etc.) as in the top-level design (see above). Hierarchies can be nested recursively, which means that you can create a hierarchy inside another one.
 
-Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it's correct to have `ip_name` key in this section and `ip_name` in the `design` section of some hierarchy.
-
+Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it is possible to have `ip_name` key in this section and `ip_name` in the `design` section of a separate hierarchy.
 
 (hierarchies)=
 ### Hierarchies
-
-Hierarchies allow for creating designs with subgraphs in them.
-Subgraphs can contain multiple IP-cores and other subgraphs.
-This allows creating nested designs in topwrap.
+<!--could we create a kind of flow chart or diagram to illustrate how these hierarchies are structured? -->  
+Hierarchies allow for creating designs with subgraphs in them. The subgraphs can contain multiple IP cores and other subgraphs, allowing for the creation of nested designs in Topwrap.
 
 ### Format
 
-All information about hierarchies is specified in [design description](description_files.md).
-`hierarchies` key must be a direct descendant of the `design` key.
-Format is as follows:
+Hierarchies are specified in the design description.
+The `hierarchies` key must be a direct descendant of the `design` key.
+The format is as follows:
 
 ```yaml
 hierarchies:
@@ -104,11 +102,11 @@ hierarchies:
       design:
         parameters:
           ...
-        ports: # ports connections internal to this hierarchy
-          # note that also you have to connect port to it's external port equivalent (if exists)
+        ports: # ports connections internal to this hierarchy.
+          # note that also you have to connect port to it's external port equivalent (if exists).
           {ip1_name}:
               {port1_name} : [{ip2_name}, {port2_name}]
-              {port2_name} : {port2_external_equivalent} # connection to external port equivalent. Note that it has to be to the parent port
+              {port2_name} : {port2_external_equivalent} # connection to external port equivalent. Note that it has to be the parent port.
             ...
         hierarchies:
           {nested_hierarchy_name}:
@@ -125,18 +123,17 @@ hierarchies:
       ...
 ```
 
-More complex hierarchy example can be found in [examples/hierarchy](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy).
-
+A more complex example of a hierarchy can be found in the [examples/hierarchy](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy) directory.
 
 (ip-description)=
 
 ## IP description files
 
-Every IP wrapped by Topwrap needs a description file in YAML format.
+Every IP wrapped by Topwrap needs a description file in the YAML format.
 
-The ports of an IP should be placed in global `signals` node, followed by the direction of `in`, `out` or `inout`.
-The module name of an IP should be placed in global `name` node, it should be consistent with how it is defined in HDL file.
-Here's an example description of ports of Clock Crossing IP:
+The ports of an IP should be placed in the global `signals` key, followed by the direction - `in`, `out` or `inout`.
+The module name of an IP should be placed in the global `name` key, and it should be consistent with the definition in the HDL file.
+As an example, this is the description of ports in the Clock Crossing IP:
 
 ```yaml
 # file: clock_crossing.yaml
@@ -150,7 +147,7 @@ signals:
         - B
 ```
 
-The previous example is enough to make use of any IP. However, in order to benefit from connecting whole interfaces at once, ports must belong to a named interface like in this example:
+The previous example can be used with any IP. However, in order to benefit from connecting entire interfaces simultaneously, the ports must belong to a named interface like in this example:
 
 ```yaml
 #file: axis_width_converter.yaml
@@ -158,7 +155,7 @@ name: axis_width_converter
 interfaces:
     s_axis:
         type: AXIStream
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 TDATA: [s_axis_tdata, 63, 0]
@@ -170,10 +167,9 @@ interfaces:
                 TUSER: s_axis_tuser
             out:
                 TREADY: s_axis_tready
-
     m_axis:
         type: AXIStream
-        mode: master
+        mode: manager
         signals:
             in:
                 TREADY: m_axis_tready
@@ -185,27 +181,27 @@ interfaces:
                 TID: [m_axis_tid, 7, 0]
                 TDEST: [m_axis_tdest, 7, 0]
                 TUSER: m_axis_tuser
-signals: # These ports don't belong to any interface
+signals: # These ports do not belong to an interface
     in:
         - clk
         - rst
 ```
 
-Names `s_axis` and `m_axis` will be used to group the selected ports.
-Each signal in an interface has a name which must match with the signal it's supposed to be connected to, for example `TDATA: port_name` will be connected to `TDATA: other_port_name`.
+The names `s_axis` and `m_axis` will be used to group the selected ports.
+Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` connects to `TDATA: other_port_name`.
 
-Note that you don't have to write IP core description yamls by hand. You can use Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <generating-ip-yamls>`) in order to generate yamls from HDL source files and then adjust the yaml to your needs.
+To speed up the generation of YAMLs, Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <generating-ip-yamls>`) can be used to generate YAMLs from HDL source files and then the generated YAML can be adjusted accordingly.
 
 ### Port widths
 
 The width of every port defaults to `1`.
-You can specify the width using this notation:
-
+You can specify the width by using this notation:
+<!--Is this notation clear to someone using Topwrap?-->  
 ```yaml
 interfaces:
     s_axis:
         type: AXIStream
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 TDATA: [s_axis_tdata, 63, 0] # 64 bits
@@ -219,9 +215,7 @@ signals:
 
 ### Parameterization
 
-Port widths don't have to be hardcoded - you can use parameters to describe an IP core in a generic way.
-Values specified in IP core yamls can be overridden in a design description file (see {ref}`Design Description <design-description>`).
-
+The port widths don't have to be hardcoded as parameters can be used to describe an IP core in a generic way, as the values specified in IP core YAMLs can be overridden in a design description file (see {ref}`Design Description <design-description>`).
 ```yaml
 parameters:
     DATA_WIDTH: 8
@@ -233,7 +227,7 @@ parameters:
 interfaces:
     s_axis:
         type: AXI4Stream
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 TDATA: [s_axis_tdata, DATA_WIDTH-1, 0]
@@ -244,21 +238,21 @@ interfaces:
                 TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
 ```
 
-Parameters values can be integers or math expressions, which are evaluated using `numexpr.evaluate()`.
+The parameter values can be integers or math expressions, which are evaluated using `simpleeval`.
 
 (port-slicing)=
 
 ### Port slicing
 
-You can also slice a port, to use some bits of the port as a signal that belongs to an interface.
-The example below means:
+You can also slice a port, in order to use some parts of the port as a signal that belongs to a defined interface.
 
-`Port m_axi_bid of the IP core is 36 bits wide. Use bits 23..12 as the BID signal of AXI master named m_axi_1`
+The example below means:
+`Port m_axi_bid of the IP core is 36 bits wide. Use bits 23..12 as the BID signal of the AXI manager is named m_axi_1`
 
 ```yaml
 m_axi_1:
     type: AXI
-    mode: master
+    mode: manager
     signals:
         in:
             BID: [m_axi_bid, 35, 0, 23, 12]
@@ -266,10 +260,10 @@ m_axi_1:
 
 (interface-description-files)=
 
-## Interface Description files
+## Interface Description Files
 
-Topwrap can use predefined interfaces described in YAML files that come packaged with the tool.
-Currently supported interfaces are AXI4, AXI3, AXI Stream, AXI Lite and Wishbone.
+Topwrap can use predefined interfaces as described in YAML files that are packaged with the tool.
+The currently supported interfaces are AXI4, AXI3, AXI Stream, AXI Lite and Wishbone.
 
 You can see an example file below:
 
@@ -277,7 +271,7 @@ You can see an example file below:
 name: AXI4Stream
 port_prefix: AXIS
 signals:
-    # convention assumes the AXI Stream transmitter (master) perspective
+    # convention assumes the AXI Stream transmitter (manager) perspective
     required:
         out:
             TVALID: tvalid
@@ -294,13 +288,8 @@ signals:
             TUSER: tuser
             TWAKEUP: twakeup
 ```
-
-The name of an interface has to be unique.
-We also specify a prefix which will be used as a shortened identifier.
-Signals are either required or optional.
-Their direction is described from the the perspective of master (i.e. directionality of signals in the slave is flipped) - note that clock and reset are not included as these are usually inputs in both master and slave so they're not supported in interface specification.
-These distinctions are used when an option to check if all mandatory signals are present is enabled and when parsing an IP core with `topwrap parse` (not all required signals must necessarily be present but it's taken into account).
-Every signal is a key-value pair, where the key is a generic signal name (usually from interface specification) and value is a regex that is used to pair the generic name with a concrete signal name in the RTL source when using `topwrap parse`.
-This pairing is performed on signal names that are transformed to lowercase and have a common prefix of an interface they belong to removed.
-If a regexp occurs in such transformed signal name anywhere, that name is paired with the generic name.
-Since this occurs on names that have all characters in lowercase, regex must be written in lowercase as well.
+The name of an interface has to be unique, while we can also specify a prefix which is used as a shortened identifier.
+Signals are either required or optional, and their direction is described from the the perspective of the manager (i.e. the direction of signals in the subordinate are flipped) - note that clock and reset are not included as these are usually inputs in both manager and subordinate and they are not supported in the interface specification.
+These distinctions are used when the option to check if all mandatory signals are present is enabled and when parsing an IP core with `topwrap parse`. Not all required signals must necessarily be present but they are taken into account).
+Every signal is a key-value pair, where the key is a generic signal name (usually taken from the interface specification) and value is a regex that is used to pair the generic name with a specific signal name in the RTL source. This pairing is performed on signal names that are transformed to lowercase and they have the common prefix of an interface that they belong to removed.
+If a regexp occurs in such a transformed signal name anywhere, the name is paired with the generic name. As this occurs on names that have all characters in lowercase, regex must also be written in lowercase.

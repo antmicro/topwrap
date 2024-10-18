@@ -1,15 +1,13 @@
-# Packaging multiple files
+# Constructing, configuring and loading repositories
 
-Repositories allow for easy packaging and loading multiple IP-cores and custom interfaces.
-
-You can specify repositories to be loaded each time topwrap is ran by listing them in a configuration file that should be located in one of the following locations:
+By using Topwrap repositories, it is easy to package and load multiple IP cores and custom interfaces. You can specify the repositories to be loaded each time Topwrap runs by listing them in a configuration file. The file must be located in one of these locations:
 ```
 topwrap.yaml
 ~/.config/topwrap/topwrap.yaml
 ~/.config/topwrap/config.yaml
 ```
 
-Example contents of user config:
+Sample user configuration file :
 ```
 force_interface_compliance: true
 repositories:
@@ -17,30 +15,30 @@ repositories:
     path: ~/path_to_repo/repo
 ```
 
-Topwrap provides internal API for constructing repositories in python code which can be [found here](https://github.com/antmicro/topwrap/blob/main/topwrap/repo/user_repo.py)
+Topwrap provides an internal API for constructing repositories in Python code, [found here](https://github.com/antmicro/topwrap/blob/main/topwrap/repo/user_repo.py)
 
-Structure of repository has to be as follows:
+The structure of the repository is as follows:
 ```
 path_to_repository/
 |───cores
-|   |───someCore1
+|   |───ipcore1
 |   |   |───srcs
 |   |   |   |   file1.v
-|   |   |   design.yaml
+|   |   |   file1.yaml
 |   |
-|   |───someCore1
+|   |───ipcore2
 |       |───srcs
-|       |   |   file1.v
-|       |   design.yaml
+|       |   |   file2.v
+|       |   file2.yaml
 |
 |───interfaces(Optional)
-|   interface1.yaml
-|   interface2.yaml
+    |   iface1.yaml
+    |   iface2.yaml
 ```
-Repository has two main directories: `cores` and `interfaces`.
+<!--question about filenames - in some places, we have .yaml (like here) and in some places .yml, should it be standardised? Or are these different things?-->
+Each repository has two main directories: `cores` and `interfaces`. Inside `cores`, each core has it's own directory with a description file and the subdirectory `srcs` where Verilog/VHDL files are stored.
 
-Inside `cores` each core has it's own directory with it's description file and `srcs` where the verilog/VHDL files are stored.
+The `interfaces` directory is optional, and contains [interface description files](description_files.md).
+<!--I want to link to `description_files.md#interface-description-files`, but it fails in CI - how to do this?-->
 
-The `interfaces` directory is optional, and contains interface description files.
-
-Example User Repo can be found in [examples/user_repository](https://github.com/antmicro/topwrap/tree/main/examples/user_repository).
+A sample user repository can be found in [examples/user_repository](https://github.com/antmicro/topwrap/tree/main/examples/user_repository).
