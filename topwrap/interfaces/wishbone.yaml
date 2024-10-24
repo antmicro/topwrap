@@ -17,12 +17,12 @@ signals:
         out:
             # mosi/miso is a naming convention that is currently unsupported
             # in Topwrap since it's semantically the same signal but it has
-            # a different name depending on the peripheral being a master or
-            # a slave, so if the RTL source uses this convention grouping ports
+            # a different name depending on the peripheral being a manager or
+            # a subordinate, so if the RTL source uses this convention grouping ports
             # under interfaces might not be performed correctly.
-            # 
+            #
             # Many implementations use saner dat_w/dat_r convention that does
-            # not depend on whether the peripheral is a master or a slave. This
+            # not depend on whether the peripheral is a manager or a subordinate. This
             # is reflected in an additional regex pattern below and in dat_r.
             dat_w: dat_w|mosi
             adr: adr

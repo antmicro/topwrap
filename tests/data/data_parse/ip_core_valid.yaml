@@ -13,7 +13,7 @@ parameters:
 interfaces:
   intf1:
     type: wishbone
-    mode: master
+    mode: manager
     signals:
       out:
         cyc: cyc

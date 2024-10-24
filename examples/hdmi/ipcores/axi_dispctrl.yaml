@@ -6,7 +6,7 @@ name: axi_dispctrl
 interfaces:
     S00_AXI:
         type: AXI4Lite
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 AWADDR: [s00_axi_awaddr, 6, 0]
@@ -32,7 +32,7 @@ interfaces:
 
     S_AXIS:
         type: AXI4Stream
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 TVALID: S_AXIS_TVALID

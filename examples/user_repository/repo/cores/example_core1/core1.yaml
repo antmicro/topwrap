@@ -11,7 +11,7 @@ signals:
 interfaces:
     inter_1:
       type: coreStream
-      mode: master
+      mode: manager
       signals:
           out:
               CREADY: c_tready

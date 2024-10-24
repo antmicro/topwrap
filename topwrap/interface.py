@@ -23,8 +23,8 @@ from .hdl_parsers_utils import PortDirection
 
 
 class InterfaceMode(Enum):
-    MASTER = "master"
-    SLAVE = "slave"
+    MANAGER = "manager"
+    SUBORDINATE = "subordinate"
     UNSPECIFIED = "unspecified"
 
 

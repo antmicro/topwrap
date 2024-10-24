@@ -7,11 +7,11 @@ use UNISIM.VCOMPONENTS.ALL;
 entity axi_dispctrl_v1_0 is
 	generic (
 		-- Users to add parameters here
-		-- Parameters of Axis slave interface S_AXIS
+		-- Parameters of Axis subordinate interface S_AXIS
 		C_S_AXIS_TDATA_WIDTH : integer := 32;
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
-		-- Parameters of Axi Slave Bus Interface S00_AXI
+		-- Parameters of Axi subordinate Bus Interface S00_AXI
 		C_S00_AXI_DATA_WIDTH : integer := 32;
 		C_S00_AXI_ADDR_WIDTH : integer := 7
 	);
@@ -36,7 +36,7 @@ entity axi_dispctrl_v1_0 is
 		LOCKED_I : in std_logic;
 		-- User ports ends
 		-- Do not modify the ports beyond this line
-		-- Ports of Axi Slave Bus Interface S00_AXI
+		-- Ports of Axi subordinate Bus Interface S00_AXI
 		s00_axi_aclk : in std_logic;
 		s00_axi_aresetn : in std_logic;
 		s00_axi_awaddr : in std_logic_vector(C_S00_AXI_ADDR_WIDTH-1 downto 0);

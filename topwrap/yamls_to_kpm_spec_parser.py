@@ -163,18 +163,18 @@ def _ipcore_ports_to_iface_type(ports: IPCorePorts) -> List[InterfaceType]:
 
 def _ipcore_ifaces_to_iface_type(ifaces: Dict[str, IPCoreInterface]) -> List[InterfaceType]:
     """Returns a list of interfaces grouped by direction (inputs/outputs)
-    in a format used in KPM specification. Master interfaces are considered
-    outputs, slave interfaces are considered inputs and interfaces with
+    in a format used in KPM specification. Manager interfaces are considered
+    outputs, subordinate interfaces are considered inputs and interfaces with
     unspecified direction are considered inouts."""
 
     iface_list = []
     for iface_name, iface_data in ifaces.items():
-        if iface_data.mode in (InterfaceMode.SLAVE, InterfaceMode.UNSPECIFIED):
+        if iface_data.mode in (InterfaceMode.SUBORDINATE, InterfaceMode.UNSPECIFIED):
             iface_list.append(
                 InterfaceType(
                     iface_name,
                     [f"iface_{iface_data.type}"],
-                    "input" if iface_data.mode == InterfaceMode.SLAVE else "inout",
+                    "input" if iface_data.mode == InterfaceMode.SUBORDINATE else "inout",
                 )
             )
         else:

@@ -3,7 +3,7 @@
 
 name: axi_interconnect
 
-# 1 slave
+# 1 subordinate
 parameters:
     S_COUNT: 1
     M_COUNT: 4
@@ -24,10 +24,10 @@ parameters:
 interfaces:
     s_axi_0:
         type: AXI4
-        mode: slave
+        mode: subordinate
         signals:
             in:
-                # TODO slice for the 0th slave
+                # TODO slice for the 0th subordinate
                 AWID: [s_axi_awid, S_COUNT*ID_WIDTH - 1, 0]
                 AWADDR: [s_axi_awaddr, S_COUNT*ADDR_WIDTH-1, 0]
                 # AWLEN in PS7 has only 4 bits
@@ -75,10 +75,10 @@ interfaces:
                 RUSER: [s_axi_ruser, S_COUNT*RUSER_WIDTH-1, 0]
                 RVALID: [s_axi_rvalid, S_COUNT-1, 0]
 
-    # 3 masters
+    # 3 managers
     m_axi_0:
         type: AXI4
-        mode: master
+        mode: manager
         signals:
             in:
                 AWREADY: [m_axi_awready, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
@@ -96,7 +96,7 @@ interfaces:
                 RVALID: [m_axi_rvalid, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
             out:
                 # the most significant third of each port is used
-                # because there are 3 master interfaces
+                # because there are 3 manager interfaces
                 AWID: [m_axi_awid, M_COUNT*ID_WIDTH-1, 0, M_COUNT*ID_WIDTH-1, (M_COUNT-1)*ID_WIDTH]
                 AWADDR: [m_axi_awaddr, M_COUNT*ADDR_WIDTH-1, 0, M_COUNT*ADDR_WIDTH-1, (M_COUNT-1)*ADDR_WIDTH]
                 AWLEN: [m_axi_awlen, M_COUNT*8-1, 0, M_COUNT*8-1, (M_COUNT-1)*8]
@@ -131,7 +131,7 @@ interfaces:
 
     m_axi_1:
         type: AXI4
-        mode: master
+        mode: manager
         signals:
             in:
                 AWREADY: [m_axi_awready, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
@@ -184,7 +184,7 @@ interfaces:
 
     m_axi_2:
         type: AXI4
-        mode: master
+        mode: manager
         signals:
             in:
                 AWREADY: [m_axi_awready, M_COUNT-1, 0, M_COUNT-3, M_COUNT-3]

@@ -42,7 +42,7 @@ interfaces:
 name: test_ip
 interfaces:
     i1:
-        mode: slave
+        mode: subordinate
         type: AXI4Stream
         signals:
             out:
@@ -60,7 +60,7 @@ interfaces:
 name: test_ip
 interfaces:
     i1:
-        mode: slave
+        mode: subordinate
         type: AXI4Stream
         signals:
             out:
@@ -114,7 +114,7 @@ interfaces:
     def test_invalid_interface_type(self, invalid_interface_type_core):
         with pytest.raises(
             ValidationError, match="'Invalid interface type: IDONTEXIST'"
-        ) and pytest.raises(ValidationError, match="'Must be one of: master,"):
+        ) and pytest.raises(ValidationError, match="'Must be one of: manager,"):
             IPCoreDescription.from_dict(invalid_interface_type_core)
 
     def test_invalid_interface_compliance(
@@ -221,7 +221,7 @@ interfaces:
                 "foo_bar_adapter": {
                     "value": {
                         "type": ["Not a valid string."],
-                        "mode": ["Must be one of: master, slave, unspecified."],
+                        "mode": ["Must be one of: manager, subordinate, unspecified."],
                         "signals": {
                             "out": {
                                 "ABC": {
@@ -292,7 +292,7 @@ interfaces:
             interfaces={
                 "intf1": IPCoreInterface(
                     type="wishbone",
-                    mode=InterfaceMode.MASTER,
+                    mode=InterfaceMode.MANAGER,
                     signals=IPCoreIntfPorts(
                         input={"ack": ("ack", 2, 0)},
                         output={"cyc": "cyc", "stb": ("cyc", 3, 0, 1, 0)},

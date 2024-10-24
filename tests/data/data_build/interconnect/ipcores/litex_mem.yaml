@@ -12,7 +12,7 @@ signals:
 interfaces:
   s_wishbone:
     type: wishbone
-    mode: slave
+    mode: subordinate
     signals:
       in:
         adr: [mem_bus_adr, 29, 0]

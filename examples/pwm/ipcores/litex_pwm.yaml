@@ -13,7 +13,7 @@ signals:
 interfaces:
   s_axi:
     type: AXI4Lite
-    mode: slave
+    mode: subordinate
     signals:
       in:
         AWADDR: [axi_awaddr, 31, 0]

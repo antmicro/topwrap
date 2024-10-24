@@ -12,10 +12,10 @@
 name: axi_protocol_converter
 
 interfaces:
-    # 1 slave
+    # 1 subordinate
     S_AXI:
         type: AXI4
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 AWID: [s_axi_awid, 3, 0]
@@ -60,10 +60,10 @@ interfaces:
                 RVALID: s_axi_rvalid
 
 
-    # 1 master
+    # 1 manager
     M_AXI:
         type: AXI3
-        mode: master
+        mode: manager
         signals:
             in:
 

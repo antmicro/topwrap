@@ -6,7 +6,7 @@ name: litex_mmcm
 interfaces:
     axi:
         type: AXI4Lite
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 AWVALID: axi_awvalid

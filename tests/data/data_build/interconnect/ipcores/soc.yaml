@@ -18,7 +18,7 @@ signals:
 interfaces:
   m_dbus_wishbone:
     type: wishbone
-    mode: master
+    mode: manager
     signals:
       in:
         ack: dbus_ack
@@ -35,7 +35,7 @@ interfaces:
         bte: [dbus_bte, 1, 0]
   m_ibus_wishbone:
     type: wishbone
-    mode: master
+    mode: manager
     signals:
       in:
         ack: ibus_ack
@@ -52,7 +52,7 @@ interfaces:
         bte: [ibus_bte, 1, 0]
   s_csr_wishbone:
     type: wishbone
-    mode: slave
+    mode: subordinate
     signals:
       in:
         cyc: csr_wishbone_cyc

@@ -79,7 +79,7 @@ class DesignExternalSection(MarshmallowDataclassExtensions):
 @marshmallow_dataclass.dataclass(frozen=True)
 class DesignSectionInterconnect(MarshmallowDataclassExtensions):
     @marshmallow_dataclass.dataclass(frozen=True)
-    class Slave:
+    class Subordinate:
         address: int
         size: int
 
@@ -87,8 +87,8 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
     clock: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
     reset: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
     params: Dict[str, Any] = ext_field(dict)
-    masters: Dict[str, List[str]] = ext_field(dict)
-    slaves: Dict[str, Dict[str, Slave]] = ext_field(dict)
+    managers: Dict[str, List[str]] = ext_field(dict)
+    subordinates: Dict[str, Dict[str, Subordinate]] = ext_field(dict)
 
 
 DS_PortsT = Dict[str, Dict[str, Union[int, str, Tuple[str, str]]]]

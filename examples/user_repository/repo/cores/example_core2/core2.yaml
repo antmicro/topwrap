@@ -10,7 +10,7 @@ signals:
 interfaces:
     inter_2:
       type: coreStream
-      mode: slave
+      mode: subordinate
       signals:
           in:
               CREADY: c_tready

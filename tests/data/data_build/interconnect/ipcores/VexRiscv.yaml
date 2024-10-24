@@ -15,7 +15,7 @@ signals:
 interfaces:
   m_dbus_wishbone:
     type: wishbone
-    mode: master
+    mode: manager
     signals:
       in:
         ack: dBusWishbone_ACK
@@ -32,7 +32,7 @@ interfaces:
         bte: [dBusWishbone_BTE, 1, 0]
   m_ibus_wishbone:
     type: wishbone
-    mode: master
+    mode: manager
     signals:
       in:
         ack: iBusWishbone_ACK

@@ -6,7 +6,7 @@
 name: AXI4Stream
 port_prefix: AXIS
 signals:
-    # assuming transmitter = master
+    # assuming transmitter = manager
     required:
         out:
             TVALID: tvalid

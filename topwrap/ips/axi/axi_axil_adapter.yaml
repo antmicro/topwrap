@@ -12,10 +12,10 @@ parameters:
     AXIL_STRB_WIDTH: AXIL_DATA_WIDTH/8
 
 interfaces:
-# 1 slave
+# 1 subordinate
     s_axi:
         type: AXI4
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 AWID: [s_axi_awid, AXI_ID_WIDTH-1, 0]
@@ -55,10 +55,10 @@ interfaces:
                 RLAST: s_axi_rlast
                 RVALID: s_axi_rvalid
 
-    # 1 master
+    # 1 manager
     m_axi:
         type: AXI4Lite
-        mode: master
+        mode: manager
         signals:
             in:
                 AWREADY: m_axil_awready

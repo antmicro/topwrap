@@ -1,6 +1,6 @@
 interfaces:
   m_axil:
-    mode: master
+    mode: manager
     signals:
       in:
         ARREADY: m_axil_arready
@@ -25,7 +25,7 @@ interfaces:
         WVALID: m_axil_wvalid
     type: AXI4Lite
   s_axi:
-    mode: slave
+    mode: subordinate
     signals:
       in:
         ARADDR: [s_axi_araddr, (ADDR_WIDTH-1), 0]

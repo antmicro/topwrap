@@ -14,7 +14,7 @@ signals:
 interfaces:
     M_AXI_GP0:
         type: AXI4
-        mode: master
+        mode: manager
         signals:
             in:
                 ARREADY: MAXIGP0ARREADY

@@ -10,7 +10,7 @@ parameters:
 interfaces:
     s_axis:
         type: AXI4Stream
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 TDATA: [s_axis_tdata, IN_DATA_WIDTH-1, 0]
@@ -20,7 +20,7 @@ interfaces:
 
     m_axis:
         type: AXI4Stream
-        mode: master
+        mode: manager
         signals:
             in:
                 TREADY: m_axis_tready

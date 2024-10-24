@@ -322,7 +322,7 @@ class IPConnect(Wrapper):
         interconnects: Dict[str, "DesignSectionInterconnect"],
         external: "DesignExternalSection",
     ):
-        """Connect slaves and masters to their respective interfaces in the interconnect
+        """Connect subordinates and managers to their respective interfaces in the interconnect
 
         :param interconnects: "interconnects" section in the YAML design specification
         :param external: "external" section in the YAML design specification
@@ -330,7 +330,7 @@ class IPConnect(Wrapper):
         for ic_name, intrcnt_yml in interconnects.items():
             ic = self._get_component_by_name(ic_name)
 
-            masters, slaves = intrcnt_yml.masters, intrcnt_yml.slaves
+            managers, subordinates = intrcnt_yml.managers, intrcnt_yml.subordinates
             clk_src, rst_src = intrcnt_yml.clock, intrcnt_yml.reset
 
             for dst_name, cd_sig in [("clk", clk_src), ("rst", rst_src)]:
@@ -343,30 +343,33 @@ class IPConnect(Wrapper):
                     src_comp, src_sig = cd_sig
                     self.connect_ports(dst_name, ic_name, src_sig, src_comp)
 
-            for slave_name, slave_ifaces in slaves.items():
-                for slave_iface_name, iface_params in slave_ifaces.items():
+            for subordinate_name, subordinate_ifaces in subordinates.items():
+                for subordinate_iface_name, iface_params in subordinate_ifaces.items():
                     ic.elaboratable.add_peripheral(
-                        name=f"{slave_name}_{slave_iface_name}",
+                        name=f"{subordinate_name}_{subordinate_iface_name}",
                         addr=iface_params.address,
                         size=iface_params.size,
                     )
 
-            for master_name, master_ifaces in masters.items():
-                for master_iface_name in master_ifaces:
-                    ic.elaboratable.add_master(name=f"{master_name}_{master_iface_name}")
+            for manager_name, manager_ifaces in managers.items():
+                for manager_iface_name in manager_ifaces:
+                    ic.elaboratable.add_master(name=f"{manager_name}_{manager_iface_name}")
 
-            for slave_name, slave_ifaces in slaves.items():
-                for slave_iface_name, iface_params in slave_ifaces.items():
+            for subordinate_name, subordinate_ifaces in subordinates.items():
+                for subordinate_iface_name, iface_params in subordinate_ifaces.items():
                     self.connect_interfaces(
-                        slave_iface_name, slave_name, f"{slave_name}_{slave_iface_name}", ic_name
+                        subordinate_iface_name,
+                        subordinate_name,
+                        f"{subordinate_name}_{subordinate_iface_name}",
+                        ic_name,
                     )
 
-            for master_name, master_ifaces in masters.items():
-                for master_iface_name in master_ifaces:
+            for manager_name, manager_ifaces in managers.items():
+                for manager_iface_name in manager_ifaces:
                     self.connect_interfaces(
-                        master_iface_name,
-                        master_name,
-                        f"{master_name}_{master_iface_name}",
+                        manager_iface_name,
+                        manager_name,
+                        f"{manager_name}_{manager_iface_name}",
                         ic_name,
                     )
 

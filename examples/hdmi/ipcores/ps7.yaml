@@ -46,7 +46,7 @@ signals:
 interfaces:
     M_AXI_GP0:
         type: AXI4
-        mode: master
+        mode: manager
         signals:
             in:
                 ARREADY: MAXIGP0ARREADY
@@ -92,7 +92,7 @@ interfaces:
 
     S_AXI_HP0:
         type: AXI3
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 #ARID: [SAXIHP0ARID, 5, 0]

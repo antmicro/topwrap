@@ -28,9 +28,9 @@ from topwrap.interface_grouper import (
 
 from .parse_common import (
     AXI_AXIL_ADAPTER_IFACES,
-    AXI_AXIL_ADAPTER_MASTER_PORTS,
+    AXI_AXIL_ADAPTER_MANAGER_PORTS,
     AXI_AXIL_ADAPTER_PORTS,
-    AXI_AXIL_ADAPTER_SLAVE_PORTS,
+    AXI_AXIL_ADAPTER_SUBORDINATE_PORTS,
     AXI_DISPCTRL_IFACES,
     AXI_DISPCTRL_PORTS,
 )
@@ -244,8 +244,8 @@ class TestSignalGroupers:
     def test_grouper_by_attribute(self, hdl_file: Path):
         attr_grouper = GrouperByAttribute(hdl_file)
         assert attr_grouper.group(AXI_AXIL_ADAPTER_PORTS) == {
-            "axi_slave": set(AXI_AXIL_ADAPTER_SLAVE_PORTS),
-            "axi_master": set(AXI_AXIL_ADAPTER_MASTER_PORTS),
+            "axi_subordinate": set(AXI_AXIL_ADAPTER_SUBORDINATE_PORTS),
+            "axi_manager": set(AXI_AXIL_ADAPTER_MANAGER_PORTS),
         }
 
 
@@ -432,16 +432,19 @@ class TestModeDeducers:
         basic_deducer = BasicModeDeducer()
         matcher = RegexInterfaceMatcher()
 
-        # if rtl ports directions' match iface ports directions' this it's a master
-        # since convention is to describe directions in an interface from the master's perspective
-        matching_master = matcher.match(set(foo_interface.signals.flat), foo_a_ports)
-        assert basic_deducer.deduce_mode(foo_interface, matching_master) == InterfaceMode.MASTER
+        # if rtl ports directions' match iface ports directions' this it's a manager
+        # since convention is to describe directions in an interface from the manager's perspective
+        matching_manager = matcher.match(set(foo_interface.signals.flat), foo_a_ports)
+        assert basic_deducer.deduce_mode(foo_interface, matching_manager) == InterfaceMode.MANAGER
 
-        # conversely if the directions are inverted it's a slave
-        matching_slave = matcher.match(
+        # conversely if the directions are inverted it's a subordinate
+        matching_subordinate = matcher.match(
             set(foo_interface.signals.flat), set(map(invert_direction, foo_a_ports))
         )
-        assert basic_deducer.deduce_mode(foo_interface, matching_slave) == InterfaceMode.SLAVE
+        assert (
+            basic_deducer.deduce_mode(foo_interface, matching_subordinate)
+            == InterfaceMode.SUBORDINATE
+        )
 
         # negative test - empty matching
         assert basic_deducer.deduce_mode(foo_interface, {}) == InterfaceMode.UNSPECIFIED

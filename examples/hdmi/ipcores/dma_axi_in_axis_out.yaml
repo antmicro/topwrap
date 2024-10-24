@@ -6,7 +6,7 @@ name: dma_axi_in_axis_out
 interfaces:
     m_axis:
         type: AXI4Stream
-        mode: master
+        mode: manager
         signals:
             in:
                 TREADY: io_write_tready
@@ -18,7 +18,7 @@ interfaces:
 
     s_axi:
         type: AXI4Lite
-        mode: slave
+        mode: subordinate
         signals:
             in:
                 AWADDR: [io_control_aw_awaddr, 31, 0]
@@ -44,7 +44,7 @@ interfaces:
 
     m_axi:
         type: AXI4
-        mode: master
+        mode: manager
         signals:
             in:
                 AWREADY: io_read_aw_awready

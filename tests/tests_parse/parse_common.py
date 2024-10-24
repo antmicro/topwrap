@@ -323,7 +323,7 @@ AXI_AXIL_ADAPTER_S_AXI_IFACE = InterfaceMatch(
     },
     bus_type="AXI3",
     name="s_axi",
-    mode=InterfaceMode.SLAVE,
+    mode=InterfaceMode.SUBORDINATE,
 )
 
 AXI_AXIL_ADAPTER_M_AXIL_IFACE = InterfaceMatch(
@@ -498,21 +498,21 @@ AXI_AXIL_ADAPTER_M_AXIL_IFACE = InterfaceMatch(
     },
     bus_type="AXI4Lite",
     name="m_axil",
-    mode=InterfaceMode.MASTER,
+    mode=InterfaceMode.MANAGER,
 )
 
 AXI_AXIL_ADAPTER_IFACES = [AXI_AXIL_ADAPTER_M_AXIL_IFACE, AXI_AXIL_ADAPTER_S_AXI_IFACE]
 
-AXI_AXIL_ADAPTER_MASTER_PORTS = list(AXI_AXIL_ADAPTER_M_AXIL_IFACE.signals.values())
-AXI_AXIL_ADAPTER_SLAVE_PORTS = list(AXI_AXIL_ADAPTER_S_AXI_IFACE.signals.values())
+AXI_AXIL_ADAPTER_MANAGER_PORTS = list(AXI_AXIL_ADAPTER_M_AXIL_IFACE.signals.values())
+AXI_AXIL_ADAPTER_SUBORDINATE_PORTS = list(AXI_AXIL_ADAPTER_S_AXI_IFACE.signals.values())
 
 AXI_AXIL_ADAPTER_PORTS = (
     [
         PortDefinition("clk", "0", "0", PortDirection.IN),
         PortDefinition("rst", "0", "0", PortDirection.IN),
     ]
-    + AXI_AXIL_ADAPTER_SLAVE_PORTS
-    + AXI_AXIL_ADAPTER_MASTER_PORTS
+    + AXI_AXIL_ADAPTER_SUBORDINATE_PORTS
+    + AXI_AXIL_ADAPTER_MANAGER_PORTS
 )
 
 AXI_DISPCTRL_S00_AXI_IFACE = InterfaceMatch(
@@ -687,7 +687,7 @@ AXI_DISPCTRL_S00_AXI_IFACE = InterfaceMatch(
     },
     bus_type="AXI4Lite",
     name="s00_axi",
-    mode=InterfaceMode.SLAVE,
+    mode=InterfaceMode.SUBORDINATE,
 )
 
 AXI_DISPCTRL_S_AXIS_IFACE = InterfaceMatch(
@@ -738,7 +738,7 @@ AXI_DISPCTRL_S_AXIS_IFACE = InterfaceMatch(
     },
     bus_type="AXI4Stream",
     name="S_AXIS",
-    mode=InterfaceMode.SLAVE,
+    mode=InterfaceMode.SUBORDINATE,
 )
 
 AXI_DISPCTRL_IFACES = [AXI_DISPCTRL_S_AXIS_IFACE, AXI_DISPCTRL_S00_AXI_IFACE]

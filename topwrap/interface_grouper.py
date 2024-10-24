@@ -367,7 +367,7 @@ class InterfaceMatchGroupScorer(InterfaceMatchScorer):
 
 class ModeDeducer(ABC):
     """
-    Abstract class for deducing mode (master/slave) from a matching of abstract
+    Abstract class for deducing mode (manager/subordinate) from a matching of abstract
     interface signals to RTL ports.
     """
 
@@ -382,7 +382,7 @@ class ModeDeducer(ABC):
 
         :param iface_spec: interface specification
         :param matched_signals: pairing of interface signals to signal instances
-        :return: mode of an interface (master/slave/unknown)
+        :return: mode of an interface (manager/subordinate/unknown)
         """
         pass
 
@@ -398,13 +398,13 @@ class BasicModeDeducer(ModeDeducer):
     ) -> InterfaceMode:
         if matched_signals:
             # pick a representative from matched_signals and check it's direction against the one
-            # in interface specification file - if it matches then it's a master since we assume
-            # the specification to be from the master's perspective, otherwise it's a slave
+            # in interface specification file - if it matches then it's a manager since we assume
+            # the specification to be from the manager's perspective, otherwise it's a subordinate
             iface_sig, rtl_sig = list(matched_signals.items())[0]
             if iface_sig in iface_spec.signals.flat and rtl_sig.direction == iface_sig.direction:
-                return InterfaceMode.MASTER
+                return InterfaceMode.MANAGER
             else:
-                return InterfaceMode.SLAVE
+                return InterfaceMode.SUBORDINATE
         else:
             return InterfaceMode.UNSPECIFIED
 
@@ -440,7 +440,7 @@ class Interface4StageGrouper(InterfaceGrouper):
     for set in sets:
         for interface in interfaces:
             2. try to match ports in set to ports in interface
-            3. deduce mode (master/slave) of the matched interface
+            3. deduce mode (manager/subordinate) of the matched interface
             4. compute score for the matching
         choose best-scoring interface as the chosen interface for that set
 
