@@ -136,7 +136,7 @@ def package_cores(log_level: str):
 
     # iterating over fusesoc cores, note that fusesoc core is a topwrap repo, not topwrap core
     for core in cores_downloaded:
-        core_build_dir = "../../build/export"
+        core_build_dir = Path("../../build/export")
         # finding the path of a fusesoc core - they have a suffix with version
         for path in [x for x in Path(".").glob(core + "*")]:
             os.chdir(
@@ -147,8 +147,8 @@ def package_cores(log_level: str):
             ]  # looking for hdl files
             if len(core_path_list) > 0:
                 # root/build/fusesoc_workspace/build/[core] and workspace/build/[core]/cores
-                Path(core_build_dir).mkdir(exist_ok=True)
-                Path(core_build_dir + "/cores").mkdir(exist_ok=True)
+                core_build_dir.mkdir(exist_ok=True)
+                (core_build_dir / "cores").mkdir(exist_ok=True)
                 err_ini = error_counter
                 # iterating over hdl files, cores in topwrap terminology
                 for core_path in core_path_list:
@@ -159,9 +159,9 @@ def package_cores(log_level: str):
                         continue
                     if str(core_path.stem) in FILE_IGNORE_LIST:
                         continue
-                    component_build_dir = core_build_dir + "/cores/" + str(core_path.stem)
+                    component_build_dir = core_build_dir / "cores/" / str(core_path.stem)
                     # root/build/fusesoc_workspace/build/[core]/cores/[component] - intermediate build dir for topwrap core in a repo
-                    Path(component_build_dir).mkdir(exist_ok=True)
+                    component_build_dir.mkdir(exist_ok=True)
                     logger.info(f"parsing {os.getcwd()} / {str(core_path)}")
                     # parsing core, first normally, then in scratchpad to resolve import errors
                     try:
@@ -172,12 +172,12 @@ def package_cores(log_level: str):
                                 iface_deduce=False,
                                 iface=(),
                                 log_level=log_level,
-                                files=[str(core_path)],
+                                files=[core_path],
                                 dest_dir=component_build_dir,
                             )
                         # root/build/fusesoc_workspace/build/[core]/cores/[component]/srcs - path for hdl file describing [component]
-                        Path(component_build_dir + "/srcs").mkdir(exist_ok=True)
-                        shutil.copy(str(core_path), component_build_dir + "/srcs")
+                        (component_build_dir / "srcs").mkdir(exist_ok=True)
+                        shutil.copy(core_path, component_build_dir / "srcs")
                         pass_counter += 1
                     except Exception:
                         try:
@@ -188,12 +188,12 @@ def package_cores(log_level: str):
                                     iface_deduce=False,
                                     iface=(),
                                     log_level=log_level,
-                                    files=[str(Path("../../scratchpad/" + core_path.name))],
+                                    files=[Path("../../scratchpad/" + core_path.name)],
                                     dest_dir=component_build_dir,
                                 )
                             # root/build/fusesoc_workspaces/build/[core]/cores/[component]/srcs - path for hdl file describing [component]
-                            Path(component_build_dir + "/srcs").mkdir(exist_ok=True)
-                            shutil.copy(str(core_path), component_build_dir + "/srcs")
+                            (component_build_dir / "srcs").mkdir(exist_ok=True)
+                            shutil.copy(core_path, component_build_dir / "srcs")
                             pass_counter += 1
                         except Exception as e2:
                             logger.warning(f"failed to parse due to {e2}")
@@ -216,7 +216,7 @@ def package_cores(log_level: str):
     shutil.copytree(Path("./build/export"), Path("../export"), dirs_exist_ok=True)
 
     os.chdir("../..")  # root/build
-    logger.warning(f"parses failed: {error_counter} out of {error_counter+pass_counter}")
+    logger.warning(f"parses failed: {error_counter} out of {error_counter + pass_counter}")
     logger.warning(error_parses)
     logger.info(f"fully well parsed cores are {full_good} - a total of {len(full_good)}")
 
