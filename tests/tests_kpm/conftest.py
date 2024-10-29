@@ -18,7 +18,7 @@ def pwm_ipcores_yamls_data() -> List[Path]:
     return [
         Path("topwrap/ips/axi/axi_axil_adapter.yaml"),
         _pwm_yamls_prefix / "ps7.yaml",
-        _pwm_yamls_prefix / "litex_pwm.yml",
+        _pwm_yamls_prefix / "litex_pwm.yaml",
     ]
 
 
@@ -118,7 +118,7 @@ def all_dataflow_files(test_dirs: Dict[str, Path]) -> Dict[str, JsonType]:
 @pytest.fixture
 def all_designs(test_dirs: Dict[str, Path]) -> Dict[str, DesignDescription]:
     return {
-        ip_name: DesignDescription.load(dir / f"project_{ip_name}.yml")
+        ip_name: DesignDescription.load(dir / f"project_{ip_name}.yaml")
         for ip_name, dir in test_dirs.items()
     }
 

@@ -4,7 +4,7 @@
 # -------------------------------------
 # Project
 # -------------------------------------
-DESIGN		:=	project.yml
+DESIGN		:=	project.yaml
 SOURCE_DIR 	:=	sources
 BUILD_DIR 	:=	build
 IPCORES_DIR	:=	ipcores
@@ -57,7 +57,7 @@ copy_sources:
 
 clean:
 	rm -rf fusesoc.conf fusesoc_libraries
-	rm -f sources/*.json gen_*.yml gen_*.yaml
+	rm -f sources/*.json gen_*.yaml
 	rm -rf ${BUILD_DIR}/* ${IPCORES_DIR}/*
 
 deps:
@@ -67,6 +67,6 @@ ci: deps generate
 
 $(JSONS): parse
 	topwrap specification ${IPCORES_DIR}/*.yaml
-	topwrap dataflow -d project.yml ${IPCORES_DIR}/*.yaml
+	topwrap dataflow -d project.yaml ${IPCORES_DIR}/*.yaml
 
 .PHONY: setup clean fusesoc_init generate copy_sources bit parse deps ci all

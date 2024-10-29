@@ -12,7 +12,7 @@ parse:
 	topwrap parse --iface-deduce sources/clock_crossing.v sources/ps7.v
 
 generate: build
-	topwrap build --design project.yml --sources sources
+	topwrap build --design project.yaml --sources sources
 
 copy_sources: build
 	cp -rf sources/ build/
@@ -31,7 +31,7 @@ zvb: generate copy_sources fusesoc_init
 
 clean:
 	rm -rf fusesoc.conf fusesoc_libraries
-	rm -f sources/*.json gen_*.yml
+	rm -f sources/*.json gen_*.yaml
 	rm -rf build/*
 
 deps:
@@ -41,6 +41,6 @@ ci: deps generate
 
 $(JSONS):
 	topwrap specification ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
-	topwrap dataflow -d project.yml ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
+	topwrap dataflow -d project.yaml ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
 
 .PHONY: clean copy_sources fusesoc_init generate copy_sources snickerdoodle zvb deps ci all

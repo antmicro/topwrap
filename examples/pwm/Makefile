@@ -12,7 +12,7 @@ parse:
 	topwrap parse --iface-deduce sources/litex_pwm.v sources/ps7.v
 
 generate: build
-	topwrap build --design project.yml --sources sources --part xc7z010clg400-1
+	topwrap build --design project.yaml --sources sources --part xc7z010clg400-1
 
 copy_sources: build
 	cp -rf sources/ build/
@@ -29,7 +29,7 @@ zvb_vivado: generate copy_sources fusesoc_init
 
 clean:
 	rm -rf fusesoc.conf fusesoc_libraries
-	rm -f sources/*.json gen_*.yml
+	rm -f sources/*.json gen_*.yaml
 	rm -rf build/*
 
 deps:
@@ -38,7 +38,7 @@ deps:
 ci: deps generate
 
 $(JSONS):
-	topwrap specification ipcores/*.yaml ipcores/*.yml ../../topwrap/ips/axi/*.yaml
-	topwrap dataflow -d project.yml ipcores/*.yaml ipcores/*.yml ../../topwrap/ips/axi/*.yaml
+	topwrap specification ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
+	topwrap dataflow -d project.yaml ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
 
 .PHONY: clean copy_sources fusesoc_init generate zvb deps ci all

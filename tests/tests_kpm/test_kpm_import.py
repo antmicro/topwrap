@@ -28,7 +28,7 @@ from topwrap.kpm_common import (
 from .common import AXI_NAME, PS7_NAME, PWM_NAME
 
 # PWM
-PWM_IPCORE_NODES = 3  # All IP Cores from examples/pwm/project.yml
+PWM_IPCORE_NODES = 3  # All IP Cores from examples/pwm/project.yaml
 
 PWM_EXTERNAL_METANODES = 1  # Unique external metanodes
 PWM_CONSTANT_METANODES = 0  # Unique constant metanodes
@@ -39,7 +39,7 @@ PWM_CORE_PS7_CONNECTIONS = 7  # Connections to PS7 module
 PWM_CORE_PWM_CONNECTIONS = 3  # Connections to PWM module
 
 # HDMI
-HDMI_IPCORE_NODES = 15  # All IP Cores from examples/hdmi/project.yml
+HDMI_IPCORE_NODES = 15  # All IP Cores from examples/hdmi/project.yaml
 
 HDMI_EXTERNAL_METANODES = 29  # Unique external metanodes
 HDMI_CONSTANT_METANODES = 2  # Unique constant metanodes

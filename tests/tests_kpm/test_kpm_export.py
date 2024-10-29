@@ -38,7 +38,7 @@ class TestPWMDataflowExport:
 
     def test_parameters(self, pwm_dataflow):
         """Check whether generated parameters values match the overridden values from
-        `examples/pwm/project.yml` and default values from IP core description YAMLs.
+        `examples/pwm/project.yaml` and default values from IP core description YAMLs.
         """
         [axi_node] = list(
             filter(
@@ -58,7 +58,7 @@ class TestPWMDataflowExport:
 
     def test_nodes_to_ips(self, pwm_design: DesignDescription, pwm_dataflow, pwm_specification):
         """Check whether generated IP cores names in "ips" section of a design description YAML
-        match the values from `examples/pwm/project.yml`.
+        match the values from `examples/pwm/project.yaml`.
         """
 
         ips = _kpm_nodes_to_ips(pwm_dataflow, pwm_specification)
@@ -66,7 +66,7 @@ class TestPWMDataflowExport:
 
     def test_port_interfaces(self, pwm_dataflow, pwm_specification):
         """Check whether generated connection descriptions in "ports" and "interfaces" sections
-        of a design description YAML match the values from `examples/pwm/project.yml`.
+        of a design description YAML match the values from `examples/pwm/project.yaml`.
         """
         connections = _kpm_parse_connections_between_nodes(pwm_dataflow, pwm_specification)
         assert connections.ports == {
@@ -81,7 +81,7 @@ class TestPWMDataflowExport:
 
     def test_externals(self, pwm_dataflow, pwm_specification):
         """Check whether generated external ports/interfaces descriptions in "externals" section
-        of a design description YAML match the values from `examples/pwm/project.yml`.
+        of a design description YAML match the values from `examples/pwm/project.yaml`.
         """
         assert (
             DeepDiff(
@@ -98,7 +98,7 @@ class TestPWMDataflowExport:
 
     def test_constants(self, pwm_dataflow):
         """Check whether generated constant ports descriptions match the values
-        from `examples/pwm/project.yml`.
+        from `examples/pwm/project.yaml`.
         """
         assert _kpm_connections_to_constant(pwm_dataflow).to_dict() == {}
 
@@ -110,7 +110,7 @@ class TestHDMIDataflowExport:
 
     def test_parameters(self, hdmi_dataflow):
         """Check whether some generated parameters values match the values from
-        `examples/hdmi/project.yml`.
+        `examples/hdmi/project.yaml`.
         """
         [axi_node] = list(
             filter(
@@ -124,16 +124,16 @@ class TestHDMIDataflowExport:
 
     def test_nodes_to_ips(self, hdmi_design: DesignDescription, hdmi_dataflow, hdmi_specification):
         """Check whether generated IP cores names in "ips" section of a design description YAML
-        match the values from `examples/hdmi/project.yml`.
+        match the values from `examples/hdmi/project.yaml`.
         """
         ips = _kpm_nodes_to_ips(hdmi_dataflow, hdmi_specification)
         assert ips.keys() == hdmi_design.ips.keys()
 
     def test_interfaces(self, hdmi_design: DesignDescription, hdmi_dataflow, hdmi_specification):
         """Check whether generated connection descriptions in "interfaces" sections
-        of a design description YAML match the values from `examples/hdmi/project.yml`.
+        of a design description YAML match the values from `examples/hdmi/project.yaml`.
 
-        For now we don't test validity of "ports" section, since in `examples/pwm/project.yml`
+        For now we don't test validity of "ports" section, since in `examples/pwm/project.yaml`
         some ports are driven by constants. This feature is not yet supported in KPM.
         """
         connections = _kpm_parse_connections_between_nodes(hdmi_dataflow, hdmi_specification)
@@ -141,7 +141,7 @@ class TestHDMIDataflowExport:
 
     def test_externals(self, hdmi_dataflow, hdmi_specification):
         """Check whether generated external ports/interfaces descriptions in "externals" section
-        of a design description YAML match the values from `examples/hdmi/project.yml`.
+        of a design description YAML match the values from `examples/hdmi/project.yaml`.
         """
 
         current_external_conn = _kpm_gather_all_graph_externals(
@@ -203,7 +203,7 @@ class TestHDMIDataflowExport:
 
     def test_constants(self, hdmi_dataflow):
         """Check whether generated constant ports description match the values
-        from `examples/hdmi/project.yml`.
+        from `examples/hdmi/project.yaml`.
         """
         assert _kpm_connections_to_constant(hdmi_dataflow).to_dict() == {
             "ports": {

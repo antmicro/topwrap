@@ -14,9 +14,9 @@ from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 from .common import read_json_file
 
 SPEC_METANODES = 5  # Unique metanodes: Input, Output, Inout, Constant, Subgraph
-PWM_UNIQUE_IPCORE_NODES = 3  # Unique IP Cores from examples/pwm/project.yml
+PWM_UNIQUE_IPCORE_NODES = 3  # Unique IP Cores from examples/pwm/project.yaml
 PWM_ALL_UNIQUE_NODES = PWM_UNIQUE_IPCORE_NODES + SPEC_METANODES
-HDMI_UNIQUE_IPCORE_NODES = 12  # Unique IP Cores from examples/hdmi/project.yml
+HDMI_UNIQUE_IPCORE_NODES = 12  # Unique IP Cores from examples/hdmi/project.yaml
 HDMI_ALL_UNIQUE_NODES = HDMI_UNIQUE_IPCORE_NODES + SPEC_METANODES
 
 

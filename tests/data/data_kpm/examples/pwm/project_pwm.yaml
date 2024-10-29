@@ -30,6 +30,6 @@ ips:
   axi_bridge:
     file: topwrap/ips/axi/axi_axil_adapter.yaml
   litex_pwm_top:
-    file: examples/pwm/ipcores/litex_pwm.yml
+    file: examples/pwm/ipcores/litex_pwm.yaml
   ps7:
     file: examples/pwm/ipcores/ps7.yaml

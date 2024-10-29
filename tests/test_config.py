@@ -26,7 +26,7 @@ class TestConfigManager:
     def custom_config_dicts(self):
         return [
             (
-                "custom/path/cfg.yml",
+                "custom/path/cfg.yaml",
                 Config.Schema().dump(Config(repositories=[RepositoryEntry("repo1", "path1")])),
             ),
             (

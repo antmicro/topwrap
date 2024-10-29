@@ -4,7 +4,7 @@
 # -------------------------------------
 # Project
 # -------------------------------------
-DESIGN		:=	project.yml
+DESIGN		:=	project.yaml
 SOURCE_DIR 	:=	sources
 BUILD_DIR 	:=	build
 
@@ -21,7 +21,7 @@ generate: copy_sources
 
 $(JSONS):
 	topwrap specification ipcores/*
-	topwrap dataflow -d project.yml ipcores/*
+	topwrap dataflow -d project.yaml ipcores/*
 
 # -------------------------------------
 # Utilities
@@ -31,7 +31,7 @@ copy_sources:
 	cp -rf ${SOURCE_DIR}/* ${BUILD_DIR}/sources/
 
 clean:
-	rm -f sources/*.json gen_*.yml gen_*.yaml
+	rm -f sources/*.json gen_*.yaml gen_*.yaml
 	rm -rf ${BUILD_DIR}/*
 
 ci: generate

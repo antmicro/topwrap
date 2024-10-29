@@ -12,7 +12,7 @@ from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 def all_examples_designs_data() -> Dict[str, DesignDescription]:
     examples = {}
     for dir in (Path(TEST_DATA_PATH) / "examples").iterdir():
-        examples[dir.name] = DesignDescription.load(Path(f"examples/{dir.name}/project.yml"))
+        examples[dir.name] = DesignDescription.load(Path(f"examples/{dir.name}/project.yaml"))
     return examples
 
 
@@ -59,7 +59,7 @@ def update_designs(all_examples_designs: Dict[str, DesignDescription]):
     for example_name, example_design in all_examples_designs.items():
         change_ips_path(example_design, example_name)
         example_design.save(
-            Path(TEST_DATA_PATH) / "examples" / example_name / f"project_{example_name}.yml"
+            Path(TEST_DATA_PATH) / "examples" / example_name / f"project_{example_name}.yaml"
         )
 
 

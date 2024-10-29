@@ -7,7 +7,7 @@ all: $(JSONS)
 
 $(JSONS):
 	topwrap specification
-	topwrap dataflow -d project.yml
+	topwrap dataflow -d project.yaml
 
 clean:
 	rm -f $(JSONS)

@@ -17,7 +17,7 @@ from topwrap.ipwrapper import IPWrapper
 
 @pytest.fixture
 def hier_design_yaml() -> Path:
-    return Path("tests/data/data_build/hierarchy/design.yml")
+    return Path("tests/data/data_build/hierarchy/design.yaml")
 
 
 @pytest.fixture

@@ -58,7 +58,7 @@ class TestInterconnect:
                     "topwrap",
                     "build",
                     "-d",
-                    "project.yml",
+                    "project.yaml",
                     "-b",
                     build_dir,
                     "-p",
