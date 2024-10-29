@@ -100,10 +100,9 @@ def load_interface_definitions(dir_name: Optional[Path] = None):
     with (
         as_file(files("topwrap.interfaces")) if dir_name is None else nullcontext(dir_name)
     ) as dir_name:
-        for path in dir_name.glob("**/*"):
-            if path.suffix.lower() in (".yaml", ".yml"):
-                with open(path) as f:
-                    defs.append(yaml.safe_load(f))
+        for path in dir_name.glob("**/*.yaml"):
+            with open(path) as f:
+                defs.append(yaml.safe_load(f))
     return defs
 
 

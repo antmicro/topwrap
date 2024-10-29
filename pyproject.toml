@@ -42,6 +42,7 @@ lint = [
   "black==24.10.0",
   "isort==5.13.2",
   "codespell==2.3.0",
+  "igittigitt==2.1.5"
 ]
 tests = [
   "nox==2024.10.09",

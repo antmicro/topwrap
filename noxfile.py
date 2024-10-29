@@ -4,6 +4,7 @@
 import json
 import os
 import shutil
+import sys
 from collections import defaultdict
 from pathlib import Path, PurePath
 from tempfile import TemporaryDirectory, TemporaryFile
@@ -29,6 +30,7 @@ def pre_commit(session: nox.Session) -> None:
 def lint(session: nox.Session) -> None:
     """Options are defined in pyproject.toml and .flake8 files"""
     session.install(".[lint]")
+    session.run("nox", "-s", "check_yaml_extension")
     session.run("isort", ".")
     session.run("black", ".")
     session.run("flake8", ".")
@@ -38,6 +40,7 @@ def lint(session: nox.Session) -> None:
 @nox.session()
 def test_lint(session: nox.Session) -> None:
     session.install(".[lint]")
+    session.run("nox", "-s", "check_yaml_extension", "--", "--check")
     session.run("isort", "--check", ".")
     session.run("black", "--check", ".")
     session.run("flake8", ".")
@@ -152,18 +155,25 @@ def doc_gen(session: nox.Session) -> None:
         # so that they can be used in the documentation without committing them to repo.
         Path("docs/build/kpm_jsons").mkdir(exist_ok=True, parents=True)
         session.install(".[topwrap-parse]")
-        with TemporaryDirectory() as tmpdir, TemporaryFile(mode="w+") as err:
+        with TemporaryDirectory() as tmpdir, TemporaryFile(mode="w+") as errfile:
             shutil.copytree(Path("."), tmpdir, dirs_exist_ok=True)
             for example in (Path(tmpdir) / "examples").iterdir():
                 with session.chdir(example):
                     try:
                         session.run(
-                            "make", "kpm_spec.json", "kpm_dataflow.json", external=True, stderr=err
+                            "make",
+                            "kpm_spec.json",
+                            "kpm_dataflow.json",
+                            external=True,
+                            stderr=errfile,
                         )
                     except CommandFailed:
-                        err.seek(0)
-                        if "No rule to make target" in err.readlines()[-1]:
+                        errfile.seek(0)
+                        stderr = errfile.readlines()
+                        if "No rule to make target" in stderr[-1]:
+                            session.log(f"Skipping example {example}. No make target.")
                             continue
+                        print("\n".join(stderr), file=sys.stderr)
                         raise
                 shutil.move(
                     example / "kpm_spec.json", f"docs/build/kpm_jsons/spec_{example.name}.json"
@@ -298,3 +308,27 @@ def changed_changelog(session: nox.Session) -> None:
     )
     if not changelog_changed:
         raise CommandFailed()
+
+
+@nox.session(default=False)
+def check_yaml_extension(session: nox.Session):
+    from igittigitt import IgnoreParser
+
+    check = argument(session, "--check")
+    ignore = IgnoreParser()
+    ignore.parse_rule_files(".")
+    ignore.add_rule(".github", ".")
+    ignore.add_rule(".ci.yml", ".")
+    count = 0
+
+    for path in Path().glob("**/*.yml"):
+        if not ignore.match(path):
+            count += 1
+            if not check:
+                shutil.move(path, path.parent / (path.stem + ".yaml"))
+            print(f"Detected .yml file at {path}")
+
+    if check and count > 0:
+        session.error(f"Detected {count} files with .yml extension")
+    elif not check:
+        print(f"Changed the extension of {count} files from .yml to .yaml")

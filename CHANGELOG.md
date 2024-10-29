@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nox session for downloading and packaging FuseSoc libraries
 - Support Python 3.13 and dropped support for Python 3.8
 
+### Changed
+
+- All YAML files internal to Topwrap (examples, tests, built-in repo) now only use the `.yaml` extension
+
 ### Fixed
 
 - Resolved an issue where IP Core node names in the GUI were parsed from the yaml description file name.

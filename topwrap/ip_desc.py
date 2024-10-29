@@ -224,15 +224,14 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
 
         ips: Dict[str, IPCoreDescription] = {}
         with as_file(files("topwrap.ips")) as ip_res:
-            for path in ip_res.glob("**/*"):
-                if path.suffix.lower() in (".yaml", ".yml"):
-                    try:
-                        ip = IPCoreDescription.load(path, False)
-                        ips[Path(path).stem] = ip
-                    except Exception as exc:
-                        raise BuiltinIPCoreException(
-                            f'Loading built-in IP core "{path.name}" failed'
-                        ) from exc
+            for path in ip_res.glob("**/*.yaml"):
+                try:
+                    ip = IPCoreDescription.load(path, False)
+                    ips[Path(path).stem] = ip
+                except Exception as exc:
+                    raise BuiltinIPCoreException(
+                        f'Loading built-in IP core "{path.name}" failed'
+                    ) from exc
         return ips
 
     @classmethod
