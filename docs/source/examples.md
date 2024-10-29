@@ -326,8 +326,7 @@ To run the simulation you also need:
 - verilator
 
 To create and load the bitstream, use:
-- [Vivado](https://www.xilinx.com/support/download.html) (preferably version 2020.2)
-[comment]: is version 2020.2 available? I only see 2022, 2023 and 2024.
+- [Vivado](https://www.xilinx.com/support/download.html) (preferably version 2020.2).
 - openFPGALoader ([branch](https://github.com/antmicro/openFPGALoader/tree/antmicro-ddr-tester-boards))
 :::
 

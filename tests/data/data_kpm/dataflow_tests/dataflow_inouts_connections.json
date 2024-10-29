@@ -13,7 +13,7 @@
       "nodes": [
         {
           "id": "a3f4d70b-21e9-4c01-a4d8-9a2556c06282",
-          "instanceName": "gen_iobuf_1",
+          "instanceName": "iobuf_1",
           "interfaces": [
             {
               "direction": "input",
@@ -52,7 +52,7 @@
               "side": "right"
             }
           ],
-          "name": "gen_iobuf",
+          "name": "iobuf",
           "position": {
             "x": -660,
             "y": 210
@@ -63,7 +63,7 @@
         },
         {
           "id": "0d52d66f-0a1f-4100-b168-57f336473600",
-          "instanceName": "gen_iobuf_2",
+          "instanceName": "iobuf_2",
           "interfaces": [
             {
               "direction": "input",
@@ -102,7 +102,7 @@
               "side": "right"
             }
           ],
-          "name": "gen_iobuf",
+          "name": "iobuf",
           "position": {
             "x": -660,
             "y": 510

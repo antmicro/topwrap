@@ -31,8 +31,9 @@ zvb: generate copy_sources fusesoc_init
 
 clean:
 	rm -rf fusesoc.conf fusesoc_libraries
-	rm -f sources/*.json gen_*.yaml
+	rm -f sources/*.json
 	rm -rf build/*
+	rm -f cdc_flag.yaml ps7_inst.yaml
 
 deps:
 	pip install -r requirements.txt

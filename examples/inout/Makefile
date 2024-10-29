@@ -57,7 +57,7 @@ copy_sources:
 
 clean:
 	rm -rf fusesoc.conf fusesoc_libraries
-	rm -f sources/*.json gen_*.yaml
+	rm -f sources/*.json
 	rm -rf ${BUILD_DIR}/* ${IPCORES_DIR}/*
 
 deps:

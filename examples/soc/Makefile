@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 IPCORE_SOURCES = sources/mem.v sources/VexRiscv.v sources/crg.v sources/wb_uart.v sources/wb_interconnect.v
-IPCORE_YAMLS = ipcores/gen_mem.yaml ipcores/gen_VexRiscv.yaml ipcores/gen_crg.yaml ipcores/gen_wb_uart.yaml ipcores/gen_wb_interconnect.yaml
+IPCORE_YAMLS = ipcores/mem.yaml ipcores/VexRiscv.yaml ipcores/crg.yaml ipcores/wb_uart.yaml ipcores/wb_interconnect.yaml
 JSONS = kpm_spec.json kpm_dataflow.json
 
 all: upload

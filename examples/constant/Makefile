@@ -31,7 +31,7 @@ copy_sources:
 	cp -rf ${SOURCE_DIR}/* ${BUILD_DIR}/sources/
 
 clean:
-	rm -f sources/*.json gen_*.yaml gen_*.yaml
+	rm -f sources/*.json
 	rm -rf ${BUILD_DIR}/*
 
 ci: generate

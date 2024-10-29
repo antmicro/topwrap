@@ -3,11 +3,11 @@
 
 ips:
   ip_ibuf:
-    file: ipcores/gen_ibuf.yaml
+    file: ipcores/ibuf.yaml
   ip_obuf:
-    file: ipcores/gen_obuf.yaml
+    file: ipcores/obuf.yaml
   ip_iobuf:
-    file: ipcores/gen_iobuf.yaml
+    file: ipcores/iobuf.yaml
 
 design:
   name: project_top

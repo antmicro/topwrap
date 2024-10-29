@@ -152,7 +152,7 @@ def parse_main(
             iface_grouper = standard_iface_grouper(filepath, use_yosys, iface_deduce, iface)
             for verilog_mod in modules:
                 ipcore_desc = verilog_mod.to_ip_core_description(iface_grouper)
-                yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
+                yaml_path = dest_dir / f"{ipcore_desc.name}.yaml"
                 ipcore_desc.save(yaml_path)
                 logging.info(
                     f"Verilog module '{verilog_mod.module_name}'" f"saved in file '{yaml_path}'"
@@ -162,7 +162,7 @@ def parse_main(
             vhdl_mod = VHDLModule(filepath)
             iface_grouper = standard_iface_grouper(filepath, False, iface_deduce, iface)
             ipcore_desc = vhdl_mod.to_ip_core_description(iface_grouper)
-            yaml_path = dest_dir / f"gen_{ipcore_desc.name}.yaml"
+            yaml_path = dest_dir / f"{ipcore_desc.name}.yaml"
             ipcore_desc.save(yaml_path)
             logging.info(f"VHDL Module '{vhdl_mod.module_name}'" f"saved in file '{yaml_path}'")
 

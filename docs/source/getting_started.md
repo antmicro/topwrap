@@ -16,8 +16,8 @@ If you haven't installed Topwrap yet, go to the [Installation chapter](installat
 We are going to create a design that will be visually represented in an [interactive GUI](https://antmicro.github.io/topwrap/usage.html#gui), as seen below.
 
 ```{kpm_iframe}
-:spec: ../../examples/getting_started_demo/kpm/specification.json
-:dataflow: ../../examples/getting_started_demo/kpm/dataflow.json
+:spec: ../build/kpm_jsons/spec_getting_started_demo.json
+:dataflow: ../build/kpm_jsons/data_getting_started_demo.json
 ```
 
 It consists of two cores: `simple_core_1` and `simple_core_2` that connect to each other and to an external input/output.
@@ -40,7 +40,7 @@ To generate the IP core descriptions from these Verilog files run:
 topwrap parse verilogs/{simple_core_1.v,simple_core_2.v}
 ```
 
-Topwrap will generate two files `gen_simple_core_1.yaml` and `gen_simple_core_2.yaml` that represent the corresponding Verilog files.
+Topwrap will generate two files `simple_core_1.yaml` and `simple_core_2.yaml` that represent the corresponding Verilog files.
 
 (getting-started-building-designs)=
 ## Building designs with Topwrap
@@ -116,14 +116,14 @@ First, include all the IP core files needed in the `ips` section.
 ```yaml
 ips:
   simple_core_1:
-    file: gen_simple_core_1.yaml
+    file: simple_core_1.yaml
   simple_core_2:
-    file: gen_simple_core_2.yaml
+    file: simple_core_2.yaml
 ```
 
-Here, the name of the node is declared, and the IP core `gen_simple_core_1.yaml` is named `simple_core_1` in the GUI.
+Here, the name of the node is declared, and the IP core `simple_core_1.yaml` is named `simple_core_1` in the GUI.
 
-Now we can start creating the design under the `design` section. The design doesn't have any parameters set, so we can skip this part and go straight into the `ports` section. In there, the connections between IP cores are defined. In the demo example, there is only one connection - between `gen_simple_core_1` and `gen_simple_core_2`.
+Now we can start creating the design under the `design` section. The design doesn't have any parameters set, so we can skip this part and go straight into the `ports` section. In there, the connections between IP cores are defined. In the demo example, there is only one connection - between `simple_core_1` and `simple_core_2`.
 
 In our design, it is represented like this:
 
@@ -171,9 +171,9 @@ The final design:
 ```yaml
 ips:
   simple_core_1:
-    file: gen_simple_core_1.yaml
+    file: simple_core_1.yaml
   simple_core_2:
-    file: gen_simple_core_2.yaml
+    file: simple_core_2.yaml
 design:
   ports:
     simple_core_1:
