@@ -6,7 +6,7 @@
 
 ## Design description
 
-To create a complete and fully synthesizable design, a design file is needed. It is used for: 
+To create a complete and fully synthesizable design, a design file is needed. It is used for:
 
 * specifying interconnects and IP cores
 * setting parameter values and describing hierarchies for the project
@@ -83,7 +83,7 @@ Note that IPs and hierarchies names cannot be duplicated on the same hierarchy l
 
 (hierarchies)=
 ### Hierarchies
-<!--could we create a kind of flow chart or diagram to illustrate how these hierarchies are structured? -->  
+<!--could we create a kind of flow chart or diagram to illustrate how these hierarchies are structured? -->
 Hierarchies allow for creating designs with subgraphs in them. The subgraphs can contain multiple IP cores and other subgraphs, allowing for the creation of nested designs in Topwrap.
 
 ### Format
@@ -194,9 +194,32 @@ To speed up the generation of YAMLs, Topwrap's `parse` command (see {ref}`Genera
 
 ### Port widths
 
-The width of every port defaults to `1`.
-You can specify the width by using this notation:
-<!--Is this notation clear to someone using Topwrap?-->  
+You can specify the width of port in a notation like the following:
+
+```yaml
+signals:
+    in:
+        - [port_name, upper_limit, lower_limit]
+```
+* `port_name` - name of the port.
+* `upper_limit` and `lower_limit` define the bit range, where `[upper_limit, lower_limit]` determines the number of bits for the port (e.g. `[63, 0]` for **64 bits**).
+
+In the example it looks like below:
+```yaml
+signals:
+    in:
+        - [gpio_io_i, 31, 0] # 32 bits
+```
+
+If you omit the bit range and write only:
+```yaml
+signals:
+    in:
+      - port_name
+```
+then `port_name` defaults to a width of **1 bit**.
+
+You can also specify the widths of signals within interfaces.
 ```yaml
 interfaces:
     s_axis:
@@ -207,11 +230,9 @@ interfaces:
                 TDATA: [s_axis_tdata, 63, 0] # 64 bits
                 ...
                 TVALID: s_axis_tvalid # defaults to 1 bit
-
-signals:
-    in:
-        - [gpio_io_i, 31, 0] # 32 bits
 ```
+* **TDATA** is assigned to `s_axis_tdata` and is 64 bits wide, defined by `[63, 0]`.
+* **TVALID** is assigned to `s_axis_tvalid` and, without a specified range, defaults to **1 bit**.
 
 ### Parameterization
 
