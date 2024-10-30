@@ -42,3 +42,20 @@ The `interfaces` directory is optional, and contains [interface description file
 <!--I want to link to `description_files.md#interface-description-files`, but it fails in CI - how to do this?-->
 
 A sample user repository can be found in [examples/user_repository](https://github.com/antmicro/topwrap/tree/main/examples/user_repository).
+
+
+## Using the Open-Source IP-Cores Library with Topwrap
+
+Topwrap comes with built-in support for an extensive library of open-source IP cores available through the [Fusesoc](https://github.com/olofk/fusesoc) package manager, which also serves as a build system. This library offers a wide range of reusable IP cores for various applications, enabling easy integration into Topwrap projects. Topwrap simplifies the process of accessing, downloading, and packaging these IP cores, making them readily available for local use in your designs.
+
+To include an IP-core from the open-source library, there are two possibilities:
+
+1. **Select the Desired Core**: Browse the available cores ([cores_export artifact](https://github.com/antmicro/topwrap/releases/tag/latest)).
+2. **Download and build all available cores**: Use Topwrap's package management command:
+```bash
+  nox -s package_cores
+```
+
+This will download and parse all the cores from Fusesoc into `build/fusesoc_workspace/build/export/cores/`, making it accessible within Topwrap.
+
+You can learn more about Topwrap integration with Fusesoc [here](fusesoc.md)
