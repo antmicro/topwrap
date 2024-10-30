@@ -66,7 +66,7 @@ Let's make a design from the demo at the beginning of this guide.
 ```
 
 :::{note}
-You can change the name of an individual node by right clicking on it and selecting `rename`.
+You can change the name of an individual node by right clicking on it and selecting `rename`. This is useful when creating multiple instances of the same IP core.
 :::
 
 You can save the project in the [Design Description](description_files.md) format, which is used by Topwrap to represent the created design.
@@ -86,7 +86,7 @@ The difference between `Save file` and `Save graph file` lies in which format is
 
 ### Generating Verilog in the GUI
 
-You can generate Verilog from the design created in the previous section if you have the example running as described in the previous section.  On the top bar, these four buttons are visible:
+You can generate Verilog from the design created in the previous section if you have the example running as described in the previous section. On the top bar, these four buttons are visible:
 
 ```{image} img/kpm_buttons.png
 ```
@@ -94,7 +94,7 @@ You can generate Verilog from the design created in the previous section if you 
 1. Load or save designs.
 2. Toggles the node browser.
 3. Validates the design.
-4. Builds the design which generates the Verilog file in the `/build` directory of the current example and runs the design.
+4. Builds the design if it does not contain errors, a top module will be created in the directory where `topwrap kpm_client` was run.
 
 ## Appendix: Command-line flow
 

@@ -6,9 +6,9 @@
 introduction
 installation
 getting_started
+advanced_options
 examples
 description_files
-usage
 user_repositories
 interconnect_gen
 fusesoc
