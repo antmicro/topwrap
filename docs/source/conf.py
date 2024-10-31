@@ -53,8 +53,14 @@ numfig = True
 
 # If you need to add extensions just add to those lists
 extensions = list(
-    set(default_extensions + ["sphinx.ext.imgconverter", "sphinx.ext.autodoc", "kpm_plugin"])
+    set(
+        default_extensions
+        + ["sphinx.ext.imgconverter", "sphinx.ext.autodoc", "sphinxcontrib.mermaid", "kpm_plugin"]
+    )
 )
+
+mermaid_params = ["-p" "puppeteer-config.json"]
+
 myst_enable_extensions = default_myst_enable_extensions
 myst_fence_as_directive = default_myst_fence_as_directive
 
