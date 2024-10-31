@@ -1,10 +1,39 @@
 (interconnect-generation)=
 # Interconnect generation
 
-Generating interconnects is an experimental feature in Topwrap, requiring a description of which interfaces are managers or subordinates and their address ranges. Topwrap then generates an interconnect conforming to the description provided. The currently supported interconnect types are:
-- Wishbone round-robin
+:::{warning}
+Interconnect generation is an experimental feature.
 
-[comment]: could we show this interconnect somehow, maybe through a graphic visualising it? 
+For now neither creating them, nor showing them is possible in the GUI.
+:::
+
+Interconnects are a convenient feature that allows you to connect multiple interfaces together in a many-to-many topology, instead of the traditional one-to-one connection between a manager and a subordinate.
+This provides a way to transmit data between multiple IP Cores over a single interface connection in which the interconnect acts as a middle-man.
+
+```mermaid
+:alt: Interconnect topology diagram
+
+%%{init: {'theme':'neutral'}}%%
+
+flowchart TB;
+
+m1[Manager 1] --> int[/<p style="margin: 1.5em 4em">Interconnect</p>\]
+m2[Manager 2] --> int
+mN[Manager 3, 4, 5 ...] --> int
+
+%%mN@{ shape: st-rect }
+
+int --> s1[Subordinate 1 <p style="font-size: 0.8em">Address: 0x0A</p>]
+int --> s2[Subordinate 2 <p style="font-size: 0.8em">Address: 0x1A000</p>]
+int --> sN[Subordinate 3, 4, 5... <p style="font-size: 0.8em">Address: 0x....</p>]
+
+%%sN@{ shape: st-rect }
+```
+
+Each manager can talk to every subordinate connected to the interconnect.
+Each connected subordinate must have a predefined address range so that the interconnect knows how to route data based on the address put up on the wire by a manager.
+
+In order to generate an interconnect you have to describe its configuration in the [design description](#design-description) under the `interconnects` key in the following format:
 
 ## Format
 
@@ -13,56 +42,58 @@ The format for describing interconnects is specified below. The `interconnects` 
 ```yaml
 interconnects:
   {interconnect1_name}:
-    # specify clock and reset to drive the interconnect with
+    # Specify clock and reset to drive the interconnect with
     clock: [{ip_name, clk_port_name}]
     reset: [{ip_name, rst_port_name}]
-    # alternatively you can specify a connection to an external interface:
+    # Alternatively you can specify a connection to an external port of this design:
     # clock: ext_clk_port_name
     # reset: ext_rst_port_name
 
-    # specify interconnect type
+    # Specify the interconnect type.
+    # See the "Supported interconnect types" section below for available types
+    # and their characteristics
     type: {interconnect_type}
 
-    # specify interconnect parameters - interconnect-type-dependent (see "Interconnect parameters" section):
+    # custom parameter values for the specific interconnect type
     parameters:
       {parameters_name1}: parameters_value1
       ...
 
     # specify managers and their interfaces connected to the bus
-    manager:
-    {manager1_name}:
-      - {manager1_interface1_name}
+    managers:
+      {manager1_name}:
+        - {manager1_interface1_name}
+        ...
       ...
-    ...
 
     # specify subordinates, their interfaces connected to the bus and their bus parameters
-    subordinate:
-    {subordinate1_name}:
-      {subordinate1_interface1_name}:
-      # requests in address range [address, address+size) will be routed to this interface
-      address: {start_address}
-      size: {range_size}
+    subordinates:
+      {subordinate1_name}:
+        {subordinate1_interface1_name}:
+          # requests in address range [address, address+size) will be routed to this interface
+          address: {start_address}
+          size: {range_size}
+        ...
       ...
-    ...
+  ...
 ```
 
-## Interconnect parameter names
+## Supported interconnect types
 
-Different interconnect types may provide for different configuration options.
-This section lists parameter names for available interconnects, usable in the `parameters` section of the interconnect specification.
+### `wishbone_roundrobin`
 
-### Wishbone round-robin
+This interconnect only supports wishbone interfaces for the managers and subordinates.
+It supports multiple managers but only one of them can drive the bus at a time (i.e. only one transaction can be happening on the bus at any given moment).
+A round-robin arbiter decides which master can currently drive the bus.
 
-[comment]: Is it sensible here to explain what wishbone round-robin is? For me, I have no idea what it is by reading these docs. 
-
-Corresponds to `type: wishbone_roundrobin`
+#### Parameters
 
 - `addr_width` - bit width of the address line (addresses access `data_width`-sized chunks)
 - `data_width` - bit width of the data line
-- `granularity` - access granularity - smallest unit of data transfer that the interconnect is capable of transferring. Must be one of: 8, 16, 32, 64
+- `granularity` - access granularity - smallest unit of data transfer that the interconnect can transfer. Must be one of: 8, 16, 32, 64
 - `features` - optional, list of optional wishbone signals, can contain: `err`, `rty`, `stall`, `lock`, `cti`, `bte`
 
-## Known limitations
+#### Known limitations
 
 The currently known limitations are:
 - only word-sized addressing is supported (in other words - consecutive addresses can only access word-sized chunks of data)
