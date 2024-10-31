@@ -1,7 +1,7 @@
 (description-files)=
 # Creating a design
 
-This chapter describes how to create a design in Topwrap, including an detailed overview of how Topwrap design files are structured. 
+This chapter describes how to create a design in Topwrap, including an detailed overview of how Topwrap design files are structured.
 
 (design-description)=
 ## Design description
@@ -308,8 +308,25 @@ signals:
             TUSER: tuser
             TWAKEUP: twakeup
 ```
-The name of an interface has to be unique, while we can also specify a prefix which is used as a shortened identifier.
-Signals are either required or optional, and their direction is described from the the perspective of the manager (i.e. the direction of signals in the subordinate are flipped) - note that clock and reset are not included as these are usually inputs in both manager and subordinate and they are not supported in the interface specification.
-These distinctions are used when the option to check if all mandatory signals are present is enabled and when parsing an IP core with `topwrap parse`. Not all required signals must necessarily be present but they are taken into account).
-Every signal is a key-value pair, where the key is a generic signal name (usually taken from the interface specification) and value is a regex that is used to pair the generic name with a specific signal name in the RTL source. This pairing is performed on signal names that are transformed to lowercase and they have the common prefix of an interface that they belong to removed.
-If a regexp occurs in such a transformed signal name anywhere, the name is paired with the generic name. As this occurs on names that have all characters in lowercase, regex must also be written in lowercase.
+The `name` of an interface has to be unique.
+
+Signals are either required or optional, and their direction is described from the perspective of the manager (i.e. the direction of signals in the subordinate is flipped).
+Note that clock and reset are not included as these are usually inputs to both the manager and the subordinate thus they are not supported in the interface specification.
+Every signal is a key-value pair, where the key is a generic signal name (usually taken from the interface specification) that is used to identify it in other parts of Topwrap (i.e. IP Core description files), and the value is a regex used to deduce which port defined in the HDL sources represents this signal.
+
+### Interface deduction
+
+During [IP Core parsing](#generating-ip-yamls), you can use the `--iface-deduce` flag to enable the automatic pairing of raw ports from HDL sources into interface signals.
+
+This feature matches signal regexes from all available interface descriptions with raw port names of the IP Core in order to discover possible interface instances.
+The pairing is performed on port names that are transformed to lowercase and have the common `port_prefix` removed, which means that the regexes must also be written in lowercase.
+
+### Interface compliance
+
+During the [build process](#building-design), an optional verification of whether the interface instances used in IP Cores are compliant with their respective descriptions can be enabled.
+This verification consists of checking if:
+- All signals marked as required in the description are present in the instance
+- No additional signals that aren't defined in the description are present in the instance
+
+This feature is controlled by the `--iface-compliance` CLI flag or the `force_interface_compliance` key in the [configuration file](user_repositories.md) <!-- we don't really have a proper section about the configuration yet -->
+and is turned off by default.

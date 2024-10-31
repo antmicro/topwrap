@@ -190,6 +190,8 @@ external:
     - Output_c
 ```
 
+(building-design)=
+
 ### Generating Verilog top files
 
 :::{info}
