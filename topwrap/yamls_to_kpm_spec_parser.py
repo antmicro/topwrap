@@ -265,6 +265,7 @@ def add_metadata_to_specification(
         "backgroundSize": 15,
         "layout": "CytoscapeEngine - grid",
         "twoColumn": True,
+        "notifyWhenChanged": True,
         "layers": [{"name": lr.value, "nodeLayers": [lr.value]} for lr in LayerType],
         "navbarItems": [
             {

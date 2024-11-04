@@ -8,9 +8,7 @@ from typing import Dict, List
 import pytest
 
 from topwrap.design import DesignDescription
-from topwrap.util import JsonType
-
-from .common import read_json_file
+from topwrap.util import JsonType, read_json_file
 
 
 def pwm_ipcores_yamls_data() -> List[Path]:

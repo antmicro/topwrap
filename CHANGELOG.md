@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support Python 3.13 and dropped support for Python 3.8
 - Added to config option for choosing a location where KPM server should be built
 - All in one command `topwrap gui` for building, starting the KPM server and connecting the client to it.
+- Automatic dataflow saving with each change to the graph in KPM. This ensures that the state is preserved when the page is reloaded.
 
 ### Changed
 

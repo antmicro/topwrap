@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import os
 import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Tuple, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, TypedDict, Union
 
 import yaml
 from pipeline_manager_backend_communication.communication_backend import (
@@ -23,6 +24,7 @@ from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from .kpm_common import RPCparams
 from .kpm_dataflow_parser import kpm_dataflow_to_design
 from .kpm_dataflow_validator import validate_kpm_design
+from .util import read_json_file, save_file_to_json
 from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
@@ -43,6 +45,10 @@ class RPCMethods:
         self.build_dir = params.build_dir
         self.design = params.design
         self.client = client
+        # Use the $XDG_DATA_HOME as a destination for saving the dataflow, which defaults to ~/.local/share
+        xdg_data_home_var = Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
+        self.default_save_file = xdg_data_home_var / "topwrap/dataflow_latest_save.json"
+        self.initial_load = True
 
     def app_capabilities_get(self) -> Dict[Literal["stoppable_methods"], List[str]]:
         return {"stoppable_methods": ["dataflow_run"]}
@@ -101,14 +107,41 @@ class RPCMethods:
     async def frontend_on_connect(self):
         """Gets run when frontend connects, loads initial design"""
         logging.debug("frontend on connect")
-        if self.design is not None:
+        if self.client is None:
+            logging.debug("The client to send a request to is not defined")
+            return
+        if self.default_save_file.exists() and not self.initial_load:
+            latest_dataflow = read_json_file(self.default_save_file)
+            await self.client.request("graph_change", {"dataflow": latest_dataflow})
+        elif self.design is not None:
+            self.initial_load = False
             with open(self.design) as design_file:
                 read_file = design_file.read()
                 dataflow = _kpm_import_handler(read_file, self.yamlfiles)
-                if self.client is None:
-                    logging.debug("There client to send request to is not defined")
-                    return
                 await self.client.request("graph_change", {"dataflow": dataflow})
+
+    async def nodes_on_change(self, **kwargs: Any):
+        await _kpm_handle_graph_change(self)
+
+    async def properties_on_change(self, **kwargs: Any):
+        await _kpm_handle_graph_change(self)
+
+    async def connections_on_change(self, **kwargs: Any):
+        await _kpm_handle_graph_change(self)
+
+    async def position_on_change(self, **kwargs: Any):
+        await _kpm_handle_graph_change(self)
+
+
+async def _kpm_handle_graph_change(rpc_object: RPCMethods):
+    if rpc_object.client is None:
+        return
+    current_graph = await rpc_object.client.request("graph_get")
+    save_file_to_json(
+        rpc_object.default_save_file.parent,
+        rpc_object.default_save_file.name,
+        current_graph["result"]["dataflow"],
+    )
 
 
 def _kpm_import_handler(data: str, yamlfiles: List[Path]) -> JsonType:
@@ -122,7 +155,7 @@ def _design_from_kpm_data(data: JsonType, yamlfiles: List[Path]) -> DesignDescri
     return kpm_dataflow_to_design(data, specification)
 
 
-def _kpm_run_handler(data: JsonType, yamlfiles: List[Path], build_dir: Path) -> list:
+def _kpm_run_handler(data: JsonType, yamlfiles: List[Path], build_dir: Path) -> List[str]:
     """Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """

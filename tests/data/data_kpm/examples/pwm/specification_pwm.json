@@ -65,6 +65,7 @@
         "stopName": "Stop"
       }
     ],
+    "notifyWhenChanged": true,
     "twoColumn": true
   },
   "nodes": [

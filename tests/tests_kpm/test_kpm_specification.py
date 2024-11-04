@@ -9,9 +9,8 @@ from jsonschema import Draft201909Validator
 from referencing import Registry
 from referencing.jsonschema import DRAFT201909
 
+from topwrap.util import read_json_file
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
-from .common import read_json_file
 
 SPEC_METANODES = 5  # Unique metanodes: Input, Output, Inout, Constant, Subgraph
 PWM_UNIQUE_IPCORE_NODES = 3  # Unique IP Cores from examples/pwm/project.yaml

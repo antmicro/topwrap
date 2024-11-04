@@ -1,6 +1,7 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
@@ -80,6 +81,18 @@ class UnreachableError(RuntimeError):
 
     def __init__(self, *args: object) -> None:
         super().__init__("Stepped into a code path marked as unreachable", *args)
+
+
+def read_json_file(json_file_path: Path) -> JsonType:
+    with open(json_file_path, "r") as json_file:
+        json_contents = json.load(json_file)
+    return json_contents
+
+
+def save_file_to_json(file_path: Path, file_name: str, file_content: JsonType):
+    file_path.mkdir(parents=True, exist_ok=True)
+    with open(Path(file_path / file_name), "w") as json_file:
+        json.dump(file_content, json_file)
 
 
 def path_relative_to(org_path: Path, rel_to: Path) -> Path:

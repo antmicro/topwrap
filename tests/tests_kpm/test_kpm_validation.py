@@ -18,9 +18,7 @@ from topwrap.kpm_dataflow_validator import (
     _check_parameters_values,
     _check_unconnected_ports_interfaces,
 )
-from topwrap.util import JsonType
-
-from .common import read_json_file
+from topwrap.util import JsonType, read_json_file
 
 
 def get_dataflow_test(test_name: str) -> JsonType:

@@ -31,6 +31,11 @@ An example block design in the Topwrap GUI for the PWM project may look like thi
 :dataflow: ../build/kpm_jsons/data_pwm.json
 ```
 
+:::{important}
+With each graph change, Topwrap will save the current dataflow to ensure it's not lost, e.g. during an accidental page refresh.
+The file is located at `$XDG_DATA_HOME/topwrap/dataflow_latest_save.json`.
+:::
+
 More information about this example can be found [here](https://antmicro.github.io/topwrap/examples.html#pwm)
 
 ## Command Line Interface (CLI)
