@@ -20,8 +20,12 @@ Parameter values can be integers of different bases (e.g. `0x28`, `40` or `0b101
 ```
 
 An example block design in Pipeline Manager for the PWM project may look like this:
-```{image} img/pwm_design.png
+```{kpm_iframe}
+:spec: ../build/kpm_jsons/spec_pwm.json
+:dataflow: ../build/kpm_jsons/data_pwm.json
 ```
+
+More information about this example can be found [here](https://antmicro.github.io/topwrap/examples.html#pwm)
 
 ## CLI
 
