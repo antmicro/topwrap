@@ -27,6 +27,11 @@ jobs:
       - name: Build packages
         run: ./.github/scripts/ci.sh package_dist
 
+      - name: Build package cores
+        run: |
+          ./.github/scripts/ci.sh package_cores
+          tar -cf build/cores_export.tar -C build/export .
+
       - name: Publish or update the release
         uses: softprops/action-gh-release@v2
         with:
@@ -35,4 +40,6 @@ jobs:
           body: Built from ${{ github.sha }}
           fail_on_unmatched_files: true
           make_latest: true
-          files: dist/topwrap*.tar.gz
+          files: |
+            dist/topwrap*.tar.gz
+            build/cores_export.tar
