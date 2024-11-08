@@ -1,7 +1,7 @@
 (introduction)=
 # Introduction to Topwrap
 
-[comment]: Topwrap logo
+![Topwrap logo](img/topwrap-logo--mono.png)
 
 Topwrap takes advantage of modularity by enabling the reuse of blocks across designs and facilitates the shift towards automation in logic design. It provides a standardized way of aggregating blocks in various configurations and makes top-level designs easy to parse as well as providing a method of processing them automatically. 
 
