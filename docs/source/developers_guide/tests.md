@@ -1,8 +1,9 @@
+(dev-guide-tests)=
 # Tests
 
 Topwrap functionality is validated with tests, leveraging the `pytest` library.
 
-
+(dev-guide-tests-execution)=
 ## Test execution
 
 Tests are located in the `tests` directory.
@@ -54,7 +55,7 @@ To see the output immediately, pass `-s` option to pytest:
 ```bash
 python -m pytest -s
 ```
-
+(dev-guide-tests-coverage)=
 ## Test coverage
 
 Test coverage is automatically generated when running tests with `nox`.
@@ -73,6 +74,7 @@ python -m pytest --cov=topwrap --cov-report html
 
 Generated report is available at `htmlcov/index.html`
 
+(dev-guide-tests-updating-kpm-test-data)=
 ## Updating kpm test data
 
 All kpm data from examples can be generated using nox.

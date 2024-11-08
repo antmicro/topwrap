@@ -1,3 +1,4 @@
+(dev-guide-fusesocbuilder)=
 #  FuseSocBuilder
 
 Topwrap has support for generating FuseSoC core files with {class}`~topwrap.fuse_helper.FuseSocBuilder`.The core file contains information about source files and synthesis tools.

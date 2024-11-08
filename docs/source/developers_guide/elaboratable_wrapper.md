@@ -1,3 +1,4 @@
+(dev-guide-elaboratablewrapper-class)=
 # ElaboratableWrapper class
 
 {class}`~topwrap.elaboratable_wrapper.ElaboratableWrapper` encapsulates an Amaranth's Elaboratable and exposes an interface compatible with other wrappers which allows for making connections with them.

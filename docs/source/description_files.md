@@ -1,9 +1,9 @@
 (description-files)=
-
 # Creating a design
 
-(design-description)=
+This chapter describes how to create a design in Topwrap, including an detailed overview of how Topwrap design files are structured. 
 
+(design-description)=
 ## Design description
 
 To create a complete and fully synthesizable design, a design file is needed. It is used for:
@@ -81,11 +81,12 @@ The design description YAML format allows for creating hierarchical designs. In 
 
 Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it is possible to have `ip_name` key in this section and `ip_name` in the `design` section of a separate hierarchy.
 
-(hierarchies)=
+(design-description-hierarchies)=
 ### Hierarchies
-<!--could we create a kind of flow chart or diagram to illustrate how these hierarchies are structured? -->
+
 Hierarchies allow for creating designs with subgraphs in them. The subgraphs can contain multiple IP cores and other subgraphs, allowing for the creation of nested designs in Topwrap.
 
+(design-description-format)=
 ### Format
 
 Hierarchies are specified in the design description.
@@ -125,8 +126,7 @@ hierarchies:
 
 A more complex example of a hierarchy can be found in the [examples/hierarchy](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy) directory.
 
-(ip-description)=
-
+(design-description-ip-description)=
 ## IP description files
 
 Every IP wrapped by Topwrap needs a description file in the YAML format.
@@ -192,8 +192,8 @@ Each signal in an interface has a name which must match with the signal that it 
 
 To speed up the generation of YAMLs, Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <generating-ip-yamls>`) can be used to generate YAMLs from HDL source files and then the generated YAML can be adjusted accordingly.
 
+(design-description-port-widths)=
 ### Port widths
-
 You can specify the width of port in a notation like the following:
 
 ```yaml
@@ -234,6 +234,7 @@ interfaces:
 * **TDATA** is assigned to `s_axis_tdata` and is 64 bits wide, defined by `[63, 0]`.
 * **TVALID** is assigned to `s_axis_tvalid` and, without a specified range, defaults to **1 bit**.
 
+(design-description-parameterization)=
 ### Parameterization
 
 The port widths don't have to be hardcoded as parameters can be used to describe an IP core in a generic way, as the values specified in IP core YAMLs can be overridden in a design description file (see {ref}`Design Description <design-description>`).
@@ -261,8 +262,7 @@ interfaces:
 
 The parameter values can be integers or math expressions, which are evaluated using `simpleeval`.
 
-(port-slicing)=
-
+(design-description-port-slicing)=
 ### Port slicing
 
 You can also slice a port, in order to use some parts of the port as a signal that belongs to a defined interface.
@@ -279,8 +279,7 @@ m_axi_1:
             BID: [m_axi_bid, 35, 0, 23, 12]
 ```
 
-(interface-description-files)=
-
+(design-description-interface-description-files)=
 ## Interface Description Files
 
 Topwrap can use predefined interfaces as described in YAML files that are packaged with the tool.

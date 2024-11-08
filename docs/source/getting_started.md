@@ -1,5 +1,4 @@
 (getting-started)=
-
 # Getting started
 
 The purpose of this chapter is to provide a step by step guide on how to create a simple design with Topwrap.
@@ -11,6 +10,7 @@ All the necessary files needed to follow this guide are in the `examples/getting
 If you haven't installed Topwrap yet, go to the [Installation chapter](installation.md) and make sure to install the additional dependencies for `topwrap parse`.
 :::
 
+(getting-started-design-overview)=
 ## Design overview
 
 We are going to create a design that will be visually represented in an [interactive GUI](https://antmicro.github.io/topwrap/usage.html#gui), as seen below.
@@ -27,6 +27,7 @@ Metanodes are always utilized in designs to represent external input/output port
 They can be found in the "Metanode" section.
 :::
 
+(getting-started-parsing-verilog)=
 ## Parsing Verilog files
 
 The first step when creating designs is to parse Verilog files into [IP core description YAMLs](https://antmicro.github.io/topwrap/usage.html#generating-ip-core-description-yamls) that are understood by Topwrap.
@@ -41,8 +42,10 @@ topwrap parse verilogs/{simple_core_1.v,simple_core_2.v}
 
 Topwrap will generate two files `gen_simple_core_1.yaml` and `gen_simple_core_2.yaml` that represent the corresponding Verilog files.
 
+(getting-started-building-designs)=
 ## Building designs with topwrap
 
+(getting-started-building-creating-designs)=
 ### Creating the design
 
 Generated IP core YAMLs can be loaded into a GUI.
@@ -84,6 +87,7 @@ The difference between `Save file` and `Save graph file` lies in which format is
 `Save graph file` will save the design in the [graph JSON format](https://antmicro.github.io/kenning-pipeline-manager/specification-format.html) which the GUI uses. You should only choose this one if you have a specific custom layout of the nodes in the design and you want to save it.
 :::
 
+(getting-started-building-designs-generating-verilog)=
 ### Generating Verilog in the GUI
 
 You can generate Verilog from the design created in the previous section if you have the example running as described in the previous section. On the top bar, these four buttons are visible:

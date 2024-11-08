@@ -1,3 +1,4 @@
+(using-fusesoc)=
 # Using FuseSoC for automation
 
 Topwrap uses [FuseSoC](https://github.com/olofk/fusesoc) (a package manager and a set of build tools for HDL code) to automate project generation and the build process. When `topwrap build` is used, it generates a [FuseSoC core file](https://fusesoc.readthedocs.io/en/stable/user/overview.html#fusesoc-s-basic-building-block-cores) along with the top-level wrapper.

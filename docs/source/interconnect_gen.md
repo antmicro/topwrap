@@ -35,6 +35,7 @@ Each connected subordinate must have a predefined address range so that the inte
 
 In order to generate an interconnect you have to describe its configuration in the [design description](#design-description) under the `interconnects` key in the following format:
 
+(interconnect-format)=
 ## Format
 
 The format for describing interconnects is specified below. The `interconnects` key must be a direct descendant of the `design` key in the design description.
@@ -77,15 +78,17 @@ interconnects:
       ...
   ...
 ```
-
+(supported-interconnect-types)=
 ## Supported interconnect types
 
+(supported-interconnect-wishbone-roundrobin)=
 ### `wishbone_roundrobin`
 
 This interconnect only supports wishbone interfaces for the managers and subordinates.
 It supports multiple managers but only one of them can drive the bus at a time (i.e. only one transaction can be happening on the bus at any given moment).
 A round-robin arbiter decides which master can currently drive the bus.
 
+(supported-interconnect-wishbone-roundrobin-parameters)=
 #### Parameters
 
 - `addr_width` - bit width of the address line (addresses access `data_width`-sized chunks)
@@ -93,6 +96,7 @@ A round-robin arbiter decides which master can currently drive the bus.
 - `granularity` - access granularity - smallest unit of data transfer that the interconnect can transfer. Must be one of: 8, 16, 32, 64
 - `features` - optional, list of optional wishbone signals, can contain: `err`, `rty`, `stall`, `lock`, `cti`, `bte`
 
+(supported-interconnect-wishbone-roundrobin-limitations)=
 #### Known limitations
 
 The currently known limitations are:

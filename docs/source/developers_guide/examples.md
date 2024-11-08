@@ -1,3 +1,4 @@
+(dev-guide-examples)=
 # Examples
 
 :::{note}

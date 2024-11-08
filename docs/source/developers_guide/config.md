@@ -1,3 +1,4 @@
+(dev-guide-config)=
 # Config
 
 The {class}`~topwrap.config.Config` object stores configuration values.

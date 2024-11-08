@@ -1,3 +1,4 @@
+(sample-projects)=
 # Sample projects
 
 These projects demonstrate some examples of how Topwrap can be used by end users.
@@ -22,6 +23,7 @@ Don't forget to use the "Enable fullscreen" button if the viewport is too small.
 ```
 :::
 
+(constant)=
 ## Constant
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/constant)
@@ -32,12 +34,13 @@ Don't forget to use the "Enable fullscreen" button if the viewport is too small.
 ```
 
 This example shows how to assign a constant value to a port of an IP core. You can see how it is done in the GUI by using the interactive preview.
-It is also visible in the description file (`project.yml`).
+It is also visible in the description file (`project.yaml`).
 
 :::{tip}
 You can find the constant node blueprint in the Nodes browser within the `Metanode` section.
 :::
 
+(constant-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -51,7 +54,7 @@ cd examples/constant
 make generate
 ```
 
-
+(Inout)=
 ## Inout
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/inout)
@@ -73,6 +76,7 @@ Their operation can be described as:
 * output buffer is a synchronous D-type flip flop with an asynchronous reset and an `output enable`, which sets the output to a high impedance state (Hi-Z)
 * inout buffer instantiates 1 input and 1 output buffer. Input of the `ibuf` and output of the `obuf` are connected with an inout wire (port).
 
+(Inout-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -99,7 +103,7 @@ make
 ```bash
 make generate
 ```
-
+(examples-user-repository)=
 ## User repository
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/user_repository)
@@ -124,6 +128,7 @@ topwrap kpm_client -d project.yml
 ```
 :::
 
+(examples-user-repository-usage)=
 ### Usage
 
 [comment]: About the idea of having Pipeline Manager run automatically, I guess this part could be removed?
@@ -149,7 +154,7 @@ Topwrap will load two cores from the `cores` directory, using the interface from
 
 In the Nodes browser under `IPcore`, two loaded cores: `core1` and `core2`, should be visible.
 
-
+(examples-hierarchy)=
 ## Hierarchy
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy)
@@ -164,7 +169,7 @@ This example shows how to create a hierarchical design in Topwrap, including a h
 Check out `project.yml` to learn how the above design translates to a [design description file](description_files.md)
 
 :::{seealso}
-For more information about hierarchies, see the [hierarchies docs](hierarchies).
+For more information, see the section on [hierarchies](#design-description-hierarchies).
 :::
 
 :::{tip}
@@ -174,6 +179,7 @@ To exit from the hierarchy subgraph, use the back arrow button on the top left.
 To add a new hierarchy node, use the `New Graph Node` option in the node browser.
 :::
 
+(examples-hierarchy-usage)=
 ### Usage
 This example contains the [user repository](https://antmicro.github.io/topwrap/user_repositories.html) (`repo` directory) and a configuration file for Topwrap (`topwrap.yaml`). It can be loaded by running
 ```
@@ -181,6 +187,7 @@ python -m topwrap kpm_client -d project.yml
 ```
 in the examples directory.
 
+(examples-PWM)=
 ## PWM
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/pwm)
@@ -203,6 +210,7 @@ The generated signal can be used in a FPGA or connected to a physical port on a 
 To connect the I/O signals to specific FPGA pins, you must use mappings in a constraints file. See `zynq.xdc` used in the setup and modify it accordingly.
 :::
 
+(examples-PWM-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -232,6 +240,7 @@ make
 make generate
 ```
 
+(examples-HDMI)=
 ## HDMI
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/hdmi)
@@ -243,6 +252,7 @@ make generate
 
 This is an example of how to use Topwrap to build a complex and synthesizable design.
 
+(examples-HDMI-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -280,6 +290,7 @@ make zvb
 make generate
 ```
 
+(examples-SoC)=
 ## SoC
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/soc)
@@ -292,6 +303,7 @@ make generate
 This is an example of how to use Topwrap to build a synthesizable SoC design.
 The SoC contains a VexRiscv core, data and instruction memory, UART and an interconnect that ties all the components together.
 
+(examples-SoC-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**

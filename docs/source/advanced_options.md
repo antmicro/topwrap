@@ -1,7 +1,9 @@
+(advanced-options)=
 # Advanced options
 
 This chapter builds upon the [Getting started](getting_started.md) chapter. If you haven't read it yet, it is recommended to do so first.
 
+(advanced-options-creating-block-designs)=
 ## Creating block design in the GUI
 
 Upon successful connection to the server, Topwrap will generate and send to the server a specification describing the structure of previously selected IP cores. If the `-d` option is used, a design will be shown in the GUI. The content below is based on the PWM example located in `examples/pwm`. From there you can create or modify designs by:
@@ -27,6 +29,7 @@ An example block design in Pipeline Manager for the PWM project may look like th
 
 More information about this example can be found [here](https://antmicro.github.io/topwrap/examples.html#pwm)
 
+(advanced-options-CLI)=
 ## CLI
 
 Topwrap has a couple of CLI only functions that expand on the functionality offered by the GUI.
@@ -35,7 +38,7 @@ Topwrap has a couple of CLI only functions that expand on the functionality offe
 ### Generating IP core description YAMLs
 
 You can use Topwrap to generate IP core description YAMLs from HDL sources to use in your `project.yml`.
-To learn more about project and core YAMLs, check the {ref}`design description <design-description>` and {ref}`ip description <ip-description>`
+To learn more about project and core YAMLs, check the {ref}`design description <design-description>` and {ref}`design-description-ip-description <design-description-ip-description>`
 
 ```
 python -m topwrap parse HDL_FILES
@@ -58,6 +61,7 @@ For help, use:
 python -m topwrap [build|kpm_client|parse] --help
 ```
 
+(advanced-options-validating-designs)=
 ## Validating designs
 
 Pipeline Manager can perform basic runtime checks, including interface type verification when creating a connection. More complex tests can be run by using Pipeline Manager's `Validate` option. Topwrap will then respond with a validity confirmation or an error message. There is [dedicated chapter](link to checks.md) explaining the validation done by Topwrap.
