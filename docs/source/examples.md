@@ -18,7 +18,7 @@ The features that require direct connection with Topwrap's backend are not imple
 :::
 
 :::{tip}
-Don't forget to use the "Enable fullscreen" button if the viewport is too small. 
+Don't forget to use the "Enable fullscreen" button if the viewport is too small.
 ```{image} img/kpm_button_fullscreen.png
 ```
 :::
@@ -327,7 +327,7 @@ To run the simulation you also need:
 
 To create and load the bitstream, use:
 - [Vivado](https://www.xilinx.com/support/download.html) (preferably version 2020.2)
-[comment]: is version 2020.2 available? I only see 2022, 2023 and 2024. 
+[comment]: is version 2020.2 available? I only see 2022, 2023 and 2024.
 - openFPGALoader ([branch](https://github.com/antmicro/openFPGALoader/tree/antmicro-ddr-tester-boards))
 :::
 
