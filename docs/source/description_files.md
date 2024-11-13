@@ -1,7 +1,7 @@
 (description-files)=
 # Creating a design
 
-This chapter describes how to create a design in Topwrap, including an detailed overview of how Topwrap design files are structured.
+This chapter describes how to create a design in Topwrap, including a detailed overview of Topwrap design files are structured.
 
 (design-description)=
 ## Design description
@@ -47,11 +47,11 @@ design:
     ...
 
   interfaces:
-    # specify the incoming interface connections of `ip1_name` IP
+    # specify the incoming interface connections of the `ip1_name` IP
     {ip1_name}:
       {interface1_name} : [{ip2_name}, {interface2_name}]
       ...
-    # specify the incoming interface connections of `hier_name` hierarchy
+    # specify the incoming interface connections of the `hier_name` hierarchy
     {hier_name}:
       {interface1_name} : [{ip_name}, {interface2_name}]
       ...
@@ -190,11 +190,11 @@ signals: # These ports do not belong to an interface
 The names `s_axis` and `m_axis` will be used to group the selected ports.
 Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` connects to `TDATA: other_port_name`.
 
-To speed up the generation of YAMLs, Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <generating-ip-yamls>`) can be used to generate YAMLs from HDL source files and then the generated YAML can be adjusted accordingly.
+To speed up the generation of YAMLs, Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <advanced-options-CLI-generating-ip-yamls>`) can be used to generate YAMLs from HDL source files.
 
 (design-description-port-widths)=
 ### Port widths
-You can specify the width of port in a notation like the following:
+You can specify the port width in the following format:
 
 ```yaml
 signals:
@@ -204,22 +204,22 @@ signals:
 * `port_name` - name of the port.
 * `upper_limit` and `lower_limit` define the bit range, where `[upper_limit, lower_limit]` determines the number of bits for the port (e.g. `[63, 0]` for **64 bits**).
 
-In the example it looks like below:
+As an example:
 ```yaml
 signals:
     in:
         - [gpio_io_i, 31, 0] # 32 bits
 ```
 
-If you omit the bit range and write only:
+If the bit range is omitted:
 ```yaml
 signals:
     in:
       - port_name
 ```
-then `port_name` defaults to a width of **1 bit**.
+then the default width of `port_name` is **1 bit**.
 
-You can also specify the widths of signals within interfaces.
+You can also specify the signal width within interfaces.
 ```yaml
 interfaces:
     s_axis:
@@ -237,7 +237,7 @@ interfaces:
 (design-description-parameterization)=
 ### Parameterization
 
-The port widths don't have to be hardcoded as parameters can be used to describe an IP core in a generic way, as the values specified in IP core YAMLs can be overridden in a design description file (see {ref}`Design Description <design-description>`).
+Port widths don't have to be hardcoded, as parameters can describe an IP core in a generic way, and values specified in IP core YAMLs can be overridden in a design description file (see {ref}`Design Description <design-description>`).
 ```yaml
 parameters:
     DATA_WIDTH: 8
@@ -265,9 +265,9 @@ The parameter values can be integers or math expressions, which are evaluated us
 (design-description-port-slicing)=
 ### Port slicing
 
-You can also slice a port, in order to use some parts of the port as a signal that belongs to a defined interface.
+Ports can be sliced for using some parts of the port as a signal that belongs to a defined interface.
 
-The example below means:
+As an example:
 `Port m_axi_bid of the IP core is 36 bits wide. Use bits 23..12 as the BID signal of the AXI manager is named m_axi_1`
 
 ```yaml
@@ -280,18 +280,18 @@ m_axi_1:
 ```
 
 (design-description-interface-description-files)=
-## Interface Description Files
+## Interface description files
 
-Topwrap can use predefined interfaces as described in YAML files that are packaged with the tool.
-The currently supported interfaces are AXI4, AXI3, AXI Stream, AXI Lite and Wishbone.
+Topwrap can use predefined interfaces, as illustrated in YAML files that come packaged with the tool.
+The currently supported interfaces are AXI3, AXI4, AXI Lite, AXI Stream and Wishbone.
 
-You can see an example file below:
+An example file looks as follows:
 
 ```yaml
 name: AXI4Stream
 port_prefix: AXIS
 signals:
-    # convention assumes the AXI Stream transmitter (manager) perspective
+    # The convention assumes the AXI Stream transmitter (manager) perspective
     required:
         out:
             TVALID: tvalid
@@ -308,25 +308,24 @@ signals:
             TUSER: tuser
             TWAKEUP: twakeup
 ```
-The `name` of an interface has to be unique.
+The `name` of an interface must be unique.
 
-Signals are either required or optional, and their direction is described from the perspective of the manager (i.e. the direction of signals in the subordinate is flipped).
-Note that clock and reset are not included as these are usually inputs to both the manager and the subordinate thus they are not supported in the interface specification.
-Every signal is a key-value pair, where the key is a generic signal name (usually taken from the interface specification) that is used to identify it in other parts of Topwrap (i.e. IP Core description files), and the value is a regex used to deduce which port defined in the HDL sources represents this signal.
+Signals are either required or optional, and their direction is described from the perspective of the manager (i.e. the direction of signals in the subordinate are flipped).
+Note that clock and reset are not included as these are usually inputs to both the manager and subordinate, so they are not supported in the interface specification.
+Every signal is a key-value pair, where the key is a generic signal name (normally taken from the interface specification) and used to identify it in other parts of Topwrap (i.e. IP core description files), and the value is a regex used to deduce which port defined in the HDL sources represents this signal.
 
 ### Interface deduction
 
-During [IP Core parsing](#generating-ip-yamls), you can use the `--iface-deduce` flag to enable the automatic pairing of raw ports from HDL sources into interface signals.
+During [IP core parsing](#advanced-options-CLI-generating-ip-yamls), you can use the `--iface-deduce` flag to enable automatic pairing of raw ports from HDL sources to interface signals.
 
 This feature matches signal regexes from all available interface descriptions with raw port names of the IP Core in order to discover possible interface instances.
 The pairing is performed on port names that are transformed to lowercase and have the common `port_prefix` removed, which means that the regexes must also be written in lowercase.
 
 ### Interface compliance
 
-During the [build process](#building-design), an optional verification of whether the interface instances used in IP Cores are compliant with their respective descriptions can be enabled.
-This verification consists of checking if:
-- All signals marked as required in the description are present in the instance
-- No additional signals that aren't defined in the description are present in the instance
+During the [build process](#getting-started-command-line-flow-generating-verilog-top-files), an optional verification of whether the interface instances used in IP cores are compliant with their respective descriptions can be enabled.
+The verification consists of checking in the instance if:
+- all signals designated as required in the description are included.
+- no additional signals beyond those defined in the description are included.
 
-This feature is controlled by the `--iface-compliance` CLI flag or the `force_interface_compliance` key in the [configuration file](user_repositories.md) <!-- we don't really have a proper section about the configuration yet -->
-and is turned off by default.
+This feature is controlled by the `--iface-compliance` CLI flag or the `force_interface_compliance` key in the [configuration file](user_repositories.md) <!-- we don't really have a proper section about the configuration yet --> and is turned off by default.

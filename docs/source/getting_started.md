@@ -20,7 +20,7 @@ We are going to create a design that will be visually represented in an [interac
 :dataflow: ../../examples/getting_started_demo/kpm/dataflow.json
 ```
 
-It consists of two cores: `simple_core_1` and `simple_core_2` that connect to each other and to some external input/output.
+It consists of two cores: `simple_core_1` and `simple_core_2` that connect to each other and to an external input/output.
 
 :::{note}
 Metanodes are always utilized in designs to represent external input/output ports, module hierarchy ports or constant values.
@@ -43,12 +43,12 @@ topwrap parse verilogs/{simple_core_1.v,simple_core_2.v}
 Topwrap will generate two files `gen_simple_core_1.yaml` and `gen_simple_core_2.yaml` that represent the corresponding Verilog files.
 
 (getting-started-building-designs)=
-## Building designs with topwrap
+## Building designs with Topwrap
 
 (getting-started-building-creating-designs)=
 ### Creating the design
 
-Generated IP core YAMLs can be loaded into a GUI.
+The generated IP core YAMLs can be loaded into the GUI.
 
 Run the GUI client:
 ```bash
@@ -58,25 +58,28 @@ It should build and start server, connect the client to it and open the browser 
 
 The loaded IP cores can be found in the IPcore section:
 
-```{image} img/side_bar_kpm.png
+```
+{image} img/side_bar_kpm.png
 ```
 
 With these IP cores and default metanodes, you can easily create designs by dragging and connecting the cores.
 
-Let's make a design from the demo at the beginning of this guide.
+Let's make the design from the demo in the introduction.
 
-```{image} img/getting_started_project.png
+```
+{image} img/getting_started_project.png
 ```
 
-:::{note}
-You can change the name of an individual node by right clicking on it and selecting `rename`. This is useful when creating multiple instances of the same IP core.
+:::
+{note} You can change the name of an individual node by right clicking on it and selecting `rename`. This is useful when creating multiple instances of the same IP core.
 :::
 
 You can save the project in the [Design Description](description_files.md) format, which is used by Topwrap to represent the created design.
 
 To do this, select the graph button and select `Save file`.
 
-```{image} img/save_graph_kpm.png
+```
+{image} img/save_graph_kpm.png
 ```
 
 :::{note}
@@ -92,16 +95,18 @@ The difference between `Save file` and `Save graph file` lies in which format is
 
 You can generate Verilog from the design created in the previous section if you have the example running as described in the previous section. On the top bar, these four buttons are visible:
 
-```{image} img/kpm_buttons.png
+```
+{image} img/kpm_buttons.png
 ```
 
-1. Load or save designs.
-2. Toggles the node browser.
-3. Validates the design.
-4. Builds the design if it does not contain errors, a top module will be created in the directory where `topwrap kpm_client` was run.
+1. Save/Load designs.
+2. Toggle the node browser.
+3. Validate the design.
+4. Build the design. If it does not contain errors, a top module will be created in the directory where `topwrap kpm_client` was run.
 
-## Appendix: Command-line flow
-
+(getting-started-command-line-flow)=
+## Command-line flow
+(getting-started-command-line-flow-creating-designs)=
 ### Creating designs
 
 The manual creation of designs requires familiarity with the [Design Description](description_files.md) format.
@@ -190,8 +195,7 @@ external:
     - Output_c
 ```
 
-(building-design)=
-
+(getting-started-command-line-flow-generating-verilog-top-files)=
 ### Generating Verilog top files
 
 :::{info}
@@ -216,4 +220,4 @@ WARNING:root:You did not specify part number. 'None' will be used and thus your 
 ```
 
 This is because the  `--part` flag was omitted since it's just a example, and is not for any specific FPGA chip.
-For building your designs, we recommend always specifying the `--part` flag.
+For building custom designs, we recommend always specifying the `--part` flag.

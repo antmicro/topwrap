@@ -1,20 +1,20 @@
 (sample-projects)=
 # Sample projects
 
-These projects demonstrate some examples of how Topwrap can be used by end users.
+These projects demonstrate how Topwrap can be used by users.
 
 :::{admonition} Information about the embedded GUI
 :class: note
 
 This section extensively uses an embedded version of [Topwrap's GUI](https://github.com/antmicro/kenning-pipeline-manager) to visualize the design of all the examples.
 
-You can use it to explore the designs, while also adding new blocks, connections, nodes and hierarchies.
+You can use it to explore the designs, while adding new blocks, connections, nodes and hierarchies.
 
 The features that require direct connection with Topwrap's backend are not implemented in this demo version, including:
 
-- Saving and loading data from/to `.yaml` files
-- Verifying designs
+- Saving and loading data in `.yaml` files
 - Building designs
+- Verifying designs
 :::
 
 :::{tip}
@@ -33,7 +33,7 @@ Don't forget to use the "Enable fullscreen" button if the viewport is too small.
 :dataflow: ../build/kpm_jsons/data_constant.json
 ```
 
-This example shows how to assign a constant value to a port of an IP core. You can see how it is done in the GUI by using the interactive preview.
+This example shows how to assign a constant value to a port in an IP core. You can see it in the GUI by using the interactive preview functionality.
 It is also visible in the description file (`project.yaml`).
 
 :::{tip}
@@ -48,7 +48,7 @@ You can find the constant node blueprint in the Nodes browser within the `Metano
 cd examples/constant
 ```
 
-**Generate HDL source**
+**Generate the HDL source**
 
 ```bash
 make generate
@@ -64,7 +64,7 @@ make generate
 :dataflow: ../build/kpm_jsons/data_inout.json
 ```
 
-This example showcases the usage of an inout port and how it is represented in the GUI.
+This example showcases the usage of an inout port and its representation in the GUI.
 
 :::{tip}
 An inout port is marked in the GUI by a green circle without a directional arrow inside.
@@ -72,9 +72,9 @@ An inout port is marked in the GUI by a green circle without a directional arrow
 
 The design consists of 3 modules: input buffer `ibuf`, output buffer `obuf`, and bidirectional buffer `iobuf`.
 Their operation can be described as:
-* input buffer is a synchronous D-type flip flop with an asynchronous reset
-* output buffer is a synchronous D-type flip flop with an asynchronous reset and an `output enable`, which sets the output to a high impedance state (Hi-Z)
-* inout buffer instantiates 1 input and 1 output buffer. Input of the `ibuf` and output of the `obuf` are connected with an inout wire (port).
+* the input buffer is a synchronous D-type flip flop with an asynchronous reset
+* the output buffer is a synchronous D-type flip flop with an asynchronous reset and an `output enable`, which sets the output to a high impedance state (Hi-Z)
+* the inout buffer instantiates 1 input and 1 output buffer. The input of the `ibuf` and output of the `obuf` are connected with an inout wire (port).
 
 (Inout-usage)=
 ### Usage
@@ -103,6 +103,7 @@ make
 ```bash
 make generate
 ```
+
 (examples-user-repository)=
 ## User repository
 
@@ -113,7 +114,7 @@ make generate
 :dataflow: ../build/kpm_jsons/data_user_repository.json
 ```
 
-This example presents a structure of a user repository containing prepackaged IP cores with sources and custom interface definitions.
+This example presents the structure of a user repository containing prepackaged IP cores with sources and custom interface definitions.
 
 Elements of the `repo` directory can be easily reused in different designs by linking to them from the config file or in the CLI.
 
@@ -122,7 +123,8 @@ For more information about user repositories see [](user_repositories.md).
 :::
 
 :::{tip}
-As other components of the design are automatically imported from the repository, it's possible to load the entire example by specifying just the design file:
+As other components of the design are automatically imported from the repository, it's possible to load the entire example by specifying the design file:
+
 ```bash
 topwrap kpm_client -d project.yml
 ```
@@ -166,14 +168,14 @@ In the Nodes browser under `IPcore`, two loaded cores: `core1` and `core2`, shou
 
 This example shows how to create a hierarchical design in Topwrap, including a hierarchy that contains IP cores as well as other nested hierarchies.
 
-Check out `project.yml` to learn how the above design translates to a [design description file](description_files.md)
+Check out `project.yaml` to learn how the above design translates to a [design description file](description_files.md)
 
 :::{seealso}
 For more information, see the section on [hierarchies](#design-description-hierarchies).
 :::
 
 :::{tip}
-Hierarchies are represented in the GUI by nodes with a green header. To display their inner designs, click the `Edit subgraph` option from the context menu.
+Hierarchies are represented in the GUI by nodes with a green header. To display inner designs, click the `Edit subgraph` option from the context menu.
 
 To exit from the hierarchy subgraph, use the back arrow button on the top left.
 To add a new hierarchy node, use the `New Graph Node` option in the node browser.
@@ -181,9 +183,11 @@ To add a new hierarchy node, use the `New Graph Node` option in the node browser
 
 (examples-hierarchy-usage)=
 ### Usage
+
 This example contains the [user repository](https://antmicro.github.io/topwrap/user_repositories.html) (`repo` directory) and a configuration file for Topwrap (`topwrap.yaml`). It can be loaded by running
+
 ```
-python -m topwrap kpm_client -d project.yml
+python -m topwrap kpm_client -d project.yaml
 ```
 in the examples directory.
 
@@ -198,7 +202,7 @@ in the examples directory.
 ```
 
 :::{tip}
-The IP Core in the center of the design (`axi_axil_adapter`) showcases how IP Cores with overridable parameters are represented in the GUI.
+The IP Core in the center of the design (`axi_axil_adapter`) showcases how IP cores with overridable parameters are represented in the GUI.
 :::
 
 This is an example of an AXI-mapped PWM IP core that can be generated with LiteX, connected to the ZYNQ Processing System.
@@ -207,7 +211,7 @@ You can access its registers starting from address `0x4000000` (the base address
 The generated signal can be used in a FPGA or connected to a physical port on a board.
 
 :::{note}
-To connect the I/O signals to specific FPGA pins, you must use mappings in a constraints file. See `zynq.xdc` used in the setup and modify it accordingly.
+To connect I/O signals to specific FPGA pins, you must use mappings in a constraints file. See `zynq.xdc` used in the setup and modify it accordingly.
 :::
 
 (examples-PWM-usage)=
@@ -225,7 +229,7 @@ cd examples/pwm
 pip install -r requirements.txt
 ```
 
-In order to be able to generate a bitstream, install [Vivado](https://www.xilinx.com/support/download.html) and add it to the `PATH`.
+In order to generate a bitstream, install [Vivado](https://www.xilinx.com/support/download.html) and add it to the `PATH`.
 :::
 
 **Generate bitstream for Zynq**
@@ -321,7 +325,7 @@ sudo apt install git make g++ ninja-build gcc-riscv64-unknown-elf bsdextrautils
 To run the simulation you also need:
 - verilator
 
-To create and load bitstream, use:
+To create and load the bitstream, use:
 - [Vivado](https://www.xilinx.com/support/download.html) (preferably version 2020.2)
 [comment]: is version 2020.2 available? I only see 2022, 2023 and 2024. 
 - openFPGALoader ([branch](https://github.com/antmicro/openFPGALoader/tree/antmicro-ddr-tester-boards))
@@ -341,7 +345,7 @@ make sim
 
 The expected waveform generated by the simulation is shown in `expected-waveform.svg`.
 
-**Generate bitstream**
+**Generate the bitstream**
 
 ```bash
 make bitstream
