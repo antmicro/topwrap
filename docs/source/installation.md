@@ -1,62 +1,48 @@
 (installation)=
 # Installing Topwrap
 
-1. Install the required system packages:
+## 1. Install the required system packages
 
-    Debian:
-    ```bash
-    apt install -y git g++ make python3 python3-pip yosys npm
-    ```
+:::{warning}
+The script below requires root privileges because it directly interfaces with your package manager and filesystem.
 
-    Arch:
-    ```bash
-    pacman -Syu git gcc make python3 python-pip yosys npm
-    ```
-
-    Fedora:
-    ```bash
-    dnf install git g++ make python3 python3-pip python3-devel yosys npm
-    ```
-
-2. Install the Topwrap package (It is highly recommended to run this step in a Python virtual environment, such as [venv](https://docs.python.org/3/library/venv.html)):
-
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install .
-    ```
-    
-Alternatively, to install using the pip package manager, use:
-
-    ```bash
-    pip install https://github.com/antmicro/topwrap/releases/download/latest/topwrap-0.1.0.tar.gz
-    ```
-    
-:::{note}
-To use the `topwrap parse` command, install optional dependencies:
-```bash
-apt install -y antlr4 libantlr4-runtime-dev
-pip install ".[topwrap-parse]"
-```
-On Arch-based distributions, a symlink to the antlr4 runtime library needs to created and an environment variable set:
-```bash
-pacman -Syu antlr4 antlr4-runtime
-ln -s /usr/share/java/antlr-complete.jar antlr4-complete.jar
-ANTLR_COMPLETE_PATH=`pwd` pip install ".[topwrap-parse]"
-```
-
-On Fedora-based distributions, symlinks need to be made inside the `/usr/share/java` directory itself:
-```bash
-dnf install antlr4 antlr4-cpp-runtime-devel
-sudo ln -s /usr/share/java/stringtemplate4/ST4.jar /usr/share/java/stringtemplate4.jar
-sudo ln -s /usr/share/java/antlr4/antlr4.jar /usr/share/java/antlr4.jar
-sudo ln -s /usr/share/java/antlr4/antlr4-runtime.jar /usr/share/java/antlr4-runtime.jar
-sudo ln -s /usr/share/java/treelayout/org.abego.treelayout.core.jar /usr/share/java/treelayout.jar
-pip install ".[topwrap-parse]"
-```
-
-[comment]: is there a way to clean up these instructions so they're not so lengthy? 
-
+It's dangerous to run scripts and executables as root without verifying their contents beforehand!
+Please make sure to do that before executing the script below.
 :::
 
+```bash
+curl -fO https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/install-deps.sh
+chmod +x ./install-deps.sh
+sudo ./install-deps.sh
+```
+
+## 2. Install the Topwrap package
+
+**Recommended**: Use [pipx](https://pipx.pypa.io/stable/) to directly install Topwrap as a user package:
+
+```bash
+pipx install "topwrap[topwrap-parse]@git+https://github.com/antmicro/topwrap"
+```
+
+If you can't use pipx, you can use regular pip instead.
+(It may be necessary to do it in a Python virtual environment, such as [venv](https://docs.python.org/3/library/venv.html)):
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install "topwrap[topwrap-parse]@git+https://github.com/antmicro/topwrap"
+```
+
+## 3. Verify the installation
+
+Make sure that Topwrap was installed correctly and is available in your shell:
+
+```bash
+topwrap --help
+```
+
+This should print out the help string with Topwrap subcommands listed out.
+
+:::{seealso}
 If you want to contribute to the project, check the [Developer's setup guide](developers_guide/setup.md) for more information.
+:::
