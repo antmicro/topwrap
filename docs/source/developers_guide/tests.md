@@ -1,34 +1,33 @@
-(dev-guide-tests)=
 # Tests
 
-Topwrap functionality is validated with tests, leveraging the `pytest` library.
+Topwrap functionality is validated with tests that leverage the `pytest` library.
 
-(dev-guide-tests-execution)=
+
 ## Test execution
 
-Tests are located in the `tests` directory.
+The tests are located in the `tests` directory.
 All tests can be run with `nox` by specifying the `tests` session:
 
 ```bash
 nox -s tests
 ```
 
-This only runs tests on python interpreter versions that are available locally.
-There is also a session `tests_in_env` that will automatically install all required python versions, provided you have [pyenv](https://github.com/pyenv/pyenv) installed:
+This runs tests on the Python interpreter versions that are available locally.
+There is also a session `tests_in_env` that will automatically install all required Python versions, provided you have [pyenv](https://github.com/pyenv/pyenv) installed:
 
 ```bash
 nox -s tests_in_env
 ```
 
 :::{note}
-To reuse existing virtual environment and avoid long installation time use `-R` option:
+To reuse an existing virtual environment and avoid lengthy installation times,  use the `-R` flag:
 
 ```bash
 nox -R -s tests_in_env
 ```
 :::
 
-To force a specific Python version and avoid running tests for all listed versions, use `-p VERSION` option:
+To force a specific Python version and avoid running tests for all listed versions, use `-p VERSION` flag:
 
 ```bash
 nox -p 3.10 -s tests_in_env
@@ -40,46 +39,44 @@ python -m pytest
 ```
 
 :::{warning}
-When running tests by invoking `pytest` directly, tests are ran only on the locally selected python interpreter.
-As CI runs them on all supported Python versions it's recommended to run tests with `nox` on all versions before pushing.
+When running tests by invoking `pytest` directly, tests are ran only on the locally selected Python interpreter.
+As the CI runs on all supported Python versions, it's recommended to run tests with `nox` on all versions before pushing.
 :::
 
-Ignoring particular test can be done with `--ignore=test_path`, e.g:
+Ignoring a particular test can be performed with `--ignore=test_path`, e.g:
 ```bash
 python -m pytest --ignore=tests/tests_build/test_interconnect.py
 ```
 
-Sometimes it's useful to see what's being printed by the test for debugging purposes.
-Pytest captures all output from the test and displays it when all tests finish.
-To see the output immediately, pass `-s` option to pytest:
+For debugging purposes, Pytest captures all output from the test and displays it when all tests are completed.
+To see the output immediately, pass the `-s` flag to pytest:
 ```bash
 python -m pytest -s
 ```
-(dev-guide-tests-coverage)=
+
 ## Test coverage
 
 Test coverage is automatically generated when running tests with `nox`.
-When invoking `pytest` directly it can be generated with `--cov=topwrap` option.
-This will generate a summary of coverage displayed in CLI.
+When invoking `pytest` directly, it can be generated with the `--cov=topwrap` flag.
+This will generate a summary of coverage, displayed in the CLI.
 
 ```bash
 python -m pytest --cov=topwrap
 ```
 
-Additionally, the summary can be generated in HTML with `--cov=topwrap --cov-report html`, where lines that were not covered by tests can be browsed:
+Additionally, the summary can be generated in HTML with the flags `--cov=topwrap --cov-report html`, where lines that were not covered by tests can be browsed:
 
 ```bash
 python -m pytest --cov=topwrap --cov-report html
 ```
 
-Generated report is available at `htmlcov/index.html`
+The generated report is available at `htmlcov/index.html`
 
-(dev-guide-tests-updating-kpm-test-data)=
 ## Updating kpm test data
 
-All kpm data from examples can be generated using nox.
-This is useful when changing topwrap functionality related to kpm in order to avoid manually changing every example's test data.
-You can either update only one part of examples data like specification or update everything (dataflows, specifications, designs).
+All `kpm` data from examples can be generated using `nox`.
+This is useful when changing Topwrap functionality relating to kpm, as it avoids manually changing test data in every sample.
+Users can either update of example data such as the specification or update everything (dataflows, specifications, designs).
 
 To update everything run:
 ```bash
@@ -91,7 +88,7 @@ To update only specifications run:
 nox -s update_test_data -- specification
 ```
 
-Possible options for `update_test_data` session:
-* `specification` - updates specifications
-* `dataflow` - updates dataflows
-* `design` - updates designs
+To update options for `update_test_data` sessions, use:
+* `specification` 
+* `dataflow` 
+* `design` 

@@ -4,13 +4,12 @@
 :::{warning}
 Interconnect generation is an experimental feature.
 
-For now neither creating them, nor showing them is possible in the GUI.
+Currently, creating and showing them is not possible in the Topwrap GUI. 
 :::
 
-Interconnects are a convenient feature that allows you to connect multiple interfaces together in a many-to-many topology, instead of the traditional one-to-one connection between a manager and a subordinate.
-This provides a way to transmit data between multiple IP Cores over a single interface connection in which the interconnect acts as a middle-man.
+Interconnects are a convenient feature that allows users to connect multiple interfaces together in a many-to-many topology, instead of the traditional one-to-one connection between a manager and a subordinate. This provides a method of transmitting data between multiple IP cores over a single interface connection in which the interconnect acts as a middle-man.
 
-```mermaid
+```{mermaid}
 :alt: Interconnect topology diagram
 
 %%{init: {'theme':'neutral'}}%%
@@ -38,7 +37,7 @@ In order to generate an interconnect you have to describe its configuration in t
 (interconnect-format)=
 ## Format
 
-The format for describing interconnects is specified below. The `interconnects` key must be a direct descendant of the `design` key in the design description.
+The format for describing interconnects is specified below. The `interconnects` key must be a direct descendant of the `design` key in the [design description](#design-description).
 
 ```yaml
 interconnects:
@@ -84,16 +83,16 @@ interconnects:
 (supported-interconnect-wishbone-roundrobin)=
 ### `wishbone_roundrobin`
 
-This interconnect only supports wishbone interfaces for the managers and subordinates.
-It supports multiple managers but only one of them can drive the bus at a time (i.e. only one transaction can be happening on the bus at any given moment).
-A round-robin arbiter decides which master can currently drive the bus.
+This interconnect only supports Wishbone interfaces for managers and subordinates.
+It supports multiple managers, but only one of them can drive the bus at a time (i.e. only one transaction can be happening on the bus at any given moment).
+A round-robin arbiter decides which manager can currently drive the bus.
 
 (supported-interconnect-wishbone-roundrobin-parameters)=
 #### Parameters
 
 - `addr_width` - bit width of the address line (addresses access `data_width`-sized chunks)
 - `data_width` - bit width of the data line
-- `granularity` - access granularity - smallest unit of data transfer that the interconnect can transfer. Must be one of: 8, 16, 32, 64
+- `granularity` - access granularity - the smallest unit of data transfer that the interconnect can transfer. Must be: 8, 16, 32, 64
 - `features` - optional, list of optional wishbone signals, can contain: `err`, `rty`, `stall`, `lock`, `cti`, `bte`
 
 (supported-interconnect-wishbone-roundrobin-limitations)=
@@ -101,6 +100,4 @@ A round-robin arbiter decides which master can currently drive the bus.
 
 The currently known limitations are:
 - only word-sized addressing is supported (in other words - consecutive addresses can only access word-sized chunks of data)
-- crossing clock domains is not supported
-- down-converting (initiating multiple transactions on a narrow bus per one transaction on a wider bus) is not supported
-- up-converting is not supported
+- crossing clock domains, down-converting (initiating multiple transactions on a narrow bus per one transaction on a wider bus) and up-converting are not supported
