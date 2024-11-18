@@ -130,9 +130,10 @@ def _kpm_run_handler(data: JsonType, yamlfiles: List[Path], build_dir: Path) -> 
     messages = validate_kpm_design(data, specification)
     if not messages["errors"]:
         design = _design_from_kpm_data(data, yamlfiles)
-        design.generate_design().build(
-            build_dir=build_dir, top_module_name=design.design.name or "top"
-        )
+        name = design.design.name or "top"
+        ipc = design.to_ip_connect()
+        ipc.generate_top(name, build_dir)
+        ipc.generate_fuse_core(build_dir=build_dir, top_module_name=name)
     return messages["errors"]
 
 

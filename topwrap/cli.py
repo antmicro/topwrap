@@ -20,7 +20,7 @@ from topwrap.kpm_common import RPCparams
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 from .config import config
-from .design import DesignDescription, build_design_from_yaml
+from .design import DesignDescription
 from .interface_grouper import standard_iface_grouper
 from .kpm_topwrap_client import kpm_run_client
 from .repo.user_repo import UserRepo
@@ -67,7 +67,14 @@ def configure_log_level(log_level: str):
     default="build",
     help="Specify directory name for output files",
 )
-@click.option("--part", "-p", help="FPGA part name")
+@click.option(
+    "--fuse",
+    "-f",
+    default=False,
+    is_flag=True,
+    help="Generate a FuseSoC .core file for further synthesis",
+)
+@click.option("--part", "-p", help="Specify the FPGA part number (ignored without --fuse)")
 @click.option(
     "--iface-compliance/--no-iface-compliance",
     default=False,
@@ -78,6 +85,7 @@ def build_main(
     sources: Tuple[Path, ...],
     design: Path,
     build_dir: Path,
+    fuse: bool,
     part: Optional[str],
     iface_compliance: bool,
     log_level: str,
@@ -85,20 +93,24 @@ def build_main(
     configure_log_level(log_level)
     config.force_interface_compliance = iface_compliance
 
-    if part is None:
-        logging.warning(
-            "You didn't specify part number. 'None' will be used "
-            "and thus your implementation may fail."
-        )
-
     config_user_repo = UserRepo()
     config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
     all_sources = config_user_repo.get_srcs_dirs_for_cores()
     all_sources.extend(sources)
 
-    # following function does make sure that build directory exists
-    # so we don't explicitly create build directory here
-    build_design_from_yaml(design, build_dir, all_sources, part)
+    desc = DesignDescription.load(design)
+    name = desc.design.name or "top"
+    ipc = desc.to_ip_connect(design.parent)
+    ipc.generate_top(name, build_dir)
+
+    if fuse:
+        if part is None:
+            logging.warning(
+                "You didn't specify the part number using the --part option. "
+                "It will remain unspecified in the generated FuseSoC .core "
+                "and your further implementation/synthesis may fail."
+            )
+        ipc.generate_fuse_core(name, build_dir, sources, part)
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")

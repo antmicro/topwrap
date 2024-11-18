@@ -34,7 +34,7 @@ parse: clean setup
 	topwrap parse --iface-deduce ${SOURCE_FILES} --dest-dir=${IPCORES_DIR}/
 
 generate: parse copy_sources
-	topwrap build --design ${DESIGN} --part ${PART} --sources ${SOURCE_DIR}
+	topwrap build --design ${DESIGN} --fuse --part ${PART} --sources ${SOURCE_DIR}
 
 # -------------------------------------
 # Bitstream generation

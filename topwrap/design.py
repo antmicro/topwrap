@@ -5,7 +5,7 @@
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import Any, ClassVar, Collection, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -115,12 +115,12 @@ class DesignDescription(MarshmallowDataclassExtensions):
 
     Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
 
-    def generate_design(self, design_dir: Path = Path(".")) -> IPConnect:
+    def to_ip_connect(self, design_dir: Path = Path(".")) -> IPConnect:
         design_dir = Path(design_dir)
         ipc = IPConnect()
 
         for hier_name, hier in self.design.hierarchies.items():
-            hier_ipc = hier.generate_design(design_dir)
+            hier_ipc = hier.to_ip_connect(design_dir)
             ipc.add_component(hier_name, hier_ipc)
 
         for ip_name, ip in self.ips.items():
@@ -156,20 +156,3 @@ class DesignDescription(MarshmallowDataclassExtensions):
                 path = Path(self.design.name + ".yaml")
 
         super().save(path, **kwargs)
-
-
-def build_design_from_yaml(
-    design_path: Path,
-    build_dir: Path,
-    sources_dir: Collection[Path] = [],
-    part: Optional[str] = None,
-):
-    design_dir = design_path.parent
-
-    desc = DesignDescription.load(design_path)
-    desc.generate_design(design_dir).build(
-        build_dir=build_dir,
-        sources_dir=sources_dir,
-        part=part,
-        top_module_name=desc.design.name or "top",
-    )

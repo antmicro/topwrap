@@ -56,7 +56,7 @@ def counter_hier_conns() -> list:
 
 @pytest.fixture
 def hier_design_ipconnect(hier_design: DesignDescription, hier_design_path: Path) -> IPConnect:
-    return hier_design.generate_design(hier_design_path)
+    return hier_design.to_ip_connect(hier_design_path)
 
 
 class TestHierarchyDesign:

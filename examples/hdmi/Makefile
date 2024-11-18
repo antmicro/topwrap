@@ -12,7 +12,7 @@ parse:
 	topwrap parse --iface-deduce sources/clock_crossing.v sources/ps7.v
 
 generate: build
-	topwrap build --design project.yaml --sources sources
+	topwrap build --design project.yaml --fuse --sources sources
 
 copy_sources: build
 	cp -rf sources/ build/

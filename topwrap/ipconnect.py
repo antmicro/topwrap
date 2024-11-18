@@ -1,7 +1,6 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from logging import info, warning
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Collection, Dict, List, Optional, Set, Tuple
 
@@ -403,12 +402,19 @@ class IPConnect(Wrapper):
                 f"Inout ports have to be explicitly listed in 'external' section. Missing ports:\n{formatted_missing}"
             )
 
-    def build(
+    def generate_top(self, top_module_name: str, build_dir: Path = Path("build")):
+        build_dir.mkdir(exist_ok=True)
+
+        with open(build_dir / f"{top_module_name}.v", "w") as f:
+            fragment = Fragment.get(self, None)
+            output = verilog.convert(fragment, name=top_module_name, ports=self.get_ports())
+            f.write(output)
+
+    def generate_fuse_core(
         self,
-        build_dir: Path = Path("build"),
-        template=None,
-        sources_dir: Collection[Path] = [],
         top_module_name: str = "project_top",
+        build_dir: Path = Path("build"),
+        sources_dir: Collection[Path] = [],
         part: Optional[str] = None,
     ) -> None:
         build_dir.mkdir(exist_ok=True)
@@ -417,12 +423,7 @@ class IPConnect(Wrapper):
         fuse = FuseSocBuilder(part)
 
         fuse.add_source(top_module_name + ".v", "verilogSource")
-        fuse.build(path.join(build_dir, "top.core"), sources_dir=sources_dir)
-        target_file = open(path.join(build_dir, top_module_name + ".v"), "w")
-
-        fragment = Fragment.get(self, None)
-        output = verilog.convert(fragment, name=top_module_name, ports=self.get_ports())
-        target_file.write(output)
+        fuse.build(top_module_name, build_dir / "top.core", sources_dir=sources_dir)
 
     def elaborate(self, platform: Platform) -> Module:
         m = Module()

@@ -1,5 +1,5 @@
 CAPI=2:
-name : ::project_1
+name : ::{{top_name}}
 description : project
 filesets:
   rtl:
@@ -15,7 +15,7 @@ targets:
     tools:
       vivado:
         part : {{part}}
-    toplevel : top
+    toplevel : {{top_name}}
 scripts:
   set_jobs:
-    cmd : [sed, -i, 's/launch_runs synth_1/launch_runs synth_1 -jobs {{jobs}}/g', project_1_0_synth.tcl]
+    cmd : [sed, -i, '"s/launch_runs synth_1/launch_runs synth_1 -jobs {{jobs}}/g"', {{top_name}}_0_synth.tcl]

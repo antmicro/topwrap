@@ -17,7 +17,7 @@ $(IPCORE_YAMLS) &: $(IPCORE_SOURCES) | ipcores
 	topwrap parse -d ipcores --iface-deduce $(IPCORE_SOURCES)
 
 build/simple_soc.v: $(IPCORE_YAMLS) project.yaml | build
-	topwrap build -b build --design project.yaml --sources sources
+	topwrap build -b build --design project.yaml --fuse --sources sources
 
 build/helloworld.bin: helloworld.asm | build
 	riscv64-unknown-elf-as -mabi=ilp32 -march=rv32i -o $@ $<

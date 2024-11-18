@@ -3,32 +3,30 @@
 
 from pathlib import Path
 
+from topwrap.design import DesignDescription
+
 
 class TestDesign:
     def test_design(self):
-        from topwrap.design import build_design_from_yaml
+        path = Path("tests/data/data_build/design.yaml")
+        design = DesignDescription.load(path)
+        ipc = design.to_ip_connect(path.parent)
 
-        build_design_from_yaml(Path("tests/data/data_build/design.yaml"), Path("build"))
+        ipc.generate_top("top")
+        ipc.generate_fuse_core()
 
     def test_clog2_build(self):
-        from topwrap.design import build_design_from_yaml
+        results = []
 
-        build_design_from_yaml(
-            Path("tests/data/data_build/clog2/clog2_design.yaml"),
-            Path("build"),
-            [Path("tests/data/data_build/clog2/")],
-        )
+        for path in Path().glob("tests/data/data_build/clog2/clog2_design*.yaml"):
+            design = DesignDescription.load(path)
+            ipc = design.to_ip_connect(path.parent)
 
-        with open("build/top.v") as e:
-            result1 = e.read()
+            ipc.generate_top("top")
+            ipc.generate_fuse_core(sources_dir=[Path("tests/data/data_build/clog2/")])
 
-        build_design_from_yaml(
-            Path("tests/data/data_build/clog2/clog2_design2.yaml"),
-            Path("build"),
-            [Path("tests/data/data_build/clog2/")],
-        )
+            with open("build/top.v") as out:
+                results.append(out.read())
 
-        with open("build/top.v") as e:
-            result2 = e.read()
-
-        assert result1 == result2
+        assert len(results) == 2
+        assert results[0] == results[1]

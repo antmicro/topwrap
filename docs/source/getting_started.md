@@ -211,13 +211,11 @@ topwrap build --design {design_name.yaml}
 ```
 
 Where the `{design_name.yaml}` is the design saved at the end of the previous section.
-The generated Verilog file can be found in the `/build` directory.
 
-There will be a warning:
+This will generate a `top.v` Verilog top wrapper in the specified build directory (`./build` by default).
 
-```
-WARNING:root:You did not specify part number. 'None' will be used and thus your implementation may fail.
-```
+### Synthesis & FuseSoC
 
-This is because the  `--part` flag was omitted since it's just a example, and is not for any specific FPGA chip.
-For building custom designs, we recommend always specifying the `--part` flag.
+You can additionally generate a [FuseSoC .core](fusesoc.md) file during `topwrap build` to automate further synthesis and implementation.
+
+For more details see [](fusesoc.md)

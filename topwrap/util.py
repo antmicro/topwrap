@@ -3,6 +3,7 @@
 
 from collections import defaultdict
 from enum import Enum
+from pathlib import Path
 from typing import Any, DefaultDict, Dict, TypeVar, Union
 
 JsonType = Dict[str, Any]
@@ -79,3 +80,21 @@ class UnreachableError(RuntimeError):
 
     def __init__(self, *args: object) -> None:
         super().__init__("Stepped into a code path marked as unreachable", *args)
+
+
+def path_relative_to(org_path: Path, rel_to: Path) -> Path:
+    """Return the `org_path` that is converted to be relative to `rel_to`.
+
+    This is a backport of `pathlib.Path.relative_to(rel_to, walk_up=True)` which
+    was added in Python 3.12
+    """
+
+    for step, path in enumerate([rel_to] + list(rel_to.parents)):
+        if path == org_path or path in org_path.parents:
+            break
+        elif path.name == "..":
+            raise ValueError(f"'..' segment in {str(rel_to)!r} cannot be walked")
+    else:
+        raise ValueError(f"{str(org_path)!r} and {str(rel_to)!r} have different anchors")
+    parts = ("..",) * step + org_path.parts[len(path.parts) :]
+    return type(org_path)(*parts)

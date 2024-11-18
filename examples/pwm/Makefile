@@ -12,7 +12,7 @@ parse:
 	topwrap parse --iface-deduce sources/litex_pwm.v sources/ps7.v
 
 generate: build
-	topwrap build --design project.yaml --sources sources --part xc7z010clg400-1
+	topwrap build --design project.yaml --fuse --sources sources --part xc7z010clg400-1
 
 copy_sources: build
 	cp -rf sources/ build/
