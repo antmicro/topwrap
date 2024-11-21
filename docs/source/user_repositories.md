@@ -1,6 +1,8 @@
 # Constructing, configuring and loading repositories
 
-By using Topwrap repositories, you can package and load multiple IP cores along with custom interfaces. You can specify the repositories to be loaded each time Topwrap runs by listing them in a configuration file. The file must be located in one of these locations:
+By using Topwrap repositories, you can package and load multiple IP cores along with custom interfaces.
+You can specify the repositories to be loaded each time Topwrap runs by listing them in a [configuration file](config.md#configuration-file-location).
+The file must be located in one of these locations:
 
 ```
 topwrap.yaml
@@ -37,12 +39,13 @@ path_to_repository/
 |───interfaces(Optional)
     |   iface1.yaml
     |   iface2.yaml
-
 ```
 
-A sample user repository can be found in [examples/user_repository](https://github.com/antmicro/topwrap/tree/main/examples/user_repository).
+Each repository has two main directories: `cores` and `interfaces`.
+Inside `cores`, each core has its own directory with a description file and the subdirectory `srcs` where Verilog/VHDL files are stored.
+The `interfaces` directory is optional, and contains [interface description files](description_files.md#interface-description-files).
 
-Each repository has two main directories: `cores` and `interfaces`. Inside `cores`, each core has its own directory with a description file and the subdirectory `srcs` where Verilog/VHDL files are stored. The `interfaces` directory is optional, and contains [](description_files.md#interface-description-files).
+A sample user repository can be found in [examples/user_repository](https://github.com/antmicro/topwrap/tree/main/examples/user_repository).
 
 ## Using the open source IP cores library with Topwrap
 

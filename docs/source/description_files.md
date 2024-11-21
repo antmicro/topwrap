@@ -321,4 +321,4 @@ During the [build process](getting_started.md#building-designs-with-topwrap), an
 - all signals designated as required in the description are included.
 - no additional signals beyond those defined in the description are included.
 
-This feature is controlled by the `--iface-compliance` CLI flag or the `force_interface_compliance` key in the [configuration file](user_repositories.md) <!-- we don't really have a proper section about the configuration yet --> and is turned off by default.
+This feature is controlled by the `--iface-compliance` CLI flag or the `force_interface_compliance` key in the [configuration file](config.md#available-config-options) and is turned off by default.

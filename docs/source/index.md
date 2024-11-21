@@ -9,6 +9,7 @@ getting_started
 advanced_options
 examples
 description_files
+config
 user_repositories
 interconnect_gen
 fusesoc
