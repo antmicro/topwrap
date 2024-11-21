@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added "IP Cores", "Externals", and "Constants" layers to the GUI which you can hide/show from the settings
 - Nox session for downloading and packaging FuseSoc libraries
 - Support Python 3.13 and dropped support for Python 3.8
+- All in one command `topwrap gui` for building, starting the KPM server and connecting the client to it.
 
 ### Changed
 

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
@@ -161,10 +162,13 @@ def _kpm_export_handler(dataflow: JsonType, yamlfiles: List[Path]) -> Tuple[str,
     return (design.to_yaml(), filename)
 
 
-async def kpm_run_client(rpc_params: RPCparams):
+async def kpm_run_client(
+    rpc_params: RPCparams, client_ready_event: Optional[threading.Event] = None
+):
     client = CommunicationBackend(rpc_params.host, rpc_params.port)
     logging.debug("Initializing RPC client")
     await client.initialize_client(RPCMethods(rpc_params, client))
-
+    if client_ready_event is not None:
+        client_ready_event.set()
     logging.debug("starting json rpc client")
     await client.start_json_rpc_client()

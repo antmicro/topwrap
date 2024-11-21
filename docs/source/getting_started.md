@@ -42,17 +42,11 @@ Topwrap will generate two files `gen_simple_core_1.yaml` and `gen_simple_core_2.
 
 Generated ip core yamls can be loaded into GUI.
 
-1. Build and run gui server
+Run the GUI client:
 ```bash
-topwrap kpm_build_server && topwrap kpm_run_server &
+topwrap gui gen_simple_core_1.yaml gen_simple_core_2.yaml
 ```
-
-2. Run gui client with the generated ip core yamls
-```bash
-topwrap kpm_client gen_simple_core_1.yaml gen_simple_core_2.yaml
-```
-
-Now when you connect to [http://127.0.0.1:5000](http://127.0.0.1:5000) there should be kpm gui.
+It should build and start server, connect the client to it and open the browser with GUI.
 
 Loaded ip cores can be found under IPcore section:
 

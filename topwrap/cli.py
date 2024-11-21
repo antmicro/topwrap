@@ -2,11 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import concurrent.futures
 import json
 import logging
+import os
 import subprocess
+import sys
+import threading
+import webbrowser
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import click
 
@@ -162,13 +167,78 @@ def parse_main(
             logging.info(f"VHDL Module '{vhdl_mod.module_name}'" f"saved in file '{yaml_path}'")
 
 
-DEFAULT_WORKSPACE_DIR = Path("build", "workspace")
-DEFAULT_BACKEND_DIR = Path("build", "backend")
-DEFAULT_FRONTEND_DIR = Path("build", "frontend")
+DEFAULT_SERVER_BASE_DIR = (
+    Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser() / "topwrap/kpm_build"
+)
+DEFAULT_WORKSPACE_DIR = DEFAULT_SERVER_BASE_DIR / "workspace"
+DEFAULT_BACKEND_DIR = DEFAULT_SERVER_BASE_DIR / "backend"
+DEFAULT_FRONTEND_DIR = DEFAULT_SERVER_BASE_DIR / "frontend"
 DEFAULT_SERVER_ADDR = "127.0.0.1"
 DEFAULT_SERVER_PORT = 9000
 DEFAULT_BACKEND_ADDR = "127.0.0.1"
 DEFAULT_BACKEND_PORT = 5000
+
+
+class KPM:
+    @staticmethod
+    def build_server(**params_dict: Any):
+        args = ["pipeline_manager", "build", "server-app"]
+        for k, v in params_dict.items():
+            Path(v).mkdir(exist_ok=True, parents=True)
+            args += [f"--{k}".replace("_", "-"), f"{v}"]
+        subprocess.check_call(args)
+
+    @staticmethod
+    def run_server(
+        server_ready_event: Optional[threading.Event] = None,
+        server_init_failed: Optional[threading.Event] = None,
+        show_kpm_logs: bool = True,
+        **params_dict: Any,
+    ):
+        args = ["pipeline_manager", "run"]
+        for k, v in params_dict.items():
+            args += [f"--{k}".replace("_", "-"), f"{v}"]
+
+        server_process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        server_ready_string = "Uvicorn running on"
+        while server_process.poll() is None and server_process.stdout is not None:
+            server_logs = server_process.stdout.readline().decode("utf-8")
+            if server_ready_event is not None and server_ready_string in server_logs:
+                server_ready_event.set()
+            if show_kpm_logs:
+                sys.stdout.write(server_logs)
+        else:
+            logging.warning("KPM server has been terminated")
+            if server_ready_event is not None and not server_ready_event.isSet():
+                if server_init_failed is not None:
+                    server_init_failed.set()
+                # Remove the server ready event block
+                server_ready_event.set()
+                logging.warning(
+                    "Make sure that there isn't any instance of pipeline manager running in the background"
+                )
+
+    @staticmethod
+    def run_client(
+        host: str,
+        port: int,
+        log_level: str,
+        design: Optional[Path],
+        yamlfiles: Tuple[Path, ...],
+        build_dir: Path,
+        client_ready_event: Optional[threading.Event] = None,
+    ):
+        configure_log_level(log_level)
+        logging.info("Starting kenning pipeline manager client")
+        config_user_repo = UserRepo()
+        config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
+        extended_yamlfiles = config_user_repo.get_core_designs()
+        extended_yamlfiles += yamlfiles
+        asyncio.run(
+            kpm_run_client(
+                RPCparams(host, port, extended_yamlfiles, build_dir, design), client_ready_event
+            )
+        )
 
 
 @main.command("kpm_client", help="Run a client app, that connects to a running KPM server")
@@ -197,18 +267,7 @@ def kpm_client_main(
     yamlfiles: Tuple[Path, ...],
     build_dir: Path,
 ):
-    configure_log_level(log_level)
-
-    logging.info("Starting kenning pipeline manager client")
-    config_user_repo = UserRepo()
-    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
-    extended_yamlfiles = config_user_repo.get_core_designs()
-    extended_yamlfiles += yamlfiles
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        kpm_run_client(RPCparams(host, port, extended_yamlfiles, build_dir, design))
-    )
+    KPM.run_client(host, port, log_level, design, yamlfiles, build_dir)
 
 
 @main.command("kpm_build_server", help="Build KPM server")
@@ -225,13 +284,8 @@ def kpm_client_main(
     help="Directory where the built frontend should be stored",
 )
 @click.pass_context
-def kpm_build_server(ctx: click.Context, workspace_directory: Path, output_directory: Path):
-    workspace_directory.mkdir(exist_ok=True, parents=True)
-    output_directory.mkdir(exist_ok=True, parents=True)
-    args = ["pipeline_manager", "build", "server-app"]
-    for k, v in ctx.params.items():
-        args += [f"--{k}".replace("_", "-"), f"{v}"]
-    subprocess.check_call(args)
+def kpm_build_server_ctx(ctx: click.Context, **_):
+    KPM.build_server(**ctx.params)
 
 
 @main.command("kpm_run_server", help="Run a KPM server")
@@ -259,12 +313,108 @@ def kpm_build_server(ctx: click.Context, workspace_directory: Path, output_direc
     default=DEFAULT_BACKEND_PORT,
     help="The port of the backend of Pipeline Manager",
 )
+@click.option("--verbosity", default="INFO", help="Verbosity level for KPM server logs")
 @click.pass_context
-def kpm_run_server(ctx: click.Context, **_):
-    args = ["pipeline_manager", "run"]
-    for k, v in ctx.params.items():
-        args += [f"--{k}".replace("_", "-"), f"{v}"]
-    subprocess.check_call(args)
+def kpm_run_server_ctx(ctx: click.Context, **_):
+    KPM.run_server(**ctx.params)
+
+
+@main.command("gui", help="Start GUI")
+@click.option(
+    "--server-host",
+    default=DEFAULT_SERVER_ADDR,
+    help="The address of the Pipeline Manager TCP Server",
+)
+@click.option(
+    "--server-port", default=DEFAULT_SERVER_PORT, help="The port of the Pipeline Manager TCP Server"
+)
+@click.option(
+    "--backend-host",
+    default=DEFAULT_BACKEND_ADDR,
+    help="The address of the backend of Pipeline Manager",
+)
+@click.option(
+    "--backend-port",
+    default=DEFAULT_BACKEND_PORT,
+    help="The port of the backend of Pipeline Manager",
+)
+@click.option(
+    "--design",
+    "-d",
+    type=click_r_file,
+    help="Specify design file to load initially",
+)
+@click.option(
+    "--frontend-directory",
+    type=click_opt_rw_dir,
+    default=DEFAULT_FRONTEND_DIR,
+    help="Location of the built frontend",
+)
+@click.option(
+    "--workspace-directory",
+    type=click_opt_rw_dir,
+    default=DEFAULT_WORKSPACE_DIR,
+    help="Directory where the frontend sources should be stored",
+)
+@click.option("--log-level", default="INFO", help="Log level")
+@click.argument("yamlfiles", type=click_r_file, nargs=-1)
+def topwrap_gui(
+    design: Optional[Path],
+    log_level: str,
+    yamlfiles: Tuple[Path, ...],
+    frontend_directory: Path,
+    workspace_directory: Path,
+    server_host: str,
+    server_port: int,
+    backend_host: str,
+    backend_port: int,
+):
+    configure_log_level(log_level)
+    logging.info("Checking if server is built")
+    if not frontend_directory.exists() or not workspace_directory.exists():
+        logging.info("Server build is incomplete, building now")
+        KPM.build_server(
+            workspace_directory=workspace_directory, output_directory=frontend_directory
+        )
+    else:
+        logging.info("Server build found")
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        logging.info("Starting server")
+        server_ready_event = threading.Event()
+        server_init_failed = threading.Event()
+
+        executor.submit(
+            KPM.run_server,
+            server_ready_event=server_ready_event,
+            show_kpm_logs=False,
+            server_init_failed=server_init_failed,
+            server_host=server_host,
+            server_port=server_port,
+            backend_host=backend_host,
+            backend_port=backend_port,
+            frontend_directory=frontend_directory,
+        )
+        logging.info("Waiting for KPM server to initialize")
+        server_ready_event.wait()
+        if server_init_failed.isSet():
+            logging.error("KPM server failed to initialize. Aborting")
+            return
+        logging.info("KPM server initialized")
+        client_ready_event = threading.Event()
+        executor.submit(
+            KPM.run_client,
+            design=design,
+            yamlfiles=yamlfiles,
+            host=server_host,
+            port=server_port,
+            log_level=log_level,
+            build_dir=Path("build"),
+            client_ready_event=client_ready_event,
+        )
+        client_ready_event.wait()
+        logging.info("Opening browser with KPM GUI")
+        webbrowser.open(f"{backend_host}:{backend_port}")
 
 
 @main.command("specification", help="Generate KPM specification from IP core YAMLs")
