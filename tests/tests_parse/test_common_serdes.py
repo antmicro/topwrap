@@ -1,20 +1,32 @@
 from dataclasses import fields
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import Any, Dict, List, Tuple, Union
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import marshmallow_dataclass
 import pytest
+from marshmallow import ValidationError
 
 from topwrap.common_serdes import (
     AnnotatedFlatTree,
     FlatTree,
     MarshmallowDataclassExtensions,
     NestedDict,
+    ResourcePathT,
     annotate_flat_tree,
     ext_field,
     flatten_tree,
     unflatten_annotated_tree,
+)
+from topwrap.config import config
+from topwrap.repo.files import IncorrectUrlException
+from topwrap.resource_field import (
+    FileHandler,
+    InvalidArgumentException,
+    InvalidIdentifierException,
+    RepoHandler,
+    UriHandler,
+    YamlCommonSchemes,
 )
 
 
@@ -414,3 +426,73 @@ each_elem:
 this: [a, b, c]
 """
         )
+
+    @pytest.fixture
+    def repo_in_cfg(self):
+        """Temporarily add 'my_repo' repo to the config repos"""
+        with TemporaryDirectory() as td:
+            with open(Path(td) / "test.txt", "w") as f:
+                f.write("h")
+
+            org = config.repositories
+            config.repositories = org.copy()
+            config.repositories["my_repo"] = FileHandler(td)
+            yield
+            config.repositories = org
+
+    def test_resource_path_field(self, repo_in_cfg: Any):
+        """Tests the `ResourcePathT` field to see if the different schemes are resolved and saved correctly"""
+
+        @marshmallow_dataclass.dataclass
+        class TestDataclass(MarshmallowDataclassExtensions):
+            files: list[ResourcePathT]
+
+        data = TestDataclass.load(Path("tests/data/data_parse/test_relative_paths.yaml"))
+        for res in data.files:
+            res.to_path().exists()
+
+        # Save the dataclass to a tempfile in a completely different path
+        # and load it again to verify if the paths got converted correctly
+        with NamedTemporaryFile() as f:
+            data.save(Path(f.name))
+            data = TestDataclass.load(Path(f.name))
+            for res in data.files:
+                assert res.to_path().exists()
+
+        def test_err(uri: str, err: Type[Exception] = ValidationError, match: Optional[str] = None):
+            with pytest.raises(err, match=match):
+                TestDataclass.from_dict({"files": [uri]}).files[0].to_path().open()
+
+        test_err("i/do/not/exist.yaml", InvalidIdentifierException, "match regex")
+        test_err("dile:./file.txt", InvalidIdentifierException, "scheme: 'dile'")
+        test_err("file:i/do/not/exist.yaml", FileNotFoundError)
+        test_err("get:", IncorrectUrlException)
+        test_err("get:foo", IncorrectUrlException)
+        test_err("repo:cores/axi.txt", ValueError, "not enough values")
+        test_err("repo[fake_repo]:cores/core.yaml", ValueError, "Could not find repo")
+
+        # Test serialization
+        assert FileHandler("path/to/file").to_str() == "file:path/to/file"
+        assert UriHandler("https://google.com").to_str() == "get:https://google.com"
+        assert RepoHandler("cores/core", ["my_repo"]).to_str() == "repo[my_repo]:cores/core"
+
+        with pytest.raises(InvalidArgumentException):
+            RepoHandler("cores/core", ["bad|args"]).to_str()
+
+        data = TestDataclass(
+            [
+                FileHandler("./topwrap/resource_field.py"),
+                UriHandler(
+                    "https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/pyproject.toml"
+                ),
+                RepoHandler("test.txt", ["my_repo"]),
+                YamlCommonSchemes.parse("repo[my_repo]:test.txt"),
+                YamlCommonSchemes.parse("file:./topwrap/resource_field.py"),
+            ]
+        )
+
+        with NamedTemporaryFile() as f:
+            data.save(Path(f.name))
+            data = TestDataclass.load(Path(f.name))
+            for res in data.files:
+                assert res.to_path().exists()

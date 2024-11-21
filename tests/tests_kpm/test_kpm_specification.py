@@ -3,6 +3,7 @@
 
 from pathlib import Path
 
+import jsonschema.validators
 import pytest
 from importlib_resources import _common
 from jsonschema import Draft201909Validator
@@ -52,7 +53,21 @@ def schemas_registry(schemas_names) -> Registry:
     )
 
 
-def test_pwm_specification_generation(specification_schema, pwm_ipcores_yamls, schemas_registry):
+# Whenever the JSON schema expects an array, only the
+# Python `list` type is allowed in the validated object.
+# This typechecker redefinition makes the `tuple` type also
+# a valid representation of a JSON array.
+# This is required because KPM specification builder outputs
+# tuples instead of lists for some fields (e.g. `nodes`)
+Validator = jsonschema.validators.extend(
+    Draft201909Validator,
+    type_checker=Draft201909Validator.TYPE_CHECKER.redefine(
+        "array", lambda _, inst: isinstance(inst, (list, tuple))
+    ),
+)
+
+
+def test_pwm_specification_generation(specification_schema, pwm_design, schemas_registry):
     """Validate generated specification for PWM design."""
     pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
     assert len(pwm_specification["nodes"]) == PWM_ALL_UNIQUE_NODES

@@ -15,10 +15,10 @@ You can see example design files in the `examples` directory. The structure of t
 
 ```yaml
 ips:
-  # specify relations between IP instance names in the
+  # specify relations between IPs instance names in the
   # design yaml and IP cores description YAMLs
-  {ip_instance_name}:
-    file: {path_to_ip_description}
+  {ip1_instance_name}:
+    file: {resource_path} # see "Resource path syntax" section for more information
   ...
 
 design:
@@ -325,3 +325,68 @@ During the [build process](getting_started.md#building-designs-with-topwrap), an
 - no additional signals beyond those defined in the description are included.
 
 This feature is controlled by the `--iface-compliance` CLI flag or the `force_interface_compliance` key in the [configuration file](config.md#available-config-options) and is turned off by default.
+
+
+## Resource path syntax
+
+Fields specified in the YAML file as a "resource path" support extended functionality and have their own specific syntax.
+
+This field type is used for example in the [Design Description](#design-description) for specifying an IP Core description location:
+
+```yaml
+ips:
+  ip_inst_name:
+    file: {resource path}
+...
+```
+
+The syntax is as follows:
+
+```
+SCHEME[ARG1|ARG2...]:SCHEME_PATH
+```
+
+- `SCHEME` is the scheme of this path (e.g. `get` for remote resources)
+- `ARGS` are `|`-separated positional arguments for the specific scheme (e.g. the user repo name for the `repo` scheme)
+  - If there are no arguments to supply you can omit the square brackets entirely
+- `SCHEME_PATH` is the path to the resource interpreted by the specific scheme (e.g. the URL for the `get` scheme)
+
+### Available schemes
+
+- `file`
+  - `SCHEME_ARGS`: None
+  - `SCHEME_PATH`: A filesystem path relative from the currently edited YAML file to the resource
+- `repo`
+  - `SCHEME_ARGS`: Repository name
+  - `SCHEME_PATH`: A path from the root of the user repository given by the name
+- `get`
+  - `SCHEME_ARGS`: None
+  - `SCHEME_PATH`: The URL address of the remote resource. Only `http(s)://` URLs are currently supported.
+
+### Examples
+
+
+```
+file:./my_directory/file.txt
+```
+
+A path to the file on the filesystem.
+
+```
+repo[builtin]:cores/axi_protocol_converter/core.yaml
+```
+
+This loads the `axi_protocol_converter` core located in the builtin user repository.
+
+```
+repo[my_repo]:res.txt
+```
+
+This loads the `res.txt` file inside the `my_repo` loaded user repository.
+
+```
+get:https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/pyproject.toml
+```
+
+This loads the remote resource.
+When necessary, it's automatically downloaded into a temporary directory.

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+from functools import cached_property
 import os
 from pathlib import Path
 from typing import List, Optional
@@ -38,6 +39,12 @@ class RepositoryEntry:
     name: str
     path: str
 
+    @cached_property
+    def repo(self) -> UserRepo:
+        repo = UserRepo()
+        repo.load(Path(self.path))
+        return repo
+
 
 @marshmallow_dataclass.dataclass
 class Config(MarshmallowDataclassExtensions):
@@ -70,15 +77,15 @@ class Config(MarshmallowDataclassExtensions):
             repositories_paths.append(Path(repository.path).expanduser())
         return repositories_paths
 
-    def get_interface_paths(self) -> List[Path]:
-        interfaces_paths: List[Path] = list()
+    def get_repo_path_by_name(self, name: str) -> Optional[Path]:
         if self.repositories is None:
-            return interfaces_paths
-        for repository in self.repositories:
-            interface_path = UserRepo.get_interfaces_directory(Path(repository.path).expanduser())
-            if interface_path is not None:
-                interfaces_paths.append(interface_path)
-        return interfaces_paths
+            return None
+        for repo in self.repositories:
+            if repo.name == name:
+                return Path(repo.path)
+
+    def get_builtin_repo(self) -> RepositoryEntry:
+        return next(r for r in self.repositories if r.name == ConfigManager.BUILTIN_REPO_NAME)
 
 
 class ConfigManager:

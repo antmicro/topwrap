@@ -69,7 +69,7 @@ def tests(session: nox.Session) -> None:
 
 @nox.session
 def update_test_data(session: nox.Session) -> None:
-    session.install("-e", ".[tests]")
+    session.install("-e", ".[tests,parse]")
     tests_to_update = (
         ["dataflow", "specification", "design"] if not session.posargs else session.posargs
     )

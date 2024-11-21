@@ -18,6 +18,7 @@ from typing import (
     List,
     Mapping,
     Optional,
+    Pattern,
     Sequence,
     Type,
     TypeVar,
@@ -26,10 +27,14 @@ from typing import (
 )
 
 import marshmallow
-import marshmallow_dataclass
 import yaml
-from typing_extensions import Self
+from typing_extensions import Annotated, Self
 
+from topwrap.resource_field import (
+    PathContext,
+    ResourceReferenceHandler,
+    YamlCommonSchemes,
+)
 from topwrap.util import MISSING, MaybeMissing
 
 
@@ -39,17 +44,43 @@ class RegexpField(marshmallow.fields.Field):
     Checks for regex validity on deserialization.
     """
 
-    def _serialize(self, value, attr, obj, **kwargs):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs: Any):
         return value.pattern
 
-    def _deserialize(self, value, attr, data, **kwargs):
+    def _deserialize(
+        self, value: Any, attr: Optional[str], data: Optional[Mapping[str, Any]], **kwargs: Any
+    ):
         try:
             return re.compile(value)
         except Exception as e:
             raise marshmallow.ValidationError(f"Regexp {value} is invalid: {str(e)}")
 
 
-RegexpT = marshmallow_dataclass.NewType("RegexpT", re.Pattern, field=RegexpField)
+class ResourcePathField(marshmallow.fields.Field):
+    """
+    Marshmallow field supporting resource reference
+    strings as defined in `resource_field.py` using
+    the `YamlCommonSchemes` supported schemes group
+    """
+
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs: Any):
+        if not isinstance(value, ResourceReferenceHandler):
+            raise marshmallow.ValidationError(f"Invalid type: '{type(value)}'")
+        value.update_meta(self.context)
+        return value.to_str()
+
+    def _deserialize(
+        self, value: Any, attr: Optional[str], data: Optional[Mapping[str, Any]], **kwargs: Any
+    ):
+        if not isinstance(value, str):
+            raise marshmallow.ValidationError(f"Invalid type: '{type(value)}'")
+        ident = YamlCommonSchemes.parse(value)
+        ident.update_meta(self.context)
+        return ident
+
+
+RegexpT = Annotated[Pattern[str], RegexpField]
+ResourcePathT = Annotated[ResourceReferenceHandler, ResourcePathField]
 
 
 T = TypeVar("T")
@@ -463,9 +494,13 @@ class MarshmallowDataclassExtensions:
 
     def save(self, path: Path, **kwargs: Any):
         with open(path, "w") as f:
-            f.write(self.to_yaml(**kwargs))
+            sch = self.Schema()
+            sch.context[PathContext.CONTEXT_SAVE.value] = path
+            f.write(yaml.safe_dump(sch.dump(self), sort_keys=True, **kwargs))
 
     @classmethod
     def load(cls, path: Path, **kwargs: Any) -> Self:
         with open(path) as f:
-            return cls.from_dict(yaml.safe_load(f, **kwargs))
+            sch = cls.Schema()
+            sch.context[PathContext.CONTEXT_LOAD.value] = path
+            return cast(Self, sch.load(yaml.safe_load(f, **kwargs)))

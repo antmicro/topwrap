@@ -1,0 +1,7 @@
+files:
+  - file:./axi_axil_adapter.yaml
+  - file:axi_axil_adapter.yaml
+  - file[]:./axi_axil_adapter.yaml
+  - file[]:axi_axil_adapter.yaml
+  - get:https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/pyproject.toml
+  - repo[my_repo]:test.txt

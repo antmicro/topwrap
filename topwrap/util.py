@@ -1,11 +1,16 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import json
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Any, DefaultDict, Dict, TypeVar, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, Dict, TypeVar, Union
+
+if TYPE_CHECKING:
+    from topwrap.config import Config
 
 JsonType = Dict[str, Any]
 
@@ -96,10 +101,11 @@ def save_file_to_json(file_path: Path, file_name: str, file_content: JsonType):
 
 
 def path_relative_to(org_path: Path, rel_to: Path) -> Path:
-    """Return the `org_path` that is converted to be relative to `rel_to`.
+    """Return `org_path` converted to be relative to `rel_to`.
 
     This is a backport of `pathlib.Path.relative_to(rel_to, walk_up=True)` which
-    was added in Python 3.12
+    was added in Python 3.12:
+    https://github.com/python/cpython/blob/3.12/Lib/pathlib.py#L663
     """
 
     for step, path in enumerate([rel_to] + list(rel_to.parents)):
@@ -111,3 +117,14 @@ def path_relative_to(org_path: Path, rel_to: Path) -> Path:
         raise ValueError(f"{str(org_path)!r} and {str(rel_to)!r} have different anchors")
     parts = ("..",) * step + org_path.parts[len(path.parts) :]
     return type(org_path)(*parts)
+
+
+def get_config() -> Config:
+    """Accessor for the global configuration instance. Useful
+    for situations where plainly importing `topwrap.config.config`
+    would result in a dependency cycle.
+    """
+
+    from topwrap.config import config
+
+    return config

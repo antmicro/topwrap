@@ -101,9 +101,9 @@ First, include all the IP core files needed in the `ips` section.
 ```yaml
 ips:
   simple_core_1:
-    file: simple_core_1.yaml
+    file: file:simple_core_1.yaml
   simple_core_2:
-    file: simple_core_2.yaml
+    file: file:simple_core_2.yaml
 ```
 
 Here, the name of the node is declared, and the IP core `simple_core_1.yaml` is named `simple_core_1` in the GUI.
@@ -156,9 +156,9 @@ The final design:
 ```yaml
 ips:
   simple_core_1:
-    file: simple_core_1.yaml
+    file: file:simple_core_1.yaml
   simple_core_2:
-    file: simple_core_2.yaml
+    file: file:simple_core_2.yaml
 design:
   ports:
     simple_core_1:
