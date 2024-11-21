@@ -3,13 +3,13 @@
 
 ips:
   soc:
-    file: ipcores/soc.yaml
+    file: file:ipcores/soc.yaml
   wb_ram_data:
-    file: ipcores/litex_mem.yaml
+    file: file:ipcores/litex_mem.yaml
   wb_ram_instr:
-    file: ipcores/litex_mem.yaml
+    file: file:ipcores/litex_mem.yaml
   crg:
-    file: ipcores/crg.yaml
+    file: file:ipcores/crg.yaml
 
 design:
   name: top

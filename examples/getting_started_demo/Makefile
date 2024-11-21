@@ -12,7 +12,7 @@ SOURCE_FILES := \
 all: $(JSONS)
 
 $(JSONS): parse
-	topwrap specification ${IPCORES_DIR}/*.yaml
+	topwrap specification -d project.yaml
 	topwrap dataflow -d project.yaml ${IPCORES_DIR}/*.yaml
 
 parse: clean setup

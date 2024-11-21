@@ -9,11 +9,11 @@ external:
 
 ips:
   2mux:
-    file: ips/2mux.yaml
+    file: file:ips/2mux.yaml
   gen1:
-    file: ips/lfsr_gen.yaml
+    file: file:ips/lfsr_gen.yaml
   gen2:
-    file: ips/lfsr_gen.yaml
+    file: file:ips/lfsr_gen.yaml
 
 design:
   parameters:

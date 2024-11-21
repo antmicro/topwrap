@@ -3,17 +3,17 @@
 
 ips:
   vexriscv:
-    file: ipcores/VexRiscv.yaml
+    file: file:ipcores/VexRiscv.yaml
   wb_ram_data:
-    file: ipcores/mem.yaml
+    file: file:ipcores/mem.yaml
   wb_ram_instr:
-    file: ipcores/mem.yaml
+    file: file:ipcores/mem.yaml
   crg:
-    file: ipcores/crg.yaml
+    file: file:ipcores/crg.yaml
   wb_uart:
-    file: ipcores/wb_uart.yaml
+    file: file:ipcores/wb_uart.yaml
   interconnect:
-    file: ipcores/wb_interconnect.yaml
+    file: file:ipcores/wb_interconnect.yaml
 
 design:
   name: simple_soc

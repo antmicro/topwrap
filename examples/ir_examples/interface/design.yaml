@@ -21,6 +21,6 @@ external:
 
 ips:
   streamer:
-    file: ips/streamer.yaml
+    file: file:ips/streamer.yaml
   receiver:
-    file: ips/receiver.yaml
+    file: file:ips/receiver.yaml

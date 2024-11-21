@@ -41,7 +41,7 @@ deps:
 ci: deps generate
 
 $(JSONS):
-	topwrap specification ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
-	topwrap dataflow -d project.yaml ipcores/*.yaml ../../topwrap/ips/axi/*.yaml
+	topwrap specification -d project.yaml
+	topwrap dataflow -d project.yaml
 
 .PHONY: clean copy_sources fusesoc_init generate copy_sources snickerdoodle zvb deps ci all

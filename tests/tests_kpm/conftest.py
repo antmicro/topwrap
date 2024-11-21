@@ -3,83 +3,12 @@
 
 from base64 import b64encode
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 import pytest
 
 from topwrap.design import DesignDescription
 from topwrap.util import JsonType, read_json_file
-
-
-def pwm_ipcores_yamls_data() -> List[Path]:
-    _pwm_yamls_prefix = Path("examples/pwm/ipcores/")
-    return [
-        Path("topwrap/ips/axi/axi_axil_adapter.yaml"),
-        _pwm_yamls_prefix / "ps7.yaml",
-        _pwm_yamls_prefix / "litex_pwm.yaml",
-    ]
-
-
-@pytest.fixture
-def pwm_ipcores_yamls() -> List[Path]:
-    return pwm_ipcores_yamls_data()
-
-
-def hdmi_ipcores_yamls_data() -> List[Path]:
-    _hdmi_yamls_prefix = Path("examples/hdmi/ipcores/")
-    _axi_yamls_prefix = Path("topwrap/ips/axi/")
-    return [
-        _hdmi_yamls_prefix / "axi_dispctrl.yaml",
-        _hdmi_yamls_prefix / "clock_crossing.yaml",
-        _hdmi_yamls_prefix / "dma_axi_in_axis_out.yaml",
-        _hdmi_yamls_prefix / "hdmi_tx.yaml",
-        _hdmi_yamls_prefix / "litex_mmcm.yaml",
-        _hdmi_yamls_prefix / "proc_sys_reset.yaml",
-        _hdmi_yamls_prefix / "ps7.yaml",
-        _axi_yamls_prefix / "axi_axil_adapter.yaml",
-        _axi_yamls_prefix / "axi_interconnect.yaml",
-        _axi_yamls_prefix / "axi_protocol_converter.yaml",
-        _axi_yamls_prefix / "axis_dwidth_converter.yaml",
-        _axi_yamls_prefix / "axis_async_fifo.yaml",
-    ]
-
-
-@pytest.fixture
-def hdmi_ipcores_yamls() -> List[Path]:
-    return hdmi_ipcores_yamls_data()
-
-
-def hierarchy_ipcores_yamls_data() -> List[Path]:
-    _hierarchy_yamls_prefix = Path("examples/hierarchy/repo/cores/")
-    return [
-        _hierarchy_yamls_prefix / "c_mod_1/c_mod_1.yaml",
-        _hierarchy_yamls_prefix / "c_mod_2/c_mod_2.yaml",
-        _hierarchy_yamls_prefix / "c_mod_3/c_mod_3.yaml",
-        _hierarchy_yamls_prefix / "s1_mod_1/s1_mod_1.yaml",
-        _hierarchy_yamls_prefix / "s1_mod_2/s1_mod_2.yaml",
-        _hierarchy_yamls_prefix / "s1_mod_3/s1_mod_3.yaml",
-        _hierarchy_yamls_prefix / "s2_mod_1/s2_mod_1.yaml",
-        _hierarchy_yamls_prefix / "s2_mod_2/s2_mod_2.yaml",
-    ]
-
-
-@pytest.fixture
-def hierarchy_ipcores_yamls() -> List[Path]:
-    return hierarchy_ipcores_yamls_data()
-
-
-def all_yaml_files_data() -> Dict[str, List[Path]]:
-    return {
-        "pwm": pwm_ipcores_yamls_data(),
-        "hdmi": hdmi_ipcores_yamls_data(),
-        "hierarchy": hierarchy_ipcores_yamls_data(),
-        "complex": hierarchy_ipcores_yamls_data(),
-    }
-
-
-@pytest.fixture
-def all_yaml_files() -> Dict[str, List[Path]]:
-    return all_yaml_files_data()
 
 
 def test_dirs_data() -> Dict[str, Path]:
@@ -113,12 +42,20 @@ def all_dataflow_files(test_dirs: Dict[str, Path]) -> Dict[str, JsonType]:
     }
 
 
+def all_designs_data() -> Dict[str, DesignDescription]:
+    data = {}
+    for ip_name, dir in test_dirs_data().items():
+        if dir.parts[-2] == "examples":
+            data[ip_name] = DesignDescription.load(Path("examples") / ip_name / "project.yaml")
+        else:
+            data[ip_name] = DesignDescription.load(dir / f"project_{ip_name}.yaml")
+
+    return data
+
+
 @pytest.fixture
-def all_designs(test_dirs: Dict[str, Path]) -> Dict[str, DesignDescription]:
-    return {
-        ip_name: DesignDescription.load(dir / f"project_{ip_name}.yaml")
-        for ip_name, dir in test_dirs.items()
-    }
+def all_designs() -> Dict[str, DesignDescription]:
+    return all_designs_data()
 
 
 @pytest.fixture

@@ -9,13 +9,13 @@ external:
 
 ips:
   cpu:
-    file: ips/cpu.yaml
+    file: file:ips/cpu.yaml
   wb_pass:
-    file: ips/wb_passthrough.yaml
+    file: file:ips/wb_passthrough.yaml
   mem:
-    file: ips/mem.yaml
+    file: file:ips/mem.yaml
   dsp:
-    file: ips/dsp.yaml
+    file: file:ips/dsp.yaml
 
 design:
   ports:

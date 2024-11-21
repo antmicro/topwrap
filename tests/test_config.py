@@ -3,35 +3,33 @@
 
 import logging
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import pytest
 import yaml
 
-from topwrap.config import Config, ConfigManager, RepositoryEntry
+from topwrap.config import Config, ConfigManager
+from topwrap.resource_field import FileHandler, UriHandler
 
 
 class TestConfigManager:
     @pytest.fixture
     def config_dict(self):
-        return Config.Schema().dump(
-            Config(
-                force_interface_compliance=True,
-                repositories=[
-                    RepositoryEntry("My topwrap repo", "~/custom/repo/path"),
-                ],
-            )
-        )
+        return Config(
+            force_interface_compliance=True,
+            repositories={"my_repo": FileHandler("~/custom/repo/path")},
+        ).to_dict()
 
     @pytest.fixture
     def custom_config_dicts(self):
         return [
             (
-                "custom/path/cfg.yaml",
-                Config.Schema().dump(Config(repositories=[RepositoryEntry("repo1", "path1")])),
+                Path("custom/path/cfg.yaml"),
+                Config(repositories={"repo1": FileHandler("path1")}).to_dict(),
             ),
             (
-                "/global/path/mycfg.yaml",
-                Config.Schema().dump(Config(repositories=[RepositoryEntry("repo2", "path2")])),
+                Path("/global/path/mycfg.yaml"),
+                Config(repositories={"repo2": FileHandler("path2")}).to_dict(),
             ),
         ]
 
@@ -61,74 +59,58 @@ class TestConfigManager:
                 return True
         return False
 
-    def test_adding_repo_duplicates(self, fs, config_dict, caplog):
-        (repo_dict,) = config_dict["repositories"]
-
-        manager = ConfigManager()
-        for path in manager.search_paths:
-            config_str = yaml.dump(config_dict)
-            fs.create_file(path, contents=config_str)
-
-        config = manager.load()
-        assert len(config.repositories) == 1
-        assert not self.contains_warnings_in_log(caplog)
-
-    def test_loading_order(self, fs, config_dict, caplog):
-        (repo_dict,) = config_dict["repositories"]
-
-        manager = ConfigManager()
-        for i, path in enumerate(manager.search_paths):
-            repo_dict["name"] = str(i)
-            repo_dict["path"] = str(path)
-            config_str = yaml.dump(config_dict)
-            fs.create_file(path, contents=config_str)
-
-        config = manager.load()
-        assert config.repositories == [
-            RepositoryEntry(name=str(i), path=str(manager.search_paths[i]))
-            for i in reversed(range(len(manager.search_paths)))
+    def test_adding_repo_duplicates_and_order(self):
+        configs = [
+            Config(repositories={"my_repo": FileHandler("./foo")}),
+            Config(
+                repositories={
+                    "my_repo": FileHandler("./bar"),
+                    "zwei_repo": UriHandler("https://antmicro.com"),
+                }
+            ),
+            Config(repositories={"my_repo": FileHandler("./baz")}),
         ]
-        assert not self.contains_warnings_in_log(caplog)
 
-    def test_custom_search_patchs(self, fs, custom_config_dicts, caplog):
-        for path, config_dict in custom_config_dicts:
+        files = []
+
+        for conf in configs:
+            f = NamedTemporaryFile()
+            conf.save(Path(f.name))
+            files.append(f)
+
+        manager = ConfigManager([Path(f.name) for f in files])
+        conf = manager.load()
+
+        assert len(conf.repositories) == 2
+        assert conf.repositories["my_repo"].to_str().endswith("foo")
+
+    def test_config_override(self, config_dict, caplog):
+        with NamedTemporaryFile(mode="w+") as tmp:
             config_str = yaml.dump(config_dict)
-            fs.create_file(path, contents=config_str)
+            tmp.write(config_str)
+            tmp.flush()
 
-        paths, config_dicts = zip(*custom_config_dicts)
-        config = ConfigManager(paths).load()
-        assert len(config.repositories) == len(config_dicts)
-        assert not self.contains_warnings_in_log(caplog)
+            manager = ConfigManager([Path(tmp.name)])
+            config = manager.load()
+            assert config.force_interface_compliance is True
+            assert config.repositories["my_repo"].value == "~/custom/repo/path"
 
-    def test_config_override(self, fs, config_dict, caplog):
-        config_path = Path(ConfigManager.DEFAULT_SEARCH_PATHS[0]).expanduser()
-        config_str = yaml.dump(config_dict)
-        fs.create_file(config_path, contents=config_str)
+            override_config = Config(
+                force_interface_compliance=False,
+                repositories={},
+            )
 
-        manager = ConfigManager()
+            config2 = manager.load(override_config)
+            assert config2.force_interface_compliance is False
+            assert config.repositories["my_repo"].value == "~/custom/repo/path"
+            assert not self.contains_warnings_in_log(caplog)
 
-        (repo_dict,) = config_dict["repositories"]
-
-        config = manager.load()
-        assert config.force_interface_compliance is True
-        assert config.repositories == [RepositoryEntry(repo_dict["name"], repo_dict["path"])]
-
-        override_config = Config(
-            force_interface_compliance=False,
-            repositories=None,
-        )
-
-        config2 = manager.load(override_config)
-        assert config2.force_interface_compliance is False
-        assert config2.repositories == [RepositoryEntry(repo_dict["name"], repo_dict["path"])]
-        assert not self.contains_warnings_in_log(caplog)
-
-    def test_loading_incorrect_configs(self, fs, incorrect_config_dicts, caplog):
-        config_path = Path(ConfigManager.DEFAULT_SEARCH_PATHS[0]).expanduser()
-        for incorrect_config in incorrect_config_dicts:
-            manager = ConfigManager()
-            config_str = yaml.dump(incorrect_config)
-            fs.create_file(config_path, contents=config_str)
-            manager.load()
-            assert self.contains_warnings_in_log(caplog)
-            config_path.unlink()
+    def test_loading_incorrect_configs(self, incorrect_config_dicts, caplog):
+        with NamedTemporaryFile(mode="w+") as config_path:
+            for incorrect_config in incorrect_config_dicts:
+                manager = ConfigManager([Path(config_path.name)])
+                config_str = yaml.dump(incorrect_config)
+                config_path.write(config_str)
+                config_path.flush()
+                manager.load()
+                assert self.contains_warnings_in_log(caplog)

@@ -20,8 +20,8 @@ generate: copy_sources
 	topwrap build --design ${DESIGN} --sources ${SOURCE_DIR}
 
 $(JSONS):
-	topwrap specification ipcores/*
-	topwrap dataflow -d project.yaml ipcores/*
+	topwrap specification -d project.yaml
+	topwrap dataflow -d project.yaml
 
 # -------------------------------------
 # Utilities

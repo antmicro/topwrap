@@ -45,18 +45,16 @@ The configuration file for Topwrap provides the following options:
 
 - `repositories`
 
-  - Type: List of objects
+  - Type: Dictionary of `name: path`
   - Merging strategy: Merge
-  - Specifies repositories to load, with each repository defined as an object containing the following fields:
-    - `name`: (required) The name of the repository.
-    - `path`: (required) The file system path to the repository.
+  - Specifies repositories to load, with each repository defined as an entry in which:
+    - The key is the name of the repository.
+    - The value is the [resource path](description_files.md#resource-path-syntax) to the repository.
   - Example of specifying multiple repositories:
     ```yaml
     repositories:
-      - name: name_of_repo
-        path: path_to_repo
-      - name: another_repo
-        path: /absolute/path/to/repo
+      name_of_repo: file:path_to_repo
+      another_repo: file:/absolute/path/to/repo
     ```
 
   Repositories are used to package and load multiple IP cores and custom interfaces.
@@ -70,6 +68,5 @@ Here is a sample configuration file used in the [hierarchy example](examples.md#
 ```yaml
 force_interface_compliance: true
 repositories:
-  - name: Hierarchies example
-    path: ./repo/
+  my_repo: file:./repo
 ```

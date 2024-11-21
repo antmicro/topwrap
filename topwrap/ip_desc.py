@@ -20,9 +20,11 @@ from typing import (
 import marshmallow
 import marshmallow.validate
 import marshmallow_dataclass
-from importlib_resources import as_file, files
+from typing_extensions import Self
 
 from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
+from topwrap.repo.user_repo import Core
+from topwrap.util import get_config
 
 from .common_serdes import MarshmallowDataclassExtensions, ext_field
 from .config import config
@@ -214,43 +216,31 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
 
     Schema: ClassVar[Type[marshmallow.Schema]]
 
+    @classmethod
+    def from_repo_core(cls, core: Core) -> Self:
+        return cls.load(core.design.path)
+
     @staticmethod
     @lru_cache(maxsize=None)
     def get_builtins() -> Dict[str, "IPCoreDescription"]:
         """Loads all builtin internal IP Cores
 
-        :return: a dict where keys are the IP Core file names and values are the IP Core description objects
+        :return: a dict where keys are the IP Core names and values are the IP Core description objects
         """
 
         ips: Dict[str, IPCoreDescription] = {}
-        with as_file(files("topwrap.ips")) as ip_res:
-            for path in ip_res.glob("**/*.yaml"):
-                try:
-                    ip = IPCoreDescription.load(path, False)
-                    ips[Path(path).stem] = ip
-                except Exception as exc:
-                    raise BuiltinIPCoreException(
-                        f'Loading built-in IP core "{path.name}" failed'
-                    ) from exc
+
+        repo = get_config().builtin_repo
+        for core in repo.get_resources(Core):
+            try:
+                ip = IPCoreDescription.from_repo_core(core)
+                ips[ip.name] = ip
+            except Exception as exc:
+                raise BuiltinIPCoreException(
+                    f'Loading built-in IP core "{core.name}" failed'
+                ) from exc
+
         return ips
-
-    @classmethod
-    def load(cls, path: Path, fallback: bool = True, **kwargs: Any):
-        """Load an IP Core description yaml from the given path
-
-        :param path: the path to the .yaml file
-        :param fallback: if this is True and ip_path does not exist, try loading the file from the builtin directory
-        :return: the IP Core description object
-        """
-
-        try:
-            return super().load(path, **kwargs)
-        except FileNotFoundError:
-            if fallback:
-                ips = cls.get_builtins()
-                if path.stem in ips:
-                    return ips[path.stem]
-            raise
 
     def save(self, path: Optional[Path] = None, **kwargs: Any):
         super().save(path if path is not None else Path(self.name + ".yaml"), **kwargs)

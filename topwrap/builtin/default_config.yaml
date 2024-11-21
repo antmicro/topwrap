@@ -1,0 +1,4 @@
+repositories:
+  builtin: file:.
+
+force_interface_compliance: false

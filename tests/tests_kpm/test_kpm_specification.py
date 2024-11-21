@@ -18,6 +18,8 @@ PWM_UNIQUE_IPCORE_NODES = 3  # Unique IP Cores from examples/pwm/project.yaml
 PWM_ALL_UNIQUE_NODES = PWM_UNIQUE_IPCORE_NODES + SPEC_METANODES
 HDMI_UNIQUE_IPCORE_NODES = 12  # Unique IP Cores from examples/hdmi/project.yaml
 HDMI_ALL_UNIQUE_NODES = HDMI_UNIQUE_IPCORE_NODES + SPEC_METANODES
+HIERARCHY_UNIQUE_IPCORE_NODES = 8
+HIERARCHY_ALL_UNIQUE_NODES = HIERARCHY_UNIQUE_IPCORE_NODES + SPEC_METANODES
 
 
 def get_schema_path(schema_name) -> Path:
@@ -69,19 +71,25 @@ Validator = jsonschema.validators.extend(
 
 def test_pwm_specification_generation(specification_schema, pwm_design, schemas_registry):
     """Validate generated specification for PWM design."""
-    pwm_specification = ipcore_yamls_to_kpm_spec(pwm_ipcores_yamls)
+    pwm_specification = ipcore_yamls_to_kpm_spec([], pwm_design)
     assert len(pwm_specification["nodes"]) == PWM_ALL_UNIQUE_NODES
 
-    Draft201909Validator(specification_schema, registry=schemas_registry).validate(
-        pwm_specification
-    )
+    Validator(specification_schema, registry=schemas_registry).validate(pwm_specification)
 
 
-def test_hdmi_specification_generation(specification_schema, hdmi_ipcores_yamls, schemas_registry):
+def test_hdmi_specification_generation(specification_schema, hdmi_design, schemas_registry):
     """Validate generated specification for HDMI design."""
-    hdmi_specification = ipcore_yamls_to_kpm_spec(hdmi_ipcores_yamls)
+    hdmi_specification = ipcore_yamls_to_kpm_spec([], hdmi_design)
     assert len(hdmi_specification["nodes"]) == HDMI_ALL_UNIQUE_NODES
 
-    Draft201909Validator(specification_schema, registry=schemas_registry).validate(
-        hdmi_specification
-    )
+    Validator(specification_schema, registry=schemas_registry).validate(hdmi_specification)
+
+
+def test_hierarchy_specification_generation(
+    specification_schema, hierarchy_design, schemas_registry
+):
+    """Validate generated specification for Hierarchy design."""
+    hierarchy_spec = ipcore_yamls_to_kpm_spec([], hierarchy_design)
+    assert len(hierarchy_spec["nodes"]) == HIERARCHY_ALL_UNIQUE_NODES
+
+    Validator(specification_schema, registry=schemas_registry).validate(hierarchy_spec)

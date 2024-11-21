@@ -32,8 +32,8 @@ build/simple_soc.bit: build/bios.init simple_soc.tcl $(IPCORE_SOURCES) build/sim
 	vivado -mode batch -source simple_soc.tcl
 
 $(JSONS): $(IPCORE_YAMLS)
-	topwrap specification $(IPCORE_YAMLS)
-	topwrap dataflow -d project.yaml $(IPCORE_YAMLS)
+	topwrap specification -d project.yaml
+	topwrap dataflow -d project.yaml
 
 
 generate: build/simple_soc.v

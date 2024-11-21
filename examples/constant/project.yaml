@@ -3,7 +3,7 @@
 
 ips:
   ip_ibuf:
-    file: ipcores/ibuf.yaml
+    file: file:ipcores/ibuf.yaml
 
 design:
   name: project_top

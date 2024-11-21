@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from topwrap.design import DesignDescription
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.util import UnreachableError
 
@@ -40,9 +41,9 @@ class InterfaceData:
 class RPCparams:
     host: str
     port: int
-    yamlfiles: List[Path]
+    specification: JsonType
     build_dir: Path
-    design: Optional[Path]
+    design: Optional[DesignDescription]
 
 
 def get_all_graph_nodes(dataflow_json: JsonType) -> List[JsonType]:

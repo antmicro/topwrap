@@ -28,8 +28,8 @@ external:
     - pwm
 ips:
   axi_bridge:
-    file: axi/axi_axil_adapter.yaml
+    file: repo[builtin]:cores/axi_axil_adapter/core.yaml
   litex_pwm_top:
-    file: ipcores/litex_pwm.yaml
+    file: file:ipcores/litex_pwm.yaml
   ps7:
-    file: ipcores/ps7.yaml
+    file: file:ipcores/ps7.yaml

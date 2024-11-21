@@ -13,9 +13,9 @@
     },
     "layers": [
       {
-        "name": "IP Cores",
+        "name": "Constants",
         "nodeLayers": [
-          "IP Cores"
+          "Constants"
         ]
       },
       {
@@ -25,9 +25,9 @@
         ]
       },
       {
-        "name": "Constants",
+        "name": "IP Cores",
         "nodeLayers": [
-          "Constants"
+          "IP Cores"
         ]
       }
     ],
@@ -61,272 +61,33 @@
   "nodes": [
     {
       "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/c_mod_1/c_mod_1.yaml",
-      "category": "IPcore",
+      "category": "Metanode",
       "interfaces": [
         {
           "direction": "output",
           "maxConnectionsCount": -1,
-          "name": "c_int_out_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_mod_in_1",
+          "name": "constant",
           "type": [
             "port"
           ]
         }
       ],
-      "layer": "IP Cores",
-      "name": "c_mod_1",
+      "layer": "Constants",
+      "name": "Constant",
       "properties": [
         {
-          "default": "32",
-          "name": "MAX_VALUE",
+          "default": "0",
+          "name": "Constant Value",
           "type": "text"
         }
       ]
-    },
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_mod_in_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "c_int_out_2",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "c_mod_2"
-    },
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/c_mod_3/c_mod_3.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_int_const_in",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "c_mod_out_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_int_in_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_int_in_1",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "c_mod_3"
-    },
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/s1_mod_1/s1_mod_1.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_ext_const_in",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_mod_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_mint_out_1",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s1_mod_1"
-    },
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_int_out_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_mint_in_1",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s1_mod_2"
-    },
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_int_out_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_mint_in_2",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s1_mod_3",
-      "properties": [
-        {
-          "default": "18",
-          "name": "SUB_VALUE",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_out_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_f_int_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_f_int_in_2",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_out_2",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s2_mod_1"
-    },
-    {
-      "abstract": false,
-      "additionalData": "examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml",
-      "category": "IPcore",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_f_mod_out_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_in_1",
-          "type": [
-            "port"
-          ]
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_in_2",
-          "type": [
-            "port"
-          ]
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s2_mod_2"
     },
     {
       "abstract": false,
       "category": "Metanode",
       "interfaces": [
         {
-          "direction": "input",
+          "direction": "inout",
           "maxConnectionsCount": -1,
           "name": "external",
           "type": [
@@ -335,7 +96,7 @@
         }
       ],
       "layer": "Externals",
-      "name": "External Output",
+      "name": "External Inout",
       "properties": [
         {
           "default": "",
@@ -372,7 +133,7 @@
       "category": "Metanode",
       "interfaces": [
         {
-          "direction": "inout",
+          "direction": "input",
           "maxConnectionsCount": -1,
           "name": "external",
           "type": [
@@ -381,7 +142,7 @@
         }
       ],
       "layer": "Externals",
-      "name": "External Inout",
+      "name": "External Output",
       "properties": [
         {
           "default": "",
@@ -395,28 +156,13 @@
       "category": "Metanode",
       "interfaces": [
         {
-          "direction": "output",
+          "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "constant",
+          "name": "subgraph in",
           "type": [
             "port"
           ]
-        }
-      ],
-      "layer": "Constants",
-      "name": "Constant",
-      "properties": [
-        {
-          "default": "0",
-          "name": "Constant Value",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "category": "Metanode",
-      "interfaces": [
+        },
         {
           "direction": "output",
           "maxConnectionsCount": -1,
@@ -424,18 +170,166 @@
           "type": [
             "port"
           ]
+        }
+      ],
+      "layer": "Externals",
+      "name": "Subgraph port"
+    },
+    {
+      "abstract": false,
+      "additionalData": "file:examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "c_int_out_2",
+          "type": [
+            "port"
+          ]
         },
         {
           "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "subgraph in",
+          "name": "c_mod_in_2",
           "type": [
             "port"
           ]
         }
       ],
-      "layer": "Externals",
-      "name": "Subgraph port"
+      "layer": "IP Cores",
+      "name": "c_mod_2"
+    },
+    {
+      "abstract": false,
+      "additionalData": "file:examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_mint_in_1",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s1_mod_2"
+    },
+    {
+      "abstract": false,
+      "additionalData": "file:examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_mint_in_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s1_mod_3",
+      "properties": [
+        {
+          "default": "18",
+          "name": "SUB_VALUE",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": "file:examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_2",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s2_mod_1"
+    },
+    {
+      "abstract": false,
+      "additionalData": "file:examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml",
+      "category": "IPcore",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_mod_out_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_in_1",
+          "type": [
+            "port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_in_2",
+          "type": [
+            "port"
+          ]
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s2_mod_2"
     }
   ]
 }

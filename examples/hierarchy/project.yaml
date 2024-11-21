@@ -30,11 +30,11 @@ design:
                 - cs_s1_empty_out
             ips:
               s1_mod_1:
-                file: repo/cores/s1_mod_1/s1_mod_1.yaml
+                file: file:repo/cores/s1_mod_1/s1_mod_1.yaml
               s1_mod_2:
-                file: repo/cores/s1_mod_2/s1_mod_2.yaml
+                file: file:repo/cores/s1_mod_2/s1_mod_2.yaml
               s1_mod_3:
-                file: repo/cores/s1_mod_3/s1_mod_3.yaml
+                file: file:repo/cores/s1_mod_3/s1_mod_3.yaml
           sub_2:
             design:
               ports:
@@ -54,9 +54,9 @@ design:
                 - cs_s2_mod_out_1
             ips:
               s2_mod_1:
-                file: repo/cores/s2_mod_1/s2_mod_1.yaml
+                file: file:repo/cores/s2_mod_1/s2_mod_1.yaml
               s2_mod_2:
-                file: repo/cores/s2_mod_2/s2_mod_2.yaml
+                file: file:repo/cores/s2_mod_2/s2_mod_2.yaml
         ports:
           sub_1:
             cs_s1_int_const_in: 1
@@ -96,11 +96,11 @@ design:
           - c_out_1
       ips:
         c_mod_1:
-          file: repo/cores/c_mod_1/c_mod_1.yaml
+          file: file:repo/cores/c_mod_1/c_mod_1.yaml
         c_mod_2:
-          file: repo/cores/c_mod_2/c_mod_2.yaml
+          file: file:repo/cores/c_mod_2/c_mod_2.yaml
         c_mod_3:
-          file: repo/cores/c_mod_3/c_mod_3.yaml
+          file: file:repo/cores/c_mod_3/c_mod_3.yaml
   ports:
     complex_sub:
       cs_in_1: [counter, c_out_1]

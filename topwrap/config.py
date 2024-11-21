@@ -2,16 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from functools import cached_property
 import os
+from functools import cached_property
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 import marshmallow
 import marshmallow_dataclass
 import yaml
+from importlib_resources import as_file, files
 
-from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
+from topwrap.common_serdes import (
+    MarshmallowDataclassExtensions,
+    ResourcePathT,
+    ext_field,
+)
 from topwrap.repo.user_repo import UserRepo
 
 logger = logging.getLogger(__name__)
@@ -33,25 +38,11 @@ class InvalidConfigError(Exception):
 
 
 @marshmallow_dataclass.dataclass
-class RepositoryEntry:
-    """Contains information about topwrap repository"""
-
-    name: str
-    path: str
-
-    @cached_property
-    def repo(self) -> UserRepo:
-        repo = UserRepo()
-        repo.load(Path(self.path))
-        return repo
-
-
-@marshmallow_dataclass.dataclass
 class Config(MarshmallowDataclassExtensions):
     """Global topwrap configuration"""
 
     force_interface_compliance: Optional[bool] = ext_field(False)
-    repositories: Optional[List[RepositoryEntry]] = ext_field(list)
+    repositories: dict[str, ResourcePathT] = ext_field(dict)
     kpm_build_location: str = ext_field(str(DEFAULT_SERVER_BASE_DIR))
 
     def update(self, config: "Config"):
@@ -65,27 +56,19 @@ class Config(MarshmallowDataclassExtensions):
             if self.repositories is None:
                 self.repositories = config.repositories
             else:
-                for repo in config.repositories:
-                    if repo not in self.repositories:
-                        self.repositories.append(repo)
+                self.repositories.update(config.repositories)
 
     def get_repositories_paths(self) -> List[Path]:
         repositories_paths = []
-        if self.repositories is None:
-            return repositories_paths
-        for repository in self.repositories:
-            repositories_paths.append(Path(repository.path).expanduser())
+        for repository in self.repositories.values():
+            repositories_paths.append(repository.to_path().expanduser())
         return repositories_paths
 
-    def get_repo_path_by_name(self, name: str) -> Optional[Path]:
-        if self.repositories is None:
-            return None
-        for repo in self.repositories:
-            if repo.name == name:
-                return Path(repo.path)
-
-    def get_builtin_repo(self) -> RepositoryEntry:
-        return next(r for r in self.repositories if r.name == ConfigManager.BUILTIN_REPO_NAME)
+    @cached_property
+    def builtin_repo(self) -> UserRepo:
+        repo = UserRepo()
+        repo.load(self.repositories[ConfigManager.BUILTIN_REPO_NAME].to_path())
+        return repo
 
 
 class ConfigManager:
@@ -101,21 +84,24 @@ class ConfigManager:
     the ConfigManager constructor.
     """
 
+    BUILTIN_REPO_NAME = "builtin"
+
+    BUILTIN_DIR = as_file(files(f"topwrap.{BUILTIN_REPO_NAME}"))
+
     DEFAULT_SEARCH_PATHS = [
-        "topwrap.yaml",
-        "~/.config/topwrap/topwrap.yaml",
-        "~/.config/topwrap/config.yaml",
+        Path("topwrap.yaml"),
+        Path("~/.config/topwrap/topwrap.yaml"),
+        Path("~/.config/topwrap/config.yaml"),
+        BUILTIN_DIR.__enter__() / "default_config.yaml",
     ]
 
-    _interfaces_dir = Path("interfaces")
-
-    def __init__(self, search_paths: Optional[List[str]] = None):
+    def __init__(self, search_paths: Optional[Sequence[Path]] = None):
         if search_paths is None:
             search_paths = self.DEFAULT_SEARCH_PATHS
 
-        self.search_paths = []
+        self.search_paths: list[Path] = []
         for path in search_paths:
-            self.search_paths += [Path(path).expanduser()]
+            self.search_paths.append(path.expanduser())
 
     def load(self, overrides: Optional[Config] = None, default: Optional[Config] = None):
         config = Config() if default is None else default
@@ -124,18 +110,11 @@ class ConfigManager:
             if not path.is_file():
                 continue
 
-            with open(path) as f:
-                try:
-                    yaml_dict = yaml.safe_load(f)
-                except yaml.YAMLError:
-                    logger.warning(f"{path} configuration file is not a valid YAML")
-                    continue
-
             try:
-                new_config = Config.from_dict(yaml_dict)
+                new_config = Config.load(path)
                 config.update(new_config)
-            except marshmallow.ValidationError as e:
-                logger.warning(f"{path} configuration file is not valid ({e.messages})")
+            except (marshmallow.ValidationError, yaml.YAMLError) as e:
+                logger.warning(f"{path} configuration file is not valid ({e})")
                 continue
 
         if overrides is not None:

@@ -32,9 +32,9 @@ design:
                 - sum
             ips:
               D-flipflop:
-                file: ips/d_ff.yaml
+                file: file:ips/d_ff.yaml
               adder:
-                file: ips/adder.yaml
+                file: file:ips/adder.yaml
           encoder:
             external:
               ports:
@@ -77,7 +77,7 @@ design:
           - enc2
       ips:
         debouncer:
-          file: ips/debouncer.yaml
+          file: file:ips/debouncer.yaml
   ports:
     proc:
       btn: btn

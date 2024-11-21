@@ -3,7 +3,7 @@
 
 ips:
   core1:
-    file: clog2_tester.yaml
+    file: file:clog2_tester.yaml
 design:
   name: top
   ports:

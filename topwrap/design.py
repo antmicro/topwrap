@@ -5,13 +5,17 @@
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, ClassVar, Dict, Iterator, List, Optional, Tuple, Type, Union
 
 import marshmallow
 import marshmallow_dataclass
 from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 
-from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
+from topwrap.common_serdes import (
+    MarshmallowDataclassExtensions,
+    ResourcePathT,
+    ext_field,
+)
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 
@@ -24,17 +28,17 @@ class InterconnectType(Enum):
     wishbone_roundrobin = WishboneRRInterconnect
 
 
-@marshmallow_dataclass.dataclass
+@marshmallow_dataclass.dataclass(frozen=True)
 class DesignIP:
-    file: str
+    file: ResourcePathT
 
-    @property
+    @cached_property
     def module(self):
-        return IPCoreDescription.load(self.path).name
+        return IPCoreDescription.load(self.path)
 
     @property
     def path(self):
-        return Path(self.file)
+        return self.file.to_path()
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -115,6 +119,12 @@ class DesignDescription(MarshmallowDataclassExtensions):
 
     Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
 
+    @property
+    def all_ips(self) -> Iterator[DesignIP]:
+        yield from self.ips.values()
+        for hier in self.design.hierarchies.values():
+            yield from hier.all_ips
+
     def to_ip_connect(self, design_dir: Path = Path(".")) -> IPConnect:
         design_dir = Path(design_dir)
         ipc = IPConnect()
@@ -124,12 +134,11 @@ class DesignDescription(MarshmallowDataclassExtensions):
             ipc.add_component(hier_name, hier_ipc)
 
         for ip_name, ip in self.ips.items():
-            ip.file = str(design_dir / ip.path)
             ipc.add_component(
                 ip_name,
                 IPWrapper(
                     ip.path,
-                    ip.module,
+                    ip.module.name,
                     ip_name,
                     self.design.parameters.get(ip_name, {}),
                 ),

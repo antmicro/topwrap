@@ -58,6 +58,12 @@ def configure_log_level(log_level: str):
     logger.setLevel(log_level)
 
 
+def load_user_repos() -> UserRepo:
+    repo = UserRepo()
+    repo.load_repositories_from_paths(config.get_repositories_paths())
+    return repo
+
+
 @main.command("build", help="Generate top module")
 @click.option(
     "--sources",
@@ -100,8 +106,7 @@ def build_main(
     configure_log_level(log_level)
     config.force_interface_compliance = iface_compliance
 
-    config_user_repo = UserRepo()
-    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
+    config_user_repo = load_user_repos()
     all_sources = config_user_repo.get_srcs_dirs_for_cores()
     all_sources.extend(sources)
 
@@ -237,14 +242,13 @@ class KPM:
     ):
         configure_log_level(log_level)
         logging.info("Starting kenning pipeline manager client")
-        config_user_repo = UserRepo()
-        config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
-        extended_yamlfiles = config_user_repo.get_core_designs()
-        extended_yamlfiles += yamlfiles
+        config_user_repo = load_user_repos()
+        design_desc = DesignDescription.load(design) if design else None
+        spec = ipcore_yamls_to_kpm_spec(
+            config_user_repo.get_core_designs() + list(yamlfiles), design_desc
+        )
         asyncio.run(
-            kpm_run_client(
-                RPCparams(host, port, extended_yamlfiles, build_dir, design), client_ready_event
-            )
+            kpm_run_client(RPCparams(host, port, spec, build_dir, design_desc), client_ready_event)
         )
 
 
@@ -432,14 +436,12 @@ def topwrap_gui(
     default="kpm_spec.json",
     help="Destination file for the KPM specification",
 )
+@click.option("--design", "-d", type=click_r_file, help="Design YAML file")
 @click.argument("files", type=click_r_file, nargs=-1)
-def generate_kpm_spec(output: Path, files: Tuple[Path, ...]):
-    config_user_repo = UserRepo()
-    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
-    extended_yamlfiles = config_user_repo.get_core_designs()
-    extended_yamlfiles += files
-
-    spec = ipcore_yamls_to_kpm_spec(extended_yamlfiles)
+def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, ...]):
+    config_user_repo = load_user_repos()
+    yamls = list(files) + config_user_repo.get_core_designs()
+    spec = ipcore_yamls_to_kpm_spec(yamls, DesignDescription.load(design) if design else None)
     with open(output, "w") as f:
         f.write(json.dumps(spec))
 
@@ -455,12 +457,10 @@ def generate_kpm_spec(output: Path, files: Tuple[Path, ...]):
 @click.option("--design", "-d", required=True, type=click_r_file, help="Design YAML file")
 @click.argument("files", type=click_r_file, nargs=-1)
 def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
-    config_user_repo = UserRepo()
-    config_user_repo.load_repositories_from_paths(config.get_repositories_paths())
-    extended_yamlfiles = config_user_repo.get_core_designs()
-    extended_yamlfiles += files
-
-    spec = ipcore_yamls_to_kpm_spec(extended_yamlfiles)
-    dataflow = kpm_dataflow_from_design_descr(DesignDescription.load(design), spec)
+    config_user_repo = load_user_repos()
+    yamls = list(files) + config_user_repo.get_core_designs()
+    design_desc = DesignDescription.load(design)
+    spec = ipcore_yamls_to_kpm_spec(yamls, design_desc)
+    dataflow = kpm_dataflow_from_design_descr(design_desc, spec)
     with open(output, "w") as f:
         f.write(json.dumps(dataflow))

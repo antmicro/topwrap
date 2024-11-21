@@ -66,7 +66,7 @@ deps:
 ci: deps generate
 
 $(JSONS): parse
-	topwrap specification ${IPCORES_DIR}/*.yaml
-	topwrap dataflow -d project.yaml ${IPCORES_DIR}/*.yaml
+	topwrap specification -d project.yaml
+	topwrap dataflow -d project.yaml
 
 .PHONY: setup clean fusesoc_init generate copy_sources bit parse deps ci all

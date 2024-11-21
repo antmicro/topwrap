@@ -7,7 +7,7 @@ import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Tuple, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
 
 import yaml
 from pipeline_manager_backend_communication.communication_backend import (
@@ -25,7 +25,6 @@ from .kpm_common import RPCparams
 from .kpm_dataflow_parser import kpm_dataflow_to_design
 from .kpm_dataflow_validator import DataflowValidator
 from .util import read_json_file, save_file_to_json
-from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
 class RPCEndpointReturnType(TypedDict):
@@ -41,7 +40,7 @@ class RPCMethods:
     def __init__(self, params: RPCparams, client: Optional[CommunicationBackend] = None):
         self.host = params.host
         self.port = params.port
-        self.yamlfiles = params.yamlfiles
+        self.specification = params.specification
         self.build_dir = params.build_dir
         self.design = params.design
         self.client = client
@@ -56,8 +55,7 @@ class RPCMethods:
     def specification_get(self) -> RPCEndpointReturnType:
         logging.info(f"Specification get request from {self.host}:{self.port}")
 
-        specification = ipcore_yamls_to_kpm_spec(self.yamlfiles)
-        return {"type": MessageType.OK.value, "content": specification}
+        return {"type": MessageType.OK.value, "content": self.specification}
 
     def dataflow_validate(self, dataflow: JsonType) -> RPCEndpointReturnType:
         logging.info(f"Dataflow validation request received from {self.host}:{self.port}")
@@ -75,7 +73,7 @@ class RPCMethods:
 
     def dataflow_run(self, dataflow: JsonType) -> RPCEndpointReturnType:
         logging.info(f"Dataflow run request received from {self.host}:{self.port}")
-        errors = _kpm_run_handler(dataflow, self.yamlfiles, self.build_dir)
+        errors = _kpm_dataflow_run_handler(dataflow, self.specification, self.build_dir)
         if errors:
             # note: only the first error is sent to the KPM frontend
             return {"type": MessageType.ERROR.value, "content": errors[0]}
@@ -88,7 +86,8 @@ class RPCMethods:
 
     def dataflow_export(self, dataflow: JsonType) -> RPCExportEndpointReturnType:
         logging.info(f"Dataflow export request received from {self.host}:{self.port}")
-        yaml_str, filename = _kpm_export_handler(dataflow, self.yamlfiles)
+        yaml_str = kpm_dataflow_to_design(dataflow, self.specification).to_yaml()
+        filename = _generate_design_filename()
         # content sent to KPM frontend needs to be base64 encoded, but
         # b64encode expects a bytes-like object as an argument therefore
         # the string needs to be converted to bytes first and then converted
@@ -101,8 +100,11 @@ class RPCMethods:
     ) -> RPCEndpointReturnType:
         logging.info(f"Dataflow import request received from {self.host}:{self.port}")
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
-        dataflow = _kpm_import_handler(yaml_str, self.yamlfiles)
-        return {"type": MessageType.OK.value, "content": dataflow}
+        design_descr = DesignDescription.from_dict(yaml.safe_load(yaml_str))
+        return {
+            "type": MessageType.OK.value,
+            "content": kpm_dataflow_from_design_descr(design_descr, self.specification),
+        }
 
     async def frontend_on_connect(self):
         """Gets run when frontend connects, loads initial design"""
@@ -115,10 +117,11 @@ class RPCMethods:
             await self.client.request("graph_change", {"dataflow": latest_dataflow})
         elif self.design is not None:
             self.initial_load = False
-            with open(self.design) as design_file:
-                read_file = design_file.read()
-                dataflow = _kpm_import_handler(read_file, self.yamlfiles)
-                await self.client.request("graph_change", {"dataflow": dataflow})
+            dataflow = kpm_dataflow_from_design_descr(self.design, self.specification)
+            if self.client is None:
+                logging.debug("The client to send request to is not defined")
+                return
+            await self.client.request("graph_change", {"dataflow": dataflow})
 
     async def nodes_on_change(self, **kwargs: Any):
         await _kpm_handle_graph_change(self)
@@ -144,24 +147,13 @@ async def _kpm_handle_graph_change(rpc_object: RPCMethods):
     )
 
 
-def _kpm_import_handler(data: str, yamlfiles: List[Path]) -> JsonType:
-    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
-    design_descr = DesignDescription.from_dict(yaml.safe_load(data))
-    return kpm_dataflow_from_design_descr(design_descr, specification)
-
-
-def _design_from_kpm_data(data: JsonType, yamlfiles: List[Path]) -> DesignDescription:
-    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
-    return kpm_dataflow_to_design(data, specification)
-
-
-def _kpm_run_handler(data: JsonType, yamlfiles: List[Path], build_dir: Path) -> List[str]:
+def _kpm_dataflow_run_handler(data: JsonType, spec: JsonType, build_dir: Path) -> list:
     """Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """
     messages = DataflowValidator(data).validate_kpm_design()
     if not messages["errors"]:
-        design = _design_from_kpm_data(data, yamlfiles)
+        design = kpm_dataflow_to_design(data, spec)
         name = design.design.name or "top"
         ipc = design.to_ip_connect()
         ipc.generate_top(name, build_dir)
@@ -174,20 +166,6 @@ def _generate_design_filename() -> str:
     description will be written to.
     """
     return datetime.now().strftime("kpm_design_%Y%m%d_%H%M%S.yaml")
-
-
-def _kpm_export_handler(dataflow: JsonType, yamlfiles: List[Path]) -> Tuple[str, str]:
-    """Convert created dataflow into Topwrap's design description YAML.
-
-    :param dataflow: dataflow JSON from KPM
-    :param yamlfiles: additional YAML files containing IP core descriptions
-
-    :return: pair: converted YAML string, automatically generated filename
-    with current timestamp
-    """
-    filename = _generate_design_filename()
-    design = _design_from_kpm_data(dataflow, yamlfiles)
-    return design.to_yaml(), filename
 
 
 async def kpm_run_client(

@@ -4,10 +4,11 @@
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Collection, Dict, List, Optional
 
 from pipeline_manager.specification_builder import SpecificationBuilder
 
+from topwrap.design import DesignDescription
 from topwrap.design_to_kpm_dataflow_parser import (
     KPMDataflowExternalMetanode,
     KPMDataflowMetanodeInterface,
@@ -20,6 +21,7 @@ from topwrap.ip_desc import (
     IPCoreParameter,
     IPCorePorts,
 )
+from topwrap.resource_field import FileHandler, ResourceReferenceHandler
 
 from .interface import InterfaceMode
 from .kpm_common import (
@@ -182,9 +184,9 @@ def _ipcore_ifaces_to_iface_type(ifaces: Dict[str, IPCoreInterface]) -> List[Int
     return iface_list
 
 
-def create_core_node_from_yaml(yamlfile: Path) -> NodeType:
+def create_core_node_from_yaml(res: ResourceReferenceHandler) -> NodeType:
     """Returns single KPM specification 'node' representing given IP core description YAML file"""
-    ip_yaml = IPCoreDescription.load(Path(yamlfile))
+    ip_yaml = IPCoreDescription.load(res.to_path())
 
     ip_name = ip_yaml.name
     ip_props = _ipcore_params_to_prop_type(ip_yaml.parameters)
@@ -192,7 +194,7 @@ def create_core_node_from_yaml(yamlfile: Path) -> NodeType:
     ip_ifaces = _ipcore_ifaces_to_iface_type(ip_yaml.interfaces)
 
     return NodeType(
-        ip_name, "IPcore", LayerType.IP_CORE, ip_props, ip_ports + ip_ifaces, str(yamlfile)
+        ip_name, "IPcore", LayerType.IP_CORE, ip_props, ip_ports + ip_ifaces, res.to_str()
     )
 
 
@@ -297,17 +299,18 @@ def add_metadata_to_specification(
         )
 
 
-def generate_spec_using_builder(yamlfiles: List[Path]) -> JsonType:
+def generate_spec_using_builder(resources: Collection[ResourceReferenceHandler]) -> JsonType:
     """Build specification based on yamlfiles using SpecificationBuilder API"""
     specification_builder = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
 
-    for yamlfile in yamlfiles:
-        core_data = create_core_node_from_yaml(yamlfile)
+    for res in resources:
+        core_data = create_core_node_from_yaml(res)
         add_node_type_to_specification(specification_builder, core_data)
 
     interfaces_types = _get_ifaces_types(
-        specification_builder._construct_specification(sort_spec=False)
+        specification_builder._construct_specification(sort_spec=True)
     )
+    interfaces_types.sort()
 
     for ext_name in KPMDataflowExternalMetanode.interface_dir_by_node_name.keys():
         ex_metanode = create_external_metanode(ext_name, interfaces_types)
@@ -321,21 +324,34 @@ def generate_spec_using_builder(yamlfiles: List[Path]) -> JsonType:
 
     add_metadata_to_specification(specification_builder, interfaces_types)
 
-    return specification_builder._construct_specification(sort_spec=False)
+    return specification_builder._construct_specification(sort_spec=True)
 
 
-def ipcore_yamls_to_kpm_spec(yamlfiles: List[Path]) -> JsonType:
+def ipcore_yamls_to_kpm_spec(
+    yamlfiles: Collection[Path], design: Optional[DesignDescription] = None
+) -> JsonType:
     """Translate Topwrap's IP core description YAMLs into
     KPM specification 'nodes'.
 
     :param yamlfiles: IP core description YAMLs, that will be converted
     into KPM specification 'nodes'
 
+    :param design: A DesignDescription with IP Core references that
+    will get added to the generated specification
+
     :return: a dict containing KPM specification in which each 'node'
         represents a separate IP core
     """
 
-    specification = generate_spec_using_builder(yamlfiles)
+    resources: set[ResourceReferenceHandler] = {FileHandler(path) for path in yamlfiles}
+    paths = set(yamlfiles)
+    if design is not None:
+        for ip in design.all_ips:
+            if ip.file.to_path() not in paths:
+                paths.add(ip.file.to_path())
+                resources.add(ip.file)
+
+    specification = generate_spec_using_builder(resources)
 
     _duplicate_ipcore_types_check(specification)
 

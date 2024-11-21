@@ -496,7 +496,8 @@ class MarshmallowDataclassExtensions:
         with open(path, "w") as f:
             sch = self.Schema()
             sch.context[PathContext.CONTEXT_SAVE.value] = path
-            f.write(yaml.safe_dump(sch.dump(self), sort_keys=True, **kwargs))
+            sch.context[MetaKeys.SHOULD_INLINE.value] = True
+            f.write(yaml.dump(sch.dump(self), Dumper=InlineYamlDumper, sort_keys=True, **kwargs))
 
     @classmethod
     def load(cls, path: Path, **kwargs: Any) -> Self:

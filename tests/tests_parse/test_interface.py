@@ -14,8 +14,6 @@ from topwrap.interface import (
     InterfaceDefinitionSignals,
     InterfaceSignalType,
     get_interface_by_name,
-    get_predefined_interfaces,
-    load_interface_definitions,
 )
 
 
@@ -68,13 +66,10 @@ class TestInterfaceDefinition:
             },
         }
 
-    def test_interfaces_presence(self):
-        interfaces = load_interface_definitions()
-        # parser returns non-empty list
-        assert len(interfaces) == 5
-
     def test_predefined(self):
-        assert len(get_predefined_interfaces()) == 5, "No predefined interfaces could be retrieved"
+        assert (
+            len(InterfaceDefinition.get_builtins()) == 5
+        ), "No predefined interfaces could be retrieved"
 
     def test_iface_retrieve_by_name(self):
         name = "AXI4Stream"
