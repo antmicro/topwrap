@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from os import PathLike
+import os
 from pathlib import Path
 from typing import List, Optional
 
@@ -14,6 +14,17 @@ from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.repo.user_repo import UserRepo
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_SERVER_BASE_DIR = (
+    Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser() / "topwrap/kpm_build"
+)
+DEFAULT_WORKSPACE_DIR = "workspace"
+DEFAULT_BACKEND_DIR = "backend"
+DEFAULT_FRONTEND_DIR = "frontend"
+DEFAULT_SERVER_ADDR = "127.0.0.1"
+DEFAULT_SERVER_PORT = 9000
+DEFAULT_BACKEND_ADDR = "127.0.0.1"
+DEFAULT_BACKEND_PORT = 5000
 
 
 class InvalidConfigError(Exception):
@@ -34,10 +45,14 @@ class Config(MarshmallowDataclassExtensions):
 
     force_interface_compliance: Optional[bool] = ext_field(False)
     repositories: Optional[List[RepositoryEntry]] = ext_field(list)
+    kpm_build_location: str = ext_field(str(DEFAULT_SERVER_BASE_DIR))
 
     def update(self, config: "Config"):
         if config.force_interface_compliance is not None:
             self.force_interface_compliance = config.force_interface_compliance
+
+        if config.kpm_build_location is not None:
+            self.kpm_build_location = config.kpm_build_location
 
         if config.repositories is not None:
             if self.repositories is None:
@@ -87,7 +102,7 @@ class ConfigManager:
 
     _interfaces_dir = Path("interfaces")
 
-    def __init__(self, search_paths: Optional[List[PathLike]] = None):
+    def __init__(self, search_paths: Optional[List[str]] = None):
         if search_paths is None:
             search_paths = self.DEFAULT_SEARCH_PATHS
 

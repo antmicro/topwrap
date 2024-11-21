@@ -5,7 +5,6 @@ import asyncio
 import concurrent.futures
 import json
 import logging
-import os
 import subprocess
 import sys
 import threading
@@ -15,6 +14,14 @@ from typing import Any, Optional, Tuple
 
 import click
 
+from topwrap.config import (
+    DEFAULT_BACKEND_ADDR,
+    DEFAULT_BACKEND_PORT,
+    DEFAULT_FRONTEND_DIR,
+    DEFAULT_SERVER_ADDR,
+    DEFAULT_SERVER_PORT,
+    DEFAULT_WORKSPACE_DIR,
+)
 from topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from topwrap.kpm_common import RPCparams
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
@@ -179,18 +186,6 @@ def parse_main(
             logging.info(f"VHDL Module '{vhdl_mod.module_name}'" f"saved in file '{yaml_path}'")
 
 
-DEFAULT_SERVER_BASE_DIR = (
-    Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser() / "topwrap/kpm_build"
-)
-DEFAULT_WORKSPACE_DIR = DEFAULT_SERVER_BASE_DIR / "workspace"
-DEFAULT_BACKEND_DIR = DEFAULT_SERVER_BASE_DIR / "backend"
-DEFAULT_FRONTEND_DIR = DEFAULT_SERVER_BASE_DIR / "frontend"
-DEFAULT_SERVER_ADDR = "127.0.0.1"
-DEFAULT_SERVER_PORT = 9000
-DEFAULT_BACKEND_ADDR = "127.0.0.1"
-DEFAULT_BACKEND_PORT = 5000
-
-
 class KPM:
     @staticmethod
     def build_server(**params_dict: Any):
@@ -286,13 +281,13 @@ def kpm_client_main(
 @click.option(
     "--workspace-directory",
     type=click_opt_rw_dir,
-    default=DEFAULT_WORKSPACE_DIR,
+    default=Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR,
     help="Directory where the frontend sources should be stored",
 )
 @click.option(
     "--output-directory",
     type=click_opt_rw_dir,
-    default=DEFAULT_FRONTEND_DIR,
+    default=Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR,
     help="Directory where the built frontend should be stored",
 )
 @click.pass_context
@@ -304,7 +299,7 @@ def kpm_build_server_ctx(ctx: click.Context, **_):
 @click.option(
     "--frontend-directory",
     type=click_r_dir,
-    default=DEFAULT_FRONTEND_DIR,
+    default=Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR,
     help="Location of the built frontend",
 )
 @click.option(
@@ -359,13 +354,13 @@ def kpm_run_server_ctx(ctx: click.Context, **_):
 @click.option(
     "--frontend-directory",
     type=click_opt_rw_dir,
-    default=DEFAULT_FRONTEND_DIR,
+    default=Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR,
     help="Location of the built frontend",
 )
 @click.option(
     "--workspace-directory",
     type=click_opt_rw_dir,
-    default=DEFAULT_WORKSPACE_DIR,
+    default=Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR,
     help="Directory where the frontend sources should be stored",
 )
 @click.option("--log-level", default="INFO", help="Log level")
