@@ -1,9 +1,7 @@
-(dev-guide-kpm-iframes)=
 # Using KPM iframes inside docs
 
 It is possible to use the `kpm_iframe` Sphinx directive to embed KPM directly inside a doc.
 
-(dev-guide-kpm-iframes-usage)=
 ## Usage
 
 ````
@@ -20,10 +18,8 @@ It is possible to use the `kpm_iframe` Sphinx directive to embed KPM directly in
 
 All parameters in this directive are optional.
 
-(dev-guide-kpm-iframes-tests)=
 ## Tests
 
-(dev-guide-kpm-iframes-usage-tests-spec)=
 ### Use remote specification
 
 :::{note}
@@ -35,7 +31,6 @@ It doesn't load a dataflow, only a specification that provides IP-cores to the N
 ```{kpm_iframe}
 :spec: https://raw.githubusercontent.com/antmicro/topwrap/main/tests/data/data_kpm/examples/hdmi/specification_hdmi.json
 ```
-(dev-guide-kpm-iframes-usage-local-files)=
 ### Use local files
 
 ```{kpm_iframe}
@@ -43,7 +38,6 @@ It doesn't load a dataflow, only a specification that provides IP-cores to the N
 :dataflow: ../../../tests/data/data_kpm/examples/hierarchy/dataflow_hierarchy.json
 :height: 80vh
 ```
-(dev-guide-kpm-iframes-usage-preview-mode)=
 ### Open in preview mode
 
 ```{kpm_iframe}
@@ -52,7 +46,6 @@ It doesn't load a dataflow, only a specification that provides IP-cores to the N
 :preview: true
 ```
 
-(dev-guide-kpm-iframes-usage-alt-text)=
 ### Use a custom alt text
 
 :::{note}

@@ -1,6 +1,6 @@
 # Code style
 
-Automatic formatting and linting of the code is performed with either `Nox` or `pre-commit`.
+`Nox` or `pre-commit` performs automatic formatting and linting of the code.
 
 ## Lint with nox
 
@@ -29,7 +29,7 @@ nox -s pre_commit
 :::
 ## Lint with pre-commit
 
-Alternatively, you can use `pre-commit` to perform the same job.
+Alternatively, use `pre-commit` to perform the same job.
 `pre-commit` hooks need to be installed:
 
 ```bash
@@ -43,7 +43,7 @@ Now, each use of `git commit` in the shell will trigger actions defined in the `
 pre-commit uninstall
 ```
 
-If you wish to run `pre-commit` asynchronously, then use:
+If you wish to run `pre-commit` asynchronously, use:
 
 ```bash
 pre-commit run --all-files

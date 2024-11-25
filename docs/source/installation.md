@@ -1,13 +1,11 @@
-(installation)=
 # Installing Topwrap
 
-## 1. Install the required system packages
+## 1. Install required system packages
 
 :::{warning}
-The script below requires root privileges because it directly interfaces with your package manager and filesystem.
+The script below requires root privileges as it directly interfaces with your filesystem and package manager.
 
-It's dangerous to run scripts and executables as root without verifying their contents beforehand!
-Please make sure to do that before executing the script below.
+Running scripts and executables as root without first verifying their contents can pose significant security risks. Always ensure their integrity and source before execution.
 :::
 
 ```bash
@@ -16,7 +14,7 @@ chmod +x ./install-deps.sh
 sudo ./install-deps.sh
 ```
 
-## 2. Install the Topwrap package
+## 2. Install the Topwrap user package
 
 **Recommended**: Use [pipx](https://pipx.pypa.io/stable/) to directly install Topwrap as a user package:
 
@@ -24,8 +22,7 @@ sudo ./install-deps.sh
 pipx install "topwrap[topwrap-parse]@git+https://github.com/antmicro/topwrap"
 ```
 
-If you can't use pipx, you can use regular pip instead.
-(It may be necessary to do it in a Python virtual environment, such as [venv](https://docs.python.org/3/library/venv.html)):
+If you can't use pipx, you can use regular pip instead. It may be necessary to do it in a Python virtual environment, such as [venv](https://docs.python.org/3/library/venv.html):
 
 ```bash
 python3 -m venv venv

@@ -1,21 +1,23 @@
-(sample-projects)=
 # Sample projects
 
-These projects demonstrate how Topwrap can be used by users.
+These projects demonstrate how to use Topwrap on a practical level, with examples based on a variety of useful designs.
+
+## Embedded GUI
 
 :::{admonition} Information about the embedded GUI
 :class: note
 
 This section extensively uses an embedded version of [Topwrap's GUI](https://github.com/antmicro/kenning-pipeline-manager) to visualize the design of all the examples.
 
-You can use it to explore the designs, while adding new blocks, connections, nodes and hierarchies.
+You can use it to explore designs, while adding new blocks, connections, nodes and hierarchies.
 
 The features that require direct connection with Topwrap's backend are not implemented in this demo version, including:
 
-- Saving and loading data in `.yaml` files
-- Building designs
-- Verifying designs
-:::
+- saving and loading data in `.yaml` files
+- building designs
+- verifying designs
+
+
 
 :::{tip}
 Don't forget to use the "Enable fullscreen" button if the viewport is too small.
@@ -23,7 +25,6 @@ Don't forget to use the "Enable fullscreen" button if the viewport is too small.
 ```
 :::
 
-(constant)=
 ## Constant
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/constant)
@@ -40,7 +41,6 @@ It is also visible in the description file (`project.yaml`).
 You can find the constant node blueprint in the Nodes browser within the `Metanode` section.
 :::
 
-(constant-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -54,7 +54,6 @@ cd examples/constant
 make generate
 ```
 
-(Inout)=
 ## Inout
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/inout)
@@ -76,7 +75,6 @@ Their operation can be described as:
 * the output buffer is a synchronous D-type flip flop with an asynchronous reset and an `output enable`, which sets the output to a high impedance state (Hi-Z)
 * the inout buffer instantiates 1 input and 1 output buffer. The input of the `ibuf` and output of the `obuf` are connected with an inout wire (port).
 
-(Inout-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -104,7 +102,6 @@ make
 make generate
 ```
 
-(examples-user-repository)=
 ## User repository
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/user_repository)
@@ -130,7 +127,6 @@ topwrap kpm_client -d project.yml
 ```
 :::
 
-(examples-user-repository-usage)=
 ### Usage
 
 [comment]: About the idea of having Pipeline Manager run automatically, I guess this part could be removed?
@@ -148,7 +144,7 @@ Navigate to the `/examples/user_repository/` directory and run:
 python -m topwrap kpm_client -d project.yml
 ```
 
-Connect to the Web GUI frontend in your browser at `http://127.0.0.1:5000`.
+Connect to the GUI frontend in your browser at `http://127.0.0.1:5000`.
 
 **Expected result**
 
@@ -156,7 +152,6 @@ Topwrap will load two cores from the `cores` directory, using the interface from
 
 In the Nodes browser under `IPcore`, two loaded cores: `core1` and `core2`, should be visible.
 
-(examples-hierarchy)=
 ## Hierarchy
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy)
@@ -171,7 +166,7 @@ This example shows how to create a hierarchical design in Topwrap, including a h
 Check out `project.yaml` to learn how the above design translates to a [design description file](description_files.md)
 
 :::{seealso}
-For more information, see the section on [hierarchies](#design-description-hierarchies).
+For more information, see the section on [](description_files.md#hierarchies).
 :::
 
 :::{tip}
@@ -181,7 +176,6 @@ To exit from the hierarchy subgraph, use the back arrow button on the top left.
 To add a new hierarchy node, use the `New Graph Node` option in the node browser.
 :::
 
-(examples-hierarchy-usage)=
 ### Usage
 
 This example contains the [user repository](https://antmicro.github.io/topwrap/user_repositories.html) (`repo` directory) and a configuration file for Topwrap (`topwrap.yaml`). It can be loaded by running
@@ -191,7 +185,6 @@ python -m topwrap kpm_client -d project.yaml
 ```
 in the examples directory.
 
-(examples-PWM)=
 ## PWM
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/pwm)
@@ -202,7 +195,7 @@ in the examples directory.
 ```
 
 :::{tip}
-The IP Core in the center of the design (`axi_axil_adapter`) showcases how IP cores with overridable parameters are represented in the GUI.
+The IP core in the center of the design (`axi_axil_adapter`) showcases how IP cores with overridable parameters are represented in the GUI.
 :::
 
 This is an example of an AXI-mapped PWM IP core that can be generated with LiteX, connected to the ZYNQ Processing System.
@@ -214,7 +207,6 @@ The generated signal can be used in a FPGA or connected to a physical port on a 
 To connect I/O signals to specific FPGA pins, you must use mappings in a constraints file. See `zynq.xdc` used in the setup and modify it accordingly.
 :::
 
-(examples-PWM-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -244,7 +236,6 @@ make
 make generate
 ```
 
-(examples-HDMI)=
 ## HDMI
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/hdmi)
@@ -256,7 +247,6 @@ make generate
 
 This is an example of how to use Topwrap to build a complex and synthesizable design.
 
-(examples-HDMI-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -294,7 +284,6 @@ make zvb
 make generate
 ```
 
-(examples-SoC)=
 ## SoC
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/soc)
@@ -307,7 +296,6 @@ make generate
 This is an example of how to use Topwrap to build a synthesizable SoC design.
 The SoC contains a VexRiscv core, data and instruction memory, UART and an interconnect that ties all the components together.
 
-(examples-SoC-usage)=
 ### Usage
 
 **Switch to the subdirectory with the example**
@@ -322,7 +310,7 @@ cd examples/soc
 sudo apt install git make g++ ninja-build gcc-riscv64-unknown-elf bsdextrautils
 ```
 
-To run the simulation you also need:
+To run the simulation, you need:
 - verilator
 
 To create and load the bitstream, use:

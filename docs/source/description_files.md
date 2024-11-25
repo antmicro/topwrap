@@ -1,9 +1,7 @@
-(description-files)=
 # Creating a design
 
 This chapter describes how to create a design in Topwrap, including a detailed overview of Topwrap design files are structured.
 
-(design-description)=
 ## Design description
 
 To create a complete and fully synthesizable design, a design file is needed. It is used for:
@@ -81,16 +79,14 @@ The design description YAML format allows for creating hierarchical designs. In 
 
 Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it is possible to have `ip_name` key in this section and `ip_name` in the `design` section of a separate hierarchy.
 
-(design-description-hierarchies)=
 ### Hierarchies
 
 Hierarchies allow for creating designs with subgraphs in them. The subgraphs can contain multiple IP cores and other subgraphs, allowing for the creation of nested designs in Topwrap.
 
-(design-description-format)=
 ### Format
 
-Hierarchies are specified in the design description.
-The `hierarchies` key must be a direct descendant of the `design` key.
+Hierarchies are specified in the [design description](#design-description). The `hierarchies` key must be a direct descendant of the `design` key.
+
 The format is as follows:
 
 ```yaml
@@ -126,13 +122,12 @@ hierarchies:
 
 A more complex example of a hierarchy can be found in the [examples/hierarchy](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy) directory.
 
-(design-description-ip-description)=
 ## IP description files
 
 Every IP wrapped by Topwrap needs a description file in the YAML format.
 
-The ports of an IP should be placed in the global `signals` key, followed by the direction - `in`, `out` or `inout`.
-The module name of an IP should be placed in the global `name` key, and it should be consistent with the definition in the HDL file.
+The ports of an IP should be placed in the global `signals` key, followed by the direction - `in`, `out` or `inout`. The module name of an IP should be placed in the global `name` key, and it should be consistent with the definition in the HDL file.
+
 As an example, this is the description of ports in the Clock Crossing IP:
 
 ```yaml
@@ -147,7 +142,7 @@ signals:
         - B
 ```
 
-The previous example can be used with any IP. However, in order to benefit from connecting entire interfaces simultaneously, the ports must belong to a named interface like in this example:
+The previous example can be used with any IP. However, in order to benefit from connecting entire interfaces simultaneously, the ports must belong to a named interface as in this example:
 
 ```yaml
 #file: axis_width_converter.yaml
@@ -188,11 +183,10 @@ signals: # These ports do not belong to an interface
 ```
 
 The names `s_axis` and `m_axis` will be used to group the selected ports.
-Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` connects to `TDATA: other_port_name`.
+Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` must connect to `TDATA: other_port_name`.
 
-To speed up the generation of YAMLs, Topwrap's `parse` command (see {ref}`Generating IP core description YAMLs <advanced-options-CLI-generating-ip-yamls>`) can be used to generate YAMLs from HDL source files.
+To speed up the generation of YAMLs, Topwrap's `parse` command (see [](advanced_options.md#generating-ip-core-description-yamls)) can be used to generate YAMLs from HDL source files.
 
-(design-description-port-widths)=
 ### Port widths
 You can specify the port width in the following format:
 
@@ -234,10 +228,10 @@ interfaces:
 * **TDATA** is assigned to `s_axis_tdata` and is 64 bits wide, defined by `[63, 0]`.
 * **TVALID** is assigned to `s_axis_tvalid` and, without a specified range, defaults to **1 bit**.
 
-(design-description-parameterization)=
 ### Parameterization
 
-Port widths don't have to be hardcoded, as parameters can describe an IP core in a generic way, and values specified in IP core YAMLs can be overridden in a design description file (see {ref}`Design Description <design-description>`).
+Port widths don't have to be hardcoded, as parameters can describe an IP core in a generic way, and values specified in IP core YAMLs can be overridden in a design description file (see [](description_files.md#design-description)).
+
 ```yaml
 parameters:
     DATA_WIDTH: 8
@@ -262,7 +256,6 @@ interfaces:
 
 The parameter values can be integers or math expressions, which are evaluated using `simpleeval`.
 
-(design-description-port-slicing)=
 ### Port slicing
 
 Ports can be sliced for using some parts of the port as a signal that belongs to a defined interface.
@@ -279,7 +272,6 @@ m_axi_1:
             BID: [m_axi_bid, 35, 0, 23, 12]
 ```
 
-(design-description-interface-description-files)=
 ## Interface description files
 
 Topwrap can use predefined interfaces, as illustrated in YAML files that come packaged with the tool.
@@ -308,23 +300,24 @@ signals:
             TUSER: tuser
             TWAKEUP: twakeup
 ```
+
 The `name` of an interface must be unique.
 
 Signals are either required or optional, and their direction is described from the perspective of the manager (i.e. the direction of signals in the subordinate are flipped).
-Note that clock and reset are not included as these are usually inputs to both the manager and subordinate, so they are not supported in the interface specification.
+Note that `clock` and `reset` are not included as these are usually inputs to both the manager and subordinate, so they are not supported in the interface specification.
 Every signal is a key-value pair, where the key is a generic signal name (normally taken from the interface specification) and used to identify it in other parts of Topwrap (i.e. IP core description files), and the value is a regex used to deduce which port defined in the HDL sources represents this signal.
 
 ### Interface deduction
 
-During [IP core parsing](#advanced-options-CLI-generating-ip-yamls), you can use the `--iface-deduce` flag to enable automatic pairing of raw ports from HDL sources to interface signals.
+During [IP core parsing](getting_started.md#parsing-verilog-files), you can use the `--iface-deduce` flag to enable automatic pairing of raw ports from HDL sources to interface signals.
 
-This feature matches signal regexes from all available interface descriptions with raw port names of the IP Core in order to discover possible interface instances.
+This feature matches signal regexes from all available interface descriptions with raw port names of the IP core in order to discover possible interface instances.
 The pairing is performed on port names that are transformed to lowercase and have the common `port_prefix` removed, which means that the regexes must also be written in lowercase.
 
 ### Interface compliance
 
-During the [build process](#getting-started-command-line-flow-generating-verilog-top-files), an optional verification of whether the interface instances used in IP cores are compliant with their respective descriptions can be enabled.
-The verification consists of checking in the instance if:
+During the [build process](getting_started.md#building-designs-with-topwrap), an optional verification of whether the interface instances used in IP cores are compliant with their respective descriptions can be enabled. The verification consists of checking in the instance if:
+
 - all signals designated as required in the description are included.
 - no additional signals beyond those defined in the description are included.
 

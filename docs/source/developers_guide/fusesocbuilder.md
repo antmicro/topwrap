@@ -1,9 +1,8 @@
-(dev-guide-fusesocbuilder)=
 #  FuseSocBuilder
 
-Topwrap has support for generating FuseSoC core files with {class}`~topwrap.fuse_helper.FuseSocBuilder`.The core file contains information about source files and synthesis tools.
+Topwrap supports generating FuseSoC .core files with {class}`~topwrap.fuse_helper.FuseSocBuilder`.The .core file contains information about source files and synthesis tools.
 
-Generation of the FuseSoC core files is based on a Jinja template that defaults to `topwrap/templates/core.yaml.j2`, but can be overridden.
+Generation of FuseSoC core files is based on a Jinja template that defaults to `topwrap/templates/core.yaml.j2`, but can be overridden.
 
 Here's an example of how to generate a simple project:
 
@@ -25,7 +24,6 @@ fuse.build('build/top.core', 'sources')
 :::{warning}
 Default template in `topwrap/templates/core.yaml.j2` does not make use of resources added with {meth}`~topwrap.fuse_helper.FuseSocBuilder.add_dependency` or {meth}`~topwrap.fuse_helper.FuseSocBuilder.add_external_ip`, i.e. they won't be present in the generated core file.
 :::
-
 
 ```{eval-rst}
 .. autoclass:: topwrap.fuse_helper.FuseSocBuilder

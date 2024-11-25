@@ -1,13 +1,13 @@
-(dev-guide-examples)=
 # Examples
 
 :::{note}
-The basic usage of examples are explained in the {ref}`getting-started` section.
+The basic usage of examples are explained in the [](../getting_started.md) section.
 :::
 
-The examples provided with this project should cover very simple designs through to complex fully synthesizable cores.
+The examples provided with this project cover very simple designs through to complex fully synthesizable cores.
 
-They should be sorted by increasing complexity and the number of used features, e.g.:
+They are sorted by increasing levels of complexity and the number of used features, e.g.:
+
 - 101: minimal base design
 - 102: introduce user to parameters
 - 103: introduce user to slicing

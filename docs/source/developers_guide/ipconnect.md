@@ -9,7 +9,7 @@ Since {class}`~topwrap.ipconnect.IPConnect` is a subclass of {class}`~topwrap.wr
 Instances of {class}`~topwrap.wrapper.Wrapper` objects can be added to an {class}`~topwrap.ipconnect.IPConnect` using {meth}`~topwrap.ipconnect.IPConnect.add_component` method:
 
 ```python
-# create a wrapper for an IP
+# create an IP wrapper
 dma = IPWrapper('DMATop.yaml', ip_name='DMATop', instance_name='DMATop0')
 ipc = IPConnect()
 ipc.add_component("dma", dma)

@@ -1,31 +1,27 @@
-(advanced-options)=
 # Advanced options
 
-This chapter builds upon the [Getting started](getting_started.md) chapter. If you haven't read it yet, it is recommended to do so first.
+This chapter builds upon the content covered in the [](getting_started.md#getting-started) chapter. If you have not yet reviewed it, we recommend doing so before proceeding.
 
-(advanced-options-creating-block-designs)=
 ## Creating block designs in the GUI
 
-Upon successful connection to the server, Topwrap will generate and send to the server a specification describing the structure of previously selected IP cores. If the `-d` option is used, a design will be shown in the GUI. The content below is based on the PWM example located in `examples/pwm`. From there you can create or modify designs by:
+Upon successfully connecting to the server, Topwrap will generate and transmit a specification describing the structure of the selected IP cores. If the -d option is specified, the design will be displayed in the GUI. The following content is based on the `PWM` example located in `examples/pwm`. From this point, you can create or modify designs by:
 
-* Adjusting IP cores' parameter values. Each node has input boxes in which you can enter parameter values (default parameter values are added while adding an IP core to the block design):
+* adjusting the parameter values of IP cores. Each node includes input fields where you can specify parameter values (default values are automatically assigned when an IP core is added to the block design):
 
-```
-{image} img/node_parameters.png
-```
-
-Parameter values can be integers of different bases (e.g. `0x28`, `40` or `0b101000`) or arithmetic expressions, that are later evaluated (e.g. `(AXI_DATA_WIDTH+1)/4` is a valid parameter value assuming that a parameter named `AXI_DATA_WIDTH` exists in the same IP core). You can also write a parameter value in Verilog format (e.g. `8'b00011111` or `8'h1F`) - in such cases, it will be interpreted as a fixed-width bit vector.
-
-* Connecting IP cores' ports and interfaces. Only connections between ports or interfaces of matching types are allowed. This is automatically checked by the GUI, as the types of nodes' ports and interfaces are contained in the loaded specification, so the GUI will prevent you from connecting non-matching interfaces (e.g. *AXI4* with *AXI4Lite* or a port with an interface). A green line will be displayed if a connection is possible to create, or a red line elsewhere:
-
-```
-{image} img/invalid_connection.png
+```{image} img/node_parameters.png
 ```
 
-* Specifying external ports or interfaces in the top module. This can be done by adding `External Input`, `External Output` or `External Inout` metanodes and creating connections between them and the chosen ports or interfaces. Note that you should adjust the name of the external port or interface in the textbox inside the selected metanode. In the example below, the output port `pwm` of the `litex_pwm_top` IP core is external to the generated top module, meaning the external port name will be set to `ext_pwm`:
+Parameter values can be specified as integers in various bases (e.g., 0x28, 40, or 0b101000) or as arithmetic expressions, which will be evaluated later (e.g., (AXI_DATA_WIDTH + 1) / 4 is a valid expression, provided a parameter named AXI_DATA_WIDTH exists in the same IP core). Additionally, parameter values can be written in Verilog format (e.g., 8'b00011111 or 8'h1F), in which case they will be interpreted as fixed-width bit vectors
 
+* connecting the ports and interfaces of IP cores. Only connections between ports or interfaces of matching types are allowed. This is automatically validated by the GUI, which uses the type information from the loaded specification. As a result, the GUI will prevent users from making invalid connections (e.g., connecting `AXI4` with `AXI4Lite`, or connecting a port to an interface). A green line will indicate a valid connection, while a red line will indicate an invalid one:
+
+```{image} img/invalid_connection.png
 ```
-{image} img/external_port.png
+
+* specifying external ports or interfaces in the top module. To do this, add the appropriate `External Input`, `External Output`, or `External Inout` metanodes, and establish connections between these metanodes and the desired ports or interfaces. Ensure that the name of the external port or interface is updated in the textbox within the selected metanode. For example, in the case where the output port pwm of the `litex_pwm_top` IP core is external to the generated top module, the external port name should be set to `ext_pwm`, as shown below:
+
+
+```{image} img/external_port.png
 ```
 
 An example block design in the Topwrap GUI for the PWM project may look like this:
@@ -38,25 +34,20 @@ An example block design in the Topwrap GUI for the PWM project may look like thi
 
 More information about this example can be found [here](https://antmicro.github.io/topwrap/examples.html#pwm)
 
-(advanced-options-CLI)=
 ## Command Line Interface (CLI)
 
 Topwrap has a couple of CLI only functions that expand on the functionality offered by the GUI.
 
-(advanced-options-CLI-generating-ip-yamls)=
 ### Generating IP core description YAMLs
 
-You can use Topwrap to generate IP core description YAMLs from HDL sources to use in your `project.yml`.
-To learn more about project and core YAMLs, check the {ref}`design description <design-description>` and {ref}`design-description-ip-description`<design-description-ip-description>`
+You can use Topwrap to generate IP core description YAMLs from HDL sources for use in your own `project.yaml`.
+To learn more about project and core YAMLs, check the [](description_files.md#design-description) and [](description_files.md#ip-description-files)
 
 ```
 python -m topwrap parse HDL_FILES
 ```
 
-In HDL source files, ports that belong to the same interface (e.g. wishbone or AXI),
-often have a common prefix, which corresponds to the interface name. If the naming
-convention is followed in the HDL sources, Topwrap can also divide ports into user-specified
-interfaces, or automatically deduce interface names when generating YAML files:
+In HDL source files, ports that belong to the same interface (e.g. `wishbone` or `AXI`) often have a common prefix, which corresponds to the interface name. If the naming convention is followed in the HDL sources, Topwrap can also divide ports into user-specified interfaces, or automatically deduce interface names when generating YAML files:
 
 ```
 python -m topwrap parse --iface wishbone --iface s_axi HDL_FILES
@@ -69,7 +60,6 @@ For help, use:
 python -m topwrap [build|kpm_client|parse] --help
 ```
 
-(advanced-options-validating-designs)=
 ## Validating designs
 
 The Topwrap GUI can perform basic runtime checks, including interface type verification when creating a connection. More complex tests can be run by using Pipeline Manager's `Validate` option. Topwrap will then respond with a validity confirmation or an error message. There is [dedicated chapter](link to checks.md) explaining the validation done by Topwrap.

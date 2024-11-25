@@ -13,7 +13,7 @@ WrapperPort.bounds            # range of bits that belong to the port
                               # and the range which is sliced from the port
 ```
 
-See {ref}`design-description-port-slicing <design-description-port-slicing>` to know more about `bounds`.
+See [IP core port-slicing](../description_files.md#ip-description-files) to know more about `bounds`.
 
 This is used in the {class}`~topwrap.ipwrapper.IPWrapper` class implementation and there should be no need to use {class}`~topwrap.amaranth_helpers.WrapperPort` individually.
 

@@ -1,13 +1,17 @@
-(interconnect-generation)=
 # Interconnect generation
+
+Interconnects enable the connection of multiple interfaces in a many-to-many topology, as opposed to the traditional one-to-one manager-subordinate connection. This approach facilitates data transmission between multiple IP cores over a single interface, with the interconnect serving as an middle-man.
 
 :::{warning}
 Interconnect generation is an experimental feature.
 
-Currently, creating and showing them is not possible in the Topwrap GUI. 
+Currently, creating and showing them is not possible in the Topwrap GUI.
 :::
 
-Interconnects are a convenient feature that allows users to connect multiple interfaces together in a many-to-many topology, instead of the traditional one-to-one connection between a manager and a subordinate. This provides a method of transmitting data between multiple IP cores over a single interface connection in which the interconnect acts as a middle-man.
+Each manager can communicate with any subordinate connected to the interconnect. Every connected subordinate must be assigned a predefined address range, allowing the interconnect to route data based on the address specified by the manager.
+
+A typical interconnect topology diagram is shown below.
+
 
 ```{mermaid}
 :alt: Interconnect topology diagram
@@ -29,15 +33,11 @@ int --> sN[Subordinate 3, 4, 5... <p style="font-size: 0.8em">Address: 0x....</p
 %%sN@{ shape: st-rect }
 ```
 
-Each manager can talk to every subordinate connected to the interconnect.
-Each connected subordinate must have a predefined address range so that the interconnect knows how to route data based on the address put up on the wire by a manager.
+In order to generate an interconnect, you have to describe its configuration in the [](description_files.md#design-description) under the `interconnects` key in the following format, as specified below:
 
-In order to generate an interconnect you have to describe its configuration in the [design description](#design-description) under the `interconnects` key in the following format:
-
-(interconnect-format)=
 ## Format
 
-The format for describing interconnects is specified below. The `interconnects` key must be a direct descendant of the `design` key in the [design description](#design-description).
+The `interconnects` key must be a direct descendant of the `design` key in the [](description_files.md#design-description).
 
 ```yaml
 interconnects:
@@ -77,17 +77,14 @@ interconnects:
       ...
   ...
 ```
-(supported-interconnect-types)=
 ## Supported interconnect types
 
-(supported-interconnect-wishbone-roundrobin)=
 ### `wishbone_roundrobin`
 
 This interconnect only supports Wishbone interfaces for managers and subordinates.
 It supports multiple managers, but only one of them can drive the bus at a time (i.e. only one transaction can be happening on the bus at any given moment).
 A round-robin arbiter decides which manager can currently drive the bus.
 
-(supported-interconnect-wishbone-roundrobin-parameters)=
 #### Parameters
 
 - `addr_width` - bit width of the address line (addresses access `data_width`-sized chunks)
@@ -95,7 +92,6 @@ A round-robin arbiter decides which manager can currently drive the bus.
 - `granularity` - access granularity - the smallest unit of data transfer that the interconnect can transfer. Must be: 8, 16, 32, 64
 - `features` - optional, list of optional wishbone signals, can contain: `err`, `rty`, `stall`, `lock`, `cti`, `bte`
 
-(supported-interconnect-wishbone-roundrobin-limitations)=
 #### Known limitations
 
 The currently known limitations are:

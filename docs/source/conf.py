@@ -65,7 +65,7 @@ myst_enable_extensions = default_myst_enable_extensions
 myst_fence_as_directive = default_myst_fence_as_directive
 
 myst_substitutions = {"project": project}
-
+myst_heading_anchors = 5
 
 today_fmt = "%Y-%m-%d"
 

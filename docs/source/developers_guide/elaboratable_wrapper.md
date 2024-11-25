@@ -1,7 +1,6 @@
-(dev-guide-elaboratablewrapper-class)=
 # ElaboratableWrapper class
 
-{class}`~topwrap.elaboratable_wrapper.ElaboratableWrapper` encapsulates an Amaranth's Elaboratable and exposes an interface compatible with other wrappers which allows for making connections with them.
+{class}`~topwrap.elaboratable_wrapper.ElaboratableWrapper` encapsulates an Amaranth's Elaboratable and exposes an interface compatible with other wrappers, allowing for making connections with them.
 
 The supplied elaboratable must contain the `signature` property and a conforming interface as specified by the [Amaranth docs](https://amaranth-lang.org/rfcs/0002-interfaces.html).
 
