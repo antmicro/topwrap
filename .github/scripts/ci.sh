@@ -146,7 +146,7 @@ generate_docs() {
     install_common_system_packages
     install_topwrap_system_deps
     begin_command_group "Install system packages for doc generation"
-    log_cmd apt-get install -y texlive-full make
+    log_cmd apt-get install -y texlive-full imagemagick make
     end_command_group
     install_nox
 
