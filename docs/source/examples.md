@@ -4,9 +4,6 @@ These projects demonstrate how to use Topwrap on a practical level, with example
 
 ## Embedded GUI
 
-:::{admonition} Information about the embedded GUI
-:class: note
-
 This section extensively uses an embedded version of [Topwrap's GUI](https://github.com/antmicro/kenning-pipeline-manager) to visualize the design of all the examples.
 
 You can use it to explore designs, while adding new blocks, connections, nodes and hierarchies.
@@ -18,11 +15,12 @@ The features that require direct connection with Topwrap's backend are not imple
 - verifying designs
 
 
-
 :::{tip}
 Don't forget to use the "Enable fullscreen" button if the viewport is too small.
+
 ```{image} img/kpm_button_fullscreen.png
 ```
+
 :::
 
 ## Constant
@@ -38,17 +36,18 @@ This example shows how to assign a constant value to a port in an IP core. You c
 It is also visible in the description file (`project.yaml`).
 
 :::{tip}
-You can find the constant node blueprint in the Nodes browser within the `Metanode` section.
+You can find the constant node blueprint in the nodes browser within the `Metanode` section.
 :::
 
 ### Usage
 
-**Switch to the subdirectory with the example**
+Switch to the subdirectory with the example:
+
 ```bash
 cd examples/constant
 ```
 
-**Generate the HDL source**
+Generate the HDL source:
 
 ```bash
 make generate
@@ -71,32 +70,34 @@ An inout port is marked in the GUI by a green circle without a directional arrow
 
 The design consists of 3 modules: input buffer `ibuf`, output buffer `obuf`, and bidirectional buffer `iobuf`.
 Their operation can be described as:
+
 * the input buffer is a synchronous D-type flip flop with an asynchronous reset
 * the output buffer is a synchronous D-type flip flop with an asynchronous reset and an `output enable`, which sets the output to a high impedance state (Hi-Z)
 * the inout buffer instantiates 1 input and 1 output buffer. The input of the `ibuf` and output of the `obuf` are connected with an inout wire (port).
 
 ### Usage
 
-**Switch to the subdirectory with the example**
+Switch to the subdirectory with the example:
+
 ```bash
 cd examples/inout
 ```
 
-:::{admonition} To install the required dependencies
-:class: note
+Install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
+
 :::
 
-**Generate the bitstream for Zynq**
+To generate the bitstream for Zynq, use:
 
 ```bash
 make
 ```
 
-**Generate HDL sources without implementation**
+To generate only the HDL sources use:
 
 ```bash
 make generate
@@ -116,35 +117,25 @@ This example presents the structure of a user repository containing prepackaged 
 Elements of the `repo` directory can be easily reused in different designs by linking to them from the config file or in the CLI.
 
 :::{seealso}
-For more information about user repositories see [](user_repositories.md).
+For more information about user repositories see [this chapter](user_repositories.md).
 :::
 
 :::{tip}
 As other components of the design are automatically imported from the repository, it's possible to load the entire example by specifying the design file:
 
 ```bash
-topwrap kpm_client -d project.yml
+topwrap gui -d project.yml
 ```
+
 :::
 
 ### Usage
 
-[comment]: About the idea of having Pipeline Manager run automatically, I guess this part could be removed?
-
-Build and run the Pipeline Manager server
-
-```bash
-python -m topwrap kpm_build_server
-python -m topwrap kpm_run_server
-```
-
 Navigate to the `/examples/user_repository/` directory and run:
 
 ```bash
-python -m topwrap kpm_client -d project.yml
+topwrap gui -d project.yml
 ```
-
-Connect to the GUI frontend in your browser at `http://127.0.0.1:5000`.
 
 **Expected result**
 
@@ -166,7 +157,7 @@ This example shows how to create a hierarchical design in Topwrap, including a h
 Check out `project.yaml` to learn how the above design translates to a [design description file](description_files.md)
 
 :::{seealso}
-For more information, see the section on [](description_files.md#hierarchies).
+For more information, see the section on [Hierarchies](description_files.md#hierarchies).
 :::
 
 :::{tip}
@@ -178,12 +169,11 @@ To add a new hierarchy node, use the `New Graph Node` option in the node browser
 
 ### Usage
 
-This example contains the [user repository](https://antmicro.github.io/topwrap/user_repositories.html) (`repo` directory) and a configuration file for Topwrap (`topwrap.yaml`). It can be loaded by running
+This example contains the [user repository](https://antmicro.github.io/topwrap/user_repositories.html) (`repo` directory) and a configuration file for Topwrap (`topwrap.yaml`). It can be loaded by entering the examples directory, and running:
 
 ```
-python -m topwrap kpm_client -d project.yaml
+topwrap gui -d project.yaml
 ```
-in the examples directory.
 
 ## PWM
 
@@ -209,28 +199,29 @@ To connect I/O signals to specific FPGA pins, you must use mappings in a constra
 
 ### Usage
 
-**Switch to the subdirectory with the example**
+Switch to the subdirectory with the example:
+
 ```bash
 cd examples/pwm
 ```
 
-:::{admonition} Install the required dependencies
-:class: note
+Install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
+:::{note}
 In order to generate a bitstream, install [Vivado](https://www.xilinx.com/support/download.html) and add it to the `PATH`.
 :::
 
-**Generate bitstream for Zynq**
+To generate bitstream for Zynq, use:
 
 ```bash
 make
 ```
 
-**To generate HDL sources without running Vivado, use**
+To generate HDL sources without running Vivado, use:
 
 ```bash
 make generate
@@ -249,18 +240,19 @@ This is an example of how to use Topwrap to build a complex and synthesizable de
 
 ### Usage
 
-**Switch to the subdirectory with the example**
+Switch to the subdirectory with the example:
+
 ```bash
 cd examples/hdmi
 ```
 
-:::{admonition} Install the required dependencies
-:class: note
+Install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
+:::{note}
 In order to generate a bitstream, install Vivado and add it to the `PATH`.
 :::
 
@@ -278,7 +270,7 @@ Zynq Video Board:
 make zvb
 ```
 
-**To generate HDL sources without running Vivado, use**
+To generate HDL sources without running Vivado, use:
 
 ```bash
 make generate
@@ -298,33 +290,36 @@ The SoC contains a VexRiscv core, data and instruction memory, UART and an inter
 
 ### Usage
 
-**Switch to the subdirectory with the example**
+Switch to the subdirectory with the example:
+
 ```bash
 cd examples/soc
 ```
 
-:::{admonition} Install the required dependencies
-:class: note
+Install the required dependencies:
 
 ```bash
 sudo apt install git make g++ ninja-build gcc-riscv64-unknown-elf bsdextrautils
 ```
 
+:::{note}
 To run the simulation, you need:
+
 - verilator
 
 To create and load the bitstream, use:
+
 - [Vivado](https://www.xilinx.com/support/download.html) (preferably version 2020.2).
 - openFPGALoader ([branch](https://github.com/antmicro/openFPGALoader/tree/antmicro-ddr-tester-boards))
 :::
 
-**Generate HDL sources**
+Generate HDL sources:
 
 ```bash
 make generate
 ```
 
-**Build and run the simulation**
+Build and run the simulation:
 
 ```bash
 make sim
@@ -332,7 +327,7 @@ make sim
 
 The expected waveform generated by the simulation is shown in `expected-waveform.svg`.
 
-**Generate the bitstream**
+Generate the bitstream:
 
 ```bash
 make bitstream

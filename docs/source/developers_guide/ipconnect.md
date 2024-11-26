@@ -23,6 +23,7 @@ ipc.connect_interfaces("comp1_interface_name", "comp1_name", "comp2_interface_na
 ```
 
 Setting ports or interfaces of a module added to {class}`~topwrap.ipconnect.IPConnect` as external with {meth}`~topwrap.ipconnect.IPConnect._set_port` and {meth}`~topwrap.ipconnect.IPConnect._set_interface` and allows these ports/interfaces to be connected to other {class}`~topwrap.wrapper.Wrapper` instances.
+
 ```python
 ipc._set_port("comp1_name", "comp1_port_name", "external_port_name")
 ipc._set_interface("comp1_name", "comp1_interface_name", "external_interface_name")

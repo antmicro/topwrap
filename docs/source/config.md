@@ -11,6 +11,7 @@ topwrap.yaml
 ```
 
 ## Configuration precedence
+
 When multiple configuration files are present, the options are evaluated and overridden based on the location of the configuration file.
 The precedence, from highest to lowest, is as follows:
 
@@ -21,16 +22,19 @@ The precedence, from highest to lowest, is as follows:
 For example, if `force_interface_compliance` is set to `true` in `~/.config/topwrap/config.yaml` but overridden to `false` in `topwrap.yaml`, the latter value will take precedence when running Topwrap in the directory containing `topwrap.yaml`.
 
 ### Merging strategies for configuration options
+
 Different configuration options use different merging strategies when multiple configuration files are combined:
 
 - **Override** (e.g. `force_interface_compliance`): The value from the higher-precedence file completely replaces the value in lower-precedence files.
 - **Merge** (e.g. `repositories`): Values from all configuration files are merged.
-For example, repositories defined in `~/.config/topwrap/topwrap.yaml` are combined with repositories defined in `topwrap.yaml`.
+  For example, repositories defined in `~/.config/topwrap/topwrap.yaml` are combined with repositories defined in `topwrap.yaml`.
 
 ## Available config options
+
 The configuration file for Topwrap provides the following options:
 
 - `force_interface_compliance`
+
   - Type: Boolean
   - Default: `false`
   - Merging strategy: Override
@@ -40,6 +44,7 @@ The configuration file for Topwrap provides the following options:
   For more details, refer to [Interface compliance](description_files.md#interface-compliance).
 
 - `repositories`
+
   - Type: List of objects
   - Merging strategy: Merge
   - Specifies repositories to load, with each repository defined as an object containing the following fields:

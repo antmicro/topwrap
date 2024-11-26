@@ -1,6 +1,6 @@
 # Creating a design
 
-This chapter describes how to create a design in Topwrap, including a detailed overview of Topwrap design files are structured.
+This chapter explains how to create a design in Topwrap, including a detailed overview of how Topwrap design files are structured.
 
 ## Design description
 
@@ -11,7 +11,7 @@ To create a complete and fully synthesizable design, a design file is needed. It
 * connecting the IPs and hierarchies
 * picking external ports (those which will be connected to the physical I/O).
 
-You can see example design files in the `examples` directory. The structure of the design file is below:
+You can see example design files in the `examples` directory. The structure of the design file is shown below:
 
 ```yaml
 ips:
@@ -128,7 +128,7 @@ Every IP wrapped by Topwrap needs a description file in the YAML format.
 
 The ports of an IP should be placed in the global `signals` key, followed by the direction - `in`, `out` or `inout`. The module name of an IP should be placed in the global `name` key, and it should be consistent with the definition in the HDL file.
 
-As an example, this is the description of ports in the Clock Crossing IP:
+As an example, this is the description of ports in the `Clock Crossing` IP:
 
 ```yaml
 # file: clock_crossing.yaml
@@ -185,9 +185,10 @@ signals: # These ports do not belong to an interface
 The names `s_axis` and `m_axis` will be used to group the selected ports.
 Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` must connect to `TDATA: other_port_name`.
 
-To speed up the generation of YAMLs, Topwrap's `parse` command (see [](advanced_options.md#generating-ip-core-description-yamls)) can be used to generate YAMLs from HDL source files.
+To speed up the generation of YAMLs, Topwrap's `parse` command (see [Generating IP core description YAMLs](advanced_options.md#generating-ip-core-description-yamls)) can be used to generate YAMLs from HDL source files.
 
 ### Port widths
+
 You can specify the port width in the following format:
 
 ```yaml
@@ -196,24 +197,26 @@ signals:
         - [port_name, upper_limit, lower_limit]
 ```
 * `port_name` - name of the port.
-* `upper_limit` and `lower_limit` define the bit range, where `[upper_limit, lower_limit]` determines the number of bits for the port (e.g. `[63, 0]` for **64 bits**).
+* `upper_limit` and `lower_limit` define the bit range, where `[upper_limit, lower_limit]` determines the number of bits for the port (e.g. `[63, 0]` for 64 bits).
 
 As an example:
+
 ```yaml
 signals:
     in:
         - [gpio_io_i, 31, 0] # 32 bits
 ```
 
-If the bit range is omitted:
+If the bit range is omitted, as in the example below, then the default width of `port_name` is 1 bit.
+
 ```yaml
 signals:
     in:
       - port_name
 ```
-then the default width of `port_name` is **1 bit**.
 
 You can also specify the signal width within interfaces.
+
 ```yaml
 interfaces:
     s_axis:
@@ -225,12 +228,12 @@ interfaces:
                 ...
                 TVALID: s_axis_tvalid # defaults to 1 bit
 ```
-* **TDATA** is assigned to `s_axis_tdata` and is 64 bits wide, defined by `[63, 0]`.
-* **TVALID** is assigned to `s_axis_tvalid` and, without a specified range, defaults to **1 bit**.
+* `TDATA` is assigned to `s_axis_tdata` and is 64 bits wide, defined by `[63, 0]`.
+* `TVALID` is assigned to `s_axis_tvalid` and, without a specified range, defaults to `1 bit`.
 
 ### Parameterization
 
-Port widths don't have to be hardcoded, as parameters can describe an IP core in a generic way, and values specified in IP core YAMLs can be overridden in a design description file (see [](description_files.md#design-description)).
+Port widths don't have to be hardcoded, as parameters can describe an IP core in a generic way, and values specified in IP core YAMLs can be overridden in a design description file (see [Design description](description_files.md#design-description)).
 
 ```yaml
 parameters:
@@ -254,14 +257,14 @@ interfaces:
                 TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
 ```
 
-The parameter values can be integers or math expressions, which are evaluated using `simpleeval`.
+The parameter values can be integers or math expressions.
 
 ### Port slicing
 
 Ports can be sliced for using some parts of the port as a signal that belongs to a defined interface.
 
 As an example:
-`Port m_axi_bid of the IP core is 36 bits wide. Use bits 23..12 as the BID signal of the AXI manager is named m_axi_1`
+Port `m_axi_bid` of the IP core is 36 bits wide. Use bits `23..12` as the `BID` signal of the `m_axi_1` AXI manager
 
 ```yaml
 m_axi_1:

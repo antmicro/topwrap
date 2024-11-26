@@ -1,6 +1,7 @@
 # Getting started
 
-The purpose of this chapter is to provide a step by step guide on how to create a simple design with Topwrap. All the necessary files needed to follow this guide are in the `examples/getting_started_demo` directory.
+The purpose of this chapter is to provide a step by step guide on how to create a simple design with Topwrap.
+All the necessary files needed to follow this guide are in the [examples/getting_started_demo](https://github.com/antmicro/topwrap/tree/main/examples/getting_started_demo) directory.
 
 :::{admonition} Important
 :class: attention
@@ -27,7 +28,7 @@ They can be found in the "Metanode" section.
 
 The first step when creating designs is to parse Verilog files into [IP core description YAMLs](https://antmicro.github.io/topwrap/usage.html#generating-ip-core-description-yamls) that are understood by Topwrap.
 
-In the `verilogs` directory, there are two Verilog files described, `simple_core_1` and `simple_core_2`.
+The `verilogs` directory contains two Verilog files, `simple_core_1.v` and `simple_core_2.v`.
 
 To generate the IP core descriptions from these Verilog files run:
 
@@ -41,13 +42,11 @@ Topwrap will generate two files `simple_core_1.yaml` and `simple_core_2.yaml` th
 
 ### Creating the design
 
-The generated IP core YAMLs can be loaded into the GUI.
+The generated IP core YAMLs can be loaded into the GUI, using:
 
-Run the GUI client:
 ```bash
-topwrap gui gen_simple_core_1.yaml gen_simple_core_2.yaml
+topwrap gui simple_core_1.yaml simple_core_2.yaml
 ```
-It should build and start server, connect the client to it and open the browser with GUI.
 
 The loaded IP cores can be found in the IPcore section:
 
@@ -61,8 +60,7 @@ Let's make the design from the demo in the [introduction](#introduction).
 ```{image} img/getting_started_project.png
 ```
 
-:::
-{note} You can change the name of an individual node by right clicking on it and selecting `rename`. This is useful when creating multiple instances of the same IP core.
+:::{note} You can change the name of an individual node by right clicking on it and selecting `rename`. This is useful when creating multiple instances of the same IP core.
 :::
 
 You can save the project in the [Design Description](description_files.md#design-description) format, which is used by Topwrap to represent the created design.
@@ -90,7 +88,7 @@ You can generate Verilog from the design created in the previous section if you 
 1. Save/Load designs.
 2. Toggle the node browser.
 3. Validate the design.
-4. Build the design. If it does not contain errors, a top module will be created in the directory where `topwrap kpm_client` was run.
+4. Build the design. If it does not contain errors, a top module will be created in the directory where `topwrap gui` was run.
 
 ## Command-line flow
 
@@ -198,4 +196,4 @@ Where `{design_name.yaml}` is the design saved at the end of the previous sectio
 
 ### Synthesis & FuseSoC
 
-You can additionally generate a [FuseSoC core](#fusesoc) file during `topwrap build` to automate further synthesis and implementation.
+You can additionally generate a [FuseSoC core](#fusesoc) file during `topwrap build` to automate further synthesis and implementation by simply adding the `-f` (`--fuse`) option.

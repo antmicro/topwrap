@@ -2,22 +2,6 @@
 
 By using Topwrap repositories, you can package and load multiple IP cores along with custom interfaces.
 You can specify the repositories to be loaded each time Topwrap runs by listing them in a [configuration file](config.md#configuration-file-location).
-The file must be located in one of these locations:
-
-```
-topwrap.yaml
-~/.config/topwrap/topwrap.yaml
-~/.config/topwrap/config.yaml
-```
-
-Sample user configuration file:
-
-```
-force_interface_compliance: true
-repositories:
-  - name: name_of_repo
-    path: ~/path_to_repo/repo
-```
 
 Topwrap provides an internal API for constructing repositories in [Python](https://github.com/antmicro/topwrap/blob/main/topwrap/repo/user_repo.py).
 
@@ -49,7 +33,7 @@ A sample user repository can be found in [examples/user_repository](https://gith
 
 ## Using the open source IP cores library with Topwrap
 
-Topwrap comes with built-in support for an extensive library of open source IP cores available through the [Fusesoc](https://github.com/olofk/fusesoc) package manager, which also serves as a build system. This library offers a wide range of reusable IP cores for various applications, enabling easy integration into Topwrap projects. Topwrap simplifies the process of accessing, downloading, and packaging these IP cores, making them readily available for local use in your designs.
+Topwrap comes with built-in support for an extensive library of open source IP cores available through the [FuseSoC](https://github.com/olofk/fusesoc) package manager, which also serves as a build system. This library offers a wide range of reusable IP cores for various applications, enabling easy integration into Topwrap projects. Topwrap simplifies the process of accessing, downloading, and packaging these IP cores, making them readily available for local use in your designs.
 
 To include an IP core from the open source library, there are two methods:
 
@@ -62,4 +46,4 @@ To include an IP core from the open source library, there are two methods:
 
 This will download and parse all the cores from Fusesoc into `build/fusesoc_workspace/build/export/cores/`, making them accessible from within Topwrap.
 
-You can learn more about Topwrap integration with Fusesoc [here](#fusesoc)
+You can learn more about Topwrap integration with FuseSoC [here](#fusesoc)

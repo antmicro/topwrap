@@ -2,7 +2,6 @@
 
 Topwrap functionality is validated with tests that leverage the `pytest` library.
 
-
 ## Test execution
 
 The tests are located in the `tests` directory.
@@ -25,6 +24,7 @@ To reuse an existing virtual environment and avoid lengthy installation times,  
 ```bash
 nox -R -s tests_in_env
 ```
+
 :::
 
 To force a specific Python version and avoid running tests for all listed versions, use `-p VERSION` flag:
@@ -34,6 +34,7 @@ nox -p 3.10 -s tests_in_env
 ```
 
 Tests can also be launched without `nox` by executing:
+
 ```bash
 python -m pytest
 ```
@@ -44,12 +45,14 @@ As the CI runs on all supported Python versions, it's recommended to run tests w
 :::
 
 Ignoring a particular test can be performed with `--ignore=test_path`, e.g:
+
 ```bash
 python -m pytest --ignore=tests/tests_build/test_interconnect.py
 ```
 
 For debugging purposes, Pytest captures all output from the test and displays it when all tests are completed.
 To see the output immediately, pass the `-s` flag to pytest:
+
 ```bash
 python -m pytest -s
 ```
@@ -88,7 +91,7 @@ To update only specifications run:
 nox -s update_test_data -- specification
 ```
 
-To update options for `update_test_data` sessions, use:
-* `specification` 
-* `dataflow` 
-* `design` 
+Valid options for `update_test_data` sessions, are:
+* `specification`
+* `dataflow`
+* `design`

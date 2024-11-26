@@ -18,6 +18,7 @@ To reuse the current virtual environment and avoid lengthy installation processe
 ```bash
 nox -R -s lint
 ```
+
 :::
 
 :::{note}
@@ -26,7 +27,9 @@ pre-commit can also be run from nox:
 ```bash
 nox -s pre_commit
 ```
+
 :::
+
 ## Lint with pre-commit
 
 Alternatively, use `pre-commit` to perform the same job.
@@ -56,15 +59,9 @@ pre-commit run --all-files
 ## Tools
 
 Tools used in the Topwrap project for maintaining the code style:
-* `Nox` is a tool, which simplifies management of Python testing.
-[Visit the nox website](https://nox.thea.codes/en/stable/)
-* `pre-commit` is a framework for managing and maintaining multi-language pre-commit hooks.
-[Visit the pre-commit website](https://pre-commit.com/)
-* `Black` is a code formatter.
-[Visit the black website](https://black.readthedocs.io/en/stable/)
-* `Flake8` is a tool capable of linting, styling fixes and complexity analysis.
-[Visit the flake8 website](https://flake8.pycqa.org/en/latest/)
-* `Isort` is a Python utility to sort imports alphabetically.
-[Visit the isort website](https://pycqa.github.io/isort/)
-* `Codespell` is a Python tool to fix common spelling mistakes in text files
-[Visit the codespell repository](https://github.com/codespell-project/codespell)
+* [`nox`](https://nox.thea.codes/en/stable/) is a tool, which simplifies management of Python testing.
+* [`pre-commit`](https://pre-commit.com/) is a framework for managing and maintaining multi-language pre-commit hooks.
+* [`black`](https://black.readthedocs.io/en/stable/) is a Python code formatter.
+* [`flake8`](https://flake8.pycqa.org/en/latest/) is a tool capable of linting, styling fixes and complexity analysis of Python code.
+* [`isort`](https://pycqa.github.io/isort/) is a Python utility to sort imports alphabetically.
+* [`codespell`](https://github.com/codespell-project/codespell) is a Python tool to fix common spelling mistakes in text files

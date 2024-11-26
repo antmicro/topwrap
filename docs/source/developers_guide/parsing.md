@@ -6,7 +6,6 @@ The problem can be described as: given a set of signals, infer what interfaces a
 Interface names and types (AXI4, AXI Stream, Wishbone, etc.) are generally not provided in advance.
 The algorithm implemented in Topwrap works broadly as follows:
 
-<!--comment: verify these-->
 1. Split the given signal set into disjoint subsets of signals based on common prefixes in their names
 2. For a given subset, try to pair each signal name (as it appears in the RTL) with the name of an interface signal (as it is defined in the specification of a particular interface). This pairing is called "a matching", and matching with signals from all defined interfaces is tried.
 3. For a given subset and matched interface, infer the interface direction (manager/subordinate) based on the direction of a signal in this set.
@@ -15,6 +14,7 @@ The algorithm implemented in Topwrap works broadly as follows:
 ## Step 1 - splitting ports into subsets
 
 First, all ports of a module are grouped into disjoint subsets. Execution of this step differs based on the options supplied to `topwrap parse`:
+
 - with `--iface` the user supplies Topwrap with interface names - ports with names starting with a given interface name will be put in the same subset.
 - with `--use-yosys` grouping is done by parsing the RTL source with `yosys`, where ports have attributes in the form of `(* interface="interface_name" *)`.
 Ports with the same `interface_name` will be put in the same subset.

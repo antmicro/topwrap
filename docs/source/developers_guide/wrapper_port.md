@@ -1,4 +1,3 @@
-(dev-guide-wrapper-port)
 # Wrapper Port
 
 The class {class}`~topwrap.amaranth_helpers.WrapperPort` is an extension to Amaranth's {class}`Signal`.

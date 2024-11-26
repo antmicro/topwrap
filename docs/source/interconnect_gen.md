@@ -33,11 +33,11 @@ int --> sN[Subordinate 3, 4, 5... <p style="font-size: 0.8em">Address: 0x....</p
 %%sN@{ shape: st-rect }
 ```
 
-In order to generate an interconnect, you have to describe its configuration in the [](description_files.md#design-description) under the `interconnects` key in the following format, as specified below:
+In order to generate an interconnect, you have to describe its configuration in the [Design description](description_files.md#design-description) under the `interconnects` key in the following format, as specified below:
 
 ## Format
 
-The `interconnects` key must be a direct descendant of the `design` key in the [](description_files.md#design-description).
+The `interconnects` key must be a direct descendant of the `design` key in the [Design description](description_files.md#design-description).
 
 ```yaml
 interconnects:
@@ -77,6 +77,7 @@ interconnects:
       ...
   ...
 ```
+
 ## Supported interconnect types
 
 ### `wishbone_roundrobin`
@@ -95,5 +96,6 @@ A round-robin arbiter decides which manager can currently drive the bus.
 #### Known limitations
 
 The currently known limitations are:
+
 - only word-sized addressing is supported (in other words - consecutive addresses can only access word-sized chunks of data)
 - crossing clock domains, down-converting (initiating multiple transactions on a narrow bus per one transaction on a wider bus) and up-converting are not supported

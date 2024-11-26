@@ -7,7 +7,6 @@ It creates an Amaranth `Instance` object during elaboration, referencing a parti
 Ports and interfaces (lists of ports) can be retrieved via standard methods of {class}`~topwrap.wrapper.Wrapper`.
 These are instances of {class}`~topwrap.amaranth_helpers.WrapperPort`s.
 
-
 ```{image} ../img/wrapper.png
 ```
 

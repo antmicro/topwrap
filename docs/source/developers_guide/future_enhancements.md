@@ -10,7 +10,7 @@ Topwrap supports creating hierarchical designs by manually writing the hierarchy
 
 ## Support for parsing SystemVerilog sources
 
-Information about IP cores is stored in [](../description_files.md#ip-description-files). These files can be generated automatically from HDL source files - currently Verilog and VHDL are supported. In a future release, Topwrap will also provide the possibility of generating YAMLs from SystemVerilog.
+Information about IP cores is stored in [IP description files](../description_files.md#ip-description-files). These files can be generated automatically from HDL source files - currently Verilog and VHDL are supported. In a future release, Topwrap will also provide the possibility of generating YAMLs from SystemVerilog.
 
 # Other possible improvements
 

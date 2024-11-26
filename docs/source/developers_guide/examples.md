@@ -1,7 +1,7 @@
 # Examples
 
 :::{note}
-The basic usage of examples are explained in the [](../getting_started.md) section.
+The basic usage of examples are explained in the [Getting started](../getting_started.md) section.
 :::
 
 The examples provided with this project cover very simple designs through to complex fully synthesizable cores.
