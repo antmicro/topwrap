@@ -54,7 +54,7 @@ def test_lint(session: nox.Session) -> None:
 
 @nox.session(python=PYTHON_VERSIONS)
 def tests(session: nox.Session) -> None:
-    session.install("-e", ".[tests,topwrap-parse]")
+    session.install("-e", ".[tests,parse]")
     session.run(
         "pytest",
         "-rs",
@@ -136,7 +136,7 @@ def build(session: nox.Session) -> None:
 def _install_test(session: nox.Session) -> None:
     package_file = next(Path().glob("dist/topwrap*.tar.gz"), None)
     assert package_file is not None, "Cannot find source package in the dist/ directory"
-    session.install(f"{package_file}[tests,topwrap-parse]")
+    session.install(f"{package_file}[tests,parse]")
     session.run(
         "pytest",
         "-rs",
@@ -154,7 +154,7 @@ def doc_gen(session: nox.Session) -> None:
         # generate specs and dataflows for all examples and put them in docs/build/kpm_jsons
         # so that they can be used in the documentation without committing them to repo.
         Path("docs/build/kpm_jsons").mkdir(exist_ok=True, parents=True)
-        session.install(".[topwrap-parse]")
+        session.install(".[parse]")
         with TemporaryDirectory() as tmpdir, TemporaryFile(mode="w+") as errfile:
             shutil.copytree(Path("."), tmpdir, dirs_exist_ok=True)
             for example in (Path(tmpdir) / "examples").iterdir():
@@ -285,7 +285,7 @@ def _pyright_check(session: nox.Session) -> None:
 
 @nox.session
 def package_cores(session: nox.Session) -> None:
-    session.install("-e", ".[topwrap-parse]")
+    session.install("-e", ".[parse]")
     session.install("fusesoc")
     if len(session.posargs) > 0:
         session.run("python", ".github/scripts/package_cores.py", "--log-level", session.posargs[0])

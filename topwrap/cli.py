@@ -151,8 +151,8 @@ def parse_main(
         from .vhdl_parser import VHDLModule
     except ModuleNotFoundError:
         raise RuntimeError(
-            "hdlConvertor not installed, please install optional dependency topwrap-parse "
-            "e.g. pip install topwrap[topwrap-parse]"
+            "hdlConvertor not installed, please install optional dependency topwrap[parse]"
+            "e.g. pip install topwrap[parse]"
         )
 
     configure_log_level(log_level)

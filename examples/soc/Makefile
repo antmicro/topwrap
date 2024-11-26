@@ -59,7 +59,7 @@ clean:
 	rm -f vivado* usage_statistics_webtalk*
 
 deps:
-	pip install '../../.[topwrap-parse]'
+	pip install '../../.[parse]'
 
 ci: deps generate
 

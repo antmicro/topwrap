@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-topwrap-parse = [
+parse = [
   "hdlConvertor @ git+https://github.com/Nic30/hdlConvertor@fae60effdb16574de152bf9bf7bc2e225b729797",
 ]
 lint = [
@@ -65,6 +65,7 @@ docs = [
   'sphinx_tabs==3.4.5',
   'antmicro-sphinx-utils @ git+https://github.com/antmicro/antmicro-sphinx-utils@f5873e116c40a3b6087e49ccad7db3497402ee81'
 ]
+all = ['topwrap[parse,lint,tests,deploy,docs]']
 
 [project.scripts]
 topwrap = "topwrap.cli:main"
