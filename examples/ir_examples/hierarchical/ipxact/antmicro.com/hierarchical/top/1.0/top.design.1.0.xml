@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>hierarchical</ipxact:library>
+	<ipxact:name>top.design</ipxact:name>
+	<ipxact:version>1.0</ipxact:version>
+	<ipxact:componentInstances>
+		<ipxact:componentInstance>
+			<ipxact:instanceName>proc</ipxact:instanceName>
+			<ipxact:componentRef vendor="antmicro.com" library="hierarchical" name="proc" version="1.0"/>
+
+		</ipxact:componentInstance>
+	</ipxact:componentInstances>
+	<ipxact:adHocConnections>
+		<ipxact:adHocConnection>
+			<ipxact:name>proc_btn_to_btn</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="proc" portRef="btn"/>
+				<ipxact:externalPortReference portRef="btn"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>proc_rst_to_rst</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="proc" portRef="rst"/>
+				<ipxact:externalPortReference portRef="rst"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>proc_clk_to_clk</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="proc" portRef="clk"/>
+				<ipxact:externalPortReference portRef="clk"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>proc_enc0_to_disp0</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="proc" portRef="enc0"/>
+				<ipxact:externalPortReference portRef="disp0"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>proc_enc1_to_disp1</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="proc" portRef="enc1"/>
+				<ipxact:externalPortReference portRef="disp1"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>proc_enc2_to_disp2</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="proc" portRef="enc2"/>
+				<ipxact:externalPortReference portRef="disp2"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+	</ipxact:adHocConnections>
+
+</ipxact:design>

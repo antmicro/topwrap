@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>hierarchical</ipxact:library>
+	<ipxact:name>d_ff</ipxact:name>
+	<ipxact:version>1.0</ipxact:version>
+	<ipxact:model>
+		<ipxact:instantiations>
+			<ipxact:componentInstantiation>
+				<ipxact:name>rtl</ipxact:name>
+				<ipxact:moduleParameters>
+					<ipxact:moduleParameter parameterId="uuid_683ce26c_61ef_422b_bb6c_ed0b084bb083" resolve="user">
+						<ipxact:name>WIDTH</ipxact:name>
+						<ipxact:value>uuid_ca41c6da_3afa_4234_90d0_1e1bbbddf75d</ipxact:value>
+					</ipxact:moduleParameter>
+				</ipxact:moduleParameters>
+			</ipxact:componentInstantiation>
+		</ipxact:instantiations>
+		<ipxact:ports>
+			<ipxact:port>
+				<ipxact:name>clk</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>rst</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left></ipxact:left>
+							<ipxact:right></ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>D</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_ca41c6da_3afa_4234_90d0_1e1bbbddf75d-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>Q</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_ca41c6da_3afa_4234_90d0_1e1bbbddf75d-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+			</ipxact:port>
+		</ipxact:ports>
+	</ipxact:model>
+	<ipxact:parameters>
+		<ipxact:parameter parameterId="uuid_ca41c6da_3afa_4234_90d0_1e1bbbddf75d" resolve="user">
+			<ipxact:name>paramWIDTH</ipxact:name>
+			<ipxact:displayName>paramWIDTH</ipxact:displayName>
+			<ipxact:value>4</ipxact:value>
+		</ipxact:parameter>
+	</ipxact:parameters>
+
+</ipxact:component>

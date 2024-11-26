@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>simple</ipxact:library>
+	<ipxact:name>2mux</ipxact:name>
+	<ipxact:version>1.0</ipxact:version>
+	<ipxact:model>
+		<ipxact:instantiations>
+			<ipxact:componentInstantiation>
+				<ipxact:name>rtl</ipxact:name>
+				<ipxact:displayName>rtl</ipxact:displayName>
+				<ipxact:moduleParameters>
+					<ipxact:moduleParameter parameterId="uuid_d13a662c_abf7_4027_a68c_5e97df55307e" type="longint">
+						<ipxact:name>WIDTH</ipxact:name>
+						<ipxact:displayName>WIDTH</ipxact:displayName>
+						<ipxact:value>uuid_8aa7308d_4062_497d_b1f7_5af6060277c9</ipxact:value>
+					</ipxact:moduleParameter>
+					<ipxact:moduleParameter parameterId="uuid_c4cce9af_a8d0_4f8f_a71c_33012fc8fe58" type="longint">
+						<ipxact:name>OUT_WIDTH</ipxact:name>
+						<ipxact:displayName>OUT_WIDTH</ipxact:displayName>
+						<ipxact:value>uuid_06932756_fde6_4b3a_8bec_5c5c253fa7b6</ipxact:value>
+					</ipxact:moduleParameter>
+				</ipxact:moduleParameters>
+			</ipxact:componentInstantiation>
+		</ipxact:instantiations>
+		<ipxact:ports>
+			<ipxact:port>
+				<ipxact:name>gen_sel</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>gen1</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_8aa7308d_4062_497d_b1f7_5af6060277c9-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+					<ipxact:drivers>
+						<ipxact:driver>
+							<ipxact:defaultValue></ipxact:defaultValue>
+						</ipxact:driver>
+					</ipxact:drivers>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>gen2</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_8aa7308d_4062_497d_b1f7_5af6060277c9-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+					<ipxact:drivers>
+						<ipxact:driver>
+							<ipxact:defaultValue></ipxact:defaultValue>
+						</ipxact:driver>
+					</ipxact:drivers>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>out</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_06932756_fde6_4b3a_8bec_5c5c253fa7b6-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+			</ipxact:port>
+		</ipxact:ports>
+	</ipxact:model>
+	<ipxact:parameters>
+		<ipxact:parameter parameterId="uuid_8aa7308d_4062_497d_b1f7_5af6060277c9" resolve="user" type="longint">
+			<ipxact:name>pWIDTH</ipxact:name>
+			<ipxact:displayName>WIDTH</ipxact:displayName>
+			<ipxact:value>64</ipxact:value>
+		</ipxact:parameter>
+		<ipxact:parameter parameterId="uuid_06932756_fde6_4b3a_8bec_5c5c253fa7b6" resolve="user" type="longint">
+			<ipxact:name>pOUT_WIDTH</ipxact:name>
+			<ipxact:displayName>OUT_WIDTH</ipxact:displayName>
+			<ipxact:value>1</ipxact:value>
+		</ipxact:parameter>
+	</ipxact:parameters>
+
+</ipxact:component>

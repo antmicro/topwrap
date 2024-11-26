@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>interconnect</ipxact:library>
+	<ipxact:name>top.design</ipxact:name>
+	<ipxact:version>1.0</ipxact:version>
+	<ipxact:componentInstances>
+		<ipxact:componentInstance>
+			<ipxact:instanceName>cpu_0</ipxact:instanceName>
+			<ipxact:componentRef vendor="antmicro.com" library="interconnect" name="cpu" version="1.0"/>
+
+		</ipxact:componentInstance>
+		<ipxact:componentInstance>
+			<ipxact:instanceName>mem_0</ipxact:instanceName>
+			<ipxact:componentRef vendor="antmicro.com" library="interconnect" name="mem" version="1.0"/>
+
+		</ipxact:componentInstance>
+		<ipxact:componentInstance>
+			<ipxact:instanceName>wishbone_interconnect1_0</ipxact:instanceName>
+			<ipxact:componentRef vendor="antmicro.com" library="interconnect" name="wishbone_interconnect1" version="1.0"/>
+
+		</ipxact:componentInstance>
+		<ipxact:componentInstance>
+			<ipxact:instanceName>dsp_0</ipxact:instanceName>
+			<ipxact:componentRef vendor="antmicro.com" library="interconnect" name="dsp" version="1.0"/>
+
+		</ipxact:componentInstance>
+	</ipxact:componentInstances>
+	<ipxact:interconnections>
+		<ipxact:interconnection>
+			<ipxact:name>cpu_0_bus_manager_to_wishbone_interconnect1_0_manager0</ipxact:name>
+			<ipxact:activeInterface componentInstanceRef="cpu_0" busRef="bus_manager"/>
+			<ipxact:activeInterface componentInstanceRef="wishbone_interconnect1_0" busRef="manager0"/>
+		</ipxact:interconnection>
+		<ipxact:interconnection>
+			<ipxact:name>wishbone_interconnect1_0_manager1_to_ext_manager</ipxact:name>
+			<ipxact:activeInterface componentInstanceRef="wishbone_interconnect1_0" busRef="manager1"/>
+			<ipxact:hierInterface busRef="ext_manager"/>
+		</ipxact:interconnection>
+		<ipxact:interconnection>
+			<ipxact:name>wishbone_interconnect1_0_target_0_to_mem_0_bus</ipxact:name>
+			<ipxact:activeInterface componentInstanceRef="wishbone_interconnect1_0" busRef="target_0"/>
+			<ipxact:activeInterface componentInstanceRef="mem_0" busRef="bus"/>
+		</ipxact:interconnection>
+		<ipxact:interconnection>
+			<ipxact:name>dsp_0_bus_to_wishbone_interconnect1_0_target_1</ipxact:name>
+			<ipxact:activeInterface componentInstanceRef="dsp_0" busRef="bus"/>
+			<ipxact:activeInterface componentInstanceRef="wishbone_interconnect1_0" busRef="target_1"/>
+		</ipxact:interconnection>
+	</ipxact:interconnections>
+	<ipxact:adHocConnections>
+		<ipxact:adHocConnection>
+			<ipxact:name>cpu_0_clk_to_clk</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="cpu_0" portRef="clk"/>
+				<ipxact:externalPortReference portRef="clk"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>cpu_0_rst_to_rst</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="cpu_0" portRef="rst"/>
+				<ipxact:externalPortReference portRef="rst"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>mem_0_clk_to_clk</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="mem_0" portRef="clk"/>
+				<ipxact:externalPortReference portRef="clk"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>dsp_0_clk_to_clk</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="dsp_0" portRef="clk"/>
+				<ipxact:externalPortReference portRef="clk"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>dsp_0_rst_to_rst</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="dsp_0" portRef="rst"/>
+				<ipxact:externalPortReference portRef="rst"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+		<ipxact:adHocConnection>
+			<ipxact:name>mem_0_rst_to_rst</ipxact:name>
+			<ipxact:portReferences>
+				<ipxact:internalPortReference componentInstanceRef="mem_0" portRef="rst"/>
+				<ipxact:externalPortReference portRef="rst"/>
+			</ipxact:portReferences>
+		</ipxact:adHocConnection>
+	</ipxact:adHocConnections>
+
+</ipxact:design>

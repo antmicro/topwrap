@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>simple</ipxact:library>
+	<ipxact:name>lfsr_gen</ipxact:name>
+	<ipxact:version>1.2</ipxact:version>
+	<ipxact:model>
+		<ipxact:instantiations>
+			<ipxact:componentInstantiation>
+				<ipxact:name>rtl</ipxact:name>
+				<ipxact:displayName>rtl</ipxact:displayName>
+				<ipxact:language>yaml</ipxact:language>
+				<ipxact:moduleParameters>
+					<ipxact:moduleParameter parameterId="uuid_69e5d4f1_05c1_44f3_bca6_a21069bfba13">
+						<ipxact:name>WIDTH</ipxact:name>
+						<ipxact:displayName>WIDTH</ipxact:displayName>
+						<ipxact:value>uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e</ipxact:value>
+					</ipxact:moduleParameter>
+					<ipxact:moduleParameter parameterId="uuid_f547378b_1983_47c3_b6b9_2d66b99639ef">
+						<ipxact:name>SEED</ipxact:name>
+						<ipxact:displayName>SEED</ipxact:displayName>
+						<ipxact:value>uuid_38bdfd3a_4a10_498b_9bae_9ac89ab8c716</ipxact:value>
+					</ipxact:moduleParameter>
+				</ipxact:moduleParameters>
+			</ipxact:componentInstantiation>
+		</ipxact:instantiations>
+		<ipxact:ports>
+			<ipxact:port>
+				<ipxact:name>clk</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>rst</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>gen_out</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+
+			</ipxact:port>
+		</ipxact:ports>
+	</ipxact:model>
+	<ipxact:parameters>
+		<ipxact:parameter parameterId="uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e" resolve="user" type="longint">
+			<ipxact:name>pWIDTH</ipxact:name>
+			<ipxact:displayName>pWIDTH</ipxact:displayName>
+			<ipxact:value>64</ipxact:value>
+		</ipxact:parameter>
+		<ipxact:parameter parameterId="uuid_38bdfd3a_4a10_498b_9bae_9ac89ab8c716" resolve="user" type="longint">
+			<ipxact:name>pSEED</ipxact:name>
+			<ipxact:displayName>pSEED</ipxact:displayName>
+			<ipxact:value>1</ipxact:value>
+		</ipxact:parameter>
+	</ipxact:parameters>
+
+</ipxact:component>

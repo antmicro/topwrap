@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>hierarchical</ipxact:library>
+	<ipxact:name>adder</ipxact:name>
+	<ipxact:version>1.0</ipxact:version>
+	<ipxact:model>
+		<ipxact:instantiations>
+			<ipxact:componentInstantiation>
+				<ipxact:name>rtl</ipxact:name>
+				<ipxact:displayName>rtl</ipxact:displayName>
+				<ipxact:language>Verilog</ipxact:language>
+				<ipxact:moduleParameters>
+					<ipxact:moduleParameter parameterId="uuid_2316bf28_4762_47dc_b46c_f9d642f6dd25" resolve="user" type="longint">
+						<ipxact:name>WIDTH</ipxact:name>
+						<ipxact:displayName>WIDTH</ipxact:displayName>
+						<ipxact:value>uuid_8beee66a_d8c9_4181_ab5d_84c3f023121f</ipxact:value>
+					</ipxact:moduleParameter>
+				</ipxact:moduleParameters>
+			</ipxact:componentInstantiation>
+		</ipxact:instantiations>
+		<ipxact:ports>
+			<ipxact:port>
+				<ipxact:name>a</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_8beee66a_d8c9_4181_ab5d_84c3f023121f-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>b</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_8beee66a_d8c9_4181_ab5d_84c3f023121f-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>sum</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>uuid_8beee66a_d8c9_4181_ab5d_84c3f023121f-1</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
+				</ipxact:wire>
+			</ipxact:port>
+		</ipxact:ports>
+	</ipxact:model>
+	<ipxact:parameters>
+		<ipxact:parameter parameterId="uuid_8beee66a_d8c9_4181_ab5d_84c3f023121f" resolve="user" type="longint">
+			<ipxact:name>paramWIDTH</ipxact:name>
+			<ipxact:displayName>paramWIDTH</ipxact:displayName>
+			<ipxact:value>4</ipxact:value>
+		</ipxact:parameter>
+	</ipxact:parameters>
+
+</ipxact:component>

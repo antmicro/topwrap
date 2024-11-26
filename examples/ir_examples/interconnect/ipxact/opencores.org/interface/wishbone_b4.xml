@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ipxact:busDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+  <ipxact:vendor>opencores.org</ipxact:vendor>
+  <ipxact:library>interface</ipxact:library>
+  <ipxact:name>wishbone</ipxact:name>
+  <ipxact:version>b4</ipxact:version>
+  <ipxact:description>Specification of wishbone bus is available at: http://cdn.opencores.org/downloads/wbspec_b4.pdf
+
+Clock and reset signals are not specifically master-to-slave signals nor vice versa, but instead they come from a third party that assumes neither mode.
+
+Notice that while multiple slaves and masters are supported, broadcasts are not. Thus an arbiter will be required, unless it is a single master to single slave connection.</ipxact:description>
+  <ipxact:directConnection>true</ipxact:directConnection>
+  <ipxact:broadcast>false</ipxact:broadcast>
+  <ipxact:isAddressable>true</ipxact:isAddressable>
+  <ipxact:systemGroupNames>
+    <ipxact:systemGroupName>ClockSource</ipxact:systemGroupName>
+    <ipxact:systemGroupName>ClockSink</ipxact:systemGroupName>
+  </ipxact:systemGroupNames>
+</ipxact:busDefinition>

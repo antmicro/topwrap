@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>hierarchical</ipxact:library>
+	<ipxact:name>proc</ipxact:name>
+	<ipxact:version>1.0</ipxact:version>
+	<ipxact:model>
+		<ipxact:views>
+			<ipxact:view>
+				<ipxact:name>hierarchical</ipxact:name>
+				<ipxact:designConfigurationInstantiationRef>_design_configuration</ipxact:designConfigurationInstantiationRef>
+			</ipxact:view>
+		</ipxact:views>
+		<ipxact:instantiations>
+			<ipxact:designConfigurationInstantiation>
+				<ipxact:name>_design_configuration</ipxact:name>
+				<ipxact:designConfigurationRef vendor="antmicro.com" library="hierarchical" name="proc.designcfg" version="1.0"/>
+			</ipxact:designConfigurationInstantiation>
+		</ipxact:instantiations>
+		<ipxact:ports>
+			<ipxact:port>
+				<ipxact:name>btn</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>clk</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>rst</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>enc0</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>enc1</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>enc2</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+				</ipxact:wire>
+
+			</ipxact:port>
+		</ipxact:ports>
+	</ipxact:model>
+
+</ipxact:component>

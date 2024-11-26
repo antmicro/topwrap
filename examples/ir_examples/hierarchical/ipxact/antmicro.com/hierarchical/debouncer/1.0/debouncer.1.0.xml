@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
+	<ipxact:vendor>antmicro.com</ipxact:vendor>
+	<ipxact:library>hierarchical</ipxact:library>
+	<ipxact:name>debouncer</ipxact:name>
+	<ipxact:version>1.0</ipxact:version>
+	<ipxact:model>
+		<ipxact:instantiations>
+			<ipxact:componentInstantiation>
+				<ipxact:name>rtl</ipxact:name>
+				<ipxact:moduleParameters>
+					<ipxact:moduleParameter parameterId="uuid_13ea09b9_d57e_45ad_a545_d9553f3782d3" resolve="user">
+						<ipxact:name>GRACE</ipxact:name>
+						<ipxact:value>uuid_ac02ea4d_0441_4d05_a057_75c85f832a3f</ipxact:value>
+					</ipxact:moduleParameter>
+				</ipxact:moduleParameters>
+			</ipxact:componentInstantiation>
+		</ipxact:instantiations>
+		<ipxact:ports>
+			<ipxact:port>
+				<ipxact:name>clk</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>in</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>in</ipxact:direction>
+				</ipxact:wire>
+			</ipxact:port>
+			<ipxact:port>
+				<ipxact:name>filtered_out</ipxact:name>
+				<ipxact:wire>
+					<ipxact:direction>out</ipxact:direction>
+				</ipxact:wire>
+			</ipxact:port>
+		</ipxact:ports>
+	</ipxact:model>
+	<ipxact:parameters>
+		<ipxact:parameter parameterId="uuid_ac02ea4d_0441_4d05_a057_75c85f832a3f" resolve="user">
+			<ipxact:name>paramGRACE</ipxact:name>
+			<ipxact:value>1000</ipxact:value>
+		</ipxact:parameter>
+	</ipxact:parameters>
+
+</ipxact:component>
