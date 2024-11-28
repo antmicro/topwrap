@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import logging
 import os
 import shutil
 import sys
@@ -296,17 +297,24 @@ def package_cores(session: nox.Session) -> None:
 @nox.session
 def changed_changelog(session: nox.Session) -> None:
     changelog_file_name = "CHANGELOG.md"
+    main_branch = "main"
+    current_branch = session.run("git", "branch", "--show-current", external=True, silent=True)
+    assert current_branch is not None
+    # Check if the script is run on the main branch
+    if current_branch.strip("\n") == main_branch:
+        return
     changelog_changed = session.run(
         "git",
         "diff",
         "--name-only",
-        "origin/main",
+        "origin/" + main_branch,
         "--",
         changelog_file_name,
         external=True,
         silent=True,
     )
     if not changelog_changed:
+        logging.error("Changelog was not updated!")
         raise CommandFailed()
 
 
