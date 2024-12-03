@@ -33,7 +33,7 @@ dependencies = [
 
 [project.optional-dependencies]
 parse = [
-  "hdlConvertor @ git+https://github.com/Nic30/hdlConvertor@fae60effdb16574de152bf9bf7bc2e225b729797",
+  "hdlConvertor @ git+https://github.com/antmicro/hdlConvertor@94372093b6810d1b726429a1049c104f47883f27",
 ]
 lint = [
   "nox==2024.10.09",
