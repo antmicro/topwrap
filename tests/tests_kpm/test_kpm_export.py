@@ -407,25 +407,6 @@ class TestMultipleIllegalsDataflow:
         with pytest.raises(KPMExportException, match="Cannot repr.*as.*conn.*to something else"):
             _kpm_parse_connections_between_nodes(dataflow, spec)
 
-    @pytest.mark.parametrize(
-        ["name", "err"],
-        [
-            ("unnamed_to_over_1", "metanode.*multiple other ports"),
-            ("sub_exposed_and_conn", "subgraph.*exposed.*conn.*any other nodes"),
-            *zip(
-                ("external_to_meta_1", "external_to_meta_2", "sub_meta_2_sub_meta"),
-                ["metanode.*connected to another metanode"] * 3,
-            ),
-            *zip(
-                ("unconnected_inout", "inout_with_over_1_con"),
-                ["inout.*invalid amount of conn"] * 2,
-            ),
-        ],
-    )
-    def test_externals(self, dataflow: JsonType, spec: JsonType, err: str):
-        with pytest.raises(KPMExportException, match=err):
-            _kpm_gather_all_graph_externals(dataflow, spec)
-
     @pytest.mark.parametrize("name", ["empty_external"])
     def test_empty_external_warn(self, dataflow: JsonType, spec: JsonType, caplog: Any):
         _kpm_gather_all_graph_externals(dataflow, spec)

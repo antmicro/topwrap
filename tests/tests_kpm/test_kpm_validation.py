@@ -7,17 +7,7 @@ import pytest
 from pipeline_manager_backend_communication.misc_structures import MessageType
 from pytest_lazy_fixtures import lf
 
-from topwrap.kpm_dataflow_validator import (
-    _check_ambigous_ports,
-    _check_duplicate_external_input_interfaces,
-    _check_duplicate_external_out_names,
-    _check_duplicate_ip_names,
-    _check_ext_in_to_ext_out_connections,
-    _check_external_inputs_missing_val,
-    _check_inouts_connections,
-    _check_parameters_values,
-    _check_unconnected_ports_interfaces,
-)
+from topwrap.kpm_dataflow_validator import DataflowValidator
 from topwrap.util import JsonType, read_json_file
 
 
@@ -27,136 +17,261 @@ def get_dataflow_test(test_name: str) -> JsonType:
 
 @pytest.fixture
 def dataflow_duplicate_ip_names():
-    """Dataflow containing 2 IP cores with the same name."""
+    """
+    Dataflow containing two IP cores with the same instance name.
+    This is considered as not possible to represent in design yaml since we can't distinguish them.
+    """
     return get_dataflow_test("dataflow_duplicate_ips")
 
 
 @pytest.fixture
 def dataflow_invalid_parameters_values():
-    """Dataflow containing an IP core with parameter in wrong format"""
+    """
+    Dataflow containing an IP core with multiple parameters, but it's impossible to resolve the `INVALID NAME!!!`.
+    """
     return get_dataflow_test("dataflow_invalid_params")
 
 
 @pytest.fixture
 def dataflow_ext_in_to_ext_out_connections():
-    """Dataflow containing Metanode<->Metanode connection"""
+    """Dataflow containing Metanode<->Metanode connection."""
     return get_dataflow_test("dataflow_meta_to_meta_conn")
 
 
 @pytest.fixture
-def dataflow_ambigous_ports():
-    """Dataflow containing a port connected to another port and a metanode simultaneously"""
-    return get_dataflow_test("dataflow_ambigous_ports")
+def dataflow_ports_multiple_external_metanodes():
+    """Dataflow containing a port connected to two External Metanodes."""
+    return get_dataflow_test("dataflow_port_to_multiple_external_metanodes")
 
 
 @pytest.fixture
-def dataflow_external_metanodes_types_mismatch():
-    """Dataflow containing a connection from output port to External Inout"""
-    return get_dataflow_test("dataflow_external_metanodes_mismatch")
-
-
-@pytest.fixture
-def dataflow_duplicate_ext_out_port_names():
-    """Dataflow containing two External Output metanodes with the same "External Name" value"""
-    return get_dataflow_test("dataflow_duplicate_ext_out_ports")
-
-
-@pytest.fixture
-def dataflow_missing_ext_input_value():
-    """Dataflow containing External Input metanode connected to 2 nodes representing IP cores
-    with missing "External Name" value
-    """
-    return get_dataflow_test("dataflow_missing_ext_input")
+def dataflow_duplicate_metanode_names():
+    """Dataflow containing two External Output Metanodes with the same "External Name" value."""
+    return get_dataflow_test("dataflow_duplicate_metanode_names")
 
 
 @pytest.fixture
 def dataflow_duplicate_external_input_interfaces():
-    """Dataflow containing two external input interfaces with the same name"""
+    """
+    Dataflow containing two External Input Metanodes with the same name.
+    Here connection is to interface instead of port as in the example above.
+    """
     return get_dataflow_test("dataflow_duplicate_ext_input_ifaces")
 
 
 @pytest.fixture
+def dataflow_unnamed_metanodes():
+    """Dataflow containing unnamed External Input Metanode with multiple connections to it."""
+    return get_dataflow_test("dataflow_connected_unnamed_metanode")
+
+
+@pytest.fixture
 def dataflow_inouts_connections():
-    """Dataflow containing a connection between two inout ports"""
+    """Dataflow containing a connection between two inout ports."""
     return get_dataflow_test("dataflow_inouts_connections")
 
 
-# Test validation checks by running them on PWM dataflow
-@pytest.mark.parametrize(
-    "_check_function, expected_result",
-    [
-        (_check_duplicate_ip_names, MessageType.OK),
-        (_check_parameters_values, MessageType.OK),
-        (_check_ext_in_to_ext_out_connections, MessageType.OK),
-        (_check_ambigous_ports, MessageType.OK),
-        (_check_external_inputs_missing_val, MessageType.OK),
-        (_check_duplicate_external_input_interfaces, MessageType.OK),
-        (_check_duplicate_external_out_names, MessageType.OK),
-        (_check_unconnected_ports_interfaces, MessageType.WARNING),
-        (_check_inouts_connections, MessageType.OK),
-    ],
-)
-def test_hdmi_dataflow_validation(
-    _check_function, expected_result, hdmi_dataflow, hdmi_ipcores_yamls, hdmi_specification
-):
-    status, msg = _check_function(hdmi_dataflow, hdmi_specification)
-    assert status == expected_result
+@pytest.fixture
+def dataflow_unconn_hierarchy():
+    """Dataflow containing subgraph node with two unconnected interfaces."""
+    return get_dataflow_test("dataflow_unconn_hierarchy")
+
+
+@pytest.fixture
+def dataflow_subgraph_multiple_external_metanodes():
+    """Dataflow containing subgraph node with connection to two External Output Metanodes."""
+    return get_dataflow_test("dataflow_subgraph_multiple_external_metanodes")
+
+
+@pytest.fixture
+def dataflow_conn_subgraph_metanode():
+    """
+    Dataflow containing subgraph metanode with connection to exposed interface.
+    It can be seen by selecting the "Edit Subgraph" on subgraph node.
+    """
+    return get_dataflow_test("dataflow_conn_subgraph_metanode")
+
+
+@pytest.fixture
+def dataflow_complex_hierarchy():
+    """Dataflow containing many edge cases such as duplicate subgraph node names, stressing out the capabilities of saving a design."""
+    return get_dataflow_test("../conversions/complex/dataflow_complex")
+
+
+@pytest.fixture
+def dataflow_hier_duplicate_names():
+    """Dataflow containing subgraph node inside which are duplicate IP's."""
+    return get_dataflow_test("dataflow_hierarchical_duplicate_names")
 
 
 # Test validation checks by running them on HDMI dataflow
 @pytest.mark.parametrize(
-    "_check_function, expected_result",
+    "check_function, expected_result",
     [
-        (_check_duplicate_ip_names, MessageType.OK),
-        (_check_parameters_values, MessageType.OK),
-        (_check_ext_in_to_ext_out_connections, MessageType.OK),
-        (_check_ambigous_ports, MessageType.OK),
-        (_check_external_inputs_missing_val, MessageType.OK),
-        (_check_duplicate_external_input_interfaces, MessageType.OK),
-        (_check_duplicate_external_out_names, MessageType.OK),
-        (_check_unconnected_ports_interfaces, MessageType.WARNING),
-        (_check_inouts_connections, MessageType.OK),
+        (DataflowValidator.check_duplicate_node_names, MessageType.OK),
+        (DataflowValidator.check_parameters_values, MessageType.OK),
+        (DataflowValidator.check_external_in_to_external_out_connections, MessageType.OK),
+        (DataflowValidator.check_port_to_multiple_external_metanodes, MessageType.OK),
+        (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
+        (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
+        (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
+        (DataflowValidator.check_inouts_connections, MessageType.OK),
     ],
 )
-def test_pwm_dataflow_validation(_check_function, expected_result, pwm_dataflow, pwm_specification):
-    status, msg = _check_function(pwm_dataflow, pwm_specification)
-    assert status == expected_result
+def test_hdmi_dataflow_validation(check_function, expected_result, hdmi_dataflow):
+    check_result = check_function(DataflowValidator(hdmi_dataflow))
+    assert check_result.status == expected_result
+
+
+# Test validation checks by running them on PWM dataflow
+@pytest.mark.parametrize(
+    "check_function, expected_result",
+    [
+        (DataflowValidator.check_duplicate_node_names, MessageType.OK),
+        (DataflowValidator.check_parameters_values, MessageType.OK),
+        (DataflowValidator.check_external_in_to_external_out_connections, MessageType.OK),
+        (DataflowValidator.check_port_to_multiple_external_metanodes, MessageType.OK),
+        (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
+        (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
+        (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
+        (DataflowValidator.check_inouts_connections, MessageType.OK),
+    ],
+)
+def test_pwm_dataflow_validation(check_function, expected_result, pwm_dataflow):
+    check_result = check_function(DataflowValidator(pwm_dataflow))
+    assert check_result.status == expected_result
+
+
+# Test validation checks by running them on hierarchy dataflow
+@pytest.mark.parametrize(
+    "check_function, expected_result",
+    [
+        (DataflowValidator.check_duplicate_node_names, MessageType.OK),
+        (DataflowValidator.check_parameters_values, MessageType.OK),
+        (DataflowValidator.check_external_in_to_external_out_connections, MessageType.OK),
+        (DataflowValidator.check_port_to_multiple_external_metanodes, MessageType.OK),
+        (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
+        (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
+        (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
+        (DataflowValidator.check_inouts_connections, MessageType.OK),
+    ],
+)
+def test_hierarchy_dataflow_validation(check_function, expected_result, hierarchy_dataflow):
+    check_result = check_function(DataflowValidator(hierarchy_dataflow))
+    assert check_result.status == expected_result
+
+
+@pytest.mark.parametrize(
+    "check_function, expected_result",
+    [
+        (DataflowValidator.check_duplicate_node_names, MessageType.WARNING),
+        (DataflowValidator.check_parameters_values, MessageType.OK),
+        (DataflowValidator.check_external_in_to_external_out_connections, MessageType.OK),
+        (DataflowValidator.check_port_to_multiple_external_metanodes, MessageType.OK),
+        (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
+        (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
+        (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
+        (DataflowValidator.check_inouts_connections, MessageType.OK),
+    ],
+)
+def test_complex_hierarchy_dataflow_validation(
+    check_function, expected_result, dataflow_complex_hierarchy
+):
+    check_result = check_function(DataflowValidator(dataflow_complex_hierarchy))
+    assert check_result.status == expected_result
 
 
 # Test validation checks on some simple erroneous dataflows
 @pytest.mark.parametrize(
-    "_check_function, dataflow, expected_result",
+    "check_function, dataflow, expected_result",
     [
-        (_check_duplicate_ip_names, lf("dataflow_duplicate_ip_names"), MessageType.ERROR),
         (
-            _check_parameters_values,
-            lf("dataflow_invalid_parameters_values"),
-            MessageType.ERROR,
-        ),
-        (
-            _check_ext_in_to_ext_out_connections,
-            lf("dataflow_ext_in_to_ext_out_connections"),
-            MessageType.ERROR,
-        ),
-        (_check_ambigous_ports, lf("dataflow_ambigous_ports"), MessageType.ERROR),
-        (
-            _check_duplicate_external_out_names,
-            lf("dataflow_duplicate_ext_out_port_names"),
-            MessageType.ERROR,
-        ),
-        (
-            _check_external_inputs_missing_val,
-            lf("dataflow_missing_ext_input_value"),
+            DataflowValidator.check_duplicate_node_names,
+            lf("dataflow_duplicate_ip_names"),
             MessageType.WARNING,
         ),
         (
-            _check_duplicate_external_input_interfaces,
-            lf("dataflow_duplicate_external_input_interfaces"),
+            DataflowValidator.check_parameters_values,
+            lf("dataflow_invalid_parameters_values"),
+            MessageType.WARNING,
+        ),
+        (
+            DataflowValidator.check_external_in_to_external_out_connections,
+            lf("dataflow_ext_in_to_ext_out_connections"),
             MessageType.ERROR,
         ),
-        (_check_inouts_connections, lf("dataflow_inouts_connections"), MessageType.WARNING),
+        (
+            DataflowValidator.check_port_to_multiple_external_metanodes,
+            lf("dataflow_ports_multiple_external_metanodes"),
+            MessageType.ERROR,
+        ),
+        (
+            DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn,
+            lf("dataflow_unnamed_metanodes"),
+            MessageType.ERROR,
+        ),
+        (
+            DataflowValidator.check_duplicate_metanode_names,
+            lf("dataflow_duplicate_metanode_names"),
+            MessageType.ERROR,
+        ),
+        (
+            DataflowValidator.check_unconnected_ports_interfaces,
+            lf("dataflow_duplicate_external_input_interfaces"),
+            MessageType.WARNING,
+        ),
+        (
+            DataflowValidator.check_inouts_connections,
+            lf("dataflow_inouts_connections"),
+            MessageType.WARNING,
+        ),
     ],
 )
-def test_invalid_dataflow_validation(dataflow, _check_function, expected_result, pwm_specification):
-    status, msg = _check_function(dataflow, pwm_specification)
-    assert status == expected_result
+def test_invalid_dataflow_validation(dataflow, check_function, expected_result):
+    check_result = check_function(DataflowValidator(dataflow))
+    assert check_result.status == expected_result
+
+
+# Test validation on some hierarchy cases
+@pytest.mark.parametrize(
+    "check_function, dataflow, expected_result, error_count",
+    [
+        (
+            DataflowValidator.check_duplicate_node_names,
+            lf("dataflow_hier_duplicate_names"),
+            MessageType.WARNING,
+            1,
+        ),
+        (
+            DataflowValidator.check_unconnected_ports_interfaces,
+            lf("dataflow_unconn_hierarchy"),
+            MessageType.WARNING,
+            2,
+        ),
+        (
+            DataflowValidator.check_port_to_multiple_external_metanodes,
+            lf("dataflow_subgraph_multiple_external_metanodes"),
+            MessageType.ERROR,
+            1,
+        ),
+        (
+            DataflowValidator.check_connection_to_subgraph_metanodes,
+            lf("dataflow_conn_subgraph_metanode"),
+            MessageType.ERROR,
+            1,
+        ),
+    ],
+)
+def test_invalid_hierarchy_dataflow_validation(
+    dataflow,
+    check_function,
+    expected_result,
+    error_count,
+):
+    check_result = check_function(DataflowValidator(dataflow))
+    assert check_result.status == expected_result
+    assert check_result.error_count == error_count

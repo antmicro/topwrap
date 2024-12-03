@@ -65,10 +65,9 @@ class TestClient:
 
             default_rpc_params.yamlfiles = ip_core_yamls
             response_message = RPCMethods(default_rpc_params).dataflow_run(dataflow_json)
-            assert response_message == {
-                "type": MessageType.OK.value,
-                "content": "Build succeeded",
-            }, f"Dataflow run returned {response_message} for test {test_name}"
+            assert (
+                response_message["type"] == MessageType.OK.value
+            ), f"Dataflow run returned {response_message} for test {test_name}"
 
     def test_dataflow_export(
         self, all_yaml_files, all_dataflow_files, all_designs, default_rpc_params
