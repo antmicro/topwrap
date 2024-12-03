@@ -12,7 +12,13 @@ from simpleeval import SimpleEval
 from typing_extensions import override
 
 from .hdl_module import HDLModule, HDLParameter
-from .hdl_parsers_utils import PortDefinition, PortDirection, resolve_ops
+from .hdl_parsers_utils import (
+    ParameterToEval,
+    PortDefinition,
+    PortDirection,
+    evaluate_parameter_list,
+    resolve_ops,
+)
 
 
 class VerilogModule(HDLModule):
@@ -33,12 +39,20 @@ class VerilogModule(HDLModule):
     @cached_property
     @override
     def parameters(self) -> Dict[str, HDLParameter]:
-        params = {}
-        for item in self._data["dec"]["params"]:
-            param_val = resolve_ops(item["value"], params, SimpleEval())
-            if param_val is not None:
-                params[item["name"]["val"]] = param_val
-        return params
+        # Create a list with all parameters
+        parameter_list = []
+        for param in self._data["dec"]["params"]:
+            parameter_list.append(
+                ParameterToEval(param["name"]["val"], param["value"], self.module_name)
+            )
+
+        evaluated_params = evaluate_parameter_list(parameter_list)
+
+        if len(evaluated_params.not_evaluated) > 0:
+            raise RuntimeError(
+                f"Couldn't resolve values of parameters {list(evaluated_params.not_evaluated)}"
+            )
+        return evaluated_params.evaluated_dict
 
     @cached_property
     @override

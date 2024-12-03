@@ -23,8 +23,8 @@ from .design import DesignDescription
 from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from .kpm_common import RPCparams
 from .kpm_dataflow_parser import kpm_dataflow_to_design
-from .kpm_dataflow_validator import validate_kpm_design
 from .util import read_json_file, save_file_to_json
+from .kpm_dataflow_validator import DataflowValidator
 from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
@@ -61,7 +61,7 @@ class RPCMethods:
 
     def dataflow_validate(self, dataflow: JsonType) -> RPCEndpointReturnType:
         logging.info(f"Dataflow validation request received from {self.host}:{self.port}")
-        messages = _kpm_validate_handler(dataflow, self.yamlfiles)
+        messages = DataflowValidator(dataflow).validate_kpm_design()
         if messages["errors"]:
             # note: only the first error is sent to the KPM frontend
             return {"type": MessageType.ERROR.value, "content": messages["errors"][0]}
@@ -159,8 +159,7 @@ def _kpm_run_handler(data: JsonType, yamlfiles: List[Path], build_dir: Path) -> 
     """Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """
-    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
-    messages = validate_kpm_design(data, specification)
+    messages = DataflowValidator(data).validate_kpm_design()
     if not messages["errors"]:
         design = _design_from_kpm_data(data, yamlfiles)
         name = design.design.name or "top"
@@ -168,11 +167,6 @@ def _kpm_run_handler(data: JsonType, yamlfiles: List[Path], build_dir: Path) -> 
         ipc.generate_top(name, build_dir)
         ipc.generate_fuse_core(build_dir=build_dir, top_module_name=name)
     return messages["errors"]
-
-
-def _kpm_validate_handler(data: JsonType, yamlfiles: List[Path]) -> JsonType:
-    specification = ipcore_yamls_to_kpm_spec(yamlfiles)
-    return validate_kpm_design(data, specification)
 
 
 def _generate_design_filename() -> str:
@@ -193,7 +187,7 @@ def _kpm_export_handler(dataflow: JsonType, yamlfiles: List[Path]) -> Tuple[str,
     """
     filename = _generate_design_filename()
     design = _design_from_kpm_data(dataflow, yamlfiles)
-    return (design.to_yaml(), filename)
+    return design.to_yaml(), filename
 
 
 async def kpm_run_client(

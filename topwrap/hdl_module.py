@@ -3,9 +3,9 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Mapping, Set, Union
+from typing import Dict, Mapping, Set
 
-from .hdl_parsers_utils import PortDefinition
+from .hdl_parsers_utils import HDLParameter, PortDefinition
 from .interface_grouper import InterfaceGrouper
 from .ip_desc import (
     IPCoreComplexParameter,
@@ -14,8 +14,6 @@ from .ip_desc import (
     IPCoreIntfPorts,
     IPCorePorts,
 )
-
-HDLParameter = Union[int, str, Dict[str, int]]
 
 
 class HDLModule(ABC):

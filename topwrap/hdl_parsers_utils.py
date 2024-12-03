@@ -1,13 +1,17 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+import re
+from collections import deque
 from dataclasses import dataclass
 from enum import Enum
 from logging import warning
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
-from simpleeval import DEFAULT_FUNCTIONS, SimpleEval, simple_eval
+from simpleeval import DEFAULT_FUNCTIONS, NameNotDefined, SimpleEval, simple_eval
 
 from topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
+
+HDLParameter = Union[int, str, Dict[str, int]]
 
 
 class PortDirection(Enum):
@@ -25,6 +29,85 @@ class PortDefinition:
     upper_bound: str
     lower_bound: str
     direction: PortDirection
+
+
+@dataclass
+class ParameterToEval:
+    name: str
+    value: Union[str, int, Dict[str, Any]]
+    ip_core: str  # Name of ip core where this parameter exists
+
+
+@dataclass(frozen=True)
+class EvaluatedParamsReturnType:
+    evaluated_dict: Dict[str, HDLParameter]
+    not_evaluated: List[ParameterToEval]
+
+
+def parse_value_width_parameter(param: str) -> Dict[str, int]:
+    """`param` is a string representing a bit vector in Verilog format
+    (e.g. "16'h5A5A") which is parsed to a value/width parameter
+    """
+    quote_pos = param.find("'")
+    width = param[:quote_pos]
+    radix = param[quote_pos + 1]
+    value = param[quote_pos + 2 :]
+    radix_to_base = {"h": 16, "d": 10, "o": 8, "b": 2}
+
+    return {"value": int(value, radix_to_base[radix]), "width": int(width)}
+
+
+def _valid_value_width_parameter(param: str) -> bool:
+    try:
+        parse_value_width_parameter(param)
+    except ValueError:
+        return False
+    return True
+
+
+def evaluate_parameter_list(parameters: List[ParameterToEval]) -> EvaluatedParamsReturnType:
+    worklist = deque()
+    evaluated = {}
+    invalid_parameters = []
+
+    for parameter in parameters:
+        worklist.append(parameter)
+
+    fail_count = 0
+    while worklist and fail_count < len(worklist):
+        parameter = worklist.pop()
+
+        if isinstance(parameter.value, int):
+            evaluated[parameter.name] = parameter.value
+
+        # If the value is a dictionary, it represents an expression gathered from HdlConvertor data.
+        # Additionally, check if it's a width-specified value (e.g., "16'h5A5A"),
+        # as resolve_ops is responsible for handling these cases as well.
+        elif isinstance(parameter.value, dict) or re.match(
+            r"\d+\'[hdob][\dabcdefABCDEF]+", parameter.value
+        ):
+            try:
+                param_val = resolve_ops(parameter.value, evaluated, SimpleEval())
+                if param_val is not None:
+                    evaluated[parameter.name] = param_val
+            except KeyError:
+                worklist.appendleft(parameter)
+                fail_count += 1
+                continue
+        else:
+            try:
+                evaluated[parameter.name] = simple_eval(parameter.value, names=evaluated)
+            except (ValueError, SyntaxError, NameNotDefined):
+                worklist.appendleft(parameter)
+                fail_count += 1
+                continue
+        fail_count = 0
+
+    if fail_count > 0:
+        for parameter in worklist:
+            invalid_parameters.append(parameter)
+
+    return EvaluatedParamsReturnType(evaluated, invalid_parameters)
 
 
 def _eval_param(

@@ -18,23 +18,25 @@ from topwrap.design import (
     DS_PortsT,
 )
 from topwrap.design_to_kpm_dataflow_parser import KPMDataflowExternalMetanode
-from topwrap.hdl_parsers_utils import PortDirection
+from topwrap.hdl_parsers_utils import PortDirection, parse_value_width_parameter
+from topwrap.kpm_dataflow_validator import DataflowValidator
 
 from .kpm_common import (
     EXT_INPUT_NAME,
     EXT_OUTPUT_NAME,
     InterfaceData,
-    InterfaceFromConnection,
+    error_connections,
     find_connected_interfaces,
     find_dataflow_interface_by_id,
     find_dataflow_node_by_interface_name_id,
     get_all_graph_connections,
     get_all_graph_nodes,
     get_dataflow_constant_connections,
-    get_dataflow_ip_nodes,
+    get_dataflow_current_hierarchy_ip_nodes,
     get_entry_graph,
     get_exposed_subgraph_meta_iface,
     get_external_metanode_direction,
+    get_interfaces_from_connection,
     get_metanode_interface_id,
     get_metanode_property_value,
     get_unexposed_subgraph_meta_iface,
@@ -48,6 +50,9 @@ from .kpm_common import (
     kpm_direction_to_port_dir,
 )
 from .util import JsonType, UnreachableError
+
+# from topwrap.kpm_dataflow_validator import validate_kpm_design
+
 
 logger = logging.getLogger(__name__)
 
@@ -117,19 +122,6 @@ class ExternalsAndConns(MarshmallowDataclassExtensions):
                     self.add_conn(is_intf, ip_name, port, target)
 
 
-def _parse_value_width_parameter(param: str) -> JsonType:
-    """`param` is a string representing a bit vector in Verilog format
-    (e.g. "16'h5A5A") which is parsed to a value/width parameter
-    """
-    quote_pos = param.find("'")
-    width = param[:quote_pos]
-    radix = param[quote_pos + 1]
-    value = param[quote_pos + 2 :]
-    radix_to_base = {"h": 16, "d": 10, "o": 8, "b": 2}
-
-    return {"value": int(value, radix_to_base[radix]), "width": int(width)}
-
-
 def _kpm_properties_to_parameters(properties: List[JsonType]) -> JsonType:
     """Parse `properties` taken from a dataflow node into
     Topwrap's IP core's parameters.
@@ -139,7 +131,7 @@ def _kpm_properties_to_parameters(properties: List[JsonType]) -> JsonType:
         param_name = property["name"]
         param_val = property["value"]
         if re.match(r"\d+\'[hdob][\dabcdefABCDEF]+", param_val):
-            result[param_name] = _parse_value_width_parameter(param_val)
+            result[param_name] = parse_value_width_parameter(param_val)
             continue
 
         try:
@@ -152,7 +144,7 @@ def _kpm_properties_to_parameters(properties: List[JsonType]) -> JsonType:
 
 def _kpm_nodes_to_parameters(dataflow_data: JsonType) -> JsonType:
     result = dict()
-    for node in get_dataflow_ip_nodes(dataflow_data):
+    for node in get_dataflow_current_hierarchy_ip_nodes(dataflow_data):
         result[node["instanceName"]] = _kpm_properties_to_parameters(node["properties"])
     return result
 
@@ -164,7 +156,7 @@ def _kpm_nodes_to_ips(dataflow_data: JsonType, specification: JsonType) -> JsonT
     ips = {}
     filename = None
     instance_names = defaultdict(int)
-    for node in get_dataflow_ip_nodes(dataflow_data):
+    for node in get_dataflow_current_hierarchy_ip_nodes(dataflow_data):
         for spec_node in specification["nodes"]:
             if spec_node["name"] == node["name"]:
                 if "additionalData" not in spec_node:
@@ -186,36 +178,23 @@ def _kpm_nodes_to_ips(dataflow_data: JsonType, specification: JsonType) -> JsonT
 
 
 def _get_conn_ifaces_and_nodes(conn: JsonType, dataflow_data: JsonType) -> ConnectionData:
-    def _err(node: bool, id: Any):
-        return KPMExportException(
-            "While parsing graph connections, "
-            + ("node with an interface " if node else "interface ")
-            + f"with the id {id} was not found"
-        )
-
-    iface_to = find_dataflow_interface_by_id(
-        dataflow_data, InterfaceFromConnection(conn["to"], conn["id"])
-    )
+    iface_from, iface_to = get_interfaces_from_connection(dataflow_data, conn)
     if iface_to is None:
-        raise _err(False, conn["to"])
-
-    iface_from = find_dataflow_interface_by_id(
-        dataflow_data, InterfaceFromConnection(conn["from"], conn["id"])
-    )
+        raise error_connections(False, conn["to"])
     if iface_from is None:
-        raise _err(False, conn["from"])
+        raise error_connections(False, conn["from"])
 
     node_to = find_dataflow_node_by_interface_name_id(
         dataflow_data, iface_to.iface_name, conn["to"]
     )
     if node_to is None:
-        raise _err(True, conn["to"])
+        raise error_connections(True, conn["to"])
 
     node_from = find_dataflow_node_by_interface_name_id(
         dataflow_data, iface_from.iface_name, conn["from"]
     )
     if node_from is None:
-        raise _err(True, conn["from"])
+        raise error_connections(True, conn["from"])
 
     return ConnectionData(iface_to, iface_from, node_to, node_from)
 
@@ -317,17 +296,8 @@ def _kpm_ext_handle_ext_meta(
         if ip_node is None:
             raise UnreachableError
 
-        if is_metanode(ip_node):
-            raise KPMExportException(
-                f'External metanode "{iname}" is connected to another metanode. This is impossible to represent in the schema'
-            )
-
         iface_name = to_intf.iface_name
         if not iname:
-            if len(conns) > 1:
-                raise KPMExportException(
-                    f'Unnamed external metanode connected to "{ip_node["instanceName"]}.{iface_name}", and multiple other ports. This is ambiguous'
-                )
             iname = iface_name
 
         if dir == PortDirection.INOUT:
@@ -347,11 +317,6 @@ def _kpm_ext_handle_subgraph_meta(
 
     unexposed_iface = get_unexposed_subgraph_meta_iface(node)
     exposed_iface = get_exposed_subgraph_meta_iface(node)
-
-    if len(find_connected_interfaces(dataflow, exposed_iface["id"])) > 0:
-        raise KPMExportException(
-            "A subgraph metanode's exposed interface can't be locally connected to any other nodes"
-        )
 
     # transform the subgraph metanode into a regular
     # external metanode and handle it like one
@@ -400,6 +365,12 @@ def _kpm_gather_all_graph_externals(dataflow: JsonType, spec: JsonType) -> Exter
 
 
 def kpm_dataflow_to_design(dataflow_data: JsonType, specification: JsonType) -> DesignDescription:
+    validation_result = DataflowValidator(dataflow_data).validate_kpm_design()
+    if validation_result["errors"]:
+        raise KPMExportException(
+            f"There are validation errors in the design which makes it impossible to save. Errors: {validation_result['errors']}"
+        )
+
     def _inner(graph_id: str, name: str, is_top: bool = False) -> Dict[str, Any]:
         try:
             df = graph_to_isolated_dataflow(dataflow_data, graph_id)

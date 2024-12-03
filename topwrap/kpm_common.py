@@ -5,7 +5,7 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.util import UnreachableError
@@ -36,11 +36,20 @@ class InterfaceData:
     iface_direction: str
 
 
+@dataclass
+class RPCparams:
+    host: str
+    port: int
+    yamlfiles: List[Path]
+    build_dir: Path
+    design: Optional[Path]
+
+
 def get_all_graph_nodes(dataflow_json: JsonType) -> List[JsonType]:
     return _get_all_graph_values(dataflow_json, "nodes")
 
 
-def get_all_graph_connections(dataflow_json: JsonType) -> List[JsonType]:
+def get_all_graph_connections(dataflow_json: JsonType) -> List[Dict[str, str]]:
     return _get_all_graph_values(dataflow_json, "connections")
 
 
@@ -93,15 +102,6 @@ def kpm_direction_to_port_dir(kpm_dir: str) -> PortDirection:
     ]
 
 
-@dataclass
-class RPCparams:
-    host: str
-    port: int
-    yamlfiles: List[Path]
-    build_dir: Path
-    design: Optional[Path]
-
-
 def is_external_metanode(node: JsonType) -> bool:
     """Return True if a node is an external metanode, False otherwise."""
     return node["name"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]
@@ -128,7 +128,7 @@ def is_subgraph_node(node: JsonType) -> bool:
 
 
 def is_exposed_iface(iface: JsonType) -> bool:
-    """Return True if a interfce is exposed in some subgraph node, False otherwise."""
+    """Return True if a interface is exposed in some subgraph node, False otherwise."""
     return EXPOSED_IFACE in iface.keys()
 
 
@@ -138,13 +138,13 @@ def is_kpm_interface_a_topwrap_interface(node: JsonType, port_name: str, spec: J
     if is_subgraph_node(node):
         return False
 
-    spec_inteface = find_spec_interface_by_name(spec, node["name"], port_name)
-    if spec_inteface is None:
+    spec_interface = find_spec_interface_by_name(spec, node["name"], port_name)
+    if spec_interface is None:
         raise ValueError(
             f'Interface "{port_name}" of IP "{node["name"]}" was not found in the specification'
         )
 
-    return spec_inteface["type"] != ["port"]
+    return spec_interface["type"] != ["port"]
 
 
 def _get_subgraph_metanode_iface(subgraph_metanode: JsonType, exposed: bool) -> JsonType:
@@ -178,8 +178,8 @@ def get_dataflow_subgraph_metanodes(dataflow_json: JsonType) -> List[JsonType]:
     return subgraph_metanodes
 
 
-def get_dataflow_ip_nodes(dataflow_json: JsonType) -> List[JsonType]:
-    """Return a list of nodes which represent ip cores
+def get_dataflow_current_hierarchy_ip_nodes(dataflow_json: JsonType) -> List[JsonType]:
+    """Return a list of nodes which represent ip cores and are not subgraph nodes
     (i.e. filter out External Outputs, Inputs and Inouts)
     """
     ip_nodes = []
@@ -223,20 +223,22 @@ def get_dataflow_ips_interfaces(dataflow_json: JsonType) -> Dict[str, List[Inter
     The resulting dict consists of items:
     {"iface_id": [InterfaceData]}"""
 
-    return _get_interfaces(get_dataflow_ip_nodes(dataflow_json))
+    return _get_interfaces(get_dataflow_current_hierarchy_ip_nodes(dataflow_json))
 
 
-def get_dataflow_subgraph_interfaces(dataflow_json: JsonType) -> Dict[str, List[InterfaceData]]:
-    """Return a dict of all subgraph interfaces.
+def get_dataflow_subgraph_meta_interfaces(
+    dataflow_json: JsonType,
+) -> Dict[str, List[InterfaceData]]:
+    """Return a dict of all subgraph metanodes interfaces.
     The resulting dict consists of items:
     {"iface_id": [InterfaceData]}"""
 
     return _get_interfaces(get_dataflow_subgraph_metanodes(dataflow_json))
 
 
-def get_dataflow_subgraph_connections(dataflow_json: JsonType) -> List[JsonType]:
+def get_dataflow_subgraph_meta_connections(dataflow_json: JsonType) -> List[Dict[str, str]]:
     """Return connections that are related to subgraph metanodes"""
-    ifaces_ids = get_dataflow_subgraph_interfaces(dataflow_json).keys()
+    ifaces_ids = get_dataflow_subgraph_meta_interfaces(dataflow_json).keys()
     subgraph_connections = []
     for conn in get_all_graph_connections(dataflow_json):
         if conn["from"] in ifaces_ids and conn["to"] in ifaces_ids:
@@ -244,7 +246,7 @@ def get_dataflow_subgraph_connections(dataflow_json: JsonType) -> List[JsonType]
     return subgraph_connections
 
 
-def get_dataflow_ip_connections(dataflow_json: JsonType) -> List[JsonType]:
+def get_dataflow_ip_connections(dataflow_json: JsonType) -> List[Dict[str, str]]:
     """Return connections between two IP cores
     (e.g. filter out connections to external metanodes)
     """
@@ -272,7 +274,7 @@ def get_dataflow_constant_interfaces(dataflow_json: JsonType) -> Dict[str, List[
 
 def _get_ifaces_metanodes_connections(
     dataflow_json: JsonType, ifaces_ids: List[str]
-) -> List[JsonType]:
+) -> List[Dict[str, str]]:
     """Return all connections in which one of the connection node id is in "ifaces_ids" """
     graph_connections = []
     for conn in get_all_graph_connections(dataflow_json):
@@ -357,6 +359,19 @@ def find_dataflow_interface_by_id(
         return graph_interfaces[iface_conn.iface_id][0]
 
 
+def get_interfaces_from_connection(
+    dataflow_json: JsonType, conn: Dict[str, str]
+) -> Tuple[Optional[InterfaceData], Optional[InterfaceData]]:
+    iface_from = find_dataflow_interface_by_id(
+        dataflow_json, InterfaceFromConnection(conn["from"], conn["id"])
+    )
+
+    iface_to = find_dataflow_interface_by_id(
+        dataflow_json, InterfaceFromConnection(conn["to"], conn["id"])
+    )
+    return iface_from, iface_to
+
+
 def find_spec_interface_by_name(
     specification: JsonType, node_type: str, iface_name: str
 ) -> Optional[JsonType]:
@@ -372,7 +387,7 @@ def find_spec_interface_by_name(
 def find_connected_interfaces(
     dataflow_json: JsonType, iface_id: str
 ) -> List[InterfaceFromConnection]:
-    """Return a list of InterfacefromConnection objects where 'iface_id' is referenced in a connection"""
+    """Return a list of InterfaceFromConnection objects where 'iface_id' is referenced in a connection"""
     result = []
     for conn in get_all_graph_connections(dataflow_json):
         if conn["from"] == iface_id:
@@ -380,3 +395,38 @@ def find_connected_interfaces(
         elif conn["to"] == iface_id:
             result.append(InterfaceFromConnection(conn["from"], conn["id"]))
     return result
+
+
+def get_graph_id_from_node(dataflow_json: JsonType, node_id: str) -> str:
+    """Return id of graph where given node exists"""
+    for graph in dataflow_json["graphs"]:
+        for node in graph["nodes"]:
+            if node["id"] == node_id:
+                return graph["id"]
+    raise ValueError(f"Node id {id} doesn't exist")
+
+
+def get_graph_id_name(dataflow_data: JsonType, graph_id: str) -> Optional[str]:
+    """Return name of graph with given id. Note that root graph does not have name"""
+    for node in get_all_graph_nodes(dataflow_data):
+        if node.get("subgraph") == graph_id:
+            return node["instanceName"]
+
+
+def check_for_iface_in_conn_graph(dataflow_json: JsonType, iface_id: str, graph_id: str) -> bool:
+    """Checks if in any connection of graph with specified id exists connection with the provided `iface_id`"""
+    for graph in dataflow_json["graphs"]:
+        if graph["id"] == graph_id:
+            for conn in graph["connections"]:
+                if iface_id in [conn["from"], conn["to"]]:
+                    return True
+            return False
+    raise ValueError(f"Graph with id {id} doesn't exist")
+
+
+def error_connections(node: bool, id: str) -> ValueError:
+    return ValueError(
+        "While parsing graph connections, "
+        + ("node with an interface " if node else "interface ")
+        + f"with the id {id} was not found"
+    )

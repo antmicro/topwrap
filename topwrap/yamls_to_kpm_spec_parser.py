@@ -215,7 +215,7 @@ def create_external_metanode(meta_name: str, interfaces_types: List[str]) -> Nod
     )
 
 
-def create_constantant_metanode(interfaces_types: List[str]) -> NodeType:
+def create_constant_metanode(interfaces_types: List[str]) -> NodeType:
     """Creates constant metanode"""
     metanode_prop = PropertyType("Constant Value", "text", "0")
     metanode_iface = InterfaceType(
@@ -237,7 +237,7 @@ def create_subgraph_metanode() -> NodeType:
     )
 
 
-def add_node_type_to_specfication(specification_builder: SpecificationBuilder, node: NodeType):
+def add_node_type_to_specification(specification_builder: SpecificationBuilder, node: NodeType):
     """Adds all information from NodeType to specification_builder"""
     specification_builder.add_node_type(node.name, node.category, node.layer.value)
 
@@ -297,13 +297,13 @@ def add_metadata_to_specification(
         )
 
 
-def new_spec_builder(yamlfiles: List[Path]) -> JsonType:
+def generate_spec_using_builder(yamlfiles: List[Path]) -> JsonType:
     """Build specification based on yamlfiles using SpecificationBuilder API"""
     specification_builder = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
 
     for yamlfile in yamlfiles:
         core_data = create_core_node_from_yaml(yamlfile)
-        add_node_type_to_specfication(specification_builder, core_data)
+        add_node_type_to_specification(specification_builder, core_data)
 
     interfaces_types = _get_ifaces_types(
         specification_builder._construct_specification(sort_spec=False)
@@ -311,13 +311,13 @@ def new_spec_builder(yamlfiles: List[Path]) -> JsonType:
 
     for ext_name in KPMDataflowExternalMetanode.interface_dir_by_node_name.keys():
         ex_metanode = create_external_metanode(ext_name, interfaces_types)
-        add_node_type_to_specfication(specification_builder, ex_metanode)
+        add_node_type_to_specification(specification_builder, ex_metanode)
 
-    const_metanode = create_constantant_metanode(interfaces_types)
-    add_node_type_to_specfication(specification_builder, const_metanode)
+    const_metanode = create_constant_metanode(interfaces_types)
+    add_node_type_to_specification(specification_builder, const_metanode)
 
     subgraph_metanode = create_subgraph_metanode()
-    add_node_type_to_specfication(specification_builder, subgraph_metanode)
+    add_node_type_to_specification(specification_builder, subgraph_metanode)
 
     add_metadata_to_specification(specification_builder, interfaces_types)
 
@@ -335,7 +335,7 @@ def ipcore_yamls_to_kpm_spec(yamlfiles: List[Path]) -> JsonType:
         represents a separate IP core
     """
 
-    specification = new_spec_builder(yamlfiles)
+    specification = generate_spec_using_builder(yamlfiles)
 
     _duplicate_ipcore_types_check(specification)
 
