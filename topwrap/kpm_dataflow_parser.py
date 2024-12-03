@@ -51,9 +51,6 @@ from .kpm_common import (
 )
 from .util import JsonType, UnreachableError
 
-# from topwrap.kpm_dataflow_validator import validate_kpm_design
-
-
 logger = logging.getLogger(__name__)
 
 

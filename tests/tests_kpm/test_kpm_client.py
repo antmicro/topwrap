@@ -42,9 +42,6 @@ class TestClient:
             ), f"Test {test_name} differs from original specification. Diff: {spec_differences}"
 
     def test_dataflow_validation(self, all_yaml_files, all_dataflow_files, default_rpc_params):
-        # FIXME: Our validators are broken and forbid valid designs. Remove this line after fixing them.
-        del all_yaml_files["complex"]
-
         for test_name, ip_core_yamls in all_yaml_files.items():
             dataflow_json = all_dataflow_files[test_name]
 
@@ -57,9 +54,6 @@ class TestClient:
                 logging.warning(f"Dataflow {test_name} has warnings {response_message['content']}")
 
     def test_dataflow_run(self, all_yaml_files, all_dataflow_files, default_rpc_params):
-        # FIXME: Our validators are broken and forbid valid designs. Remove this line after fixing them.
-        del all_yaml_files["complex"]
-
         for test_name, ip_core_yamls in all_yaml_files.items():
             dataflow_json = all_dataflow_files[test_name]
 

@@ -57,15 +57,20 @@ def parse_value_width_parameter(param: str) -> Dict[str, int]:
     return {"value": int(value, radix_to_base[radix]), "width": int(width)}
 
 
-def _valid_value_width_parameter(param: str) -> bool:
-    try:
-        parse_value_width_parameter(param)
-    except ValueError:
-        return False
-    return True
-
-
 def evaluate_parameter_list(parameters: List[ParameterToEval]) -> EvaluatedParamsReturnType:
+    """
+    Evaluates a list of parameters by resolving their values in dependency order.
+
+    Parameters are processed iteratively: resolved values are stored, while unresolved ones
+    are retried until all evaluable parameters are resolved or deemed invalid.
+
+    Args:
+        parameters (List[ParameterToEval]): List of parameters to evaluate.
+
+    Returns:
+        EvaluatedParamsReturnType: A result containing successfully evaluated parameters
+                                   and a list of invalid parameters that could not be resolved.
+    """
     worklist = deque()
     evaluated = {}
     invalid_parameters = []

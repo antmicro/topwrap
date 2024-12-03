@@ -23,8 +23,8 @@ from .design import DesignDescription
 from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from .kpm_common import RPCparams
 from .kpm_dataflow_parser import kpm_dataflow_to_design
-from .util import read_json_file, save_file_to_json
 from .kpm_dataflow_validator import DataflowValidator
+from .util import read_json_file, save_file_to_json
 from .yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 

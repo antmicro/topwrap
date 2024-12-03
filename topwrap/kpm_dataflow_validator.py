@@ -84,7 +84,7 @@ class DataflowValidator:
     def check_duplicate_node_names(self) -> CheckResult:
         """
         Check for any duplicate IP instance names in the graph (graph represents a hierarchy level).
-        Check is to prevent multiple nodes with the same "instanceName" in a given graph, since this is invalid in design.
+        This check prevents from creating multiple nodes with the same "instanceName" in a given graph, since this is invalid in design.
         There can be multiple nodes with the same "instanceName" in the whole design (on various hierarchy levels).
         """
 
@@ -146,12 +146,9 @@ class DataflowValidator:
         evaluated_params = evaluate_parameter_list(parameter_list)
 
         for param in evaluated_params.not_evaluated:
-            assert isinstance(
-                param.value, str
-            )  # Every kpm param that is not evaluated will be a str
-            invalid_params_str.append(
-                _get_invalid_param_str(param.ip_core, param.name, param.value)
-            )
+            # Every kpm param that is not evaluated will be a str
+            assert isinstance(param.value, str)
+            invalid_params_str.append(f"{param.ip_core}:{param.name} value: {param.value}")
 
         # Check if constant metanodes have int value
         for node in get_dataflow_constant_metanodes(self.dataflow):
@@ -298,6 +295,7 @@ class DataflowValidator:
         Check for any connections to exposed subgraph metanode ports.
 
         In this context:
+
         - **Exposed port**: A port on a subgraph metanode that represents the interface of the subgraph to the external graph. It is visible and accessible from outside the subgraph.
         - **Unexposed port**: An internal port on a subgraph metanode that is used for internal connections within the subgraph but is not accessible from the external graph.
 

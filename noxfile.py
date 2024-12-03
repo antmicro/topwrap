@@ -184,7 +184,9 @@ def doc_gen(session: nox.Session) -> None:
                     example.parent / "kpm_dataflow.json", f"docs/build/kpm_jsons/data_{name}.json"
                 )
 
-    session.install(".[docs]")
+    session.install(
+        ".[docs,tests]"
+    )  # Tests are used by autodoc for the section `Validation of design`
     session.run("make", "-C", "docs", "html", external=True)
     session.run("make", "-C", "docs", "latexpdf", external=True)
 

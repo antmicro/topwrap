@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resolved an issue where IP Core node names in the GUI were parsed from the yaml description file name.
 - Resolved an issue with YAML files produced by `topwrap parse`, where unnecessary double hyphens (`--`) appeared in signal definitions
+- Changed how validation is done in topwrap in order to support hierarchical designs and check for more errors while creating design
 
 ## [0.1.0] - 2024-09-27
 

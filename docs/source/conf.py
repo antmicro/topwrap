@@ -17,6 +17,7 @@ import os
 import sys
 from datetime import datetime
 from os import environ
+from pathlib import Path
 
 from antmicro_sphinx_utils.defaults import numfig_format  # noqa: F401
 from antmicro_sphinx_utils.defaults import antmicro_html, antmicro_latex
@@ -32,6 +33,9 @@ from antmicro_sphinx_utils.defaults import (
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath("./_extensions"))
+
+# Add tests module to sys.path so that autodoc can eval tests functions
+sys.path.insert(0, str(Path("../../tests/").resolve()))
 
 # -- General configuration -----------------------------------------------------
 
