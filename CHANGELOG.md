@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added "IP Cores", "Externals", and "Constants" layers to the GUI which you can hide/show from the settings
 - Nox session for downloading and packaging FuseSoc libraries
 - Support Python 3.13 and dropped support for Python 3.8
+- Added tests to CLI commands
+- Added job for building and running the KPM server
 - Added to config option for choosing a location where KPM server should be built
 - All in one command `topwrap gui` for building, starting the KPM server and connecting the client to it.
 - Automatic dataflow saving with each change to the graph in KPM. This ensures that the state is preserved when the page is reloaded.

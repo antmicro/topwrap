@@ -207,6 +207,7 @@ class KPM:
         server_ready_event: Optional[threading.Event] = None,
         server_init_failed: Optional[threading.Event] = None,
         show_kpm_logs: bool = True,
+        shutdown_server: bool = False,
         **params_dict: Any,
     ):
         args = ["pipeline_manager", "run"]
@@ -221,11 +222,13 @@ class KPM:
             server_logs = server_process.stdout.readline().decode("utf-8")
             if server_ready_event is not None and server_ready_string in server_logs:
                 server_ready_event.set()
+                if shutdown_server:
+                    server_process.terminate()
             if show_kpm_logs:
                 sys.stdout.write(server_logs)
         else:
             logging.warning("KPM server has been terminated")
-            if server_ready_event is not None and not server_ready_event.isSet():
+            if server_ready_event is not None and not server_ready_event.is_set():
                 if server_init_failed is not None:
                     server_init_failed.set()
                 # Remove the server ready event block
@@ -383,10 +386,11 @@ def topwrap_gui(
     server_port: int,
     backend_host: str,
     backend_port: int,
+    use_server: bool = True,
 ):
     configure_log_level(log_level)
     logging.info("Checking if server is built")
-    if not frontend_directory.exists() or not workspace_directory.exists():
+    if (not frontend_directory.exists() or not workspace_directory.exists()) and use_server:
         logging.info("Server build is incomplete, building now")
         KPM.build_server(
             workspace_directory=workspace_directory, output_directory=frontend_directory
@@ -399,23 +403,25 @@ def topwrap_gui(
         server_ready_event = threading.Event()
         server_init_failed = threading.Event()
 
-        executor.submit(
-            KPM.run_server,
-            server_ready_event=server_ready_event,
-            show_kpm_logs=False,
-            server_init_failed=server_init_failed,
-            server_host=server_host,
-            server_port=server_port,
-            backend_host=backend_host,
-            backend_port=backend_port,
-            frontend_directory=frontend_directory,
-        )
-        logging.info("Waiting for KPM server to initialize")
-        server_ready_event.wait()
-        if server_init_failed.isSet():
-            logging.error("KPM server failed to initialize. Aborting")
-            return
-        logging.info("KPM server initialized")
+        if use_server:
+            executor.submit(
+                KPM.run_server,
+                server_ready_event=server_ready_event,
+                show_kpm_logs=False,
+                server_init_failed=server_init_failed,
+                server_host=server_host,
+                server_port=server_port,
+                backend_host=backend_host,
+                backend_port=backend_port,
+                frontend_directory=frontend_directory,
+            )
+            logging.info("Waiting for KPM server to initialize")
+            server_ready_event.wait()
+            if server_init_failed.is_set():
+                logging.error("KPM server failed to initialize. Aborting")
+                return
+            logging.info("KPM server initialized")
+
         client_ready_event = threading.Event()
         executor.submit(
             KPM.run_client,
@@ -428,8 +434,10 @@ def topwrap_gui(
             client_ready_event=client_ready_event,
         )
         client_ready_event.wait()
-        logging.info("Opening browser with KPM GUI")
-        webbrowser.open(f"{backend_host}:{backend_port}")
+
+        if use_server:
+            logging.info("Opening browser with KPM GUI")
+            webbrowser.open(f"{backend_host}:{backend_port}")
 
 
 @main.command("specification", help="Generate KPM specification from IP core YAMLs")

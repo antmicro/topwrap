@@ -360,6 +360,7 @@ def test_kpm_server(session: nox.Session):
         KPM,
         kpm_build_server_ctx,
     )
+    from topwrap.config import config
 
     with click.Context(kpm_build_server_ctx) as ctx:
         ctx.invoke(kpm_build_server_ctx)
@@ -379,7 +380,7 @@ def test_kpm_server(session: nox.Session):
             server_port=DEFAULT_SERVER_PORT,
             backend_host=DEFAULT_BACKEND_ADDR,
             backend_port=DEFAULT_BACKEND_PORT,
-            frontend_directory=DEFAULT_FRONTEND_DIR,
+            frontend_directory=Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR,
         )
         logging.info("Waiting for KPM server to initialize")
         server_ready_event.wait()

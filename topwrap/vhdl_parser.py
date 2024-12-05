@@ -24,7 +24,7 @@ class VHDLModule(HDLModule):
     def __init__(self, vhdl_file: Path):
         super().__init__(vhdl_file)
         c = HdlConvertor()
-        d = c.parse([vhdl_file], Language.VHDL, [], hierarchyOnly=False, debug=True)
+        d = c.parse([str(vhdl_file)], Language.VHDL, [], hierarchyOnly=False, debug=True)
 
         try:
             data = ToJson().visit_HdlContext(d)

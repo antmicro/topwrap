@@ -187,7 +187,8 @@ def _generate_design_filename() -> str:
 
 
 async def kpm_run_client(
-    rpc_params: RPCparams, client_ready_event: Optional[threading.Event] = None
+    rpc_params: RPCparams,
+    client_ready_event: Optional[threading.Event] = None,
 ):
     client = CommunicationBackend(rpc_params.host, rpc_params.port)
     logging.debug("Initializing RPC client")
