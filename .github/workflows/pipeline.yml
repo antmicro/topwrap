@@ -79,6 +79,24 @@ jobs:
           git config --add safe.directory "$(pwd)"
           ./.github/scripts/ci.sh changelog_check
 
+  test_kpm_server:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    name: "Build and run KPM server"
+
+    steps:
+      - name: Install git package
+        run: |
+          apt-get update -qq
+          apt-get install -y git
+
+      - uses: actions/checkout@v4
+
+      - name: Build and run KPM server
+        run: |
+          ./.github/scripts/ci.sh test_kpm_server
+
   test_python_3_9:
     runs-on: ubuntu-latest
     container:

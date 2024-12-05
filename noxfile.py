@@ -1,11 +1,13 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import concurrent.futures
 import json
 import logging
 import os
 import shutil
 import sys
+import threading
 from collections import defaultdict
 from pathlib import Path, PurePath
 from tempfile import TemporaryDirectory, TemporaryFile
@@ -343,3 +345,46 @@ def check_yaml_extension(session: nox.Session):
         session.error(f"Detected {count} files with .yml extension")
     elif not check:
         print(f"Changed the extension of {count} files from .yml to .yaml")
+
+
+@nox.session
+def test_kpm_server(session: nox.Session):
+    import click
+
+    from topwrap.cli import (
+        DEFAULT_BACKEND_ADDR,
+        DEFAULT_BACKEND_PORT,
+        DEFAULT_FRONTEND_DIR,
+        DEFAULT_SERVER_ADDR,
+        DEFAULT_SERVER_PORT,
+        KPM,
+        kpm_build_server_ctx,
+    )
+
+    with click.Context(kpm_build_server_ctx) as ctx:
+        ctx.invoke(kpm_build_server_ctx)
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        logging.info("Starting server")
+        server_ready_event = threading.Event()
+        server_init_failed = threading.Event()
+
+        executor.submit(
+            KPM.run_server,
+            server_ready_event=server_ready_event,
+            show_kpm_logs=True,
+            server_init_failed=server_init_failed,
+            shutdown_server=True,
+            server_host=DEFAULT_SERVER_ADDR,
+            server_port=DEFAULT_SERVER_PORT,
+            backend_host=DEFAULT_BACKEND_ADDR,
+            backend_port=DEFAULT_BACKEND_PORT,
+            frontend_directory=DEFAULT_FRONTEND_DIR,
+        )
+        logging.info("Waiting for KPM server to initialize")
+        server_ready_event.wait()
+        logging.info("Server initialized")
+        if server_init_failed.is_set():
+            logging.error("KPM server failed to initialize. Aborting")
+            raise CommandFailed()
+        logging.info("Shutting down server")

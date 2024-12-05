@@ -20,6 +20,12 @@ lint:
   script:
     - ./.github/scripts/ci.sh lint
 
+test_kpm_server:
+  stage: test
+  image: debian:bookworm
+  script:
+    - ./.github/scripts/ci.sh test_kpm_server
+
 test_python_3_9:
   stage: test
   image: debian:bookworm

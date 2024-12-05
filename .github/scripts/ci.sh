@@ -113,6 +113,16 @@ run_lint() {
     end_command_group
 }
 
+test_kpm_server() {
+    install_common_system_packages
+    install_nox
+    log_cmd pip3 install .
+
+    begin_command_group "Build and run KPM server"
+    log_cmd nox -s test_kpm_server
+    end_command_group
+}
+
 run_python_tests() {
     install_common_system_packages
     install_topwrap_system_deps
@@ -199,6 +209,9 @@ case "$1" in
 lint)
     run_lint
     ;;
+test_kpm_server)
+    test_kpm_server
+    ;;
 test_python)
     run_python_tests "$2"
     ;;
@@ -221,6 +234,6 @@ docs)
     generate_docs
     ;;
 *)
-    echo "Usage: $0 {lint|test_python|examples|package_cores|package_dist|docs|pyright_check|changelog_check}"
+    echo "Usage: $0 {lint|test_kpm_server|test_python|examples|package_cores|package_dist|docs|pyright_check|changelog_check}"
     ;;
 esac
