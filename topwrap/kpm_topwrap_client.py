@@ -147,7 +147,7 @@ async def _kpm_handle_graph_change(rpc_object: RPCMethods):
     )
 
 
-def _kpm_dataflow_run_handler(data: JsonType, spec: JsonType, build_dir: Path) -> list:
+def _kpm_dataflow_run_handler(data: JsonType, spec: JsonType, build_dir: Path) -> list[str]:
     """Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """

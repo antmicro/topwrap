@@ -6,7 +6,7 @@ JSONS = kpm_spec.json kpm_dataflow.json
 all: $(JSONS)
 
 $(JSONS):
-	topwrap specification
+	topwrap specification -d design.yaml
 	topwrap dataflow -d design.yaml
 
 clean:
