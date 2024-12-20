@@ -113,31 +113,49 @@ class RPCMethods:
             logging.debug("The client to send a request to is not defined")
             return
         if self.default_save_file.exists() and not self.initial_load:
+            # User reloaded the page
             latest_dataflow = read_json_file(self.default_save_file)
             await self.client.request("graph_change", {"dataflow": latest_dataflow})
         elif self.design is not None:
+            # Started topwrap with a design
             self.initial_load = False
             dataflow = kpm_dataflow_from_design_descr(self.design, self.specification)
+            self.root_graph_id = dataflow["entryGraph"]
             if self.client is None:
                 logging.debug("The client to send request to is not defined")
                 return
             await self.client.request("graph_change", {"dataflow": dataflow})
+        else:
+            # Started topwrap without any design
+            self.initial_load = False
+            current_graph = await self.client.request("graph_get")
+            # Save the current dataflow to save_file to ensure that the newest dataflow is there
+            self.root_graph_id = current_graph["result"]["dataflow"]["graphs"][0]["id"]
+            save_file_to_json(
+                self.default_save_file.parent,
+                self.default_save_file.name,
+                current_graph["result"]["dataflow"],
+            )
 
     async def nodes_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self)
+        await _kpm_handle_graph_change(self, kwargs["graph_id"])
 
     async def properties_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self)
+        await _kpm_handle_graph_change(self, kwargs["graph_id"])
 
     async def connections_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self)
+        await _kpm_handle_graph_change(self, kwargs["graph_id"])
 
     async def position_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self)
+        await _kpm_handle_graph_change(self, kwargs["graph_id"])
 
 
-async def _kpm_handle_graph_change(rpc_object: RPCMethods):
+async def _kpm_handle_graph_change(rpc_object: RPCMethods, graph_id: str):
     if rpc_object.client is None:
+        return
+    if graph_id != rpc_object.root_graph_id:
+        # User is editing subgraph and if we request graph here we will get an error response
+        # TODO Remove this once KPM fixes it
         return
     current_graph = await rpc_object.client.request("graph_get")
     save_file_to_json(
