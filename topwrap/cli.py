@@ -198,7 +198,7 @@ class KPM:
         for k, v in params_dict.items():
             Path(v).mkdir(exist_ok=True, parents=True)
             args += [f"--{k}".replace("_", "-"), f"{v}"]
-        subprocess.check_call(args)
+        subprocess.check_call([sys.executable, "-m", *args])
 
     @staticmethod
     def run_server(
@@ -211,7 +211,9 @@ class KPM:
         for k, v in params_dict.items():
             args += [f"--{k}".replace("_", "-"), f"{v}"]
 
-        server_process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        server_process = subprocess.Popen(
+            [sys.executable, "-m", *args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
         server_ready_string = "Uvicorn running on"
         while server_process.poll() is None and server_process.stdout is not None:
             server_logs = server_process.stdout.readline().decode("utf-8")
