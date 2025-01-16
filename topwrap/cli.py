@@ -179,7 +179,7 @@ def parse_main(
                 yaml_path = dest_dir / f"{ipcore_desc.name}.yaml"
                 ipcore_desc.save(yaml_path)
                 logging.info(
-                    f"Verilog module '{verilog_mod.module_name}'" f"saved in file '{yaml_path}'"
+                    f"Verilog module '{verilog_mod.module_name}' saved in file '{yaml_path}'"
                 )
         elif filepath.suffix in (".vhdl", ".vhd"):
             # TODO - handle case with multiple VHDL modules in one file
@@ -188,7 +188,9 @@ def parse_main(
             ipcore_desc = vhdl_mod.to_ip_core_description(iface_grouper)
             yaml_path = dest_dir / f"{ipcore_desc.name}.yaml"
             ipcore_desc.save(yaml_path)
-            logging.info(f"VHDL Module '{vhdl_mod.module_name}'" f"saved in file '{yaml_path}'")
+            logging.info(f"VHDL Module '{vhdl_mod.module_name}' saved in file '{yaml_path}'")
+        else:
+            logging.warning(f"Unknown file format:  '{filepath}', skipping parsing")
 
 
 class KPM:
