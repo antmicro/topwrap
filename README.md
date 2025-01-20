@@ -41,7 +41,7 @@ Topwrap offers functionality in three main areas via the following commands:
 - `topwrap parse` - automatically parses HDL modules and groups ports into
   interfaces to enable connecting them more conveniently in the design.
 - `topwrap build` - generates the top level based on a design description file.
-- `topwrap kpm_client` - spawns a [GUI](https://github.com/antmicro/kenning-pipeline-manager) for creating designs.
+- `topwrap gui` - spawns a [GUI](https://github.com/antmicro/kenning-pipeline-manager) for creating designs.
 
 ## Resources
 
