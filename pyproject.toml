@@ -21,6 +21,7 @@ dependencies = [
   "PyYAML",
   "click",
   "amaranth==0.4.0.*",
+  "amaranth-yosys==0.40.0.0.post103",
   "marshmallow_dataclass",
   "simpleeval",
   "typing_extensions",
