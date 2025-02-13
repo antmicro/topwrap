@@ -6,8 +6,19 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Optional, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Any,
+    ClassVar,
+    Generic,
+    Mapping,
+    Optional,
+    TypeVar,
+    Union,
+)
 
+import marshmallow
 from typing_extensions import Self
 
 if TYPE_CHECKING:
@@ -109,6 +120,24 @@ class ElaboratableValue:
         if isinstance(value, ElaboratableValue):
             return ElaboratableValue(f"({self.value} * {value.value})")
         return NotImplemented
+
+    # This should be specific to the KPM layer, but it would be
+    # really difficult to do it in such a way. If we ever implement
+    # an IR-literal layer that can serialize and deserialize the
+    # entire IR, this as well as `topwrap.backend.kpm.common.InterconnectParamSerializer`
+    # could probably be heavily simplified and generalized.
+    class DataclassRepr(marshmallow.fields.Field):
+        def _serialize(
+            self, value: ElaboratableValue, attr: str | None, obj: Any, **kwargs: Any
+        ) -> Any:
+            return value.value
+
+        def _deserialize(
+            self, value: Any, attr: str | None, data: Mapping[str, Any] | None, **kwargs: Any
+        ) -> Any:
+            return ElaboratableValue(value)
+
+    Field = Annotated["ElaboratableValue", DataclassRepr]
 
 
 @dataclass

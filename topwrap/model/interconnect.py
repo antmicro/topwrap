@@ -36,10 +36,10 @@ class InterconnectSubordinateParams:
     """
 
     #: The start address of this subordinate in the memory map
-    address: ElaboratableValue = field(default_factory=lambda: ElaboratableValue(0))
+    address: ElaboratableValue.Field = field(default_factory=lambda: ElaboratableValue(0))
 
     #: The size in bytes of this subordinate's address space
-    size: ElaboratableValue = field(default_factory=lambda: ElaboratableValue(0))
+    size: ElaboratableValue.Field = field(default_factory=lambda: ElaboratableValue(0))
 
 
 _MANPAR = TypeVar(

@@ -1,3 +1,6 @@
+# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path

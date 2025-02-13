@@ -26,10 +26,10 @@ class WishboneRRFeature(Enum):
 @dataclass
 class WishboneRRParams(InterconnectParams):
     #: Bit width of the address line (addresses access data_width-sized chunks)
-    data_width: ElaboratableValue
+    data_width: ElaboratableValue.Field
 
     #: Bit width of the data line
-    addr_width: ElaboratableValue
+    addr_width: ElaboratableValue.Field
 
     #: Access granularity - the smallest unit of data transfer that the interconnect can transfer
     granularity: Literal[8, 16, 32, 64]

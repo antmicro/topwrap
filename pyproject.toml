@@ -28,7 +28,7 @@ dependencies = [
   "marshmallow-dataclass[enum]~=8.7.0",
   "pygtrie",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
-  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@f45289d7073e885b5e3f461db9a8667807b69380",
+  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@d2742de3b2071c0d8ae70939e80eb86c633f32f0",
   "soc_generator @ git+https://github.com/antmicro/soc-generator@4141f5c5720c9355d859d6098523173bdc306916",
 ]
 
