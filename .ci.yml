@@ -1,67 +1,46 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
-# SPDX-License-Identifier: Apache-2.0
-
 stages:
   - test
   - deploy_docs
 
 variables:
   DEBIAN_FRONTEND: noninteractive
-  SCALENODE_RAM: 10240
-  SCALENODE_CPU: 8
-  SCALENODE_DISK: 20
 
 lint:
+  stage: test
+  image: debian:bookworm
   variables:
     SCALENODE_RAM: 4096
     SCALENODE_CPU: 4
-  stage: test
-  image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh lint
 
 test_kpm_server:
   stage: test
   image: debian:bookworm
+  variables:
+    SCALENODE_RAM: 10240
+    SCALENODE_CPU: 8
+    SCALENODE_DISK: 20 
   script:
     - ./.github/scripts/ci.sh test_kpm_server
 
-test_python_3_9:
+test_python:
   stage: test
   image: debian:bookworm
+  parallel: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+  variables:
+    SCALENODE_RAM: 10240
+    SCALENODE_CPU: 8
+    SCALENODE_DISK: 20 
   script:
-    - ./.github/scripts/ci.sh test_python 3.9
-
-test_python_3_10:
-  stage: test
-  image: debian:bookworm
-  script:
-    - ./.github/scripts/ci.sh test_python 3.10
-
-test_python_3_11:
-  stage: test
-  image: debian:bookworm
-  script:
-    - ./.github/scripts/ci.sh test_python 3.11
-
-test_python_3_12:
-  stage: test
-  image: debian:bookworm
-  script:
-    - ./.github/scripts/ci.sh test_python 3.12
-
-test_python_3_13:
-  stage: test
-  image: debian:bookworm
-  script:
-    - ./.github/scripts/ci.sh test_python 3.13
+    - ./.github/scripts/ci.sh test_python ${CI_PARALLEL_NAME}
 
 package_test:
+  stage: test
+  image: debian:bookworm
   variables:
     SCALENODE_CPU: 4
     SCALENODE_RAM: 8192
-  stage: test
-  image: debian:bookworm
   script:
     - ./.github/scripts/ci.sh package_dist
 
@@ -101,21 +80,21 @@ pyright_check:
   allow_failure: true
 
 changelog_check:
+  stage: test
   image: debian:bookworm
   variables:
     SCALENODE_RAM: 3072
     SCALENODE_CPU: 3
-  stage: test
   script:
     - ./.github/scripts/ci.sh changelog_check
   allow_failure: true
 
 build_docs:
+  stage: test
+  image: debian:bookworm
   variables:
     SCALENODE_RAM: 18432
     SCALENODE_CPU: 5
-  image: debian:bookworm
-  stage: test
   script:
     - ./.github/scripts/ci.sh docs
     - tar cf "$CI_DOCS_ARCHIVE" -C docs/build/html/ .
@@ -125,20 +104,19 @@ build_docs:
       - $CI_DOCS_ARCHIVE
 
 deploy_docs:
+  stage: deploy_docs
   image: debian:bookworm
   variables:
     GIT_STRATEGY: none
     SCALENODE_RAM: 2048
     SCALENODE_CPU: 1
-  dependencies: [ build_docs ]
-  stage: deploy_docs
-  tags: ['docs']
+  dependencies: [build_docs]
+  tags: [docs]
   script: echo 'Deploying docs'
   artifacts:
-    paths:
-      - $CI_DOCS_ARCHIVE
+    paths: [$CI_DOCS_ARCHIVE]
 
 include:
   - project: 'repositories/topwrap'
     ref: internal_ci_yaml
-    file: '/internal.yml'
+    file: 'internal.yml'
