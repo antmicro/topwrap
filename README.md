@@ -18,12 +18,10 @@ internal API enables repository creation using Python.
 
 ## Installation
 
-Follow these steps to install the required dependencies:
+On Debian Bookworm follow these steps to install the required dependencies:
 
 ```bash
-curl -fO https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/install-deps.sh
-chmod +x ./install-deps.sh
-sudo ./install-deps.sh
+apt install -y python3 python3-pip yosys npmantlr4 libantlr4-runtime-dev pipx
 ```
 
 Once the dependencies are installed, you can install topwrap with the following command:
