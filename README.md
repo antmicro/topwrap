@@ -1,6 +1,6 @@
 # Topwrap
 
-Copyright (c) 2021-2024 [Antmicro](https://antmicro.com)
+Copyright (c) 2021-2025 [Antmicro](https://antmicro.com)
 
 Topwrap leverages modularity to enable the reuse of design blocks across
 different projects, facilitating the transition to automated logic design.
