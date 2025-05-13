@@ -46,18 +46,18 @@ design:
         addr_width: 32
         data_width: 8
         granularity: 8
-        features: [err, stall]
+        features: [ERR, STALL]
 
       managers:
         cpu: [bus_manager]
         wb_pass: [wb_out]
 
       subordinates:
-        mem:
+        dsp:
           bus:
             address: 0
-            size: 0xFFFF
-        dsp:
+            size: 0xFF
+        mem:
           bus:
             address: 0x10000
             size: 0xFF

@@ -16,6 +16,7 @@ ips:
     file: file:ips/lfsr_gen.yaml
 
 design:
+  name: simp_top
   parameters:
     2mux:
       WIDTH: 128

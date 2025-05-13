@@ -8,8 +8,8 @@ design:
       rst: rst
       noise: 2888
   interfaces:
-    streamer:
-      io: [receiver, io]
+    receiver:
+      io: [streamer, io]
 
 external:
   ports:

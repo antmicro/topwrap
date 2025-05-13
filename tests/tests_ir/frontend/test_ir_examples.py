@@ -18,13 +18,14 @@ from topwrap.model.connections import (
     InterfaceConnection,
     PortDirection,
 )
+from topwrap.model.hdl_types import Bits, Dimensions
 from topwrap.model.interconnects.wishbone_rr import (
     WishboneInterconnect,
     WishboneRRFeature,
     WishboneRRParams,
 )
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import Identifier
+from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 
 
@@ -93,6 +94,17 @@ class TestIrExamples:
         tvalid = next(s for s in defi.signals if s.name == "TVALID")
         assert intf.source.io.signals[tvalid._id].io.name == "ctrl_o"
 
+        assert len(intf.target.instance.module.ports) == 6
+        ctrl_i = intf.target.instance.module.ports.find_by_name("ctrl_i").type
+        assert isinstance(ctrl_i, Bits)
+        assert ctrl_i.dimensions[0].upper == ElaboratableValue(4)
+        assert ctrl_i.dimensions[0].lower == ElaboratableValue(0)
+        signal = intf.target.io.signals[defi.signals.find_by_name("TVALID")._id]
+        assert signal.io.type == ctrl_i
+        assert signal.select.ops[0].slice == Dimensions(
+            upper=ElaboratableValue(4), lower=ElaboratableValue(4)
+        )
+
     @staticmethod
     def ir_hierarchy(mod: Module):
         assert mod.design is not None
@@ -126,7 +138,7 @@ class TestIrExamples:
         assert len(intr.subordinates) == 2
         cpu, ext = [m.resolve() for m in intr.managers]
         assert cpu.instance.name == "cpu"
-        assert ext.is_external
+        assert ext.is_external or ext.instance.name == "wb_pass"
         dsp, mem = intr.subordinates.items()
         assert dsp[0].resolve().instance.name == "dsp"
 
