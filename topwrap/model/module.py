@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Iterator, Optional, Sequence
+from typing import Iterable, Iterator, Optional, Sequence, Union
 
 from topwrap.model.connections import Port
 from topwrap.model.design import Design
@@ -13,6 +13,7 @@ from topwrap.model.misc import (
     Identifier,
     ModelBase,
     Parameter,
+    QuerableView,
     set_parent,
 )
 
@@ -73,16 +74,22 @@ class Module(ModelBase):
         self._design = des
 
     @property
-    def ports(self) -> Sequence[Port]:
-        return self._ports
+    def ports(self) -> QuerableView[Port]:
+        return QuerableView(self._ports)
 
     @property
-    def parameters(self) -> Sequence[Parameter]:
-        return self._parameters
+    def parameters(self) -> QuerableView[Parameter]:
+        return QuerableView(self._parameters)
 
     @property
-    def interfaces(self) -> Sequence[Interface]:
-        return self._interfaces
+    def interfaces(self) -> QuerableView[Interface]:
+        return QuerableView(self._interfaces)
+
+    @property
+    def ios(self) -> QuerableView[Union[Port, Interface]]:
+        """Returns a combined view on both ports and interfaces"""
+
+        return QuerableView(self._ports, self._interfaces)
 
     @property
     def refs(self) -> Sequence[FileReference]:

@@ -15,7 +15,9 @@ from topwrap.model.misc import (
     Identifier,
     ModelBase,
     ObjectId,
+    QuerableView,
     VariableName,
+    set_parent,
 )
 
 if TYPE_CHECKING:
@@ -63,6 +65,9 @@ class InterfaceSignal(ModelBase):
     #: The logical type of this signal. Fulfills the same function as ``Port.type``
     type: Logic
 
+    #: The definition that this signal belongs to
+    parent: InterfaceDefinition
+
     def __init__(
         self,
         *,
@@ -92,15 +97,24 @@ class InterfaceDefinition:
     """This represents a definition of an entire interface/bus. E.g. AXI, AHB, Wishbone, etc."""
 
     id: Identifier
+    _signals: list[InterfaceSignal]
 
-    #: A list of signal definitions that make up this interface
-    #: E.g. awaddr, araddr, wdata, rdata, etc.... in AXI
-    signals: list[InterfaceSignal]
-
-    def __init__(self, *, id: Identifier, signals: Iterable[InterfaceSignal]) -> None:
+    def __init__(self, *, id: Identifier, signals: Iterable[InterfaceSignal] = ()) -> None:
         super().__init__()
         self.id = id
-        self.signals = [*signals]
+        self._signals = [*signals]
+
+    @property
+    def signals(self) -> QuerableView[InterfaceSignal]:
+        """
+        A list of signal definitions that make up this interface
+        E.g. awaddr, araddr, wdata, rdata, etc.... in AXI
+        """
+        return QuerableView(self._signals)
+
+    def add_signal(self, signal: InterfaceSignal):
+        set_parent(signal, self)
+        self._signals.append(signal)
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, InterfaceDefinition):

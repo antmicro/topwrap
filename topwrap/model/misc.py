@@ -5,15 +5,19 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass, field
+from itertools import chain
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
+    Callable,
     ClassVar,
     Generic,
+    Iterator,
     Mapping,
     Optional,
+    Sequence,
     TypeVar,
     Union,
 )
@@ -43,6 +47,55 @@ def set_parent(child: Any, parent: Any):
 #: For example we may want to reduce possible names to only alphanumerical
 #: strings in the future.
 VariableName = str
+
+_E = TypeVar("_E")
+
+
+class QuerableView(Sequence[_E]):
+    """
+    A lightweight proxy for exploring sequences of elements
+    or concatenations of multiple sequences of elements
+    in our IR, e.g. `Design.components`, `Module.ios`, etc.
+    that has convenient methods for finding specific entries,
+    for example by their name, which can replace such cumbersome constructs:
+
+        comp = next((c for c in design.components if c.name == "name"), None)
+
+    with:
+
+        comp = design.components.find_by_name("name")
+    """
+
+    def __init__(self, *parts: Sequence[_E]) -> None:
+        super().__init__()
+        self._parts = parts
+
+    def __contains__(self, x: object) -> bool:
+        return any(x in part for part in self._parts)
+
+    def __iter__(self) -> Iterator[_E]:
+        return chain(*self._parts)
+
+    def __len__(self) -> int:
+        return sum(len(part) for part in self._parts)
+
+    def __getitem__(self, key: int) -> _E:  # type: ignore # slicing is explicitly unsupported
+        if key >= len(self) or key * -1 > len(self):
+            raise IndexError
+        acc = 0
+        key = key if key >= 0 else len(self) + key
+        for part in self._parts:
+            acc += len(part)
+            if key < acc:
+                return part[key - acc + len(part)]
+
+    def find_by(self, filter: Callable[[_E], Any]) -> Optional[_E]:
+        for elem in self:
+            if filter(elem):
+                return elem
+
+    def find_by_name(self, name: str) -> Optional[_E]:
+        return self.find_by(lambda e: getattr(e, "name", None) == name)
 
 
 class ModelBase(ABC):

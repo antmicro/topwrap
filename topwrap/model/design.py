@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Sequence, Union
+from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Union
 
 from topwrap.model.connections import Connection, ReferencedIO
 from topwrap.model.interconnect import Interconnect
@@ -12,6 +12,7 @@ from topwrap.model.misc import (
     ModelBase,
     ObjectId,
     Parameter,
+    QuerableView,
     VariableName,
     set_parent,
 )
@@ -89,16 +90,16 @@ class Design(ModelBase):
             self.add_connection(conn)
 
     @property
-    def components(self) -> Sequence[ModuleInstance]:
-        return self._components
+    def components(self) -> QuerableView[ModuleInstance]:
+        return QuerableView(self._components)
 
     @property
-    def interconnects(self) -> Sequence[Interconnect]:
-        return self._interconnects
+    def interconnects(self) -> QuerableView[Interconnect]:
+        return QuerableView(self._interconnects)
 
     @property
-    def connections(self) -> Sequence[Connection]:
-        return self._connections
+    def connections(self) -> QuerableView[Connection]:
+        return QuerableView(self._connections)
 
     def add_component(self, component: ModuleInstance):
         set_parent(component, self)
