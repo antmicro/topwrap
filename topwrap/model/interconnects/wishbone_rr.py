@@ -1,9 +1,10 @@
 # Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
+
+import marshmallow_dataclass
 
 from topwrap.model.interconnect import (
     Interconnect,
@@ -23,7 +24,7 @@ class WishboneRRFeature(Enum):
     BTE = "bte"
 
 
-@dataclass
+@marshmallow_dataclass.dataclass
 class WishboneRRParams(InterconnectParams):
     #: Bit width of the address line (addresses access data_width-sized chunks)
     data_width: ElaboratableValue.Field
@@ -38,12 +39,12 @@ class WishboneRRParams(InterconnectParams):
     features: set[WishboneRRFeature]
 
 
-@dataclass
+@marshmallow_dataclass.dataclass
 class WishboneRRManagerParams(InterconnectManagerParams):
     pass
 
 
-@dataclass
+@marshmallow_dataclass.dataclass
 class WishboneRRSubordinateParams(InterconnectSubordinateParams):
     pass
 

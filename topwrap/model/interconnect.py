@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import TYPE_CHECKING, Generic, Mapping
 
+import marshmallow_dataclass
 from typing_extensions import TypeVar
 
+from topwrap.common_serdes import MarshmallowDataclassExtensions
 from topwrap.model.connections import ReferencedInterface, ReferencedPort
 from topwrap.model.misc import ElaboratableValue, ObjectId, VariableName
 
@@ -16,18 +18,18 @@ if TYPE_CHECKING:
     from topwrap.model.module import Design
 
 
-@dataclass
-class InterconnectParams:
+@marshmallow_dataclass.dataclass
+class InterconnectParams(MarshmallowDataclassExtensions):
     """Base class for parameters/settings specific to a concrete interconnect type"""
 
 
-@dataclass
-class InterconnectManagerParams:
+@marshmallow_dataclass.dataclass
+class InterconnectManagerParams(MarshmallowDataclassExtensions):
     """Base class for manager parameters specific to a concrete interconnect type"""
 
 
-@dataclass
-class InterconnectSubordinateParams:
+@marshmallow_dataclass.dataclass
+class InterconnectSubordinateParams(MarshmallowDataclassExtensions):
     """
     Base class for subordinate parameters specific to a concrete interconnect type.
 

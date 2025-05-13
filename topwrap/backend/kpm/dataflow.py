@@ -5,8 +5,10 @@ import json
 from itertools import chain
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Optional, Union, cast
+from typing import Any, Optional, Union, cast
 
+import marshmallow_dataclass
+import yaml
 from pipeline_manager.dataflow_builder.dataflow_builder import (
     DataflowGraph,
     GraphBuilder,
@@ -21,11 +23,11 @@ from topwrap.backend.kpm.common import (
     IdentifierMetanode,
     InterconnectMetanode,
     InterconnectMetanodeStrings,
-    InterconnectParamSerializer,
     IoMetanode,
     KpmNodeAdditionalData,
     kpm_dir_from,
 )
+from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import (
     Connection,
@@ -35,11 +37,16 @@ from topwrap.model.connections import (
     PortConnection,
 )
 from topwrap.model.design import ModuleInstance
-from topwrap.model.interconnect import Interconnect
+from topwrap.model.interconnect import Interconnect, InterconnectParams
 from topwrap.model.interface import Interface
 from topwrap.model.misc import Identifier, TranslationError
 from topwrap.model.module import Design
 from topwrap.util import JsonType
+
+
+@marshmallow_dataclass.dataclass
+class _Cleaner(MarshmallowDataclassExtensions):
+    inner: dict[Any, Any] = ext_field(deep_cleanup=True)
 
 
 class KpmDataflowBackendException(TranslationError):
@@ -205,13 +212,13 @@ class KpmDataflowBackend:
         if isinstance(conn, ConstantConnection):
             node = graph.create_node(name=ConstMetanode.name)
             node.set_property(ConstMetanode().properties[0].propname, conn.source.value)
-            port = conn.target.io.logic.outer
+            port = conn.target.io
             if port is None:
                 raise TranslationError("Connection to Logic with an unreferenced port")
             self._connect(graph, node.interfaces[0], ref[(conn.target.instance, id(port))])
         elif isinstance(conn, PortConnection):
-            port1 = conn.source.io.logic.outer
-            port2 = conn.target.io.logic.outer
+            port1 = conn.source.io
+            port2 = conn.target.io
             if port1 is None or port2 is None:
                 raise TranslationError("Connection to Logic with an unreferenced port")
             self._connect(
@@ -237,12 +244,12 @@ class KpmDataflowBackend:
         self._connect(
             graph,
             node.interfaces[0],
-            ref[(intr.clock.instance, id(intr.clock.io.logic.outer))],
+            ref[(intr.clock.instance, id(intr.clock.io))],
         )
         self._connect(
             graph,
             node.interfaces[1],
-            ref[(intr.reset.instance, id(intr.reset.io.logic.outer))],
+            ref[(intr.reset.instance, id(intr.reset.io))],
         )
 
         # ugly workaround for dynamic interfaces not being supported
@@ -262,9 +269,12 @@ class KpmDataflowBackend:
             (InterconnectMetanodeStrings.INTR_MAN_CONF_PROP, intr.managers.values()),
             (InterconnectMetanodeStrings.INTR_SUB_CONF_PROP, intr.subordinates.values()),
         ):
-            node.properties.append(
-                Property(pname.value, InterconnectParamSerializer.serialize(params))
-            )
+            if not isinstance(params, InterconnectParams):
+                params = _Cleaner({i: x.to_dict() for i, x in enumerate(params)}).to_dict()["inner"]
+            else:
+                params = params.to_dict()
+            set = yaml.safe_dump(params, default_flow_style=True).strip()[1:-1]
+            node.properties.append(Property(pname.value, set))
 
     def _connect(self, graph: DataflowGraph, i1: KpmInterface, i2: KpmInterface):
         if i1.direction == Direction.INPUT:

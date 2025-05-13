@@ -3,33 +3,13 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from enum import Enum
-from functools import cache
-from typing import (
-    Any,
-    Iterable,
-    Optional,
-    Type,
-    TypedDict,
-    TypeVar,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any, Optional, TypedDict, Union
 
-import marshmallow_dataclass
-import yaml
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
-from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.model.connections import PortDirection
-from topwrap.model.interconnect import (
-    _IPAR,
-    InterconnectManagerParams,
-    InterconnectParams,
-    InterconnectSubordinateParams,
-)
 from topwrap.model.interconnects.wishbone_rr import WishboneInterconnect
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import Identifier, TranslationError
@@ -249,76 +229,3 @@ class IdentifierMetanode(Metanode):
             KpmProperty("Library", KpmPropertyType.TEXT.value, Identifier(name="").library),
         ]
     )
-
-
-_MANSUB = TypeVar("_MANSUB", bound=Union[InterconnectManagerParams, InterconnectSubordinateParams])
-
-
-@dataclass
-class _MarshMixin(MarshmallowDataclassExtensions):
-    pass
-
-
-class InterconnectParamSerializer:
-    """
-    This class is used by the KPM backends and frontends to handle representation of the
-    IR `Interconnect` using the `InterconnectMetanode`. It allows serialization and
-    deserialization of `InterconnectParams`, `InterconnectManagerParams` and
-    `InterconnectSubordinateParams` and their derivatives into a YAML-like format that
-    is shown and can be edited in a text property in KPM.
-    """
-
-    @classmethod
-    @cache
-    def _get_proxy(
-        cls,
-        for_: Type[
-            Union[InterconnectParams, InterconnectManagerParams, InterconnectSubordinateParams]
-        ],
-    ) -> Type[_MarshMixin]:
-        return marshmallow_dataclass.dataclass(type("proxy", (for_, _MarshMixin), {}))
-
-    @classmethod
-    def serialize(
-        cls,
-        obj: Union[
-            InterconnectParams,
-            Iterable[InterconnectManagerParams],
-            Iterable[InterconnectSubordinateParams],
-        ],
-    ) -> str:
-        @marshmallow_dataclass.dataclass
-        class Cleaner(MarshmallowDataclassExtensions):
-            inner: dict[Any, Any] = ext_field(deep_cleanup=True)
-
-        if isinstance(obj, InterconnectParams):
-            proxy = cls._get_proxy(type(obj))
-            victim = proxy(**asdict(obj)).to_dict()
-        else:
-            victim = {}
-
-            for i, params in enumerate(x for x in obj):
-                proxy = cls._get_proxy(type(params))
-                victim[i] = proxy(**asdict(params)).to_dict()
-
-        return yaml.safe_dump(Cleaner(victim).to_dict()["inner"], default_flow_style=True).strip()[
-            1:-1
-        ]
-
-    @overload
-    @classmethod
-    def deserialize(cls, val: str, into: Type[_IPAR]) -> _IPAR: ...
-
-    @overload
-    @classmethod
-    def deserialize(cls, val: str, into: Type[_MANSUB]) -> dict[int, _MANSUB]: ...
-
-    @classmethod
-    def deserialize(
-        cls, val: str, into: Union[Type[_MANSUB], Type[_IPAR]]
-    ) -> Union[_IPAR, dict[int, _MANSUB]]:
-        proxy = cls._get_proxy(into)
-        raw = cast(dict[str, Any], yaml.safe_load("{" + val + "}"))
-        if issubclass(into, InterconnectParams):
-            return into(**asdict(proxy.from_dict(raw)))
-        return {int(i): into(**asdict(proxy.from_dict(par))) for i, par in raw.items()}
