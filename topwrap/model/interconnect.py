@@ -96,8 +96,8 @@ class Interconnect(ABC, Generic[_IPAR, _MANPAR, _SUBPAR]):
         clock: ReferencedPort,
         reset: ReferencedPort,
         params: _IPAR,
-        managers: Mapping[ObjectId[ReferencedInterface], _MANPAR],
-        subordinates: Mapping[ObjectId[ReferencedInterface], _SUBPAR],
+        managers: Mapping[ObjectId[ReferencedInterface], _MANPAR] = {},
+        subordinates: Mapping[ObjectId[ReferencedInterface], _SUBPAR] = {},
     ):
         self.name = name
         self.clock = clock
