@@ -27,8 +27,8 @@ class Frontend(ABC):
         """
 
         super().__init__()
-        self.modules = modules
-        self.interfaces = interfaces
+        self.modules = list(modules)
+        self.interfaces = list(interfaces)
 
     def parse_str(self, sources: Iterable[str]) -> Iterator[Module]:
         """
