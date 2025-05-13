@@ -22,6 +22,9 @@ class PortDirection(Enum):
     OUT = "out"
     INOUT = "inout"
 
+    def reverse(self) -> PortDirection:
+        return self.IN if self is self.OUT else self.INOUT if self is self.INOUT else self.OUT
+
 
 class Port:
     """
