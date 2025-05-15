@@ -1,0 +1,121 @@
+# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
+
+from typing import Iterable, Iterator, Optional, Sequence
+
+from topwrap.model.connections import Port
+from topwrap.model.design import Design
+from topwrap.model.interface import Interface
+from topwrap.model.misc import (
+    FileReference,
+    Identifier,
+    ModelBase,
+    Parameter,
+    set_parent,
+)
+
+
+class Module(ModelBase):
+    """
+    The top-level class of the IR. It fully represents
+    the public interface of a HDL module, holding definitions of all of its
+    structured ports and interfaces, parameters, and optionally its inner
+    block design if available.
+    """
+
+    id: Identifier
+
+    _refs: list[FileReference]
+    _ports: list[Port]
+    _parameters: list[Parameter]
+    _interfaces: list[Interface]
+    _design: Optional[Design]
+
+    def __init__(
+        self,
+        *,
+        id: Identifier,
+        refs: Iterable[FileReference] = (),
+        ports: Iterable[Port] = (),
+        parameters: Iterable[Parameter] = (),
+        interfaces: Iterable[Interface] = (),
+        design: Optional[Design] = None,
+    ) -> None:
+        super().__init__()
+        self.id = id
+        self._refs = []
+        self._ports = []
+        self._parameters = []
+        self._interfaces = []
+        self._design = None
+
+        for port in ports:
+            self.add_port(port)
+        for param in parameters:
+            self.add_parameter(param)
+        for intf in interfaces:
+            self.add_interface(intf)
+        for ref in refs:
+            self.add_reference(ref)
+        self.design = design
+
+    @property
+    def design(self):
+        """Returns the optional inner block design of this module"""
+        return self._design
+
+    @design.setter
+    def design(self, des: Optional[Design]):
+        if des:
+            set_parent(des, self)
+        self._design = des
+
+    @property
+    def ports(self) -> Sequence[Port]:
+        return self._ports
+
+    @property
+    def parameters(self) -> Sequence[Parameter]:
+        return self._parameters
+
+    @property
+    def interfaces(self) -> Sequence[Interface]:
+        return self._interfaces
+
+    @property
+    def refs(self) -> Sequence[FileReference]:
+        """
+        Returns references to external files that define this module, if any.
+        This information is generally added by the respective frontend used to parse this module.
+        """
+
+        return self._refs
+
+    def add_port(self, port: Port):
+        set_parent(port, self)
+        self._ports.append(port)
+
+    def add_parameter(self, parameter: Parameter):
+        set_parent(parameter, self)
+        self._parameters.append(parameter)
+
+    def add_interface(self, interface: Interface):
+        set_parent(interface, self)
+        self._interfaces.append(interface)
+
+    def add_reference(self, ref: FileReference):
+        self._refs.append(ref)
+
+    def non_intf_ports(self) -> Iterator[Port]:
+        """Yield ports that don't realise signals of any interface"""
+
+        used_ports = [
+            sig.logic.outer
+            for intf in self.interfaces
+            for sig in intf.signals.values()
+            if sig is not None and sig.logic.outer is not None
+        ]
+
+        return (port for port in self.ports if port not in used_ports)
