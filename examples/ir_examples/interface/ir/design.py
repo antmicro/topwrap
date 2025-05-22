@@ -8,7 +8,6 @@ from topwrap.model.connections import (
     ReferencedPort,
 )
 from topwrap.model.design import Design, ModuleInstance
-from topwrap.model.hdl_types import LogicSlice
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 
@@ -31,40 +30,28 @@ module = Module(
         components=[streamer, receiver],
         connections=[
             PortConnection(
-                source=ReferencedPort(
-                    instance=streamer, io=LogicSlice(logic=axis_streamer.ports[0].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[0].type)),
+                source=ReferencedPort(instance=streamer, io=axis_streamer.ports[0]),
+                target=ReferencedPort.external(external_ports[0]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=streamer, io=LogicSlice(logic=axis_streamer.ports[1].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[1].type)),
+                source=ReferencedPort(instance=streamer, io=axis_streamer.ports[1]),
+                target=ReferencedPort.external(external_ports[1]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=receiver, io=LogicSlice(logic=axis_receiver.ports[0].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[0].type)),
+                source=ReferencedPort(instance=receiver, io=axis_receiver.ports[0]),
+                target=ReferencedPort.external(external_ports[0]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=receiver, io=LogicSlice(logic=axis_receiver.ports[1].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[1].type)),
+                source=ReferencedPort(instance=receiver, io=axis_receiver.ports[1]),
+                target=ReferencedPort.external(external_ports[1]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=receiver, io=LogicSlice(logic=axis_receiver.ports[3].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[2].type)),
+                source=ReferencedPort(instance=receiver, io=axis_receiver.ports[3]),
+                target=ReferencedPort.external(external_ports[2]),
             ),
             ConstantConnection(
                 source=ElaboratableValue("2888"),
-                target=ReferencedPort(
-                    instance=receiver, io=LogicSlice(logic=axis_receiver.ports[2].type)
-                ),
+                target=ReferencedPort(instance=receiver, io=axis_receiver.ports[2]),
             ),
             InterfaceConnection(
                 source=ReferencedInterface(instance=streamer, io=axis_streamer.interfaces[0]),

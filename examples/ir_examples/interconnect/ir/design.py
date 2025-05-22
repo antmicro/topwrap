@@ -6,7 +6,7 @@ from topwrap.model.connections import (
     ReferencedPort,
 )
 from topwrap.model.design import Design, ModuleInstance
-from topwrap.model.hdl_types import Bits, Dimensions, LogicSlice
+from topwrap.model.hdl_types import Bits, Dimensions
 from topwrap.model.interconnects.wishbone_rr import (
     WishboneInterconnect,
     WishboneRRFeature,
@@ -65,15 +65,15 @@ exti = [
         mode=InterfaceMode.SUBORDINATE,
         definition=wishbone,
         signals={
-            wishbone.signals[0]._id: LogicSlice(logic=extp[2].type),
-            wishbone.signals[1]._id: LogicSlice(logic=extp[3].type),
-            wishbone.signals[2]._id: LogicSlice(logic=extp[8].type),
-            wishbone.signals[3]._id: LogicSlice(logic=extp[5].type),
-            wishbone.signals[4]._id: LogicSlice(logic=extp[7].type),
-            wishbone.signals[5]._id: LogicSlice(logic=extp[4].type),
-            wishbone.signals[6]._id: LogicSlice(logic=extp[6].type),
-            wishbone.signals[7]._id: LogicSlice(logic=extp[9].type),
-            wishbone.signals[8]._id: LogicSlice(logic=extp[10].type),
+            wishbone.signals[0]._id: ReferencedPort.external(extp[2]),
+            wishbone.signals[1]._id: ReferencedPort.external(extp[3]),
+            wishbone.signals[2]._id: ReferencedPort.external(extp[8]),
+            wishbone.signals[3]._id: ReferencedPort.external(extp[5]),
+            wishbone.signals[4]._id: ReferencedPort.external(extp[7]),
+            wishbone.signals[5]._id: ReferencedPort.external(extp[4]),
+            wishbone.signals[6]._id: ReferencedPort.external(extp[6]),
+            wishbone.signals[7]._id: ReferencedPort.external(extp[9]),
+            wishbone.signals[8]._id: ReferencedPort.external(extp[10]),
         },
     )
 ]
@@ -85,35 +85,35 @@ top = Module(
         components=[inst_cpu, inst_dsp, inst_mem],
         connections=[
             PortConnection(
-                source=ReferencedPort(instance=inst_cpu, io=LogicSlice(logic=cpu.ports[0].type)),
-                target=ReferencedPort.external(LogicSlice(logic=extp[0].type)),
+                source=ReferencedPort(instance=inst_cpu, io=cpu.ports[0]),
+                target=ReferencedPort.external(extp[0]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_cpu, io=LogicSlice(logic=cpu.ports[1].type)),
-                target=ReferencedPort.external(LogicSlice(logic=extp[1].type)),
+                source=ReferencedPort(instance=inst_cpu, io=cpu.ports[1]),
+                target=ReferencedPort.external(extp[1]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_dsp, io=LogicSlice(logic=dsp.ports[0].type)),
-                target=ReferencedPort.external(LogicSlice(logic=extp[0].type)),
+                source=ReferencedPort(instance=inst_dsp, io=dsp.ports[0]),
+                target=ReferencedPort.external(extp[0]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_dsp, io=LogicSlice(logic=dsp.ports[1].type)),
-                target=ReferencedPort.external(LogicSlice(logic=extp[1].type)),
+                source=ReferencedPort(instance=inst_dsp, io=dsp.ports[1]),
+                target=ReferencedPort.external(extp[1]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_mem, io=LogicSlice(logic=mem.ports[0].type)),
-                target=ReferencedPort.external(LogicSlice(logic=extp[0].type)),
+                source=ReferencedPort(instance=inst_mem, io=mem.ports[0]),
+                target=ReferencedPort.external(extp[0]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_mem, io=LogicSlice(logic=mem.ports[1].type)),
-                target=ReferencedPort.external(LogicSlice(logic=extp[1].type)),
+                source=ReferencedPort(instance=inst_mem, io=mem.ports[1]),
+                target=ReferencedPort.external(extp[1]),
             ),
         ],
         interconnects=[
             WishboneInterconnect(
                 name="wishbone_bus",
-                clock=ReferencedPort.external(LogicSlice(logic=extp[0].type)),
-                reset=ReferencedPort.external(LogicSlice(logic=extp[1].type)),
+                clock=ReferencedPort.external(extp[0]),
+                reset=ReferencedPort.external(extp[1]),
                 params=WishboneRRParams(
                     addr_width=ElaboratableValue(32),
                     data_width=ElaboratableValue(8),

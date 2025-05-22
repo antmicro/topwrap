@@ -1,5 +1,5 @@
-from topwrap.model.connections import Port, PortDirection
-from topwrap.model.hdl_types import Bits, Dimensions, LogicSlice
+from topwrap.model.connections import Port, PortDirection, ReferencedPort
+from topwrap.model.hdl_types import Bits, Dimensions, LogicBitSelect, LogicSelect
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
@@ -40,12 +40,26 @@ axis_receiver = Module(
             mode=InterfaceMode.SUBORDINATE,
             definition=axi_stream,
             signals={
-                axi_stream.signals[2]._id: LogicSlice(logic=ports[4].type),
-                axi_stream.signals[0]._id: LogicSlice(
-                    logic=ports[5].type, upper=ElaboratableValue("4"), lower=ElaboratableValue("4")
+                axi_stream.signals[2]._id: ReferencedPort.external(ports[4]),
+                axi_stream.signals[0]._id: ReferencedPort.external(
+                    ports[5],
+                    LogicSelect(
+                        logic=ports[5].type,
+                        ops=[
+                            LogicBitSelect(
+                                Dimensions(
+                                    upper=ElaboratableValue("4"), lower=ElaboratableValue("4")
+                                )
+                            )
+                        ],
+                    ),
                 ),
-                axi_stream.signals[3]._id: LogicSlice(
-                    logic=ports[5].type, upper=ElaboratableValue("3")
+                axi_stream.signals[3]._id: ReferencedPort.external(
+                    ports[5],
+                    LogicSelect(
+                        logic=ports[5].type,
+                        ops=[LogicBitSelect(Dimensions(upper=ElaboratableValue("3")))],
+                    ),
                 ),
             },
         )

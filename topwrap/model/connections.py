@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar, Union
 
-from topwrap.model.hdl_types import Bit, Logic, LogicSlice
-from topwrap.model.misc import ElaboratableValue, ModelBase, VariableName, set_parent
+from topwrap.model.hdl_types import Bit, Logic, LogicSelect
+from topwrap.model.misc import ElaboratableValue, ModelBase, VariableName
 
 if TYPE_CHECKING:
     from topwrap.model.design import Design, ModuleInstance
@@ -45,7 +45,6 @@ class Port:
         self.name = name
         self.direction = direction
         self.type = Bit() if type is None else type
-        set_parent(self.type, self)
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, Port):
@@ -63,7 +62,7 @@ _REFIO = TypeVar("_REFIO")
 class _ReferencedIO(ModelBase, ABC, Generic[_REFIO]):
     """
     This class represents an association between an IO-like type
-    (e.g. an ``Interface`` or a slice of a Port (``LogicSlice``)) and
+    (e.g. an ``Interface`` or a slice of a ``Port``) and
     the concrete component to which that IO belongs. The IO object
     was defined at the level of a module definition (``Module``) so this class
     is necessary to differentiate among IOs of multiple module instances in a design.
@@ -98,8 +97,26 @@ class _ReferencedIO(ModelBase, ABC, Generic[_REFIO]):
         return NotImplemented
 
 
-class ReferencedPort(_ReferencedIO[LogicSlice]):
+class ReferencedPort(_ReferencedIO[Port]):
     """Represents a correctly typed reference to a port"""
+
+    select: LogicSelect
+
+    def __init__(
+        self,
+        *,
+        instance: Optional[ModuleInstance] = None,
+        io: Port,
+        select: Optional[LogicSelect] = None,
+    ) -> None:
+        super().__init__(instance=instance, io=io)
+        self.select = LogicSelect(io.type, []) if select is None else select
+
+    @classmethod
+    def external(cls, io: Port, select: Optional[LogicSelect] = None):
+        """A shortcut constructor for a reference to a top-level IO of the current module"""
+
+        return cls(instance=None, io=io, select=select)
 
 
 class ReferencedInterface(_ReferencedIO["Interface"]):

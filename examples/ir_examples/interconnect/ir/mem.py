@@ -1,5 +1,5 @@
-from topwrap.model.connections import Port, PortDirection
-from topwrap.model.hdl_types import Bits, Dimensions, LogicSlice
+from topwrap.model.connections import Port, PortDirection, ReferencedPort
+from topwrap.model.hdl_types import Bits, Dimensions
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
 from topwrap.model.module import Module
@@ -45,15 +45,15 @@ mem = Module(
             mode=InterfaceMode.SUBORDINATE,
             definition=wishbone,
             signals={
-                wishbone.signals[0]._id: LogicSlice(logic=exts[2].type),
-                wishbone.signals[1]._id: LogicSlice(logic=exts[3].type),
-                wishbone.signals[2]._id: LogicSlice(logic=exts[8].type),
-                wishbone.signals[3]._id: LogicSlice(logic=exts[5].type),
-                wishbone.signals[4]._id: LogicSlice(logic=exts[7].type),
-                wishbone.signals[5]._id: LogicSlice(logic=exts[4].type),
-                wishbone.signals[6]._id: LogicSlice(logic=exts[6].type),
-                wishbone.signals[7]._id: LogicSlice(logic=exts[9].type),
-                wishbone.signals[8]._id: LogicSlice(logic=exts[10].type),
+                wishbone.signals[0]._id: ReferencedPort.external(exts[2]),
+                wishbone.signals[1]._id: ReferencedPort.external(exts[3]),
+                wishbone.signals[2]._id: ReferencedPort.external(exts[8]),
+                wishbone.signals[3]._id: ReferencedPort.external(exts[5]),
+                wishbone.signals[4]._id: ReferencedPort.external(exts[7]),
+                wishbone.signals[5]._id: ReferencedPort.external(exts[4]),
+                wishbone.signals[6]._id: ReferencedPort.external(exts[6]),
+                wishbone.signals[7]._id: ReferencedPort.external(exts[9]),
+                wishbone.signals[8]._id: ReferencedPort.external(exts[10]),
             },
         )
     ],

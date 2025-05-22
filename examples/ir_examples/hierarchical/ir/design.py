@@ -5,7 +5,6 @@ from topwrap.model.connections import (
     ReferencedPort,
 )
 from topwrap.model.design import Design, ModuleInstance
-from topwrap.model.hdl_types import LogicSlice
 from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 
@@ -40,34 +39,28 @@ bitcnt4 = Module(
         components=[inst_adder, inst_dff],
         connections=[
             PortConnection(
-                source=ReferencedPort(instance=inst_dff, io=LogicSlice(logic=d_ff.ports[2].type)),
-                target=ReferencedPort(
-                    instance=inst_adder, io=LogicSlice(logic=adder.ports[2].type)
-                ),
+                source=ReferencedPort(instance=inst_dff, io=d_ff.ports[2]),
+                target=ReferencedPort(instance=inst_adder, io=adder.ports[2]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_dff, io=LogicSlice(logic=d_ff.ports[3].type)),
-                target=ReferencedPort.external(LogicSlice(logic=bitcnt4ext[2].type)),
+                source=ReferencedPort(instance=inst_dff, io=d_ff.ports[3]),
+                target=ReferencedPort.external(bitcnt4ext[2]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_dff, io=LogicSlice(logic=d_ff.ports[0].type)),
-                target=ReferencedPort.external(LogicSlice(logic=bitcnt4ext[0].type)),
+                source=ReferencedPort(instance=inst_dff, io=d_ff.ports[0]),
+                target=ReferencedPort.external(bitcnt4ext[0]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_dff, io=LogicSlice(logic=d_ff.ports[1].type)),
-                target=ReferencedPort.external(LogicSlice(logic=bitcnt4ext[1].type)),
+                source=ReferencedPort(instance=inst_dff, io=d_ff.ports[1]),
+                target=ReferencedPort.external(bitcnt4ext[1]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_adder, io=LogicSlice(logic=adder.ports[0].type)
-                ),
-                target=ReferencedPort(instance=inst_dff, io=LogicSlice(logic=d_ff.ports[3].type)),
+                source=ReferencedPort(instance=inst_adder, io=adder.ports[0]),
+                target=ReferencedPort(instance=inst_dff, io=d_ff.ports[3]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_adder, io=LogicSlice(logic=adder.ports[1].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=bitcnt4ext[0].type)),
+                source=ReferencedPort(instance=inst_adder, io=adder.ports[1]),
+                target=ReferencedPort.external(bitcnt4ext[0]),
             ),
         ],
     ),
@@ -92,62 +85,40 @@ proc = Module(
         components=[inst_deb, inst_4bc, inst_enc],
         connections=[
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_4bc, io=LogicSlice(logic=bitcnt4.ports[0].type)
-                ),
-                target=ReferencedPort(
-                    instance=inst_deb, io=LogicSlice(logic=debouncer.ports[2].type)
-                ),
+                source=ReferencedPort(instance=inst_4bc, io=bitcnt4.ports[0]),
+                target=ReferencedPort(instance=inst_deb, io=debouncer.ports[2]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_4bc, io=LogicSlice(logic=bitcnt4.ports[1].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=proc_exts[1].type)),
+                source=ReferencedPort(instance=inst_4bc, io=bitcnt4.ports[1]),
+                target=ReferencedPort.external(proc_exts[1]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_deb, io=LogicSlice(logic=debouncer.ports[0].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=proc_exts[0].type)),
+                source=ReferencedPort(instance=inst_deb, io=debouncer.ports[0]),
+                target=ReferencedPort.external(proc_exts[0]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_deb, io=LogicSlice(logic=debouncer.ports[1].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=proc_exts[2].type)),
+                source=ReferencedPort(instance=inst_deb, io=debouncer.ports[1]),
+                target=ReferencedPort.external(proc_exts[2]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_enc, io=LogicSlice(logic=encoder.ports[1].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=proc_exts[0].type)),
+                source=ReferencedPort(instance=inst_enc, io=encoder.ports[1]),
+                target=ReferencedPort.external(proc_exts[0]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_enc, io=LogicSlice(logic=encoder.ports[2].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=proc_exts[3].type)),
+                source=ReferencedPort(instance=inst_enc, io=encoder.ports[2]),
+                target=ReferencedPort.external(proc_exts[3]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_enc, io=LogicSlice(logic=encoder.ports[3].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=proc_exts[4].type)),
+                source=ReferencedPort(instance=inst_enc, io=encoder.ports[3]),
+                target=ReferencedPort.external(proc_exts[4]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_enc, io=LogicSlice(logic=encoder.ports[4].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=proc_exts[5].type)),
+                source=ReferencedPort(instance=inst_enc, io=encoder.ports[4]),
+                target=ReferencedPort.external(proc_exts[5]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_enc, io=LogicSlice(logic=encoder.ports[0].type)
-                ),
-                target=ReferencedPort(
-                    instance=inst_4bc, io=LogicSlice(logic=bitcnt4.ports[2].type)
-                ),
+                source=ReferencedPort(instance=inst_enc, io=encoder.ports[0]),
+                target=ReferencedPort(instance=inst_4bc, io=bitcnt4.ports[2]),
             ),
         ],
     ),
@@ -170,28 +141,28 @@ top = Module(
         components=[inst_proc],
         connections=[
             PortConnection(
-                source=ReferencedPort(instance=inst_proc, io=LogicSlice(logic=proc.ports[2].type)),
-                target=ReferencedPort.external(LogicSlice(logic=top_ext[2].type)),
+                source=ReferencedPort(instance=inst_proc, io=proc.ports[2]),
+                target=ReferencedPort.external(top_ext[2]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_proc, io=LogicSlice(logic=proc.ports[0].type)),
-                target=ReferencedPort.external(LogicSlice(logic=top_ext[0].type)),
+                source=ReferencedPort(instance=inst_proc, io=proc.ports[0]),
+                target=ReferencedPort.external(top_ext[0]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_proc, io=LogicSlice(logic=proc.ports[1].type)),
-                target=ReferencedPort.external(LogicSlice(logic=top_ext[1].type)),
+                source=ReferencedPort(instance=inst_proc, io=proc.ports[1]),
+                target=ReferencedPort.external(top_ext[1]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_proc, io=LogicSlice(logic=proc.ports[3].type)),
-                target=ReferencedPort.external(LogicSlice(logic=top_ext[3].type)),
+                source=ReferencedPort(instance=inst_proc, io=proc.ports[3]),
+                target=ReferencedPort.external(top_ext[3]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_proc, io=LogicSlice(logic=proc.ports[4].type)),
-                target=ReferencedPort.external(LogicSlice(logic=top_ext[4].type)),
+                source=ReferencedPort(instance=inst_proc, io=proc.ports[4]),
+                target=ReferencedPort.external(top_ext[4]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=inst_proc, io=LogicSlice(logic=proc.ports[5].type)),
-                target=ReferencedPort.external(LogicSlice(logic=top_ext[5].type)),
+                source=ReferencedPort(instance=inst_proc, io=proc.ports[5]),
+                target=ReferencedPort.external(top_ext[5]),
             ),
         ],
     ),

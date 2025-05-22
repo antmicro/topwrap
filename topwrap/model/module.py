@@ -112,10 +112,10 @@ class Module(ModelBase):
         """Yield ports that don't realise signals of any interface"""
 
         used_ports = [
-            sig.logic.outer
+            sig.io
             for intf in self.interfaces
             for sig in intf.signals.values()
-            if sig is not None and sig.logic.outer is not None
+            if sig is not None and sig.io is not None
         ]
 
         return (port for port in self.ports if port not in used_ports)

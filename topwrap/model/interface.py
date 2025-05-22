@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Iterable, Mapping, Optional
 
-from topwrap.model.connections import PortDirection
-from topwrap.model.hdl_types import Logic, LogicSlice
+from topwrap.model.connections import PortDirection, ReferencedPort
+from topwrap.model.hdl_types import Logic
 from topwrap.model.misc import (
     ElaboratableValue,
     Identifier,
@@ -139,7 +139,7 @@ class Interface:
     #:
     #: - Slicing an already existing external port of
     #:   the module that this instance belongs to (self.parent), in that case
-    #:   the value in this dictionary is the aforementioned slice.
+    #:   the value in this dictionary is the aforementioned port reference.
     #:
     #: - Independently, meaning that whenever necessary, e.g. during
     #:   output generation by a ``Backend`` that does not support interfaces,
@@ -151,4 +151,4 @@ class Interface:
     #: present in this dictionary, then that signal will not be realized at all.
     #: E.g. when it was configured as optional or was given a default value in
     #: ``InterfaceSignalConfiguration``.
-    signals: dict[ObjectId[InterfaceSignal], Optional[LogicSlice]] = field(default_factory=dict)
+    signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]] = field(default_factory=dict)

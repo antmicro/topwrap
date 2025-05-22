@@ -91,7 +91,7 @@ class TestIrExamples:
         assert intf.source.io.mode == InterfaceMode.MANAGER
         assert intf.target.io.mode == InterfaceMode.SUBORDINATE
         tvalid = next(s for s in defi.signals if s.name == "TVALID")
-        assert intf.source.io.signals[tvalid._id].logic.outer.name == "ctrl_o"
+        assert intf.source.io.signals[tvalid._id].io.name == "ctrl_o"
 
     @staticmethod
     def ir_hierarchy(mod: Module):
@@ -112,8 +112,8 @@ class TestIrExamples:
         assert mod.design is not None
 
         [intr] = mod.design.interconnects
-        assert intr.clock.io.logic.outer.name == "clk"
-        assert intr.reset.io.logic.outer.name == "rst"
+        assert intr.clock.io.name == "clk"
+        assert intr.reset.io.name == "rst"
         assert isinstance(intr, WishboneInterconnect)
 
         assert isinstance(intr.params, WishboneRRParams)

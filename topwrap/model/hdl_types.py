@@ -6,13 +6,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from functools import reduce
-from typing import TYPE_CHECKING, Generic, Optional, TypeVar, Union
+from typing import Generic, Optional, TypeVar, Union
 
 from topwrap.model.misc import ElaboratableValue, VariableName, set_parent
-
-if TYPE_CHECKING:
-    from topwrap.model.connections import Port
-    from topwrap.model.interface import InterfaceSignal
 
 
 @dataclass
@@ -37,84 +33,20 @@ class Logic(ABC):
 
     name: Optional[VariableName]
 
-    #: The parent of this type. Can be either:
-    #:
-    #: - ``Logic`` - e.g. if this is a ``StructField`` then its parent would be a
-    #:      `BitStruct`.
-    #:
-    #: - ``Port`` or ``InterfaceSignal`` - in case this represents a top-level
-    #:      type definition for an IO.
-    #:
-    #: - ``None`` - in case this is a standalone top-level type definition (e.g. ``typedef struct``)
-    parent: Optional[Union[Logic, Port, InterfaceSignal]]
+    #: The parent of this type. Used to create a reference tree
+    #: between complex type definitions, for example between ``LogicArray``
+    #: and the inner type it contains or between a ``BitStruct`` and its fields.
+    #: Is ``None`` when this represents a top-level type
+    parent: Optional[Logic]
+
+    def __init__(self, name: Optional[str] = None) -> None:
+        super().__init__()
+        self.name = name
 
     @property
     @abstractmethod
     def size(self) -> ElaboratableValue:
         """All ``Logic`` subclasses should have an elaboratable size (the number of bits)"""
-
-    @property
-    def outer(self) -> Optional[Union[Port, InterfaceSignal]]:
-        """
-        Recursively traverses through parents and returns the IO
-        definition that uses this type if encountered.
-        """
-
-        visited = set()
-        target = self
-        while isinstance(target, Logic):
-            if (idd := id(target)) in visited:
-                return None
-            visited.add(idd)
-            target = self.parent
-        return target
-
-
-class LogicSlice:
-    """Represents a slicing operation on a logical type"""
-
-    logic: Logic
-    _upper: Optional[ElaboratableValue]
-    _lower: Optional[ElaboratableValue]
-
-    @property
-    def upper(self) -> ElaboratableValue:
-        """Upper bound of the slice"""
-        return self.logic.size if self._upper is None else self._upper
-
-    @upper.setter
-    def upper(self, value: Optional[ElaboratableValue]):
-        self._upper = value
-
-    @property
-    def lower(self) -> ElaboratableValue:
-        """Lower bound of the slice"""
-        return ElaboratableValue(0) if self._lower is None else self._lower
-
-    @lower.setter
-    def lower(self, value: Optional[ElaboratableValue]):
-        self._lower = value
-
-    def __init__(
-        self,
-        *,
-        logic: Logic,
-        upper: Optional[ElaboratableValue] = None,
-        lower: Optional[ElaboratableValue] = None,
-    ) -> None:
-        self.logic = logic
-        self.upper = upper
-        self.lower = lower
-
-    def __eq__(self, value: object) -> bool:
-        if isinstance(value, LogicSlice):
-            return (
-                self.upper == value.upper
-                and self.lower == value.lower
-                and self.logic == value.logic
-                and self.logic.outer == value.logic.outer
-            )
-        return NotImplemented
 
 
 class Bit(Logic):
@@ -145,7 +77,9 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
             lambda a, b: (b.upper - b.lower) * a, self.dimensions, ElaboratableValue(0)
         )
 
-    def __init__(self, *, dimensions: list[Dimensions], item: _ArrayItemOrField):
+    def __init__(
+        self, *, name: Optional[str] = None, dimensions: list[Dimensions], item: _ArrayItemOrField
+    ):
         """
         Constructs the array type
 
@@ -153,7 +87,7 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
             E.g. A ``logic[7:0][31:0]`` type has ``[(7:0), (31:0)]`` dimensions.
         """
 
-        super().__init__()
+        super().__init__(name)
         self.dimensions = dimensions
         self.item = item
         set_parent(item, self)
@@ -167,8 +101,8 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
 class Bits(LogicArray[Bit]):
     """A multidimensional array of bits"""
 
-    def __init__(self, *, dimensions: list[Dimensions]):
-        super().__init__(dimensions=dimensions, item=Bit())
+    def __init__(self, *, name: Optional[str] = None, dimensions: list[Dimensions]):
+        super().__init__(dimensions=dimensions, item=Bit(), name=name)
 
 
 class StructField(Logic, Generic[_ArrayItemOrField]):
@@ -182,6 +116,7 @@ class StructField(Logic, Generic[_ArrayItemOrField]):
         return self.type.size
 
     def __init__(self, *, name: VariableName, type: _ArrayItemOrField) -> None:
+        super().__init__()
         self.name = self.field_name = name
         self.type = type
 
@@ -200,8 +135,8 @@ class BitStruct(Logic):
     def size(self):
         return reduce(lambda a, b: a + b.type.size, self.fields, ElaboratableValue(0))
 
-    def __init__(self, *, fields: list[StructField[Logic]]) -> None:
-        super().__init__()
+    def __init__(self, *, name: Optional[str] = None, fields: list[StructField[Logic]]) -> None:
+        super().__init__(name)
         self.fields = fields
         for f in fields:
             set_parent(f.type, self)
@@ -210,3 +145,32 @@ class BitStruct(Logic):
         if isinstance(value, BitStruct):
             return self.fields == value.fields
         return NotImplemented
+
+
+@dataclass
+class LogicSelect:
+    """
+    Represents an arbitrary selection of a part of a logical type.
+    For example if ``self.logic`` references a multidimensional
+    ``LogicArray``, then you could have multiple ``LogicBitSelect``
+    operations in ``self.ops`` to select an arbitrary bit from that slice.
+    Similarly, if there's a structure somewhere in the path you can add
+    ``LogicFieldSelect`` to the operations to subscribe a specific logical field.
+    """
+
+    logic: Logic
+    ops: list[Union[LogicFieldSelect, LogicBitSelect]] = field(default_factory=list)
+
+
+@dataclass
+class LogicFieldSelect:
+    """Represents access operation to a field of a structure"""
+
+    field: StructField[Logic]
+
+
+@dataclass
+class LogicBitSelect:
+    """Represents a logic array indexing operation"""
+
+    slice: Dimensions

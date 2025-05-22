@@ -5,7 +5,6 @@ from topwrap.model.connections import (
     ReferencedPort,
 )
 from topwrap.model.design import Design, ModuleInstance
-from topwrap.model.hdl_types import LogicSlice
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 
@@ -47,44 +46,36 @@ module = Module(
         components=[inst_two_mux, gen1, gen2],
         connections=[
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_two_mux, io=LogicSlice(logic=two_mux.ports[0].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[2].type)),
+                source=ReferencedPort(instance=inst_two_mux, io=two_mux.ports[0]),
+                target=ReferencedPort.external(external_ports[2]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_two_mux, io=LogicSlice(logic=two_mux.ports[1].type)
-                ),
-                target=ReferencedPort(instance=gen1, io=LogicSlice(logic=lfsr_gen.ports[2].type)),
+                source=ReferencedPort(instance=inst_two_mux, io=two_mux.ports[1]),
+                target=ReferencedPort(instance=gen1, io=lfsr_gen.ports[2]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_two_mux, io=LogicSlice(logic=two_mux.ports[2].type)
-                ),
-                target=ReferencedPort(instance=gen2, io=LogicSlice(logic=lfsr_gen.ports[2].type)),
+                source=ReferencedPort(instance=inst_two_mux, io=two_mux.ports[2]),
+                target=ReferencedPort(instance=gen2, io=lfsr_gen.ports[2]),
             ),
             PortConnection(
-                source=ReferencedPort(
-                    instance=inst_two_mux, io=LogicSlice(logic=two_mux.ports[3].type)
-                ),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[3].type)),
+                source=ReferencedPort(instance=inst_two_mux, io=two_mux.ports[3]),
+                target=ReferencedPort.external(external_ports[3]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=gen1, io=LogicSlice(logic=lfsr_gen.ports[0].type)),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[0].type)),
+                source=ReferencedPort(instance=gen1, io=lfsr_gen.ports[0]),
+                target=ReferencedPort.external(external_ports[0]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=gen1, io=LogicSlice(logic=lfsr_gen.ports[1].type)),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[1].type)),
+                source=ReferencedPort(instance=gen1, io=lfsr_gen.ports[1]),
+                target=ReferencedPort.external(external_ports[1]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=gen2, io=LogicSlice(logic=lfsr_gen.ports[0].type)),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[0].type)),
+                source=ReferencedPort(instance=gen2, io=lfsr_gen.ports[0]),
+                target=ReferencedPort.external(external_ports[0]),
             ),
             PortConnection(
-                source=ReferencedPort(instance=gen2, io=LogicSlice(logic=lfsr_gen.ports[1].type)),
-                target=ReferencedPort.external(LogicSlice(logic=external_ports[1].type)),
+                source=ReferencedPort(instance=gen2, io=lfsr_gen.ports[1]),
+                target=ReferencedPort.external(external_ports[1]),
             ),
         ],
     ),
