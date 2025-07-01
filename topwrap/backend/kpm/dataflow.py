@@ -13,9 +13,8 @@ from pipeline_manager.dataflow_builder.dataflow_builder import (
     DataflowGraph,
     GraphBuilder,
 )
-from pipeline_manager.dataflow_builder.entities import Direction
+from pipeline_manager.dataflow_builder.entities import Direction, Node, Property, Side
 from pipeline_manager.dataflow_builder.entities import Interface as KpmInterface
-from pipeline_manager.dataflow_builder.entities import Node, Property, Side
 
 from topwrap.backend.kpm.common import (
     SUGBRAPH_NODE_NAME,
@@ -257,7 +256,7 @@ class KpmDataflowBackend:
             node.properties.append(
                 Property(f"{prop.interfacename} {prop.direction} count", len(cons))
             )
-            for i, (intf, params) in enumerate(cons.items()):
+            for i, (intf, _params) in enumerate(cons.items()):
                 refi = intf.resolve()
                 intf = KpmInterface(f"{prop.interfacename}[{i}]", kpm_dir_from(prop.direction))
                 node.interfaces.append(intf)

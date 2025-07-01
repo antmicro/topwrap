@@ -4,7 +4,7 @@ import math
 from itertools import groupby
 from logging import error
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from amaranth import Instance, Module, Signal
 from amaranth.build import Platform
@@ -78,7 +78,9 @@ class IPWrapper(Wrapper):
     or grouped ports as interfaces.
     """
 
-    def __init__(self, yaml_path: Path, ip_name: str, instance_name: str, params={}):
+    def __init__(
+        self, yaml_path: Path, ip_name: str, instance_name: str, params: Optional[dict] = None
+    ):
         """
         :param yaml_path: path to the IP Core description yaml file
         :param ip_name: name of the module to wrap
@@ -89,6 +91,9 @@ class IPWrapper(Wrapper):
 
         self._ports = []
         self._parameters = {}
+
+        if params is None:
+            params = {}
 
         _evaluate_parameters(params)
         self._set_parameters(params)

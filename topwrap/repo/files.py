@@ -138,7 +138,7 @@ class HttpGetFile(File):
                     f"GetHttpFile.__del__: Couldn't remove temporary {self.download_dir} directory"
                 )
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)  # noqa: B019
     def download(self) -> Path:
         """Downloads the file using GET request.
         Because it is cached, the file will be downloaded only once"""

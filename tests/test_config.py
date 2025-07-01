@@ -54,7 +54,7 @@ class TestConfigManager:
 
     @staticmethod
     def contains_warnings_in_log(caplog):
-        for name, level, msg in caplog.record_tuples:
+        for name, level, _msg in caplog.record_tuples:
             if name == "topwrap.config" and level == logging.WARNING:
                 return True
         return False

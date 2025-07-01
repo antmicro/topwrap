@@ -120,9 +120,9 @@ class TestCoreHandler:
             "myrepo/cores/mymod_1/srcs/mymod_1.v",
         ]
 
-        assert len(list(paths)) == len(
-            EXPECTED_PATHS
-        ), "The repository has incorrect number of files"
+        assert len(list(paths)) == len(EXPECTED_PATHS), (
+            "The repository has incorrect number of files"
+        )
         for path in paths:
             assert path in EXPECTED_PATHS, "The repository contains unexpected paths"
 
@@ -174,9 +174,9 @@ class TestInterfaceDescriptionHandler:
             "myrepo/interfaces/iface_1.yaml",
         ]
 
-        assert len(list(paths)) == len(
-            EXPECTED_PATHS
-        ), "The repository has incorrect number of files"
+        assert len(list(paths)) == len(EXPECTED_PATHS), (
+            "The repository has incorrect number of files"
+        )
         for path in paths:
             assert path in EXPECTED_PATHS, "The repository contains unexpected paths"
 
@@ -234,15 +234,15 @@ class TestVerilogFileHandler:
         for f in files:
             f.close()
 
-        assert len(repo.resources[Core]) == len(
-            module_names
-        ), f"Should have {len(module_names)} resources (Core)"
+        assert len(repo.resources[Core]) == len(module_names), (
+            f"Should have {len(module_names)} resources (Core)"
+        )
         for resource in repo.get_resources(Core):
             assert resource.name in module_names, "Resource names differ"
 
-        assert (
-            len(repo.get_core_by_name("mytop").files) == 3
-        ), "Core doesn't contain all required module sources"
+        assert len(repo.get_core_by_name("mytop").files) == 3, (
+            "Core doesn't contain all required module sources"
+        )
 
 
 class TestInterfaceFileHandler:
@@ -278,9 +278,9 @@ class TestUserRepo:
         extended_yamlfiles = demo_user_repo.get_core_designs()
         extended_yamlfiles += [Path(p) for p in yamlfiles]
 
-        assert len(extended_yamlfiles) == len(yamlfiles) + len(
-            cores
-        ), f"Number of yaml files differs. Expected {len(extended_yamlfiles)}, got {len(yamlfiles) + len(cores)}"
+        assert len(extended_yamlfiles) == len(yamlfiles) + len(cores), (
+            f"Number of yaml files differs. Expected {len(extended_yamlfiles)}, got {len(yamlfiles) + len(cores)}"
+        )
 
         for yamlfile in yamlfiles:
             assert Path(yamlfile) in extended_yamlfiles, "User yamlfile is missing"
@@ -296,9 +296,9 @@ class TestUserRepo:
         demo_user_repo.resources[Core] = cores
         dirs_from_config = demo_user_repo.get_srcs_dirs_for_cores()
 
-        assert len(dirs_from_config) == len(
-            EXPECTED_PATHS
-        ), f"Number of paths is different. Expected {len(EXPECTED_PATHS)}, got {len(dirs_from_config)}"
+        assert len(dirs_from_config) == len(EXPECTED_PATHS), (
+            f"Number of paths is different. Expected {len(EXPECTED_PATHS)}, got {len(dirs_from_config)}"
+        )
 
         for dir in dirs_from_config:
             assert dir in EXPECTED_PATHS, f"The path to directory is incorrect. Got {dir} path"

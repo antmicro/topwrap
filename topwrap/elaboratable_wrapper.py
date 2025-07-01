@@ -1,10 +1,13 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+# Disabled due to Amaranth imports
+# ruff: noqa: F405
+
 from functools import lru_cache
 from typing import Iterable, List, Mapping, Union
 
-from amaranth import *
+from amaranth import *  # noqa: F403
 from amaranth.build import Platform
 from amaranth.hdl.ast import Assign, Shape
 from amaranth.lib import wiring
@@ -28,10 +31,10 @@ class ElaboratableWrapper(Wrapper):
         """
         super().__init__(name)
         self.elaboratable = elaboratable
-        self.clk = self._cached_wrapper(
+        self.clk = ElaboratableWrapper._cached_wrapper(
             port_width=1, port_flow=wiring.In, name="clk", port_name="clk", iface_name=""
         )
-        self.rst = self._cached_wrapper(
+        self.rst = ElaboratableWrapper._cached_wrapper(
             port_width=1, port_flow=wiring.In, name="rst", port_name="rst", iface_name=""
         )
 
@@ -52,9 +55,10 @@ class ElaboratableWrapper(Wrapper):
         )
         return ports
 
+    @staticmethod
     @lru_cache(maxsize=None)
     def _cached_wrapper(
-        self, port_width: int, port_flow: wiring.Flow, name: str, port_name: str, iface_name: str
+        port_width: int, port_flow: wiring.Flow, name: str, port_name: str, iface_name: str
     ) -> WrapperPort:
         """Constructs a WrapperPort, but only one instance per set of parameters in
         a module is ever created. Multiple calls to this function with the identical
@@ -122,7 +126,7 @@ class ElaboratableWrapper(Wrapper):
                 inner_iface = self._gather_signature_ports(port.signature, prefix=name)
                 iface[port_name] = inner_iface
             else:
-                iface[port_name] = self._cached_wrapper(
+                iface[port_name] = ElaboratableWrapper._cached_wrapper(
                     Shape.cast(port.shape).width, port.flow, name, port_name, prefix
                 )
         return iface

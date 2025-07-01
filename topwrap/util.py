@@ -108,7 +108,9 @@ def path_relative_to(org_path: Path, rel_to: Path) -> Path:
     https://github.com/python/cpython/blob/3.12/Lib/pathlib.py#L663
     """
 
-    for step, path in enumerate([rel_to] + list(rel_to.parents)):
+    step = None
+    for _step, path in enumerate([rel_to] + list(rel_to.parents)):
+        step = _step
         if path == org_path or path in org_path.parents:
             break
         elif path.name == "..":

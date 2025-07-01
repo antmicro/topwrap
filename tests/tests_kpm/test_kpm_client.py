@@ -28,9 +28,9 @@ class TestClient:
         for test_name, spec in all_specification_files.items():
             default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
             specification_from_kpm = RPCMethods(default_rpc_params).specification_get()
-            assert (
-                specification_from_kpm["type"] == MessageType.OK.value
-            ), f"Test for {test_name} didn't return Message OK"
+            assert specification_from_kpm["type"] == MessageType.OK.value, (
+                f"Test for {test_name} didn't return Message OK"
+            )
 
             spec_differences = DeepDiff(
                 specification_from_kpm.get("content"),
@@ -38,9 +38,9 @@ class TestClient:
                 ignore_order=True,
                 ignore_type_in_groups=[(list, tuple)],
             )
-            assert (
-                spec_differences == {}
-            ), f"Test {test_name} differs from original specification. Diff: {spec_differences}"
+            assert spec_differences == {}, (
+                f"Test {test_name} differs from original specification. Diff: {spec_differences}"
+            )
 
     def test_dataflow_validation(
         self, all_dataflow_files, all_designs, default_rpc_params: RPCparams
@@ -48,9 +48,9 @@ class TestClient:
         for test_name, dataflow_json in all_dataflow_files.items():
             default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
             response_message = RPCMethods(default_rpc_params).dataflow_validate(dataflow_json)
-            assert (
-                response_message["type"] != MessageType.ERROR.value
-            ), f"Dataflow validation returned errors {response_message.get('content')} for test {test_name}"
+            assert response_message["type"] != MessageType.ERROR.value, (
+                f"Dataflow validation returned errors {response_message.get('content')} for test {test_name}"
+            )
             if response_message["type"] == MessageType.WARNING.value:
                 logging.warning(
                     f"Dataflow {test_name} has warnings {response_message.get('content')}"
@@ -60,9 +60,9 @@ class TestClient:
         for test_name, dataflow_json in all_dataflow_files.items():
             default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
             response_message = RPCMethods(default_rpc_params).dataflow_run(dataflow_json)
-            assert (
-                response_message["type"] == MessageType.OK.value
-            ), f"Dataflow run returned {response_message} for test {test_name}"
+            assert response_message["type"] == MessageType.OK.value, (
+                f"Dataflow run returned {response_message} for test {test_name}"
+            )
 
     def test_dataflow_export(self, all_dataflow_files, all_designs, default_rpc_params: RPCparams):
         for test_name, dataflow_json in all_dataflow_files.items():
@@ -77,9 +77,9 @@ class TestClient:
             design_diff = DeepDiff(
                 all_designs[test_name].to_dict(), response_design_dict.to_dict(), ignore_order=True
             )
-            assert (
-                design_diff == {}
-            ), f"Dataflow export returned different encoded file for test {test_name}"
+            assert design_diff == {}, (
+                f"Dataflow export returned different encoded file for test {test_name}"
+            )
 
     def test_dataflow_import(
         self, all_designs, all_encoded_design_files, default_rpc_params: RPCparams
@@ -91,9 +91,9 @@ class TestClient:
             )
 
             # Checks if imported dataflow is correct are done in "test_kpm_import.py"
-            assert (
-                response_message["type"] == MessageType.OK.value
-            ), f"Dataflow import returned {response_message['type']} for test {test_name}"
+            assert response_message["type"] == MessageType.OK.value, (
+                f"Dataflow import returned {response_message['type']} for test {test_name}"
+            )
 
     def test_import_export_non_destructivity(
         self,

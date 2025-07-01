@@ -1,9 +1,12 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+# Disabled due to Amaranth imports
+# ruff: noqa: F405
+
 from typing import List
 
-from amaranth import *
+from amaranth import *  # noqa: F403
 
 from .amaranth_helpers import WrapperPort
 
@@ -31,7 +34,9 @@ class Wrapper(Elaboratable):
         try:
             port = {signal.name: signal for signal in self.get_ports()}[name]
         except KeyError:
-            raise ValueError(f"Port named '{name}' couldn't be found in the hierarchy: {self.name}")
+            raise ValueError(
+                f"Port named '{name}' couldn't be found in the hierarchy: {self.name}"
+            ) from None
         return port
 
     def get_ports_of_interface(self, iface_name: str) -> List[WrapperPort]:

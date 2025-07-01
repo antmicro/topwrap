@@ -67,9 +67,9 @@ class TestInterfaceDefinition:
         }
 
     def test_predefined(self):
-        assert (
-            len(InterfaceDefinition.get_builtins()) == 5
-        ), "No predefined interfaces could be retrieved"
+        assert len(InterfaceDefinition.get_builtins()) == 5, (
+            "No predefined interfaces could be retrieved"
+        )
 
     def test_iface_retrieve_by_name(self):
         name = "AXI4Stream"

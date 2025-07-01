@@ -165,7 +165,7 @@ def parse_main(
         raise RuntimeError(
             "hdlConvertor not installed, please install optional dependency topwrap[parse]"
             "e.g. pip install topwrap[parse]"
-        )
+        ) from None
 
     configure_log_level(log_level)
     dest_dir.mkdir(exist_ok=True, parents=True)

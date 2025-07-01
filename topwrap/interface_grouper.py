@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from logging import warning
 from math import exp
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Set, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
 
 from pygtrie import CharTrie
 from typing_extensions import override
@@ -80,14 +80,14 @@ class GrouperByPrefix(SignalGrouper):
 class GrouperByPrefixAuto(SignalGrouper):
     """Port grouping class that groups them by autodetected prefixes in signal names"""
 
-    def __init__(self, *, min_prefix_occurences: int = 3, split_tokens: Set[str] = set(["_"])):
+    def __init__(self, *, min_prefix_occurences: int = 3, split_tokens: Optional[Set[str]] = None):
         """
         :param min_prefix_occurences: minimum number of signal names with a given prefix for
         their prefix to be considered valid
         :param split_tokens: set of strings considered as valid separators for signal name
         """
         self._min_prefix_occurences = min_prefix_occurences
-        self._split_tokens = split_tokens
+        self._split_tokens = set(["_"]) if split_tokens is None else split_tokens
 
     def _is_valid_prefix(self, occurences_count, prefix, next_prefix):
         """
@@ -468,8 +468,9 @@ class Interface4StageGrouper(InterfaceGrouper):
                 match = self._match_stage.match(set(iface.signals.flat), iface_rtl_ports)
                 mode = self._mode_stage.deduce_mode(iface, match)
                 score = self._score_stage.score(iface, iface_rtl_ports, match)
-                yield score, InterfaceMatch(
-                    signals=match, bus_type=iface.name, name=iface_name, mode=mode
+                yield (
+                    score,
+                    InterfaceMatch(signals=match, bus_type=iface.name, name=iface_name, mode=mode),
                 )
 
         matched_ifaces = []

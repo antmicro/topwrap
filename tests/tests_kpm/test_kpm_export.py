@@ -420,4 +420,4 @@ class TestMultipleIllegalsDataflow:
             ):
                 break
         else:
-            assert False, "Did not raise a warning"
+            raise AssertionError("Did not raise a warning")

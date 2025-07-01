@@ -270,4 +270,4 @@ def resolve_ops(
         elif val["fn"] == "CALL":
             return f"{resolve_ops(val['ops'][0], params, simpleeval_instance)}({','.join(resolve_ops(str(arg), params, simpleeval_instance) for arg in val['ops'][1:])})"
         else:
-            warning(f'resolve_ops: unhandled HdlOp function: {val["fn"]}')
+            warning(f"resolve_ops: unhandled HdlOp function: {val['fn']}")

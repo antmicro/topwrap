@@ -49,9 +49,9 @@ class TestFile:
         file.copy(dst)
         assert dst.exists(), "The copied file hasn't been created"
 
-        assert filecmp.cmp(
-            file.path, Path(DEST_DIR_NAME, DEST_FILE_NAME), shallow=False
-        ), "The copied files don't have the same content as the original file"
+        assert filecmp.cmp(file.path, Path(DEST_DIR_NAME, DEST_FILE_NAME), shallow=False), (
+            "The copied files don't have the same content as the original file"
+        )
 
 
 class TestTemporaryFile(TestFile):
@@ -95,9 +95,9 @@ class TestTemporaryFile(TestFile):
         file = TemporaryFile(bytearray_content)
         assert file.path.exists(), "The temporary file hasn't been created"
         read_content = file.path.read_bytes()
-        assert (
-            bytearray(read_content) == bytearray_content
-        ), "The file does not have expected content"
+        assert bytearray(read_content) == bytearray_content, (
+            "The file does not have expected content"
+        )
 
     @pytest.mark.usefixtures("fs")
     def test_set_content_for_string(self, str_content):
@@ -116,9 +116,9 @@ class TestTemporaryFile(TestFile):
 
         file.set_content(bytearray_content)
         read_content = file.path.read_bytes()
-        assert (
-            bytearray(read_content) == bytearray_content
-        ), "The file does not have expected content"
+        assert bytearray(read_content) == bytearray_content, (
+            "The file does not have expected content"
+        )
 
     @pytest.mark.usefixtures("fs")
     def test_deleting_files(self):

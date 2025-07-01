@@ -12,11 +12,11 @@ from amaranth.hdl.ast import Const
 # Necessary to allow type checking and hinting without circular imports
 if TYPE_CHECKING:
     from topwrap.design import (
-        DS_InterfacesT,
-        DS_PortsT,
         DesignExternalPorts,
         DesignExternalSection,
         DesignSectionInterconnect,
+        DS_InterfacesT,
+        DS_PortsT,
     )
 
 from .amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT, WrapperPort
@@ -51,7 +51,7 @@ class IPConnect(Wrapper):
             raise ValueError(
                 f"No such IP or hierarchy in this module: {name}."
                 " Use add_component() method to add the IP/hierarchy first"
-            )
+            ) from None
         return comp
 
     def _connect_internal_ports(self, port1: WrapperPort, port2: WrapperPort):
@@ -155,9 +155,9 @@ class IPConnect(Wrapper):
         ip1_unconnected = ip1_signames - ip2_signames
         ip2_unconnected = ip2_signames - ip1_signames
         if ip1_unconnected:
-            info("Unconnected signals of " f"{comp1_name}:{iface1}: {ip1_unconnected}")
+            info(f"Unconnected signals of {comp1_name}:{iface1}: {ip1_unconnected}")
         if ip2_unconnected:
-            info("Unconnected signals of " f"{comp2_name}:{iface2}: {ip2_unconnected}")
+            info(f"Unconnected signals of {comp2_name}:{iface2}: {ip2_unconnected}")
 
         ports_connected = 0
         for p1 in ip1_ports:
@@ -231,7 +231,7 @@ class IPConnect(Wrapper):
             external_port.name = external_port.name.replace(iface_name, external_iface_name, 1)
             external_port.interface_name = external_iface_name
             if external_port.name in [port.name for port in self._ports]:
-                warning(f"External port '{external_port.name}'" "already exists")
+                warning(f"External port '{external_port.name}' already exists")
 
             self._connect_external_ports(iface_port, external_port)
             self._ports.append(external_port)
@@ -355,7 +355,7 @@ class IPConnect(Wrapper):
                     ic.elaboratable.add_master(name=f"{manager_name}_{manager_iface_name}")
 
             for subordinate_name, subordinate_ifaces in subordinates.items():
-                for subordinate_iface_name, iface_params in subordinate_ifaces.items():
+                for subordinate_iface_name, _iface_params in subordinate_ifaces.items():
                     self.connect_interfaces(
                         subordinate_iface_name,
                         subordinate_name,

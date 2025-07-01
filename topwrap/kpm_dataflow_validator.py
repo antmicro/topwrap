@@ -426,9 +426,9 @@ class DataflowValidator:
                     if len(iface) > 1:
                         raise UnreachableError
 
-                    assert (
-                        port_direction is not None
-                    ), "Port direction can't be None due to underlying logic"
+                    assert port_direction is not None, (
+                        "Port direction can't be None due to underlying logic"
+                    )
                     iface_data = find_dataflow_interface_by_id(
                         self.dataflow, InterfaceFromConnection(conn[port_direction], conn["id"])
                     )

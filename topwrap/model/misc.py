@@ -40,7 +40,7 @@ class RelationshipError(Exception):
 def set_parent(child: Any, parent: Any):
     if getattr(child, "parent", None) is not None:
         raise RelationshipError(f"{child} already has a parent reference")
-    setattr(child, "parent", parent)
+    child.parent = parent
 
 
 #: A placeholder for a future, possibly bounded type for IR object names.

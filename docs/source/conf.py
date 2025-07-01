@@ -19,8 +19,10 @@ from datetime import datetime
 from os import environ
 from pathlib import Path
 
-from antmicro_sphinx_utils.defaults import numfig_format  # noqa: F401
-from antmicro_sphinx_utils.defaults import antmicro_html, antmicro_latex
+from antmicro_sphinx_utils.defaults import (
+    antmicro_html,
+    antmicro_latex,
+)
 from antmicro_sphinx_utils.defaults import extensions as default_extensions
 from antmicro_sphinx_utils.defaults import (
     myst_enable_extensions as default_myst_enable_extensions,
@@ -112,7 +114,7 @@ if (typeof mermaid !== 'undefined') {
 html_js_files = [(None, {"body": _mermaid_custom_init_js, "type": "module"})]
 
 mermaid_version = "11.7.0"
-mermaid_params = ["-p" "puppeteer-config.json"]
+mermaid_params = ["-ppuppeteer-config.json"]
 mermaid_init_js = ""
 
 myst_enable_extensions = default_myst_enable_extensions

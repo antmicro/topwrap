@@ -3,10 +3,13 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+# Disabled due to Amaranth imports
+# ruff: noqa: F405
+
 from typing import Callable, List, Tuple, Union
 
 import pytest
-from amaranth import *
+from amaranth import *  # noqa: F403
 from amaranth.hdl.ast import Assign
 from amaranth.lib.wiring import Component, In, Out, Signature
 
@@ -188,8 +191,8 @@ def elaboratable_wrapper(elaboratable_name: str, elaboratable: Elaboratable) -> 
 
 
 @pytest.fixture
-def make_cached_wrapper_port1(elaboratable_wrapper: ElaboratableWrapper) -> WrapperPort:
-    return lambda: elaboratable_wrapper._cached_wrapper(
+def make_cached_wrapper_port1() -> WrapperPort:
+    return lambda: ElaboratableWrapper._cached_wrapper(
         port_width=12,
         port_flow=In,
         name="wrapper_port1",
@@ -199,8 +202,8 @@ def make_cached_wrapper_port1(elaboratable_wrapper: ElaboratableWrapper) -> Wrap
 
 
 @pytest.fixture
-def make_cached_wrapper_port2(elaboratable_wrapper: ElaboratableWrapper) -> WrapperPort:
-    return lambda: elaboratable_wrapper._cached_wrapper(
+def make_cached_wrapper_port2() -> WrapperPort:
+    return lambda: ElaboratableWrapper._cached_wrapper(
         port_width=13,
         port_flow=In,
         name="wrapper_port2",

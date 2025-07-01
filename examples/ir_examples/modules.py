@@ -4,9 +4,8 @@ from .interconnect.ir.design import cpu, dsp, mem
 from .interconnect.ir.design import top as intr_top
 from .interface.ir.design import axis_receiver, axis_streamer
 from .interface.ir.design import module as intf_top
-from .simple.ir.design import lfsr_gen
+from .simple.ir.design import lfsr_gen, two_mux
 from .simple.ir.design import module as simp_top
-from .simple.ir.design import two_mux
 
 hier_top.id.name = "hier_top"
 intr_top.id.name = "intr_top"

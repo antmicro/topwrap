@@ -396,7 +396,7 @@ def kpm_dataflow_to_design(dataflow_data: JsonType, specification: JsonType) -> 
             }
         except Exception as exc:
             raise KPMExportException(
-                f'While parsing {"the top level" if is_top else f"hierarchy {name}"}, an exception occurred'
+                f"While parsing {'the top level' if is_top else f'hierarchy {name}'}, an exception occurred"
             ) from exc
 
     return DesignDescription.from_dict(_inner(get_entry_graph(dataflow_data)["id"], "top", True))

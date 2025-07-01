@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Generic, List, Type, TypeVar
 
 
-class Resource(ABC):
+class Resource(ABC):  # noqa: B024
     """Base class for representing a resource in a repository"""
 
 

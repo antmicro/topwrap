@@ -53,7 +53,7 @@ class RegexpField(marshmallow.fields.Field):
         try:
             return re.compile(value)
         except Exception as e:
-            raise marshmallow.ValidationError(f"Regexp {value} is invalid: {str(e)}")
+            raise marshmallow.ValidationError(f"Regexp {value} is invalid: {str(e)}") from e
 
 
 class ResourcePathField(marshmallow.fields.Field):
@@ -156,9 +156,9 @@ def annotate_flat_tree(flat_tree: FlatTree[U], field_names: List[T]) -> Annotate
     def mapfunc(elem: Sequence[T]) -> Dict[T, U]:
         # make sure that len(field_names) == len(elem)
         if len(field_names) > len(elem):
-            raise ValueError(f"Missing nested fields named {field_names[len(elem):]}")
+            raise ValueError(f"Missing nested fields named {field_names[len(elem) :]}")
         elif len(field_names) < len(elem):
-            raise ValueError(f"Too many levels of nested fields named {elem[len(field_names):]}")
+            raise ValueError(f"Too many levels of nested fields named {elem[len(field_names) :]}")
         # pair each field with its name
         return dict(zip(field_names, elem))
 
@@ -278,7 +278,7 @@ def flatten_and_annotate(
         data = annotate_flat_tree(flatten_tree(data), field_names)
         return data
     except ValueError as e:
-        raise marshmallow.ValidationError(str(e))
+        raise marshmallow.ValidationError(str(e)) from e
 
 
 class MetaKeys(Enum):
