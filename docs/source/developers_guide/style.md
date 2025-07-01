@@ -10,7 +10,7 @@ After successful setup, `Nox` sessions can be executed to perform lint checks:
 nox -s lint
 ```
 
-This runs `isort`, `black`, `flake8` and `codespell` and fixes almost all formatting and linting problems automatically, but a small number must be fixed by hand (e.g. unused imports).
+This runs `ruff` and `codespell` and fixes almost all formatting and linting problems automatically.
 
 :::{note}
 To reuse the current virtual environment and avoid lengthy installation processes, use the `-R` flag:
@@ -53,7 +53,7 @@ pre-commit run --all-files
 ```
 
 :::{note}
-`pre-commit` by default also runs `nox` with `isort`, `flake8`, `black` and `codespell` sessions.
+`pre-commit` by default also runs `nox` with `ruff` and `codespell` sessions.
 :::
 
 ## Tools
@@ -61,7 +61,5 @@ pre-commit run --all-files
 Tools used in the Topwrap project for maintaining the code style:
 * [`nox`](https://nox.thea.codes/en/stable/) is a tool, which simplifies management of Python testing.
 * [`pre-commit`](https://pre-commit.com/) is a framework for managing and maintaining multi-language pre-commit hooks.
-* [`black`](https://black.readthedocs.io/en/stable/) is a Python code formatter.
-* [`flake8`](https://flake8.pycqa.org/en/latest/) is a tool capable of linting, styling fixes and complexity analysis of Python code.
-* [`isort`](https://pycqa.github.io/isort/) is a Python utility to sort imports alphabetically.
+* [`ruff`](https://docs.astral.sh/ruff/) is a Python linter and code formatter.
 * [`codespell`](https://github.com/codespell-project/codespell) is a Python tool to fix common spelling mistakes in text files
