@@ -23,7 +23,7 @@ internal API enables repository creation using Python.
 On Debian Bookworm follow these steps to install the required dependencies:
 
 ```bash
-apt install -y python3 python3-pip yosys npmantlr4 libantlr4-runtime-dev pipx
+apt install -y python3 python3-pip yosys npm antlr4 libantlr4-runtime-dev pipx
 ```
 
 Once the dependencies are installed, you can install topwrap with the following command:
