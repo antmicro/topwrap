@@ -38,12 +38,10 @@ parse = [
 ]
 lint = [
   "nox==2024.10.09",
-  "flake8==7.1.1",
   "pre-commit==3.5.0",
-  "black==24.10.0",
-  "isort==5.13.2",
   "codespell==2.3.0",
-  "igittigitt==2.1.5"
+  "igittigitt==2.1.5",
+  "ruff==0.12.1"
 ]
 tests = [
   "nox==2024.10.09",
@@ -81,39 +79,38 @@ topwrap = [
   "builtin/**/*"
 ]
 
-[tool.black]
+[tool.ruff]
 line-length = 100
-exclude = '''
-(
-  /(
-    | \.eggs
-    | \.git
-    | \.gitignore
-    | \.nox
-    | \.pytest_cache
-    | __pycache__
-    | venv
-    | build
-    | workspace
-  )/
-)
-'''
-target-version = ["py39", "py310", "py311", "py312", "py313"]
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-skip = [
-    ".eggs",
-    ".git",
-    ".gitignore",
-    ".nox",
-    ".pytest_cache",
-    "__pycache__",
-    "venv",
-    "build",
-    "workspace",
+extend-exclude = [
+  ".eggs",
+  ".git",
+  ".gitignore",
+  ".nox",
+  ".pytest_cache",
+  "__pycache__",
+  "venv",
+  "build",
+  "workspace",
 ]
+
+[tool.ruff.lint]
+select = [
+  "B",
+  "C9",
+  "E",
+  "F",
+  "I",
+  "W",
+]
+
+ignore = [
+  "E501",
+  "F403",
+  "F405",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 18
 
 [tool.codespell]
 skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace"

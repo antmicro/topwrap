@@ -34,9 +34,8 @@ def lint(session: nox.Session) -> None:
     """Options are defined in pyproject.toml and .flake8 files"""
     session.install(".[lint]")
     session.run("nox", "-s", "check_yaml_extension")
-    session.run("isort", ".")
-    session.run("black", ".")
-    session.run("flake8", ".")
+    session.run("ruff", "format")
+    session.run("ruff", "check", "--fix")
     session.run("codespell", "-w")
 
 
@@ -44,9 +43,8 @@ def lint(session: nox.Session) -> None:
 def test_lint(session: nox.Session) -> None:
     session.install(".[lint]")
     session.run("nox", "-s", "check_yaml_extension", "--", "--check")
-    session.run("isort", "--check", ".")
-    session.run("black", "--check", ".")
-    session.run("flake8", ".")
+    session.run("ruff", "format", "--check")
+    session.run("ruff", "check")
     session.run("codespell")
 
 
