@@ -189,6 +189,7 @@ def doc_gen(session: nox.Session) -> None:
     session.install(
         ".[docs,tests]"
     )  # Tests are used by autodoc for the section `Validation of design`
+    session.run("sh", "docs/gen-diagram.sh", external=True)
     session.run("make", "-C", "docs", "html", external=True)
     session.run("make", "-C", "docs", "latexpdf", external=True)
 
