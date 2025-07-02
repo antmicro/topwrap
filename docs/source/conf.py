@@ -63,7 +63,57 @@ extensions = list(
     )
 )
 
+# HACK: Backport functionality from sphinxcontrib-mermaid 1.0.0 by
+# replacing the default init JS with a custom JS script that imports
+# and registers elk layouts, and enables the d3 zoom effect with a
+# wait for slower diagrams to finish rendering.
+# This is done because sphinxcontrib-mermaid 1.0.0 switches to the ES
+# module version of the mermaid.js library, which is incompatible with
+# sphinx-immaterial.
+
+_mermaid_custom_init_js = """
+const load = async () => {{
+    await mermaid.run();
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_to_add_zoom = typeof d3 === 'undefined' ? 0 : all_mermaids.length;
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+    if(mermaids_to_add_zoom > 0) {{
+        var svgs = d3.selectAll(".mermaid svg");
+        if(all_mermaids.length !== mermaids_processed.length) {{
+            // try again in a sec, wait for mermaids to load
+            setTimeout(load, 200);
+            return;
+        }} else if(svgs.size() !== mermaids_to_add_zoom) {{
+            // try again in a sec, wait for mermaids to load
+            setTimeout(load, 200);
+            return;
+        }} else {{
+            svgs.each(function() {{
+                var svg = d3.select(this);
+                svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                var inner = svg.select("g");
+                var zoom = d3.zoom().on("zoom", function(event) {{
+                    inner.attr("transform", event.transform);
+                }});
+                svg.call(zoom);
+            }});
+        }}
+    }}
+}};
+
+import elkLayouts from 'https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs';
+if (typeof mermaid !== 'undefined') {
+    mermaid.registerLayoutLoaders(elkLayouts);
+    mermaid.initialize({startOnLoad:false});
+    window.addEventListener("load", load);
+}
+"""
+
+html_js_files = [(None, {"body": _mermaid_custom_init_js, "type": "module"})]
+
+mermaid_version = "11.7.0"
 mermaid_params = ["-p" "puppeteer-config.json"]
+mermaid_init_js = ""
 
 myst_enable_extensions = default_myst_enable_extensions
 myst_fence_as_directive = default_myst_fence_as_directive

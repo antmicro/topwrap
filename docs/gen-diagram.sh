@@ -7,7 +7,7 @@ pyreverse --output-directory docs/build/ --output mmd topwrap.model --no-standal
 
 (
     echo "
-%%{init: {'theme': 'neutral'}}%%
+%%{init: {'theme': 'neutral', 'layout': 'elk'}}%%
 ";
     cat docs/build/classes.mmd;
 ) > docs/source/img/ir_classes.mmd
