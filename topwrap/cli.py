@@ -15,6 +15,7 @@ from typing import Any, Optional, Tuple
 import click
 
 from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
+from topwrap.backend.sv.backend import SystemVerilogBackend
 from topwrap.config import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
@@ -24,6 +25,7 @@ from topwrap.config import (
     DEFAULT_WORKSPACE_DIR,
 )
 from topwrap.frontend.yaml.frontend import YamlFrontend
+from topwrap.fuse_helper import FuseSocBuilder
 from topwrap.kpm_common import RPCparams
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
@@ -111,10 +113,15 @@ def build_main(
     all_sources = config_user_repo.get_srcs_dirs_for_cores()
     all_sources.extend(sources)
 
-    desc = DesignDescription.load(design)
-    name = desc.design.name or "top"
-    ipc = desc.to_ip_connect(design.parent)
-    ipc.generate_top(name, build_dir)
+    frontend = YamlFrontend()
+    [module] = frontend.parse_files([design])
+
+    backend = SystemVerilogBackend()
+    repr = backend.represent(module)
+    [out] = backend.serialize(repr, combine=True)
+
+    build_dir.mkdir(exist_ok=True)
+    out.save(build_dir)
 
     if fuse:
         if part is None:
@@ -123,7 +130,13 @@ def build_main(
                 "It will remain unspecified in the generated FuseSoC .core "
                 "and your further implementation/synthesis may fail."
             )
-        ipc.generate_fuse_core(name, build_dir, sources, part)
+
+        fuse_builder = FuseSocBuilder(part)
+
+        fuse_builder.add_source(out.filename, "systemVerilogSource")
+        fuse_builder.build(
+            module.id.name, build_dir / f"{module.id.name}.core", sources_dir=all_sources
+        )
 
 
 @main.command("parse", help="Parse HDL sources to ip core yamls")
