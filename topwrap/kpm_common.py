@@ -55,7 +55,8 @@ def get_all_graph_connections(dataflow_json: JsonType) -> List[Dict[str, str]]:
 
 
 def _get_all_graph_values(dataflow_json: JsonType, value: str) -> List[JsonType]:
-    """Return given value from all graphs. Example use: value="nodes" will return all nodes from all graphs"""
+    """Return given value from all graphs. Example use: value="nodes" will return all nodes from all
+    graphs"""
     all_values = []
     for graph in dataflow_json["graphs"]:
         all_values += graph[value]
@@ -151,8 +152,10 @@ def is_kpm_interface_a_topwrap_interface(node: JsonType, port_name: str, spec: J
 def _get_subgraph_metanode_iface(subgraph_metanode: JsonType, exposed: bool) -> JsonType:
     for idx, interface in enumerate(subgraph_metanode["interfaces"]):
         if is_exposed_iface(interface):
-            # Subgraph metanodes have two ports - the external subgraph reference and the second one will the connections of subgraph port
-            # Because of this the "connection subgraph iface" will always be at the index "opposite" (idx + 1) % 2 from the one with "externalName"
+            # Subgraph metanodes have two ports - the external subgraph reference and the second one
+            # will the connections of subgraph port
+            # Because of this the "connection subgraph iface" will always be at the index "opposite"
+            # (idx + 1) % 2 from the one with "externalName"
             iface_index = idx
             if not exposed:
                 iface_index = (idx + 1) % 2
@@ -335,7 +338,8 @@ def find_dataflow_node_by_interface_name_id(
     dataflow_json: JsonType, iface_name: str, iface_id: str
 ) -> Optional[JsonType]:
     """Return dataflow node which has an `iface_name` interface.
-    Note that there can be multiple interfaces with given id so finding node by interface id is not reliable
+    Note that there can be multiple interfaces with given id so finding node by interface id is not
+    reliable
     """
     for node in get_all_graph_nodes(dataflow_json):
         for interface in node["interfaces"]:
@@ -355,7 +359,8 @@ def find_dataflow_interface_by_id(
     if iface_conn.iface_id in graph_interfaces.keys():
         if len(graph_interfaces[iface_conn.iface_id]) > 1:
             logging.warning(
-                f"Multiple instances with id {iface_conn.iface_id} were found in connection {iface_conn.connection_id}"
+                f"Multiple instances with id {iface_conn.iface_id} were found in connection"
+                f" {iface_conn.connection_id}"
             )
         return graph_interfaces[iface_conn.iface_id][0]
 
@@ -388,7 +393,8 @@ def find_spec_interface_by_name(
 def find_connected_interfaces(
     dataflow_json: JsonType, iface_id: str
 ) -> List[InterfaceFromConnection]:
-    """Return a list of InterfaceFromConnection objects where 'iface_id' is referenced in a connection"""
+    """Return a list of InterfaceFromConnection objects where 'iface_id' is referenced in a
+    connection"""
     result = []
     for conn in get_all_graph_connections(dataflow_json):
         if conn["from"] == iface_id:
@@ -415,7 +421,8 @@ def get_graph_id_name(dataflow_data: JsonType, graph_id: str) -> Optional[str]:
 
 
 def check_for_iface_in_conn_graph(dataflow_json: JsonType, iface_id: str, graph_id: str) -> bool:
-    """Checks if in any connection of graph with specified id exists connection with the provided `iface_id`"""
+    """Checks if in any connection of graph with specified id exists connection with the provided
+    `iface_id`"""
     for graph in dataflow_json["graphs"]:
         if graph["id"] == graph_id:
             for conn in graph["connections"]:

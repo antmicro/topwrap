@@ -13,7 +13,10 @@ from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 
 KPM_PATH = "_static/kpm/index.html"
-DEFAULT_ALT_TEXT = "An interactive KPM frame, where you can explore the block design for this section, is available here in the HTML version of this documentation."
+DEFAULT_ALT_TEXT = (
+    "An interactive KPM frame, where you can explore the block design for this"
+    " section, is available here in the HTML version of this documentation."
+)
 
 
 class KPMNode(nodes.container):

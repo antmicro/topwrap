@@ -102,11 +102,13 @@ class IPConnect(Wrapper):
             self._connections.append(internal.eq(external))
         elif i == DIR_INOUT and e == DIR_INOUT:
             raise ValueError(
-                f"Connecting external inout port {external.name} to a port {internal.name} in the design is disallowed (inouts are automatically connected to toplevel ports)"
+                f"Connecting external inout port {external.name} to a port {internal.name} in the"
+                " design is disallowed (inouts are automatically connected to toplevel ports)"
             )
         else:
             raise ValueError(
-                f"External port {external.name} and port {internal.name} in the design must have identical directionality"
+                f"External port {external.name} and port {internal.name} in the design must have"
+                " identical directionality"
             )
 
     def connect_ports(
@@ -263,9 +265,10 @@ class IPConnect(Wrapper):
         :param internal_port: internal port name in internal_component to connect to external_port
         :param internal_comp: internal component name
         :param external_port: external port name
-        :param external: dictionary in the form of {"in": list, "out": list, "inout": list} containing
-                          port names specified as external in each of the three categories. All keys are
-                          optional and lack of a category implies an empty list
+        :param external: dictionary in the form of {"in": list, "out": list, "inout": list}
+                          containing port names specified as external in each of the three
+                          categories. All keys are optional and lack of a category implies an empty
+                          list
         """
 
         # check if 'target' is present in the 'external' section
@@ -389,7 +392,8 @@ class IPConnect(Wrapper):
 
             if identical_port_names:
                 warning(
-                    f"Identical port name(s) in {comp_name} - signals {identical_port_names} will get a suffix $<number> appended"
+                    f"Identical port name(s) in {comp_name} - signals {identical_port_names} will"
+                    " get a suffix $<number> appended"
                 )
             for port in comp_inouts:
                 if (comp_name, port.name) not in inouts:
@@ -399,7 +403,8 @@ class IPConnect(Wrapper):
                 map(lambda external: f"- [{external[0]}, {external[1]}]", missing_externals)
             )
             raise ValueError(
-                f"Inout ports have to be explicitly listed in 'external' section. Missing ports:\n{formatted_missing}"
+                f"Inout ports have to be explicitly listed in 'external' section."
+                f" Missing ports:\n{formatted_missing}"
             )
 
     def generate_top(self, top_module_name: str, build_dir: Path = Path("build")):

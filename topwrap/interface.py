@@ -89,7 +89,8 @@ class InterfaceDefinition(MarshmallowDataclassExtensions):
     def get_builtins() -> Dict[str, "InterfaceDefinition"]:
         """Loads all builtin internal interfaces
 
-        :return: a dict where keys are the interface names and values are the InterfaceDefinition objects
+        :return: a dict where keys are the interface names and values are the InterfaceDefinition
+            objects
         """
 
         intfs: Dict[str, InterfaceDefinition] = {}

@@ -125,9 +125,10 @@ def flatten_tree(tree: NestedDict[T, U]) -> FlatTree[Union[T, U]]:
 
 def annotate_flat_tree(flat_tree: FlatTree[U], field_names: List[T]) -> AnnotatedFlatTree[T, U]:
     """
-    Transforms a flattened tree (such as one returned by `flatten_tree`) into a list of dictionaries,
-    with each dictionary mapping names from `field_names` to consecutive elements of a single item in `flat_tree`.
-    All elements in `flat_tree` must have the same length and it must match the length of `field_names`.
+    Transforms a flattened tree (such as one returned by `flatten_tree`) into a list of
+    dictionaries, with each dictionary mapping names from `field_names` to consecutive elements of a
+    single item in `flat_tree`. All elements in `flat_tree` must have the same length and it must
+    match the length of `field_names`.
 
     Example:
     annotate_flat_tree([
@@ -169,14 +170,16 @@ def unflatten_annotated_tree(
     flat_annot_tree: AnnotatedFlatTree[T, U], field_order: List[T], sort: bool = False
 ) -> NestedDict[U, U]:
     """
-    Transforms a flat annotated tree `flat_annot_tree` (such as one returned by `annotate_flat_tree`) back into
-    a nested dictionary grouped by values of fields in `flat_annot_tree` defined in `field_order`.
+    Transforms a flat annotated tree `flat_annot_tree` (such as one returned by
+    `annotate_flat_tree`) back into a nested dictionary grouped by values of fields in
+    `flat_annot_tree` defined in `field_order`.
 
-    Order of nesting (i.e. what fields should be higher in the hierarchy) is defined by order in `field_order` -
-    elements appearing earlier will be higher in the nested dict hierarchy. All elements in `field_order` must
-    be keys in all elements of `flat_annot_tree`. For all fields that occur in an element of `flat_annot_tree`
-    to be included, all of them must be listed in `field_order`. If there are two elements in `flat_annot_tree`
-    that have equal values of non-leaf keys, all leaf values are grouped into a list.
+    Order of nesting (i.e. what fields should be higher in the hierarchy) is defined by order in
+    `field_order` - elements appearing earlier will be higher in the nested dict hierarchy. All
+    elements in `field_order` must be keys in all elements of `flat_annot_tree`. For all fields that
+    occur in an element of `flat_annot_tree` to be included, all of them must be listed in
+    `field_order`. If there are two elements in `flat_annot_tree` that have equal values of non-leaf
+    keys, all leaf values are grouped into a list.
 
     Example:
     flat_annot_tree = [
@@ -301,10 +304,12 @@ def ext_field(
     """
     A shorthand wrapper for a marshmallow_dataclass field.
     Useful for specifying a field that should be optional and have a default value
-    or a field that uses topwrap's extended functionality such as `deep_cleanup` without being very verbose.
+    or a field that uses topwrap's extended functionality such as `deep_cleanup` without being very
+    verbose.
 
-    **For topwrap's extended functionality params (`self_cleanup`, `deep_cleanup`) to be useful, the target
-    dataclass needs to inherit from `MarshmallowDataclassExtensions`, otherwise using them is a no-op.**
+    **For topwrap's extended functionality params (`self_cleanup`, `deep_cleanup`) to be useful, the
+    target dataclass needs to inherit from `MarshmallowDataclassExtensions`, otherwise using them is
+    a no-op.**
 
     Examples:
     - Specifying optional fields with default values::
@@ -317,7 +322,8 @@ def ext_field(
       is done through additional kwargs::
 
         field: str = ext_field(validate=validator_func)
-        source: str = ext_field("/tmp", data_key="from") # you can combine that with the default value!
+        source: str = ext_field("/tmp", data_key="from") # you can combine that with the default
+                                                         # value!
 
     - Passing additional [parameters to the `dataclass.field` function](https://docs.python.org/3/library/dataclasses.html#dataclasses.field)
       is done through the `dcls_field_kws` parameter::
@@ -344,9 +350,11 @@ def ext_field(
     :param inline_depth: Nested fields starting from this depth will be represented in an inline
         style (in other words, the "flow" style in YAML terminology).
 
-    :param dcls_field_kws: Additional keyword params to be passed to the `dataclasses.field` function.
+    :param dcls_field_kws: Additional keyword params to be passed to the `dataclasses.field`
+        function.
 
-    :param **kwargs: Additional keyword params that get passed to the `marshmallow.Field` constructor.
+    :param **kwargs: Additional keyword params that get passed to the `marshmallow.Field`
+        constructor.
     """
 
     if "metadata" not in kwargs:

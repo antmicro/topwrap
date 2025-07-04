@@ -279,7 +279,8 @@ class TestUserRepo:
         extended_yamlfiles += [Path(p) for p in yamlfiles]
 
         assert len(extended_yamlfiles) == len(yamlfiles) + len(cores), (
-            f"Number of yaml files differs. Expected {len(extended_yamlfiles)}, got {len(yamlfiles) + len(cores)}"
+            f"Number of yaml files differs. Expected {len(extended_yamlfiles)},"
+            f" got {len(yamlfiles) + len(cores)}"
         )
 
         for yamlfile in yamlfiles:
@@ -297,7 +298,8 @@ class TestUserRepo:
         dirs_from_config = demo_user_repo.get_srcs_dirs_for_cores()
 
         assert len(dirs_from_config) == len(EXPECTED_PATHS), (
-            f"Number of paths is different. Expected {len(EXPECTED_PATHS)}, got {len(dirs_from_config)}"
+            f"Number of paths is different. Expected {len(EXPECTED_PATHS)},"
+            f" got {len(dirs_from_config)}"
         )
 
         for dir in dirs_from_config:

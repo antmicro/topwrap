@@ -98,7 +98,8 @@ class ExternalsAndConns(MarshmallowDataclassExtensions):
         if port_name in group.setdefault(node_name, {}):
             if not isinstance(target, tuple) or target[1] in group.setdefault(target[0], {}):
                 raise KPMExportException(
-                    f'Cannot represent connection "{node_name}.{port_name}" -> "{target}" as they are already connected to something else'
+                    f'Cannot represent connection "{node_name}.{port_name}" -> "{target}" as they'
+                    " are already connected to something else"
                 )
             group[target[0]][target[1]] = (node_name, port_name)
         else:
@@ -158,7 +159,8 @@ def _kpm_nodes_to_ips(dataflow_data: JsonType, specification: JsonType) -> JsonT
             if spec_node["name"] == node["name"]:
                 if "additionalData" not in spec_node:
                     raise KPMExportException(
-                        f'IP "{node["name"]}" does not contain the file path inside "additionalData"'
+                        f'IP "{node["name"]}" does not contain the file path inside'
+                        ' "additionalData"'
                     )
                 filename = spec_node["additionalData"]
                 break
@@ -265,16 +267,19 @@ def _kpm_ext_handle_ext_meta(
     if dir == PortDirection.INOUT:
         if len(conns) != 1:
             raise KPMExportException(
-                "An inout port has an invalid amount of connections. Only 1 is supported by the schema"
+                "An inout port has an invalid amount of connections. Only 1 is supported by the"
+                " schema"
             )
         if iname:
             logger.warning(
-                f'An inout port has a custom name: "{iname}". This is meaningless and will not be preserved'
+                f'An inout port has a custom name: "{iname}". This is meaningless and will not be'
+                " preserved"
             )
     if len(conns) == 0:
         if not iname:
             logger.warning(
-                "An external metanode without an external name that isn't connected to anything is meaningless and will not be preserved"
+                "An external metanode without an external name that isn't connected to anything is"
+                " meaningless and will not be preserved"
             )
             return data
 
@@ -284,7 +289,8 @@ def _kpm_ext_handle_ext_meta(
         to_intf = find_dataflow_interface_by_id(dataflow, conn)
         if to_intf is None:
             raise KPMExportException(
-                f"External metanode connection target interface with id {conn.iface_id} was not found"
+                f"External metanode connection target interface with id {conn.iface_id} was not"
+                " found"
             )
 
         ip_node = find_dataflow_node_by_interface_name_id(
@@ -365,7 +371,8 @@ def kpm_dataflow_to_design(dataflow_data: JsonType, specification: JsonType) -> 
     validation_result = DataflowValidator(dataflow_data).validate_kpm_design()
     if validation_result["errors"]:
         raise KPMExportException(
-            f"There are validation errors in the design which makes it impossible to save. Errors: {validation_result['errors']}"
+            f"There are validation errors in the design which makes it impossible to save."
+            f" Errors: {validation_result['errors']}"
         )
 
     def _inner(graph_id: str, name: str, is_top: bool = False) -> Dict[str, Any]:
@@ -396,7 +403,8 @@ def kpm_dataflow_to_design(dataflow_data: JsonType, specification: JsonType) -> 
             }
         except Exception as exc:
             raise KPMExportException(
-                f"While parsing {'the top level' if is_top else f'hierarchy {name}'}, an exception occurred"
+                f"While parsing {'the top level' if is_top else f'hierarchy {name}'}, an exception"
+                " occurred"
             ) from exc
 
     return DesignDescription.from_dict(_inner(get_entry_graph(dataflow_data)["id"], "top", True))

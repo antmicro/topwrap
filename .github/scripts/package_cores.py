@@ -2,8 +2,9 @@
 # Copyright (c) 2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""This module contains a `package_fusesoc` function and helpers. The goal of `package_fusesoc` is to
-download, parse and package cores from fusesoc library to use as external repos for topwrap projects"""
+"""This module contains a `package_fusesoc` function and helpers. The goal of `package_fusesoc` is
+to download, parse and package cores from fusesoc library to use as external repos for topwrap
+projects"""
 
 import logging
 import os
@@ -139,9 +140,9 @@ def package_cores(log_level: str):
         core_build_dir = Path("../../build/export")
         # finding the path of a fusesoc core - they have a suffix with version
         for path in [x for x in Path(".").glob(core + "*")]:
-            os.chdir(
-                path
-            )  # root/build/fusesoc_workspace/cache_dir/[core] - intermediate build dir for fusesoc core (repo)
+            os.chdir(path)
+            # root/build/fusesoc_workspace/cache_dir/[core]
+            # - intermediate build dir for fusesoc core (repo)
             core_path_list = [
                 x for x in Path(".").rglob("*") if x.suffix in [".v", ".vh", ".vhd", ".vhdl"]
             ]  # looking for hdl files
@@ -160,7 +161,8 @@ def package_cores(log_level: str):
                     if str(core_path.stem) in FILE_IGNORE_LIST:
                         continue
                     component_build_dir = core_build_dir / "cores/" / str(core_path.stem)
-                    # root/build/fusesoc_workspace/build/[core]/cores/[component] - intermediate build dir for topwrap core in a repo
+                    # root/build/fusesoc_workspace/build/[core]/cores/[component]
+                    # - intermediate build dir for topwrap core in a repo
                     component_build_dir.mkdir(exist_ok=True)
                     logger.info(f"parsing {os.getcwd()} / {str(core_path)}")
                     # parsing core, first normally, then in scratchpad to resolve import errors
@@ -175,7 +177,8 @@ def package_cores(log_level: str):
                                 files=[core_path],
                                 dest_dir=component_build_dir,
                             )
-                        # root/build/fusesoc_workspace/build/[core]/cores/[component]/srcs - path for hdl file describing [component]
+                        # root/build/fusesoc_workspace/build/[core]/cores/[component]/srcs
+                        # - path for hdl file describing [component]
                         (component_build_dir / "srcs").mkdir(exist_ok=True)
                         shutil.copy(core_path, component_build_dir / "srcs")
                         pass_counter += 1
@@ -191,7 +194,8 @@ def package_cores(log_level: str):
                                     files=[Path("../../scratchpad/" + core_path.name)],
                                     dest_dir=component_build_dir,
                                 )
-                            # root/build/fusesoc_workspaces/build/[core]/cores/[component]/srcs - path for hdl file describing [component]
+                            # root/build/fusesoc_workspaces/build/[core]/cores/[component]/srcs
+                            # - path for hdl file describing [component]
                             (component_build_dir / "srcs").mkdir(exist_ok=True)
                             shutil.copy(core_path, component_build_dir / "srcs")
                             pass_counter += 1

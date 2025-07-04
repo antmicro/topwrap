@@ -117,7 +117,8 @@ class SupportedSchemeGroup:
         match = re.match(cls._IDENT_REGEX, ident)
         if match is None:
             raise InvalidIdentifierException(
-                f"Invalid resource identifier: '{ident}'. It has to match regex {cls._IDENT_REGEX.pattern}"
+                f"Invalid resource identifier: '{ident}'. It has to match regex"
+                f" {cls._IDENT_REGEX.pattern}"
             )
         scheme, args, path = match.groups()
         if not isinstance(scheme, str) or not isinstance(path, str):

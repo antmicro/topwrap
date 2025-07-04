@@ -94,7 +94,7 @@ def prepare_pyenv(session: nox.Session, python_versions: List[str]) -> Dict[str,
         session.error(
             "\n'pyenv' command not found, you can install it by executing:"
             "\n    curl https://pyenv.run | bash"
-            "\nSee https://github.com/pyenv/pyenv?tab=readme-ov-file#installation for more information"
+            "\nSee https://github.com/pyenv/pyenv#installation for more information"
         )
 
     # Install required Python versions if these don't exist

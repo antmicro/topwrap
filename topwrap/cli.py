@@ -234,7 +234,8 @@ class KPM:
                 # Remove the server ready event block
                 server_ready_event.set()
                 logging.warning(
-                    "Make sure that there isn't any instance of pipeline manager running in the background"
+                    "Make sure that there isn't any instance of pipeline manager running in the"
+                    " background"
                 )
 
     @staticmethod

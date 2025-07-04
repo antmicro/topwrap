@@ -41,7 +41,8 @@ class Repo:
         self.resources[type(resource)] += [resource]
 
     def get_resources(self, type: Type[ResourceType]) -> List[ResourceType]:
-        """Implements the same operation as self.resources[type] but gives correct hints to the typechecker"""
+        """Implements the same operation as self.resources[type] but gives correct hints to the
+        typechecker"""
         return cast(List[ResourceType], self.resources[type])
 
     def load(self, repo_path: Path, **kwargs: Any) -> None:

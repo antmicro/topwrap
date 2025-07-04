@@ -159,7 +159,8 @@ class HttpGetFile(File):
 
         download_path = Path(file_path)
         logger.debug(
-            f"GetHttpFile.download: Downloaded the file from {self.url} and saved in {download_path}"
+            f"GetHttpFile.download: Downloaded the file from {self.url}"
+            f" and saved in {download_path}"
         )
 
         return download_path

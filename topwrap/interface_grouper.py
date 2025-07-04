@@ -94,7 +94,8 @@ class GrouperByPrefixAuto(SignalGrouper):
         Checks validity of a prefix. A prefix is defined as valid when:
         - there are enough strings with a given prefix AND
           - first character after a prefix is one of the splitting tokens ("_" by default) OR
-          - last character of a prefix is lowercase and subsequent character is uppercase (as in camelCase)
+          - last character of a prefix is lowercase and subsequent character is uppercase (as in
+            camelCase)
         """
         return occurences_count >= self._min_prefix_occurences and (
             next_prefix[-1] in self._split_tokens
@@ -117,7 +118,8 @@ class GrouperByPrefixAuto(SignalGrouper):
             Traverses a trie and returns, for each subtree:
             - leaf count under the subtree
             - prefix of the subtree
-            - list of valid prefixes in the subtree (strings split by either a char in self.split_tokens or camelCase)
+            - list of valid prefixes in the subtree (strings split by either a char in
+              self.split_tokens or camelCase)
             """
             leaves = 1 if is_leaf else 0
             valid_prefixes = []
@@ -284,7 +286,8 @@ class InterfaceMatchScorer(ABC):
         :param iface_spec: interface definition (typically from YAML interface description)
         :param signals: overall set of signals that are supposed to be part of this interface
         :param matched_signals: pairing of signals from `iface_spec.signals` and `signals`. Note
-        that not all elements from `iface_spec.signals` and `signals` have to be paired with each other.
+        that not all elements from `iface_spec.signals` and `signals` have to be paired with each
+        other.
         """
         pass
 

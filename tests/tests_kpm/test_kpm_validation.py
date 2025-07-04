@@ -27,7 +27,8 @@ def dataflow_duplicate_ip_names():
 @pytest.fixture
 def dataflow_invalid_parameters_values():
     """
-    Dataflow containing an IP core with multiple parameters, but it's impossible to resolve the `INVALID NAME!!!`.
+    Dataflow containing an IP core with multiple parameters, but it's impossible to resolve the
+    `INVALID NAME!!!`.
     """
     return get_dataflow_test("dataflow_invalid_params")
 
@@ -94,7 +95,8 @@ def dataflow_conn_subgraph_metanode():
 
 @pytest.fixture
 def dataflow_complex_hierarchy():
-    """Dataflow containing many edge cases such as duplicate subgraph node names, stressing out the capabilities of saving a design."""
+    """Dataflow containing many edge cases such as duplicate subgraph node names, stressing out the
+    capabilities of saving a design."""
     return get_dataflow_test("../conversions/complex/dataflow_complex")
 
 

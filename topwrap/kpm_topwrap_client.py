@@ -44,7 +44,8 @@ class RPCMethods:
         self.build_dir = params.build_dir
         self.design = params.design
         self.client = client
-        # Use the $XDG_DATA_HOME as a destination for saving the dataflow, which defaults to ~/.local/share
+        # Use the $XDG_DATA_HOME as a destination for saving the dataflow, which defaults to
+        # ~/.local/share
         xdg_data_home_var = Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
         self.default_save_file = xdg_data_home_var / "topwrap/dataflow_latest_save.json"
         self.initial_load = True

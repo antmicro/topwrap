@@ -200,7 +200,8 @@ def create_core_node_from_yaml(res: ResourceReferenceHandler) -> NodeType:
 
 def create_external_metanode(meta_name: str, interfaces_types: List[str]) -> NodeType:
     """Creates external metanode.
-    :param meta_name: string representing which external metanode will it be. It has to be one of "External (Input, Output, Inout)"
+    :param meta_name: string representing which external metanode will it be. It has to be one of
+        "External (Input, Output, Inout)"
     """
     if not KPMDataflowExternalMetanode.valid_node_name(meta_name):
         raise ValueError(f"Invalid external node name: {meta_name}")

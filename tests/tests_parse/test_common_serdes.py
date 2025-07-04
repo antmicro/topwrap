@@ -441,7 +441,8 @@ this: [a, b, c]
             config.repositories = org
 
     def test_resource_path_field(self, repo_in_cfg: Any):
-        """Tests the `ResourcePathT` field to see if the different schemes are resolved and saved correctly"""
+        """Tests the `ResourcePathT` field to see if the different schemes are resolved and saved
+        correctly"""
 
         @marshmallow_dataclass.dataclass
         class TestDataclass(MarshmallowDataclassExtensions):

@@ -66,8 +66,8 @@ class CheckResult:
 class DataflowValidator:
     """
     The main class that contains all the validation checks.
-    The purpose of validation is to check for common errors the user may make while creating the design
-    and make sure the design can be saved in topwrap yaml format.
+    The purpose of validation is to check for common errors the user may make while creating the
+    design and make sure the design can be saved in topwrap yaml format.
     These functions are called in two cases:
 
     1) When there is a call from KPM for dataflow_validate (the user has clicked Validate in GUI)
@@ -84,8 +84,10 @@ class DataflowValidator:
     def check_duplicate_node_names(self) -> CheckResult:
         """
         Check for any duplicate IP instance names in the graph (graph represents a hierarchy level).
-        This check prevents from creating multiple nodes with the same "instanceName" in a given graph, since this is invalid in design.
-        There can be multiple nodes with the same "instanceName" in the whole design (on various hierarchy levels).
+        This check prevents from creating multiple nodes with the same "instanceName" in a given
+        graph, since this is invalid in design.
+        There can be multiple nodes with the same "instanceName" in the whole design (on various
+        hierarchy levels).
         """
 
         check_name = "Duplicate IP names"
@@ -114,7 +116,9 @@ class DataflowValidator:
         Check if parameters in IP nodes are valid.
 
         This check ensures users are informed of any errors in parameter definitions.
-        While it is possible to save the design with invalid parameters (e.g. save to YAML), such a design cannot be successfully built into Verilog because integer widths of all parameters must be determined during the build process.
+        While it is possible to save the design with invalid parameters (e.g. save to YAML), such a
+        design cannot be successfully built into Verilog because integer widths of all parameters
+        must be determined during the build process.
 
         A parameter is considered valid if it meets any of the following conditions:
 
@@ -168,7 +172,8 @@ class DataflowValidator:
     def check_unconnected_ports_interfaces(self) -> CheckResult:
         """
         Check for unconnected ports or interfaces.
-        This check helps identify any unconnected elements, warning the user about potential oversights or missed connections.
+        This check helps identify any unconnected elements, warning the user about potential
+        oversights or missed connections.
         """
 
         check_name = "Unconnected ports or interfaces"
@@ -229,8 +234,10 @@ class DataflowValidator:
     def check_external_in_to_external_out_connections(self) -> CheckResult:
         """
         Check for connections between two external metanodes.
-        In our design format (YAML), connections to external nodes are always represented as `port: external`, regardless of whether the `external` node is an input or output.
-        Therefore, connections directly between two external metanodes cannot be represented within this format and are invalid by design.
+        In our design format (YAML), connections to external nodes are always represented as
+        `port: external`, regardless of whether the `external` node is an input or output.
+        Therefore, connections directly between two external metanodes cannot be represented within
+        this format and are invalid by design.
         """
 
         ext_ifaces_ids = get_dataflow_external_interfaces(self.dataflow).keys()
@@ -245,7 +252,8 @@ class DataflowValidator:
                     check_name,
                     MessageType.ERROR,
                     1,
-                    f"Existing connection between external metanodes {meta_from_name} -> {meta_to_name}",
+                    f"Existing connection between external metanodes {meta_from_name} ->"
+                    f" {meta_to_name}",
                 )
 
         return CheckResult(check_name, MessageType.OK)
@@ -296,12 +304,15 @@ class DataflowValidator:
 
         In this context:
 
-        - **Exposed port**: A port on a subgraph metanode that represents the interface of the subgraph to the external graph. It is visible and accessible from outside the subgraph.
-        - **Unexposed port**: An internal port on a subgraph metanode that is used for internal connections within the subgraph but is not accessible from the external graph.
+        - **Exposed port**: A port on a subgraph metanode that represents the interface of the
+            subgraph to the external graph. It is visible and accessible from outside the subgraph.
+        - **Unexposed port**: An internal port on a subgraph metanode that is used for internal
+            connections within the subgraph but is not accessible from the external graph.
 
         These metanodes are meant to represent ports of subgraph nodes.
         Connections to these metanodes should only occur via the unexposed ports.
-        Any connection to an exposed port is considered an error because such connections cannot be represented in the design.
+        Any connection to an exposed port is considered an error because such connections cannot be
+        represented in the design.
         """
 
         check_name = "Connections to exposed subgraph ports"
@@ -359,10 +370,11 @@ class DataflowValidator:
 
     def check_unnamed_external_metanodes_with_multiple_conn(self) -> CheckResult:
         """
-        Check for external metanodes that are connected to more than one port and don't have a user-specified name.
+        Check for external metanodes that are connected to more than one port and don't have a
+        user-specified name.
         This is important to check because it is an undefined behavior when saving a design.
-        Currently, when there is a connection to an unnamed metanode in design this metanode will have the name of
-        the port it's connected to.
+        Currently, when there is a connection to an unnamed metanode in design this metanode will
+        have the name of the port it's connected to.
         """
 
         err_ports = []
@@ -380,7 +392,8 @@ class DataflowValidator:
                     iface = find_dataflow_interface_by_id(self.dataflow, iface_conn)
                     if iface is None:
                         raise ValueError(
-                            f"Interface {iface_conn.iface_id} is used in connection {iface_conn.connection_id} but is not defined"
+                            f"Interface {iface_conn.iface_id} is used in connection"
+                            f" {iface_conn.connection_id} but is not defined"
                         )
                     err_ports.append(f"{iface.node_name}:{iface.iface_name}")
 
@@ -397,8 +410,10 @@ class DataflowValidator:
     def check_port_to_multiple_external_metanodes(self) -> CheckResult:
         """
         Check for ports that have connections to multiple external metanodes.
-        Design schema allows only one connection between an IPcore/hierarchy port and an external metanode.
-        The connection between the port and external metanode is a single entry, not a list that's why we can't add more connections.
+        Design schema allows only one connection between an IPcore/hierarchy port and an external
+        metanode.
+        The connection between the port and external metanode is a single entry, not a list that's
+        why we can't add more connections.
         """
 
         check_name = "Ports with connections to multiple external metanodes"

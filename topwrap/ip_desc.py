@@ -181,7 +181,8 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
             for sig in i_def.required_signals:
                 if sig.name not in self_obj["signals"].flat:
                     errors.append(
-                        f'Required {sig.direction.value} port "{sig.name}" of interface "{self_obj["type"]}" not present'
+                        f'Required {sig.direction.value} port "{sig.name}" of interface'
+                        f' "{self_obj["type"]}" not present'
                     )
             for dir in PortDirection:
                 for name in self_obj["signals"].flat:
@@ -189,7 +190,8 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
                         s.name for s in i_def.signals.flat
                     ]:
                         errors.append(
-                            f'Unknown {dir.value} port "{name}", not present in interface "{self_obj["type"]}"'
+                            f'Unknown {dir.value} port "{name}", not present in interface'
+                            f' "{self_obj["type"]}"'
                         )
             if errors:
                 raise marshmallow.ValidationError(errors)
@@ -229,7 +231,8 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
     def get_builtins() -> Dict[str, "IPCoreDescription"]:
         """Loads all builtin internal IP Cores
 
-        :return: a dict where keys are the IP Core names and values are the IP Core description objects
+        :return: a dict where keys are the IP Core names and values are the IP Core description
+            objects
         """
 
         ips: Dict[str, IPCoreDescription] = {}

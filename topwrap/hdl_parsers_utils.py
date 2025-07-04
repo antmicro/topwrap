@@ -268,6 +268,10 @@ def resolve_ops(
             else:
                 return f"{val['ops'][0]}[{resolve_ops(val['ops'][1], params, simpleeval_instance)}]"
         elif val["fn"] == "CALL":
-            return f"{resolve_ops(val['ops'][0], params, simpleeval_instance)}({','.join(resolve_ops(str(arg), params, simpleeval_instance) for arg in val['ops'][1:])})"
+            args_str = ",".join(
+                resolve_ops(str(arg), params, simpleeval_instance) for arg in val["ops"][1:]
+            )
+
+            return f"{resolve_ops(val['ops'][0], params, simpleeval_instance)}({args_str})"
         else:
             warning(f"resolve_ops: unhandled HdlOp function: {val['fn']}")

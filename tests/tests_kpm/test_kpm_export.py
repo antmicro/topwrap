@@ -355,7 +355,8 @@ class TestComplexDesignExport:
         assert ("cs_s1_mint_in_2", "cs_s1_mint_in_2") in ports["s1_mod_3_2"].items()
 
     def test_implicit_metanode_name_generation(self, _generated_design: DesignDescription):
-        """Checks if an external metanode without a user-defined name correctly gets assigned a name from the connected port"""
+        """Checks if an external metanode without a user-defined name correctly gets assigned a name
+        from the connected port"""
 
         assert "cs_s1_f_int_out_2" in _generated_design.external.ports.output
         assert _generated_design.design.ports["s1_mod_3_3"] == {
@@ -363,7 +364,8 @@ class TestComplexDesignExport:
         }
 
     def test_subgraph_external_with_a_manual_name(self, _generated_design: DesignDescription):
-        """Checks if a subgraph with a user-defined external port with a custom external name gets preserved"""
+        """Checks if a subgraph with a user-defined external port with a custom external name gets
+        preserved"""
 
         NAME = "customized_ext_name_port"
         assert NAME in _generated_design.design.hierarchies["SUB"].external.ports.input
@@ -374,7 +376,8 @@ class TestComplexDesignExport:
         )
 
     def test_subgraph_externals_legacy_notation(self, _generated_design: DesignDescription):
-        """Checks if a subgraph with a legacy external port (just exposed, without using the subgraph port metanode) gets preserved"""
+        """Checks if a subgraph with a legacy external port (just exposed, without using the
+        subgraph port metanode) gets preserved"""
 
         NAME = "legacy_external_type"
         assert NAME in _generated_design.design.hierarchies["SUB"].external.ports.input

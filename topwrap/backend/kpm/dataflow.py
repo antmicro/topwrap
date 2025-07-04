@@ -96,8 +96,8 @@ class KpmDataflowBackend:
         :param design: The design
         :param depth: How many nested levels of subgraphs to generate to represent hierarchies.
             Instances of modules that have an associated `Design` will be realised as subgraphs,
-            instead of regular instances of nodes from the specification. This has its own limitations,
-            such as not being able to set properties on subgraphs.
+            instead of regular instances of nodes from the specification. This has its own
+            limitations, such as not being able to set properties on subgraphs.
 
             Setting this to any negative value is equivalent to a depth of infinity.
         """

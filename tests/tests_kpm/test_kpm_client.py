@@ -49,7 +49,8 @@ class TestClient:
             default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
             response_message = RPCMethods(default_rpc_params).dataflow_validate(dataflow_json)
             assert response_message["type"] != MessageType.ERROR.value, (
-                f"Dataflow validation returned errors {response_message.get('content')} for test {test_name}"
+                f"Dataflow validation returned errors {response_message.get('content')} for"
+                f" test {test_name}"
             )
             if response_message["type"] == MessageType.WARNING.value:
                 logging.warning(
@@ -72,7 +73,8 @@ class TestClient:
             response_design_dict = DesignDescription.from_yaml(
                 convert_message_to_string(response_message["content"], True, "application/x-yaml")
             )
-            # Dump design and load back with yaml to avoid errors with different types like tuple vs list
+            # Dump design and load back with yaml to avoid errors with different types like
+            # tuple vs list
             # design_loaded_yaml = yaml.safe_load(all_designs[test_name].to_yaml())
             design_diff = DeepDiff(
                 all_designs[test_name].to_dict(), response_design_dict.to_dict(), ignore_order=True

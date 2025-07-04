@@ -257,7 +257,8 @@ class KPMDataflowSubgraphMetanode(KPMDataflowMetanode):
     def get_unexposed_port_id(self) -> str:
         for idx, interface in enumerate(self.interfaces):
             if interface.external_name is not None:
-                # Subgraph metanodes have two interfaces, we want to make connections to the interface that is not exposed
+                # Subgraph metanodes have two interfaces, we want to make connections to the
+                # interface that is not exposed
                 # (idx + 1) % 2 will select interface that is not exposed
                 return self.interfaces[(idx + 1) % 2].id
         raise ValueError("No interface is exposed in subgraph metanode")
@@ -318,7 +319,8 @@ def _ipcore_param_to_kpm_value(param: IPCoreParameter) -> str:
 def get_kpm_nodes_from_design(
     design_descr: DesignDescription, specification: JsonType
 ) -> List[KPMDataflowNode]:
-    """Return list of nodes that will be created based on design and specification from names list"""
+    """Return list of nodes that will be created based on design and specification from names
+    list"""
     nodes = []
     design = design_descr.design
     parameters = design.parameters
@@ -503,12 +505,14 @@ def _create_connection(
     interface_inout = KPMDataflowNodeInterface.KPM_DIR_INOUT
 
     if dir_from == interface_input and dir_to in [interface_output, interface_inout]:
-        # Don't show warnings for external metanodes because connection input -> output is legal there
+        # Don't show warnings for external metanodes because connection input -> output is legal
+        # there
         if kpm_iface_from.name != KPMDataflowMetanodeInterface.EXT_IFACE_NAME:
             logging.warning(
                 "In connection: "
                 f"'{kpm_iface_from.name}<->{kpm_iface_to.name}' "
-                f"Input is connected to {dir_to}, connection will be automatically reversed to fix this issue"
+                f"Input is connected to {dir_to}, connection will be automatically reversed to fix"
+                " this issue"
             )
         return KPMDataflowConnection(kpm_iface_to.id, kpm_iface_from.id)
 
@@ -677,7 +681,8 @@ def kpm_metanodes_connections_from_design_descr(
 def create_subgraph_external_interfaces(
     subgraph_ports: DesignExternalPorts, subgraph_name: str
 ) -> Tuple[List[KPMDataflowSubgraphnodeInterface], Dict[str, str]]:
-    """Creates subgraph node interfaces based on node "external" field in Topwrap design description"""
+    """Creates subgraph node interfaces based on node "external" field in Topwrap design
+    description"""
     interfaces = []
     interface_map_updates = {}
 
@@ -695,7 +700,8 @@ def create_subgraph_external_interfaces(
 def kpm_subgraph_nodes_from_design_descr(
     design_descr: DesignDescription,
 ) -> Tuple[List[KPMDataflowSubgraphnode], SubgraphMaps]:
-    """Creates a list of subgraph nodes based on current hierarchy level in Topwrap design description."""
+    """Creates a list of subgraph nodes based on current hierarchy level in Topwrap design
+    description."""
     # Uses two dictionaries in order to avoid time consuming searching in graphs
 
     subgraph_nodes = []

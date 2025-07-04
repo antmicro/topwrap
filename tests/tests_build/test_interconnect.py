@@ -14,7 +14,10 @@ import pytest
 class TestInterconnect:
     @pytest.mark.skipif(
         sys.version_info[:2] < (3, 9) or sys.version_info[:2] > (3, 10),
-        reason="interconnect test requires Python 3.9 or 3.10 due to litex requiring Python 3.9 or 3.10",
+        reason=(
+            "interconnect test requires Python 3.9 or 3.10 due to litex requiring"
+            " Python 3.9 or 3.10"
+        ),
     )
     @pytest.mark.skipif(
         not (
@@ -25,7 +28,10 @@ class TestInterconnect:
             and shutil.which("ninja")
             and shutil.which("hexdump")
         ),
-        reason="verilator, riscv64-unknown-elf toolchain, make, meson, ninja and hexdump are required to run the interconnect test",
+        reason=(
+            "verilator, riscv64-unknown-elf toolchain, make, meson, ninja and hexdump are required"
+            " to run the interconnect test"
+        ),
     )
     def test_interconnect_design(self, request: pytest.FixtureRequest) -> None:
         remote_url = "https://github.com/antmicro/soc-generator.git"
@@ -72,7 +78,8 @@ class TestInterconnect:
                 [
                     "sh",
                     "-c",
-                    f"cat {data_dir}/sources/mem.v {data_dir}/sources/soc.v {data_dir}/sources/crg.v >> {build_dir}/top.v",
+                    f"cat {data_dir}/sources/mem.v {data_dir}/sources/soc.v"
+                    f" {data_dir}/sources/crg.v >> {build_dir}/top.v",
                 ]
             )
 

@@ -145,7 +145,8 @@ class ElaboratableWrapper(Wrapper):
         return ports
 
     def _connect_ports(self, ports: SignalMapping, iface: InterfaceLike) -> List[Assign]:
-        """Returns a list of amaranth assignments between the wrapped elaboratable and external ports.
+        """Returns a list of amaranth assignments between the wrapped elaboratable and external
+        ports.
 
         :param ports: nested dictionary of WrapperPorts mirroring that of iface's signature
         :param iface: Amaranth Interface to make connections with

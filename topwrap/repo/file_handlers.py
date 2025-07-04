@@ -33,7 +33,8 @@ class VerilogFileHandler(FileHandler):
             for comp in current.module.components:
                 if comp not in modules:
                     logger.warning(
-                        f'Dependency "{comp}" of module "{current.module.module_name}" was not found among the given source files'
+                        f'Dependency "{comp}" of module "{current.module.module_name}" was not '
+                        "found among the given source files"
                     )
                     continue
                 files = files.union(_get_file_list(modules, modules[comp]))

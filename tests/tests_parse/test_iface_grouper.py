@@ -306,9 +306,12 @@ class TestInterfaceScorers:
     # signals, full matching means matching where all have been matched.
     #
     # Tested invariants:
-    # inv. 1. full matching with N+1 signals matched (same type) == full matching with N signals matched (same type)
-    # inv. 2. full matching with N signals matched (same type) > partial matching with N signals matched (same type)
-    # inv. 3. partial matching with N+1 signals matched (same type) > partial matching with N signals matched (same type)
+    # inv. 1. full matching with N+1 signals matched (same type) == full matching with N signals
+    #         matched (same type)
+    # inv. 2. full matching with N signals matched (same type) > partial matching with N signals
+    #         matched (same type)
+    # inv. 3. partial matching with N+1 signals matched (same type) > partial matching with N
+    #         signals matched (same type)
     # inv. 4.   full matching with N+1 required, M+1 optional signals
     #         >= full matching with N+1 optional, M   optional signals
     #         >= full matching with N   required, M+1 optional signals
@@ -464,8 +467,9 @@ class TestInterfaceGroupers:
     def test_axi_axilite(self, grouper: InterfaceGrouper):
         expected = AXI_AXIL_ADAPTER_IFACES
         got = grouper.group_to_interfaces(AXI_AXIL_ADAPTER_PORTS)
-        # can't compare those directly as they can't be turned into sets nor sorted since they contain dicts
-        # so we make sure they're equal in length and check that they contain equivalent elements
+        # can't compare those directly as they can't be turned into sets nor sorted since they
+        # contain dicts, so we make sure they're equal in length and check that they contain
+        # equivalent elements
         assert len(expected) == len(got)
         for item in got:
             assert item in expected

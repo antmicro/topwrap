@@ -103,10 +103,6 @@ select = [
   "W",
 ]
 
-ignore = [
-  "E501",
-]
-
 [tool.ruff.lint.mccabe]
 max-complexity = 18
 

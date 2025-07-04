@@ -48,7 +48,9 @@ class TestConfigManager:
             },
             {
                 "force_interface_compliance": True,
-                "meta": "A missing 'repositories' entry is correct, an additional custom entry is not",
+                "meta": (
+                    "A missing 'repositories' entry is correct, an additional custom entry is not"
+                ),
             },
         ]
 
