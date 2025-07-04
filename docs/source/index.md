@@ -22,7 +22,6 @@ developers_guide/setup
 developers_guide/style
 developers_guide/tests
 developers_guide/internal_representation
-developers_guide/ir_class_diagram
 developers_guide/wrapper
 developers_guide/ipwrapper
 developers_guide/ipconnect

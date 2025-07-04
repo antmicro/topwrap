@@ -2,6 +2,13 @@
 
 Topwrap uses a custom object hierarchy, further called "internal representation" or "IR", in order to store block design and related data in memory and operate on it.
 
+## Class diagram
+
+```{mermaid} ../../build/ir_classes.mmd
+:alt: Internal Representation class diagram
+:zoom:
+```
+
 ## Frontend & Backend
 
 The `Frontend` based classes converts external formats, such as SystemVerilog, VHDL or KPM into the IR.
