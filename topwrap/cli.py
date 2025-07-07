@@ -14,6 +14,7 @@ from typing import Any, Optional, Tuple
 
 import click
 
+from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
 from topwrap.config import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
@@ -22,7 +23,7 @@ from topwrap.config import (
     DEFAULT_SERVER_PORT,
     DEFAULT_WORKSPACE_DIR,
 )
-from topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
+from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.kpm_common import RPCparams
 from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
@@ -454,7 +455,17 @@ def topwrap_gui(
 def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, ...]):
     config_user_repo = load_user_repos()
     yamls = list(files) + config_user_repo.get_core_designs()
-    spec = ipcore_yamls_to_kpm_spec(yamls, DesignDescription.load(design) if design else None)
+
+    frontend = YamlFrontend()
+    modules = list(frontend.parse_files(yamls)) + (
+        list(frontend.parse_files([design])) if design else []
+    )
+
+    spec = KpmSpecificationBackend.default()
+    for module in modules:
+        spec.add_module(module)
+    spec = spec.build()
+
     with open(output, "w") as f:
         f.write(json.dumps(spec))
 
@@ -472,8 +483,23 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
 def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     config_user_repo = load_user_repos()
     yamls = list(files) + config_user_repo.get_core_designs()
-    design_desc = DesignDescription.load(design)
-    spec = ipcore_yamls_to_kpm_spec(yamls, design_desc)
-    dataflow = kpm_dataflow_from_design_descr(design_desc, spec)
+
+    frontend = YamlFrontend()
+    design_module = next(frontend.parse_files([design]))
+    if not design_module.design:
+        raise RuntimeError("Given design YAML file does not contain a design.")
+
+    modules = frontend.parse_files(yamls)
+
+    spec = KpmSpecificationBackend.default()
+    for module in modules:
+        spec.add_module(module)
+    spec.add_module(design_module)
+    spec = spec.build()
+
+    dataflow = KpmDataflowBackend(spec)
+    dataflow.represent_design(design_module.design, depth=-1)
+    dataflow = dataflow.build()
+
     with open(output, "w") as f:
         f.write(json.dumps(dataflow))
