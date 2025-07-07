@@ -83,7 +83,6 @@ interfaces:
                 AWCACHE: [MAXIGP0AWCACHE, 3, 0]
                 AWQOS: [MAXIGP0AWQOS, 3, 0]
                 AWVALID: MAXIGP0AWVALID
-                WID: [MAXIGP0WID, 11, 0]
                 WDATA: [MAXIGP0WDATA, 31, 0]
                 WSTRB: [MAXIGP0WSTRB, 3, 0]
                 WLAST: MAXIGP0WLAST
@@ -105,7 +104,6 @@ interfaces:
                 ARLOCK: [SAXIHP0ARLOCK, 1, 0]
                 ARPROT: [SAXIHP0ARPROT, 2, 0]
                 ARCACHE: [SAXIHP0ARCACHE, 3, 0]
-                ARQOS: [SAXIHP0ARQOS, 3, 0]
                 ARVALID: SAXIHP0ARVALID
                 RREADY: SAXIHP0RREADY
                 #AWID: [SAXIHP0AWID, 5, 0]
@@ -118,7 +116,6 @@ interfaces:
                 AWLOCK: [SAXIHP0AWLOCK, 1, 0]
                 AWPROT: [SAXIHP0AWPROT, 2, 0]
                 AWCACHE: [SAXIHP0AWCACHE, 3, 0]
-                AWQOS: [SAXIHP0AWQOS, 3, 0]
                 AWVALID: SAXIHP0AWVALID
                 #WID: [SAXIHP0WID, 5, 0]
                 WID: [SAXIHP0WID, 3, 0]

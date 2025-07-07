@@ -51,7 +51,6 @@ interfaces:
                 AWCACHE: [MAXIGP0AWCACHE, 3, 0]
                 AWQOS: [MAXIGP0AWQOS, 3, 0]
                 AWVALID: MAXIGP0AWVALID
-                WID: [MAXIGP0WID, 11, 0]
                 WDATA: [MAXIGP0WDATA, 31, 0]
                 WSTRB: [MAXIGP0WSTRB, 3, 0]
                 WLAST: MAXIGP0WLAST
