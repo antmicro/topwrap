@@ -457,13 +457,14 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
     yamls = list(files) + config_user_repo.get_core_designs()
 
     frontend = YamlFrontend()
-    modules = list(frontend.parse_files(yamls)) + (
-        list(frontend.parse_files([design])) if design else []
-    )
+    design_module = next(frontend.parse_files([design])) if design else None
+    modules = frontend.parse_files(yamls)
 
     spec = KpmSpecificationBackend.default()
     for module in modules:
         spec.add_module(module)
+    if design_module:
+        spec.add_module(design_module, recursive=True)
     spec = spec.build()
 
     with open(output, "w") as f:
@@ -494,7 +495,7 @@ def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     spec = KpmSpecificationBackend.default()
     for module in modules:
         spec.add_module(module)
-    spec.add_module(design_module)
+    spec.add_module(design_module, recursive=True)
     spec = spec.build()
 
     dataflow = KpmDataflowBackend(spec)
