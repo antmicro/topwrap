@@ -30,7 +30,7 @@ from topwrap.backend.kpm.common import (
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import ObjectId
+from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 from topwrap.util import JsonType
 
@@ -40,12 +40,12 @@ class KpmSpecificationBackend:
     _io: IoMetanode
     _intr: InterconnectMetanode
     _interfaces: set[str]
-    _modules: set[ObjectId[Module]]
+    _modules: dict[Identifier, Module]
 
     def __init__(self) -> None:
         self._spec = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
         self._interfaces = set()
-        self._modules = set()
+        self._modules = dict()
         self._io = IoMetanode()
         self._intr = InterconnectMetanode()
 
@@ -68,12 +68,15 @@ class KpmSpecificationBackend:
         :param recursive: whether to recursively add nested submodules from inner designs as well
         """
 
-        if mod._id in self._modules:
+        # Adding a duplicate module can happen when a module is both added explicitly, and is
+        # brought in via recursive=True. E.g. when using `topwrap specification` like so:
+        # `topwrap specification -d some/design.yaml some/ip/core.yaml`
+        if mod.id in self._modules:
             return
 
         nid = KpmNodeId.from_ir_id(mod.id)
         nid = self._add_node(nid)
-        self._modules.add(mod._id)
+        self._modules[mod.id] = mod
         self._spec.add_node_type_additional_data(
             nid.name, KpmNodeAdditionalData(full_module_id=asdict(mod.id))
         )
