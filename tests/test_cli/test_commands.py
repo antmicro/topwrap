@@ -39,7 +39,7 @@ class TestCli:
                 design=build_design_yaml,
                 build_dir=tmp_path,
             )
-        assert Path(tmp_path / "top.v").exists()
+        assert Path(tmp_path / "top.sv").exists()
 
     def test_parse_main(self, tmp_path):
         test_file_names = ["axi_axil_adapter.v", "axi_dispctrl_v1_0.vhd"]
