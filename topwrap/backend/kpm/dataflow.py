@@ -254,7 +254,7 @@ class KpmDataflowBackend:
         # ugly workaround for dynamic interfaces not being supported
         for prop, cons in ((mprop, intr.managers), (sprop, intr.subordinates)):
             node.properties.append(
-                Property(f"{prop.interfacename} {prop.direction} count", len(cons))
+                Property(name=f"{prop.interfacename} {prop.direction} count", value=len(cons))
             )
             for i, (intf, _params) in enumerate(cons.items()):
                 refi = intf.resolve()
@@ -273,7 +273,7 @@ class KpmDataflowBackend:
             else:
                 params = params.to_dict()
             set = yaml.safe_dump(params, default_flow_style=True).strip()[1:-1]
-            node.properties.append(Property(pname.value, set))
+            node.properties.append(Property(name=pname.value, value=set))
 
     def _connect(self, graph: DataflowGraph, i1: KpmInterface, i2: KpmInterface):
         if i1.direction == Direction.INPUT:
