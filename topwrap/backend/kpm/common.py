@@ -10,7 +10,7 @@ from typing import Any, Optional, TypedDict, Union
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
 from topwrap.model.connections import PortDirection
-from topwrap.model.interconnects.wishbone_rr import WishboneInterconnect
+from topwrap.model.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import Identifier, TranslationError
 
@@ -156,10 +156,6 @@ class InterconnectMetanodeStrings(Enum):
     INTR_SUB_CONF_PROP = "Subordinates configuration"
 
 
-class InterconnectTypes(Enum):
-    WISHBONE_RR = WishboneInterconnect
-
-
 IMS = InterconnectMetanodeStrings
 
 
@@ -189,8 +185,8 @@ class InterconnectMetanode(Metanode):
             KpmProperty(
                 IMS.TYPE_PROP.value,
                 KpmPropertyType.SELECT.value,
-                values=[InterconnectTypes._member_names_],
-                default=InterconnectTypes.WISHBONE_RR.name,
+                values=(ikeys := [*INTERCONNECT_TYPES.keys()]),
+                default=ikeys[0],
             ),
             KpmProperty(
                 IMS.ADV_PROP.value,

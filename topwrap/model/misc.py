@@ -188,8 +188,8 @@ class ElaboratableValue:
     Field = Annotated["ElaboratableValue", DataclassRepr]
 
 
-@dataclass
-class Identifier(ModelBase):
+@dataclass(frozen=True)
+class Identifier:
     """
     An advanced identifier of some IR objects that
     can benefit from storing more information than

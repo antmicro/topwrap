@@ -20,6 +20,7 @@ from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.common import Metanode
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
+from topwrap.model.misc import Identifier
 from topwrap.model.module import Design
 
 
@@ -69,7 +70,7 @@ class TestKpmSpecificationBackend:
 
         evil_mod = deepcopy(simp_top)
         # same name, different vendor
-        evil_mod.id.vendor = "evil_vendor"
+        evil_mod.id = Identifier(vendor="evil_vendor", name=evil_mod.id.name)
 
         back.add_module(evil_mod)
         out = back.build()

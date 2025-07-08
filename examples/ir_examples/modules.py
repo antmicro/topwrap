@@ -1,3 +1,5 @@
+from topwrap.model.misc import Identifier
+
 from .hierarchical.ir.design import adder, bitcnt4, d_ff, debouncer, encoder, proc
 from .hierarchical.ir.design import top as hier_top
 from .interconnect.ir.design import cpu, dsp, mem
@@ -7,10 +9,10 @@ from .interface.ir.design import module as intf_top
 from .simple.ir.design import lfsr_gen, two_mux
 from .simple.ir.design import module as simp_top
 
-hier_top.id.name = "hier_top"
-intr_top.id.name = "intr_top"
-intf_top.id.name = "intf_top"
-simp_top.id.name = "simp_top"
+hier_top.id = Identifier("hier_top")
+intr_top.id = Identifier("intr_top")
+intf_top.id = Identifier("intf_top")
+simp_top.id = Identifier("simp_top")
 
 ALL_MODULES = [
     adder,
