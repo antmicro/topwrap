@@ -2,7 +2,6 @@
 
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from enum import Enum
 from functools import cached_property
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Iterator, List, Optional, Tuple, Type, Union
@@ -18,14 +17,12 @@ from topwrap.common_serdes import (
 )
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
+from topwrap.model.interconnects.types import INTERCONNECT_TYPES
+from topwrap.model.interconnects.wishbone_rr import WishboneInterconnect
 
 from .elaboratable_wrapper import ElaboratableWrapper
 from .ipconnect import IPConnect
 from .ipwrapper import IPWrapper
-
-
-class InterconnectType(Enum):
-    wishbone_roundrobin = WishboneRRInterconnect
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -87,7 +84,13 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
         address: int
         size: int
 
-    type: InterconnectType
+    @marshmallow.validates("type")
+    def _validate_type(self, type: str) -> bool:
+        if type not in INTERCONNECT_TYPES:
+            raise marshmallow.ValidationError(f"Invalid interconnect type: '{type}'")
+        return True
+
+    type: str
     clock: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
     reset: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
     params: Dict[str, Any] = ext_field(dict)
@@ -145,10 +148,14 @@ class DesignDescription(MarshmallowDataclassExtensions):
             )
 
         for intrcn_name, intrcn in self.design.interconnects.items():
+            if INTERCONNECT_TYPES[intrcn.type].intercon is not WishboneInterconnect:
+                raise ValueError(
+                    f"Interconnect type '{intrcn.type}' is not supported in the legacy backend."
+                )
             ipc.add_component(
                 intrcn_name,
                 ElaboratableWrapper(
-                    name=intrcn_name, elaboratable=intrcn.type.value(**intrcn.params)
+                    name=intrcn_name, elaboratable=WishboneRRInterconnect(**intrcn.params)
                 ),
             )
 

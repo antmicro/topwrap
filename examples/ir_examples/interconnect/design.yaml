@@ -40,7 +40,7 @@ design:
     wishbone_bus:
       clock: clk
       reset: rst
-      type: wishbone_roundrobin
+      type: Wishbone Round-Robin
 
       params:
         addr_width: 32
