@@ -1,0 +1,46 @@
+# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+import json
+from pathlib import Path
+from typing import Iterable, Iterator
+
+from typing_extensions import override
+
+from topwrap.frontend.frontend import Frontend
+from topwrap.frontend.kpm.common import KpmFrontendParseException
+from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
+from topwrap.frontend.kpm.specification import KpmSpecificationFrontend
+from topwrap.model.module import Module
+
+
+class KpmFrontend(Frontend):
+    @override
+    def parse_files(self, sources: Iterable[Path]) -> Iterator[Module]:
+        specs, flows = [], []
+
+        for src in sources:
+            with open(src) as f:
+                loaded = json.load(f)
+                if not isinstance(loaded, dict):
+                    raise KpmFrontendParseException(
+                        f"Unexpected type for the KPM object '{type(loaded)}'"
+                    )
+                if any(k in loaded for k in ("nodes", "include", "includeGraphs")):
+                    specs.append(loaded)
+                elif "graphs" in loaded:
+                    flows.append(loaded)
+                else:
+                    raise KpmFrontendParseException(
+                        "Supplied file is neither a specification nor a dataflow"
+                    )
+
+        spec_front = KpmSpecificationFrontend(self.interfaces)
+        spec_mods = []
+        for spec in specs:
+            spec_mods.extend(spec_front.parse(spec))
+        yield from spec_mods
+
+        flow_front = KpmDataflowFrontend([*self.modules, *spec_mods])
+        for flow in flows:
+            yield flow_front.parse(flow)

@@ -1,0 +1,435 @@
+{
+  "version": "20240723.13",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "59cad88d-d417-476f-a5f9-fdcc52f74a41",
+          "id": "b433a153-a357-4813-b862-733b317d1caf",
+          "to": "85078268-ef79-4c99-b16f-00b64d0d7f0b"
+        },
+        {
+          "from": "2be682cb-303a-4057-aeeb-cf0eb716fe6d",
+          "id": "683a21c6-8ddc-4ea9-b99e-1e0bf24bfe8d",
+          "to": "fe9b9df7-127c-4995-ac65-de0bf75eaa50"
+        },
+        {
+          "from": "59cad88d-d417-476f-a5f9-fdcc52f74a41",
+          "id": "5d977daa-4432-46b4-9fdc-2d1ec0dfce67",
+          "to": "3c88739b-9779-42ab-af0d-fbca99d29be1"
+        },
+        {
+          "from": "2be682cb-303a-4057-aeeb-cf0eb716fe6d",
+          "id": "78f5e9a7-bdcf-4db5-992d-ca34158d13cf",
+          "to": "9b5eb43e-431d-4282-ad89-4e617b95582a"
+        },
+        {
+          "from": "59cad88d-d417-476f-a5f9-fdcc52f74a41",
+          "id": "0cf1222e-b904-4821-aa49-0d5ca9862724",
+          "to": "89467e45-6d9c-418a-8121-a8592b17ce1d"
+        },
+        {
+          "from": "2be682cb-303a-4057-aeeb-cf0eb716fe6d",
+          "id": "97704f0a-be7c-43d2-beb7-19f2999fc458",
+          "to": "e1ecda21-ee47-448e-a8cd-2689552ffbde"
+        },
+        {
+          "from": "59cad88d-d417-476f-a5f9-fdcc52f74a41",
+          "id": "a509f5e2-341a-4202-99b5-f5bb15769351",
+          "to": "981ed9c9-bed9-44a0-8720-f35c851eab87"
+        },
+        {
+          "from": "2be682cb-303a-4057-aeeb-cf0eb716fe6d",
+          "id": "c7d6cfe6-9305-44cf-9cf5-51403ca22ca8",
+          "to": "5ce74325-8eae-46be-b71b-55a9f4552cfc"
+        },
+        {
+          "from": "8fb5dbe6-f80f-4736-8cf1-1fa857e5a63c",
+          "id": "3e55d330-28f0-4412-a856-62b4aa693321",
+          "to": "eda126d7-afb7-4a75-b5ca-2515905624ff"
+        },
+        {
+          "from": "9a637a19-ac63-4870-82e1-b164d2983e48",
+          "id": "3eab2958-f733-4e67-a8ec-66d1123ec958",
+          "to": "fc10a017-5d18-47fe-837d-a3a8dfbfabea"
+        },
+        {
+          "from": "7f8d62e9-8355-4d84-b211-899d8d5f7301",
+          "id": "44ce83fc-0a88-4bd8-bb34-686e36cdb61d",
+          "to": "13743cbc-5dfc-4e53-ad1c-26dbe6acba34"
+        },
+        {
+          "from": "e34abaff-c339-4464-8863-0e79da8511bd",
+          "id": "0f4babf1-67bc-48f3-ac50-6aa94112a278",
+          "to": "8af34587-6726-404a-986c-6880c168f02c"
+        }
+      ],
+      "id": "5ffd8328-ae37-4ab0-adbd-6db5594ba591",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "ede1f7a6-6ca8-4abd-a4f2-823ba317cfb7",
+          "interfaces": [],
+          "name": "Identifier",
+          "position": {
+            "x": 75,
+            "y": 142
+          },
+          "properties": [
+            {
+              "id": "a69d8ee2-c6ef-4ce9-8932-0c596e8da5a0",
+              "name": "Name",
+              "value": "intr_top"
+            },
+            {
+              "id": "0daa841b-d427-42a1-abdf-ab6c9fce91d3",
+              "name": "Vendor",
+              "value": "vendor"
+            },
+            {
+              "id": "82299358-55ca-4370-95a2-8e812bcb1fe8",
+              "name": "Library",
+              "value": "libdefault"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "72733fbb-226a-4419-8691-e0b461f708b3",
+          "instanceName": "cpu",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "85078268-ef79-4c99-b16f-00b64d0d7f0b",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "fe9b9df7-127c-4995-ac65-de0bf75eaa50",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "8fb5dbe6-f80f-4736-8cf1-1fa857e5a63c",
+              "name": "bus_manager",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "cpu",
+          "position": {
+            "x": 525,
+            "y": 207.5
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "f85b56ea-c765-432a-aa17-a7e4079c9385",
+          "instanceName": "dsp",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "13743cbc-5dfc-4e53-ad1c-26dbe6acba34",
+              "name": "bus",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "3c88739b-9779-42ab-af0d-fbca99d29be1",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "9b5eb43e-431d-4282-ad89-4e617b95582a",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 2
+            }
+          ],
+          "name": "dsp_block",
+          "position": {
+            "x": 975,
+            "y": 124
+          },
+          "properties": [
+            {
+              "id": "1b7cbf08-c2e4-4c6f-991e-c35478c58a2c",
+              "name": "WIDTH",
+              "value": "8"
+            },
+            {
+              "id": "298781b3-e30e-45ab-af3e-e7180b9718f5",
+              "name": "RESOLUTION",
+              "value": "1024"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "91f3a1ed-4779-420a-b755-ecf773faeef8",
+          "instanceName": "mem",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "8af34587-6726-404a-986c-6880c168f02c",
+              "name": "bus",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "89467e45-6d9c-418a-8121-a8592b17ce1d",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "e1ecda21-ee47-448e-a8cd-2689552ffbde",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 2
+            }
+          ],
+          "name": "memory_block",
+          "position": {
+            "x": 75,
+            "y": 690
+          },
+          "properties": [
+            {
+              "id": "bfbac850-a94a-4149-a45f-191186b4f4f7",
+              "name": "WIDTH",
+              "value": "8"
+            },
+            {
+              "id": "33c53ced-3937-424d-bc8b-d5946ae43e4c",
+              "name": "DEPTH",
+              "value": "0xFFFF"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "2e4ef6fc-aea3-4e2c-afb2-14e880a5d84d",
+          "instanceName": "ext_manager",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "ext_manager",
+              "id": "b92951df-0cf0-4b8e-bc07-1c5ad369c42b",
+              "name": "in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "bd183d9f-af98-4ad9-b7f0-2910517924a4",
+              "name": "inout",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "9a637a19-ac63-4870-82e1-b164d2983e48",
+              "name": "out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External I/O",
+          "position": {
+            "x": 525,
+            "y": 773.5
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "5ab76459-187f-4aac-90bb-b6d4731575d5",
+          "instanceName": "clk",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "clk",
+              "id": "d4eee9b2-c1cb-4536-9583-e77615618516",
+              "name": "in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "6748e4e2-8f5f-4190-a564-5610cdabbc4b",
+              "name": "inout",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "59cad88d-d417-476f-a5f9-fdcc52f74a41",
+              "name": "out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External I/O",
+          "position": {
+            "x": 975,
+            "y": 773.5
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "78f75b55-546a-4611-8847-460ea06f26c8",
+          "instanceName": "rst",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "rst",
+              "id": "7b0e6a51-db24-44d7-84c4-9c8323e077ae",
+              "name": "in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "480be66b-a939-46ed-9fba-fcf695fe24d3",
+              "name": "inout",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "2be682cb-303a-4057-aeeb-cf0eb716fe6d",
+              "name": "out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External I/O",
+          "position": {
+            "x": 75,
+            "y": 1339.5
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "7d92117c-9e80-4398-a965-e70311b8d675",
+          "instanceName": "wishbone_bus",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "981ed9c9-bed9-44a0-8720-f35c851eab87",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "5ce74325-8eae-46be-b71b-55a9f4552cfc",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "eda126d7-afb7-4a75-b5ca-2515905624ff",
+              "name": "manager[0]",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "fc10a017-5d18-47fe-837d-a3a8dfbfabea",
+              "name": "manager[1]",
+              "side": "left",
+              "sidePosition": 3
+            },
+            {
+              "direction": "output",
+              "id": "7f8d62e9-8355-4d84-b211-899d8d5f7301",
+              "name": "subordinate[0]",
+              "side": "right",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "e34abaff-c339-4464-8863-0e79da8511bd",
+              "name": "subordinate[1]",
+              "side": "right",
+              "sidePosition": 1
+            }
+          ],
+          "name": "Interconnect",
+          "position": {
+            "x": 525,
+            "y": 1207
+          },
+          "properties": [
+            {
+              "id": "9aaf229a-f03f-4cf4-8260-c06cb82d7643",
+              "name": "Type",
+              "value": "Wishbone Round-Robin"
+            },
+            {
+              "id": "7af2a443-07a2-4539-823a-9e4f82e8c38f",
+              "name": "Advanced configuration",
+              "value": false
+            },
+            {
+              "id": "cba6a4b0-9d49-4b0b-8ae5-07047ab96b03",
+              "name": "Interconnect configuration",
+              "value": "addr_width: '32', data_width: '8', features: [STALL, ERR], granularity: 8"
+            },
+            {
+              "id": "8653e686-58eb-4b74-910e-b853676f42f2",
+              "name": "Managers configuration",
+              "value": ""
+            },
+            {
+              "id": "d7c1298c-e331-445b-bd7a-2db95b85fb8e",
+              "name": "Subordinates configuration",
+              "value": "0: {address: '0', size: '65535'}, 1: {address: '65536', size: '255'}"
+            },
+            {
+              "id": "99a7b295-a612-4245-beb0-311716b2a14a",
+              "name": "manager input count",
+              "value": 2
+            },
+            {
+              "id": "da35eac0-197c-44e4-87d7-8214d2b6edfd",
+              "name": "subordinate output count",
+              "value": 2
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}

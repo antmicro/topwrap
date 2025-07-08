@@ -1,0 +1,300 @@
+{
+  "version": "20240723.13",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "58d7cb30-d8c0-47f6-8f4d-e8d4058f6e17",
+          "id": "a85b2485-b63b-4d9c-88c7-c1fff83bc3d2",
+          "to": "4d27a09d-0232-4140-a3e7-96eb031e2e96"
+        },
+        {
+          "from": "561d53c2-906c-4a6e-b7d1-f3581e441658",
+          "id": "f592e484-bb7e-4049-97c0-8b76061131d1",
+          "to": "5d01a364-3468-4064-bbf6-d5090443442d"
+        },
+        {
+          "from": "58d7cb30-d8c0-47f6-8f4d-e8d4058f6e17",
+          "id": "772b218e-dd1b-468f-a359-e52c63644d01",
+          "to": "ab9244cf-38e7-4875-8edc-e7abdcbec41e"
+        },
+        {
+          "from": "561d53c2-906c-4a6e-b7d1-f3581e441658",
+          "id": "fd3e4746-5ea4-4627-861e-ef89f857b424",
+          "to": "e7ce0788-da17-4d01-96bc-e3037f8fa463"
+        },
+        {
+          "from": "e67a521d-1da1-4e0d-85fc-bcd3e4223a6b",
+          "id": "f596d1a8-eb2e-4780-99a9-01e53352a623",
+          "to": "9b32be37-7827-4e71-a7fd-067d6d3db657"
+        },
+        {
+          "from": "84a641cf-9ea1-453e-9894-50fa4a826d75",
+          "id": "a287bfcc-f0dd-462a-b58d-7e30540e63f1",
+          "to": "83fc161e-694d-4b26-904c-038e861b73a5"
+        },
+        {
+          "from": "bcc33c63-ae5c-446a-acf6-9100e1e6533e",
+          "id": "8de0fcf2-a4fa-434e-8924-ca1c39a8d110",
+          "to": "995f9c7e-35cc-41f8-9dd9-07e8e6564e4d"
+        }
+      ],
+      "id": "c10039a3-5d5d-4090-bc3f-914e332230c4",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "142da691-fa21-48ec-aaf4-dddd427a2d34",
+          "interfaces": [],
+          "name": "Identifier",
+          "position": {
+            "x": 75,
+            "y": 75
+          },
+          "properties": [
+            {
+              "id": "1ab2f656-7717-490c-b180-1e0018506bc7",
+              "name": "Name",
+              "value": "intf_top"
+            },
+            {
+              "id": "2055e8e5-0c95-4f70-83a9-39bcd3422953",
+              "name": "Vendor",
+              "value": "vendor"
+            },
+            {
+              "id": "2e4c7a01-2c08-4686-9af6-c77a25c0be81",
+              "name": "Library",
+              "value": "libdefault"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "22a22fa4-4492-4459-91a4-edb94ea97763",
+          "instanceName": "streamer",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "4d27a09d-0232-4140-a3e7-96eb031e2e96",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "5d01a364-3468-4064-bbf6-d5090443442d",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "bcc33c63-ae5c-446a-acf6-9100e1e6533e",
+              "name": "io",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "axis_streamer",
+          "position": {
+            "x": 465,
+            "y": -45
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "963536f7-b913-46db-9abd-31b9a76db953",
+          "instanceName": "receiver",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "995f9c7e-35cc-41f8-9dd9-07e8e6564e4d",
+              "name": "io",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ab9244cf-38e7-4875-8edc-e7abdcbec41e",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "e7ce0788-da17-4d01-96bc-e3037f8fa463",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "83fc161e-694d-4b26-904c-038e861b73a5",
+              "name": "noise",
+              "side": "left",
+              "sidePosition": 3
+            },
+            {
+              "direction": "inout",
+              "id": "e67a521d-1da1-4e0d-85fc-bcd3e4223a6b",
+              "name": "ext",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "axis_receiver",
+          "position": {
+            "x": 975,
+            "y": 106.5
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "b26bbb3d-9097-4bc4-9dc9-cc0d96ab8172",
+          "instanceName": "clk",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "clk",
+              "id": "bb2a6cd6-7176-4c13-9f10-d8c1a962d48a",
+              "name": "in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "f3911aac-cd4e-489b-b1f2-9bf1dc1dd497",
+              "name": "inout",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "58d7cb30-d8c0-47f6-8f4d-e8d4058f6e17",
+              "name": "out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External I/O",
+          "position": {
+            "x": 75,
+            "y": 572.5
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "0cc938d0-16e0-4f23-8b92-b8572905df06",
+          "instanceName": "rst",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "rst",
+              "id": "c10b6b16-761c-42c3-b697-b16dac8a8237",
+              "name": "in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "8abc14cf-7d6a-4123-8603-c1cc2cb0bcec",
+              "name": "inout",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "561d53c2-906c-4a6e-b7d1-f3581e441658",
+              "name": "out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External I/O",
+          "position": {
+            "x": 525,
+            "y": 572.5
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "d1954b70-0ef6-46a6-89f5-b910e890e4ad",
+          "instanceName": "ext",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "29433f5d-489d-49f6-aa6d-8fa2365fda51",
+              "name": "in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "externalName": "ext",
+              "id": "9b32be37-7827-4e71-a7fd-067d6d3db657",
+              "name": "inout",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "53d5c554-3727-4b8f-9713-424e832c03fb",
+              "name": "out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External I/O",
+          "position": {
+            "x": 1260,
+            "y": 615
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "7847b5ba-57a5-4c93-b330-53290d19d462",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "84a641cf-9ea1-453e-9894-50fa4a826d75",
+              "name": "constant",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Constant",
+          "position": {
+            "x": 75,
+            "y": 988.5
+          },
+          "properties": [
+            {
+              "id": "994be0a3-ba14-4336-84d0-8a90b5a2b59c",
+              "name": "Constant Value",
+              "value": "2888"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}
