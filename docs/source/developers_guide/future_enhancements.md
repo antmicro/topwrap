@@ -29,7 +29,7 @@ This should include features such as:
 
 This will require writing or creating bus arbiters (`round-robin`, `crossbar`) and providing a mechanism for connecting manager(s) and subordinate(s) together. As a result, the user would be able to create complex SoCs directly in Topwrap.
 
-Currently, only experimental support for [`Wishbone with a round-robin arbiter`](../interconnect_gen.md#wishbone_roundrobin) is available.
+Currently, only experimental support for [`Wishbone with a round-robin arbiter`](../interconnect_gen.md#wishbone-round-robin) is available.
 
 ## Improve the process of recreating a design from a YAML file
 

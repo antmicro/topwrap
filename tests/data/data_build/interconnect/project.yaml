@@ -42,7 +42,7 @@ design:
     interconnect0:
       clock: clk100
       reset: [crg, sys_rst]
-      type: wishbone_roundrobin
+      type: Wishbone Round-Robin
       params:
         addr_width: 30
         data_width: 32

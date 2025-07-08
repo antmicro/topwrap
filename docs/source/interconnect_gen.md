@@ -80,7 +80,7 @@ interconnects:
 
 ## Supported interconnect types
 
-### `wishbone_roundrobin`
+### `Wishbone Round-Robin`
 
 This interconnect only supports Wishbone interfaces for managers and subordinates.
 It supports multiple managers, but only one of them can drive the bus at a time (i.e. only one transaction can be happening on the bus at any given moment).

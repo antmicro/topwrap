@@ -46,7 +46,7 @@ This example features:
 
 This is an example of our interconnect generation feature. The design features 3 IP cores: a memory core (`ips/mem.yaml`), a digital signal processor (`ips/dsp.yaml`) and a CPU (`ips/cpu.yaml`). All of them are connected to a wishbone interconnect where both the CPU and an external interface `ext_manager` act as managers and drive the bus. DSP and MEM are subordinates, one available at address 0x0, the other at 0x10000.
 
-Note that while this specific example uses a "wishbone_roundrobin" interconnect, we still aim to support other types of them in the future.
+Note that while this specific example uses a "Wishbone Round-Robin" interconnect, we still aim to support other types of them in the future.
 Each one will have its own schema for the "params" section so make sure not to hardcode the parameters' keys or values.
 
 This example features:
