@@ -2,16 +2,16 @@
 
 ## 1. Install required system packages
 
-:::{warning}
-The script below requires root privileges as it directly interfaces with your filesystem and package manager.
-
-Running scripts and executables as root without first verifying their contents can pose significant security risks. Always ensure their integrity and source before execution.
+:::{caution}
+Topwrap has been tested on Debian Bullseye and Bookworm, both of which include ANTLR4 version 4.7.2. \
+This specific version is required for the proper operation of one of Topwrap's dependencies,  [hdlConvertor](https://github.com/Nic30/hdlConvertor). \
+While other distributions may also be compatible, Bullseye and Bookworm reflect environments where functionality has been verified.
 :::
 
+On Debian and Debian-based distributions, follow these steps to install the required dependencies:
+
 ```bash
-curl -fO https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/install-deps.sh
-chmod +x ./install-deps.sh
-sudo ./install-deps.sh
+apt install -y python3 python3-pip yosys npm antlr4 libantlr4-runtime-dev pipx
 ```
 
 ## 2. Install the Topwrap user package
