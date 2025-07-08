@@ -41,6 +41,7 @@ class Frontend(ABC):
         for src in sources:
             file = NamedTemporaryFile("w+")
             file.write(src)
+            file.flush()
             files.append(file)
         yield from self.parse_files([Path(f.name) for f in files])
         for f in files:
