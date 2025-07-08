@@ -20,10 +20,10 @@ class Frontend(ABC):
         self, modules: Iterable[Module] = (), interfaces: Iterable[InterfaceDefinition] = ()
     ) -> None:
         """
-        :param modules: Collection of preloaded modules that may have
-            been utilized by the subsequent frontend data formats.
-        :param interfaces: Collection of preloaded interface definitions
-            that may have been used by the subsequent frontend data formats.
+        :param modules: Collection of predefined module definitions
+            that can be used by a frontend.
+        :param interfaces: Collection of predefined interface definitions
+            that can be used by a frontend.
         """
 
         super().__init__()
