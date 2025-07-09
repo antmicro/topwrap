@@ -47,7 +47,7 @@ design:
         addr_width: 30
         data_width: 32
         granularity: 8
-        features: ["bte", "cti", "err"]
+        features: ["BTE", "CTI", "ERR"]
       subordinates:
         wb_ram_instr:
           s_wishbone:
