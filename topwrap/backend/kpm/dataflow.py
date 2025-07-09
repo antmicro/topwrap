@@ -130,7 +130,10 @@ class KpmDataflowBackend:
         return graph
 
     def add_id_node(self, graph: DataflowGraph, id: Identifier):
-        node = graph.create_node(name=IdentifierMetanode.name)
+        node = graph.create_node(
+            name=IdentifierMetanode.name,
+            instance_name=IdentifierMetanode.name,
+        )
         node.set_property(IdentifierMetanode().properties[0].propname, id.name)
         node.set_property(IdentifierMetanode().properties[1].propname, id.vendor)
         node.set_property(IdentifierMetanode().properties[2].propname, id.library)
@@ -209,7 +212,10 @@ class KpmDataflowBackend:
 
     def add_connection(self, graph: DataflowGraph, conn: Connection, ref: _REFTYPE):
         if isinstance(conn, ConstantConnection):
-            node = graph.create_node(name=ConstMetanode.name)
+            node = graph.create_node(
+                name=ConstMetanode.name,
+                instance_name=ConstMetanode.name,
+            )
             node.set_property(ConstMetanode().properties[0].propname, conn.source.value)
             port = conn.target.io
             if port is None:
