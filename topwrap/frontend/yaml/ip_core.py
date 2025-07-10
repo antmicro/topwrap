@@ -91,16 +91,28 @@ class InterfaceDescriptionFrontend:
 
 
 class IPCoreDescriptionFrontend:
-    def parse(self, path: Path) -> Module:
+    def parse_file(self, path: Path) -> Module:
         """
-        Parse IP Core description YAML to IR ``Module``.
+        Parse IP Core description YAML file to IR ``Module``.
 
         :param desc: Path to the IP Core description YAML.
         """
 
         desc = IPCoreDescription.load(path)
+        return self._parse(path, desc)
 
-        mod = Module(id=Identifier(name=desc.name), refs=[FileReference(path)])
+    def parse_str(self, source: str) -> Module:
+        """
+        Parse a string representation of an IP Core description YAML to IR ``Module``.
+
+        :param source: IP Core description YAML source.
+        """
+
+        desc = IPCoreDescription.from_yaml(source)
+        return self._parse(None, desc)
+
+    def _parse(self, source: Optional[Path], desc: IPCoreDescription) -> Module:
+        mod = Module(id=Identifier(name=desc.name), refs=[FileReference(source)] if source else ())
 
         for name, param in desc.parameters.items():
             mod.add_parameter(Parameter(name=name, default_value=_param_to_ir_param(param)))

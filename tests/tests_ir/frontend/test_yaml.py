@@ -59,11 +59,11 @@ class TestDesignDescriptionFrontend:
         ],
     )
     def test_ir(self, design: Path, validator: Callable[[Module], None]):
-        validator(DesignDescriptionFrontend(ALL_MODULES).parse(design).parent)
+        validator(DesignDescriptionFrontend(ALL_MODULES).parse_file(design).parent)
 
     def test_complex_yaml(self):
         front = DesignDescriptionFrontend()
-        des = front.parse(Path("tests/data/data_kpm/conversions/complex/project_complex.yaml"))
+        des = front.parse_file(Path("tests/data/data_kpm/conversions/complex/project_complex.yaml"))
 
         comps = ("s1_mod_3", "s1_mod_3_2", "s1_mod_3_3", "s2_mod_1", "s2_mod_2", "SUB")
         assert len(des.components) == len(comps)
@@ -153,8 +153,8 @@ class TestDesignDescriptionFrontend:
 
     def test_prefers_preloaded(self):
         des = Path("examples/ir_examples/simple/design.yaml")
-        preloaded = DesignDescriptionFrontend([lfsr_gen]).parse(des)
-        fresh = DesignDescriptionFrontend().parse(des)
+        preloaded = DesignDescriptionFrontend([lfsr_gen]).parse_file(des)
+        fresh = DesignDescriptionFrontend().parse_file(des)
 
         assert preloaded.components.find_by_name("gen1").module is lfsr_gen
         assert fresh.components.find_by_name("gen1").module is not lfsr_gen
@@ -163,7 +163,7 @@ class TestDesignDescriptionFrontend:
 class TestIPCoreDescriptionFrontend:
     def test_parse_on_mem_yaml(self):
         ip = Path("examples/ir_examples/interconnect/ips/mem.yaml")
-        mod = IPCoreDescriptionFrontend().parse(ip)
+        mod = IPCoreDescriptionFrontend().parse_file(ip)
 
         assert mod.id.name == "memory_block"
 

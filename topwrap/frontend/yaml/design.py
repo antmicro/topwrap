@@ -42,15 +42,25 @@ class DesignDescriptionFrontend:
     def __init__(self, modules: Iterable[Module] = ()) -> None:
         self._modules = {m.id.name: m for m in modules}
 
-    def parse(self, path: Path) -> Design:
+    def parse_file(self, path: Path) -> Design:
         """
-        Parse a design description YAML into the IR ``Design``.
+        Parse a design description YAML file into the IR ``Design``.
 
         :param path: Path to the design description YAML
         """
 
         desc = DesignDescription.load(path)
         return self._parse_hier(path, desc, "top" if desc.design.name is None else desc.design.name)
+
+    def parse_str(self, source: str) -> Design:
+        """
+        Parse a string representation of a design description YAML into the IR ``Design``.
+
+        :param source: Design description YAML source
+        """
+
+        desc = DesignDescription.from_yaml(source)
+        return self._parse_hier(None, desc, "top" if desc.design.name is None else desc.design.name)
 
     def _parse_hier(
         self, source: Optional[Path], desc: DesignDescription, name_hint: str
@@ -312,7 +322,7 @@ class DesignDescriptionFrontend:
     def _get_module(self, ip: DesignIP) -> Module:
         mod = self._modules.get(ip.module.name)
         if mod is None:
-            mod = IPCoreDescriptionFrontend().parse(ip.path)
+            mod = IPCoreDescriptionFrontend().parse_file(ip.path)
             self._modules[mod.id.name] = mod
 
         return mod
