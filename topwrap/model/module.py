@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from typing import Iterable, Iterator, Optional, Sequence, Union
 
 from topwrap.model.connections import Port
@@ -126,3 +127,25 @@ class Module(ModelBase):
         ]
 
         return (port for port in self.ports if port not in used_ports)
+
+    def hierarchy(self: Module) -> QuerableView[Module]:
+        """
+        Traverses the entire hierarchy tree of this module
+        in order, using a BFS algorithm. Returns every unique
+        module encountered on the way. The result also includes
+        the current module.
+        """
+
+        hier = []
+        visited = {self._id}
+        queue = deque([self])
+        while len(queue) > 0:
+            target = queue.popleft()
+            hier.append(target)
+            if target.design is not None:
+                for comp in target.design.components:
+                    if comp.module._id not in visited:
+                        visited.add(comp.module._id)
+                        queue.append(comp.module)
+
+        return QuerableView(hier)

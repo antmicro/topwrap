@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Iterable, Mapping, Optional
+from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional
 
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.hdl_types import Logic
@@ -40,9 +40,6 @@ class InterfaceSignalConfiguration:
     #: Whether this signal is required or optional
     required: bool
 
-    #: The default value for this signal, if any
-    default: Optional[ElaboratableValue] = None
-
 
 class InterfaceSignal(ModelBase):
     """
@@ -65,6 +62,9 @@ class InterfaceSignal(ModelBase):
     #: The logical type of this signal. Fulfills the same function as ``Port.type``
     type: Logic
 
+    #: The default value for this signal, if any
+    default: Optional[ElaboratableValue] = None
+
     #: The definition that this signal belongs to
     parent: InterfaceDefinition
 
@@ -74,14 +74,16 @@ class InterfaceSignal(ModelBase):
         name: VariableName,
         regexp: re.Pattern[str],
         type: Logic,
-        modes: Mapping[InterfaceMode, InterfaceSignalConfiguration],
+        default: Optional[ElaboratableValue] = None,
+        modes: Optional[Mapping[InterfaceMode, InterfaceSignalConfiguration]] = None,
     ) -> None:
         super().__init__()
         self.name = name
         self.regexp = regexp
         self.type = type
+        self.default = default
         self.modes = {}
-        self.modes.update(modes)
+        self.modes.update({} if modes is None else modes)
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, InterfaceSignal):
@@ -93,7 +95,7 @@ class InterfaceSignal(ModelBase):
         return NotImplemented
 
 
-class InterfaceDefinition:
+class InterfaceDefinition(ModelBase):
     """This represents a definition of an entire interface/bus. E.g. AXI, AHB, Wishbone, etc."""
 
     id: Identifier
@@ -165,4 +167,26 @@ class Interface:
     #: present in this dictionary, then that signal will not be realized at all.
     #: E.g. when it was configured as optional or was given a default value in
     #: ``InterfaceSignalConfiguration``.
-    signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]] = field(default_factory=dict)
+    signals: Mapping[ObjectId[InterfaceSignal], Optional[ReferencedPort]] = field(
+        default_factory=dict
+    )
+
+    @property
+    def independent_signals(self) -> Iterator[InterfaceSignal]:
+        """Yields signals that are not realized by any external ports of the Module"""
+
+        yield from (s.resolve() for s, v in self.signals.items() if v is None)
+
+    @property
+    def sliced_signals(self) -> Iterator[tuple[InterfaceSignal, ReferencedPort]]:
+        """Yields signals that are realized by external ports of the Module"""
+
+        yield from ((s.resolve(), v) for s, v in self.signals.items() if v is not None)
+
+    @property
+    def has_independent_signals(self) -> bool:
+        return next(self.independent_signals, None) is not None
+
+    @property
+    def has_sliced_signals(self) -> bool:
+        return next(self.sliced_signals, None) is not None

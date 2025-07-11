@@ -26,7 +26,7 @@ class PortDirection(Enum):
         return self.IN if self is self.OUT else self.INOUT if self is self.INOUT else self.OUT
 
 
-class Port:
+class Port(ModelBase):
     """
     This represents an external port of a HDL module that can
     be connected to other ports or constant values in a design.

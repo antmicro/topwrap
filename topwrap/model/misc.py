@@ -89,13 +89,19 @@ class QuerableView(Sequence[_E]):
             if key < acc:
                 return part[key - acc + len(part)]
 
-    def find_by(self, filter: Callable[[_E], Any]) -> Optional[_E]:
+    def find_by(self, filter: Callable[[_E], bool]) -> Optional[_E]:
         for elem in self:
             if filter(elem):
                 return elem
 
     def find_by_name(self, name: str) -> Optional[_E]:
         return self.find_by(lambda e: getattr(e, "name", None) == name)
+
+    def efind_by_name(self, name: str) -> _E:
+        val = self.find_by_name(name)
+        if val is None:
+            raise ValueError(f"Could not find value named {name!r}")
+        return val
 
 
 class ModelBase(ABC):
@@ -111,7 +117,7 @@ class ModelBase(ABC):
         self._id = ObjectId(self)
 
 
-_T = TypeVar("_T", bound=ModelBase)
+_T = TypeVar("_T", bound=ModelBase, covariant=True)
 
 
 class ObjectId(Generic[_T]):
@@ -173,6 +179,9 @@ class ElaboratableValue:
         if isinstance(value, ElaboratableValue):
             return ElaboratableValue(f"({self.value} * {value.value})")
         return NotImplemented
+
+    def __str__(self) -> str:
+        return self.value
 
     class DataclassRepr(marshmallow.fields.Field):
         def _serialize(

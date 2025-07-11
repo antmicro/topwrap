@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from functools import reduce
 from typing import Generic, Optional, TypeVar, Union
 
-from topwrap.model.misc import ElaboratableValue, VariableName, set_parent
+from topwrap.model.misc import ElaboratableValue, ModelBase, VariableName, set_parent
 
 
 @dataclass
@@ -24,8 +24,12 @@ class Dimensions:
     upper: ElaboratableValue = field(default_factory=lambda: ElaboratableValue("0"))
     lower: ElaboratableValue = field(default_factory=lambda: ElaboratableValue("0"))
 
+    @classmethod
+    def single(cls, val: ElaboratableValue):
+        return cls(upper=val, lower=val)
 
-class Logic(ABC):
+
+class Logic(ModelBase, ABC):
     """
     An abstract class representing anything that can be used as
     a logical type for a port or a signal in a module.
@@ -43,6 +47,11 @@ class Logic(ABC):
         super().__init__()
         self.name = name
 
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, Logic):
+            return self.name == value.name
+        return NotImplemented
+
     @property
     @abstractmethod
     def size(self) -> ElaboratableValue:
@@ -58,7 +67,7 @@ class Bit(Logic):
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, Bit):
-            return True
+            return True and super().__eq__(value)
         return NotImplemented
 
 
@@ -94,7 +103,11 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, LogicArray):
-            return self.dimensions == value.dimensions and self.item == value.item
+            return (
+                self.dimensions == value.dimensions
+                and self.item == value.item
+                and super().__eq__(value)
+            )
         return NotImplemented
 
 
@@ -119,10 +132,11 @@ class StructField(Logic, Generic[_ArrayItemOrField]):
         super().__init__()
         self.name = self.field_name = name
         self.type = type
+        set_parent(type, self)
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, StructField):
-            return self.name == value.name and self.type == value.type
+            return self.name == value.name and self.type == value.type and super().__eq__(value)
         return NotImplemented
 
 
@@ -139,11 +153,11 @@ class BitStruct(Logic):
         super().__init__(name)
         self.fields = fields
         for f in fields:
-            set_parent(f.type, self)
+            set_parent(f, self)
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, BitStruct):
-            return self.fields == value.fields
+            return self.fields == value.fields and super().__eq__(value)
         return NotImplemented
 
 
