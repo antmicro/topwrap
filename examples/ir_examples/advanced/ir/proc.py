@@ -65,33 +65,33 @@ proc_mod = Module(
             mode=InterfaceMode.MANAGER,
             definition=sci_intf,
             signals={
-                sci_intf.signals.efind_by_name("addr")._id: ReferencedPort.external(
+                sci_intf.signals.find_by_name_or_error("addr")._id: ReferencedPort.external(
                     io=external_ports[0],
                     select=LogicSelect(
                         logic=external_ports[0].type, ops=[LogicFieldSelect(sci_addr)]
                     ),
                 ),
-                sci_intf.signals.efind_by_name("write")._id: ReferencedPort.external(
+                sci_intf.signals.find_by_name_or_error("write")._id: ReferencedPort.external(
                     io=external_ports[0],
                     select=LogicSelect(
                         logic=external_ports[0].type, ops=[LogicFieldSelect(sci_write)]
                     ),
                 ),
-                sci_intf.signals.efind_by_name("strb")._id: ReferencedPort.external(
+                sci_intf.signals.find_by_name_or_error("strb")._id: ReferencedPort.external(
                     io=external_ports[0],
                     select=LogicSelect(
                         logic=external_ports[0].type, ops=[LogicFieldSelect(sci_strb)]
                     ),
                 ),
-                sci_intf.signals.efind_by_name("ack")._id: ReferencedPort.external(
+                sci_intf.signals.find_by_name_or_error("ack")._id: ReferencedPort.external(
                     io=external_ports[0],
                     select=LogicSelect(
                         logic=external_ports[0].type, ops=[LogicFieldSelect(sci_ack)]
                     ),
                 ),
-                sci_intf.signals.efind_by_name("rdata")._id: None,
-                sci_intf.signals.efind_by_name("wdata")._id: None,
-                sci_intf.signals.efind_by_name("sack")._id: None,
+                sci_intf.signals.find_by_name_or_error("rdata")._id: None,
+                sci_intf.signals.find_by_name_or_error("wdata")._id: None,
+                sci_intf.signals.find_by_name_or_error("sack")._id: None,
             },
         ),
         Interface(
@@ -100,9 +100,11 @@ proc_mod = Module(
             definition=sci_intf,
             signals={
                 **{s._id: None for s in sci_intf.signals},
-                sci_intf.signals.efind_by_name("ack")._id: ReferencedPort.external(pack),
-                sci_intf.signals.efind_by_name("wdata")._id: ReferencedPort.external(pwdata),
-                sci_intf.signals.efind_by_name("sack")._id: ReferencedPort.external(psack),
+                sci_intf.signals.find_by_name_or_error("ack")._id: ReferencedPort.external(pack),
+                sci_intf.signals.find_by_name_or_error("wdata")._id: ReferencedPort.external(
+                    pwdata
+                ),
+                sci_intf.signals.find_by_name_or_error("sack")._id: ReferencedPort.external(psack),
             },
         ),
     ],

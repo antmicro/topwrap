@@ -97,7 +97,7 @@ class QuerableView(Sequence[_E]):
     def find_by_name(self, name: str) -> Optional[_E]:
         return self.find_by(lambda e: getattr(e, "name", None) == name)
 
-    def efind_by_name(self, name: str) -> _E:
+    def find_by_name_or_error(self, name: str) -> _E:
         val = self.find_by_name(name)
         if val is None:
             raise ValueError(f"Could not find value named {name!r}")

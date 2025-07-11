@@ -58,7 +58,7 @@ external_ports = [
 ]
 
 sci_sigs = {s._id: None for s in sci_intf.signals}
-del sci_sigs[sci_intf.signals.efind_by_name("wdata")._id]
+del sci_sigs[sci_intf.signals.find_by_name_or_error("wdata")._id]
 
 module = Module(
     id=Identifier(name="advanced_top"),
@@ -69,7 +69,19 @@ module = Module(
             definition=sci_intf,
             mode=InterfaceMode.SUBORDINATE,
             signals=sci_sigs,
-        )
+        ),
+        sci_extcon_man := Interface(
+            name="SCI_ext_man",
+            definition=sci_intf,
+            mode=InterfaceMode.MANAGER,
+            signals={s._id: None for s in sci_intf.signals},
+        ),
+        sci_extcon_sub := Interface(
+            name="SCI_ext_sub",
+            definition=sci_intf,
+            mode=InterfaceMode.SUBORDINATE,
+            signals={s._id: None for s in sci_intf.signals},
+        ),
     ],
     parameters=[
         Parameter(name="CIF_ADDR_WIDTH", default_value=ElaboratableValue(32)),
@@ -90,7 +102,7 @@ module = Module(
                 ),
                 target=ReferencedPort(
                     instance=sseq,
-                    io=(port := sseq_mod.ports.efind_by_name("str")),
+                    io=(port := sseq_mod.ports.find_by_name_or_error("str")),
                     select=LogicSelect(
                         logic=port.type,
                         ops=[
@@ -110,7 +122,7 @@ module = Module(
                 ),
                 target=ReferencedPort(
                     instance=sseq,
-                    io=(port := sseq_mod.ports.efind_by_name("str")),
+                    io=(port := sseq_mod.ports.find_by_name_or_error("str")),
                     select=LogicSelect(
                         logic=port.type,
                         ops=[
@@ -120,29 +132,33 @@ module = Module(
                 ),
             ),
             PortConnection(
-                source=ReferencedPort(instance=sseq, io=sseq_mod.ports.efind_by_name("byte")),
+                source=ReferencedPort(
+                    instance=sseq, io=sseq_mod.ports.find_by_name_or_error("byte")
+                ),
                 target=ReferencedPort(
-                    instance=seq_to_sci, io=seq_sci_mod.ports.efind_by_name("byte")
+                    instance=seq_to_sci, io=seq_sci_mod.ports.find_by_name_or_error("byte")
                 ),
             ),
             PortConnection(
-                source=ReferencedPort(instance=sseq, io=sseq_mod.ports.efind_by_name("control")),
+                source=ReferencedPort(
+                    instance=sseq, io=sseq_mod.ports.find_by_name_or_error("control")
+                ),
                 target=ReferencedPort(
-                    instance=seq_to_sci, io=seq_sci_mod.ports.efind_by_name("control")
+                    instance=seq_to_sci, io=seq_sci_mod.ports.find_by_name_or_error("control")
                 ),
             ),
             InterfaceConnection(
                 source=ReferencedInterface(
-                    instance=seq_to_sci, io=seq_sci_mod.interfaces.efind_by_name("SCI")
+                    instance=seq_to_sci, io=seq_sci_mod.interfaces.find_by_name_or_error("SCI")
                 ),
                 target=ReferencedInterface(
-                    instance=proc, io=proc_mod.interfaces.efind_by_name("SCI")
+                    instance=proc, io=proc_mod.interfaces.find_by_name_or_error("SCI")
                 ),
             ),
             PortConnection(
                 source=ReferencedPort(
                     instance=proc,
-                    io=(port := proc_mod.ports.efind_by_name("cows")),
+                    io=(port := proc_mod.ports.find_by_name_or_error("cows")),
                     select=LogicSelect(
                         logic=port.type,
                         ops=[LogicFieldSelect(cast(BitStruct, port.type).fields[0])],
@@ -153,12 +169,19 @@ module = Module(
             InterfaceConnection(
                 source=ReferencedInterface.external(sci_ctrl_inst),
                 target=ReferencedInterface(
-                    instance=proc, io=proc_mod.interfaces.efind_by_name("externally_controlled_SCI")
+                    instance=proc,
+                    io=proc_mod.interfaces.find_by_name_or_error("externally_controlled_SCI"),
                 ),
             ),
             PortConnection(
                 source=ReferencedPort.external(io=external_ports[-1]),
-                target=ReferencedPort(instance=proc, io=proc_mod.ports.efind_by_name("clk")),
+                target=ReferencedPort(
+                    instance=proc, io=proc_mod.ports.find_by_name_or_error("clk")
+                ),
+            ),
+            InterfaceConnection(
+                source=ReferencedInterface.external(sci_extcon_man),
+                target=ReferencedInterface.external(sci_extcon_sub),
             ),
         ],
     ),

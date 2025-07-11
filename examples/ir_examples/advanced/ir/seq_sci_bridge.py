@@ -16,7 +16,7 @@ external_ports = [
 ]
 
 signals = {s._id: None for s in sci_intf.signals}
-del signals[sci_intf.signals.efind_by_name("rdata")._id]
+del signals[sci_intf.signals.find_by_name_or_error("rdata")._id]
 
 seq_sci_mod = Module(
     id=Identifier(name="seq_to_sci4_bridge", vendor="top.wrap", library="scilib"),

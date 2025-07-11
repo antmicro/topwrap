@@ -75,7 +75,7 @@ class InterfaceSignal(ModelBase):
         regexp: re.Pattern[str],
         type: Logic,
         default: Optional[ElaboratableValue] = None,
-        modes: Optional[Mapping[InterfaceMode, InterfaceSignalConfiguration]] = None,
+        modes: Mapping[InterfaceMode, InterfaceSignalConfiguration] = {},
     ) -> None:
         super().__init__()
         self.name = name
@@ -83,7 +83,7 @@ class InterfaceSignal(ModelBase):
         self.type = type
         self.default = default
         self.modes = {}
-        self.modes.update({} if modes is None else modes)
+        self.modes.update(modes)
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, InterfaceSignal):
@@ -163,6 +163,8 @@ class Interface:
     #:   should be generated to represent it. In that case the value in this
     #:   dictionary is ``None``.
     #:
+    #: For more information about sliced and independent signals, see :ref:`sliced_vs_independent`
+    #:
     #: If an entry for a specific signal that exists in the definition is not
     #: present in this dictionary, then that signal will not be realized at all.
     #: E.g. when it was configured as optional or was given a default value in
@@ -173,13 +175,21 @@ class Interface:
 
     @property
     def independent_signals(self) -> Iterator[InterfaceSignal]:
-        """Yields signals that are not realized by any external ports of the Module"""
+        """
+        Yields signals that are not realized by any external ports of the Module
+
+        For more information about sliced and independent signals, see :ref:`sliced_vs_independent`
+        """
 
         yield from (s.resolve() for s, v in self.signals.items() if v is None)
 
     @property
     def sliced_signals(self) -> Iterator[tuple[InterfaceSignal, ReferencedPort]]:
-        """Yields signals that are realized by external ports of the Module"""
+        """
+        Yields signals that are realized by external ports of the Module
+
+        For more information about sliced and independent signals, see :ref:`sliced_vs_independent`
+        """
 
         yield from ((s.resolve(), v) for s, v in self.signals.items() if v is not None)
 

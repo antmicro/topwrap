@@ -27,6 +27,7 @@ dependencies = [
   "marshmallow>=3.20,<4.0",
   "marshmallow-dataclass[enum]~=8.7.0",
   "pygtrie",
+  "pyslang",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@cc8499f89ec7ffca3d55a5c59a307cb2454fa39e",
   "soc_generator @ git+https://github.com/antmicro/soc-generator@4141f5c5720c9355d859d6098523173bdc306916",
@@ -76,7 +77,8 @@ include = ["topwrap*"]
 [tool.setuptools.package-data]
 topwrap = [
   "templates/*",
-  "builtin/**/*"
+  "builtin/**/*",
+  "**/*.j2"
 ]
 
 [tool.ruff]
