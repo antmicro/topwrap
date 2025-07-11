@@ -8,6 +8,7 @@ from topwrap.model.connections import (
     ReferencedPort,
 )
 from topwrap.model.design import Design, ModuleInstance
+from topwrap.model.hdl_types import Bits, Dimensions
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 
@@ -20,7 +21,11 @@ receiver = ModuleInstance(name="receiver", module=axis_receiver)
 external_ports = [
     Port(name="clk", direction=PortDirection.IN),
     Port(name="rst", direction=PortDirection.IN),
-    Port(name="ext", direction=PortDirection.INOUT),
+    Port(
+        name="ext",
+        direction=PortDirection.INOUT,
+        type=Bits(dimensions=[Dimensions(ElaboratableValue("31"))]),
+    ),
 ]
 
 module = Module(

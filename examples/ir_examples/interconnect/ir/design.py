@@ -30,7 +30,7 @@ inst_mem = ModuleInstance(
     module=mem,
     parameters={
         mem.parameters[0]._id: ElaboratableValue("8"),
-        mem.parameters[1]._id: ElaboratableValue("0xFFFF"),
+        mem.parameters[1]._id: ElaboratableValue(0xFFFF),
     },
 )
 
