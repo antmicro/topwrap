@@ -1,5 +1,7 @@
 from topwrap.model.misc import Identifier
 
+from .advanced.ir.design import module as adv_top
+from .advanced.ir.design import proc_mod, seq_sci_mod, sseq_mod
 from .hierarchical.ir.design import adder, bitcnt4, d_ff, debouncer, encoder, proc
 from .hierarchical.ir.design import top as hier_top
 from .interconnect.ir.design import cpu, dsp, mem
@@ -32,4 +34,8 @@ ALL_MODULES = [
     lfsr_gen,
     two_mux,
     simp_top,
+    sseq_mod,
+    seq_sci_mod,
+    proc_mod,
+    adv_top,
 ]

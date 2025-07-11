@@ -10,6 +10,7 @@ from pipeline_manager.dataflow_builder.entities import Direction
 
 from examples.ir_examples.modules import (
     ALL_MODULES,
+    adv_top,
     axis_receiver,
     hier_top,
     intf_top,
@@ -90,7 +91,7 @@ class TestKpmDataflowBackend:
         return KpmDataflowBackend(out)
 
     @pytest.mark.parametrize(
-        "top", [simp_top.design, intf_top.design, intr_top.design, hier_top.design]
+        "top", [simp_top.design, intf_top.design, intr_top.design, hier_top.design, adv_top.design]
     )
     def test_ir_examples(self, instance: KpmDataflowBackend, top: Design):
         instance.represent_design(top)

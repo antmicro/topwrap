@@ -15,6 +15,10 @@
       "intf__port": {
         "interfaceColor": "#00ca7c"
       },
+      "top.wrap_scilib_Simply Complex Interface 4": {
+        "interfaceColor": "#5ad1cd",
+        "interfaceConnectionPattern": "dashed"
+      },
       "vendor_libdefault_wishbone": {
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
@@ -614,115 +618,6 @@
     },
     {
       "abstract": false,
-      "category": "Metanode",
-      "interfaces": [
-        {
-          "direction": "input",
-          "name": "in",
-          "type": [
-            "intf__ext",
-            "intf__port",
-            "amba.com_AMBA4_AXI 4 Stream",
-            "vendor_libdefault_wishbone"
-          ]
-        },
-        {
-          "direction": "output",
-          "name": "out",
-          "type": [
-            "intf__ext",
-            "intf__port",
-            "amba.com_AMBA4_AXI 4 Stream",
-            "vendor_libdefault_wishbone"
-          ]
-        },
-        {
-          "direction": "inout",
-          "name": "inout",
-          "type": [
-            "intf__ext",
-            "intf__port",
-            "amba.com_AMBA4_AXI 4 Stream",
-            "vendor_libdefault_wishbone"
-          ]
-        }
-      ],
-      "layer": "Externals",
-      "name": "External I/O"
-    },
-    {
-      "abstract": false,
-      "category": "Metanode",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "rst",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "dynamic": true,
-          "maxConnectionsCount": 1,
-          "name": "manager",
-          "type": [
-            "amba.com_AMBA4_AXI 4 Stream",
-            "vendor_libdefault_wishbone"
-          ]
-        },
-        {
-          "direction": "output",
-          "dynamic": true,
-          "maxConnectionsCount": 1,
-          "name": "subordinate",
-          "type": [
-            "amba.com_AMBA4_AXI 4 Stream",
-            "vendor_libdefault_wishbone"
-          ]
-        }
-      ],
-      "name": "Interconnect",
-      "properties": [
-        {
-          "default": "Wishbone Round-Robin",
-          "name": "Type",
-          "type": "select",
-          "values": [
-            "Wishbone Round-Robin"
-          ]
-        },
-        {
-          "default": false,
-          "group": [
-            {
-              "default": "",
-              "name": "Interconnect configuration",
-              "type": "text"
-            },
-            {
-              "default": "",
-              "name": "Managers configuration",
-              "type": "text"
-            },
-            {
-              "default": "",
-              "name": "Subordinates configuration",
-              "type": "text"
-            }
-          ],
-          "name": "Advanced configuration",
-          "type": "bool"
-        }
-      ]
-    },
-    {
-      "abstract": false,
       "additionalData": {
         "full_module_id": {
           "library": "libdefault",
@@ -940,14 +835,267 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
-          "library": "libdefault",
-          "name": "cpu",
-          "vendor": "antmicro.com"
+          "library": "advlib",
+          "name": "string_sequencer",
+          "vendor": "top.wrap"
         }
       },
-      "category": "antmicro.com/libdefault",
+      "category": "top.wrap/advlib",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "str",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "byte",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "control",
+          "side": "right",
+          "type": "intf__port"
+        }
+      ],
       "layer": "IP Cores",
-      "name": "cpu "
+      "name": "string_sequencer"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "scilib",
+          "name": "seq_to_sci4_bridge",
+          "vendor": "top.wrap"
+        }
+      },
+      "category": "top.wrap/scilib",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "SCI",
+          "type": "top.wrap_scilib_Simply Complex Interface 4"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "byte",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "control",
+          "side": "right",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "seq_to_sci4_bridge"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "in",
+          "type": [
+            "intf__ext",
+            "intf__port",
+            "amba.com_AMBA4_AXI 4 Stream",
+            "top.wrap_scilib_Simply Complex Interface 4",
+            "vendor_libdefault_wishbone"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "out",
+          "type": [
+            "intf__ext",
+            "intf__port",
+            "amba.com_AMBA4_AXI 4 Stream",
+            "top.wrap_scilib_Simply Complex Interface 4",
+            "vendor_libdefault_wishbone"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "inout",
+          "type": [
+            "intf__ext",
+            "intf__port",
+            "amba.com_AMBA4_AXI 4 Stream",
+            "top.wrap_scilib_Simply Complex Interface 4",
+            "vendor_libdefault_wishbone"
+          ]
+        }
+      ],
+      "layer": "Externals",
+      "name": "External I/O"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "dynamic": true,
+          "maxConnectionsCount": 1,
+          "name": "manager",
+          "type": [
+            "amba.com_AMBA4_AXI 4 Stream",
+            "top.wrap_scilib_Simply Complex Interface 4",
+            "vendor_libdefault_wishbone"
+          ]
+        },
+        {
+          "direction": "output",
+          "dynamic": true,
+          "maxConnectionsCount": 1,
+          "name": "subordinate",
+          "type": [
+            "amba.com_AMBA4_AXI 4 Stream",
+            "top.wrap_scilib_Simply Complex Interface 4",
+            "vendor_libdefault_wishbone"
+          ]
+        }
+      ],
+      "name": "Interconnect",
+      "properties": [
+        {
+          "default": "Wishbone Round-Robin",
+          "name": "Type",
+          "type": "select",
+          "values": [
+            "Wishbone Round-Robin"
+          ]
+        },
+        {
+          "default": false,
+          "group": [
+            {
+              "default": "",
+              "name": "Interconnect configuration",
+              "type": "text"
+            },
+            {
+              "default": "",
+              "name": "Managers configuration",
+              "type": "text"
+            },
+            {
+              "default": "",
+              "name": "Subordinates configuration",
+              "type": "text"
+            }
+          ],
+          "name": "Advanced configuration",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "scilib",
+          "name": "char_processor",
+          "vendor": "top.wrap"
+        }
+      },
+      "category": "top.wrap/scilib",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "SCI",
+          "type": "top.wrap_scilib_Simply Complex Interface 4"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "externally_controlled_SCI",
+          "type": "top.wrap_scilib_Simply Complex Interface 4"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cows",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "char_processor"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "advanced_top",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "SCI_ctrl",
+          "type": "top.wrap_scilib_Simply Complex Interface 4"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "char_streams",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cow_out",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "hw_id",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "advanced_top",
+      "properties": [
+        {
+          "default": "32",
+          "name": "CIF_ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "64",
+          "name": "CIF_DATA_WIDTH",
+          "type": "text"
+        }
+      ]
     }
   ]
 }

@@ -1,10 +1,7 @@
 # Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 from itertools import chain
-from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Any, Optional, Union, cast
 
 import marshmallow_dataclass
@@ -85,10 +82,7 @@ class KpmDataflowBackend:
             if add is not None:
                 self._nodeids[Identifier(**add["full_module_id"]).combined()] = node["name"]
 
-        with NamedTemporaryFile("w+") as f:
-            json.dump(specification, f)
-            f.flush()
-            self.flow = GraphBuilder(Path(f.name), SPECIFICATION_VERSION)
+        self.flow = GraphBuilder(specification, SPECIFICATION_VERSION)
 
     def build(self) -> JsonType:
         return cast(JsonType, self.flow.to_json(False))
@@ -292,4 +286,11 @@ class KpmDataflowBackend:
     def _connect(self, graph: DataflowGraph, i1: KpmInterface, i2: KpmInterface):
         if i1.direction == Direction.INPUT:
             i1, i2 = i2, i1
-        graph.create_connection(i1, i2)
+
+        try:
+            graph.create_connection(i1, i2)
+        except ValueError as e:
+            # That's okay. Since KPM cannot represent sliced connections,
+            # all connected slices will be represented by the same connection
+            if "already exists" not in str(e):
+                raise

@@ -169,4 +169,6 @@ class TestCombinedFrontend:
         front = KpmFrontend(interfaces=[*intf_defs])
         mods = [*front.parse_files(self.make_paths("complex_flow", "ir_simple_flow", "front_spec"))]
 
-        assert len(mods) == len(ALL_MODULES) + 3
+        # Why + 2? One design comes from the "complex_flow" dataflow. Second
+        # one from the "ir_simple_flow" and "front_spec" contains `ALL_MODULES`
+        assert len(mods) == len(ALL_MODULES) + 2
