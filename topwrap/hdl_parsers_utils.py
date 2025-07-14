@@ -9,8 +9,6 @@ from typing import Any, Dict, List, Union
 
 from simpleeval import DEFAULT_FUNCTIONS, NameNotDefined, SimpleEval, simple_eval
 
-from topwrap.amaranth_helpers import DIR_IN, DIR_INOUT, DIR_OUT
-
 HDLParameter = Union[int, str, Dict[str, int]]
 
 
@@ -18,9 +16,6 @@ class PortDirection(Enum):
     IN = "in"
     OUT = "out"
     INOUT = "inout"
-
-    def to_amaranth(self):
-        return DIR_IN if self == self.IN else DIR_OUT if self == self.OUT else DIR_INOUT
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,3 @@
-# amaranth: UnusedElaboratable=no
-
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from functools import cached_property
@@ -8,7 +6,6 @@ from typing import Any, ClassVar, Dict, Iterator, List, Optional, Tuple, Type, U
 
 import marshmallow
 import marshmallow_dataclass
-from soc_generator.gen.wishbone_interconnect import WishboneRRInterconnect
 
 from topwrap.common_serdes import (
     MarshmallowDataclassExtensions,
@@ -18,11 +15,6 @@ from topwrap.common_serdes import (
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 from topwrap.model.interconnects.types import INTERCONNECT_TYPES
-from topwrap.model.interconnects.wishbone_rr import WishboneInterconnect
-
-from .elaboratable_wrapper import ElaboratableWrapper
-from .ipconnect import IPConnect
-from .ipwrapper import IPWrapper
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -127,42 +119,6 @@ class DesignDescription(MarshmallowDataclassExtensions):
         yield from self.ips.values()
         for hier in self.design.hierarchies.values():
             yield from hier.all_ips
-
-    def to_ip_connect(self, design_dir: Path = Path(".")) -> IPConnect:
-        design_dir = Path(design_dir)
-        ipc = IPConnect()
-
-        for hier_name, hier in self.design.hierarchies.items():
-            hier_ipc = hier.to_ip_connect(design_dir)
-            ipc.add_component(hier_name, hier_ipc)
-
-        for ip_name, ip in self.ips.items():
-            ipc.add_component(
-                ip_name,
-                IPWrapper(
-                    ip.path,
-                    ip.module.name,
-                    ip_name,
-                    self.design.parameters.get(ip_name, {}),
-                ),
-            )
-
-        for intrcn_name, intrcn in self.design.interconnects.items():
-            if INTERCONNECT_TYPES[intrcn.type].intercon is not WishboneInterconnect:
-                raise ValueError(
-                    f"Interconnect type '{intrcn.type}' is not supported in the legacy backend."
-                )
-            ipc.add_component(
-                intrcn_name,
-                ElaboratableWrapper(
-                    name=intrcn_name, elaboratable=WishboneRRInterconnect(**intrcn.params)
-                ),
-            )
-
-        ipc.make_connections(self.design.ports, self.design.interfaces, self.external)
-        ipc.make_interconnect_connections(self.design.interconnects, self.external)
-        ipc.validate_inout_connections(self.external.ports.inout)
-        return ipc
 
     def save(self, path: Optional[Path] = None, **kwargs: Any):
         if path is None:
