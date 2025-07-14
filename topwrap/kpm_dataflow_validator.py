@@ -8,19 +8,16 @@ from pipeline_manager_backend_communication.misc_structures import MessageType
 
 from topwrap.hdl_parsers_utils import (
     ParameterToEval,
-    PortDirection,
     evaluate_parameter_list,
 )
 
 from .kpm_common import (
     InterfaceFromConnection,
     check_for_iface_in_conn_graph,
-    error_connections,
     find_connected_interfaces,
     find_dataflow_interface_by_id,
     get_all_graph_connections,
     get_all_graph_nodes,
-    get_dataflow_constant_interfaces,
     get_dataflow_constant_metanodes,
     get_dataflow_current_hierarchy_ip_nodes,
     get_dataflow_external_interfaces,
@@ -36,7 +33,6 @@ from .kpm_common import (
     get_metanode_interface_id,
     get_metanode_property_value,
     is_metanode,
-    kpm_direction_to_port_dir,
 )
 from .util import JsonType, UnreachableError
 
@@ -266,46 +262,6 @@ class DataflowValidator:
 
         return CheckResult(check_name, MessageType.OK)
 
-    def check_inouts_connections(self) -> CheckResult:
-        """
-        Check for connections between ports where one of them has an `inout` direction.
-        Return a warning if such connections exist because in Amaranth inout ports are
-        automatically propagated to the top-level module.
-        This forces us to make a quirky design decisions that have to work around this fact,
-        such as inverting the way inout ports are connected in YAML description.
-        """
-
-        connected_inouts = []
-        check_name = "Connections between inouts"
-        ext_ifaces_ids = get_dataflow_external_interfaces(self.dataflow).keys()
-        constant_ifaces_ids = get_dataflow_constant_interfaces(self.dataflow).keys()
-        metanodes_ids = [*ext_ifaces_ids, *constant_ifaces_ids]
-
-        for conn in get_all_graph_connections(self.dataflow):
-            if conn["from"] in metanodes_ids or conn["to"] in metanodes_ids:
-                continue
-
-            iface_from, iface_to = get_interfaces_from_connection(self.dataflow, conn)
-            if iface_to is None:
-                raise error_connections(False, conn["to"])
-            if iface_from is None:
-                raise error_connections(False, conn["from"])
-
-            if kpm_direction_to_port_dir(iface_from.iface_direction) == PortDirection.INOUT:
-                connected_inouts.append(f"{iface_from.node_name}:{iface_from.iface_name}")
-            if kpm_direction_to_port_dir(iface_to.iface_direction) == PortDirection.INOUT:
-                connected_inouts.append(f"{iface_to.node_name}:{iface_to.iface_name}")
-
-        if connected_inouts:
-            return CheckResult(
-                check_name,
-                MessageType.WARNING,
-                len(connected_inouts),
-                f"Wires connecting inout ports {connected_inouts} are always "
-                "external in the top module by Amaranth",
-            )
-        return CheckResult(check_name, MessageType.OK)
-
     def check_connection_to_subgraph_metanodes(self) -> CheckResult:
         """
         Check for any connections to exposed subgraph metanode ports.
@@ -492,7 +448,6 @@ class DataflowValidator:
             self.check_duplicate_metanode_names,
             self.check_connection_to_subgraph_metanodes,
             self.check_unconnected_ports_interfaces,
-            self.check_inouts_connections,
         ]
 
         messages = {"errors": [], "warnings": []}

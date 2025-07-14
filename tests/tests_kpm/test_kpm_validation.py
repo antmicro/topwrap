@@ -133,7 +133,6 @@ def hierarchy_dataflow(all_dataflow_files: dict[str, JsonType]) -> JsonType:
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
-        (DataflowValidator.check_inouts_connections, MessageType.OK),
     ],
 )
 def test_hdmi_dataflow_validation(check_function, expected_result, hdmi_dataflow):
@@ -153,7 +152,6 @@ def test_hdmi_dataflow_validation(check_function, expected_result, hdmi_dataflow
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
-        (DataflowValidator.check_inouts_connections, MessageType.OK),
     ],
 )
 def test_pwm_dataflow_validation(check_function, expected_result, pwm_dataflow):
@@ -173,7 +171,6 @@ def test_pwm_dataflow_validation(check_function, expected_result, pwm_dataflow):
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
-        (DataflowValidator.check_inouts_connections, MessageType.OK),
     ],
 )
 def test_hierarchy_dataflow_validation(check_function, expected_result, hierarchy_dataflow):
@@ -192,7 +189,6 @@ def test_hierarchy_dataflow_validation(check_function, expected_result, hierarch
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
-        (DataflowValidator.check_inouts_connections, MessageType.OK),
     ],
 )
 def test_complex_hierarchy_dataflow_validation(
@@ -239,11 +235,6 @@ def test_complex_hierarchy_dataflow_validation(
         (
             DataflowValidator.check_unconnected_ports_interfaces,
             lf("dataflow_duplicate_external_input_interfaces"),
-            MessageType.WARNING,
-        ),
-        (
-            DataflowValidator.check_inouts_connections,
-            lf("dataflow_inouts_connections"),
             MessageType.WARNING,
         ),
     ],
