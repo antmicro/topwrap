@@ -50,6 +50,12 @@ Ignoring a particular test can be performed with `--ignore=test_path`, e.g:
 python -m pytest --ignore=tests/tests_build/test_interconnect.py
 ```
 
+To run a specific test, use the `-k test_name` flag, e.g:
+
+```bash
+python -m pytest -k TestKpmSpecificationBackend
+```
+
 For debugging purposes, Pytest captures all output from the test and displays it when all tests are completed.
 To see the output immediately, pass the `-s` flag to pytest:
 
