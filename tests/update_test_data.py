@@ -1,41 +1,42 @@
-from pathlib import Path
-
 import click
-from tests_kpm.common import TEST_DATA_PATH, save_file_to_json
-from tests_kpm.conftest import Dict, all_designs_data, test_dirs_data
+from tests_kpm.conftest import all_design_files, test_dirs_data
 
-from topwrap.design import DesignDescription
-from topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
-from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
-
-
-def all_examples_designs_data() -> Dict[str, DesignDescription]:
-    examples = {}
-    for dir in (Path(TEST_DATA_PATH) / "examples").iterdir():
-        examples[dir.name] = DesignDescription.load(Path(f"examples/{dir.name}/project.yaml"))
-    return examples
+from topwrap.backend.kpm.backend import KpmBackend
+from topwrap.backend.kpm.specification import KpmSpecificationBackend
+from topwrap.frontend.yaml.frontend import YamlFrontend
+from topwrap.util import save_file_to_json
 
 
 def update_dataflows():
     test_dirs = test_dirs_data()
-    for example_name, design in all_designs_data().items():
-        spec = ipcore_yamls_to_kpm_spec([], design)
-        dataflow = kpm_dataflow_from_design_descr(design, spec)
+    for example_name, design in all_design_files().items():
+        frontend = YamlFrontend()
+        [design_module] = frontend.parse_files([design])
+
+        backend = KpmBackend(depth=-1)
+        repr = backend.represent(design_module)
+
         save_file_to_json(
             test_dirs[example_name],
             f"dataflow_{example_name}.json",
-            dataflow,
+            repr.dataflow,
         )
 
 
 def update_specifications():
     test_dirs = test_dirs_data()
-    for example_name, design in all_designs_data().items():
-        specification = ipcore_yamls_to_kpm_spec([], design)
+    for example_name, design in all_design_files().items():
+        frontend = YamlFrontend()
+        [design_module] = frontend.parse_files([design])
+
+        spec = KpmSpecificationBackend.default()
+        spec.add_module(design_module, recursive=True)
+        spec = spec.build()
+
         save_file_to_json(
             test_dirs[example_name],
             f"specification_{example_name}.json",
-            specification,
+            spec,
         )
 
 

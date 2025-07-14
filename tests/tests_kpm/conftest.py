@@ -42,20 +42,20 @@ def all_dataflow_files(test_dirs: Dict[str, Path]) -> Dict[str, JsonType]:
     }
 
 
-def all_designs_data() -> Dict[str, DesignDescription]:
+def all_design_files() -> Dict[str, Path]:
     data = {}
     for ip_name, dir in test_dirs_data().items():
         if dir.parts[-2] == "examples":
-            data[ip_name] = DesignDescription.load(Path("examples") / ip_name / "project.yaml")
+            data[ip_name] = Path("examples") / ip_name / "project.yaml"
         else:
-            data[ip_name] = DesignDescription.load(dir / f"project_{ip_name}.yaml")
+            data[ip_name] = dir / f"project_{ip_name}.yaml"
 
     return data
 
 
 @pytest.fixture
 def all_designs() -> Dict[str, DesignDescription]:
-    return all_designs_data()
+    return {name: DesignDescription.load(file) for name, file in all_design_files().items()}
 
 
 @pytest.fixture
