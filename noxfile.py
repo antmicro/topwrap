@@ -70,9 +70,7 @@ def tests(session: nox.Session) -> None:
 @nox.session
 def update_test_data(session: nox.Session) -> None:
     session.install("-e", ".[tests,parse]")
-    tests_to_update = (
-        ["dataflow", "specification", "design"] if not session.posargs else session.posargs
-    )
+    tests_to_update = ["dataflow", "specification"] if not session.posargs else session.posargs
     tests_to_update = [f"--{test_data}" for test_data in tests_to_update]
     session.run("python3", "tests/update_test_data.py", *tests_to_update)
 

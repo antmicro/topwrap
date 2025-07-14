@@ -85,7 +85,7 @@ The generated report is available at `htmlcov/index.html`
 
 All `kpm` data from examples can be generated using `nox`.
 This is useful when changing Topwrap functionality relating to kpm, as it avoids manually changing test data in every sample.
-Users can either update of example data such as the specification or update everything (dataflows, specifications, designs).
+Users can either update of example data such as the specification or update everything (dataflows, specifications).
 
 To update everything run:
 ```bash
@@ -100,4 +100,3 @@ nox -s update_test_data -- specification
 Valid options for `update_test_data` sessions, are:
 * `specification`
 * `dataflow`
-* `design`

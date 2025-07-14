@@ -53,13 +53,7 @@ def update_specifications():
     is_flag=True,
     help="Update all specifications",
 )
-@click.option(
-    "--design",
-    default=False,
-    is_flag=True,
-    help="Update all designs",
-)
-def update_test_data(dataflow: bool, specification: bool, design: bool):
+def update_test_data(dataflow: bool, specification: bool):
     if dataflow:
         update_dataflows()
 
