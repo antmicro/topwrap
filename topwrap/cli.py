@@ -163,10 +163,11 @@ def parse_main(
         from .verilog_parser import VerilogModuleGenerator
         from .vhdl_parser import VHDLModule
     except ModuleNotFoundError:
-        raise RuntimeError(
-            "hdlConvertor not installed, please install optional dependency topwrap[parse]"
-            "e.g. pip install topwrap[parse]"
-        ) from None
+        logging.error(
+            "hdlConvertor not installed, please install optional dependency topwrap[parse], "
+            "e.g. `pip install topwrap[parse]`"
+        )
+        sys.exit(1)
 
     configure_log_level(log_level)
     dest_dir.mkdir(exist_ok=True, parents=True)
@@ -462,9 +463,25 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
 
     spec = KpmSpecificationBackend.default()
     for module in modules:
-        spec.add_module(module)
-    if design_module:
-        spec.add_module(design_module, recursive=True)
+        try:
+            spec.add_module(module)
+        except Exception:
+            logging.error(
+                "An error occurred while generating specification for module "
+                f"'{module.id.combined()}'"
+            )
+            sys.exit(1)
+
+    try:
+        if design_module:
+            spec.add_module(design_module, recursive=True)
+    except Exception:
+        assert design_module
+        logging.error(
+            "An error occurred while generating specification for design module "
+            f"'{design_module.id.combined()}'"
+        )
+        sys.exit(1)
     spec = spec.build()
 
     with open(output, "w") as f:
@@ -488,18 +505,41 @@ def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     frontend = YamlFrontend()
     design_module = next(frontend.parse_files([design]))
     if not design_module.design:
-        raise RuntimeError("Given design YAML file does not contain a design.")
+        logging.error("Given design YAML file does not contain a design.")
+        sys.exit(1)
 
     modules = frontend.parse_files(yamls)
 
     spec = KpmSpecificationBackend.default()
     for module in modules:
-        spec.add_module(module)
-    spec.add_module(design_module, recursive=True)
+        try:
+            spec.add_module(module)
+        except Exception:
+            logging.error(
+                "An error occurred while generating specification for module "
+                f"'{module.id.combined()}'"
+            )
+            sys.exit(1)
+
+    try:
+        spec.add_module(design_module, recursive=True)
+    except Exception:
+        logging.error(
+            "An error occurred while generating specification for design module "
+            f"'{design_module.id.combined()}'"
+        )
+        sys.exit(1)
     spec = spec.build()
 
     dataflow = KpmDataflowBackend(spec)
-    dataflow.represent_design(design_module.design, depth=-1)
+    try:
+        dataflow.represent_design(design_module.design, depth=-1)
+    except Exception:
+        logging.error(
+            "An error occurred while generating dataflow for design "
+            f"'{design_module.id.combined()}'"
+        )
+        sys.exit(1)
     dataflow = dataflow.build()
 
     with open(output, "w") as f:
