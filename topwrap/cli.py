@@ -468,7 +468,7 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
         except Exception:
             logging.error(
                 "An error occurred while generating specification for module "
-                f"'{module.id.combined()}'"
+                f"'{module.id.name}' from '{module.refs[0].file}'"
             )
             sys.exit(1)
 
@@ -479,7 +479,7 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
         assert design_module
         logging.error(
             "An error occurred while generating specification for design module "
-            f"'{design_module.id.combined()}'"
+            f"'{design_module.id.name}' from '{design_module.refs[0].file}'"
         )
         sys.exit(1)
     spec = spec.build()
@@ -517,7 +517,7 @@ def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
         except Exception:
             logging.error(
                 "An error occurred while generating specification for module "
-                f"'{module.id.combined()}'"
+                f"'{module.id.name}' from '{module.refs[0].file}'"
             )
             sys.exit(1)
 
@@ -526,7 +526,7 @@ def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     except Exception:
         logging.error(
             "An error occurred while generating specification for design module "
-            f"'{design_module.id.combined()}'"
+            f"'{design_module.id.name}' from '{design_module.refs[0].file}'"
         )
         sys.exit(1)
     spec = spec.build()
@@ -537,7 +537,7 @@ def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     except Exception:
         logging.error(
             "An error occurred while generating dataflow for design "
-            f"'{design_module.id.combined()}'"
+            f"'{design_module.id.name} from '{design_module.refs[0].file}'"
         )
         sys.exit(1)
     dataflow = dataflow.build()
