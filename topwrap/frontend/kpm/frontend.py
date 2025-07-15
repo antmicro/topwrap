@@ -27,9 +27,9 @@ class KpmFrontend(Frontend):
                         f"Unexpected type for the KPM object '{type(loaded)}'"
                     )
                 if any(k in loaded for k in ("nodes", "include", "includeGraphs")):
-                    specs.append(loaded)
+                    specs.append((src, loaded))
                 elif "graphs" in loaded:
-                    flows.append(loaded)
+                    flows.append((src, loaded))
                 else:
                     raise KpmFrontendParseException(
                         "Supplied file is neither a specification nor a dataflow"
@@ -37,10 +37,10 @@ class KpmFrontend(Frontend):
 
         spec_front = KpmSpecificationFrontend(self.interfaces)
         spec_mods = []
-        for spec in specs:
-            spec_mods.extend(spec_front.parse(spec))
+        for source, spec in specs:
+            spec_mods.extend(spec_front.parse(spec, source=source))
         yield from spec_mods
 
         flow_front = KpmDataflowFrontend([*self.modules, *spec_mods])
-        for flow in flows:
-            yield flow_front.parse(flow)
+        for source, flow in flows:
+            yield flow_front.parse(flow, source=source)

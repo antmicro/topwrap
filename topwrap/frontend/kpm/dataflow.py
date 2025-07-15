@@ -4,6 +4,7 @@
 import re
 from dataclasses import dataclass
 from itertools import chain
+from pathlib import Path
 from typing import Iterable, Iterator, Optional, Union, cast
 
 import yaml
@@ -46,7 +47,7 @@ from topwrap.model.hdl_types import Bit, Logic
 from topwrap.model.interconnect import Interconnect
 from topwrap.model.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.interface import Interface, InterfaceDefinition
-from topwrap.model.misc import ElaboratableValue, Identifier, ObjectId
+from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId
 from topwrap.model.module import Design, Module
 from topwrap.util import JsonType, UnreachableError
 
@@ -158,7 +159,7 @@ class KpmDataflowFrontend:
                 ]
         self._spec = spec.build()
 
-    def parse(self, dataflow: JsonType) -> Module:
+    def parse(self, dataflow: JsonType, source: Optional[Path] = None) -> Module:
         """
         Parses a structure representing a KPM dataflow
         into a top-level `Module` with a design.
@@ -168,10 +169,15 @@ class KpmDataflowFrontend:
 
         data = _KpmDataflowInstanceData(self._spec, dataflow)
         assert data.flow.entry_graph is not None
-        return self._parse(data.flow.entry_graph, data)
+        return self._parse(source, data.flow.entry_graph, data)
 
-    def _parse(self, graph: DataflowGraph, data: _KpmDataflowInstanceData) -> Module:
-        mod = Module(id=Identifier(f"anon{self._subs}"))
+    def _parse(
+        self, source: Optional[Path], graph: DataflowGraph, data: _KpmDataflowInstanceData
+    ) -> Module:
+        mod = Module(
+            id=Identifier(f"anon{self._subs}"),
+            refs=[FileReference(source)] if source else (),
+        )
         self._subs += 1
         mod.design = Design()
 
@@ -179,7 +185,7 @@ class KpmDataflowFrontend:
 
         for node in graph._nodes.values():
             if not is_metanode(node.name):
-                mod.design.add_component(self._create_mod_instance(graph, node, data))
+                mod.design.add_component(self._create_mod_instance(source, graph, node, data))
             else:
                 if node.name == InterconnectMetanode.name:
                     unrealised_intrs.append(node)
@@ -216,11 +222,15 @@ class KpmDataflowFrontend:
         return mod
 
     def _create_mod_instance(
-        self, graph: DataflowGraph, node: Node, data: _KpmDataflowInstanceData
+        self,
+        source: Optional[Path],
+        graph: DataflowGraph,
+        node: Node,
+        data: _KpmDataflowInstanceData,
     ) -> ModuleInstance:
         if node.subgraph is not None:
             subg = data.flow.get_graph_by_id(node.subgraph)
-            module = self._parse(subg, data)
+            module = self._parse(source, subg, data)
         else:
             module = self._modmap.get(node.name)
             if module is None:

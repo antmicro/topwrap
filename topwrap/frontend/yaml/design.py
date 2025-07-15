@@ -22,7 +22,7 @@ from topwrap.model.design import Design, ModuleInstance
 from topwrap.model.hdl_types import Bit
 from topwrap.model.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.interface import Interface, InterfaceMode
-from topwrap.model.misc import ElaboratableValue, Identifier
+from topwrap.model.misc import ElaboratableValue, FileReference, Identifier
 from topwrap.model.module import Module
 
 logger = logging.getLogger(__name__)
@@ -50,11 +50,17 @@ class DesignDescriptionFrontend:
         """
 
         desc = DesignDescription.load(path)
-        return self._parse_hier(desc, "top" if desc.design.name is None else desc.design.name)
+        return self._parse_hier(path, desc, "top" if desc.design.name is None else desc.design.name)
 
-    def _parse_hier(self, desc: DesignDescription, name_hint: str) -> Design:
+    def _parse_hier(
+        self, source: Optional[Path], desc: DesignDescription, name_hint: str
+    ) -> Design:
         design = Design()
-        mod = Module(id=Identifier(name=name_hint), design=design)
+        mod = Module(
+            id=Identifier(name=name_hint),
+            design=design,
+            refs=[FileReference(source)] if source else (),
+        )
 
         # Parse regular component instances
         for cname, ip in desc.ips.items():
@@ -63,7 +69,7 @@ class DesignDescriptionFrontend:
 
         # Parse hierarchical design descriptions as more components
         for hname, hdesc in desc.design.hierarchies.items():
-            parsed = self._parse_hier(hdesc, hname)
+            parsed = self._parse_hier(source, hdesc, hname)
             design.add_component(ModuleInstance(name=hname, module=parsed.parent))
 
         self._parse_parameters(desc, design)

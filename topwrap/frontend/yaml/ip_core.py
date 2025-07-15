@@ -31,7 +31,7 @@ from topwrap.model.interface import (
     InterfaceSignal,
     InterfaceSignalConfiguration,
 )
-from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
+from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, Parameter
 from topwrap.model.module import Module
 
 
@@ -100,7 +100,7 @@ class IPCoreDescriptionFrontend:
 
         desc = IPCoreDescription.load(path)
 
-        mod = Module(id=Identifier(name=desc.name))
+        mod = Module(id=Identifier(name=desc.name), refs=[FileReference(path)])
 
         for name, param in desc.parameters.items():
             mod.add_parameter(Parameter(name=name, default_value=_param_to_ir_param(param)))

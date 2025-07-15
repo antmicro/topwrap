@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Iterable, Iterator, cast
+from pathlib import Path
+from typing import Iterable, Iterator, Optional, cast
 
 from pipeline_manager.dataflow_builder.entities import Direction
 
@@ -16,7 +17,7 @@ from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import Port
 from topwrap.model.interface import Interface, InterfaceDefinition
-from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
+from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, Parameter
 from topwrap.model.module import Module
 from topwrap.util import JsonType
 
@@ -36,7 +37,12 @@ class KpmSpecificationFrontend:
         self._intfmap = {d.id.combined(): d for d in intfs}
 
     def parse(
-        self, spec: JsonType, *, allow_unknown_intfs: bool = True, resolve_graphs: bool = True
+        self,
+        spec: JsonType,
+        *,
+        allow_unknown_intfs: bool = True,
+        resolve_graphs: bool = True,
+        source: Optional[Path] = None,
     ) -> Iterator[Module]:
         """
         Parse a KPM specification into multiple IR modules.
@@ -60,7 +66,12 @@ class KpmSpecificationFrontend:
 
         if len((graphs := spec.get("graphs", ()))) > 0 and resolve_graphs:
             modules = [
-                *self.parse(spec, allow_unknown_intfs=allow_unknown_intfs, resolve_graphs=False)
+                *self.parse(
+                    spec,
+                    allow_unknown_intfs=allow_unknown_intfs,
+                    resolve_graphs=False,
+                    source=source,
+                )
             ]
             front = KpmDataflowFrontend(modules)
             for graph in graphs:
@@ -79,7 +90,8 @@ class KpmSpecificationFrontend:
                     name=add["full_module_id"]["name"],
                     vendor=add["full_module_id"]["vendor"],
                     library=add["full_module_id"]["library"],
-                )
+                ),
+                refs=[FileReference(source)] if source else (),
             )
 
             prop: JsonType

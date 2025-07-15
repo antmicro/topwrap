@@ -209,8 +209,8 @@ class FileReference:
     """A reference to a particular location in a text file on the filesystem"""
 
     file: Path
-    line: int
-    column: int
+    line: int = field(default=0)
+    column: int = field(default=0)
 
 
 class Parameter(ModelBase):
