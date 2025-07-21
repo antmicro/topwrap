@@ -106,6 +106,21 @@ def dataflow_hier_duplicate_names():
     return get_dataflow_test("dataflow_hierarchical_duplicate_names")
 
 
+@pytest.fixture
+def pwm_dataflow(all_dataflow_files: dict[str, JsonType]) -> JsonType:
+    return all_dataflow_files["pwm"]
+
+
+@pytest.fixture
+def hdmi_dataflow(all_dataflow_files: dict[str, JsonType]) -> JsonType:
+    return all_dataflow_files["hdmi"]
+
+
+@pytest.fixture
+def hierarchy_dataflow(all_dataflow_files: dict[str, JsonType]) -> JsonType:
+    return all_dataflow_files["hierarchy"]
+
+
 # Test validation checks by running them on HDMI dataflow
 @pytest.mark.parametrize(
     "check_function, expected_result",

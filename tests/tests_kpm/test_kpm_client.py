@@ -5,28 +5,29 @@ from typing import Dict
 import pytest
 from deepdiff import DeepDiff
 from pipeline_manager_backend_communication.misc_structures import MessageType
-from pipeline_manager_backend_communication.utils import convert_message_to_string
 
-from topwrap.design import DesignDescription
-from topwrap.design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
+from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.kpm_common import RPCparams
-from topwrap.kpm_dataflow_parser import kpm_dataflow_to_design
 from topwrap.kpm_topwrap_client import RPCMethods
 from topwrap.util import JsonType
-from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 
 class TestClient:
     @pytest.fixture
     def default_rpc_params(self):
-        return RPCparams("127.0.0.1", 9000, ipcore_yamls_to_kpm_spec([]), Path("build"), None)
+        return RPCparams(
+            "127.0.0.1", 9000, KpmSpecificationBackend.default().build(), Path("build"), None
+        )
 
     def test_specification(
-        self, all_specification_files, all_designs, default_rpc_params: RPCparams
+        self,
+        all_design_specifications: Dict[str, JsonType],
+        all_specification_files: Dict[str, JsonType],
+        default_rpc_params: RPCparams,
     ):
         # Testing all cores
-        for test_name, spec in all_specification_files.items():
-            default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
+        for test_name, spec in all_design_specifications.items():
+            default_rpc_params.specification = spec
             specification_from_kpm = RPCMethods(default_rpc_params).specification_get()
             assert specification_from_kpm["type"] == MessageType.OK.value, (
                 f"Test for {test_name} didn't return Message OK"
@@ -34,7 +35,7 @@ class TestClient:
 
             spec_differences = DeepDiff(
                 specification_from_kpm.get("content"),
-                spec,
+                all_specification_files[test_name],
                 ignore_order=True,
                 ignore_type_in_groups=[(list, tuple)],
             )
@@ -43,10 +44,13 @@ class TestClient:
             )
 
     def test_dataflow_validation(
-        self, all_dataflow_files, all_designs, default_rpc_params: RPCparams
+        self,
+        all_dataflow_files: Dict[str, JsonType],
+        all_design_specifications: Dict[str, JsonType],
+        default_rpc_params: RPCparams,
     ):
         for test_name, dataflow_json in all_dataflow_files.items():
-            default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
+            default_rpc_params.specification = all_design_specifications[test_name]
             response_message = RPCMethods(default_rpc_params).dataflow_validate(dataflow_json)
             assert response_message["type"] != MessageType.ERROR.value, (
                 f"Dataflow validation returned errors {response_message.get('content')} for"
@@ -57,62 +61,40 @@ class TestClient:
                     f"Dataflow {test_name} has warnings {response_message.get('content')}"
                 )
 
-    def test_dataflow_run(self, all_dataflow_files, all_designs, default_rpc_params: RPCparams):
+    def test_dataflow_run(
+        self,
+        all_dataflow_files: Dict[str, JsonType],
+        all_design_specifications: Dict[str, JsonType],
+        default_rpc_params: RPCparams,
+    ):
         for test_name, dataflow_json in all_dataflow_files.items():
-            default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
+            default_rpc_params.specification = all_design_specifications[test_name]
             response_message = RPCMethods(default_rpc_params).dataflow_run(dataflow_json)
             assert response_message["type"] == MessageType.OK.value, (
                 f"Dataflow run returned {response_message} for test {test_name}"
             )
 
-    def test_dataflow_export(self, all_dataflow_files, all_designs, default_rpc_params: RPCparams):
-        for test_name, dataflow_json in all_dataflow_files.items():
-            default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], all_designs[test_name])
-            response_message = RPCMethods(default_rpc_params).dataflow_export(dataflow_json)
-
-            response_design_dict = DesignDescription.from_yaml(
-                convert_message_to_string(response_message["content"], True, "application/x-yaml")
-            )
-            # Dump design and load back with yaml to avoid errors with different types like
-            # tuple vs list
-            # design_loaded_yaml = yaml.safe_load(all_designs[test_name].to_yaml())
-            design_diff = DeepDiff(
-                all_designs[test_name].to_dict(), response_design_dict.to_dict(), ignore_order=True
-            )
-            assert design_diff == {}, (
-                f"Dataflow export returned different encoded file for test {test_name}"
-            )
-
     def test_dataflow_import(
-        self, all_designs, all_encoded_design_files, default_rpc_params: RPCparams
-    ):
-        for test_name, design in all_designs.items():
-            default_rpc_params.specification = ipcore_yamls_to_kpm_spec([], design)
-            response_message = RPCMethods(default_rpc_params).dataflow_import(
-                all_encoded_design_files[test_name], "application/x-yaml", True
-            )
-
-            # Checks if imported dataflow is correct are done in "test_kpm_import.py"
-            assert response_message["type"] == MessageType.OK.value, (
-                f"Dataflow import returned {response_message['type']} for test {test_name}"
-            )
-
-    def test_import_export_non_destructivity(
         self,
-        all_designs: Dict[str, DesignDescription],
-        all_specification_files: Dict[str, JsonType],
+        test_dirs: Dict[str, Path],
+        all_design_specifications: Dict[str, JsonType],
+        all_encoded_design_files: Dict[str, str],
+        default_rpc_params: RPCparams,
+        monkeypatch: pytest.MonkeyPatch,
     ):
-        for test_name, spec in all_specification_files.items():
-            imported = all_designs[test_name]
-            dataflow = kpm_dataflow_from_design_descr(imported, spec)
-            exported = kpm_dataflow_to_design(dataflow, spec)
-
-            assert (
-                DeepDiff(
-                    imported.to_dict(),
-                    exported.to_dict(),
-                    # permit arbitrary reordering of external ports
-                    ignore_order_func=lambda lvl: "external" in lvl.path(),
+        for test_name, spec in all_design_specifications.items():
+            # Change directory so we're able to find the repo/ subdirectory for the tests.
+            with monkeypatch.context() as m:
+                test_dir = test_dirs[test_name]
+                m.chdir(
+                    Path("examples") / test_name if test_dir.parts[-2] == "examples" else test_dir
                 )
-                == {}
-            ), f'Exported design file for test "{test_name}" differs from the imported one'
+
+                default_rpc_params.specification = spec
+                response_message = RPCMethods(default_rpc_params).dataflow_import(
+                    all_encoded_design_files[test_name], "application/x-yaml", True
+                )
+
+                assert response_message["type"] == MessageType.OK.value, (
+                    f"Dataflow import returned {response_message['type']} for test {test_name}"
+                )

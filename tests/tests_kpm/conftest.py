@@ -7,7 +7,8 @@ from typing import Dict
 
 import pytest
 
-from topwrap.design import DesignDescription
+from topwrap.backend.kpm.specification import KpmSpecificationBackend
+from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.util import JsonType, read_json_file
 
 
@@ -42,7 +43,7 @@ def all_dataflow_files(test_dirs: Dict[str, Path]) -> Dict[str, JsonType]:
     }
 
 
-def all_design_files() -> Dict[str, Path]:
+def all_design_paths() -> Dict[str, Path]:
     data = {}
     for ip_name, dir in test_dirs_data().items():
         if dir.parts[-2] == "examples":
@@ -54,73 +55,27 @@ def all_design_files() -> Dict[str, Path]:
 
 
 @pytest.fixture
-def all_designs() -> Dict[str, DesignDescription]:
-    return {name: DesignDescription.load(file) for name, file in all_design_files().items()}
+def all_design_files() -> Dict[str, str]:
+    return {name: file.read_text() for name, file in all_design_paths().items()}
 
 
 @pytest.fixture
-def all_encoded_design_files(all_designs: Dict[str, DesignDescription]) -> Dict[str, str]:
+def all_design_specifications() -> Dict[str, JsonType]:
+    specs = {}
+
+    frontend = YamlFrontend()
+    for name, design in all_design_paths().items():
+        spec = KpmSpecificationBackend.default()
+        design_module = next(frontend.parse_files([design]))
+        spec.add_module(design_module, recursive=True)
+        specs[name] = spec.build()
+
+    return specs
+
+
+@pytest.fixture
+def all_encoded_design_files(all_design_files: Dict[str, str]) -> Dict[str, str]:
     return {
-        test_name: b64encode(design.to_yaml().encode("utf-8")).decode("utf-8")
-        for test_name, design in all_designs.items()
+        test_name: b64encode(design.encode("utf-8")).decode("utf-8")
+        for test_name, design in all_design_files.items()
     }
-
-
-@pytest.fixture
-def pwm_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
-    return all_specification_files["pwm"]
-
-
-@pytest.fixture
-def hdmi_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
-    return all_specification_files["hdmi"]
-
-
-@pytest.fixture
-def hierarchy_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
-    return all_specification_files["hierarchy"]
-
-
-@pytest.fixture
-def complex_specification(all_specification_files: Dict[str, JsonType]) -> JsonType:
-    return all_specification_files["complex"]
-
-
-@pytest.fixture
-def pwm_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
-    return all_dataflow_files["pwm"]
-
-
-@pytest.fixture
-def hdmi_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
-    return all_dataflow_files["hdmi"]
-
-
-@pytest.fixture
-def hierarchy_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
-    return all_dataflow_files["hierarchy"]
-
-
-@pytest.fixture
-def complex_dataflow(all_dataflow_files: Dict[str, JsonType]) -> JsonType:
-    return all_dataflow_files["complex"]
-
-
-@pytest.fixture
-def pwm_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
-    return all_designs["pwm"]
-
-
-@pytest.fixture
-def hdmi_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
-    return all_designs["hdmi"]
-
-
-@pytest.fixture
-def hierarchy_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
-    return all_designs["hierarchy"]
-
-
-@pytest.fixture
-def complex_design(all_designs: Dict[str, DesignDescription]) -> DesignDescription:
-    return all_designs["complex"]

@@ -1,5 +1,5 @@
 import click
-from tests_kpm.conftest import all_design_files, test_dirs_data
+from tests_kpm.conftest import all_design_paths, test_dirs_data
 
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
@@ -9,7 +9,7 @@ from topwrap.util import save_file_to_json
 
 def update_dataflows():
     test_dirs = test_dirs_data()
-    for example_name, design in all_design_files().items():
+    for example_name, design in all_design_paths().items():
         frontend = YamlFrontend()
         [design_module] = frontend.parse_files([design])
 
@@ -25,7 +25,7 @@ def update_dataflows():
 
 def update_specifications():
     test_dirs = test_dirs_data()
-    for example_name, design in all_design_files().items():
+    for example_name, design in all_design_paths().items():
         frontend = YamlFrontend()
         [design_module] = frontend.parse_files([design])
 
