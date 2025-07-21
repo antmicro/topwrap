@@ -142,6 +142,14 @@ class DataflowValidator:
             *get_dataflow_current_hierarchy_ip_nodes(self.dataflow),
             *get_dataflow_subgraph_nodes(self.dataflow),
         ]:
+            # Ignore identifier nodes, as they are supposed to have
+            # string property values.
+            # TODO: This should probably include more nodes?
+            # (e.g. interconnects due to their manager/subordinate
+            # parameters?)
+            if node["name"] == "Identifier":
+                continue
+
             for param in node.get("properties", []):
                 parameter_list.append(
                     ParameterToEval(param["name"], param["value"], node["instanceName"])
