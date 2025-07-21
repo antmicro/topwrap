@@ -11,6 +11,7 @@ from topwrap.frontend.frontend import Frontend
 from topwrap.frontend.kpm.common import KpmFrontendParseException
 from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.frontend.kpm.specification import KpmSpecificationFrontend
+from topwrap.model.design import Design
 from topwrap.model.module import Module
 
 
@@ -44,3 +45,11 @@ class KpmFrontend(Frontend):
         flow_front = KpmDataflowFrontend([*self.modules, *spec_mods])
         for source, flow in flows:
             yield flow_front.parse(flow, source=source)
+
+    def get_top_design(self, modules: Iterable[Module]) -> Design:
+        *_, design_module = modules
+
+        if not design_module.design:
+            raise KpmFrontendParseException("Trying to get top design with no dataflow given")
+
+        return design_module.design

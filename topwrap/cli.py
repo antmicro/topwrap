@@ -27,10 +27,8 @@ from topwrap.config import (
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
 from topwrap.kpm_common import RPCparams
-from topwrap.yamls_to_kpm_spec_parser import ipcore_yamls_to_kpm_spec
 
 from .config import config
-from .design import DesignDescription
 from .interface_grouper import standard_iface_grouper
 from .kpm_topwrap_client import kpm_run_client
 from .repo.user_repo import UserRepo
@@ -266,12 +264,48 @@ class KPM:
         configure_log_level(log_level)
         logging.info("Starting kenning pipeline manager client")
         config_user_repo = load_user_repos()
-        design_desc = DesignDescription.load(design) if design else None
-        spec = ipcore_yamls_to_kpm_spec(
-            config_user_repo.get_core_designs() + list(yamlfiles), design_desc
-        )
+
+        yamls = config_user_repo.get_core_designs() + list(yamlfiles)
+
+        frontend = YamlFrontend()
+        design_module = next(frontend.parse_files([design])) if design else None
+        if design_module and not design_module.design:
+            logging.error("Given design YAML file does not contain a design.")
+            return
+
+        modules = frontend.parse_files(yamls)
+
+        spec = KpmSpecificationBackend.default()
+
+        for module in modules:
+            try:
+                spec.add_module(module)
+            except Exception:
+                logging.error(
+                    "An error occurred while generating specification for module "
+                    f"'{module.id.name}' from '{module.refs[0].file}'"
+                )
+                return
+
+        if design_module:
+            try:
+                spec.add_module(design_module, recursive=True)
+            except Exception:
+                logging.error(
+                    "An error occurred while generating specification for design module "
+                    f"'{design_module.id.name}' from '{design_module.refs[0].file}'"
+                )
+                return
+
+        spec = spec.build()
+
         asyncio.run(
-            kpm_run_client(RPCparams(host, port, spec, build_dir, design_desc), client_ready_event)
+            kpm_run_client(
+                RPCparams(
+                    host, port, spec, build_dir, design_module.design if design_module else None
+                ),
+                client_ready_event,
+            )
         )
 
 

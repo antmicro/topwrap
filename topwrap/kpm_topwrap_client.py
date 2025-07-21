@@ -1,6 +1,7 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import logging
 import os
 import threading
@@ -9,7 +10,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
 
-import yaml
 from pipeline_manager_backend_communication.communication_backend import (
     CommunicationBackend,
 )
@@ -17,12 +17,15 @@ from pipeline_manager_backend_communication.misc_structures import MessageType
 from pipeline_manager_backend_communication.utils import convert_message_to_string
 from typing_extensions import NotRequired
 
+from topwrap.backend.kpm.backend import KpmBackend
+from topwrap.backend.kpm.dataflow import KpmDataflowBackend
+from topwrap.backend.sv.backend import SystemVerilogBackend
+from topwrap.frontend.kpm.frontend import KpmFrontend
+from topwrap.frontend.yaml.frontend import YamlFrontend
+from topwrap.fuse_helper import FuseSocBuilder
 from topwrap.util import JsonType
 
-from .design import DesignDescription
-from .design_to_kpm_dataflow_parser import kpm_dataflow_from_design_descr
 from .kpm_common import RPCparams
-from .kpm_dataflow_parser import kpm_dataflow_to_design
 from .kpm_dataflow_validator import DataflowValidator
 from .util import read_json_file, save_file_to_json
 
@@ -87,24 +90,34 @@ class RPCMethods:
 
     def dataflow_export(self, dataflow: JsonType) -> RPCExportEndpointReturnType:
         logging.info(f"Dataflow export request received from {self.host}:{self.port}")
-        yaml_str = kpm_dataflow_to_design(dataflow, self.specification).to_yaml()
-        filename = _generate_design_filename()
-        # content sent to KPM frontend needs to be base64 encoded, but
-        # b64encode expects a bytes-like object as an argument therefore
-        # the string needs to be converted to bytes first and then converted
-        # back to string because "content" field is expected to be a string
-        yaml_b64encoded = b64encode(yaml_str.encode("utf-8")).decode("utf-8")
-        return {"type": MessageType.OK.value, "content": yaml_b64encoded, "filename": filename}
+
+        filename = datetime.now().strftime("kpm_dataflow_%Y%m%d_%H%M%S.json")
+        # TODO: We can't hide the "Save file" button, so let's just
+        # make it save the dataflow JSON instead.
+        flow_b64encoded = b64encode(json.dumps(dataflow).encode("utf-8")).decode("utf-8")
+        return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": filename}
 
     def dataflow_import(
         self, external_application_dataflow: str, mime: str, base64: bool
     ) -> RPCEndpointReturnType:
         logging.info(f"Dataflow import request received from {self.host}:{self.port}")
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
-        design_descr = DesignDescription.from_dict(yaml.safe_load(yaml_str))
+
+        frontend = YamlFrontend()
+        design_module = next(frontend.parse_str([yaml_str]))
+        if not design_module.design:
+            return {
+                "type": MessageType.ERROR.value,
+                "content": "Given design YAML file does not contain a design.",
+            }
+
+        dataflow = KpmDataflowBackend(self.specification)
+        dataflow.represent_design(design_module.design, depth=-1)
+        dataflow = dataflow.build()
+
         return {
             "type": MessageType.OK.value,
-            "content": kpm_dataflow_from_design_descr(design_descr, self.specification),
+            "content": dataflow,
         }
 
     async def frontend_on_connect(self):
@@ -120,12 +133,18 @@ class RPCMethods:
         elif self.design is not None:
             # Started topwrap with a design
             self.initial_load = False
-            dataflow = kpm_dataflow_from_design_descr(self.design, self.specification)
-            self.root_graph_id = dataflow["entryGraph"]
+
+            backend = KpmBackend(depth=-1)
+            output = backend.represent(self.design.parent)
+
+            if "entryGraph" in dataflow:
+                self.root_graph_id = dataflow["entryGraph"]
+            else:
+                self.root_graph_id = dataflow["graphs"][0]["id"]
             if self.client is None:
                 logging.debug("The client to send request to is not defined")
                 return
-            await self.client.request("graph_change", {"dataflow": dataflow})
+            await self.client.request("graph_change", {"dataflow": output.dataflow})
         else:
             # Started topwrap without any design
             self.initial_load = False
@@ -172,19 +191,25 @@ def _kpm_dataflow_run_handler(data: JsonType, spec: JsonType, build_dir: Path) -
     """
     messages = DataflowValidator(data).validate_kpm_design()
     if not messages["errors"]:
-        design = kpm_dataflow_to_design(data, spec)
-        name = design.design.name or "top"
-        ipc = design.to_ip_connect()
-        ipc.generate_top(name, build_dir)
-        ipc.generate_fuse_core(build_dir=build_dir, top_module_name=name)
+        frontend = KpmFrontend()
+        modules = frontend.parse_str([json.dumps(data), json.dumps(spec)])
+        design = frontend.get_top_design(modules)
+
+        backend = SystemVerilogBackend()
+        repr = backend.represent(design.parent)
+        out = next(backend.serialize(repr, combine=True))
+
+        build_dir.mkdir(exist_ok=True)
+        out.save(Path(build_dir))
+
+        # TODO: No part or source dir specified here, because the user can't specify it when doing
+        # the "run" action from KPM currently.
+        fuse_builder = FuseSocBuilder(None)
+
+        fuse_builder.add_source(out.filename, "systemVerilogSource")
+        fuse_builder.build(design.parent.id.name, build_dir / f"{design.parent.id.name}.core")
+
     return messages["errors"]
-
-
-def _generate_design_filename() -> str:
-    """Return a design description YAML file name where the design
-    description will be written to.
-    """
-    return datetime.now().strftime("kpm_design_%Y%m%d_%H%M%S.yaml")
 
 
 async def kpm_run_client(
