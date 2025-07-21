@@ -137,10 +137,6 @@ class RPCMethods:
             backend = KpmBackend(depth=-1)
             output = backend.represent(self.design.parent)
 
-            if "entryGraph" in dataflow:
-                self.root_graph_id = dataflow["entryGraph"]
-            else:
-                self.root_graph_id = dataflow["graphs"][0]["id"]
             if self.client is None:
                 logging.debug("The client to send request to is not defined")
                 return
@@ -150,7 +146,6 @@ class RPCMethods:
             self.initial_load = False
             current_graph = await self.client.request("graph_get")
             # Save the current dataflow to save_file to ensure that the newest dataflow is there
-            self.root_graph_id = current_graph["result"]["dataflow"]["graphs"][0]["id"]
             save_file_to_json(
                 self.default_save_file.parent,
                 self.default_save_file.name,
@@ -158,24 +153,20 @@ class RPCMethods:
             )
 
     async def nodes_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self, kwargs["graph_id"])
+        await _kpm_handle_graph_change(self)
 
     async def properties_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self, kwargs["graph_id"])
+        await _kpm_handle_graph_change(self)
 
     async def connections_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self, kwargs["graph_id"])
+        await _kpm_handle_graph_change(self)
 
     async def position_on_change(self, **kwargs: Any):
-        await _kpm_handle_graph_change(self, kwargs["graph_id"])
+        await _kpm_handle_graph_change(self)
 
 
-async def _kpm_handle_graph_change(rpc_object: RPCMethods, graph_id: str):
+async def _kpm_handle_graph_change(rpc_object: RPCMethods):
     if rpc_object.client is None:
-        return
-    if graph_id != rpc_object.root_graph_id:
-        # User is editing subgraph and if we request graph here we will get an error response
-        # TODO Remove this once KPM fixes it
         return
     current_graph = await rpc_object.client.request("graph_get")
     save_file_to_json(
