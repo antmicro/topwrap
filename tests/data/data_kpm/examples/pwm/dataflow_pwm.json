@@ -1,208 +1,245 @@
 {
   "version": "20240723.13",
-  "entryGraph": "1728900283858653",
   "graphs": [
     {
       "connections": [
         {
-          "from": "ni_1728900283858616",
-          "id": "1728900283858645",
-          "to": "ni_1728900283858604"
+          "from": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
+          "id": "6095d9f2-4c93-426c-b1d2-b8ad76a392c9",
+          "to": "e82d4fcd-ecf2-4147-a25a-f76f1d613161"
         },
         {
-          "from": "ni_1728900283858617",
-          "id": "1728900283858646",
-          "to": "ni_1728900283858605"
+          "from": "ce59e5fc-1873-45c0-9bb8-a138b2a5fb19",
+          "id": "fc08533a-df8a-4db4-9bbf-152a2fc97fa9",
+          "to": "4819998a-083d-4cca-a88e-544292084fff"
         },
         {
-          "from": "ni_1728900283858616",
-          "id": "1728900283858647",
-          "to": "ni_1728900283858611"
+          "from": "78a65ef0-e80f-4d49-9bfd-a185e101cb15",
+          "id": "d3ba7bdd-ea04-413b-b615-de9a5cc214fa",
+          "to": "261cab4b-fc98-45f1-ad2b-4ddda63d3bf6"
         },
         {
-          "from": "ni_1728900283858617",
-          "id": "1728900283858648",
-          "to": "ni_1728900283858610"
+          "from": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
+          "id": "9653223b-4ea5-47f4-ba15-58f37b6b244f",
+          "to": "22b9b779-8042-4caa-ac13-ac5b8004d730"
         },
         {
-          "from": "ni_1728900283858616",
-          "id": "1728900283858649",
-          "to": "ni_1728900283858614"
+          "from": "ce59e5fc-1873-45c0-9bb8-a138b2a5fb19",
+          "id": "890add47-bfab-43f1-b0ea-ee1093c1b523",
+          "to": "95e42ecc-6f81-4ce9-8b06-1506ff40e32b"
         },
         {
-          "from": "ni_1728900283858618",
-          "id": "1728900283858650",
-          "to": "ni_1728900283858606"
+          "from": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
+          "id": "71dc6f26-b42e-48a6-8412-82a6d2c67ac9",
+          "to": "6f2525ab-8a1f-437d-bb78-6cc7a761451e"
         },
         {
-          "from": "ni_1728900283858607",
-          "id": "1728900283858651",
-          "to": "ni_1728900283858612"
+          "from": "e7d0bdc3-51b1-47a2-afcc-d645df601ed7",
+          "id": "f78be1b7-ec54-4118-9c77-689a492a6966",
+          "to": "e31e7233-d5d3-4c23-ac42-a3267d778174"
         },
         {
-          "from": "ni_1728900283858609",
-          "id": "1728900283858652",
-          "to": "ni_1728900283858621"
+          "from": "c915d7e6-6186-45e3-8269-245db1e2aafd",
+          "id": "bb3293e4-a3fd-4b3a-80c1-a2dc23cffc5b",
+          "to": "670ceff4-e409-400b-babf-8747be5429be"
         }
       ],
-      "id": "1728900283858653",
+      "id": "3a9d05bc-a181-4477-9060-27725a8488bd",
       "nodes": [
         {
-          "id": "node_1728900283858608",
+          "enabledInterfaceGroups": [],
+          "id": "e22eae82-46f4-462d-a5f9-d5d73f57b011",
+          "instanceName": "Identifier",
+          "interfaces": [],
+          "name": "Identifier",
+          "properties": [
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Name",
+              "value": "top"
+            },
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Vendor",
+              "value": "vendor"
+            },
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Library",
+              "value": "libdefault"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "b35137e9-163e-4bc8-ac3e-2e794ccaf731",
           "instanceName": "axi_bridge",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_1728900283858604",
+              "id": "e31e7233-d5d3-4c23-ac42-a3267d778174",
+              "name": "s_axi",
+              "side": "left"
+            },
+            {
+              "direction": "output",
+              "id": "c915d7e6-6186-45e3-8269-245db1e2aafd",
+              "name": "m_axi",
+              "side": "right"
+            },
+            {
+              "direction": "input",
+              "id": "e82d4fcd-ecf2-4147-a25a-f76f1d613161",
               "name": "clk",
               "side": "left"
             },
             {
               "direction": "input",
-              "id": "ni_1728900283858605",
+              "id": "4819998a-083d-4cca-a88e-544292084fff",
               "name": "rst",
               "side": "left"
-            },
-            {
-              "direction": "input",
-              "id": "ni_1728900283858606",
-              "name": "s_axi",
-              "side": "left"
-            },
-            {
-              "direction": "output",
-              "id": "ni_1728900283858607",
-              "name": "m_axi",
-              "side": "right"
             }
           ],
           "name": "axi_axil_adapter",
           "properties": [
             {
-              "id": "1728900283858598",
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "ADDR_WIDTH",
               "value": "32"
             },
             {
-              "id": "1728900283858599",
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "AXI_DATA_WIDTH",
               "value": "32"
             },
             {
-              "id": "1728900283858600",
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "AXI_ID_WIDTH",
               "value": "12"
             },
             {
-              "id": "1728900283858601",
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "AXI_STRB_WIDTH",
               "value": "AXI_DATA_WIDTH/8"
             },
             {
-              "id": "1728900283858602",
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "AXIL_DATA_WIDTH",
               "value": "32"
             },
             {
-              "id": "1728900283858603",
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "AXIL_STRB_WIDTH",
               "value": "AXIL_DATA_WIDTH/8"
             }
           ],
-          "twoColumn": true
+          "twoColumn": true,
+          "width": 200
         },
         {
-          "id": "node_1728900283858613",
+          "enabledInterfaceGroups": [],
+          "id": "95926f22-516d-4dfb-ac3a-aa6e9422f4aa",
           "instanceName": "litex_pwm_top",
           "interfaces": [
             {
-              "direction": "output",
-              "id": "ni_1728900283858609",
-              "name": "pwm",
-              "side": "right"
+              "direction": "input",
+              "id": "670ceff4-e409-400b-babf-8747be5429be",
+              "name": "s_axi",
+              "side": "left"
             },
             {
               "direction": "input",
-              "id": "ni_1728900283858610",
+              "id": "95e42ecc-6f81-4ce9-8b06-1506ff40e32b",
               "name": "sys_rst",
               "side": "left"
             },
             {
               "direction": "input",
-              "id": "ni_1728900283858611",
+              "id": "22b9b779-8042-4caa-ac13-ac5b8004d730",
               "name": "sys_clk",
               "side": "left"
             },
             {
-              "direction": "input",
-              "id": "ni_1728900283858612",
-              "name": "s_axi",
-              "side": "left"
+              "direction": "output",
+              "id": "78a65ef0-e80f-4d49-9bfd-a185e101cb15",
+              "name": "pwm",
+              "side": "right"
             }
           ],
           "name": "litex_pwm",
           "properties": [],
-          "twoColumn": true
+          "twoColumn": true,
+          "width": 200
         },
         {
-          "id": "node_1728900283858619",
+          "enabledInterfaceGroups": [],
+          "id": "cf8f8188-eaa7-446b-acad-e5016bd1ea14",
           "instanceName": "ps7",
           "interfaces": [
             {
+              "direction": "output",
+              "id": "e7d0bdc3-51b1-47a2-afcc-d645df601ed7",
+              "name": "M_AXI_GP0",
+              "side": "right"
+            },
+            {
               "direction": "input",
-              "id": "ni_1728900283858614",
+              "id": "6f2525ab-8a1f-437d-bb78-6cc7a761451e",
               "name": "MAXIGP0ACLK",
               "side": "left"
             },
             {
               "direction": "output",
-              "id": "ni_1728900283858615",
+              "id": "8d94fad7-5077-4306-8d4c-2c1b5595d6b8",
               "name": "MAXIGP0ARESETN",
               "side": "right"
             },
             {
               "direction": "output",
-              "id": "ni_1728900283858616",
-              "name": "FCLK0",
-              "side": "right"
-            },
-            {
-              "direction": "output",
-              "id": "ni_1728900283858617",
+              "id": "ce59e5fc-1873-45c0-9bb8-a138b2a5fb19",
               "name": "FCLK_RESET0_N",
               "side": "right"
             },
             {
               "direction": "output",
-              "id": "ni_1728900283858618",
-              "name": "M_AXI_GP0",
+              "id": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
+              "name": "FCLK0",
               "side": "right"
             }
           ],
           "name": "ps7",
           "properties": [],
-          "twoColumn": true
+          "twoColumn": true,
+          "width": 200
         },
         {
-          "id": "node_1728900283858622",
-          "instanceName": "External Output",
+          "enabledInterfaceGroups": [],
+          "id": "7c91beab-2b39-4d84-b213-338834310ef2",
+          "instanceName": "pwm",
           "interfaces": [
             {
               "direction": "input",
-              "id": "ni_1728900283858621",
-              "name": "external",
-              "side": "left"
-            }
-          ],
-          "name": "External Output",
-          "properties": [
+              "id": "261cab4b-fc98-45f1-ad2b-4ddda63d3bf6",
+              "name": "in"
+            },
             {
-              "id": "1728900283858620",
-              "name": "External Name",
-              "value": "pwm"
+              "direction": "output",
+              "externalName": "pwm",
+              "id": "142e0327-ae4e-417e-9da9-ad34504dd13d",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "c8ecfb5f-8989-4948-8460-7f4608263d28",
+              "name": "inout"
             }
           ],
-          "twoColumn": true
+          "name": "External I/O",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
         }
       ]
     }
