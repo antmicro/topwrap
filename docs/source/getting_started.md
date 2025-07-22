@@ -182,10 +182,6 @@ external:
 
 ### Generating Verilog top files
 
-:::{info}
-Topwrap uses [Amaranth](https://github.com/amaranth-lang/amaranth) for generating Verilog top files.
-:::
-
 To generate the top file, use `topwrap build` and provide the design. To do this, ensure you are in the `examples/getting_started_demo` directory and run:
 
 ```bash
