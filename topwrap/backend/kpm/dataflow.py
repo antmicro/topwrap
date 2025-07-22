@@ -66,6 +66,9 @@ class KpmDataflowBackend:
     # Maps between specification `Identifier`s and specification node names
     _nodeids: dict[str, str]
 
+    # Constant node cache: (graph ID, value) -> node
+    _consts: dict[tuple[str, str], Node]
+
     def __init__(self, specification: JsonType) -> None:
         """
         :param specification: The specification to base this dataflow on
@@ -75,6 +78,7 @@ class KpmDataflowBackend:
         self._spec = specification
         self._nodeids = {}
         self._refx = {}
+        self._consts = {}
 
         for node in self._spec["nodes"]:
             add: Optional[KpmNodeAdditionalData] = node.get("additionalData")
@@ -212,11 +216,15 @@ class KpmDataflowBackend:
 
     def add_connection(self, graph: DataflowGraph, conn: Connection, ref: _REFTYPE):
         if isinstance(conn, ConstantConnection):
-            node = graph.create_node(
-                name=ConstMetanode.name,
-                instance_name=ConstMetanode.name,
-            )
-            node.set_property(ConstMetanode().properties[0].propname, conn.source.value)
+            if (graph.id, conn.source.value) in self._consts:
+                node = self._consts[(graph.id, conn.source.value)]
+            else:
+                node = graph.create_node(
+                    name=ConstMetanode.name,
+                    instance_name=ConstMetanode.name,
+                )
+                node.set_property(ConstMetanode().properties[0].propname, conn.source.value)
+                self._consts[(graph.id, conn.source.value)] = node
             port = conn.target.io
             if port is None:
                 raise TranslationError("Connection to Logic with an unreferenced port")

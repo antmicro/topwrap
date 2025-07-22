@@ -20,8 +20,10 @@ from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.common import Metanode
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
-from topwrap.model.misc import Identifier
-from topwrap.model.module import Design
+from topwrap.model.connections import ConstantConnection, Port, PortDirection, ReferencedPort
+from topwrap.model.design import ModuleInstance
+from topwrap.model.misc import ElaboratableValue, Identifier
+from topwrap.model.module import Design, Module
 
 
 class TestKpmSpecificationBackend:
@@ -95,6 +97,74 @@ class TestKpmDataflowBackend:
         instance.build()
         instance.represent_design(top, depth=-1)
         instance.build()
+
+    def test_constants_dedup(self, instance: KpmDataflowBackend):
+        bbox_exts = [
+            Port(name="in1", direction=PortDirection.IN),
+            Port(name="in2", direction=PortDirection.IN),
+        ]
+        bbox = Module(
+            id=Identifier(name="bbox"),
+            ports=bbox_exts,
+            design=Design(),
+        )
+        bbox_inst = ModuleInstance(name="bbox", module=bbox)
+
+        sub_exts = [
+            Port(name="in1", direction=PortDirection.IN),
+            Port(name="in2", direction=PortDirection.IN),
+        ]
+        sub = Module(
+            id=Identifier(name="sub"),
+            ports=sub_exts,
+            design=Design(
+                components=[bbox_inst],
+                connections=[
+                    ConstantConnection(
+                        source=ElaboratableValue("0"),
+                        target=ReferencedPort(instance=bbox_inst, io=bbox_exts[0]),
+                    ),
+                    ConstantConnection(
+                        source=ElaboratableValue("0"),
+                        target=ReferencedPort(instance=bbox_inst, io=bbox_exts[1]),
+                    ),
+                ],
+            ),
+        )
+        sub_inst = ModuleInstance(name="sub", module=sub)
+
+        top = Module(
+            id=Identifier(name="top"),
+            ports=[],
+            design=Design(
+                components=[sub_inst],
+                connections=[
+                    ConstantConnection(
+                        source=ElaboratableValue("0"),
+                        target=ReferencedPort(instance=sub_inst, io=sub_exts[0]),
+                    ),
+                    ConstantConnection(
+                        source=ElaboratableValue("0"),
+                        target=ReferencedPort(instance=sub_inst, io=sub_exts[1]),
+                    ),
+                ],
+            ),
+        )
+
+        assert top.design
+        instance.represent_design(top.design, depth=-1)
+        flow = instance.build()
+
+        top_graph = flow["graphs"][0]
+        sub_graph = flow["graphs"][1]
+
+        # Make sure there aren't any extra nodes (=> extra constants)
+
+        # Identifier + Constant + sub
+        assert len(top_graph["nodes"]) == 3
+
+        # Identifier + Constant + 2x External I/O + bbox
+        assert len(sub_graph["nodes"]) == 5
 
 
 class TestCombined:
