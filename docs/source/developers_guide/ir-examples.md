@@ -42,11 +42,6 @@ This example features:
 :spec: ../../build/kpm_jsons/spec_ir_examples_hierarchical.json
 ```
 
-:::{note}
-No KPM examples for below ones since they use features incompatible with old KPM handling code.
-They should be added when IR is fully supported throughout the codebase.
-:::
-
 ## Interconnect
 
 This is an example of our interconnect generation feature. The design features 3 IP cores: a memory core (`ips/mem.yaml`), a digital signal processor (`ips/dsp.yaml`) and a CPU (`ips/cpu.yaml`). All of them are connected to a wishbone interconnect where both the CPU and an external interface `ext_manager` act as managers and drive the bus. DSP and MEM are subordinates, one available at address 0x0, the other at 0x10000.
@@ -58,9 +53,14 @@ This example features:
 - usage of interface ports
 - interconnect usage
 
+```{kpm_iframe}
+:dataflow: ../../build/kpm_jsons/data_ir_examples_interconnect.json
+:spec: ../../build/kpm_jsons/spec_ir_examples_interconnect.json
+```
+
 ## Advanced
 
-This example was created some time after the previous ones and it uses features that the IR did not have yet by then. It's main purpose is to demonstrate and use in tests:
+This example was created some time after the previous ones and it uses features that the IR didn't have previously. It's main purpose is to demonstrate and test:
 - Multidimensional bit arrays
 - Named vs anonymous `BitStructs`
 - Arbitrarily sliced port connections (more complex than just a bit-vector slice)
@@ -71,6 +71,10 @@ This example was created some time after the previous ones and it uses features 
   - Signals optional for the subordinates or masters
   - Signals legal only for one side of the interface
 
+```{kpm_iframe}
+:dataflow: ../../build/kpm_jsons/data_ir_examples_advanced.json
+:spec: ../../build/kpm_jsons/spec_ir_examples_advanced.json
+```
 
 ## Other
 
