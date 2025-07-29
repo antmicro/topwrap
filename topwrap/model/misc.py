@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
+import functools
+import logging
 from abc import ABC
 from dataclasses import dataclass, field
 from itertools import chain
+from math import inf
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -29,12 +32,19 @@ if TYPE_CHECKING:
     from topwrap.model.module import Module
 
 
+logger = logging.getLogger(__name__)
+
+
 class TranslationError(Exception):
     """Fatal error while translating between IR and other formats"""
 
 
 class RelationshipError(Exception):
     """Logic error of an IR hierarchy, like trying to double-assign a parent to an object"""
+
+
+class NotElaboratedException(Exception):
+    """Elaboratable value accessed before it could be properly elaborated"""
 
 
 def set_parent(child: Any, parent: Any):
@@ -69,6 +79,14 @@ class QuerableView(Sequence[_E]):
     def __init__(self, *parts: Sequence[_E]) -> None:
         super().__init__()
         self._parts = parts
+
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, Sequence) and len(self) == len(value):
+            for i in range(len(self)):
+                if self[i] != value[i]:
+                    return False
+            return True
+        return NotImplemented
 
     def __contains__(self, x: object) -> bool:
         return any(x in part for part in self._parts)
@@ -146,6 +164,7 @@ class ObjectId(Generic[_T]):
         return self._objref
 
 
+@functools.total_ordering
 class ElaboratableValue:
     """
     A WIP class aiming to represent any generic value that can
@@ -162,6 +181,9 @@ class ElaboratableValue:
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, ElaboratableValue):
+            elab1, elab2 = self.elaborate(), value.elaborate()
+            if elab1 is not None and elab2 is not None:
+                return elab1 == elab2
             return self.value == value.value
         return NotImplemented
 
@@ -179,6 +201,27 @@ class ElaboratableValue:
         if isinstance(value, ElaboratableValue):
             return ElaboratableValue(f"({self.value} * {value.value})")
         return NotImplemented
+
+    def __lt__(self, value: object) -> bool:
+        if isinstance(value, ElaboratableValue):
+            s_elab, v_elab = self.elaborate(), value.elaborate()
+            if s_elab is None or v_elab is None:
+                logger.warning(
+                    f"Unelaboratable `ElaboratableValue` in comparison: ({self.value!r}"
+                    f" = {self.elaborate()}) < ({value.value!r} = {value.elaborate()})"
+                    f". Treating `None`s as -inf."
+                )
+            s_elab = -inf if s_elab is None else s_elab
+            v_elab = -inf if v_elab is None else v_elab
+            return s_elab < v_elab
+        return NotImplemented
+
+    def elaborate(self) -> Optional[int]:
+        try:
+            val = int(self.value)
+            return val
+        except ValueError:
+            return None
 
     def __str__(self) -> str:
         return self.value

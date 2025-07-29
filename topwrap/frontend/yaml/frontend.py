@@ -6,7 +6,7 @@ from typing import Any, Callable, Iterable, Iterator, Optional, Union
 
 import yaml
 
-from topwrap.frontend.frontend import Frontend, FrontendParseException
+from topwrap.frontend.frontend import Frontend, FrontendParseException, FrontendParseStrInput
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.module import Module
@@ -46,14 +46,22 @@ class YamlFrontend(Frontend):
         for des in designs:
             yield DesignDescriptionFrontend(self.modules + modules).parse_file(des).parent
 
-    def parse_str(self, sources: Iterable[str]) -> Iterator[Module]:
+    def parse_str(self, sources: Iterable[Union[str, FrontendParseStrInput]]) -> Iterator[Module]:
         modules = []
         designs = []
 
         for src in sources:
-            [module, design] = self._parse_source(
-                IPCoreDescriptionFrontend.parse_str, "<input string>", src, yaml.safe_load(src)
-            )
+            if isinstance(src, str):
+                [module, design] = self._parse_source(
+                    IPCoreDescriptionFrontend.parse_str, "<input string>", src, yaml.safe_load(src)
+                )
+            else:
+                [module, design] = self._parse_source(
+                    IPCoreDescriptionFrontend.parse_str,
+                    src.name,
+                    src.content,
+                    yaml.safe_load(src.content),
+                )
             if module:
                 modules.append(module)
             if design:

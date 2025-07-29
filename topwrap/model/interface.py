@@ -169,9 +169,7 @@ class Interface:
     #: present in this dictionary, then that signal will not be realized at all.
     #: E.g. when it was configured as optional or was given a default value in
     #: ``InterfaceSignalConfiguration``.
-    signals: Mapping[ObjectId[InterfaceSignal], Optional[ReferencedPort]] = field(
-        default_factory=dict
-    )
+    signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]] = field(default_factory=dict)
 
     @property
     def independent_signals(self) -> Iterator[InterfaceSignal]:
@@ -184,14 +182,14 @@ class Interface:
         yield from (s.resolve() for s, v in self.signals.items() if v is None)
 
     @property
-    def sliced_signals(self) -> Iterator[tuple[InterfaceSignal, ReferencedPort]]:
+    def sliced_signals(self) -> Iterator[InterfaceSignal]:
         """
         Yields signals that are realized by external ports of the Module
 
         For more information about sliced and independent signals, see :ref:`sliced_vs_independent`
         """
 
-        yield from ((s.resolve(), v) for s, v in self.signals.items() if v is not None)
+        yield from (s.resolve() for s, v in self.signals.items() if v is not None)
 
     @property
     def has_independent_signals(self) -> bool:

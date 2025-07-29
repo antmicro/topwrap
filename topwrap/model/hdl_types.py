@@ -4,9 +4,21 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import reduce
-from typing import Generic, Optional, TypeVar, Union
+from itertools import zip_longest
+from math import ceil, log2
+from typing import (
+    Generic,
+    Iterable,
+    Mapping,
+    Optional,
+    TypeVar,
+    Union,
+    cast,
+    override,
+)
 
 from topwrap.model.misc import ElaboratableValue, ModelBase, VariableName, set_parent
 
@@ -52,6 +64,14 @@ class Logic(ModelBase, ABC):
             return self.name == value.name
         return NotImplemented
 
+    @abstractmethod
+    def copy(self) -> Logic:
+        """
+        Clones the Logic type in a way to create two separate object trees,
+        so that a deeper modification to one tree is not be reflected in
+        the other.
+        """
+
     @property
     @abstractmethod
     def size(self) -> ElaboratableValue:
@@ -65,13 +85,17 @@ class Bit(Logic):
     def size(self) -> ElaboratableValue:
         return ElaboratableValue(1)
 
+    @override
+    def copy(self):
+        return Bit(name=self.name)
+
     def __eq__(self, value: object) -> bool:
         if isinstance(value, Bit):
             return True and super().__eq__(value)
         return NotImplemented
 
 
-_ArrayItemOrField = TypeVar("_ArrayItemOrField", bound=Logic)
+_ArrayItemOrField = TypeVar("_ArrayItemOrField", bound=Logic, covariant=True)
 
 
 class LogicArray(Logic, Generic[_ArrayItemOrField]):
@@ -86,18 +110,28 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
             lambda a, b: (b.upper - b.lower) * a, self.dimensions, ElaboratableValue(0)
         )
 
+    @override
+    def copy(self):
+        return LogicArray(
+            name=self.name, dimensions=(deepcopy(d) for d in self.dimensions), item=self.item.copy()
+        )
+
     def __init__(
-        self, *, name: Optional[str] = None, dimensions: list[Dimensions], item: _ArrayItemOrField
+        self,
+        *,
+        name: Optional[str] = None,
+        dimensions: Iterable[Dimensions],
+        item: _ArrayItemOrField,
     ):
         """
         Constructs the array type
 
-        :param dimensions: A list of dimensions of the array.
+        :param dimensions: An iterable of dimensions of the array.
             E.g. A ``logic[7:0][31:0]`` type has ``[(7:0), (31:0)]`` dimensions.
         """
 
         super().__init__(name)
-        self.dimensions = dimensions
+        self.dimensions = list(dimensions)
         self.item = item
         set_parent(item, self)
 
@@ -114,8 +148,40 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
 class Bits(LogicArray[Bit]):
     """A multidimensional array of bits"""
 
-    def __init__(self, *, name: Optional[str] = None, dimensions: list[Dimensions]):
+    def __init__(self, *, name: Optional[str] = None, dimensions: Iterable[Dimensions]):
         super().__init__(dimensions=dimensions, item=Bit(), name=name)
+
+
+class Enum(Bits):
+    """
+    A bit vector limited to a range of predefined variants,
+    each one with an explicit name.
+    """
+
+    variants: dict[str, ElaboratableValue]
+
+    @override
+    def copy(self):
+        return Enum(name=self.name, dimensions=self.dimensions, variants=deepcopy(self.variants))
+
+    def __init__(
+        self,
+        *,
+        name: VariableName | None = None,
+        dimensions: Optional[Iterable[Dimensions]] = None,
+        variants: Mapping[str, ElaboratableValue],
+    ):
+        if dimensions in (None, []):
+            upper = max(v for v in variants.values()).elaborate() if len(variants) != 0 else 1
+            assert upper is not None
+            dimensions = [Dimensions(upper=ElaboratableValue(ceil(log2(upper))))]
+        super().__init__(name=name, dimensions=dimensions)
+        self.variants = dict(variants)
+
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, Enum):
+            return super().__eq__(value) and self.variants == value.variants
+        return NotImplemented
 
 
 class StructField(Logic, Generic[_ArrayItemOrField]):
@@ -123,6 +189,10 @@ class StructField(Logic, Generic[_ArrayItemOrField]):
 
     type: _ArrayItemOrField
     field_name: VariableName
+
+    @override
+    def copy(self):
+        return StructField(name=self.field_name, type=self.type.copy())
 
     @property
     def size(self):
@@ -145,13 +215,17 @@ class BitStruct(Logic):
 
     fields: list[StructField[Logic]]
 
+    @override
+    def copy(self):
+        return BitStruct(name=self.name, fields=(f.copy() for f in self.fields))
+
     @property
     def size(self):
         return reduce(lambda a, b: a + b.type.size, self.fields, ElaboratableValue(0))
 
-    def __init__(self, *, name: Optional[str] = None, fields: list[StructField[Logic]]) -> None:
+    def __init__(self, *, name: Optional[str] = None, fields: Iterable[StructField[Logic]]) -> None:
         super().__init__(name)
-        self.fields = fields
+        self.fields = list(fields)
         for f in fields:
             set_parent(f, self)
 
@@ -174,6 +248,40 @@ class LogicSelect:
 
     logic: Logic
     ops: list[Union[LogicFieldSelect, LogicBitSelect]] = field(default_factory=list)
+
+    def overlaps(self, other: LogicSelect) -> bool:
+        """
+        Checks if this selection of a logic type overlaps with
+        another selection. An overlap occurs if two selections
+        of types flatten to a packed bit-vector would target a range
+        of the same bits. E.g.:
+
+            logic [127:0] a;
+            wire [63:0] b = a[63:0];
+            wire [63:0] c = a[127:64];
+            wire [51:0] d = a[100:50];
+
+            assert not b.overlaps(c) and not c.overlaps(b)
+            assert b.overlaps(d)
+            assert c.overlaps(d)
+            assert d.overlaps(c) and d.overlaps(b)
+        """
+
+        if self.logic != other.logic:
+            return False
+        for op1, op2 in zip_longest(self.ops, other.ops):
+            if op1 is None:
+                op1 = op2
+            if op2 is None:
+                op2 = op1
+            if isinstance(op1, LogicFieldSelect):
+                if op1.field != cast(LogicFieldSelect, op2).field:
+                    return False
+            elif isinstance(op1, LogicBitSelect):
+                op2 = cast(LogicBitSelect, op2)
+                if op1.slice.upper <= op2.slice.lower or op1.slice.lower >= op2.slice.upper:
+                    return False
+        return True
 
 
 @dataclass

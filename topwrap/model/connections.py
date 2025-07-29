@@ -121,6 +121,20 @@ class ReferencedPort(_ReferencedIO[Port]):
 
         return cls(instance=None, io=io, select=select)
 
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, ReferencedPort):
+            return super().__eq__(value) and self.select == value.select
+        return NotImplemented
+
+    def overlaps(self, other: ReferencedPort) -> bool:
+        """
+        Checks for overlap between two port references.
+
+        See docs for :py:meth:`~topwrap.model.hdl_types.LogicSelect.overlaps`
+        """
+
+        return super().__eq__(other) and self.select.overlaps(other.select)
+
 
 class ReferencedInterface(_ReferencedIO["Interface"]):
     """Represents a correctly typed reference to an interface"""

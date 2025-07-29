@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Union
 
-from topwrap.model.connections import Connection, ReferencedIO
+from topwrap.model.connections import Connection, ReferencedIO, ReferencedPort
 from topwrap.model.interconnect import Interconnect
 from topwrap.model.misc import (
     ElaboratableValue,
@@ -123,7 +123,12 @@ class Design(ModelBase):
         """
 
         for conn in self.connections:
-            if conn.source == io:
+            if isinstance(io, ReferencedPort):
+                if isinstance(conn.source, ReferencedPort) and io.overlaps(conn.source):
+                    yield conn.target
+                elif isinstance(conn.target, ReferencedPort) and io.overlaps(conn.target):
+                    yield conn.source
+            elif conn.source == io:
                 yield conn.target
             elif conn.target == io:
                 yield conn.source
