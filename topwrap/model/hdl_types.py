@@ -10,6 +10,7 @@ from functools import reduce
 from itertools import zip_longest
 from math import ceil, log2
 from typing import (
+    Collection,
     Generic,
     Iterable,
     Mapping,
@@ -17,8 +18,9 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    override,
 )
+
+from typing_extensions import override
 
 from topwrap.model.misc import ElaboratableValue, ModelBase, VariableName, set_parent
 
@@ -162,16 +164,20 @@ class Enum(Bits):
 
     @override
     def copy(self):
-        return Enum(name=self.name, dimensions=self.dimensions, variants=deepcopy(self.variants))
+        return Enum(
+            name=self.name,
+            dimensions=[deepcopy(d) for d in self.dimensions],
+            variants=deepcopy(self.variants),
+        )
 
     def __init__(
         self,
         *,
-        name: VariableName | None = None,
-        dimensions: Optional[Iterable[Dimensions]] = None,
+        name: Optional[VariableName] = None,
+        dimensions: Collection[Dimensions] = (),
         variants: Mapping[str, ElaboratableValue],
     ):
-        if dimensions in (None, []):
+        if len(dimensions) == 0:
             upper = max(v for v in variants.values()).elaborate() if len(variants) != 0 else 1
             assert upper is not None
             dimensions = [Dimensions(upper=ElaboratableValue(ceil(log2(upper))))]

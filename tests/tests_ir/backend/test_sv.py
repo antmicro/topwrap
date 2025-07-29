@@ -356,6 +356,11 @@ class TestSystemVerilogBackend:
     typedef struct packed {
         logic [63:0][7:0] a_stream;
         logic [63:0][7:0] b_stream;
+        enum {
+            SIMPLE = 83,
+            COMPLEX = 84,
+            WHOLEHEARTED = 85
+        } transfer_mode;
     } stream_struct;
 
 endpackage

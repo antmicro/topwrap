@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Optional, cast
 
 from topwrap.model.connections import (
     ConstantConnection,
@@ -14,13 +14,14 @@ from topwrap.model.hdl_types import (
     Bits,
     BitStruct,
     Dimensions,
+    Enum,
     LogicBitSelect,
     LogicFieldSelect,
     LogicSelect,
     StructField,
 )
-from topwrap.model.interface import Interface, InterfaceMode
-from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
+from topwrap.model.interface import Interface, InterfaceMode, InterfaceSignal
+from topwrap.model.misc import ElaboratableValue, Identifier, ObjectId, Parameter
 from topwrap.model.module import Module
 
 from .proc import proc_mod
@@ -41,6 +42,16 @@ external_ports = [
             fields=[
                 a_strf := StructField(name="a_stream", type=algostring(64)),
                 b_strf := StructField(name="b_stream", type=algostring(64)),
+                mode_enum := StructField(
+                    name="transfer_mode",
+                    type=Enum(
+                        variants={
+                            "SIMPLE": ElaboratableValue(0x53),
+                            "COMPLEX": ElaboratableValue(0x54),
+                            "WHOLEHEARTED": ElaboratableValue(0x55),
+                        }
+                    ),
+                ),
             ],
         ),
     ),
@@ -57,6 +68,7 @@ external_ports = [
     Port(name="clk", direction=PortDirection.IN),
 ]
 
+sci_sigs: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]]
 sci_sigs = {s._id: None for s in sci_intf.signals}
 del sci_sigs[sci_intf.signals.find_by_name_or_error("wdata")._id]
 

@@ -11,6 +11,7 @@ from jinja2 import Environment, FileSystemLoader, Template
 from topwrap.model.hdl_types import (
     Bit,
     BitStruct,
+    Enum,
     Logic,
     LogicArray,
     LogicBitSelect,
@@ -95,8 +96,20 @@ def serialize_type(logic: Logic, indent: int = 0, tld: bool = False) -> str:
     to use wherever a type is required in the generated code
     """
 
+    if logic.name is not None and not tld:
+        return sv_varname(logic.name)
+
     if isinstance(logic, Bit):
         return "logic"
+    elif isinstance(logic, Enum):
+        return (
+            "enum {\n"
+            + ",\n".join(
+                f"{' ' * (indent + 4)}{sv_varname(name)} = {value}"
+                for name, value in logic.variants.items()
+            )
+            + f"\n{' ' * indent}}}"
+        )
     elif isinstance(logic, LogicArray):
         return (
             serialize_type(logic.item, indent)

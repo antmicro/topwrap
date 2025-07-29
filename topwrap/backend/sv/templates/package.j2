@@ -5,8 +5,8 @@
 
 {% endif %}
 package {{ name|sv_var }};
-{% for struct in structs %}
-    typedef {{ serialize_type(struct, tld=True)|indent }} {{ struct.name|sv_var }};
+{% for item in items %}
+    typedef {{ serialize_type(item, tld=True)|indent }} {{ item.name|sv_var }};
 
 {% endfor %}
 endpackage

@@ -75,14 +75,14 @@ class SystemVerilogBackend(Backend[SVOutput]):
 
     @override
     def represent(self, module: Module) -> SVOutput:
-        pkg_items = dict[str, BitStruct]()
+        pkg_items = dict[str, Logic]()
         intfs = set[ObjectId[InterfaceDefinition]]()
         mods_to_repr = list[Design]()
 
         def _try_append(log: Logic):
+            if log.name is not None and log.name not in pkg_items:
+                pkg_items[log.name] = log
             if isinstance(log, BitStruct):
-                if log.name is not None and log.name not in pkg_items:
-                    pkg_items[log.name] = log
                 for field in log.fields:
                     _try_append(field.type)
 
@@ -149,8 +149,8 @@ class SystemVerilogBackend(Backend[SVOutput]):
 
         return SVFile(content=out, type=SVFileType.INTERFACE, name=intf.id.name)
 
-    def represent_package(self, package_name: str, items: dict[str, BitStruct]) -> SVFile:
+    def represent_package(self, package_name: str, items: dict[str, Logic]) -> SVFile:
         out = self.pkg_tmpl.render(
-            name=package_name, structs=reversed(items.values()), desc_comms=self.desc_comms
+            name=package_name, items=reversed(items.values()), desc_comms=self.desc_comms
         )
         return SVFile(content=out, type=SVFileType.PACKAGE, name=package_name)
