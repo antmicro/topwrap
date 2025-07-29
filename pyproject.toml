@@ -118,3 +118,4 @@ reportMissingImports = false
 typeCheckingMode = "standard"
 reportMissingTypeArgument = true
 reportMissingParameterType = true
+reportUninitializedInstanceVariable = true
