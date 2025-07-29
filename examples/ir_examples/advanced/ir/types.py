@@ -14,7 +14,6 @@ from topwrap.model.misc import ElaboratableValue, Identifier
 
 def algostring(len: int):
     return Bits(
-        name="algostring",
         dimensions=[
             Dimensions(upper=ElaboratableValue(len - 1)),
             Dimensions(upper=ElaboratableValue(7)),
