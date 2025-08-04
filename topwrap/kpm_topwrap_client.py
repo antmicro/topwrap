@@ -8,7 +8,7 @@ import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, TypedDict, Union, cast
 
 from pipeline_manager_backend_communication.communication_backend import (
     CommunicationBackend,
@@ -164,15 +164,37 @@ class RPCMethods:
     async def position_on_change(self, **kwargs: Any):
         await _kpm_handle_graph_change(self)
 
+    async def graph_on_change(self, dataflow: JsonType):
+        await _kpm_handle_graph_change(self, dataflow)
 
-async def _kpm_handle_graph_change(rpc_object: RPCMethods):
+    # Only changes regarding the user-created graph are important
+    # and saved, but in order to not cause warnings in the KPM GUI
+    # all `[...]_on_[...]` RPC methods have to be implemented when `notifyWhenChanged` is True
+    async def specification_on_change(self, **kwargs: Any):
+        pass
+
+    async def metadata_on_change(self, **kwargs: Any):
+        pass
+
+    async def viewport_on_center(self):
+        pass
+
+    async def nodes_on_highlight(self, **kwargs: Any):
+        pass
+
+
+async def _kpm_handle_graph_change(
+    rpc_object: RPCMethods, current_graph: Optional[JsonType] = None
+):
     if rpc_object.client is None:
         return
-    current_graph = await rpc_object.client.request("graph_get")
+    if current_graph is None:
+        response = await rpc_object.client.request("graph_get")
+        current_graph = cast(JsonType, response["result"]["dataflow"])
     save_file_to_json(
         rpc_object.default_save_file.parent,
         rpc_object.default_save_file.name,
-        current_graph["result"]["dataflow"],
+        current_graph,
     )
 
 

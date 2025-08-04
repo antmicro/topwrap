@@ -172,6 +172,7 @@ class KpmSpecificationBackend:
             "layout": "CytoscapeEngine - grid",
             "twoColumn": True,
             "notifyWhenChanged": True,
+            "welcome": False,
             "navbarItems": [
                 {
                     "name": "Validate",

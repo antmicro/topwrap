@@ -13,7 +13,7 @@ from topwrap.util import UnreachableError
 
 from .util import JsonType
 
-SPECIFICATION_VERSION = "20240723.13"
+SPECIFICATION_VERSION = "20250623.14"
 CONST_NAME = "Constant"
 SUBGRAPH_METANODE = "Subgraph port"
 EXT_INPUT_NAME = "External Input"

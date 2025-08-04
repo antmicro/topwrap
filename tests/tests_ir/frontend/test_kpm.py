@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable, Iterable, Iterator
 
 import pytest
+from pipeline_manager.dataflow_builder.data_structures import OutOfSpecificationNodeError
 
 from examples.ir_examples.modules import ALL_MODULES
 from topwrap.backend.kpm.common import LayerType
@@ -162,7 +163,7 @@ class TestCombinedFrontend:
     def test_no_mods_nor_spec(self, intf_defs: Iterator[InterfaceDefinition]):
         front = KpmFrontend(interfaces=[*intf_defs])
 
-        with pytest.raises(ValueError, match="Illegal name"):
+        with pytest.raises(OutOfSpecificationNodeError):
             [*front.parse_files(self.make_paths("complex_flow", "ir_simple_flow"))]
 
     def test_no_mods_spec(self, intf_defs: Iterator[InterfaceDefinition]):

@@ -30,7 +30,7 @@ dependencies = [
   "pygtrie",
   "pyslang",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
-  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@cc8499f89ec7ffca3d55a5c59a307cb2454fa39e",
+  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@5a9b8e0ef0ef7125f74c48daf427a43d0e3065d3",
 ]
 
 [project.optional-dependencies]

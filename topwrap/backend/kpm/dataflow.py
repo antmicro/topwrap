@@ -6,6 +6,7 @@ from typing import Any, Optional, Union, cast
 
 import marshmallow_dataclass
 import yaml
+from pipeline_manager.dataflow_builder.data_structures import ConnectionExistsError
 from pipeline_manager.dataflow_builder.dataflow_builder import (
     DataflowGraph,
     GraphBuilder,
@@ -289,8 +290,8 @@ class KpmDataflowBackend:
 
         try:
             graph.create_connection(i1, i2)
-        except ValueError as e:
-            # That's okay. Since KPM cannot represent sliced connections,
-            # all connected slices will be represented by the same connection
-            if "already exists" not in str(e):
-                raise
+        except ConnectionExistsError:
+            """
+            That's okay. Since KPM cannot represent sliced connections,
+            all connected slices will be represented by the same connection
+            """
