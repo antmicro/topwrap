@@ -3,8 +3,13 @@
 
 import pytest
 
-from examples.ir_examples.modules import axis_streamer, intf_top
-from topwrap.model.connections import PortDirection
+from examples.ir_examples.modules import (
+    axis_streamer,
+    intf_top,
+)
+from topwrap.model.connections import (
+    PortDirection,
+)
 
 
 class TestQuerableView:

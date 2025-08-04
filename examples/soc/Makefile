@@ -62,4 +62,4 @@ deps:
 
 ci: deps generate
 
-.PHONY: all generate build-sim sim bitstream upload clean deps ci generate build
+.PHONY: all generate build-sim sim bitstream upload clean deps ci generate

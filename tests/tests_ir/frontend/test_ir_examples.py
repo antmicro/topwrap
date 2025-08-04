@@ -18,6 +18,11 @@ from examples.ir_examples.modules import (
     sseq_mod,
     two_mux,
 )
+from topwrap.interconnects.wishbone_rr import (
+    WishboneInterconnect,
+    WishboneRRFeature,
+    WishboneRRParams,
+)
 from topwrap.model.connections import (
     ConstantConnection,
     InterfaceConnection,
@@ -31,11 +36,6 @@ from topwrap.model.hdl_types import (
     Enum,
     LogicArray,
     StructField,
-)
-from topwrap.model.interconnects.wishbone_rr import (
-    WishboneInterconnect,
-    WishboneRRFeature,
-    WishboneRRParams,
 )
 from topwrap.model.interface import InterfaceMode, InterfaceSignalConfiguration
 from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
@@ -71,12 +71,13 @@ class TestIrExamples:
         components = [c.name for c in mod.design.components]
         assert all(n in components for n in ["gen2", "2mux", "gen1"])
 
-        gen1 = next(c for c in mod.design.components if c.name == "gen1")
-        mux2 = next(c for c in mod.design.components if c.name == "2mux")
-        param = next(v for p, v in gen1.parameters.items() if p.resolve().name == "SEED")
-        assert param.value == "1337"
+        gen1 = mod.design.components.find_by_name_or_error("gen1")
+        mux2 = mod.design.components.find_by_name_or_error("2mux")
         assert gen1.module is lfsr_gen
         assert mux2.module is two_mux
+
+        param = next(v for p, v in gen1.parameters.items() if p.resolve().name == "SEED")
+        assert param.value == "1337"
 
         assert len(mod.design.connections) == 8
         assert (

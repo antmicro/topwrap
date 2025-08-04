@@ -12,17 +12,18 @@ from examples.ir_examples.modules import (
     intr_top,
     simp_top,
 )
-from topwrap.backend.sv.backend import SystemVerilogBackend
+from examples.soc.ir.design import top as soc_top
+from topwrap.backend.sv.backend import GeneratorNotImplementedError, SystemVerilogBackend
 from topwrap.backend.sv.common import serialize_select, serialize_type, sv_varname
-from topwrap.backend.sv.design import _SystemVerilogDesignData
+from topwrap.backend.sv.design import Design, _SystemVerilogDesignData
 from topwrap.model.connections import (
     ConstantConnection,
     InterfaceConnection,
+    Port,
     PortConnection,
     PortDirection,
     ReferencedPort,
 )
-from topwrap.model.design import Design
 from topwrap.model.hdl_types import (
     Bit,
     Bits,
@@ -34,7 +35,8 @@ from topwrap.model.hdl_types import (
     LogicSelect,
     StructField,
 )
-from topwrap.model.misc import ElaboratableValue
+from topwrap.model.interconnect import Interconnect, InterconnectParams
+from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 
 
@@ -409,7 +411,7 @@ endinterface
         assert len([*back.serialize(out, combine=True)]) == 1
         assert len([*back.serialize(out)]) == 3
 
-    @pytest.mark.parametrize("module", (simp_top, hier_top, intf_top, intr_top, adv_top))
+    @pytest.mark.parametrize("module", (simp_top, hier_top, intf_top, intr_top, adv_top, soc_top))
     def test_generated_syntax(self, module: Module):
         back = SystemVerilogBackend(all_pins=True, desc_comms=True, mod_stubs=True)
         [out] = back.serialize(back.represent(module), combine=True)
@@ -424,3 +426,29 @@ endinterface
 
         if ediags != []:
             raise SlangDiagnosticErrors(pretty_diags)
+
+    def test_unimplemented_generator(self):
+        class UnImplementedGeneratorInterconnect(Interconnect):
+            pass
+
+        ports = [
+            Port(name="clk", direction=PortDirection.IN),
+            Port(name="rst", direction=PortDirection.IN),
+        ]
+        module = Module(
+            id=Identifier(name=""),
+            ports=ports,
+            design=Design(
+                interconnects=[
+                    UnImplementedGeneratorInterconnect(
+                        name="UnImplementedGeneratorInterconnect",
+                        clock=ReferencedPort(io=ports[0]),
+                        reset=ReferencedPort(io=ports[1]),
+                        params=InterconnectParams(),
+                    )
+                ]
+            ),
+        )
+        backend = SystemVerilogBackend()
+        with pytest.raises(GeneratorNotImplementedError):
+            backend.represent(module)
