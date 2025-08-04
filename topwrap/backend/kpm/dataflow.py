@@ -244,33 +244,16 @@ class KpmDataflowBackend:
     def add_interconnect(self, graph: DataflowGraph, intr: Interconnect, ref: _REFTYPE):
         node = graph.create_node(name=InterconnectMetanode.name, instance_name=intr.name)
         mprop, sprop = InterconnectMetanode().interfaces[2:]
-        node.interfaces = [
-            KpmInterface("clk", Direction.INPUT),
-            KpmInterface("rst", Direction.INPUT),
-        ]
 
-        self._connect(
-            graph,
-            node.interfaces[0],
-            ref[(intr.clock.instance, id(intr.clock.io))],
-        )
-        self._connect(
-            graph,
-            node.interfaces[1],
-            ref[(intr.reset.instance, id(intr.reset.io))],
-        )
+        for i, pin in enumerate((intr.clock, intr.reset)):
+            self._connect(graph, node.interfaces[i], ref[(pin.instance, id(pin.io))])
 
-        # ugly workaround for dynamic interfaces not being supported
         for prop, cons in ((mprop, intr.managers), (sprop, intr.subordinates)):
-            node.properties.append(
-                Property(name=f"{prop.interfacename} {prop.direction} count", value=len(cons))
-            )
-            for i, (intf, _params) in enumerate(cons.items()):
+            node.set_number_of_dynamic_interfaces(prop.interfacename, len(cons))
+            for i, intf in enumerate(cons):
                 refi = intf.resolve()
-                intf = KpmInterface(f"{prop.interfacename}[{i}]", kpm_dir_from(prop.direction))
-                node.interfaces.append(intf)
+                intf = node.get_interfaces_by_regex(rf"{prop.interfacename}\[{i}\]")[0]
                 self._connect(graph, intf, ref[(refi.instance, id(refi.io))])
-        ##
 
         for pname, params in (
             (InterconnectMetanodeStrings.INTR_CONF_PROP, intr.params),

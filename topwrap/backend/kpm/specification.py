@@ -113,7 +113,7 @@ class KpmSpecificationBackend:
                 self.add_module(comp.module, recursive=True)
 
     def build(self) -> JsonType:
-        return self._spec._construct_specification(sort_spec=False)
+        return self._spec.create_and_validate_spec(skip_validation=True, sort_spec=True)
 
     def _add_node(self, nid: KpmNodeId) -> KpmNodeId:
         try:

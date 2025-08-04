@@ -106,12 +106,7 @@ class _KpmDataflowInstanceData:
 
         self.flow = GraphBuilder(spec, SPECIFICATION_VERSION)
 
-        # KPM WORKAROUND for disabling validation
-        # FIXME: When it's possible to explicitly skip validation while
-        # loading graphs or when the validation becomes acceptably lightweight
-        self.flow.validate = lambda *_, **__: None
-
-        self.flow.load_graphs(flow)
+        self.flow.load_graphs(flow, skip_validation=True)
         for graph in self.flow.graphs:
             for node in graph._nodes.values():
                 for intf in node.interfaces:
@@ -240,9 +235,7 @@ class KpmDataflowFrontend:
 
         inst = ModuleInstance(name=node.instance_name or node.name, module=module)
 
-        # KPM WORKAROUND for 'Node' having no attribute 'properties'
-        # FIXME: When regular ``node.properties`` stops throwing an exception
-        for prop in getattr(node, "properties", ()):
+        for prop in node.properties:
             if (param := module.parameters.find_by_name(prop.name)) is not None:
                 inst.parameters[param._id] = ElaboratableValue(prop.value)
 
