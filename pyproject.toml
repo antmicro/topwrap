@@ -21,6 +21,7 @@ dependencies = [
   "PyYAML",
   "click",
   "amaranth==0.4.0.*",
+  "amaranth-soc @ git+https://github.com/antmicro/amaranth-soc@236384fcaee6e3d192aedcf6ff119d90c5f56046",
   "amaranth-yosys==0.40.0.0.post103",
   "simpleeval",
   "typing_extensions",
@@ -30,7 +31,6 @@ dependencies = [
   "pyslang",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@cc8499f89ec7ffca3d55a5c59a307cb2454fa39e",
-  "soc_generator @ git+https://github.com/antmicro/soc-generator@4141f5c5720c9355d859d6098523173bdc306916",
 ]
 
 [project.optional-dependencies]

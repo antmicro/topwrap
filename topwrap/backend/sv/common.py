@@ -1,7 +1,9 @@
 # Copyright (c) 2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import enum
 import re
+from dataclasses import dataclass
 from datetime import datetime
 from functools import reduce
 from pathlib import Path
@@ -19,6 +21,20 @@ from topwrap.model.hdl_types import (
     LogicSelect,
 )
 from topwrap.model.misc import TranslationError
+
+
+class SVFileType(enum.Enum):
+    MODULE = "module"
+    PACKAGE = "package"
+    INTERFACE = "interface"
+
+
+@dataclass
+class SVFile:
+    content: str
+    type: SVFileType
+    name: str
+
 
 TEMPLATE = Environment(
     loader=FileSystemLoader(Path(__file__).parent / "templates"),

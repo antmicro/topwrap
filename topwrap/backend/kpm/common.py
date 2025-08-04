@@ -9,8 +9,8 @@ from typing import Any, Optional, TypedDict, Union
 
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
+from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.connections import PortDirection
-from topwrap.model.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import Identifier, TranslationError
 

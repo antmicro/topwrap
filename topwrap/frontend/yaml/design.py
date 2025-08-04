@@ -12,6 +12,7 @@ from topwrap.frontend.yaml.design_schema import (
     DesignSectionInterconnect,
 )
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend, _param_to_ir_param
+from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.connections import (
     ConstantConnection,
     InterfaceConnection,
@@ -24,7 +25,6 @@ from topwrap.model.connections import (
 )
 from topwrap.model.design import Design, ModuleInstance
 from topwrap.model.hdl_types import Bit
-from topwrap.model.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.misc import ElaboratableValue, FileReference, Identifier
 from topwrap.model.module import Module

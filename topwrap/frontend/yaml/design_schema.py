@@ -12,9 +12,9 @@ from topwrap.common_serdes import (
     ResourcePathT,
     ext_field,
 )
+from topwrap.hdl_parsers_utils import PortDirection
+from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
-from topwrap.model.connections import PortDirection
-from topwrap.model.interconnects.types import INTERCONNECT_TYPES
 
 
 @marshmallow_dataclass.dataclass(frozen=True)

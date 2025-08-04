@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional
 
@@ -128,8 +128,7 @@ class InterfaceDefinition(ModelBase):
         return NotImplemented
 
 
-@dataclass
-class Interface:
+class Interface(ModelBase):
     """
     A realised instance of an interface that can be connected with other
     interface instances through ``InterfaceConnection``.
@@ -148,7 +147,7 @@ class Interface:
     definition: InterfaceDefinition
 
     #: The module definition that contains this interface instance
-    parent: Module = field(init=False, compare=False)
+    parent: Module
 
     #: Realization of signals defined in this interface.
     #: A signal can be realized either by:
@@ -169,7 +168,20 @@ class Interface:
     #: present in this dictionary, then that signal will not be realized at all.
     #: E.g. when it was configured as optional or was given a default value in
     #: ``InterfaceSignalConfiguration``.
-    signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]] = field(default_factory=dict)
+    signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]]
+
+    def __init__(
+        self,
+        name: VariableName,
+        mode: InterfaceMode,
+        definition: InterfaceDefinition,
+        signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]],
+    ):
+        super().__init__()
+        self.name = name
+        self.mode = mode
+        self.definition = definition
+        self.signals = signals
 
     @property
     def independent_signals(self) -> Iterator[InterfaceSignal]:

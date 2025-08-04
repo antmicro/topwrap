@@ -1,36 +1,32 @@
 # Copyright (c) 2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import copy
 from collections import defaultdict
 from dataclasses import dataclass
-from enum import Enum
 from typing import ClassVar, Iterable, Iterator, Optional
 
 from jinja2 import Template
 from typing_extensions import override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo
-from topwrap.backend.sv.common import get_template
+from topwrap.backend.generator import GeneratorNotImplementedError
+from topwrap.backend.sv.common import SVFile, SVFileType, get_template
 from topwrap.backend.sv.design import SystemVerilogDesignBackend
-from topwrap.model.connections import PortDirection
+from topwrap.backend.sv.generators import verilog_generators_map
+from topwrap.model.connections import (
+    PortDirection,
+)
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import BitStruct, Logic
-from topwrap.model.interface import InterfaceDefinition, InterfaceMode, InterfaceSignal
+from topwrap.model.interconnect import Interconnect
+from topwrap.model.interface import (
+    InterfaceDefinition,
+    InterfaceMode,
+    InterfaceSignal,
+)
 from topwrap.model.misc import ObjectId
 from topwrap.model.module import Module
-
-
-class SVFileType(Enum):
-    MODULE = "module"
-    PACKAGE = "package"
-    INTERFACE = "interface"
-
-
-@dataclass
-class SVFile:
-    content: str
-    type: SVFileType
-    name: str
 
 
 @dataclass
@@ -75,7 +71,22 @@ class SystemVerilogBackend(Backend[SVOutput]):
 
     @override
     def represent(self, module: Module) -> SVOutput:
+        """
+        :param module: Top module to represent, its `Design` and components will
+        be used to generate SystemVerilog top file.
+
+        :raises GeneratorNotImplementedError: This exception will be raised when an `Interconnect`
+        without `Generator` implementation for this `Backend` is encountered in the `Design`
+        """
         pkg_items = dict[str, Logic]()
+        if module.design is not None and len(module.design.interconnects) > 0:
+            used_module = copy.deepcopy(module)
+        else:
+            # `Design` is deepcopied when there is at least one `Interconnect` present,
+            # it is because `Interconnect` is converted to `Module` and added to `Design`
+            # as `ModuleInstance`, it is needed for generating connections and module instance
+            # in SystemVerilog code.
+            used_module = module
         intfs = set[ObjectId[InterfaceDefinition]]()
         mods_to_repr = list[Design]()
 
@@ -86,7 +97,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
                 for field in log.fields:
                     _try_append(field.type)
 
-        for mod in module.hierarchy():
+        for mod in used_module.hierarchy():
             for port in mod.ports:
                 _try_append(port.type)
             for intf in mod.interfaces:
@@ -94,7 +105,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
                     intfs.add(intf.definition._id)
                 for sig in intf.signals:
                     _try_append(sig.resolve().type)
-            if mod._id not in self.modules or mod._id == module._id:
+            if mod._id not in self.modules or mod._id == used_module._id:
                 if mod.design is not None:
                     mods_to_repr.append(mod.design)
                 elif self.mod_stubs:
@@ -102,16 +113,32 @@ class SystemVerilogBackend(Backend[SVOutput]):
                     des.parent = mod
                     mods_to_repr.append(des)
 
+        design = used_module.design
+
+        interconnects = []
+        if design is not None:
+            interconnects = [self.represent_interconnect(it) for it in design.interconnects]
+
         pkg = pkg_name = None
         if len(pkg_items) > 0:
-            pkg_name = module.id.name + "_pkg"
+            pkg_name = used_module.id.name + "_pkg"
             pkg = self.represent_package(pkg_name, pkg_items)
 
+        # Interconnects need to be added to design before this
+        # because represent_design represents top module as well
+        modules = [self.represent_design(d, pkg_name) for d in mods_to_repr]
+
+        # interconnects need to be generated before modules are represented
+        # but putting them fist in list make it that in generated file
+        # thery are also first, it looks bad - top module is somewhere in middle od file
+        if len(interconnects) != 0:
+            modules.extend(interconnects)
+
         return SVOutput(
-            base_name=module.id.name,
+            base_name=used_module.id.name,
             package=pkg,
             interfaces=[self.represent_interface(i.resolve(), pkg_name) for i in intfs],
-            modules=[self.represent_design(d, pkg_name) for d in mods_to_repr],
+            modules=modules,
         )
 
     @override
@@ -154,3 +181,19 @@ class SystemVerilogBackend(Backend[SVOutput]):
             name=package_name, items=reversed(items.values()), desc_comms=self.desc_comms
         )
         return SVFile(content=out, type=SVFileType.PACKAGE, name=package_name)
+
+    def represent_interconnect(
+        self,
+        interconnect: Interconnect,
+    ) -> SVFile:
+        if type(interconnect) not in verilog_generators_map:
+            raise GeneratorNotImplementedError(interconnect, self)
+
+        generator = verilog_generators_map[type(interconnect)]()
+
+        verilog_file = generator.generate(
+            interconnect,
+            generator.add_module_instance_to_design(interconnect),
+        )
+
+        return verilog_file

@@ -31,6 +31,7 @@ from topwrap.frontend.kpm.common import (
     kpm_dir_to_ir_intf,
     kpm_dir_to_ir_port,
 )
+from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import (
     Connection,
@@ -45,7 +46,6 @@ from topwrap.model.connections import (
 from topwrap.model.design import ModuleInstance
 from topwrap.model.hdl_types import Bit, Logic
 from topwrap.model.interconnect import Interconnect
-from topwrap.model.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.interface import Interface, InterfaceDefinition
 from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId
 from topwrap.model.module import Design, Module
