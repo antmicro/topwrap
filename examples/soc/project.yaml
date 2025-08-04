@@ -12,8 +12,6 @@ ips:
     file: file:ipcores/crg.yaml
   wb_uart:
     file: file:ipcores/wb_uart.yaml
-  interconnect:
-    file: file:ipcores/wb_interconnect.yaml
 
 design:
   name: simple_soc
@@ -44,16 +42,33 @@ design:
       sys_rst: [crg, sys_rst]
       serial1_tx: serial_tx
       serial1_rx: serial_rx
-    interconnect:
-      clk: clk100
-      rst: [crg, sys_rst]
-  interfaces:
-    interconnect:
-      wb_uart_csr_wishbone: [wb_uart, csr_wishbone]
-      wb_ram_instr_mem_bus: [wb_ram_instr, mem_bus]
-      wb_ram_data_mem_bus: [wb_ram_data, mem_bus]
-      vexriscv_iBusWishbone: [vexriscv, iBusWishbone]
-      vexriscv_dBusWishbone: [vexriscv, dBusWishbone]
+  interconnects:
+    wishbone_interconnect:
+      clock: clk100
+      reset: [crg, sys_rst]
+      type: 'Wishbone Round-Robin'
+      params:
+        addr_width: 30
+        data_width: 32
+        granularity: 8
+        features: ['CTI', 'BTE', 'ERR']
+      subordinates:
+        wb_uart:
+          csr_wishbone:
+            address: 0xF0000000
+            size: 0x1000
+        wb_ram_instr:
+          mem_bus:
+            address: 0x10000000
+            size: 0x1000
+        wb_ram_data:
+          mem_bus:
+            address: 0x0
+            size: 0xA000
+      managers:
+        vexriscv:
+          - iBusWishbone
+          - dBusWishbone
 
 external:
   ports:

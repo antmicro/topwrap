@@ -1,14 +1,14 @@
 import re
 
 from topwrap.model.connections import PortDirection
-from topwrap.model.hdl_types import Bit
+from topwrap.model.hdl_types import Bit, Bits, Dimensions
 from topwrap.model.interface import (
     InterfaceDefinition,
     InterfaceMode,
     InterfaceSignal,
     InterfaceSignalConfiguration,
 )
-from topwrap.model.misc import Identifier
+from topwrap.model.misc import ElaboratableValue, Identifier
 
 wishbone = InterfaceDefinition(
     id=Identifier(name="wishbone"),
@@ -105,28 +105,41 @@ wishbone = InterfaceDefinition(
             },
         ),
         InterfaceSignal(
-            name="stall",
-            type=Bit(),
-            regexp=re.compile("stall"),
+            name="bte",
+            type=Bits(dimensions=[Dimensions(upper=ElaboratableValue(1))]),
+            regexp=re.compile("bte"),
             modes={
                 InterfaceMode.MANAGER: InterfaceSignalConfiguration(
-                    direction=PortDirection.IN, required=False
+                    direction=PortDirection.OUT, required=False
                 ),
                 InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
-                    direction=PortDirection.OUT, required=False
+                    direction=PortDirection.IN, required=False
                 ),
             },
         ),
         InterfaceSignal(
-            name="err",
-            type=Bit(),
-            regexp=re.compile("err"),
+            name="cti",
+            type=Bits(dimensions=[Dimensions(upper=ElaboratableValue(2))]),
+            regexp=re.compile("cti"),
             modes={
                 InterfaceMode.MANAGER: InterfaceSignalConfiguration(
-                    direction=PortDirection.IN, required=False
+                    direction=PortDirection.OUT, required=False
                 ),
                 InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                    direction=PortDirection.IN, required=False
+                ),
+            },
+        ),
+        InterfaceSignal(
+            name="sel",
+            type=Bits(dimensions=[Dimensions(upper=ElaboratableValue(3))]),
+            regexp=re.compile("sel"),
+            modes={
+                InterfaceMode.MANAGER: InterfaceSignalConfiguration(
                     direction=PortDirection.OUT, required=False
+                ),
+                InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                    direction=PortDirection.IN, required=False
                 ),
             },
         ),

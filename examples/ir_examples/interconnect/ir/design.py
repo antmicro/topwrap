@@ -1,3 +1,10 @@
+from topwrap.interconnects.wishbone_rr import (
+    WishboneInterconnect,
+    WishboneRRFeature,
+    WishboneRRManagerParams,
+    WishboneRRParams,
+    WishboneRRSubordinateParams,
+)
 from topwrap.model.connections import (
     Port,
     PortConnection,
@@ -7,13 +14,6 @@ from topwrap.model.connections import (
 )
 from topwrap.model.design import Design, ModuleInstance
 from topwrap.model.hdl_types import Bits, Dimensions
-from topwrap.model.interconnects.wishbone_rr import (
-    WishboneInterconnect,
-    WishboneRRFeature,
-    WishboneRRManagerParams,
-    WishboneRRParams,
-    WishboneRRSubordinateParams,
-)
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module

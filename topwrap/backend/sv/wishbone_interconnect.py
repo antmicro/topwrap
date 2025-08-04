@@ -1,4 +1,4 @@
-# Copyright 2023 Antmicro
+# Copyright 2023-2025 Antmicro
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Any, Dict, Iterable, Union

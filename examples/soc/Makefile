@@ -1,8 +1,8 @@
 # Copyright (c) 2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-IPCORE_SOURCES = sources/mem.v sources/VexRiscv.v sources/crg.v sources/wb_uart.v sources/wb_interconnect.v
-IPCORE_YAMLS = ipcores/mem.yaml ipcores/VexRiscv.yaml ipcores/crg.yaml ipcores/wb_uart.yaml ipcores/wb_interconnect.yaml
+IPCORE_SOURCES = sources/mem.v sources/VexRiscv.v sources/crg.v sources/wb_uart.v
+IPCORE_YAMLS = ipcores/mem.yaml ipcores/VexRiscv.yaml ipcores/crg.yaml ipcores/wb_uart.yaml
 JSONS = kpm_spec.json kpm_dataflow.json
 
 all: upload
@@ -16,8 +16,8 @@ ipcores:
 $(IPCORE_YAMLS) &: $(IPCORE_SOURCES) | ipcores
 	topwrap parse -d ipcores --iface-deduce $(IPCORE_SOURCES)
 
-build/simple_soc.v: $(IPCORE_YAMLS) project.yaml | build
-	topwrap build -b build --design project.yaml --fuse --sources sources
+build/simple_soc.sv: project.yaml $(IPCORE_YAMLS) | build
+	topwrap build -b build --design $< --fuse --sources sources
 
 build/helloworld.bin: helloworld.asm | build
 	riscv64-unknown-elf-as -mabi=ilp32 -march=rv32i -o $@ $<
@@ -28,18 +28,17 @@ build/bios.bin: build/helloworld.bin | build
 build/bios.init: build/bios.bin | build
 	hexdump -v -e '1/4 "%08X\n"' $< > $@
 
-build/simple_soc.bit: build/bios.init simple_soc.tcl $(IPCORE_SOURCES) build/simple_soc.v | build
-	vivado -mode batch -source simple_soc.tcl
+build/simple_soc.bit: simple_soc.tcl build/bios.init $(IPCORE_SOURCES) build/simple_soc.sv | build
+	vivado -mode batch -source $<
 
 $(JSONS): $(IPCORE_YAMLS)
 	topwrap specification -d project.yaml
 	topwrap dataflow -d project.yaml
 
+generate: build/simple_soc.sv
 
-generate: build/simple_soc.v
-
-build-sim: build/simple_soc.v
-	$(MAKE) -fverilator.mk
+build-sim: build/simple_soc.sv
+	$(MAKE) -f verilator.mk
 
 sim: build-sim build/bios.init obj_dir/Vsimple_soc
 	obj_dir/Vsimple_soc
@@ -63,4 +62,4 @@ deps:
 
 ci: deps generate
 
-.PHONY: all generate build-sim sim bitstream upload clean deps ci
+.PHONY: all generate build-sim sim bitstream upload clean deps ci generate build
