@@ -27,9 +27,10 @@ developers_guide/interface
 developers_guide/config
 developers_guide/parsing
 developers_guide/checks
-developers_guide/examples
 developers_guide/future_enhancements
 developers_guide/inline_kpm_howto
 developers_guide/ir-examples
 developers_guide/ipxact-design
+developers_guide/generator.md
+developers_guide/interconnect.md
 ```
