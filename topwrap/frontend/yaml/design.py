@@ -6,7 +6,11 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
-from topwrap.design import DesignDescription, DesignIP, DesignSectionInterconnect
+from topwrap.frontend.yaml.design_schema import (
+    DesignDescription,
+    DesignIP,
+    DesignSectionInterconnect,
+)
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend, _param_to_ir_param
 from topwrap.model.connections import (
     ConstantConnection,
