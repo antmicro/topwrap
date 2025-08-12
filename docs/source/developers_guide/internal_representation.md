@@ -64,6 +64,38 @@ The reason for separating the logic like this is to be able to easily add suppor
     :member-order: bysource
 ```
 
+## Interface mapping and inference
+
+### Port selector
+
+```{eval-rst}
+.. automodule:: topwrap.model.inference.port
+    :members:
+    :show-inheritance:
+    :undoc-members:
+    :member-order: bysource
+```
+
+### Mapping
+
+```{eval-rst}
+.. automodule:: topwrap.model.inference.mapping
+    :members:
+    :show-inheritance:
+    :undoc-members:
+    :member-order: bysource
+```
+
+### Inference
+
+```{eval-rst}
+.. automodule:: topwrap.model.inference.inference
+    :members:
+    :show-inheritance:
+    :undoc-members:
+    :member-order: bysource
+```
+
 ## Connections
 
 ```{eval-rst}
