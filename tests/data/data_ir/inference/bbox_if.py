@@ -31,3 +31,47 @@ bbox_intf = InterfaceDefinition(
         ),
     ],
 )
+
+
+bbox_full_intf = InterfaceDefinition(
+    id=Identifier(name="BlackboxFull"),
+    signals=[
+        InterfaceSignal(
+            name="foo",
+            regexp=re.compile(".*?_?[Ff][Oo]{2}"),
+            type=Bit(),
+            modes=make_mm(True, PortDirection.IN),
+        ),
+        InterfaceSignal(
+            name="bar",
+            regexp=re.compile(".*?_?[Bb][Aa][Rr]"),
+            type=Bit(),
+            modes=make_mm(True, PortDirection.OUT),
+        ),
+        InterfaceSignal(
+            name="baz",
+            regexp=re.compile(".*?_?[Bb][Aa][Zz]"),
+            type=Bit(),
+            modes=make_mm(True, PortDirection.OUT),
+        ),
+    ],
+)
+
+
+bbox_in_only_intf = InterfaceDefinition(
+    id=Identifier(name="BlackboxInOnly"),
+    signals=[
+        InterfaceSignal(
+            name="in1",
+            regexp=re.compile("in1|IN1"),
+            type=Bit(),
+            modes=make_mm(True, PortDirection.IN),
+        ),
+        InterfaceSignal(
+            name="in2",
+            regexp=re.compile("in2|IN2"),
+            type=Bit(),
+            modes=make_mm(True, PortDirection.IN),
+        ),
+    ],
+)
