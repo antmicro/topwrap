@@ -271,6 +271,8 @@ class TestInterfaceMapping:
             signals:
               foo: mst_reqs_o[2].ar.addr[3:0]
               bar: mst_resps_o[2].r.data[7:4]
+            clock: clk_i
+            reset: rst_ni
         """)
 
         out_mapping = InterfacePortMapping.from_yaml(in_mapping.to_yaml())

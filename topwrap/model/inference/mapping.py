@@ -1,7 +1,7 @@
 # Copyright (c) 2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import ClassVar, Sequence, Type
+from typing import ClassVar, Optional, Sequence, Type
 
 import marshmallow
 import marshmallow_dataclass
@@ -27,6 +27,14 @@ class InterfacePortGrouping(MarshmallowDataclassExtensions):
 
     #: A signal name to port selector mapping for this grouping.
     signals: dict[str, PortSelectorT] = ext_field()
+
+    #: Clock signal for this interface. Might be shared with other interfaces in a module.
+    clock: Optional[PortSelectorT] = ext_field(None)
+
+    # TODO: Later on, it would be nice if we also specified the reset polarity and synchronicity,
+    # e.g. for DRC purposes, or to automatically insert reset synchronizers.
+    #: Reset signal for this interface. Might be shared with other interfaces in a module.
+    reset: Optional[PortSelectorT] = ext_field(None)
 
 
 @marshmallow_dataclass.dataclass(frozen=True)

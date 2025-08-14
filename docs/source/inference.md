@@ -26,6 +26,8 @@ modules:
           awaddr: M_AXI_awaddr
           awlen: M_AXI_awlen
           # ...
+        clock: MCLK
+        reset: MRSTN
 ```
 
 At the top level, there is a single key, `modules`, which contains a list of module mapping
@@ -47,6 +49,10 @@ Each interface is described by an object with the following keys:
    `signal-name: port-selector`. In addition to selecting module ports, the port selector also
    supports selecting fields within structs, and bit slicing, with a SystemVerilog-like syntax, e.g.
    `some_port.some_field[1:0]`.
+ - `clock`, which is a port selector for a clock signal for this interface. This key is optional,
+   and the same clock signal might be shared between multiple interfaces within a module.
+ - `reset`, which is a port selector for a reset signal for this interface. This key is optional,
+   and the same reset signal might be shared between multiple interfaces within a module.
 
 ## Interface inference
 
