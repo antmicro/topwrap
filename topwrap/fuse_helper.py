@@ -53,6 +53,8 @@ class FuseSocBuilder:
                     f_type = "vhdlSource"
                 elif suf == ".v":
                     f_type = "verilogSource"
+                elif suf == ".sv":
+                    f_type = "systemVerilogSource"
                 elif suf == ".xdc":
                     f_type = "xdc"
                 else:
