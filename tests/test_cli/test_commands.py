@@ -4,6 +4,7 @@
 import concurrent.futures
 import logging
 import socket
+import threading
 from itertools import chain
 from pathlib import Path
 
@@ -71,10 +72,17 @@ class TestCli:
             )
         assert Path(tmp_path / "top.sv").exists()
 
-    def create_socket_client(self, sock: socket.socket):
+    def create_socket_client(self, sock: socket.socket, exit: threading.Event):
         sock.listen(1)
-
-        connection, client_address = sock.accept()
+        sock.settimeout(0.5)
+        while True:
+            if exit.is_set():
+                return True
+            try:
+                connection, client_address = sock.accept()
+                break
+            except socket.timeout:
+                pass
         logging.info(f"Client connected: {client_address}")
         connection.close()
         sock.shutdown(socket.SHUT_WR)  # Send FIN(finish) packet
@@ -87,11 +95,21 @@ class TestCli:
         sock.bind((server_addr, 0))  # Bind to port picked by OS
         server_port = sock.getsockname()[1]
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(self.create_socket_client, sock)
+            socket_exit = threading.Event()
+            future = executor.submit(self.create_socket_client, sock, socket_exit)
+
             with click.Context(topwrap_gui) as ctx:
-                ctx.invoke(
-                    topwrap_gui, server_host=server_addr, server_port=server_port, use_server=False
-                )
+                try:
+                    ctx.invoke(
+                        topwrap_gui,
+                        server_host=server_addr,
+                        server_port=server_port,
+                        use_server=False,
+                        raise_exception=True,
+                    )
+                except Exception as e:
+                    socket_exit.set()
+                    raise e
             assert future.result()
 
     def test_generate_kpm_spec(self, build_yaml_files, tmp_path):

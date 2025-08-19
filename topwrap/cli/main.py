@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import concurrent.futures
 import json
 import logging
+import queue
 import subprocess
 import sys
 import threading
 import webbrowser
 from itertools import chain
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Callable, Coroutine, Optional, Tuple
 
 import click
 
@@ -140,6 +140,16 @@ def build_main(
 
 
 class KPM:
+    child_processes = []
+    kpm_run_client_task: Optional[asyncio.Task[Any]] = None
+
+    @staticmethod
+    def cleanup():
+        for child in KPM.child_processes:
+            child.terminate()
+        if KPM.kpm_run_client_task:
+            KPM.kpm_run_client_task.cancel()
+
     @staticmethod
     def build_server(**params_dict: Any):
         args = ["pipeline_manager", "build", "server-app"]
@@ -151,7 +161,6 @@ class KPM:
     @staticmethod
     def run_server(
         server_ready_event: Optional[threading.Event] = None,
-        server_init_failed: Optional[threading.Event] = None,
         show_kpm_logs: bool = True,
         shutdown_server: bool = False,
         **params_dict: Any,
@@ -163,6 +172,7 @@ class KPM:
         server_process = subprocess.Popen(
             [sys.executable, "-m", *args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
+        KPM.child_processes.append(server_process)
         server_ready_string = "Uvicorn running on"
         while server_process.poll() is None and server_process.stdout is not None:
             server_logs = server_process.stdout.readline().decode("utf-8")
@@ -175,14 +185,11 @@ class KPM:
         else:
             logging.warning("KPM server has been terminated")
             if server_ready_event is not None and not server_ready_event.is_set():
-                if server_init_failed is not None:
-                    server_init_failed.set()
-                # Remove the server ready event block
-                server_ready_event.set()
                 logging.warning(
                     "Make sure that there isn't any instance of pipeline manager running in the"
                     " background"
                 )
+                raise Exception("Failed to initialize KPM server")
 
     @staticmethod
     def run_client(
@@ -230,13 +237,20 @@ class KPM:
         spec = spec.build()
 
         asyncio.run(
-            kpm_run_client(
-                RPCparams(
-                    host, port, spec, build_dir, design_module.design if design_module else None
-                ),
-                client_ready_event,
+            KPM._run_client(
+                kpm_run_client(
+                    RPCparams(
+                        host, port, spec, build_dir, design_module.design if design_module else None
+                    ),
+                    client_ready_event,
+                )
             )
         )
+
+    @staticmethod
+    async def _run_client(coro: Coroutine[None, None, None]):
+        KPM.kpm_run_client_task = asyncio.create_task(coro)
+        await KPM.kpm_run_client_task
 
 
 @main.command("kpm_client", help="Run a client app, that connects to a running KPM server")
@@ -264,6 +278,7 @@ def kpm_client_main(
     build_dir: Path,
 ):
     KPM.run_client(host, port, design, yamlfiles, build_dir)
+    KPM.cleanup()
 
 
 @main.command("kpm_build_server", help="Build KPM server")
@@ -312,7 +327,11 @@ def kpm_build_server_ctx(ctx: click.Context, **_):
 @click.option("--verbosity", default="INFO", help="Verbosity level for KPM server logs")
 @click.pass_context
 def kpm_run_server_ctx(ctx: click.Context, **_):
-    KPM.run_server(**ctx.params)
+    try:
+        KPM.run_server(**ctx.params)
+    except Exception as e:
+        logging.error(f"{e}")
+    KPM.cleanup()
 
 
 @main.command("gui", help="Start GUI")
@@ -363,6 +382,7 @@ def topwrap_gui(
     backend_host: str,
     backend_port: int,
     use_server: bool = True,
+    raise_exception: bool = False,
 ):
     logging.info("Checking if server is built")
     if (not frontend_directory.exists() or not workspace_directory.exists()) and use_server:
@@ -373,45 +393,82 @@ def topwrap_gui(
     else:
         logging.info("Server build found")
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        logging.info("Starting server")
-        server_ready_event = threading.Event()
-        server_init_failed = threading.Event()
+    logging.info("Starting server")
+    server_ready_event = threading.Event()
+    error_queue = queue.Queue()
 
+    threading.excepthook = lambda args, error_queue=error_queue: error_queue.put(args)
+
+    def wait_for_event_or_raise_error(
+        event: Callable[[], bool], error_queue: queue.Queue[threading.ExceptHookArgs]
+    ):
+        while True:
+            if not event():
+                break
+            try:
+                except_hook_args = error_queue.get(timeout=0.5)
+                raise except_hook_args.exc_value
+            except queue.Empty:
+                pass
+
+    try:
+        server_thread = threading.Thread(
+            target=KPM.run_server,
+            daemon=True,
+            kwargs={
+                "server_ready_event": server_ready_event,
+                "show_kpm_logs": False,
+                "server_host": server_host,
+                "server_port": server_port,
+                "backend_host": backend_host,
+                "backend_port": backend_port,
+                "frontend_directory": frontend_directory,
+            },
+        )
         if use_server:
-            executor.submit(
-                KPM.run_server,
-                server_ready_event=server_ready_event,
-                show_kpm_logs=False,
-                server_init_failed=server_init_failed,
-                server_host=server_host,
-                server_port=server_port,
-                backend_host=backend_host,
-                backend_port=backend_port,
-                frontend_directory=frontend_directory,
-            )
+            server_thread.start()
+
             logging.info("Waiting for KPM server to initialize")
-            server_ready_event.wait()
-            if server_init_failed.is_set():
-                logging.error("KPM server failed to initialize. Aborting")
-                return
+
+            while True:
+                if server_ready_event.is_set():
+                    break
+                try:
+                    except_hook_args = error_queue.get(timeout=0.5)
+                    raise except_hook_args.exc_value
+                except queue.Empty:
+                    pass
+
             logging.info("KPM server initialized")
 
         client_ready_event = threading.Event()
-        executor.submit(
-            KPM.run_client,
-            design=design,
-            yamlfiles=yamlfiles,
-            host=server_host,
-            port=server_port,
-            build_dir=Path("build"),
-            client_ready_event=client_ready_event,
+        client_thread = threading.Thread(
+            target=KPM.run_client,
+            daemon=True,
+            kwargs={
+                "design": design,
+                "yamlfiles": yamlfiles,
+                "host": server_host,
+                "port": server_port,
+                "build_dir": Path("build"),
+                "client_ready_event": client_ready_event,
+            },
         )
-        client_ready_event.wait()
+        client_thread.start()
+
+        wait_for_event_or_raise_error(client_ready_event.is_set, error_queue)
 
         if use_server:
             logging.info("Opening browser with KPM GUI")
             webbrowser.open(f"{backend_host}:{backend_port}")
+
+        wait_for_event_or_raise_error(server_thread.is_alive, error_queue)
+
+    except Exception as e:
+        logging.error(f"{e}")
+        if raise_exception:
+            raise e
+    KPM.cleanup()
 
 
 @main.command("specification", help="Generate KPM specification from IP core YAMLs")
