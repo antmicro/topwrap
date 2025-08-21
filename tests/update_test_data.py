@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
 import click
 from tests_kpm.conftest import all_design_paths, test_dirs_data
 
