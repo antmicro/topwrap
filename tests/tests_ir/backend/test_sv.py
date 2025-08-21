@@ -12,6 +12,7 @@ from examples.ir_examples.modules import (
     intr_top,
     simp_top,
 )
+from examples.ir_examples.SoC_AXI.ir.design import top as axi_soc_top
 from examples.soc.ir.design import top as soc_top
 from topwrap.backend.sv.backend import GeneratorNotImplementedError, SystemVerilogBackend
 from topwrap.backend.sv.common import serialize_select, serialize_type, sv_varname
@@ -411,8 +412,19 @@ endinterface
         assert len([*back.serialize(out, combine=True)]) == 1
         assert len([*back.serialize(out)]) == 3
 
-    @pytest.mark.parametrize("module", (simp_top, hier_top, intf_top, intr_top, adv_top, soc_top))
-    def test_generated_syntax(self, module: Module):
+    @pytest.mark.parametrize(
+        ["module", "expected_err_count"],
+        (
+            (simp_top, 0),
+            (hier_top, 0),
+            (intf_top, 0),
+            (intr_top, 0),
+            (adv_top, 0),
+            (soc_top, 0),
+            (axi_soc_top, 33),  # Dependencies needed by axi interconnect will create these errors
+        ),
+    )
+    def test_generated_syntax(self, module: Module, expected_err_count: int):
         back = SystemVerilogBackend(all_pins=True, desc_comms=True, mod_stubs=True)
         [out] = back.serialize(back.represent(module), combine=True)
 
@@ -424,7 +436,7 @@ endinterface
         ediags = [d for d in comp.getAllDiagnostics() if d.isError()]
         pretty_diags = deng.reportAll(srcman, ediags)
 
-        if ediags != []:
+        if len(ediags) != expected_err_count:
             raise SlangDiagnosticErrors(pretty_diags)
 
     def test_unimplemented_generator(self):

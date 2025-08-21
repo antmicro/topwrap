@@ -773,7 +773,8 @@
           "name": "Type",
           "type": "select",
           "values": [
-            "Wishbone Round-Robin"
+            "Wishbone Round-Robin",
+            "AXI"
           ]
         },
         {

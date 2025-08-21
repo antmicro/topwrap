@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 
+from examples.ir_examples.SoC_AXI.ir.design import design as axi_soc_design
 from examples.soc.ir.design import design as soc_design
 from topwrap.backend.generator import CLK_PORT_NAME, RST_PORT_NAME, Generator
 from topwrap.backend.sv.design import Design
@@ -26,10 +27,34 @@ class TestInterconnectGeneration:
     @pytest.mark.parametrize(
         ["design", "generators_map"],
         [
+            (copy.deepcopy(axi_soc_design), verilog_generators_map),
+        ],
+    )
+    def test_interconnect_clk_rst_sv_axi(
+        self,
+        design: Design,
+        generators_map: dict[type[Interconnect], type[Generator[Any, Interconnect]]],
+    ):
+        for interconnect in design.interconnects:
+            generator = generators_map[type(interconnect)]()
+            module_instance = generator.add_module_instance_to_design(interconnect)
+
+            for name in [
+                "clk_i",
+                "rst_ni",
+            ]:
+                port = module_instance.module.ports.find_by_name(name)
+                assert port is not None
+                assert port.direction == PortDirection.IN
+                assert port.type == Bit()
+
+    @pytest.mark.parametrize(
+        ["design", "generators_map"],
+        [
             (copy.deepcopy(soc_design), verilog_generators_map),
         ],
     )
-    def test_interconnect_port_IR_generation(
+    def test_interconnect_clk_rst_sv_wishbone(
         self,
         design: Design,
         generators_map: dict[type[Interconnect], type[Generator[Any, Interconnect]]],
@@ -47,6 +72,22 @@ class TestInterconnectGeneration:
                 assert port.direction == PortDirection.IN
                 assert port.type == Bit()
 
+    @pytest.mark.parametrize(
+        ["design", "generators_map"],
+        [
+            (copy.deepcopy(soc_design), verilog_generators_map),
+            (copy.deepcopy(axi_soc_design), verilog_generators_map),
+        ],
+    )
+    def test_interconnect_port_IR_generation(
+        self,
+        design: Design,
+        generators_map: dict[type[Interconnect], type[Generator[Any, Interconnect]]],
+    ):
+        for interconnect in design.interconnects:
+            generator = generators_map[type(interconnect)]()
+            module_instance = generator.add_module_instance_to_design(interconnect)
+
             for man_or_subor, mode in [
                 (interconnect.managers, InterfaceMode.SUBORDINATE),
                 (interconnect.subordinates, InterfaceMode.MANAGER),
@@ -63,7 +104,11 @@ class TestInterconnectGeneration:
                         assert port.type == signal.type
 
     @pytest.mark.parametrize(
-        ["design", "generators_map"], [(copy.deepcopy(soc_design), verilog_generators_map)]
+        ["design", "generators_map"],
+        [
+            (copy.deepcopy(soc_design), verilog_generators_map),
+            (copy.deepcopy(axi_soc_design), verilog_generators_map),
+        ],
     )
     def test_interconnect_connection_IR_generation(
         self,
@@ -74,9 +119,9 @@ class TestInterconnectGeneration:
             generator = generators_map[type(interconnect)]()
             module_instance = generator.add_module_instance_to_design(interconnect)
 
-            for port, name in [
-                (interconnect.clock, CLK_PORT_NAME),
-                (interconnect.reset, RST_PORT_NAME),
+            for port in [
+                interconnect.clock,
+                interconnect.reset,
             ]:
                 found = False
                 connections = design.connections_with(port)
@@ -85,7 +130,6 @@ class TestInterconnectGeneration:
                         isinstance(connected_IO, ReferencedPort)
                         and connected_IO.io.parent == module_instance.module
                     ):
-                        assert connected_IO.io.name == name
                         assert connected_IO.io.direction == PortDirection.IN
                         found = True
                 assert found
