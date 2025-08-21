@@ -17,6 +17,9 @@ facilitate this, mapping files, which describe what interfaces to add to what mo
 These mappings describe which module ports (or smaller parts thereof) correspond to what interface
 signals, and what the resulting interfaces should be named.
 
+Mapping files are stored within the `mappings` subdirectory within repositories, and are applied
+automatically discovered and applied during `topwrap build`.
+
 ### Mapping files
 
 An example mapping file, adding an AXI4 interface to a module, looks like this:
@@ -67,7 +70,8 @@ Each interface is described by an object with the following keys:
 ## Interface inference
 
 In addition to explicit interface definitions, Topwrap also supports automatically inferring
-interfaces from module ports based on the interface and module definitions.
+interfaces from module ports based on the interface and module definitions. This can be done when
+parsing SystemVerilog modules using `topwrap repo parse` by specifying the `--inference` flag.
 
 Inference can be performed on groups of module ports, or fields of ports with struct types, and in
 the latter case, it also supports ports that are one-dimensional arrays of structs, creating
@@ -85,14 +89,23 @@ output signal structs, which need to be considered together to form a full inter
 modules found in [`pulp-platform/axi`](https://github.com/pulp-platform/axi) have two ports for each
 AXI interface: `req_i/o` and `resp_o/i`, each being a struct which contains all the signals.
 
-When specified on the command line, grouping hints use the following syntax:
-`old1,old2,...,oldN=new`. Whitespace between names and commas and the equal sign is ignored. Group
-names must be non-empty. For example, the grouping hints for `axi_cdc` would look like this:
-`src_req_i,src_resp_o=src` and `dst_req_o,dst_resp_i=dst`.
+When specified on the command line via the `--grouping-hint` argument (which can be specified
+multiple times to add multiple hints), grouping hints use the following syntax:
+`old1,old2,...,oldN=new`. Whitespace between names, commas, and the equal sign is ignored, and all
+group names must be non-empty. For example, grouping hints arguments for `axi_cdc` would look like
+this: `--grouping-hint=src_req_i,src_resp_o=src` and `--grouping-hint=dst_req_o,dst_resp_i=dst`.
 
 The second step is checking which interfaces fit which groups, and ranking how good of a fit they
 are. Then, interface modes are determined based on port directions, and finally, candidate
 assignments are applied, going from best to worst. If a port is used by two or more interfaces, the
 higher scoring one takes precedence, and the lower scoring interfaces are ignored.
 
-Finally, after the inference is done, a mapping is produced.
+You can limit which interface definitions are considered during inference using the
+`--inference-interface` argument. The argument takes an interface definition name, and can be
+specified multiple times. During inference, only interfaces with names matching the specified ones
+will be considered. For example, to only attempt to infer `AXI4` and `AHB` interfaces, the arguments
+would look like this: `--inference-interface AXI4` and `--inference-interface AHB`.
+
+Finally, after the inference is done, a mapping is produced. This mapping is then saved into a
+mapping file in the destination repository, in the `mappings` subdirectory, for use with future
+`topwrap build` invocations.
