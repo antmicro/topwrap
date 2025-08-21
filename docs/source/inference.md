@@ -1,5 +1,15 @@
 # Interface mapping and inference
 
+:::{warning}
+SystemVerilog modules with parameter types are not fully supported by mapping and inference. There
+is no way to override default parameter values in mapping files, and as such, you must create a
+wrapper module that has concrete parameter values specified. Ports with non-parameterized types are
+unaffected by this.
+
+This is particularly important to keep in mind when using modules that use ports with struct types,
+since the types are likely realized using parameter types.
+:::
+
 ## Interface mapping
 
 Topwrap supports adding additional interfaces to modules which didn't originally have them. To
