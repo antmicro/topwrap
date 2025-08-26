@@ -20,6 +20,7 @@ from topwrap.common_serdes import (
 )
 from topwrap.frontend.automatic import AutomaticFrontend, FrontendRegistry
 from topwrap.frontend.frontend import Frontend
+from topwrap.model.inference.mapping import InterfacePortMappingDefinition
 from topwrap.model.module import Module
 from topwrap.repo.exceptions import TopLevelNotFoundException
 from topwrap.repo.files import File, LocalFile
@@ -187,11 +188,57 @@ class InterfaceDescriptionHandler(ResourceHandler[InterfaceDescription]):
             yield iface
 
 
+@dataclass
+class InterfaceMapping(Resource):
+    name: str
+    definition: InterfacePortMappingDefinition
+
+
+class InterfaceMappingHandler(ResourceHandler[InterfaceMapping]):
+    resource_type = InterfaceMapping
+    _mappings_rel_dir = Path("mappings")
+
+    @override
+    def save(
+        self,
+        res: InterfaceMapping,
+        repo_path: Path,
+    ) -> None:
+        """Handles interface mapping-specific save action"""
+        mappings_dir = repo_path / self._mappings_rel_dir
+        mappings_dir.mkdir(parents=True, exist_ok=True)
+
+        logger.info(f"InterfaceMappingHandler.save: Saving {res.name} in {mappings_dir}")
+        output_path = mappings_dir / (res.name + ".yaml")
+        res.definition.save(output_path)
+        logger.debug(f"InterfaceMappingHandler.save: Copied {res.name} to {output_path}")
+
+    @override
+    def load(self, repo_path: Path) -> Iterator[InterfaceMapping]:
+        """Handles interface mapping-specific load action"""
+        mappings_dir = repo_path / self._mappings_rel_dir
+
+        yaml_files = []
+        for ext in ["*.yml", "*.yaml"]:
+            for f in mappings_dir.glob(ext):
+                yaml_files.append(f)
+        logger.debug(
+            f"InterfaceMappingFileHandler.load: Found {len(yaml_files)} files in {mappings_dir}"
+        )
+
+        for yaml_file in yaml_files:
+            name = yaml_file.stem
+
+            mapping = InterfaceMapping(name, InterfacePortMappingDefinition.load(yaml_file))
+            yield mapping
+
+
 class UserRepo(Repo):
     def __init__(self, name: str):
         resource_handlers = [
             CoreHandler(),
             InterfaceDescriptionHandler(),
+            InterfaceMappingHandler(),
         ]
         super().__init__(resource_handlers, name)
 
