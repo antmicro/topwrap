@@ -8,9 +8,10 @@ from typing import Any, Iterator, Optional
 import click
 
 from topwrap.frontend.yaml.ip_core import InterfaceDescriptionFrontend
+from topwrap.model.inference.mapping import InterfacePortMapping, map_interfaces_to_module
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
-from topwrap.repo.user_repo import Core, InterfaceDescription
+from topwrap.repo.user_repo import Core, InterfaceDescription, InterfaceMapping
 from topwrap.util import get_config
 
 logger = logging.getLogger(__name__)
@@ -53,3 +54,22 @@ def load_interfaces_from_repos() -> Iterator[InterfaceDefinition]:
     for repo in get_config().loaded_repos.values():
         for intf in repo.get_resources(InterfaceDescription):
             yield InterfaceDescriptionFrontend().parse(intf.file.path)
+
+
+def load_interface_mappings_from_repos() -> Iterator[InterfacePortMapping]:
+    for repo in get_config().loaded_repos.values():
+        for map_defs in repo.get_resources(InterfaceMapping):
+            for mapping in map_defs.definition.modules:
+                yield mapping
+
+
+def map_interfaces_to_modules_from_repos(modules: list[Module]):
+    [*mappings] = load_interface_mappings_from_repos()
+    [*intf_defs] = load_interfaces_from_repos()
+
+    for module in modules:
+        map_interfaces_to_module(
+            mappings,
+            intf_defs,
+            module,
+        )
