@@ -103,7 +103,25 @@ class _SystemVerilogDesignData:
         else:
             self.store_sel(conn.target, conn.source)
 
+    def _check_warn_incompatible_intf_defs(self, conn: InterfaceConnection):
+        sio = conn.source.io
+        tio = conn.target.io
+        sdef = sio.definition
+        tdef = tio.definition
+        sinst = f" in {conn.source.instance.name}" if conn.source.instance else ""
+        tinst = f" in {conn.target.instance.name}" if conn.target.instance else ""
+
+        if sdef == tdef:
+            return
+
+        logger.warning(
+            f"Attempting to connect incompatible interfaces. Source port {sio.name}{sinst} uses "
+            f"definition {sdef.id.name}, while target port {tio.name}{tinst} uses {tdef.id.name}."
+        )
+
     def handle_intf_con(self, conn: InterfaceConnection):
+        self._check_warn_incompatible_intf_defs(conn)
+
         src_ind = conn.source.io.has_independent_signals
         trg_ind = conn.target.io.has_independent_signals
         intf = None
