@@ -449,7 +449,9 @@ def infer_interfaces_from_module(
     }
     intf_defs = intf_defs
     options = options or InterfaceInferenceOptions()
-    groups = _generate_candidate_groups(module, ports, grouping_hints or {}, options)
+    grouping_hints = grouping_hints or {}
+    _grouping_hints = {orig: new for new, names in grouping_hints.items() for orig in names}
+    groups = _generate_candidate_groups(module, ports, grouping_hints, options)
     candidates = []
 
     for group in groups.items():
@@ -510,7 +512,7 @@ def infer_interfaces_from_module(
         if any_used_signals:
             continue
 
-        name = prefix or intf_def.id.name
+        name = prefix or _grouping_hints.get(intf_def.id.name, intf_def.id.name)
 
         times_used = used_names[name]
         if times_used > 0:
