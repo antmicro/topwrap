@@ -59,6 +59,9 @@ class InterfaceInferenceOptions:
     #: Minimum number of ports that must be in a group for it to be considered.
     min_group_size: int = field(default=2)
 
+    #: Minimum number of signals an interface must have for it to be considered.
+    min_signal_count: int = field(default=2)
+
     #: Tokens on which prefixes are split on.
     prefix_split_tokens: list[str] = field(default_factory=lambda: ["_"])
 
@@ -455,11 +458,11 @@ def infer_interfaces_from_module(
         for intf in intf_defs:
             matched_ports = _match_intf_signals_to_ports(group_ports, intf)
 
-            # If we didn't match anything, ignore this interface.
-            if len(matched_ports) == 0:
+            # If we didn't match enough signals, ignore this interface.
+            if len(matched_ports) < options.min_signal_count:
                 logging.debug(
                     f"Group '{group}' (definition {intf.id.name}) in module "
-                    f"{module.id.name} has no matching ports, skipping."
+                    f"{module.id.name} does not have enough matching ports, skipping."
                 )
                 continue
 
