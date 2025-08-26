@@ -22,7 +22,7 @@ from topwrap.model.misc import QuerableView
 from topwrap.model.module import Module
 
 
-def parse_grouping_hints(grouping_hints: list[str]) -> dict[str, list[str]]:
+def parse_grouping_hints(grouping_hints: Iterable[str]) -> dict[str, list[str]]:
     """
     Parse user-facing grouping hints into a dictionary for :func:`infer_interfaces_from_module`.
 

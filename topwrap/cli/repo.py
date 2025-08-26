@@ -79,6 +79,24 @@ def repo():
     required=True,
     type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True, path_type=Path),
 )
+@click.option(
+    "--inference",
+    "-i",
+    is_flag=True,
+    help="Perform interface inference on modules being added to the repository",
+)
+@click.option(
+    "--inference-interface",
+    "-I",
+    multiple=True,
+    help="Candidate interface for inference (can be specified multiple times)",
+)
+@click.option(
+    "--grouping-hint",
+    "-g",
+    multiple=True,
+    help="Grouping hints for interface inference",
+)
 def parse_repo(
     exists_strategy: ExistsStrategy,
     all_sources: bool,
@@ -87,6 +105,9 @@ def parse_repo(
     module: tuple[str, ...],
     reference: bool,
     frontend: str,
+    inference: bool,
+    inference_interface: tuple[str, ...],
+    grouping_hint: tuple[str, ...],
 ):
     repo_path = get_config().repositories.get(repository)
 
@@ -109,7 +130,13 @@ def parse_repo(
     file_srcs: List[File] = [LocalFile(s) for s in srcs if not s.is_dir()]
     try:
         cores = CoreFileHandler(
-            file_srcs, FrontendRegistry.BY_NAME[frontend](), module, all_sources
+            file_srcs,
+            FrontendRegistry.BY_NAME[frontend](),
+            module,
+            all_sources,
+            inference,
+            inference_interface,
+            grouping_hint,
         ).parse()
         for core in cores:
             if reference:
