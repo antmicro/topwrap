@@ -56,6 +56,12 @@ To make name generation less prone to errors use `get_name()` in implementation 
 ```
 
 ```{eval-rst}
+.. autoclass:: topwrap.backend.sv.generators.AXIVerilogGenerator
+   :members:
+   :private-members:
+```
+
+```{eval-rst}
 .. autodata:: topwrap.backend.sv.generators.verilog_generators_map
    :no-value:
 ```

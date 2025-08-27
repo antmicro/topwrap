@@ -88,6 +88,8 @@ A round-robin arbiter decides which manager can currently drive the bus.
 
 #### Parameters
 
+##### Subordinate
+
 - `addr_width` - bit width of the address line (addresses access `data_width`-sized chunks)
 - `data_width` - bit width of the data line
 - `granularity` - access granularity - the smallest unit of data transfer that the interconnect can transfer. Must be: 8, 16, 32, 64
@@ -99,3 +101,18 @@ The currently known limitations are:
 
 - only word-sized addressing is supported (in other words - consecutive addresses can only access word-sized chunks of data)
 - crossing clock domains, down-converting (initiating multiple transactions on a narrow bus per one transaction on a wider bus) and up-converting are not supported
+
+### `AXI`
+
+This interconnect only supports AXI4 interfaces for managers and subordinates.
+Uses [pulp-platform/axi](https://github.com/pulp-platform/axi) as dependency.
+:::{caution}
+{class}`~topwrap.backend.generator.Generator` for SystemVerilog for this interconnect needs plugin mechanism to work, it isn't currently implemented.
+As workaround Topwrap downloads scripts to `$XDG_CACHE_HOME/topwrap/pulp_axi_scripts` or `~/.local/cache/topwrap/pulp_axi_scripts`.
+:::
+
+#### Parameters
+- `atop` - `True` or `False`, enables or disables atomic operations
+
+##### Manager
+- `id_width` - bit width of ID signals
