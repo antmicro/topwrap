@@ -69,16 +69,16 @@ class InterfaceInferenceOptions:
     prefix_consider_camel_case: bool = field(default=True)
 
     #: Points awarded to each character of the prefix.
-    prefix_length_score: int = field(default=10)
+    prefix_length_score: int = field(default=2)
 
     #: Points awarded for matching all required signals (applied proportionally).
-    required_match_score: int = field(default=10)
+    required_match_score: int = field(default=15)
 
     #: Points awarded for matching all optional signals (applied proportionally).
-    optional_match_score: int = field(default=5)
+    optional_match_score: int = field(default=10)
 
     #: Points awarded for missing all required signals (applied proportionally).
-    required_missing_score: int = field(default=-20)
+    required_missing_score: int = field(default=-100)
 
     #: Points awarded for missing all optional signals (applied proportionally).
     optional_missing_score: int = field(default=-2)
@@ -86,7 +86,7 @@ class InterfaceInferenceOptions:
     #: Leniency in penalty for unmatched ports in a group.
     #: Penalty is computed as :code:`-(exp(n/leniency) - 1)`, such that matching all ports yields 0
     #: points.
-    unmatched_port_penalty_leniency: int = field(default=5)
+    unmatched_port_penalty_leniency: float = field(default=7.5)
 
     #: Candidate interfaces with score below or equal to this limit will be ignored.
     score_lower_limit: int = field(default=0)
