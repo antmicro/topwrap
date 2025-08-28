@@ -44,6 +44,8 @@ topwrap repo parse my_repo verilogs
 The `topwrap repo init` command will add the newly created repository to the project [configuration file](./config.md) or create one if it's missing.
 Thanks to this, the repository will be automatically loaded by Topwrap in further commands.
 
+Additionally, Topwrap supports adding interfaces to modules based on mapping files, and automatically generating mapping files when parsing sources. For more details, see the [Interface mapping and inference](inference.md) page.
+
 ## Building designs with Topwrap
 
 ### Creating the design
