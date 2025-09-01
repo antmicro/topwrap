@@ -58,6 +58,14 @@ This resource represents a custom definition of an interface that can be used to
 
 Each such definition is stored as a separate [interface description file](description_files.md#interface-description-files) under the `interfaces` subdirectory.
 
+### Interface port mappings
+
+- Path: `repo_dir/mappings/`
+
+This resource represents a custom mapping from a module's ports to an interface.
+
+Mappings are stored in [interface mapping files](inference.md#mapping-files) under the `mappings` subdirectory, with each file containing one or more mapping.
+
 ## CLI
 
 ### `topwrap repo init`
