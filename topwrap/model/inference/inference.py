@@ -513,7 +513,8 @@ def infer_interfaces_from_module(
             f"{module.id.name} has score {score:.3f}"
         )
 
-        if score <= options.score_lower_limit:
+        # If there is only one candidate, effectively ignore the score.
+        if score <= options.score_lower_limit and len(candidates) > 1:
             # Since the list is sorted in descending order, we know nothing better can come
             # after this candidate.
             break
