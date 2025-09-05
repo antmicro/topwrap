@@ -21,11 +21,11 @@ from topwrap.common_serdes import (
 from topwrap.config import config
 from topwrap.repo.files import IncorrectUrlException
 from topwrap.resource_field import (
-    FileHandler,
+    FileReferenceHandler,
     InvalidArgumentException,
     InvalidIdentifierException,
-    RepoHandler,
-    UriHandler,
+    RepoReferenceHandler,
+    UriReferenceHandler,
     YamlCommonSchemes,
 )
 
@@ -436,7 +436,7 @@ this: [a, b, c]
 
             org = config.repositories
             config.repositories = org.copy()
-            config.repositories["my_repo"] = FileHandler(td)
+            config.repositories["my_repo"] = FileReferenceHandler(td)
             yield
             config.repositories = org
 
@@ -473,20 +473,22 @@ this: [a, b, c]
         test_err("repo[fake_repo]:cores/core.yaml", ValueError, "Could not find repo")
 
         # Test serialization
-        assert FileHandler("path/to/file").to_str() == "file:path/to/file"
-        assert UriHandler("https://google.com").to_str() == "get:https://google.com"
-        assert RepoHandler("cores/core", ["my_repo"]).to_str() == "repo[my_repo]:cores/core"
+        assert FileReferenceHandler("path/to/file").to_str() == "file:path/to/file"
+        assert UriReferenceHandler("https://google.com").to_str() == "get:https://google.com"
+        assert (
+            RepoReferenceHandler("cores/core", ["my_repo"]).to_str() == "repo[my_repo]:cores/core"
+        )
 
         with pytest.raises(InvalidArgumentException):
-            RepoHandler("cores/core", ["bad|args"]).to_str()
+            RepoReferenceHandler("cores/core", ["bad|args"]).to_str()
 
         data = TestDataclass(
             [
-                FileHandler("./topwrap/resource_field.py"),
-                UriHandler(
+                FileReferenceHandler("./topwrap/resource_field.py"),
+                UriReferenceHandler(
                     "https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/pyproject.toml"
                 ),
-                RepoHandler("test.txt", ["my_repo"]),
+                RepoReferenceHandler("test.txt", ["my_repo"]),
                 YamlCommonSchemes.parse("repo[my_repo]:test.txt"),
                 YamlCommonSchemes.parse("file:./topwrap/resource_field.py"),
             ]

@@ -70,14 +70,14 @@ class ResourceReferenceHandler(ABC):
             return f"{self.scheme}:{self.value}"
 
 
-class UriHandler(ResourceReferenceHandler):
+class UriReferenceHandler(ResourceReferenceHandler):
     scheme = "get"
 
     def to_path(self) -> Path:
         return HttpGetFile(self.value).path
 
 
-class FileHandler(ResourceReferenceHandler):
+class FileReferenceHandler(ResourceReferenceHandler):
     scheme = "file"
 
     def __init__(self, value: Union[str, Path], args: Collection[str] = []):
@@ -97,7 +97,7 @@ class FileHandler(ResourceReferenceHandler):
         return f"{self.scheme}:{rel_path}"
 
 
-class RepoHandler(ResourceReferenceHandler):
+class RepoReferenceHandler(ResourceReferenceHandler):
     scheme = "repo"
 
     def to_path(self) -> Path:
@@ -139,4 +139,4 @@ class YamlCommonSchemes(SupportedSchemeGroup):
     """Resource reference schemes supported inside our
     YAML files"""
 
-    handlers = [UriHandler, FileHandler, RepoHandler]
+    handlers = [UriReferenceHandler, FileReferenceHandler, RepoReferenceHandler]

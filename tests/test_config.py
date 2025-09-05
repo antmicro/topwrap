@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
@@ -9,7 +9,7 @@ import pytest
 import yaml
 
 from topwrap.config import Config, ConfigManager
-from topwrap.resource_field import FileHandler, UriHandler
+from topwrap.resource_field import FileReferenceHandler, UriReferenceHandler
 
 
 class TestConfigManager:
@@ -17,7 +17,9 @@ class TestConfigManager:
     def config_dict(self):
         return Config(
             force_interface_compliance=True,
-            repositories={"my_repo": FileHandler("~/custom/repo/path")},
+            repositories={
+                "my_repo": FileReferenceHandler("~/custom/repo/path"),
+            },
         ).to_dict()
 
     @pytest.fixture
@@ -25,11 +27,11 @@ class TestConfigManager:
         return [
             (
                 Path("custom/path/cfg.yaml"),
-                Config(repositories={"repo1": FileHandler("path1")}).to_dict(),
+                Config(repositories={"repo1": FileReferenceHandler("path1")}).to_dict(),
             ),
             (
                 Path("/global/path/mycfg.yaml"),
-                Config(repositories={"repo2": FileHandler("path2")}).to_dict(),
+                Config(repositories={"repo2": FileReferenceHandler("path2")}).to_dict(),
             ),
         ]
 
@@ -63,14 +65,14 @@ class TestConfigManager:
 
     def test_adding_repo_duplicates_and_order(self):
         configs = [
-            Config(repositories={"my_repo": FileHandler("./foo")}),
+            Config(repositories={"my_repo": FileReferenceHandler("./foo")}),
             Config(
                 repositories={
-                    "my_repo": FileHandler("./bar"),
-                    "zwei_repo": UriHandler("https://antmicro.com"),
+                    "my_repo": FileReferenceHandler("./bar"),
+                    "zwei_repo": UriReferenceHandler("https://antmicro.com"),
                 }
             ),
-            Config(repositories={"my_repo": FileHandler("./baz")}),
+            Config(repositories={"my_repo": FileReferenceHandler("./baz")}),
         ]
 
         files = []
