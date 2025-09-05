@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from enum import Enum
 from functools import cached_property, lru_cache
@@ -6,7 +6,6 @@ from typing import Dict, List, Optional
 
 import marshmallow_dataclass
 
-from topwrap.repo.user_repo import InterfaceDescription, UserRepo
 from topwrap.util import get_config, recursive_defaultdict
 
 from .common_serdes import (
@@ -15,7 +14,6 @@ from .common_serdes import (
     ext_field,
     flatten_and_annotate,
 )
-from .config import config
 from .hdl_parsers_utils import PortDirection
 
 
@@ -92,6 +90,7 @@ class InterfaceDefinition(MarshmallowDataclassExtensions):
         :return: a dict where keys are the interface names and values are the InterfaceDefinition
             objects
         """
+        from topwrap.repo.user_repo import InterfaceDescription
 
         intfs: Dict[str, InterfaceDefinition] = {}
 
@@ -103,11 +102,11 @@ class InterfaceDefinition(MarshmallowDataclassExtensions):
 
 @lru_cache(maxsize=None)
 def get_interfaces() -> List[InterfaceDefinition]:
+    from topwrap.repo.user_repo import InterfaceDescription
+
     user_interfaces = []
-    for repo_entry in config.repositories.values():
-        repo = UserRepo()
-        repo.load(repo_entry.to_path())
-        for desc in repo.get_resources(InterfaceDescription):
+    for repo_entry in get_config().loaded_repos.values():
+        for desc in repo_entry.get_resources(InterfaceDescription):
             user_interfaces.append(InterfaceDefinition.load(desc.file.path))
 
     return user_interfaces

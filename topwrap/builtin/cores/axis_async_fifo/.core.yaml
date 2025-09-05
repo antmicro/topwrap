@@ -1,0 +1,4 @@
+name: axis_async_fifo
+top_level_name: axis_async_fifo
+sources:
+  - file:./core.yaml

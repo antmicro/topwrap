@@ -1,0 +1,4 @@
+name: axi_protocol_converter
+top_level_name: axi_protocol_converter
+sources:
+  - file:./core.yaml

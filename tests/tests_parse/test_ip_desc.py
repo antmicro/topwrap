@@ -20,6 +20,7 @@ from topwrap.ip_desc import (
     IPCoreIntfPorts,
     IPCorePorts,
 )
+from topwrap.util import get_config
 from topwrap.verilog_parser import VerilogModule
 
 
@@ -99,12 +100,9 @@ interfaces:
 
     @pytest.fixture
     def force_compliance(self):
-        from topwrap.config import config
-
-        org = config.force_interface_compliance
-        config.force_interface_compliance = True
-        yield
-        config.force_interface_compliance = org
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.setattr(get_config(), "force_interface_compliance", True)
+            yield
 
     def test_conversion_from_hdl_module(
         self, ip_core_description: IPCoreDescription, expected_output: IPCoreDescription
@@ -135,7 +133,7 @@ interfaces:
     def test_interface_compliance_off(self, invalid_interface_compliance_core):
         IPCoreDescription.from_dict(invalid_interface_compliance_core)
 
-    def test_builtins_presence(self):
+    def test_builtins_presence_and_compliance(self, force_compliance):
         for ip in (
             "axi_axil_adapter",
             "axi_interconnect",
@@ -143,11 +141,9 @@ interfaces:
             "axis_async_fifo",
             "axis_dwidth_converter",
         ):
-            assert ip in IPCoreDescription.get_builtins(), f'Builtin IP "{ip}" is missing'
-
-    def test_builtins_compliance(self, force_compliance):
-        IPCoreDescription.get_builtins.cache_clear()
-        IPCoreDescription.get_builtins()
+            core = get_config().builtin_repo.get_core_by_name(ip)
+            assert core is not None, f"Builtin IP {ip} is missing"
+            _ip = IPCoreDescription.load(core.sources[0].to_path())
 
     def test_save(self, expected_output: IPCoreDescription):
         with tempfile.NamedTemporaryFile(suffix=".yaml") as f:

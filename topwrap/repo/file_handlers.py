@@ -2,68 +2,64 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from dataclasses import dataclass
-from typing import Dict, List, Set
+from typing import Iterable, List, Optional
 
 import yaml
 from typing_extensions import override
 
-from topwrap.interface_grouper import standard_iface_grouper
-from topwrap.repo.files import File, TemporaryFile
+from topwrap.frontend.automatic import AutomaticFrontend
+from topwrap.frontend.frontend import Frontend
+from topwrap.model.misc import Identifier
+from topwrap.repo.files import File
 from topwrap.repo.resource import FileHandler, Resource
-from topwrap.repo.user_repo import Core, InterfaceDescription
-from topwrap.verilog_parser import VerilogModule, VerilogModuleGenerator
+from topwrap.repo.user_repo import Core, InterfaceDescription, ResourcePathWithType
+from topwrap.resource_field import FileReferenceHandler
 
 logger = logging.getLogger(__name__)
 
 
-class VerilogFileHandler(FileHandler):
-    def __init__(self, files: List[File]):
-        self._files = files
+class CoreFileHandler(FileHandler):
+    """
+    Implementation of FileHandler for various files that can be parsed into
+    IR modules using one of the frontends. This handler emits :class:`Core`
+    resources that can be later saved into a user repository.
+    """
+
+    def __init__(
+        self,
+        files: List[File],
+        frontend: Optional[Frontend] = None,
+        tops: Iterable[str] = (),
+        all_sources: bool = False,
+    ):
+        super().__init__(files)
+        self.frontend = AutomaticFrontend() if frontend is None else frontend
+        self.tops = set(tops)
+        self.all_sources = all_sources
 
     @override
     def parse(self) -> List[Resource]:
-        @dataclass(frozen=True)
-        class FileAwareModule:
-            module: VerilogModule
-            file: File
-
-        def _get_file_list(
-            modules: Dict[str, FileAwareModule], current: FileAwareModule
-        ) -> Set[File]:
-            files = {current.file}
-
-            for comp in current.module.components:
-                if comp not in modules:
-                    logger.warning(
-                        f'Dependency "{comp}" of module "{current.module.module_name}" was not '
-                        "found among the given source files"
-                    )
-                    continue
-                files = files.union(_get_file_list(modules, modules[comp]))
-
-            return files
-
         resources: List[Resource] = []
-        modulesdict: Dict[str, FileAwareModule] = {}
+        modules = self.frontend.parse_files(f.path for f in self._files)
 
-        for file in self._files:
-            modules = VerilogModuleGenerator().get_modules(file.path)
+        for mod in modules:
+            if (
+                mod.id.name not in self.tops
+                and mod.id.combined() not in self.tops
+                and len(self.tops) > 0
+            ):
+                continue
 
-            for mod in modules:
-                modulesdict[mod.module_name] = FileAwareModule(mod, file)
+            if not self.all_sources:
+                deps = set(FileReferenceHandler(f.file) for m in mod.hierarchy() for f in m.refs)
+            else:
+                deps = (FileReferenceHandler(f.path) for f in self._files)
 
-        for data in modulesdict.values():
-            iface_grouper = standard_iface_grouper(
-                hdl_filename=data.file.path, use_yosys=True, iface_deduce=True, ifaces_names=()
-            )
-            desc_file = TemporaryFile()
-            ipcore_desc = data.module.to_ip_core_description(iface_grouper)
-            ipcore_desc.save(desc_file.path)
+            if not isinstance(self.frontend, AutomaticFrontend):
+                deps = [ResourcePathWithType(d, self.frontend.metadata.name) for d in deps]
 
-            file_deps = _get_file_list(modulesdict, FileAwareModule(data.module, data.file))
-            core = Core(data.module.module_name, desc_file, list(file_deps))
-            resources.append(core)
+            res_name = mod.id.combined().removeprefix(Identifier("").combined())
+            resources.append(Core(name=res_name, top_level_name=mod.id.name, sources=list(deps)))
 
         return resources
 

@@ -1,0 +1,4 @@
+name: axi_interconnect
+top_level_name: axi_interconnect
+sources:
+  - file:./core.yaml

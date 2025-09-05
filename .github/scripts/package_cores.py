@@ -17,8 +17,9 @@ from typing import List
 
 import click
 
-from topwrap.cli import parse_main
-from topwrap.repo.file_handlers import VerilogFileHandler
+from topwrap.cli.main import parse_main
+from topwrap.frontend.sv.frontend import SystemVerilogFrontend
+from topwrap.repo.file_handlers import CoreFileHandler
 from topwrap.repo.files import HttpGetFile
 from topwrap.repo.user_repo import UserRepo
 
@@ -45,17 +46,17 @@ repos = [
 
 def package_repos():
     """Generates reusable cores package for usage in Topwrap project."""
-    core_repo = UserRepo()
+    core_repo = UserRepo("remote_repos")
 
-    for repo in repos:
+    for remote_repo in repos:
         core_files = []
-        for file in repo.sources:
-            core_files.append(HttpGetFile(f"{repo.root_url}/{file}"))
+        for file in remote_repo.sources:
+            core_files.append(HttpGetFile(f"{remote_repo.root_url}/{file}"))
 
-        core_repo.add_files(VerilogFileHandler(core_files))
+        core_repo.add_files(CoreFileHandler(core_files, SystemVerilogFrontend(), all_sources=True))
 
-        Path(repo.name).mkdir(exist_ok=True)
-        core_repo.save(repo.name)
+        Path(remote_repo.name).mkdir(exist_ok=True)
+        core_repo.save(Path(remote_repo.name))
 
 
 @click.command()

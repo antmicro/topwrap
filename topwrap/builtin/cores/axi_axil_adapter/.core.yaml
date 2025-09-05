@@ -1,0 +1,4 @@
+name: axi_axil_adapter
+top_level_name: axi_axil_adapter
+sources:
+  - file:./core.yaml

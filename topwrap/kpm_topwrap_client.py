@@ -20,6 +20,7 @@ from typing_extensions import NotRequired
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
+from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
@@ -103,7 +104,9 @@ class RPCMethods:
         logging.info(f"Dataflow import request received from {self.host}:{self.port}")
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
 
-        frontend = YamlFrontend()
+        repo_mods = load_modules_from_repos()
+
+        frontend = YamlFrontend(repo_mods)
         design_module = next(frontend.parse_str([yaml_str]))
         if not design_module.design:
             return {
@@ -204,7 +207,7 @@ def _kpm_dataflow_run_handler(data: JsonType, spec: JsonType, build_dir: Path) -
     """
     messages = DataflowValidator(data).validate_kpm_design()
     if not messages["errors"]:
-        frontend = KpmFrontend()
+        frontend = KpmFrontend(interfaces=load_interfaces_from_repos())
         modules = frontend.parse_str([json.dumps(data), json.dumps(spec)])
         design = frontend.get_top_design(modules)
 

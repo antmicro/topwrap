@@ -9,6 +9,7 @@ import subprocess
 import sys
 import threading
 import webbrowser
+from itertools import chain
 from pathlib import Path
 from typing import Any, Optional, Tuple
 
@@ -16,7 +17,7 @@ import click
 
 from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
-from topwrap.cli import RepositoryPathParam
+from topwrap.cli import RepositoryPathParam, load_modules_from_repos
 from topwrap.config import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
@@ -31,7 +32,6 @@ from topwrap.fuse_helper import FuseSocBuilder
 from topwrap.interface_grouper import standard_iface_grouper
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
-from topwrap.repo.user_repo import UserRepo
 from topwrap.resource_field import FileReferenceHandler
 
 click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path)
@@ -44,12 +44,6 @@ click_r_file = click.Path(
 click_w_file = click.Path(
     exists=False, file_okay=True, dir_okay=False, writable=True, path_type=Path
 )
-
-
-def load_user_repos() -> UserRepo:
-    repo = UserRepo()
-    repo.load_repositories_from_paths(config.get_repositories_paths())
-    return repo
 
 
 @click.group(help="Topwrap")
@@ -112,11 +106,11 @@ def build_main(
 ):
     config.force_interface_compliance = iface_compliance
 
-    config_user_repo = load_user_repos()
-    all_sources = config_user_repo.get_srcs_dirs_for_cores()
-    all_sources.extend(sources)
+    all_sources = list(sources)
 
-    frontend = YamlFrontend()
+    [*repo_modules] = load_modules_from_repos()
+
+    frontend = YamlFrontend(repo_modules)
     [module] = frontend.parse_files([design])
 
     backend = SystemVerilogBackend()
@@ -263,21 +257,20 @@ class KPM:
         client_ready_event: Optional[threading.Event] = None,
     ):
         logging.info("Starting kenning pipeline manager client")
-        config_user_repo = load_user_repos()
 
-        yamls = config_user_repo.get_core_designs() + list(yamlfiles)
+        [*repo_mods] = load_modules_from_repos()
 
-        frontend = YamlFrontend()
+        frontend = YamlFrontend(repo_mods)
         design_module = next(frontend.parse_files([design])) if design else None
         if design_module and not design_module.design:
             logging.error("Given design YAML file does not contain a design.")
             return
 
-        modules = frontend.parse_files(yamls)
+        modules = frontend.parse_files(yamlfiles)
 
         spec = KpmSpecificationBackend.default()
 
-        for module in modules:
+        for module in chain(repo_mods, modules):
             try:
                 spec.add_module(module)
             except Exception:
@@ -495,12 +488,10 @@ def topwrap_gui(
 @click.option("--design", "-d", type=click_r_file, help="Design YAML file")
 @click.argument("files", type=click_r_file, nargs=-1)
 def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, ...]):
-    config_user_repo = load_user_repos()
-    yamls = list(files) + config_user_repo.get_core_designs()
-
-    frontend = YamlFrontend()
+    [*repo_mods] = load_modules_from_repos()
+    frontend = YamlFrontend(repo_mods)
     design_module = next(frontend.parse_files([design])) if design else None
-    modules = frontend.parse_files(yamls)
+    modules = frontend.parse_files(list(files))
 
     spec = KpmSpecificationBackend.default()
     for module in modules:
@@ -540,16 +531,14 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
 @click.option("--design", "-d", required=True, type=click_r_file, help="Design YAML file")
 @click.argument("files", type=click_r_file, nargs=-1)
 def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
-    config_user_repo = load_user_repos()
-    yamls = list(files) + config_user_repo.get_core_designs()
-
-    frontend = YamlFrontend()
+    [*repo_mods] = load_modules_from_repos()
+    frontend = YamlFrontend(repo_mods)
     design_module = next(frontend.parse_files([design]))
     if not design_module.design:
         logging.error("Given design YAML file does not contain a design.")
         sys.exit(1)
 
-    modules = frontend.parse_files(yamls)
+    modules = frontend.parse_files(list(files))
 
     spec = KpmSpecificationBackend.default()
     for module in modules:

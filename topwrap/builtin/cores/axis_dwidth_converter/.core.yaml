@@ -1,0 +1,4 @@
+name: axis_dwidth_converter
+top_level_name: axis_dwidth_converter
+sources:
+  - file:./core.yaml

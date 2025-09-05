@@ -1,6 +1,6 @@
-# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from functools import cached_property, lru_cache
+from functools import cached_property
 from pathlib import Path
 from typing import (
     Any,
@@ -18,16 +18,12 @@ from typing import (
 )
 
 import marshmallow
-import marshmallow.validate
 import marshmallow_dataclass
-from typing_extensions import Self
 
 from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
-from topwrap.repo.user_repo import Core
 from topwrap.util import get_config
 
 from .common_serdes import MarshmallowDataclassExtensions, ext_field
-from .config import config
 from .interface import InterfaceDefinition, InterfaceMode, get_interface_by_name
 
 _T = Union[str, int]
@@ -175,7 +171,7 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
 
     @marshmallow.validates_schema
     def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
-        if config.force_interface_compliance:
+        if get_config().force_interface_compliance:
             errors: List[str] = []
             i_def = cast(InterfaceDefinition, get_interface_by_name(self_obj["type"]))
             for sig in i_def.required_signals:
@@ -221,33 +217,6 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
     interfaces: Dict[str, IPCoreInterface] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]]
-
-    @classmethod
-    def from_repo_core(cls, core: Core) -> Self:
-        return cls.load(core.design.path)
-
-    @staticmethod
-    @lru_cache(maxsize=None)
-    def get_builtins() -> Dict[str, "IPCoreDescription"]:
-        """Loads all builtin internal IP Cores
-
-        :return: a dict where keys are the IP Core names and values are the IP Core description
-            objects
-        """
-
-        ips: Dict[str, IPCoreDescription] = {}
-
-        repo = get_config().builtin_repo
-        for core in repo.get_resources(Core):
-            try:
-                ip = IPCoreDescription.from_repo_core(core)
-                ips[ip.name] = ip
-            except Exception as exc:
-                raise BuiltinIPCoreException(
-                    f'Loading built-in IP core "{core.name}" failed'
-                ) from exc
-
-        return ips
 
     def save(self, path: Optional[Path] = None, **kwargs: Any):
         super().save(path if path is not None else Path(self.name + ".yaml"), **kwargs)

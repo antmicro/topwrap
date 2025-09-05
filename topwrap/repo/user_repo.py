@@ -1,32 +1,102 @@
-# Copyright (c) 2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
 
 import logging
-import logging.config
-import os
+import shutil
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import Iterable, Iterator, List, Optional, Type, Union
 
+import marshmallow
+import marshmallow_dataclass
 from typing_extensions import override
 
+from topwrap.common_serdes import (
+    MarshmallowDataclassExtensions,
+    ResourcePathT,
+    ext_field,
+)
+from topwrap.frontend.automatic import AutomaticFrontend, FrontendRegistry
+from topwrap.frontend.frontend import Frontend
+from topwrap.model.module import Module
+from topwrap.repo.exceptions import TopLevelNotFoundException
 from topwrap.repo.files import File, LocalFile
-from topwrap.repo.repo import Repo
+from topwrap.repo.repo import ExistsStrategy, Repo
 from topwrap.repo.resource import Resource, ResourceHandler
+from topwrap.resource_field import FileReferenceHandler
 
 logger = logging.getLogger(__name__)
 
 
-# Resources
+@marshmallow_dataclass.dataclass
+class ResourcePathWithType:
+    resource: ResourcePathT
+    type: str
+
+    @marshmallow.validates("type")
+    def _type_validator(self, value: str):
+        assert value in FrontendRegistry.BY_NAME
 
 
 @dataclass
-class Core(Resource):
+class LoadedCore:
+    "Returned by :meth:`Core.ir_module`"
+
+    top_level: Module
+    other_sources: Iterable[Module]
+    unknown_sources: Iterable[Path]
+
+
+@marshmallow_dataclass.dataclass
+class Core(Resource, MarshmallowDataclassExtensions):
     """Represents a hardware core resource"""
 
+    #: A custom name for the core resource
+    #: Usually based on :attr:`top_level_name`
     name: str
-    design: File
-    files: List[File]
+
+    #: The exact name of the top-level module that this core
+    #: represents as it exists in the sources
+    top_level_name: str
+
+    sources: List[Union[ResourcePathWithType, ResourcePathT]]
+
+    #: Whether this core packs its own sources or
+    #: just references external ones
+    by_ref: bool = ext_field(False, load_only=True)
+
+    @cached_property
+    def ir_module(self) -> LoadedCore:
+        frontends = dict[Type[Frontend], list[Path]]()
+        for src in self.sources:
+            front = (
+                FrontendRegistry.BY_NAME[src.type]
+                if isinstance(src, ResourcePathWithType)
+                else AutomaticFrontend
+            )
+            srcpath = (src.resource if isinstance(src, ResourcePathWithType) else src).to_path()
+            frontends.setdefault(front, []).append(srcpath)
+        mods = []
+        unknowns = set()
+        top = None
+        for front, srcs in frontends.items():
+            if issubclass(front, AutomaticFrontend):
+                info = front(modules=mods).parse_files_with_unknown_info(srcs)
+                modules = info.modules
+                unknowns.update(info.unknown_sources)
+            else:
+                modules = front(modules=mods).parse_files(srcs)
+            for mod in modules:
+                if mod.id.name == self.top_level_name:
+                    top = mod
+                else:
+                    mods.append(mod)
+        if top is None:
+            raise TopLevelNotFoundException(self)
+
+        return LoadedCore(top, mods, unknowns)
 
 
 class CoreHandler(ResourceHandler[Core]):
@@ -39,57 +109,38 @@ class CoreHandler(ResourceHandler[Core]):
     @override
     def save(self, res: Core, repo_path: Path) -> None:
         """Handles a core-specific save action"""
-
         core_dir = repo_path / self._cores_rel_dir / res.name
-        yaml_dir = core_dir
-        srcs_dir = core_dir / self._srcs_dir_name
+        core_dir.mkdir(parents=True, exist_ok=True)
+        path_to_save = core_dir / ".core.yaml"
 
-        logger.info(f"CoreHandler.save: Saving {res.name} in {core_dir}")
-        srcs_dir.mkdir(parents=True, exist_ok=True)
+        if path_to_save.exists():
+            # This resource was already saved
+            return
 
-        for f in res.files:
-            core_output_path = srcs_dir / f.path.name
-            f.copy(core_output_path)
-            logger.debug(f"CoreHandler.save: Copied {f.path} to {core_output_path}")
+        if not res.by_ref:
+            srcs = []
+            src_dir = core_dir / self._srcs_dir_name
+            src_dir.mkdir(exist_ok=True)
+            for src in res.sources:
+                path = (src.resource if isinstance(src, ResourcePathWithType) else src).to_path()
+                target = src_dir / path.name
+                ref = FileReferenceHandler(target)
+                if isinstance(src, ResourcePathWithType):
+                    srcs.append(ResourcePathWithType(resource=ref, type=src.type))
+                else:
+                    srcs.append(ref)
+                if path != target:
+                    shutil.copy(path, target)
+            res.sources = srcs
 
-        design_output_path = yaml_dir / f"{res.name}.yaml"
-        res.design.copy(design_output_path)
-        logger.debug(f"CoreHandler.save: Copied {res.design.path} to {design_output_path}")
+        res.save(path_to_save)
 
     @override
-    def load(self, repo_path: Path) -> List[Core]:
+    def load(self, repo_path: Path) -> Iterator[Core]:
         """Handles a core-specific load action"""
 
         cores_dir = repo_path / self._cores_rel_dir
-
-        found_core_dirs = [Path(f.path) for f in os.scandir(cores_dir) if f.is_dir()]
-
-        cores = []
-        for core_dir in found_core_dirs:
-            logger.debug(f"CoreHandler.load: Analyzing {core_dir} as core directory")
-            src_dir = core_dir / self._srcs_dir_name
-
-            src_files = list(src_dir.glob("*"))
-            for src in src_files:
-                logger.info(f"CoreHandler.load: Loaded {src} as core sources")
-
-            yaml_files = []
-            for ext in ["*.yml", "*.yaml"]:
-                for f in core_dir.glob(ext):
-                    yaml_files.append(f)
-            logger.debug(f"Found {len(yaml_files)} files in {core_dir}")
-
-            if len(yaml_files) > 1:
-                raise FileExistsError("There should be only one design file in a core directory")
-
-            [yaml_file] = yaml_files
-            logger.info(f"CoreHandler.load: Loaded {yaml_file} as a core yaml")
-
-            core_name = yaml_file.stem
-            core = Core(core_name, LocalFile(yaml_file), [LocalFile(x) for x in src_files])
-            cores.append(core)
-
-        return cores
+        yield from (Core.load(path) for path in cores_dir.glob("*/*.core.yaml"))
 
 
 @dataclass
@@ -114,11 +165,11 @@ class InterfaceDescriptionHandler(ResourceHandler[InterfaceDescription]):
 
         logger.info(f"InterfaceDescriptionHandler.save: Saving {res.name} in {ifaces_dir}")
         output_path = ifaces_dir / res.file.path.name
-        res.file.copy(output_path)
+        res.file.copy(output_path, ExistsStrategy.SKIP)
         logger.debug(f"InterfaceDescriptionHandler.save: Copied {res.name} to {output_path}")
 
     @override
-    def load(self, repo_path: Path) -> List[InterfaceDescription]:
+    def load(self, repo_path: Path) -> Iterator[InterfaceDescription]:
         """Handles interface-specific load action"""
         ifaces_dir = repo_path / self._ifaces_rel_dir
 
@@ -130,47 +181,19 @@ class InterfaceDescriptionHandler(ResourceHandler[InterfaceDescription]):
             f"InterfaceDescriptionHandler.load: Found {len(yaml_files)} files in {ifaces_dir}"
         )
 
-        ifaces = []
         for yaml_file in yaml_files:
             iface_name = yaml_file.stem
             iface = InterfaceDescription(iface_name, LocalFile(yaml_file))
-            ifaces.append(iface)
-
-        return ifaces
+            yield iface
 
 
 class UserRepo(Repo):
-    def __init__(self):
+    def __init__(self, name: str):
         resource_handlers = [
             CoreHandler(),
             InterfaceDescriptionHandler(),
         ]
-        super().__init__(resource_handlers)
-
-    def load_repositories_from_paths(self, repositories_paths: List[Path]) -> None:
-        """Loads all repositories from specified paths"""
-        for repository_path in repositories_paths:
-            self.load(repository_path)
-
-    @staticmethod
-    def get_interfaces_directory(repository_path: Path) -> Optional[Path]:
-        interfaces_directory = repository_path / InterfaceDescriptionHandler._ifaces_rel_dir
-        if interfaces_directory.exists():
-            return interfaces_directory
-        else:
-            return None
-
-    def get_core_designs(self) -> List[Path]:
-        """Get list of yaml core paths from UserRepo resources"""
-        return [core.design.path for core in self.get_resources(Core)]
-
-    def get_srcs_dirs_for_cores(self) -> List[Path]:
-        """Gets all the paths of core src directories"""
-        dir_paths: Set[Path] = set()
-        for resource in self.get_resources(Core):
-            for file in resource.files:
-                dir_paths.add(Path(file.path.parent).expanduser())
-        return list(dir_paths)
+        super().__init__(resource_handlers, name)
 
     def get_core_by_name(self, name: str) -> Optional[Core]:
         return next((c for c in self.get_resources(Core) if c.name == name), None)

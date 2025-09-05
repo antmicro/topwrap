@@ -1,11 +1,11 @@
-# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
 import os
 from functools import cached_property
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 import marshmallow
 import marshmallow_dataclass
@@ -58,15 +58,18 @@ class Config(MarshmallowDataclassExtensions):
             else:
                 self.repositories.update(config.repositories)
 
-    def get_repositories_paths(self) -> List[Path]:
-        repositories_paths = []
-        for repository in self.repositories.values():
-            repositories_paths.append(repository.to_path().expanduser())
-        return repositories_paths
+    @cached_property
+    def loaded_repos(self) -> dict[str, UserRepo]:
+        repos = {}
+        for name, path in self.repositories.items():
+            repo = UserRepo(name)
+            repo.load(path.to_path())
+            repos[name] = repo
+        return repos
 
     @cached_property
     def builtin_repo(self) -> UserRepo:
-        repo = UserRepo()
+        repo = UserRepo(ConfigManager.BUILTIN_REPO_NAME)
         repo.load(self.repositories[ConfigManager.BUILTIN_REPO_NAME].to_path())
         return repo
 
