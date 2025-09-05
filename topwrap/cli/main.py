@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
@@ -16,6 +16,7 @@ import click
 
 from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
+from topwrap.cli import RepositoryPathParam
 from topwrap.config import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
@@ -23,15 +24,15 @@ from topwrap.config import (
     DEFAULT_SERVER_ADDR,
     DEFAULT_SERVER_PORT,
     DEFAULT_WORKSPACE_DIR,
+    config,
 )
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
+from topwrap.interface_grouper import standard_iface_grouper
 from topwrap.kpm_common import RPCparams
-
-from .config import config
-from .interface_grouper import standard_iface_grouper
-from .kpm_topwrap_client import kpm_run_client
-from .repo.user_repo import UserRepo
+from topwrap.kpm_topwrap_client import kpm_run_client
+from topwrap.repo.user_repo import UserRepo
+from topwrap.resource_field import FileReferenceHandler
 
 click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path)
 click_opt_rw_dir = click.Path(
@@ -44,25 +45,32 @@ click_w_file = click.Path(
     exists=False, file_okay=True, dir_okay=False, writable=True, path_type=Path
 )
 
-main = click.Group(help="Topwrap")
-
-AVAILABLE_LOG_LEVELS = ["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-DEFAULT_LOG_LEVEL = "WARNING"
-
-
-def configure_log_level(log_level: str):
-    logging.basicConfig(level=DEFAULT_LOG_LEVEL)
-    if log_level not in AVAILABLE_LOG_LEVELS:
-        logging.warning(f"Wrong log-level value: {log_level}. Select one of {AVAILABLE_LOG_LEVELS}")
-
-    logger = logging.getLogger()
-    logger.setLevel(log_level)
-
 
 def load_user_repos() -> UserRepo:
     repo = UserRepo()
     repo.load_repositories_from_paths(config.get_repositories_paths())
     return repo
+
+
+@click.group(help="Topwrap")
+@click.option(
+    "--log-level",
+    type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]),
+    default="INFO",
+    show_default=True,
+    help="Log level",
+)
+@click.option(
+    "--repo",
+    multiple=True,
+    type=RepositoryPathParam(path_type=Path),
+    help="Additional user repository to load",
+)
+def main(log_level: str, repo: tuple[Path]):
+    logging.basicConfig(level=log_level)
+    logging.getLogger().setLevel(log_level)
+    for rep in repo:
+        config.repositories[rep.name] = FileReferenceHandler(rep)
 
 
 @main.command("build", help="Generate top module")
@@ -94,7 +102,6 @@ def load_user_repos() -> UserRepo:
     default=False,
     help="Force compliance checks for predefined interfaces",
 )
-@click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 def build_main(
     sources: Tuple[Path, ...],
     design: Path,
@@ -102,9 +109,7 @@ def build_main(
     fuse: bool,
     part: Optional[str],
     iface_compliance: bool,
-    log_level: str,
 ):
-    configure_log_level(log_level)
     config.force_interface_compliance = iface_compliance
 
     config_user_repo = load_user_repos()
@@ -160,19 +165,17 @@ def build_main(
     default="./",
     help="Destination directory for generated yamls",
 )
-@click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 @click.argument("files", type=click_r_file, nargs=-1)
 def parse_main(
     use_yosys: bool,
     iface_deduce: bool,
     iface: Tuple[str, ...],
     dest_dir: Path,
-    log_level: str,
     files: Tuple[Path, ...],
 ):
     try:
-        from .verilog_parser import VerilogModuleGenerator
-        from .vhdl_parser import VHDLModule
+        from topwrap.verilog_parser import VerilogModuleGenerator
+        from topwrap.vhdl_parser import VHDLModule
     except ModuleNotFoundError:
         logging.error(
             "hdlConvertor not installed, please install optional dependency topwrap[parse], "
@@ -180,7 +183,6 @@ def parse_main(
         )
         sys.exit(1)
 
-    configure_log_level(log_level)
     dest_dir.mkdir(exist_ok=True, parents=True)
 
     for filepath in files:
@@ -255,13 +257,11 @@ class KPM:
     def run_client(
         host: str,
         port: int,
-        log_level: str,
         design: Optional[Path],
         yamlfiles: Tuple[Path, ...],
         build_dir: Path,
         client_ready_event: Optional[threading.Event] = None,
     ):
-        configure_log_level(log_level)
         logging.info("Starting kenning pipeline manager client")
         config_user_repo = load_user_repos()
 
@@ -312,7 +312,6 @@ class KPM:
 @main.command("kpm_client", help="Run a client app, that connects to a running KPM server")
 @click.option("--host", "-h", default=DEFAULT_SERVER_ADDR, help="KPM server address")
 @click.option("--port", "-p", default=DEFAULT_SERVER_PORT, help="KPM server listening port")
-@click.option("--log-level", default=DEFAULT_LOG_LEVEL, help="Log level")
 @click.option(
     "--design",
     "-d",
@@ -330,12 +329,11 @@ class KPM:
 def kpm_client_main(
     host: str,
     port: int,
-    log_level: str,
     design: Optional[Path],
     yamlfiles: Tuple[Path, ...],
     build_dir: Path,
 ):
-    KPM.run_client(host, port, log_level, design, yamlfiles, build_dir)
+    KPM.run_client(host, port, design, yamlfiles, build_dir)
 
 
 @main.command("kpm_build_server", help="Build KPM server")
@@ -424,11 +422,9 @@ def kpm_run_server_ctx(ctx: click.Context, **_):
     default=Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR,
     help="Directory where the frontend sources should be stored",
 )
-@click.option("--log-level", default="INFO", help="Log level")
 @click.argument("yamlfiles", type=click_r_file, nargs=-1)
 def topwrap_gui(
     design: Optional[Path],
-    log_level: str,
     yamlfiles: Tuple[Path, ...],
     frontend_directory: Path,
     workspace_directory: Path,
@@ -438,7 +434,6 @@ def topwrap_gui(
     backend_port: int,
     use_server: bool = True,
 ):
-    configure_log_level(log_level)
     logging.info("Checking if server is built")
     if (not frontend_directory.exists() or not workspace_directory.exists()) and use_server:
         logging.info("Server build is incomplete, building now")
@@ -479,7 +474,6 @@ def topwrap_gui(
             yamlfiles=yamlfiles,
             host=server_host,
             port=server_port,
-            log_level=log_level,
             build_dir=Path("build"),
             client_ready_event=client_ready_event,
         )

@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import concurrent.futures
@@ -347,7 +347,7 @@ def check_yaml_extension(session: nox.Session):
 def test_kpm_server(session: nox.Session):
     import click
 
-    from topwrap.cli import (
+    from topwrap.cli.main import (
         DEFAULT_BACKEND_ADDR,
         DEFAULT_BACKEND_PORT,
         DEFAULT_FRONTEND_DIR,

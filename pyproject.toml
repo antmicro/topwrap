@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
@@ -69,7 +69,7 @@ docs = [
 all = ['topwrap[parse,lint,tests,deploy,docs]']
 
 [project.scripts]
-topwrap = "topwrap.cli:main"
+topwrap = "topwrap.cli.main:main"
 
 [tool.setuptools.packages.find]
 include = ["topwrap*"]

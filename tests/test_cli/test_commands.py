@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import concurrent.futures
@@ -8,14 +8,22 @@ from pathlib import Path
 
 import click
 import pytest
+from click.testing import CliRunner
 
-from topwrap.cli import (
+from topwrap.cli.main import (
     build_main,
     generate_kpm_design,
     generate_kpm_spec,
+    main,
     parse_main,
     topwrap_gui,
 )
+from topwrap.util import get_config
+
+
+@pytest.fixture
+def runner():
+    return CliRunner()
 
 
 class TestCli:
@@ -32,7 +40,26 @@ class TestCli:
     def build_design_yaml(self):
         return Path(self.test_data_path + "data_build/design.yaml")
 
-    def test_build_main(self, build_design_yaml, tmp_path):
+    def test_top_level_command(self, runner: CliRunner, tmpdir: Path):
+        # Using `topwrap specification` because it's a dummy command option-wise
+        repo = Path(tmpdir) / "this_could_be_a_repo" / "cores"
+        repo.mkdir(parents=True)
+        runner.invoke(
+            main,
+            [
+                "--log-level",
+                "DEBUG",
+                "--repo",
+                str(repo.parent),
+                "specification",
+                "-o",
+                str(tmpdir / "out"),
+            ],
+        )
+        assert logging.getLevelName(logging.getLogger().level) == "DEBUG"
+        assert "this_could_be_a_repo" in get_config().repositories
+
+    def test_build_main(self, build_design_yaml: Path, tmp_path: Path):
         with click.Context(build_main) as ctx:
             ctx.invoke(
                 build_main,
