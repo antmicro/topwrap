@@ -6,7 +6,7 @@ from typing import Iterable, Iterator, Union
 
 from pyslang import DiagnosticSeverity, SourceLocation, SyntaxTree
 
-from topwrap.frontend.frontend import Frontend, FrontendParseStrInput
+from topwrap.frontend.frontend import Frontend, FrontendMetadata, FrontendParseStrInput
 from topwrap.frontend.sv.module import SystemVerilogSlangParser
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
@@ -21,6 +21,10 @@ class SystemVerilogFrontend(Frontend):
     ) -> None:
         super().__init__(modules, interfaces)
         self.diag_level = diag_level
+
+    @property
+    def metadata(self):
+        return FrontendMetadata(name="systemverilog", file_association=[".sv", ".svh", ".v", ".vh"])
 
     def _parser_instance(self) -> SystemVerilogSlangParser:
         return SystemVerilogSlangParser(

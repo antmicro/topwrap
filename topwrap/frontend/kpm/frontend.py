@@ -7,7 +7,7 @@ from typing import Iterable, Iterator
 
 from typing_extensions import override
 
-from topwrap.frontend.frontend import Frontend
+from topwrap.frontend.frontend import Frontend, FrontendMetadata
 from topwrap.frontend.kpm.common import KpmFrontendParseException
 from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.frontend.kpm.specification import KpmSpecificationFrontend
@@ -16,6 +16,10 @@ from topwrap.model.module import Module
 
 
 class KpmFrontend(Frontend):
+    @property
+    def metadata(self):
+        return FrontendMetadata(name="kpm", file_association=[".kpm.json"])
+
     @override
     def parse_files(self, sources: Iterable[Path]) -> Iterator[Module]:
         specs, flows = [], []

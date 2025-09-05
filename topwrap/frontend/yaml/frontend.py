@@ -6,13 +6,22 @@ from typing import Any, Callable, Iterable, Iterator, Optional, Union
 
 import yaml
 
-from topwrap.frontend.frontend import Frontend, FrontendParseException, FrontendParseStrInput
+from topwrap.frontend.frontend import (
+    Frontend,
+    FrontendMetadata,
+    FrontendParseException,
+    FrontendParseStrInput,
+)
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.module import Module
 
 
 class YamlFrontend(Frontend):
+    @property
+    def metadata(self):
+        return FrontendMetadata(name="yaml", file_association=[".yaml", ".yml"])
+
     def _parse_source(
         self,
         ip_core_method: Callable[[IPCoreDescriptionFrontend, Any], Module],

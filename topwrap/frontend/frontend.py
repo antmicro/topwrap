@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Iterator, Union
@@ -16,6 +16,18 @@ from topwrap.model.module import Module
 class FrontendParseStrInput:
     name: str
     content: str
+
+
+@dataclass
+class FrontendMetadata:
+    #: A short name for this frontend used in contexts
+    #: when a specific frontend needs to be identified
+    #: for example in a configuration file or CLI
+    name: str
+
+    #: File extensions associated with this frontend in the form of
+    #: a set of extensions (e.g. `{".yaml", ".yml"}`)
+    file_association: Iterable[str] = field(default_factory=tuple)
 
 
 class FrontendParseException(TranslationError):
@@ -60,6 +72,11 @@ class Frontend(ABC):
         yield from self.parse_files([Path(f.name) for f in files])
         for f in files:
             f.close()
+
+    @property
+    @abstractmethod
+    def metadata(self) -> FrontendMetadata:
+        "Return metadata about this frontend such as its file associations"
 
     @abstractmethod
     def parse_files(self, sources: Iterable[Path]) -> Iterator[Module]:
