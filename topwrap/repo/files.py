@@ -14,6 +14,8 @@ from typing import Optional, Union
 
 from typing_extensions import override
 
+from topwrap.util import ExistsStrategy
+
 logger = logging.getLogger(__name__)
 
 FileContent = Union[str, bytes, bytearray]
@@ -25,9 +27,15 @@ class File(ABC):
     in user's repository.
     """
 
-    @abstractmethod
-    def copy(self, dst: Path) -> None:
+    def copy(self, dst: Path, exists_strategy: ExistsStrategy = ExistsStrategy.RAISE) -> None:
         """Copies the file to a given destination"""
+
+        if dst.exists():
+            if exists_strategy is ExistsStrategy.RAISE:
+                raise FileExistsError(f"Cannot copy a file to {dst}. The file already exists")
+            elif exists_strategy is ExistsStrategy.SKIP:
+                return
+        shutil.copy(self.path, dst)
 
     @property
     @abstractmethod
@@ -64,13 +72,6 @@ class TemporaryFile(File):
     def path(self) -> Path:
         return self._path
 
-    @override
-    def copy(self, dst: Path) -> None:
-        dst = Path(dst)
-        if dst.exists():
-            raise FileExistsError(f"Cannot copy a file to {dst}. The file already exists")
-        dst.write_bytes(self._path.read_bytes())
-
 
 class LocalFile(File):
     """Holds information about local files"""
@@ -84,12 +85,6 @@ class LocalFile(File):
     @override
     def path(self) -> Path:
         return self._path
-
-    @override
-    def copy(self, dst: Path):
-        if dst.exists():
-            raise FileExistsError(f"Cannot copy a file to {dst}. The file already exists")
-        dst.write_bytes(self._path.read_bytes())
 
 
 class DownloadException(Exception):
@@ -164,13 +159,6 @@ class HttpGetFile(File):
         )
 
         return download_path
-
-    @override
-    def copy(self, dst: Path) -> None:
-        if dst.exists():
-            raise FileExistsError(f"Cannot copy a file to {dst}. The file already exists")
-
-        dst.write_bytes(self.path.read_bytes())
 
     @property
     @override

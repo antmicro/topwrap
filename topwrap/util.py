@@ -15,6 +15,17 @@ if TYPE_CHECKING:
 JsonType = Dict[str, Any]
 
 
+class ExistsStrategy(str, Enum):
+    """
+    How to behave when saving an arbitrary thing in an arbitrary
+    location. Used commonly in e.g. `topwrap.repo`.
+    """
+
+    OVERWRITE = "overwrite"
+    SKIP = "skip"
+    RAISE = "raise"
+
+
 def removeprefix(s: str, prefix: str) -> str:
     """Returns string with a prefix removed if it contains it
 
