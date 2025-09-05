@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Iterable, Iterator, Optional, Sequence, Union
+from typing import Iterable, Iterator, Optional, Union
 
 from topwrap.model.connections import Port
 from topwrap.model.design import Design
@@ -93,13 +93,13 @@ class Module(ModelBase):
         return QuerableView(self._ports, self._interfaces)
 
     @property
-    def refs(self) -> Sequence[FileReference]:
+    def refs(self) -> QuerableView[FileReference]:
         """
         Returns references to external files that define this module, if any.
         This information is generally added by the respective frontend used to parse this module.
         """
 
-        return self._refs
+        return QuerableView(self._refs)
 
     def add_port(self, port: Port):
         set_parent(port, self)

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -444,6 +444,8 @@ class MarshmallowDataclassExtensions:
 
         for fname, fld in sch.fields.items():
             name = fld.data_key or fname
+            if name not in data:
+                continue
             if fld.metadata.get(MetaKeys.DEEP_CLEANUP.value, False) and isinstance(
                 fld, (marshmallow.fields.Dict, marshmallow.fields.List)
             ):
