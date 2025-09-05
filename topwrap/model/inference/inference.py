@@ -417,12 +417,31 @@ def _score_matched_intf_signals(
     unmatched_opt = sum([1 for x in opt_signals.values() if not x])
     unmatched_ports = sum([1 for x in ports.keys() if x not in used_ports])
 
+    logging.debug(
+        f"{intf.id.name} matched {matched_req}/{matched_opt} req/opt, "
+        f"unmatched {unmatched_req}/{unmatched_opt}/{unmatched_ports} req/opt/ports, out of a total"
+        f" of {len(ports)} ports."
+    )
+
+    matched_req_score = (matched_req / len(intf.signals)) * options.required_match_score
+    matched_opt_score = (matched_opt / len(intf.signals)) * options.optional_match_score
+    unmatched_req_score = (unmatched_req / len(intf.signals)) * options.required_missing_score
+    unmatched_opt_score = (unmatched_opt / len(intf.signals)) * options.optional_missing_score
+    unmatched_ports_score = -(exp(unmatched_ports / options.unmatched_port_penalty_leniency) - 1)
+
+    logging.debug(f"{intf.id.name} score contributions:")
+    logging.debug(f" - matched required signals {matched_req_score}")
+    logging.debug(f" - matched optional signals {matched_opt_score}")
+    logging.debug(f" - unmatched required signals {unmatched_req_score}")
+    logging.debug(f" - unmatched optional signals {unmatched_opt_score}")
+    logging.debug(f" - unmatched module ports {unmatched_ports_score}")
+
     return (
-        (matched_req / len(intf.signals)) * options.required_match_score
-        + (matched_opt / len(intf.signals)) * options.optional_match_score
-        + (unmatched_req / len(intf.signals)) * options.required_missing_score
-        + (unmatched_opt / len(intf.signals)) * options.optional_missing_score
-        - (exp(unmatched_ports / options.unmatched_port_penalty_leniency) - 1)
+        matched_req_score
+        + matched_opt_score
+        + unmatched_req_score
+        + unmatched_opt_score
+        + unmatched_ports_score
     )
 
 
