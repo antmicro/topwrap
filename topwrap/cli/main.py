@@ -18,6 +18,7 @@ import click
 from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
 from topwrap.cli import RepositoryPathParam, load_modules_from_repos
+from topwrap.cli.repo import repo
 from topwrap.config import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
@@ -65,6 +66,9 @@ def main(log_level: str, repo: tuple[Path]):
     logging.getLogger().setLevel(log_level)
     for rep in repo:
         config.repositories[rep.name] = FileReferenceHandler(rep)
+
+
+main.add_command(repo)
 
 
 @main.command("build", help="Generate top module")

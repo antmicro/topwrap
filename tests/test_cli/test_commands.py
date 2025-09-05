@@ -4,6 +4,7 @@
 import concurrent.futures
 import logging
 import socket
+from itertools import chain
 from pathlib import Path
 
 import click
@@ -18,7 +19,10 @@ from topwrap.cli.main import (
     parse_main,
     topwrap_gui,
 )
+from topwrap.repo.user_repo import Core
 from topwrap.util import get_config
+
+pytest_plugins = "tests.tests_ir.frontend.test_automatic"
 
 
 @pytest.fixture
@@ -132,3 +136,158 @@ class TestCli:
                 design=design_build,
             )
         assert design_path.exists()
+
+
+class TestRepoCli:
+    def test_repo_init(self, runner: CliRunner, tmpdir):
+        tmpdir = Path(tmpdir)
+        path = tmpdir / "repos" / "repo_directory"
+
+        runner.invoke(main, ["repo", "init", "name_repo", str(path)])
+
+        assert path.exists()
+        assert list(path.iterdir()) == []
+
+    def test_repo_init_existing_dir(
+        self, runner: CliRunner, tmpdir, caplog: pytest.LogCaptureFixture
+    ):
+        tmpdir = Path(tmpdir)
+        (tmpdir / "hello.file").write_text("I am a file")
+
+        runner.invoke(main, ["repo", "init", "name", str(tmpdir)])
+
+        for _, level, message in caplog.record_tuples:
+            if level == logging.ERROR and "not empty" in message:
+                break
+        else:
+            raise AssertionError("Repo created in a nonempty directory")
+
+    @pytest.fixture
+    def all_sources(
+        self,
+        sv_sources: list[Path],
+        kpm_sources: list[Path],
+        yaml_sources: list[Path],
+    ):
+        mods_in_srcs = {
+            "advanced_top", "axi_dispctrl_v1_0", "BETWEEN", "char_processor", "c_mod_2",
+            "DMATop", "s1_mod_2", "s1_mod_3", "s2_mod_1", "s2_mod_2", "seq_to_sci4_bridge",
+            "string_sequencer", "SUB", "SUBEMPTY", "top"
+        }  # fmt: skip
+
+        return (mods_in_srcs, sv_sources + kpm_sources + yaml_sources)
+
+    def invoke_parse(self, repo_path: Path, runner: CliRunner, *args: str) -> list[Core]:
+        repo_path.mkdir(parents=True)
+        runner.invoke(main, ("--repo", str(repo_path), "repo", "parse", repo_path.name) + args)
+        cores = list(repo_path.glob("cores/*/.core.yaml"))
+        return [Core.load(p) for p in cores]
+
+    def test_repo_parse_minimal(
+        self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
+    ):
+        mods_in_srcs, sources = all_sources
+
+        repo_path = Path(tmpdir) / "repo_parse_norm"
+        cores = self.invoke_parse(
+            repo_path,
+            runner,
+            "--exists-strategy",
+            "overwrite",
+            *(str(p) for p in sources),
+        )
+        assert {c.top_level_name for c in cores} == mods_in_srcs
+
+    def test_repo_parse_with_duplicate(
+        self,
+        all_sources: tuple[set[str], list[Path]],
+        tmpdir: Path,
+        runner: CliRunner,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        _, sources = all_sources
+
+        repo_path = Path(tmpdir) / "repo_parse_norm"
+        self.invoke_parse(repo_path, runner, *(str(p) for p in sources))
+
+        for _, level, message in caplog.record_tuples:
+            if level == logging.ERROR and '"top" already exists' in message:
+                break
+        else:
+            raise AssertionError("Expected resource already exists error")
+
+        assert list(repo_path.glob("**/*")) == []
+
+    def test_repo_parse_all_sources(
+        self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
+    ):
+        mod_names, sources = all_sources
+
+        repo_path = Path(tmpdir) / "repo_parse_norm"
+        cores = self.invoke_parse(
+            repo_path,
+            runner,
+            "--all-sources",
+            "--exists-strategy",
+            "overwrite",
+            *(str(p) for p in sources),
+        )
+
+        assert len(list(repo_path.glob("cores/*/srcs/**/*"))) == len(sources) * len(mod_names)
+
+        for core in cores:
+            assert len(core.sources) == len(sources)
+
+    def test_repo_parse_module_filtering(
+        self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
+    ):
+        _, sources = all_sources
+        only_mods = {"advanced_top", "SUB"}
+
+        repo_path = Path(tmpdir) / "repo_parse_norm"
+        cores = self.invoke_parse(
+            repo_path,
+            runner,
+            *chain(*(("-m", m) for m in only_mods)),
+            *(str(p) for p in sources),
+        )
+
+        assert {c.top_level_name for c in cores} == only_mods
+
+    def test_repo_parse_by_ref(
+        self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
+    ):
+        mod_names, sources = all_sources
+
+        repo_path = Path(tmpdir) / "repo_parse_norm"
+        cores = self.invoke_parse(
+            repo_path,
+            runner,
+            "--reference",
+            "--all-sources",
+            "--exists-strategy",
+            "overwrite",
+            *(str(p) for p in sources),
+        )
+
+        assert list(repo_path.glob("cores/*/srcs/**/*")) == []
+
+        for core in cores:
+            assert len(core.sources) == len(sources)
+
+    def test_repo_parse_custom_correct_frontend(
+        self,
+        sv_sources: list[Path],
+        tmpdir: Path,
+        runner: CliRunner,
+    ):
+        repo_path = Path(tmpdir) / "repo_parse_norm"
+
+        cores = self.invoke_parse(
+            repo_path,
+            runner,
+            "--frontend",
+            "systemverilog",
+            *(str(p) for p in sv_sources),
+        )
+        assert cores != []
