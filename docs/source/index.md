@@ -34,4 +34,5 @@ developers_guide/ir-examples
 developers_guide/ipxact-design
 developers_guide/generator.md
 developers_guide/interconnect.md
+developers_guide/repo
 ```

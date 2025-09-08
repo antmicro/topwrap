@@ -27,11 +27,26 @@ RepoResourceHandlers = Dict[ResourceType, ResourceHandler[ResourceType]]
 
 
 class Repo(ABC):
-    """Base class for implementing user repository"""
+    """
+    Base class for implementing repositories.
+    A repository is a container for resources of various types.
 
+    Derived classes should be associated with a set of supported
+    resource handlers that define what types of resources can
+    be stored in the repo. An example of such derived repo is
+    :class:`~topwrap.repo.user_repo.UserRepo`
+    """
+
+    #: Name of the repository
     name: str
 
     def __init__(self, resource_handlers: List[ResourceHandler[Resource]], name: str) -> None:
+        """
+        Initialize the repository.
+
+        :param resource_handlers: A list of handlers that define which resources are
+            supported in this repository and how are they handled
+        """
         self.name = name
         self.resources: Dict[Type[Resource], Dict[str, Resource]] = {}
         self.resource_handlers: dict[Type[Resource], ResourceHandler[Resource]] = {}
@@ -52,9 +67,9 @@ class Repo(ABC):
         :param handler: Handler that contains sources
         :param exist_strategy: What to do if resource exists in repo already
 
-        :raise: ResourceExistsException: Raised when exist_strategy is set to RAISE
-        :raise: ResourceNotSupportedException:
-            Raised when handler returns resources don't supported by repo
+        :raise ResourceExistsException: Raised when exist_strategy is set to RAISE
+        :raise ResourceNotSupportedException:
+            Raised when handler returns resources not supported by repo
         """
         resources = handler.parse()
         logger.info(f"Repo.add_file: Obtained {len(resources)} resources from {handler}")
@@ -71,7 +86,8 @@ class Repo(ABC):
         :param exist_strategy: What to do if resource exists
 
         :raise: ResourceExistsException: Raised if exist_strategy is set to RAISE
-        :raise: ResourceNotSupportedException: Raised if repo don't have handler for resource.
+        :raise: ResourceNotSupportedException: Raised if the repository doesn't have a
+            handler for this resource type
         """
 
         if type(resource) not in self.resource_handlers:
@@ -85,8 +101,9 @@ class Repo(ABC):
 
         :param resource: Resource to remove from repo
 
-        :raise ResourceDontExistsException: Raised when resource is not present in repository
-        :raise ResourceNotSupportedException: Raised if repo don't have handler for resource.
+        :raise ResourceNotFoundException: Raised when resource is not present in repository
+        :raise ResourceNotSupportedException: Raised if repo don't have handler for
+            this resource type
         """
         if type(resource) not in self.resource_handlers:
             raise ResourceNotSupportedException(type(resource), type(self))
@@ -102,7 +119,7 @@ class Repo(ABC):
         """
         Searches for resource with given type in repository
 
-        :raise ResourceDontExistsException: Raised when resource with given name isn't present
+        :raise ResourceNotFoundException: Raised when resource with given name isn't present
         :raise ResourceNotSupportedException: Raised when resource is not supported by repo
             implementation
         """

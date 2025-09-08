@@ -11,8 +11,12 @@ from topwrap.util import ExistsStrategy
 
 
 class Resource(ABC):  # noqa: B024
-    """Base class for representing a resource in a repository"""
+    """
+    Base class for representing a resource in a repository.
+    Each derived resource should define its own structure.
+    """
 
+    #: Name of the resource
     name: str
 
     def __init__(self, name: str):
@@ -71,6 +75,12 @@ class ResourceHandler(Generic[ResourceType], ABC):
 
 
 class FileHandler(ABC):
+    """
+    Base class for file handlers.
+    A file handler is used to extract repository resources
+    from a set of given files.
+    """
+
     _files: list[File]
 
     def __init__(self, files: Iterable[File]):
