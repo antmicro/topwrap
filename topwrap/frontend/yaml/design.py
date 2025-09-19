@@ -28,6 +28,7 @@ from topwrap.model.hdl_types import Bit
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.misc import ElaboratableValue, FileReference, Identifier
 from topwrap.model.module import Module
+from topwrap.resource_field import RepoReferenceHandler
 
 logger = logging.getLogger(__name__)
 
@@ -324,9 +325,23 @@ class DesignDescriptionFrontend:
         return io
 
     def _get_module(self, ip: DesignIP) -> Module:
-        mod = self._modules.get(ip.module.name)
-        if mod is None:
-            mod = IPCoreDescriptionFrontend().parse_file(ip.path)
-            self._modules[mod.id.name] = mod
+        from topwrap.repo.user_repo import Core
+
+        if isinstance(ip.file, RepoReferenceHandler):
+            key = list(ip.file.args)[0] + ip.file.value
+            mod = self._modules.get(key)
+            if mod is not None:
+                return mod
+            mod = ip.file.to_resource(Core).ir_module.top_level
+            if mod.id.name in self._modules:
+                mod = self._modules[mod.id.name]
+            else:
+                self._modules[mod.id.name] = mod
+            self._modules[key] = mod
+        else:
+            mod = self._modules.get(ip.module.name)
+            if mod is None:
+                mod = IPCoreDescriptionFrontend().parse_file(ip.path)
+                self._modules[mod.id.name] = mod
 
         return mod

@@ -20,6 +20,7 @@ from topwrap.common_serdes import (
 )
 from topwrap.config import config
 from topwrap.repo.files import IncorrectUrlException
+from topwrap.repo.user_repo import Core
 from topwrap.resource_field import (
     FileReferenceHandler,
     InvalidArgumentException,
@@ -499,3 +500,10 @@ this: [a, b, c]
             data = TestDataclass.load(Path(f.name))
             for res in data.files:
                 assert res.to_path().exists()
+
+    def test_real_resource(self):
+        ref = YamlCommonSchemes.parse("repo[builtin]:axi_protocol_converter")
+        assert isinstance(ref, RepoReferenceHandler)
+        ld_core = ref.to_resource(Core).ir_module
+        assert ld_core.top_level and [*ld_core.unknown_sources] == []
+        assert not ref.to_path().exists()

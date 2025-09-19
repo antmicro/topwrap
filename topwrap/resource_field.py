@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, ClassVar, Collection, Type, Union
 
 from topwrap.repo.files import HttpGetFile
+from topwrap.repo.resource import ResourceType
 from topwrap.util import UnreachableError, get_config, path_relative_to
 
 
@@ -106,6 +107,13 @@ class RepoReferenceHandler(ResourceReferenceHandler):
         if repo_path is None:
             raise ValueError(f"Could not find repo '{repo_name}'")
         return repo_path.to_path() / self.value
+
+    def to_resource(self, type: type[ResourceType]) -> ResourceType:
+        [repo_name] = self.args
+        repo = get_config().loaded_repos.get(repo_name)
+        if repo is None:
+            raise ValueError(f"Could not find repo '{repo_name}'")
+        return repo.get_resource(type, self.value)
 
 
 class SupportedSchemeGroup:
