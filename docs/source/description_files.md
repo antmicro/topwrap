@@ -124,8 +124,6 @@ A more complex example of a hierarchy can be found in the [examples/hierarchy](h
 
 ## IP description files
 
-Every IP wrapped by Topwrap needs a description file in the YAML format.
-
 The ports of an IP should be placed in the global `signals` key, followed by the direction - `in`, `out` or `inout`. The module name of an IP should be placed in the global `name` key, and it should be consistent with the definition in the HDL file.
 
 As an example, this is the description of ports in the `Clock Crossing` IP:
@@ -184,8 +182,6 @@ signals: # These ports do not belong to an interface
 
 The names `s_axis` and `m_axis` will be used to group the selected ports.
 Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` must connect to `TDATA: other_port_name`.
-
-To speed up the generation of YAMLs, Topwrap's `parse` command (see [Generating IP core description YAMLs](advanced_options.md#generating-ip-core-description-yamls)) can be used to generate YAMLs from HDL source files.
 
 ### Port widths
 
@@ -310,13 +306,6 @@ Signals are either required or optional, and their direction is described from t
 Note that `clock` and `reset` are not included as these are usually inputs to both the manager and subordinate, so they are not supported in the interface specification.
 Every signal is a key-value pair, where the key is a generic signal name (normally taken from the interface specification) and used to identify it in other parts of Topwrap (i.e. IP core description files), and the value is a regex used to deduce which port defined in the HDL sources represents this signal.
 
-### Interface deduction
-
-During [IP core parsing](getting_started.md#parsing-verilog-files), you can use the `--iface-deduce` flag to enable automatic pairing of raw ports from HDL sources to interface signals.
-
-This feature matches signal regexes from all available interface descriptions with raw port names of the IP core in order to discover possible interface instances.
-The pairing is performed on port names that are transformed to lowercase and have the common `port_prefix` removed, which means that the regexes must also be written in lowercase.
-
 ### Interface compliance
 
 During the [build process](getting_started.md#building-designs-with-topwrap), an optional verification of whether the interface instances used in IP cores are compliant with their respective descriptions can be enabled. The verification consists of checking in the instance if:
@@ -358,10 +347,15 @@ SCHEME[ARG1|ARG2...]:SCHEME_PATH
   - `SCHEME_PATH`: A filesystem path relative from the currently edited YAML file to the resource
 - `repo`
   - `SCHEME_ARGS`: Repository name
-  - `SCHEME_PATH`: A path from the root of the user repository given by the name
+  - `SCHEME_PATH`: A name of resource
 - `get`
   - `SCHEME_ARGS`: None
   - `SCHEME_PATH`: The URL address of the remote resource. Only `http(s)://` URLs are currently supported.
+
+
+:::{warning}
+If a repository was injected to the config with the `--repo` CLI option, the name of such repository will be the name of the directory containing it.
+:::
 
 ### Examples
 
@@ -373,7 +367,7 @@ file:./my_directory/file.txt
 A path to the file on the filesystem.
 
 ```
-repo[builtin]:cores/axi_protocol_converter/core.yaml
+repo[builtin]:axi_protocol_converter
 ```
 
 This loads the `axi_protocol_converter` core located in the builtin user repository.

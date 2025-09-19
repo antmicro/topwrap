@@ -37,29 +37,3 @@ The file is located at `$XDG_DATA_HOME/topwrap/dataflow_latest_save.json`.
 :::
 
 More information about this example can be found [here](https://antmicro.github.io/topwrap/examples.html#pwm)
-
-## Command Line Interface (CLI)
-
-Topwrap has a couple of CLI only functions that expand on the functionality offered by the GUI.
-
-### Generating IP core description YAMLs
-
-You can use Topwrap to generate IP core description YAMLs from HDL sources for use in your own `project.yaml`.
-To learn more about project and core YAMLs, check the [Design description](description_files.md#design-description) and [IP description files](description_files.md#ip-description-files).
-
-```
-python -m topwrap parse HDL_FILES
-```
-
-In HDL source files, ports that belong to the same interface (e.g. `wishbone` or `AXI`) often have a common prefix, which corresponds to the interface name. If the naming convention is followed in the HDL sources, Topwrap can also divide ports into user-specified interfaces, or automatically deduce interface names when generating YAML files:
-
-```
-python -m topwrap parse --iface wishbone --iface s_axi HDL_FILES
-python -m topwrap parse --iface-deduce HDL_FILES
-```
-
-For help, use:
-
-```
-python -m topwrap [build|gui|parse] --help
-```

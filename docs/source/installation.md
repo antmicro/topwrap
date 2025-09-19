@@ -3,15 +3,14 @@
 ## 1. Install required system packages
 
 :::{caution}
-Topwrap has been tested on Debian Bullseye and Bookworm, both of which include ANTLR4 version 4.7.2. \
-This specific version is required for the proper operation of one of Topwrap's dependencies,  [hdlConvertor](https://github.com/Nic30/hdlConvertor). \
+Topwrap has been tested on Debian Bullseye and Bookworm.
 While other distributions may also be compatible, Bullseye and Bookworm reflect environments where functionality has been verified.
 :::
 
 On Debian and Debian-based distributions, follow these steps to install the required dependencies:
 
 ```bash
-apt install -y python3 python3-pip yosys npm antlr4 libantlr4-runtime-dev pipx
+apt install -y python3 python3-pip yosys npm pipx
 ```
 
 ## 2. Install the Topwrap user package

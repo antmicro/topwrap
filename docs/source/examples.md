@@ -169,8 +169,6 @@ To add a new hierarchy node, use the `New Graph Node` option in the node browser
 
 ### Usage
 
-This example contains the [user repository](https://antmicro.github.io/topwrap/user_repositories.html) (`repo` directory) and a configuration file for Topwrap (`topwrap.yaml`). It can be loaded by entering the examples directory, and running:
-
 ```
 topwrap gui -d project.yaml
 ```

@@ -5,7 +5,7 @@ All the necessary files needed to follow this guide are in the [examples/getting
 
 :::{admonition} Important
 :class: attention
-If you haven't installed Topwrap yet, go to the [Installation chapter](#installation) and make sure to install the additional dependencies for `topwrap parse`.
+If you haven't installed Topwrap yet, go to the [Installation chapter](#installation).
 :::
 
 ## Design overview
@@ -24,28 +24,34 @@ Metanodes are always utilized in designs to represent external input/output port
 They can be found in the "Metanode" section.
 :::
 
-## Parsing Verilog files
-
-The first step when creating designs is to parse Verilog files into [IP core description YAMLs](https://antmicro.github.io/topwrap/usage.html#generating-ip-core-description-yamls) that are understood by Topwrap.
+## Adding Verilog sources to repository
 
 The `verilogs` directory contains two Verilog files, `simple_core_1.v` and `simple_core_2.v`.
 
-To generate the IP core descriptions from these Verilog files run:
+In order to use external IP cores in a Topwrap design, they need to be added to a [repository](./user_repositories.md) first.
+
+The repository could either be created manually, or in an easier way, through CLI commands:
 
 ```bash
-topwrap parse verilogs/{simple_core_1.v,simple_core_2.v}
+# To initialize an empty repository `my_repo_name` in `my_repo` directory
+topwrap repo init my_repo_name my_repo
+
+# To automatically parse all supported HDL sources from the `verilogs` directory
+# and copy them to the previously created `my_repo` repository
+topwrap repo parse my_repo verilogs
 ```
 
-Topwrap will generate two files `simple_core_1.yaml` and `simple_core_2.yaml` that represent the corresponding Verilog files.
+The `topwrap repo init` command will add the newly created repository to the project [configuration file](./config.md) or create one if it's missing.
+Thanks to this, the repository will be automatically loaded by Topwrap in further commands.
 
 ## Building designs with Topwrap
 
 ### Creating the design
 
-The generated IP core YAMLs can be loaded into the GUI, using:
+The previously parsed source files can be loaded into the GUI with:
 
 ```bash
-topwrap gui simple_core_1.yaml simple_core_2.yaml
+topwrap gui
 ```
 
 The loaded IP cores can be found in the IPcore section:
@@ -63,20 +69,9 @@ Let's make the design from the demo in the [introduction](#introduction).
 :::{note} You can change the name of an individual node by right clicking on it and selecting `rename`. This is useful when creating multiple instances of the same IP core.
 :::
 
-You can save the project in the [Design Description](description_files.md#design-description) format, which is used by Topwrap to represent the created design.
-
-To do this, select the graph button and select `Save file`.
-
-```{image} img/save_graph_kpm.png
-```
-
-:::{note}
-The difference between `Save file` and `Save graph file` lies in which format is used for saving.
-
-`Save file` will save the design description in the YAML format which Topwrap uses.
-
-`Save graph file` will save the design in the [graph JSON format](https://antmicro.github.io/kenning-pipeline-manager/specification-format.html) which the GUI uses. You should only choose this one if you have a specific custom layout of the nodes in the design and you want to save it.
-:::
+You can save the design using the `Save graph file` option from the menu.
+This will create a [graph JSON format](https://antmicro.github.io/kenning-pipeline-manager/dataflow-format.html) file used by the GUI.
+This is essentially a snapshot of everything that you created in the editor and can be loaded back later.
 
 ### Generating Verilog in the GUI
 
@@ -101,12 +96,12 @@ First, include all the IP core files needed in the `ips` section.
 ```yaml
 ips:
   simple_core_1:
-    file: file:simple_core_1.yaml
+    file: repo[my_repo]:simple_core_1
   simple_core_2:
-    file: file:simple_core_2.yaml
+    file: repo[my_repo]:simple_core_2
 ```
 
-Here, the name of the node is declared, and the IP core `simple_core_1.yaml` is named `simple_core_1` in the GUI.
+Here, `simple_core_1` and `simple_core_2` are given instance names for IP cores loaded from the `my_repo` repository.
 
 Now we can start creating the design under the `design` section. The design doesn't have any parameters set, so we can skip this part and go straight into the `ports` section. In there, the connections between IP cores are defined. In the demo example, there is only one connection - between `simple_core_1` and `simple_core_2`.
 
@@ -116,23 +111,20 @@ In our design, it is represented like this:
 design:
   ports:
     simple_core_2:
-      a:
-      - simple_core_1
-      - z
+      a: [simple_core_1, z]
 ```
 
-Notice that `input` is connected to `output`.
-All that is left to do is to declare the external connections to metanodes, like this:
+All that is left to do is to declare external ports, like this:
 
 ```yaml
 external:
   ports:
     in:
-    - rst
-    - clk
+      - rst
+      - clk
     out:
-    - Output_y
-    - Output_c
+      - Output_y
+      - Output_c
 ```
 
 Now connect them to IP cores.
@@ -144,9 +136,7 @@ design:
       clk: clk
       rst: rst
     simple_core_2:
-      a:
-      - simple_core_1
-      - z
+      a: [simple_core_1, z]
       c: Output_c
       y: Output_y
 ```
@@ -156,28 +146,26 @@ The final design:
 ```yaml
 ips:
   simple_core_1:
-    file: file:simple_core_1.yaml
+    file: repo[my_repo]:simple_core_1
   simple_core_2:
-    file: file:simple_core_2.yaml
+    file: repo[my_repo]:simple_core_2
 design:
   ports:
     simple_core_1:
       clk: clk
       rst: rst
     simple_core_2:
-      a:
-      - simple_core_1
-      - z
+      a: [simple_core_1, z]
       c: Output_c
       y: Output_y
 external:
   ports:
     in:
-    - rst
-    - clk
+      - rst
+      - clk
     out:
-    - Output_y
-    - Output_c
+      - Output_y
+      - Output_c
 ```
 
 ### Generating Verilog top files

@@ -354,7 +354,7 @@ While Topwrap uses the `manager` and `subordinate` terms to refer to the roles a
 
 #### Interface deduction
 
-Topwrap supports specifying both a regex for each signal and the port prefix for the entire interface in order to [automatically group raw ports](../description_files.md#interface-deduction) from HDL sources into interfaces. None of that is possible to represent in IP-XACT, though this information can be stored anyways using [](#vendor-extensions).
+Topwrap supports specifying both a regex for each signal and the port prefix for the entire interface in order to [automatically group raw ports](../inference.md) from HDL sources into interfaces. None of that is possible to represent in IP-XACT, though this information can be stored anyways using [](#vendor-extensions).
 
 ### Bus instantiation
 
@@ -546,7 +546,7 @@ In most aspects IP-XACT is a superset of what's possible to describe in Topwrap,
 
 Syntax impossible to represent natively in IP-XACT such as:
 - Abstract interconnects without concrete implementation
-- Interface signal name regexes and port prefixes (see [](../description_files.md#interface-deduction))
+- Interface signal name regexes and port prefixes (see [](../inference.md))
 
 can even if not implemented, be at least preserved using [](#vendor-extensions).
 
