@@ -30,7 +30,6 @@ from topwrap.config import (
 )
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
-from topwrap.interface_grouper import standard_iface_grouper
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
 from topwrap.resource_field import FileReferenceHandler
@@ -138,72 +137,6 @@ def build_main(
         fuse_builder.build(
             module.id.name, build_dir / f"{module.id.name}.core", sources_dir=all_sources
         )
-
-
-@main.command("parse", help="Parse HDL sources to ip core yamls")
-@click.option(
-    "--use-yosys",
-    default=False,
-    is_flag=True,
-    help="Use Yosys command `read_verilog` to parse Verilog files",
-)
-@click.option(
-    "--iface-deduce",
-    default=False,
-    is_flag=True,
-    help="Try to group port into interfaces automatically",
-)
-@click.option(
-    "--iface", "-i", multiple=True, help="Interface name, that ports will be grouped into"
-)
-@click.option(
-    "--dest-dir",
-    "-d",
-    type=click_opt_rw_dir,
-    default="./",
-    help="Destination directory for generated yamls",
-)
-@click.argument("files", type=click_r_file, nargs=-1)
-def parse_main(
-    use_yosys: bool,
-    iface_deduce: bool,
-    iface: Tuple[str, ...],
-    dest_dir: Path,
-    files: Tuple[Path, ...],
-):
-    try:
-        from topwrap.verilog_parser import VerilogModuleGenerator
-        from topwrap.vhdl_parser import VHDLModule
-    except ModuleNotFoundError:
-        logging.error(
-            "hdlConvertor not installed, please install optional dependency topwrap[parse], "
-            "e.g. `pip install topwrap[parse]`"
-        )
-        sys.exit(1)
-
-    dest_dir.mkdir(exist_ok=True, parents=True)
-
-    for filepath in files:
-        if filepath.suffix == ".v":
-            modules = VerilogModuleGenerator().get_modules(filepath)
-            iface_grouper = standard_iface_grouper(filepath, use_yosys, iface_deduce, iface)
-            for verilog_mod in modules:
-                ipcore_desc = verilog_mod.to_ip_core_description(iface_grouper)
-                yaml_path = dest_dir / f"{ipcore_desc.name}.yaml"
-                ipcore_desc.save(yaml_path)
-                logging.info(
-                    f"Verilog module '{verilog_mod.module_name}' saved in file '{yaml_path}'"
-                )
-        elif filepath.suffix in (".vhdl", ".vhd"):
-            # TODO - handle case with multiple VHDL modules in one file
-            vhdl_mod = VHDLModule(filepath)
-            iface_grouper = standard_iface_grouper(filepath, False, iface_deduce, iface)
-            ipcore_desc = vhdl_mod.to_ip_core_description(iface_grouper)
-            yaml_path = dest_dir / f"{ipcore_desc.name}.yaml"
-            ipcore_desc.save(yaml_path)
-            logging.info(f"VHDL Module '{vhdl_mod.module_name}' saved in file '{yaml_path}'")
-        else:
-            logging.warning(f"Unknown file format:  '{filepath}', skipping parsing")
 
 
 class KPM:

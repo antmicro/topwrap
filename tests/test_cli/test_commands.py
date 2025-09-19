@@ -16,7 +16,6 @@ from topwrap.cli.main import (
     generate_kpm_design,
     generate_kpm_spec,
     main,
-    parse_main,
     topwrap_gui,
 )
 from topwrap.repo.user_repo import Core
@@ -71,26 +70,6 @@ class TestCli:
                 build_dir=tmp_path,
             )
         assert Path(tmp_path / "top.sv").exists()
-
-    def test_parse_main(self, tmp_path):
-        test_file_names = ["axi_axil_adapter.v", "axi_dispctrl_v1_0.vhd"]
-
-        files_to_parse = [
-            Path(f"{self.test_data_path}data_parse/{file_name}") for file_name in test_file_names
-        ]
-
-        with click.Context(parse_main) as ctx:
-            ctx.invoke(
-                parse_main,
-                iface=[],
-                files=files_to_parse,
-                dest_dir=tmp_path,
-            )
-
-        for test_file_name in test_file_names:
-            file_name = Path(test_file_name).stem
-            file_name = f"{file_name}.yaml"
-            assert Path(tmp_path / file_name).exists()
 
     def create_socket_client(self, sock: socket.socket):
         sock.listen(1)
