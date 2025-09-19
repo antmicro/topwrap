@@ -35,9 +35,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-parse = [
-  "hdlConvertor @ git+https://github.com/antmicro/hdlConvertor@94372093b6810d1b726429a1049c104f47883f27",
-]
 lint = [
   "nox!=2025.10.16,!=2025.10.14,!=2025.5.1",
   "pre-commit==3.5.0",

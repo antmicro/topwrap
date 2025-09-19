@@ -12,7 +12,6 @@ from deepdiff import DeepDiff
 from marshmallow import ValidationError
 
 from topwrap.interface import InterfaceMode
-from topwrap.interface_grouper import standard_iface_grouper
 from topwrap.ip_desc import (
     IPCoreComplexParameter,
     IPCoreDescription,
@@ -21,7 +20,6 @@ from topwrap.ip_desc import (
     IPCorePorts,
 )
 from topwrap.util import get_config
-from topwrap.verilog_parser import VerilogModule
 
 
 class TestIPCoreDescription:
@@ -83,16 +81,8 @@ interfaces:
             return yaml.safe_load(f)
 
     @pytest.fixture
-    def ip_core_description(self, axi_verilog_module: VerilogModule) -> IPCoreDescription:
-        return axi_verilog_module.to_ip_core_description(standard_iface_grouper())
-
-    @pytest.fixture
     def expected_output(self) -> IPCoreDescription:
         return IPCoreDescription.load(Path("tests/data/data_parse/axi_axil_adapter.yaml"))
-
-    @pytest.fixture
-    def clog2_ip_core_description(self, clog2_test_module: VerilogModule) -> IPCoreDescription:
-        return clog2_test_module.to_ip_core_description(standard_iface_grouper())
 
     @pytest.fixture
     def clog2_expected_output(self) -> IPCoreDescription:
@@ -103,11 +93,6 @@ interfaces:
         with pytest.MonkeyPatch().context() as ctx:
             ctx.setattr(get_config(), "force_interface_compliance", True)
             yield
-
-    def test_conversion_from_hdl_module(
-        self, ip_core_description: IPCoreDescription, expected_output: IPCoreDescription
-    ):
-        assert DeepDiff(expected_output, ip_core_description) == {}
 
     def test_invalid_interface_type(self, invalid_interface_type_core):
         with pytest.raises(

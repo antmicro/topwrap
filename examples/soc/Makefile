@@ -65,7 +65,7 @@ clean:
 	rm -f $(JSONS)
 
 deps:
-	pip install '../../.[parse]'
+	pip install '../../.'
 
 ci: deps generate
 

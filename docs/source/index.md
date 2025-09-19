@@ -26,7 +26,6 @@ developers_guide/internal_representation
 developers_guide/fusesocbuilder
 developers_guide/interface
 developers_guide/config
-developers_guide/parsing
 developers_guide/checks
 developers_guide/future_enhancements
 developers_guide/inline_kpm_howto

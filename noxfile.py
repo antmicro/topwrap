@@ -55,7 +55,7 @@ def test_lint(session: nox.Session) -> None:
 
 @nox.session(python=PYTHON_VERSIONS)
 def tests(session: nox.Session) -> None:
-    session.install("-e", ".[tests,parse]")
+    session.install("-e", ".[tests]")
     session.run(
         "pytest",
         "-rs",
@@ -69,7 +69,7 @@ def tests(session: nox.Session) -> None:
 
 @nox.session
 def update_test_data(session: nox.Session) -> None:
-    session.install("-e", ".[tests,parse]")
+    session.install("-e", ".[tests]")
     tests_to_update = ["dataflow", "specification"] if not session.posargs else session.posargs
     tests_to_update = [f"--{test_data}" for test_data in tests_to_update]
     session.run("python3", "tests/update_test_data.py", *tests_to_update)
@@ -135,7 +135,7 @@ def build(session: nox.Session) -> None:
 def _install_test(session: nox.Session) -> None:
     package_file = next(Path().glob("dist/topwrap*.tar.gz"), None)
     assert package_file is not None, "Cannot find source package in the dist/ directory"
-    session.install(f"{package_file}[tests,parse]")
+    session.install(f"{package_file}[tests]")
     session.run(
         "pytest",
         "-rs",
@@ -153,7 +153,7 @@ def doc_gen(session: nox.Session) -> None:
         # generate specs and dataflows for all examples and put them in docs/build/kpm_jsons
         # so that they can be used in the documentation without committing them to repo.
         Path("docs/build/kpm_jsons").mkdir(exist_ok=True, parents=True)
-        session.install(".[parse]")
+        session.install(".")
         with TemporaryDirectory() as tmpdir, TemporaryFile(mode="w+") as errfile:
             shutil.copytree(Path("."), tmpdir, dirs_exist_ok=True)
             for example in (Path(tmpdir) / "examples").glob("**/Makefile"):
@@ -287,7 +287,7 @@ def _pyright_check(session: nox.Session) -> None:
 
 @nox.session
 def package_cores(session: nox.Session) -> None:
-    session.install("-e", ".[parse]")
+    session.install("-e", ".")
     session.install("fusesoc")
     save_dir = "./build/export"
     if len(session.posargs) > 0:

@@ -28,7 +28,7 @@ apt install -y python3 python3-pip yosys npm antlr4 libantlr4-runtime-dev pipx
 
 Once the dependencies are installed, you can install topwrap with the following command:
 ```
-pipx install "topwrap[parse]@git+https://github.com/antmicro/topwrap"
+pipx install "topwrap@git+https://github.com/antmicro/topwrap"
 ```
 
 More detailed instructions, are available in the
