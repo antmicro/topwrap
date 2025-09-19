@@ -3,26 +3,20 @@
 
 JSONS = kpm_spec.json kpm_dataflow.json
 SOURCE_DIR := verilogs
-IPCORES_DIR := ipcores
-SOURCE_FILES := \
-	${SOURCE_DIR}/simple_core_1.v \
-	${SOURCE_DIR}/simple_core_2.v
-
+REPO_NAME := my_repo
 
 all: $(JSONS)
 
 $(JSONS): parse
 	topwrap specification -d project.yaml
-	topwrap dataflow -d project.yaml ${IPCORES_DIR}/*.yaml
+	topwrap dataflow -d project.yaml
 
-parse: clean setup
-	topwrap parse --iface-deduce ${SOURCE_FILES} --dest-dir=${IPCORES_DIR}/
+parse:
+	topwrap repo init ${REPO_NAME} ${REPO_NAME}
+	topwrap repo parse ${REPO_NAME} ${SOURCE_DIR}
 
 clean:
 	rm -f $(JSONS)
-	rm -rf ${IPCORES_DIR}/*
+	rm -rf ${REPO_NAME}
 
-setup:
-	mkdir -p ${IPCORES_DIR}
-
-.PHONY: all clean parse setup
+.PHONY: all clean parse

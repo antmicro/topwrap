@@ -1,0 +1,4 @@
+name: example_core2
+top_level_name: core2
+sources:
+  - file:core2.yaml

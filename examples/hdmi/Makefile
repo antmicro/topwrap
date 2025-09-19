@@ -8,9 +8,6 @@ all: zvb
 build:
 	mkdir build
 
-parse:
-	topwrap parse --iface-deduce sources/clock_crossing.v sources/ps7.v
-
 generate: build
 	topwrap build --design project.yaml --fuse --sources sources
 

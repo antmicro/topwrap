@@ -7,13 +7,7 @@
 DESIGN		:=	project.yaml
 SOURCE_DIR 	:=	sources
 BUILD_DIR 	:=	build
-IPCORES_DIR	:=	ipcores
-
-SOURCE_FILES := \
-	${SOURCE_DIR}/ibuf.v \
-	${SOURCE_DIR}/obuf.v \
-	${SOURCE_DIR}/iobuf.v
-
+REPO_NAME 	:=	my_repo
 JSONS = kpm_spec.json kpm_dataflow.json
 
 # -------------------------------------
@@ -31,10 +25,11 @@ TARGET  := 	zynq
 all: bit
 
 parse: clean setup
-	topwrap parse --iface-deduce ${SOURCE_FILES} --dest-dir=${IPCORES_DIR}/
+	topwrap repo init ${REPO_NAME} ${REPO_NAME}
+	topwrap repo parse ${REPO_NAME} ${SOURCE_DIR}
 
 generate: parse copy_sources
-	topwrap build --design ${DESIGN} --fuse --part ${PART} --sources ${SOURCE_DIR}
+	topwrap --repo ${REPO_NAME} build --design ${DESIGN} --fuse --part ${PART} --sources ${SOURCE_DIR}
 
 # -------------------------------------
 # Bitstream generation
@@ -58,7 +53,7 @@ copy_sources:
 clean:
 	rm -rf fusesoc.conf fusesoc_libraries
 	rm -f sources/*.json
-	rm -rf ${BUILD_DIR}/* ${IPCORES_DIR}/*
+	rm -rf ${BUILD_DIR}
 
 deps:
 	pip install -r requirements.txt

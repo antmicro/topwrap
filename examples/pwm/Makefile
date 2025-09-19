@@ -8,9 +8,6 @@ all: zvb
 build:
 	mkdir build
 
-parse:
-	topwrap parse --iface-deduce sources/litex_pwm.v sources/ps7.v
-
 generate: build
 	topwrap build --design project.yaml --fuse --sources sources --part xc7z010clg400-1
 

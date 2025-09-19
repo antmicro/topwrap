@@ -188,19 +188,19 @@ external:
     - HDMI_D2_N
 ips:
   axi_bridge_disp:
-    file: &axil repo[builtin]:cores/axi_axil_adapter/core.yaml
+    file: &axil repo[builtin]:axi_axil_adapter
   axi_bridge_dma:
     file: *axil
   axi_bridge_mmcm:
     file: *axil
   axi_interconnect0:
-    file: repo[builtin]:cores/axi_interconnect/core.yaml
+    file: repo[builtin]:axi_interconnect
   axi_protocol_converter0:
-    file: repo[builtin]:cores/axi_protocol_converter/core.yaml
+    file: repo[builtin]:axi_protocol_converter
   axis_clock_converter:
-    file: repo[builtin]:cores/axis_async_fifo/core.yaml
+    file: repo[builtin]:axis_async_fifo
   axis_dwidth_converter:
-    file: repo[builtin]:cores/axis_dwidth_converter/core.yaml
+    file: repo[builtin]:axis_dwidth_converter
   clock_crossing:
     file: file:ipcores/clock_crossing.yaml
   disp:

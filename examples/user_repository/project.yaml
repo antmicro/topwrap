@@ -20,6 +20,6 @@ external:
     - ex_out_1
 ips:
   core1:
-    file: repo[my_repo]:cores/example_core1/core1.yaml
+    file: repo[my_repo]:example_core1
   core2:
-    file: repo[my_repo]:cores/example_core2/core2.yaml
+    file: repo[my_repo]:example_core2

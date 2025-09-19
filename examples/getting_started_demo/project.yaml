@@ -17,6 +17,6 @@ external:
     - Output_c
 ips:
   simple_core_1:
-    file: file:ipcores/simple_core_1.yaml
+    file: repo[my_repo]:simple_core_1
   simple_core_2:
-    file: file:ipcores/simple_core_2.yaml
+    file: repo[my_repo]:simple_core_2

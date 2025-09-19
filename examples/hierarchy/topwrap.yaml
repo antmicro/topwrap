@@ -1,3 +1,0 @@
-force_interface_compliance: false
-repositories:
-  my_repo: file:./repo/

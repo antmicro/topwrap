@@ -3,15 +3,15 @@
 
 ips:
   vexriscv:
-    file: file:ipcores/VexRiscv.yaml
+    file: repo[my_repo]:VexRiscv
   wb_ram_data:
-    file: file:ipcores/mem.yaml
+    file: repo[my_repo]:mem
   wb_ram_instr:
-    file: file:ipcores/mem.yaml
+    file: repo[my_repo]:mem
   crg:
-    file: file:ipcores/crg.yaml
+    file: repo[my_repo]:crg
   wb_uart:
-    file: file:ipcores/wb_uart.yaml
+    file: repo[my_repo]:wb_uart
 
 design:
   name: simple_soc

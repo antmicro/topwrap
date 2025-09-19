@@ -3,11 +3,11 @@
 
 ips:
   ip_ibuf:
-    file: file:ipcores/ibuf.yaml
+    file:   repo[my_repo]:ibuf
   ip_obuf:
-    file: file:ipcores/obuf.yaml
+    file:   repo[my_repo]:obuf
   ip_iobuf:
-    file: file:ipcores/iobuf.yaml
+    file:   repo[my_repo]:iobuf
 
 design:
   name: project_top
