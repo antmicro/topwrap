@@ -289,10 +289,17 @@ def _pyright_check(session: nox.Session) -> None:
 def package_cores(session: nox.Session) -> None:
     session.install("-e", ".[parse]")
     session.install("fusesoc")
+    save_dir = "./build/export"
     if len(session.posargs) > 0:
-        session.run("python", ".github/scripts/package_cores.py", "--log-level", session.posargs[0])
+        session.run(
+            "python",
+            ".github/scripts/package_cores.py",
+            "--log-level",
+            session.posargs[0],
+            save_dir,
+        )
     else:
-        session.run("python", ".github/scripts/package_cores.py")
+        session.run("python", ".github/scripts/package_cores.py", save_dir)
 
 
 @nox.session
