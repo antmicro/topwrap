@@ -116,13 +116,14 @@ def build_main(
 
     all_sources = list(sources)
 
-    [*repo_modules] = load_modules_from_repos()
-    map_interfaces_to_modules_from_repos(repo_modules)
+    repo_modules, existing_ifaces = load_modules_from_repos()
+    map_interfaces_to_modules_from_repos(list(repo_modules))
 
     frontend = YamlFrontend(repo_modules)
-    [module] = frontend.parse_files([design])
+    frontend_output = frontend.parse_files([design])
+    module = frontend_output.modules[0]
 
-    backend = SystemVerilogBackend()
+    backend = SystemVerilogBackend(existing_ifaces)
     repr = backend.represent(module)
     [out] = backend.serialize(repr, combine=True)
 
@@ -208,20 +209,23 @@ class KPM:
     ):
         logging.info("Starting kenning pipeline manager client")
 
-        [*repo_mods] = load_modules_from_repos()
-        map_interfaces_to_modules_from_repos(repo_mods)
+        repo_modules, _ = load_modules_from_repos()
+        map_interfaces_to_modules_from_repos(list(repo_modules))
 
-        frontend = YamlFrontend(repo_mods)
-        design_module = next(frontend.parse_files([design])) if design else None
+        frontend = YamlFrontend(repo_modules)
+        if design is not None:
+            design_module = frontend.parse_files([design]).modules[0]
+        else:
+            design_module = None
         if design_module and not design_module.design:
             logging.error("Given design YAML file does not contain a design.")
             return
 
-        modules = frontend.parse_files(yamlfiles)
+        modules = frontend.parse_files(list(yamlfiles)).modules
 
         spec = KpmSpecificationBackend.default()
 
-        for module in chain(repo_mods, modules):
+        for module in chain(repo_modules, modules):
             try:
                 spec.add_module(module)
             except Exception:
@@ -252,7 +256,7 @@ class KPM:
                         spec,
                         build_dir,
                         design_module.design if design_module else None,
-                        repo_mods,
+                        list(repo_modules),
                         [*load_interfaces_from_repos()],
                     ),
                     client_ready_event,
@@ -495,12 +499,15 @@ def topwrap_gui(
 @click.option("--design", "-d", type=click_r_file, help="Design YAML file")
 @click.argument("files", type=click_r_file, nargs=-1)
 def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, ...]):
-    [*repo_mods] = load_modules_from_repos()
-    map_interfaces_to_modules_from_repos(repo_mods)
+    repo_modules, _ = load_modules_from_repos()
+    map_interfaces_to_modules_from_repos(list(repo_modules))
 
-    frontend = YamlFrontend(repo_mods)
-    design_module = next(frontend.parse_files([design])) if design else None
-    modules = frontend.parse_files(list(files))
+    frontend = YamlFrontend(repo_modules)
+    if design is not None:
+        design_module = frontend.parse_files([design]).modules[0]
+    else:
+        design_module = None
+    modules = frontend.parse_files(list(files)).modules
 
     spec = KpmSpecificationBackend.default()
     for module in modules:
@@ -540,16 +547,17 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
 @click.option("--design", "-d", required=True, type=click_r_file, help="Design YAML file")
 @click.argument("files", type=click_r_file, nargs=-1)
 def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
-    [*repo_mods] = load_modules_from_repos()
-    map_interfaces_to_modules_from_repos(repo_mods)
+    repo_modules, _ = load_modules_from_repos()
+    map_interfaces_to_modules_from_repos(list(repo_modules))
 
-    frontend = YamlFrontend(repo_mods)
-    design_module = next(frontend.parse_files([design]))
+    frontend = YamlFrontend(repo_modules)
+    design_module = frontend.parse_files([design]).modules[0]
+
     if not design_module.design:
         logging.error("Given design YAML file does not contain a design.")
         sys.exit(1)
 
-    modules = frontend.parse_files(list(files))
+    modules = frontend.parse_files(list(files)).modules
 
     spec = KpmSpecificationBackend.default()
     for module in modules:

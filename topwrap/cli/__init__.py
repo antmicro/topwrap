@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any, Iterable, Iterator, Optional
 
 import click
 
@@ -33,9 +33,11 @@ class RepositoryPathParam(click.Path):
             return super().convert(value, param, ctx)
 
 
-def load_modules_from_repos() -> Iterator[Module]:
+def load_modules_from_repos() -> tuple[Iterable[Module], list[InterfaceDefinition]]:
     """Load all IR Modules from repositories in the config"""
 
+    modules = list[Module]()
+    existing_ifaces = list[InterfaceDefinition]()
     for repo in get_config().loaded_repos.values():
         for core in repo.get_resources(Core):
             try:
@@ -45,9 +47,11 @@ def load_modules_from_repos() -> Iterator[Module]:
                         f"Could not find a matching frontend for source '{unknown_source}' "
                         f"of core '{core.name}' in repo '{repo.name}'"
                     )
-                yield loaded_core.top_level
+                modules.append(loaded_core.top_level)
+                existing_ifaces.extend(loaded_core.existing_interfaces)
             except Exception as e:
                 logger.error(f"Could not load core '{core.name}' from repo '{repo.name}': {e}")
+    return (modules, existing_ifaces)
 
 
 def load_interfaces_from_repos() -> Iterator[InterfaceDefinition]:

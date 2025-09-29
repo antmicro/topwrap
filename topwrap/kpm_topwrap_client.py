@@ -110,7 +110,8 @@ class RPCMethods:
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
 
         frontend = YamlFrontend(self.modules, self.interfaces)
-        design_module = next(frontend.parse_str([yaml_str]))
+        modules = frontend.parse_str([yaml_str]).modules
+        design_module = modules[0]
         if not design_module.design:
             return {
                 "type": MessageType.ERROR.value,
@@ -217,10 +218,10 @@ def _kpm_dataflow_run_handler(
     messages = DataflowValidator(data).validate_kpm_design()
     if not messages["errors"]:
         frontend = KpmFrontend(repo_mods, interfaces)
-        modules = frontend.parse_str([json.dumps(data), json.dumps(spec)])
-        design = frontend.get_top_design(modules)
+        output = frontend.parse_str([json.dumps(data), json.dumps(spec)])
+        design = frontend.get_top_design(output.modules)
 
-        backend = SystemVerilogBackend(repo_mods)
+        backend = SystemVerilogBackend(output.interfaces)
         repr = backend.represent(design.parent)
         out = next(backend.serialize(repr, combine=True))
 
