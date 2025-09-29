@@ -4,8 +4,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Generic, Iterator, TypeVar
+from typing import Generic, Iterable, Iterator, TypeVar
 
+from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
 
 _T = TypeVar("_T")
@@ -41,6 +42,14 @@ class Backend(ABC, Generic[_T]):
     represented by the ``Module`` class into various external formats,
     represented by the generic parameter ``_T``.
     """
+
+    #: List of InterfaceDefinition's that already exists in source files or has been serialized, it
+    #: is a hint for backend implementations
+    existing_interfaces: list[InterfaceDefinition]
+
+    def __init__(self, existing_interfaces: Iterable[InterfaceDefinition] = ()):
+        self.existing_interfaces = list(existing_interfaces)
+        super().__init__()
 
     @abstractmethod
     def represent(self, module: Module, /) -> _T:

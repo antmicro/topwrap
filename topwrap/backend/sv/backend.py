@@ -47,6 +47,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
 
     def __init__(
         self,
+        existing_interfaces: Iterable[InterfaceDefinition] = (),
         modules: Iterable[Module] = (),
         all_pins: bool = False,
         desc_comms: bool = True,
@@ -63,7 +64,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
             defined externally). Mainly for debugging purposes.
         """
 
-        super().__init__()
+        super().__init__(existing_interfaces)
         self.all_pins = all_pins
         self.desc_comms = desc_comms
         self.mod_stubs = mod_stubs
@@ -90,6 +91,8 @@ class SystemVerilogBackend(Backend[SVOutput]):
         intfs = set[ObjectId[InterfaceDefinition]]()
         mods_to_repr = list[Design]()
 
+        existing_ifaces_ids = set([iface.id for iface in self.existing_interfaces])
+
         def _try_append(log: Logic):
             if log.name is not None and log.name not in pkg_items:
                 pkg_items[log.name] = log
@@ -102,7 +105,8 @@ class SystemVerilogBackend(Backend[SVOutput]):
                 _try_append(port.type)
             for intf in mod.interfaces:
                 if intf.has_independent_signals:
-                    intfs.add(intf.definition._id)
+                    if intf.definition.id not in existing_ifaces_ids:
+                        intfs.add(intf.definition._id)
                 for sig in intf.signals:
                     _try_append(sig.resolve().type)
             if mod._id not in self.modules or mod._id == used_module._id:
