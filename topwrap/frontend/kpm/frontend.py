@@ -3,11 +3,11 @@
 
 import json
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Iterable
 
 from typing_extensions import override
 
-from topwrap.frontend.frontend import Frontend, FrontendMetadata
+from topwrap.frontend.frontend import Frontend, FrontendMetadata, FrontendParseOutput
 from topwrap.frontend.kpm.common import KpmFrontendParseException
 from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.frontend.kpm.specification import KpmSpecificationFrontend
@@ -21,7 +21,7 @@ class KpmFrontend(Frontend):
         return FrontendMetadata(name="kpm", file_association=[".kpm.json"])
 
     @override
-    def parse_files(self, sources: Iterable[Path]) -> Iterator[Module]:
+    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         specs, flows = [], []
 
         for src in sources:
@@ -41,14 +41,15 @@ class KpmFrontend(Frontend):
                     )
 
         spec_front = KpmSpecificationFrontend(self.interfaces)
-        spec_mods = []
+        spec_mods = list[Module]()
         for source, spec in specs:
             spec_mods.extend(spec_front.parse(spec, source=source))
-        yield from spec_mods
 
         flow_front = KpmDataflowFrontend([*spec_mods, *self.modules])
         for source, flow in flows:
-            yield flow_front.parse(flow, source=source)
+            spec_mods.append(flow_front.parse(flow, source=source))
+
+        return FrontendParseOutput(modules=spec_mods)
 
     def get_top_design(self, modules: Iterable[Module]) -> Design:
         *_, design_module = modules

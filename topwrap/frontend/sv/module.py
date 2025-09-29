@@ -124,6 +124,9 @@ class SystemVerilogSlangParser:
     #: :py:func:`_infer_modports`
     _modport_names: dict[tuple[str, str], InterfaceMode]
 
+    #: List containing all interfaces parsed by frontend
+    _parsed_intf: list[InterfaceDefinition]
+
     def __init__(
         self,
         diag_log_level: ps.DiagnosticSeverity = ps.DiagnosticSeverity.Error,
@@ -137,6 +140,7 @@ class SystemVerilogSlangParser:
         self.diag_log_level = diag_log_level
         self._parsed_mods = {}
         self._typedefs = {}
+        self._parsed_intf = []
         # This may look like a useless operation, but this dictionary's
         # purpose is to store a mapping between SV modports and inferred
         # IR `InterfaceMode`. IR interfaces are loaded into this dict here
@@ -146,7 +150,7 @@ class SystemVerilogSlangParser:
             (iname, mode.value): mode for iname in self._interfaces for mode in InterfaceMode
         }
 
-    def parse_tree(self, tree: ps.SyntaxTree) -> Iterator[Module]:
+    def parse_tree(self, tree: ps.SyntaxTree) -> tuple[list[Module], list[InterfaceDefinition]]:
         """
         Parse a pyslang `SyntaxTree` into IR Modules
 
@@ -196,7 +200,7 @@ class SystemVerilogSlangParser:
                 for csym in sym:
                     sym_queue.append(csym)
 
-        yield from self._parsed_mods.values()
+        return (list(self._parsed_mods.values()), self._parsed_intf)
 
     def _visit_instance_ast(self, node: ps.InstanceSymbol):
         # An array of module/interface instances. Since they all
@@ -215,7 +219,9 @@ class SystemVerilogSlangParser:
         if node.isInterface:
             if body.name in self._interfaces:
                 return
-            self._interfaces[body.name] = self._parse_interface_ast(body)
+            ir_new_iface = self._parse_interface_ast(body)
+            self._interfaces[body.name] = ir_new_iface
+            self._parsed_intf.append(ir_new_iface)
         elif node.isModule:
             if body.name in self._modules:
                 return

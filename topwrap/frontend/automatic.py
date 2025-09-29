@@ -5,18 +5,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar, Iterable, Iterator, Type
+from typing import ClassVar, Iterable, Type
 
-from topwrap.frontend.frontend import Frontend, FrontendMetadata
+from topwrap.frontend.frontend import Frontend, FrontendMetadata, FrontendParseOutput
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
+from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
 
 
 @dataclass
 class UnknownInfoOutput:
-    modules: list[Module]
+    parsed: FrontendParseOutput
     unknown_sources: list[Path]
 
 
@@ -32,7 +33,7 @@ class AutomaticFrontend(Frontend):
     def metadata(self):
         return FrontendMetadata(name="automatic")
 
-    def parse_files(self, sources: Iterable[Path]) -> Iterator[Module]:
+    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         self._unknown_sources = []
         split = dict[Type[Frontend], list[Path]]()
 
@@ -44,11 +45,17 @@ class AutomaticFrontend(Frontend):
             else:
                 self._unknown_sources.append(source)
 
+        modules = list[Module]()
+        interfaces = list[InterfaceDefinition]()
+
         for frontend, sources in split.items():
-            for module in frontend(modules=self.modules, interfaces=self.interfaces).parse_files(
-                sources
-            ):
-                yield module
+            frontend_output = frontend(
+                modules=self.modules, interfaces=self.interfaces
+            ).parse_files(sources)
+            modules.extend(frontend_output.modules)
+            interfaces.extend(frontend_output.interfaces)
+
+        return FrontendParseOutput(modules=modules, interfaces=interfaces)
 
     def parse_files_with_unknown_info(self, sources: Iterable[Path]) -> UnknownInfoOutput:
         """
@@ -57,8 +64,8 @@ class AutomaticFrontend(Frontend):
         to any existing frontend and thus weren't parsed.
         """
 
-        [*modules] = self.parse_files(sources)
-        return UnknownInfoOutput(modules, self._unknown_sources)
+        parsed = self.parse_files(sources)
+        return UnknownInfoOutput(parsed, self._unknown_sources)
 
 
 class FrontendRegistry:

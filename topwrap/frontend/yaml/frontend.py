@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from pathlib import Path
-from typing import Any, Callable, Iterable, Iterator, Optional, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 import yaml
 
@@ -10,6 +10,7 @@ from topwrap.frontend.frontend import (
     Frontend,
     FrontendMetadata,
     FrontendParseException,
+    FrontendParseOutput,
     FrontendParseStrInput,
 )
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
@@ -36,8 +37,8 @@ class YamlFrontend(Frontend):
         else:
             raise FrontendParseException(f"{name} is neither an IP Core, nor a Design Description")
 
-    def parse_files(self, sources: Iterable[Path]) -> Iterator[Module]:
-        modules = []
+    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+        modules = list[Module]()
         designs = []
 
         for src in sources:
@@ -50,13 +51,14 @@ class YamlFrontend(Frontend):
                 if design:
                     designs.append(design)
 
-        yield from modules
-
         for des in designs:
-            yield DesignDescriptionFrontend(self.modules + modules).parse_file(des).parent
+            modules.append(DesignDescriptionFrontend(self.modules + modules).parse_file(des).parent)
+        return FrontendParseOutput(modules=modules)
 
-    def parse_str(self, sources: Iterable[Union[str, FrontendParseStrInput]]) -> Iterator[Module]:
-        modules = []
+    def parse_str(
+        self, sources: Iterable[Union[str, FrontendParseStrInput]]
+    ) -> FrontendParseOutput:
+        modules = list[Module]()
         designs = []
 
         for src in sources:
@@ -76,7 +78,7 @@ class YamlFrontend(Frontend):
             if design:
                 designs.append(design)
 
-        yield from modules
-
         for des in designs:
-            yield DesignDescriptionFrontend(self.modules + modules).parse_str(des).parent
+            modules.append(DesignDescriptionFrontend(self.modules + modules).parse_str(des).parent)
+
+        return FrontendParseOutput(modules=modules, interfaces=[])

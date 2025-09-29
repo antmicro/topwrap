@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterable, Iterator, Union
+from typing import Iterable, Union
 
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.misc import TranslationError
@@ -30,6 +30,12 @@ class FrontendMetadata:
     file_association: Iterable[str] = field(default_factory=tuple)
 
 
+@dataclass
+class FrontendParseOutput:
+    modules: list[Module] = field(default_factory=list)
+    interfaces: list[InterfaceDefinition] = field(default_factory=list)
+
+
 class FrontendParseException(TranslationError):
     "Exception occurred during parsing sources by the frontend"
 
@@ -49,7 +55,9 @@ class Frontend(ABC):
         self.modules = list(modules)
         self.interfaces = list(interfaces)
 
-    def parse_str(self, sources: Iterable[Union[str, FrontendParseStrInput]]) -> Iterator[Module]:
+    def parse_str(
+        self, sources: Iterable[Union[str, FrontendParseStrInput]]
+    ) -> FrontendParseOutput:
         """
         Parse a collection of string sources into IR modules
 
@@ -69,9 +77,10 @@ class Frontend(ABC):
                 file.write(src)
             file.flush()
             files.append(file)
-        yield from self.parse_files([Path(f.name) for f in files])
+        out = self.parse_files([Path(f.name) for f in files])
         for f in files:
             f.close()
+        return out
 
     @property
     @abstractmethod
@@ -79,7 +88,7 @@ class Frontend(ABC):
         "Return metadata about this frontend such as its file associations"
 
     @abstractmethod
-    def parse_files(self, sources: Iterable[Path]) -> Iterator[Module]:
+    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         """
         Parse a collection of source files into IR modules
 
