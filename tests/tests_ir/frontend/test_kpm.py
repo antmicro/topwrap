@@ -156,7 +156,7 @@ class TestCombinedFrontend:
 
     def test_all_mods(self, intf_defs: Iterator[InterfaceDefinition]):
         front = KpmFrontend(ALL_MODULES, [*intf_defs])
-        mods = [*front.parse_files(self.make_paths("complex_flow", "ir_simple_flow"))]
+        mods = front.parse_files(self.make_paths("complex_flow", "ir_simple_flow")).modules
 
         assert len(mods) == 2
 
@@ -164,11 +164,13 @@ class TestCombinedFrontend:
         front = KpmFrontend(interfaces=[*intf_defs])
 
         with pytest.raises(OutOfSpecificationNodeError):
-            [*front.parse_files(self.make_paths("complex_flow", "ir_simple_flow"))]
+            front.parse_files(self.make_paths("complex_flow", "ir_simple_flow"))
 
     def test_no_mods_spec(self, intf_defs: Iterator[InterfaceDefinition]):
         front = KpmFrontend(interfaces=[*intf_defs])
-        mods = [*front.parse_files(self.make_paths("complex_flow", "ir_simple_flow", "front_spec"))]
+        mods = front.parse_files(
+            self.make_paths("complex_flow", "ir_simple_flow", "front_spec")
+        ).modules
 
         # Why + 2? One design comes from the "complex_flow" dataflow. Second
         # one from the "ir_simple_flow" and "front_spec" contains `ALL_MODULES`

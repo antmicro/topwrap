@@ -52,15 +52,15 @@ class TestAutomaticFrontend:
         sv_sources: list[Path],
         yaml_sources: list[Path],
     ):
-        kpm_cnt = len(list(KpmFrontend().parse_files(kpm_sources)))
-        yaml_cnt = len(list(YamlFrontend().parse_files(yaml_sources)))
-        sv_cnt = len(list(SystemVerilogFrontend().parse_files(sv_sources)))
+        kpm_cnt = len(KpmFrontend().parse_files(kpm_sources).modules)
+        yaml_cnt = len(YamlFrontend().parse_files(yaml_sources).modules)
+        sv_cnt = len(SystemVerilogFrontend().parse_files(sv_sources).modules)
 
         assert kpm_cnt > 0 and yaml_cnt > 0 and sv_cnt > 0
 
         all_sources = sv_sources + kpm_sources + yaml_sources
         front = AutomaticFrontend()
-        [*modules] = front.parse_files(all_sources)
+        modules = front.parse_files(all_sources).modules
         assert len(modules) == kpm_cnt + yaml_cnt + sv_cnt
 
     def test_unknown(self, sv_sources: list[Path]):

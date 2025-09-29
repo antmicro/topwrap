@@ -46,7 +46,9 @@ def all_design_paths(test_dirs: Dict[str, Path]) -> Dict[str, Path]:
 @pytest.fixture
 def all_design_modules(all_design_paths: Dict[str, Path]) -> Dict[str, Module]:
     frontend = YamlFrontend()
-    return {name: next(frontend.parse_files([path])) for name, path in all_design_paths.items()}
+    return {
+        name: frontend.parse_files([path]).modules[0] for name, path in all_design_paths.items()
+    }
 
 
 def _filter_id(object: Dict[Any, Any]):

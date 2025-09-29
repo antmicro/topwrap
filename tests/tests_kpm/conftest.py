@@ -66,7 +66,8 @@ def all_design_specifications() -> Dict[str, JsonType]:
     frontend = YamlFrontend()
     for name, design in all_design_paths().items():
         spec = KpmSpecificationBackend.default()
-        design_module = next(frontend.parse_files([design]))
+        modules = frontend.parse_files([design]).modules
+        design_module = modules[0]
         spec.add_module(design_module, recursive=True)
         specs[name] = spec.build()
 

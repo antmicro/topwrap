@@ -58,9 +58,9 @@ def all_design_modules(
 
     designs = {}
     for name, dataflow in all_dataflow_files.items():
-        designs[name] = list(
-            frontend.parse_str([json.dumps(all_specification_files[name]), json.dumps(dataflow)])
-        )[-1]
+        designs[name] = frontend.parse_str(
+            [json.dumps(all_specification_files[name]), json.dumps(dataflow)]
+        ).modules[-1]
 
     return designs
 

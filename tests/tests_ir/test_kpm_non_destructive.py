@@ -171,6 +171,6 @@ class TestKpmNonDestructivity:
         [spec_info, flow_info] = backend.serialize(repr)
 
         frontend = KpmFrontend(interfaces=[wishbone, axi_stream])
-        new_module = list(frontend.parse_str([spec_info.content, flow_info.content]))[-1]
+        new_module = frontend.parse_str([spec_info.content, flow_info.content]).modules[-1]
 
         _compare_modules(orig_module, new_module)

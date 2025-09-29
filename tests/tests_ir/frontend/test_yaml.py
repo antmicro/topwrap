@@ -270,5 +270,5 @@ class TestCombinedYamlFrontend:
         related_ip = Path("examples/ir_examples/interconnect/ips/mem.yaml")
         des = Path("examples/ir_examples/interconnect/design.yaml")
 
-        mods = [*YamlFrontend().parse_files([unrelated_ip, des, related_ip])]
+        mods = YamlFrontend().parse_files([unrelated_ip, des, related_ip]).modules
         assert len(mods) == 3

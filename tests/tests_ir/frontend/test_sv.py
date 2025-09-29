@@ -36,7 +36,7 @@ class TestSystemVerilogSlangParser:
         front = SystemVerilogSlangParser()
         mod_str = """module abc #(parameter type xyz, parameter type less = whocares)(input xyz a);
                      endmodule"""
-        [mod] = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
         assert mod.parameters == [
             Parameter(name="xyz"),
             Parameter(name="less", default_value=ElaboratableValue("whocares")),
@@ -46,7 +46,7 @@ class TestSystemVerilogSlangParser:
     def test_unpacked(self):
         front = SystemVerilogSlangParser()
         mod_str = """module abc (output logic sigs[4]); endmodule"""
-        [mod] = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
         [port] = mod.ports
         assert isinstance(port.type, LogicArray)
         assert port.type.item == Bit() and port.type.dimensions[0] == Dimensions(
@@ -56,7 +56,7 @@ class TestSystemVerilogSlangParser:
     def test_enum_complex(self):
         front = SystemVerilogSlangParser()
         mod_str = """module abc(input enum logic[13:0] { A=3, B, C=8 } a; endmodule)"""
-        [mod] = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
         [port] = mod.ports
         assert isinstance(port.type, Enum)
         assert port.type.dimensions[0].upper == ElaboratableValue(13)
@@ -83,7 +83,7 @@ class TestSystemVerilogSlangParser:
         )
 
         front = SystemVerilogFrontend(interfaces=[sci_intf])
-        mods = {m.id.name: m for m in front.parse_str(sources)}
+        mods = {m.id.name: m for m in front.parse_str(sources).modules}
 
         intf = mods["advanced_top"].interfaces.find_by_name_or_error("SCI_ctrl")
 
