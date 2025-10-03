@@ -24,7 +24,7 @@ signals:
             # Many implementations use saner dat_w/dat_r convention that does
             # not depend on whether the peripheral is a manager or a subordinate. This
             # is reflected in an additional regex pattern below and in dat_r.
-            dat_w: dat_w|mosi
+            dat_w: dat_(w|mosi)|mosi
             adr: adr
             tgd_w: tgd_w
             lock: lock
@@ -36,7 +36,7 @@ signals:
             cti: cti
             bte: bte
         in:
-            dat_r: dat_r|miso
+            dat_r: dat_(r|miso)|miso
             tgd_r: tgd_r
             stall: stall
 
