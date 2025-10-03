@@ -15,8 +15,7 @@ ipcores:
 
 $(REPO_NAME): $(IPCORE_SOURCES)
 	topwrap repo init ${REPO_NAME} ${REPO_NAME}
-# FIXME: this will be broken until iface deduction returns
-	topwrap repo parse ${REPO_NAME} ${IPCORE_SOURCES}
+	topwrap repo parse ${REPO_NAME} ${IPCORE_SOURCES} --inference
 
 build/simple_soc.sv: project.yaml $(REPO_NAME) | build
 	topwrap --repo ${REPO_NAME} build -b build --design $< --fuse --sources sources
@@ -34,11 +33,8 @@ build/simple_soc.bit: simple_soc.tcl build/bios.init $(IPCORE_SOURCES) build/sim
 	vivado -mode batch -source $<
 
 $(JSONS): $(REPO_NAME)
-	touch $@
-# FIXME: When interface deduction works again and interfaces from this
-# 			example can get deduced
-# 	topwrap --repo ${REPO_NAME} specification -d project.yaml
-# 	topwrap --repo ${REPO_NAME} dataflow -d project.yaml
+	topwrap --repo ${REPO_NAME} specification -d project.yaml
+	topwrap --repo ${REPO_NAME} dataflow -d project.yaml
 
 generate: build/simple_soc.sv
 

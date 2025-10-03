@@ -33,7 +33,7 @@ module wb_uart (
     input  wire          csr_wishbone_we,
     input  wire    [2:0] csr_wishbone_cti,
     input  wire    [1:0] csr_wishbone_bte,
-    input  wire          csr_wishbone_err
+    output wire          csr_wishbone_err
 );
 
 
@@ -256,6 +256,8 @@ reg           regs1 = 1'd0;
 //------------------------------------------------------------------------------
 // Combinatorial Logic
 //------------------------------------------------------------------------------
+
+assign csr_wishbone_err = '0;
 
 always @(*) begin
 	rs232phytx_next_state = 1'd0;

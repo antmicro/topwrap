@@ -57,18 +57,18 @@ design:
           csr_wishbone:
             address: 0xF0000000
             size: 0x1000
-        wb_ram_instr:
+        wb_ram_data:
           mem_bus:
             address: 0x10000000
             size: 0x1000
-        wb_ram_data:
+        wb_ram_instr:
           mem_bus:
             address: 0x0
             size: 0xA000
       managers:
         vexriscv:
-          - iBusWishbone
-          - dBusWishbone
+          - iBusWishbone_
+          - dBusWishbone_
 
 external:
   ports:

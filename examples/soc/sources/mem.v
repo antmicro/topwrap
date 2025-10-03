@@ -15,7 +15,7 @@ module mem #(
 	input mem_bus_we,
 	input [2:0] mem_bus_cti,
 	input [1:0] mem_bus_bte,
-	input mem_bus_err,
+	output mem_bus_err,
 	input sys_clk,
 	input sys_rst
 );
@@ -28,6 +28,7 @@ wire [31:0] dat_r;
 reg [3:0] we;
 wire [31:0] dat_w;
 
+assign mem_bus_err = '0;
 
 always @(*) begin
 	we <= 4'd0;
