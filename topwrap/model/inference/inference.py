@@ -300,7 +300,7 @@ def _match_intf_signals_to_ports(
     out = {}
     for sig in sorted(intf.signals, key=lambda v: len(v.name), reverse=True):
         for name in ports:
-            if sig.regexp.match(name):
+            if sig.regexp.match(name.lower()):
                 out.update({name: sig})
                 break
 
