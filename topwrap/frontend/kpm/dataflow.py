@@ -194,6 +194,12 @@ class KpmDataflowFrontend:
                     library = self._parse_property(node, "Library").value
 
                     mod.id = Identifier(name=name, vendor=vendor, library=library)
+                elif node.name == IoMetanode.name:
+                    if not any(itf.external_name is not None for itf in node.interfaces):
+                        raise KpmFrontendParseException(
+                            f"External IO metanode '{node.instance_name}'"
+                            f"({node.id}) doesn't have an exposed interface"
+                        )
 
             for intf in node.interfaces:
                 if intf.external_name is not None:
