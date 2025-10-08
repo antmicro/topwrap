@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List, cast
 
 import click
+import yaml
 
 from topwrap.config import ConfigManager, config
 from topwrap.frontend.automatic import AutomaticFrontend, FrontendRegistry
@@ -130,12 +131,17 @@ def list_repos():
 
 
 @repo.command(help="Create new repo", name="init")
+@click.option(
+    "--config-update/--no-config-update",
+    default=True,
+    help="Whether the newly created repo should be added to the local Topwrap configuration file",
+)
 @click.argument("name")
 @click.argument(
     "path",
     type=click.Path(file_okay=False, dir_okay=True, writable=True, path_type=Path),
 )
-def init_repo(name: str, path: Path):
+def init_repo(config_update: bool, name: str, path: Path):
     path.mkdir(exist_ok=True, parents=True)
     if next(path.iterdir(), None) is not None:
         logging.error(f"The directory selected for the new repository ('{path}') is not empty")
@@ -143,4 +149,13 @@ def init_repo(name: str, path: Path):
     repo = UserRepo(name)
     repo.save(path)
     config.repositories[name] = FileReferenceHandler(path)
+
+    # TODO: Use the config updating mechanism when its added
+    # instead of doing this manually
+    local_cfg: Path = ConfigManager.DEFAULT_SEARCH_PATHS[0]
+    repo_cfg = yaml.safe_load(local_cfg.open()) if local_cfg.exists() else {}
+    if config_update:
+        repo_cfg.setdefault("repositories", {})[name] = FileReferenceHandler(path).to_str()
+        yaml.safe_dump(repo_cfg, local_cfg.open("w"))
+
     logging.info(f"Created a new repository named '{name}' in '{path}'")

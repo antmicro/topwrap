@@ -69,7 +69,7 @@ This command creates and initializes a new repository named `REPO_NAME` in a cho
 
 By default, it also adds the entry with the new repository into the local Topwrap [configuration file](config.md).
 If the file does not exist, it gets created.
-This behavior can be disabled using the `--no-add-to-config` CLI flag.
+This behavior can be disabled using the `--no-config-update` CLI flag.
 
 ### `topwrap repo list`
 ```bash

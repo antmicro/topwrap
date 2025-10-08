@@ -143,10 +143,28 @@ class TestRepoCli:
         tmpdir = Path(tmpdir)
         path = tmpdir / "repos" / "repo_directory"
 
-        runner.invoke(main, ["repo", "init", "name_repo", str(path)])
+        runner.invoke(main, ["repo", "init", "--no-config-update", "name_repo", str(path)])
 
         assert path.exists()
         assert list(path.iterdir()) == []
+
+    def test_repo_init_add_to_config(self, runner: CliRunner, tmpdir):
+        tmpdir = Path(tmpdir)
+
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.chdir(tmpdir)
+            path = tmpdir / "repos" / "repo_directory"
+            assert not Path("topwrap.yaml").exists()
+            runner.invoke(main, ["repo", "init", "name_repo", str(path)])
+            content: str = f"repositories:\n  name_repo: file:{str(path.relative_to(tmpdir))}\n"
+            assert Path("topwrap.yaml").read_text() == content
+
+            path = tmpdir / "repos" / "another_repo"
+            runner.invoke(main, ["repo", "init", "repo2", str(path)])
+            assert (
+                Path("topwrap.yaml").read_text()
+                == content + f"  repo2: file:{str(path.relative_to(tmpdir))}\n"
+            )
 
     def test_repo_init_existing_dir(
         self, runner: CliRunner, tmpdir, caplog: pytest.LogCaptureFixture
