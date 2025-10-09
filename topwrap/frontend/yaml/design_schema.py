@@ -86,7 +86,7 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
     clock: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
     reset: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
     params: Dict[str, Any] = ext_field(dict)
-    managers: Dict[str, List[str]] = ext_field(dict)
+    managers: Dict[str, Union[List[str], Dict[str, Dict[str, Any]]]] = ext_field(dict)
     subordinates: Dict[str, Dict[str, Subordinate]] = ext_field(dict)
 
 

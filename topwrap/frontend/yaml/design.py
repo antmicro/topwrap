@@ -177,18 +177,33 @@ class DesignDescriptionFrontend:
 
         ir_intr = itype.intercon(name=iname, params=params, clock=clock, reset=reset)
 
+        def get_refio_from_manager(
+            des: Design, mname: str, man: str
+        ) -> Optional[ReferencedInterface]:
+            try:
+                refio, _ = self._resolve_ref(des, mname, man)
+                if not isinstance(refio, ReferencedInterface):
+                    raise DDFE("Manager reference is not an interface")
+                else:
+                    return refio
+            except DDFE as e:
+                logger.warning(
+                    f"Skipping manager '{man}' for interconnect '{iname}' because of: {e}"
+                )
+
         for mname, mans in intr.managers.items():
-            for man in mans:
-                try:
-                    refio, _ = self._resolve_ref(des, mname, man)
-                    if not isinstance(refio, ReferencedInterface):
-                        raise DDFE("Manager reference is not an interface")
-                except DDFE as e:
-                    logger.warning(
-                        f"Skipping manager '{man}' for interconnect '{iname}' because of: {e}"
-                    )
-                    continue
-                ir_intr.managers[refio._id] = itype.man_params()
+            if isinstance(mans, list):
+                for man in mans:
+                    refio = get_refio_from_manager(des, mname, man)
+                    if not refio:
+                        continue
+                    ir_intr.managers[refio._id] = itype.man_params()
+            else:  # Dict
+                for man, params in mans.items():
+                    refio = get_refio_from_manager(des, mname, man)
+                    if not refio:
+                        continue
+                    ir_intr.managers[refio._id] = itype.man_params.from_dict(params)
 
         for sname, subs in intr.subordinates.items():
             for sub, params in subs.items():
