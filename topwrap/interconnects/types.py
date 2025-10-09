@@ -4,6 +4,12 @@
 from dataclasses import dataclass
 from typing import Type
 
+from topwrap.interconnects.axi import (
+    AXIInterconnect,
+    AXIManagerParams,
+    AXIParams,
+    AXISubordinateParams,
+)
 from topwrap.interconnects.wishbone_rr import (
     WishboneInterconnect,
     WishboneRRManagerParams,
@@ -33,5 +39,11 @@ INTERCONNECT_TYPES: dict[str, InterconnectTypeInfo] = {
         WishboneRRParams,
         WishboneRRManagerParams,
         WishboneRRSubordinateParams,
-    )
+    ),
+    "AXI": InterconnectTypeInfo(
+        AXIInterconnect,
+        AXIParams,
+        AXIManagerParams,
+        AXISubordinateParams,
+    ),
 }
