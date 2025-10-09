@@ -41,6 +41,12 @@ class GeneratorNotImplementedError(Exception):
         super().__init__(self.message)
 
 
+class InterconnectGenerationError(Exception):
+    """
+    Used when there is problem with generating HDL code.
+    """
+
+
 class Generator(ABC, Generic[_T, _IT]):
     @abstractmethod
     def generate(self, interconnect: _IT, module_instance: ModuleInstance) -> _T:
@@ -50,6 +56,7 @@ class Generator(ABC, Generic[_T, _IT]):
         :param interconnect: HDL code is generated based on this `Interconnect`
         :param module_instance: generated based on `Interconnect`,
                                 it don't need to be used for generation, but can be helpful
+        :raises InterconnectGenerationError: Raised when there is problem with generating HDL code
         """
         pass
 

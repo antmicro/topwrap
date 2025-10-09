@@ -77,7 +77,9 @@ class SystemVerilogBackend(Backend[SVOutput]):
         be used to generate SystemVerilog top file.
 
         :raises GeneratorNotImplementedError: This exception will be raised when an `Interconnect`
-        without `Generator` implementation for this `Backend` is encountered in the `Design`
+            without `Generator` implementation for this `Backend` is encountered in the `Design`
+        :raises InterconnectGenerationError: Raised when there is problem with generating HDL code
+            in one of `Interconnect`s
         """
         pkg_items = dict[str, Logic]()
         if module.design is not None and len(module.design.interconnects) > 0:
