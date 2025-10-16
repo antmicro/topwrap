@@ -79,7 +79,7 @@ install_interconnect_test_system_deps() {
 install_nox() {
     begin_command_group "Installing nox"
     enter_venv
-    log_cmd pip3 install nox!=2025.05.01
+    log_cmd pip3 install nox!=2025.10.14,!=2025.5.1
     end_command_group
 }
 
