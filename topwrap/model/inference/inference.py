@@ -22,13 +22,13 @@ from topwrap.model.misc import QuerableView
 from topwrap.model.module import Module
 
 
-def parse_grouping_hints(grouping_hints: Iterable[str]) -> dict[str, list[str]]:
+def parse_grouping_hints(grouping_hints: Iterable[str]) -> dict[str, str]:
     """
     Parse user-facing grouping hints into a dictionary for :func:`infer_interfaces_from_module`.
 
     The incoming hints are stored as they are specified on the command line, in the form of:
     :code:`"old1,old2,...,oldN=new"`, and are parsed into dictionaries with entries like this:
-    :code:`"new": ["old1", "old2", ..., "oldN"]`
+    :code:`{ "old1": "new", "old2": "new", ..., "oldN": "new" }`
     """
 
     out = {}
@@ -43,7 +43,8 @@ def parse_grouping_hints(grouping_hints: Iterable[str]) -> dict[str, list[str]]:
             if any(not x for x in old_names):
                 raise ValueError("Old group name cannot be empty")
 
-            out[new_name] = old_names
+            for old_name in old_names:
+                out[old_name] = new_name
         except ValueError as e:
             raise ValueError(f"Invalid grouping hint syntax: '{hint}'") from e
 
@@ -148,7 +149,7 @@ def _process_bit_struct(
 
 def _generate_struct_groups(
     module: Module,
-    _grouping_hints: dict[str, str],
+    grouping_hints: dict[str, str],
 ) -> Iterator[tuple[str, dict[str, PortSelector]]]:
     """
     Generate groups based on port struct members.
@@ -174,8 +175,8 @@ def _generate_struct_groups(
                 continue
 
             for i in range(lbound, ubound + 1):
-                if port.name in _grouping_hints:
-                    _grouping_hints[f"{port.name}[{i}]"] = f"{_grouping_hints[port.name]}[{i}]"
+                if port.name in grouping_hints:
+                    grouping_hints[f"{port.name}[{i}]"] = f"{grouping_hints[port.name]}[{i}]"
 
                 sel = PortSelector(port.name, ((PortSelectorOp.SLICE, (i, i)),))
                 yield (
@@ -263,21 +264,20 @@ def _generate_prefix_groups(
 def _generate_candidate_groups(
     module: Module,
     ports: dict[str, PortSelector],
-    grouping_hints: dict[str, list[str]],
+    grouping_hints: dict[str, str],
     options: InterfaceInferenceOptions,
 ) -> dict[str, dict[str, PortSelector]]:
     """
     Generate candidate groups for interface instances.
     """
 
-    _grouping_hints = {orig: new for new, names in grouping_hints.items() for orig in names}
     groups = {}
 
     for prefix, group in itertools.chain(
-        _generate_struct_groups(module, _grouping_hints), _generate_prefix_groups(ports, options)
+        _generate_struct_groups(module, grouping_hints), _generate_prefix_groups(ports, options)
     ):
         # Check for any grouping hints that include this prefix.
-        group_name = _grouping_hints.get(prefix, prefix)
+        group_name = grouping_hints.get(prefix, prefix)
 
         # Merge groups if one by the same name exists, as is the case when using grouping hints.
         if group_name in groups:
@@ -448,7 +448,7 @@ def _score_matched_intf_signals(
 def infer_interfaces_from_module(
     module: Module,
     intf_defs: Iterable[InterfaceDefinition],
-    grouping_hints: Optional[dict[str, list[str]]] = None,
+    grouping_hints: Optional[dict[str, str]] = None,
     options: Optional[InterfaceInferenceOptions] = None,
 ) -> InterfacePortMapping:
     """
@@ -469,7 +469,6 @@ def infer_interfaces_from_module(
     intf_defs = intf_defs
     options = options or InterfaceInferenceOptions()
     grouping_hints = grouping_hints or {}
-    _grouping_hints = {orig: new for new, names in grouping_hints.items() for orig in names}
     groups = _generate_candidate_groups(module, ports, grouping_hints, options)
     candidates = []
 
@@ -532,7 +531,7 @@ def infer_interfaces_from_module(
         if any_used_signals:
             continue
 
-        name = prefix or _grouping_hints.get(intf_def.id.name, intf_def.id.name)
+        name = prefix or grouping_hints.get(intf_def.id.name, intf_def.id.name)
 
         times_used = used_names[name]
         if times_used > 0:

@@ -118,8 +118,10 @@ class TestGuineveerInterfaceInference:
             mod,
             all_intf_defs,
             grouping_hints={
-                "src": ["src_req_i", "src_resp_o"],
-                "dst": ["dst_req_o", "dst_resp_i"],
+                "src_req_i": "src",
+                "src_resp_o": "src",
+                "dst_req_o": "dst",
+                "dst_resp_i": "dst",
             },
         )
         map_interfaces_to_module([mapping], all_intf_defs, mod)
@@ -142,7 +144,8 @@ class TestGuineveerInterfaceInference:
             mod,
             all_intf_defs,
             grouping_hints={
-                "axi": ["axi_req_i", "axi_resp_o"],
+                "axi_req_i": "axi",
+                "axi_resp_o": "axi",
             },
         )
         map_interfaces_to_module([mapping], all_intf_defs, mod)
@@ -163,8 +166,10 @@ class TestGuineveerInterfaceInference:
             mod,
             all_intf_defs,
             grouping_hints={
-                "slv": ["slv_req_i", "slv_resp_o"],
-                "mst": ["mst_reqs_o", "mst_resps_i"],
+                "slv_req_i": "slv",
+                "slv_resp_o": "slv",
+                "mst_reqs_o": "mst",
+                "mst_resps_i": "mst",
             },
         )
         map_interfaces_to_module([mapping], all_intf_defs, mod)

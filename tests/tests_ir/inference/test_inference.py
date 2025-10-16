@@ -299,7 +299,12 @@ class TestInterfaceInference:
         )
 
         mapping = infer_interfaces_from_module(
-            bbox, all_intf_defs, grouping_hints={"bbox": ["bbox_in", "bbox_out"]}
+            bbox,
+            all_intf_defs,
+            grouping_hints={
+                "bbox_in": "bbox",
+                "bbox_out": "bbox",
+            },
         )
         map_interfaces_to_module([mapping], all_intf_defs, bbox)
 
