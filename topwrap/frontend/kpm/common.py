@@ -37,7 +37,11 @@ def kpm_dir_to_ir_port(dir: KpmDirection) -> PortDirection:
 
 
 def kpm_dir_to_ir_intf(dir: KpmDirection) -> InterfaceMode:
-    res = {dir.INPUT: InterfaceMode.SUBORDINATE, dir.OUTPUT: InterfaceMode.MANAGER}.get(dir)
+    res = {
+        dir.INPUT: InterfaceMode.SUBORDINATE,
+        dir.OUTPUT: InterfaceMode.MANAGER,
+        dir.INOUT: InterfaceMode.UNSPECIFIED,
+    }.get(dir)
 
     if res is None:
         raise TranslationError(f"Cannot translate '{dir}' into {InterfaceMode}")
