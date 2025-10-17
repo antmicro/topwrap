@@ -466,7 +466,7 @@ def topwrap_gui(
 
         if use_server:
             logging.info("Opening browser with KPM GUI")
-            webbrowser.open(f"{backend_host}:{backend_port}")
+            webbrowser.open(f"http://{backend_host}:{backend_port}")
 
         wait_for_event_or_raise_error(server_thread.is_alive, error_queue)
 
