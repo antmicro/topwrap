@@ -46,7 +46,7 @@ class KpmFrontend(Frontend):
             spec_mods.extend(spec_front.parse(spec, source=source))
         yield from spec_mods
 
-        flow_front = KpmDataflowFrontend([*self.modules, *spec_mods])
+        flow_front = KpmDataflowFrontend([*spec_mods, *self.modules])
         for source, flow in flows:
             yield flow_front.parse(flow, source=source)
 
