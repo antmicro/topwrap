@@ -9,6 +9,8 @@ from typing import Dict, List, Optional, Tuple
 
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.model.design import Design
+from topwrap.model.interface import InterfaceDefinition
+from topwrap.model.module import Module
 from topwrap.util import UnreachableError
 
 from .util import JsonType
@@ -44,6 +46,8 @@ class RPCparams:
     specification: JsonType
     build_dir: Path
     design: Optional[Design]
+    modules: list[Module]
+    interfaces: list[InterfaceDefinition]
 
 
 def get_all_graph_nodes(dataflow_json: JsonType) -> List[JsonType]:

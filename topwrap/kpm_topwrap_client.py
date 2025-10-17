@@ -8,7 +8,7 @@ import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, TypedDict, Union, cast
+from typing import Any, Dict, Iterable, List, Literal, Optional, TypedDict, Union, cast
 
 from pipeline_manager_backend_communication.communication_backend import (
     CommunicationBackend,
@@ -20,10 +20,11 @@ from typing_extensions import NotRequired
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
-from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
+from topwrap.model.interface import InterfaceDefinition
+from topwrap.model.module import Module
 from topwrap.util import JsonType
 
 from .kpm_common import RPCparams
@@ -47,6 +48,8 @@ class RPCMethods:
         self.specification = params.specification
         self.build_dir = params.build_dir
         self.design = params.design
+        self.modules = params.modules
+        self.interfaces = params.interfaces
         self.client = client
         # Use the $XDG_DATA_HOME as a destination for saving the dataflow, which defaults to
         # ~/.local/share
@@ -78,7 +81,9 @@ class RPCMethods:
 
     def dataflow_run(self, dataflow: JsonType) -> RPCEndpointReturnType:
         logging.info(f"Dataflow run request received from {self.host}:{self.port}")
-        errors = _kpm_dataflow_run_handler(dataflow, self.specification, self.build_dir)
+        errors = _kpm_dataflow_run_handler(
+            self.modules, self.interfaces, dataflow, self.specification, self.build_dir
+        )
         if errors:
             # note: only the first error is sent to the KPM frontend
             return {"type": MessageType.ERROR.value, "content": errors[0]}
@@ -104,9 +109,7 @@ class RPCMethods:
         logging.info(f"Dataflow import request received from {self.host}:{self.port}")
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
 
-        repo_mods = load_modules_from_repos()
-
-        frontend = YamlFrontend(repo_mods)
+        frontend = YamlFrontend(self.modules, self.interfaces)
         design_module = next(frontend.parse_str([yaml_str]))
         if not design_module.design:
             return {
@@ -201,17 +204,23 @@ async def _kpm_handle_graph_change(
     )
 
 
-def _kpm_dataflow_run_handler(data: JsonType, spec: JsonType, build_dir: Path) -> list[str]:
+def _kpm_dataflow_run_handler(
+    repo_mods: Iterable[Module],
+    interfaces: Iterable[InterfaceDefinition],
+    data: JsonType,
+    spec: JsonType,
+    build_dir: Path,
+) -> list[str]:
     """Parse information about design from KPM dataflow format into Topwrap's
     internal representation and build the design.
     """
     messages = DataflowValidator(data).validate_kpm_design()
     if not messages["errors"]:
-        frontend = KpmFrontend(interfaces=load_interfaces_from_repos())
+        frontend = KpmFrontend(repo_mods, interfaces)
         modules = frontend.parse_str([json.dumps(data), json.dumps(spec)])
         design = frontend.get_top_design(modules)
 
-        backend = SystemVerilogBackend()
+        backend = SystemVerilogBackend(repo_mods)
         repr = backend.represent(design.parent)
         out = next(backend.serialize(repr, combine=True))
 

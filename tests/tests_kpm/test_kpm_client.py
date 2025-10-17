@@ -16,7 +16,13 @@ class TestClient:
     @pytest.fixture
     def default_rpc_params(self):
         return RPCparams(
-            "127.0.0.1", 9000, KpmSpecificationBackend.default().build(), Path("build"), None
+            "127.0.0.1",
+            9000,
+            KpmSpecificationBackend.default().build(),
+            Path("build"),
+            None,
+            [],
+            [],
         )
 
     def test_specification(

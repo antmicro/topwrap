@@ -19,6 +19,7 @@ from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBack
 from topwrap.backend.sv.backend import SystemVerilogBackend
 from topwrap.cli import (
     RepositoryPathParam,
+    load_interfaces_from_repos,
     load_modules_from_repos,
     map_interfaces_to_modules_from_repos,
 )
@@ -246,7 +247,13 @@ class KPM:
             KPM._run_client(
                 kpm_run_client(
                     RPCparams(
-                        host, port, spec, build_dir, design_module.design if design_module else None
+                        host,
+                        port,
+                        spec,
+                        build_dir,
+                        design_module.design if design_module else None,
+                        repo_mods,
+                        [*load_interfaces_from_repos()],
                     ),
                     client_ready_event,
                 )
