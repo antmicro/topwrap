@@ -29,6 +29,7 @@ dependencies = [
   "marshmallow-dataclass[enum]~=8.7.0",
   "pygtrie",
   "pyslang",
+  "uvloop!=0.22.1,!=0.22.0", # Needed for pipeline_manager_backend_communication due to a bug in uvloop-0.22.0/1
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@eb690cfb7766bfbd85a4eff2a1e809573b8b72d0",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@5a9b8e0ef0ef7125f74c48daf427a43d0e3065d3",
 ]
