@@ -54,7 +54,7 @@ class CoreFileHandler(FileHandler):
     @override
     def parse(self) -> List[Resource]:
         resources: List[Resource] = []
-        modules = self.frontend.parse_files(f.path for f in self._files)
+        modules = self.frontend.parse_files(f.path for f in self._files).modules
 
         for mod in modules:
             if (

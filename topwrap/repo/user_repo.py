@@ -21,6 +21,7 @@ from topwrap.common_serdes import (
 from topwrap.frontend.automatic import AutomaticFrontend, FrontendRegistry
 from topwrap.frontend.frontend import Frontend
 from topwrap.model.inference.mapping import InterfacePortMappingDefinition
+from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
 from topwrap.repo.exceptions import TopLevelNotFoundException
 from topwrap.repo.files import File, LocalFile
@@ -48,6 +49,7 @@ class LoadedCore:
     top_level: Module
     other_sources: Iterable[Module]
     unknown_sources: Iterable[Path]
+    existing_interfaces: Iterable[InterfaceDefinition]
 
 
 @marshmallow_dataclass.dataclass
@@ -80,24 +82,26 @@ class Core(Resource, MarshmallowDataclassExtensions):
             srcpath = (src.resource if isinstance(src, ResourcePathWithType) else src).to_path()
             frontends.setdefault(front, []).append(srcpath)
         mods = []
+        ifaces = []
         unknowns = set()
         top = None
         for front, srcs in frontends.items():
             if issubclass(front, AutomaticFrontend):
                 info = front(modules=mods).parse_files_with_unknown_info(srcs)
-                modules = info.modules
+                parse_output = info.parsed
                 unknowns.update(info.unknown_sources)
             else:
-                modules = front(modules=mods).parse_files(srcs)
-            for mod in modules:
+                parse_output = front(modules=mods).parse_files(srcs)
+            for mod in parse_output.modules:
                 if mod.id.name == self.top_level_name:
                     top = mod
                 else:
                     mods.append(mod)
+            ifaces.extend(parse_output.interfaces)
         if top is None:
             raise TopLevelNotFoundException(self)
 
-        return LoadedCore(top, mods, unknowns)
+        return LoadedCore(top, mods, unknowns, ifaces)
 
 
 class CoreHandler(ResourceHandler[Core]):
