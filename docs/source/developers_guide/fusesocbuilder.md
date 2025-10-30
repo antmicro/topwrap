@@ -29,5 +29,4 @@ Default template in `topwrap/templates/core.yaml.j2` does not make use of resour
 .. autoclass:: topwrap.fuse_helper.FuseSocBuilder
    :members:
 
-   .. automethod:: __init__
 ```

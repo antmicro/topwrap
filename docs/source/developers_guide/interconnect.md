@@ -8,35 +8,35 @@ All new implementations of interconnect need to be placed in in `topwrap/interco
 Each interconnect needs to have implemented {class}`~topwrap.backend.generator.Generator`, refer to [](generator.md) to check how to implement one.
 
 ```{eval-rst}
-.. autoclass:: topwrap.model.interconnect.Interconnect
+.. automodule:: topwrap.model.interconnect.Interconnect
    :members:
    :private-members:
    :no-index:
 ```
 
 ```{eval-rst}
-.. autoclass:: topwrap.model.interconnect.InterconnectParams
+.. automodule:: topwrap.model.interconnect.InterconnectParams
    :members:
    :private-members:
    :no-index:
 ```
 
 ```{eval-rst}
-.. autoclass:: topwrap.model.interconnect.InterconnectSubordinateParams
+.. automodule:: topwrap.model.interconnect.InterconnectSubordinateParams
    :members:
    :private-members:
    :no-index:
 ```
 
 ```{eval-rst}
-.. autoclass:: topwrap.model.interconnect.InterconnectManagerParams
+.. automodule:: topwrap.model.interconnect.InterconnectManagerParams
    :members:
    :private-members:
    :no-index:
 ```
 
 ```{eval-rst}
-.. autoclass:: topwrap.interconnects.types.InterconnectTypeInfo
+.. automodule:: topwrap.interconnects.types.InterconnectTypeInfo
    :members:
 
 .. autodata:: topwrap.interconnects.types.INTERCONNECT_TYPES

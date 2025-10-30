@@ -8,12 +8,10 @@ It is created by {class}`~topwrap.config.ConfigManager` that reads the config fi
 .. autoclass:: topwrap.config.Config
    :members:
 
-   .. automethod:: __init__
 ```
 
 ```{eval-rst}
 .. autoclass:: topwrap.config.ConfigManager
    :members:
 
-   .. automethod:: __init__
 ```

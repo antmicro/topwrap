@@ -10,7 +10,6 @@ These are used to match a given set of signals that appear in the HDL source wit
 .. autoclass:: topwrap.interface.InterfaceDefinition
    :members:
 
-   .. automethod:: __init__
 ```
 
 ```{eval-rst}
