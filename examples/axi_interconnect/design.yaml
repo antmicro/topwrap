@@ -1,0 +1,36 @@
+ips:
+  subordinator_axi:
+    file: repo[axi_example_repo]:subordinator_axi
+  manager_axi:
+    file: repo[axi_example_repo]:manager_axi
+
+design:
+  name: axi_interconnect_example
+  ports:
+    subordinator_axi:
+      clk: clk
+      rst: rst
+    manager_axi:
+      clk: clk
+      rst: rst
+  interconnects:
+    axi_interconnect:
+      clock: clk
+      reset: rst
+      type: AXI
+      params:
+        atop: False
+      subordinates:
+        subordinator_axi:
+          example_iface:
+            address: 0x0
+            size: 0x1000
+      managers:
+        manager_axi:
+          example_iface:
+            id_width: 3
+external:
+  ports:
+    in:
+      - clk
+      - rst
