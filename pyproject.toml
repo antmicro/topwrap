@@ -31,6 +31,7 @@ dependencies = [
   "pyslang",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@b39681ee785d7c094b78226243c44fe956e12d76",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@c20b22c6042854666cf78319e2affc882c0f1ffe",
+  "topwrap_axi_core_plugin @ https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl"
 ]
 
 [project.optional-dependencies]

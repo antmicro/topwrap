@@ -1,20 +1,14 @@
 # Copyright (c) 2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import importlib.util
-import os
-import sys
-import tempfile
 from abc import ABC
-from pathlib import Path
 from typing import Any, Generic, TypeVar
 
-import requests
-import yaml
+import topwrap_axi_core_plugin
 from amaranth.back import verilog
 
 import topwrap.backend.sv.wishbone_interconnect as wb_inter
-from topwrap.backend.generator import Generator, InterconnectGenerationError
+from topwrap.backend.generator import Generator
 from topwrap.backend.sv.common import SVFile, SVFileType
 from topwrap.interconnects.axi import AXIInterconnect
 from topwrap.interconnects.wishbone_rr import WishboneInterconnect
@@ -180,116 +174,48 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
     ]
 
     def generate(self, interconnect: AXIInterconnect, module_instance: ModuleInstance) -> SVFile:
-        # TODO: remove once a proper plugin mechanism is implemented
-        def load_module(module_name: str, module_path: str):
-            spec = importlib.util.spec_from_file_location(module_name, module_path)
-            if spec is None:
-                return None
-            module = importlib.util.module_from_spec(spec)
-            if spec.loader is not None:
-                sys.modules[module_name] = module
-                spec.loader.exec_module(module)
-                return module
+        config = {
+            "parameters": {
+                "slaves": {},
+                "masters": {},
+                "atop": interconnect.params.atop,
+            },
+            "vlnv": "vendor:library:axi_intercon:1.0",
+        }
 
-        def wget(url: str, file: Path):
-            with file.open("wb") as f:
-                f.write(requests.get(url).content)
+        subordinate_names = []
+        for manager_id in interconnect.subordinates:
+            referenced_interface = manager_id.resolve()
+            subordinate = interconnect.subordinates[manager_id]
+            instance_name = None
+            if referenced_interface.instance is not None:
+                instance_name = referenced_interface.instance.name
+            else:
+                instance_name = f"id_{referenced_interface._id._id}"
+            name = f"{instance_name}_{referenced_interface.io.name}"
+            config["parameters"]["slaves"][name] = {
+                "offset": subordinate.address.elaborate(),
+                "size": subordinate.size.elaborate(),
+            }
+            subordinate_names.append(name)
 
-        axi_plugin_dir = (
-            Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser()
-            / "topwrap"
-            / "pulp_axi_scripts"
-        )
-        axi_plugin_dir.mkdir(exist_ok=True, parents=True)
-        if not (axi_plugin_dir / PULP_AXI_AXIINTERCONGEN_NAME).exists():
-            wget(
-                "https://raw.githubusercontent.com/pulp-platform/axi/58e7e2760a29353ca1be0d0decae1771ef8f7c29/scripts/axi_intercon_gen.py",
-                axi_plugin_dir / PULP_AXI_AXIINTERCONGEN_NAME,
-            )
-        if not (axi_plugin_dir / PULP_AXI_VERILOGWRITER_NAME).exists():
-            wget(
-                "https://raw.githubusercontent.com/pulp-platform/axi/58e7e2760a29353ca1be0d0decae1771ef8f7c29/scripts/verilogwriter.py",
-                axi_plugin_dir / PULP_AXI_VERILOGWRITER_NAME,
-            )
+        for manager_id in interconnect.managers:
+            manager = interconnect.managers[manager_id]
+            referenced_interface = manager_id.resolve()
+            instance_name = None
+            if referenced_interface.instance is not None:
+                instance_name = referenced_interface.instance.name
+            else:
+                instance_name = f"id_{referenced_interface._id._id}"
+            name = f"{instance_name}_{referenced_interface.io.name}"
+            config["parameters"]["masters"][name] = {
+                "id_width": manager.id_width.elaborate(),
+                "slaves": subordinate_names,
+            }
 
-        with (
-            tempfile.NamedTemporaryFile(mode="w") as config_file,
-            tempfile.NamedTemporaryFile(mode="r") as sv_file,
-            tempfile.TemporaryDirectory() as temp_dir_str,
-        ):
-            temp_dir = Path(temp_dir_str)
-            old_path = os.getcwd()
-            try:
-                os.chdir(temp_dir)
+        name = f"interconnect_{interconnect.name}"
 
-                config = {
-                    "parameters": {
-                        "slaves": {},
-                        "masters": {},
-                        "output_file": sv_file.name,
-                        "atop": interconnect.params.atop,
-                    },
-                    "vlnv": "vendor:library:axi_intercon:1.0",
-                }
-
-                subordinate_names = []
-                for manager_id in interconnect.subordinates:
-                    referenced_interface = manager_id.resolve()
-                    subordinate = interconnect.subordinates[manager_id]
-                    instance_name = None
-                    if referenced_interface.instance is not None:
-                        instance_name = referenced_interface.instance.name
-                    else:
-                        instance_name = f"id_{referenced_interface._id._id}"
-                    name = f"{instance_name}_{referenced_interface.io.name}"
-                    config["parameters"]["slaves"][name] = {
-                        "offset": subordinate.address.elaborate(),
-                        "size": subordinate.size.elaborate(),
-                    }
-                    subordinate_names.append(name)
-
-                for manager_id in interconnect.managers:
-                    manager = interconnect.managers[manager_id]
-                    referenced_interface = manager_id.resolve()
-                    instance_name = None
-                    if referenced_interface.instance is not None:
-                        instance_name = referenced_interface.instance.name
-                    else:
-                        instance_name = f"id_{referenced_interface._id._id}"
-                    name = f"{instance_name}_{referenced_interface.io.name}"
-                    config["parameters"]["masters"][name] = {
-                        "id_width": manager.id_width.elaborate(),
-                        "slaves": subordinate_names,
-                    }
-
-                yaml_config = yaml.safe_dump(config)
-                config_file.write(yaml_config)
-                config_file.flush()
-
-                load_module(
-                    "verilogwriter", (axi_plugin_dir / PULP_AXI_VERILOGWRITER_NAME).as_posix()
-                )
-
-                try:
-                    loaded_module = load_module(
-                        "axi_intercon_gen",
-                        (axi_plugin_dir / PULP_AXI_AXIINTERCONGEN_NAME).as_posix(),
-                    )
-                except ModuleNotFoundError as e:
-                    # This exception is raised when axi_intercon_gen tries to
-                    # import verilogwriter
-                    raise InterconnectGenerationError("Couldn't find verilogwriter") from e
-
-                name = f"interconnect_{interconnect.name}"
-                try:
-                    loaded_module.AxiIntercon(name, config_file.name).write()  # pyright: ignore[reportOptionalMemberAccess]
-                except AttributeError as e:
-                    raise InterconnectGenerationError(
-                        "Couldn't find class `AxiIntercon` in file `axi_intercon_gen.py`"
-                    ) from e
-                out = sv_file.read()
-            finally:
-                os.chdir(old_path)
+        out = topwrap_axi_core_plugin.generate_interconnect(config, name)
 
         return SVFile(content=out, name=name, type=SVFileType.MODULE)
 
