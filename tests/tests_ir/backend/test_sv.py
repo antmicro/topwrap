@@ -36,6 +36,7 @@ from topwrap.model.hdl_types import (
     LogicFieldSelect,
     LogicSelect,
     StructField,
+    has_symbolic_dimensions,
 )
 from topwrap.model.interconnect import Interconnect, InterconnectParams
 from topwrap.model.misc import ElaboratableValue, Identifier
@@ -141,6 +142,23 @@ class TestSystemVerilogDesignBackend:
         )
 
         assert out == "[2:2].uhuhu[30:20]"
+
+    @pytest.mark.parametrize(
+        ("upper", "lower", "expected"),
+        [
+            ("7", "0", False),
+            ("WIDTH-1", "0", True),
+            ("$123", "0", True),
+            ("7", "$123", True),
+        ],
+    )
+    def test_has_symbolic_dimensions(self, upper: str, lower: str, expected: bool):
+        net_type = Bits(
+            dimensions=[Dimensions(upper=ElaboratableValue(upper), lower=ElaboratableValue(lower))]
+        )
+
+        assert has_symbolic_dimensions(net_type) is expected
+        assert _SystemVerilogDesignData._type_has_symbolic_dims(net_type) is expected
 
     def test_plain_const_conn(self, svdb: _SystemVerilogDesignData):
         assert intf_top.design is not None

@@ -36,6 +36,7 @@ class KpmBackend(Backend[KpmOutput]):
         flow = KpmDataflowBackend(spec)
         if module.design is not None:
             flow.represent_design(module.design, depth=self.depth)
+        spec = flow.apply_subgraphs_to_spec(spec)
         flow = flow.build()
 
         return KpmOutput(specification=spec, dataflow=flow, common_name=module.id.combined())

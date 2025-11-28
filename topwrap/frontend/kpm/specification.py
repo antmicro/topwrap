@@ -74,8 +74,8 @@ class KpmSpecificationFrontend:
                 )
             ]
             front = KpmDataflowFrontend(modules)
-            for graph in graphs:
-                yield front.parse({"graphs": [graph]})
+            # Pass all graphs together so nested subgraph references can be resolved
+            yield front.parse({"graphs": graphs})
             yield from modules
             return
 

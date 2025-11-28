@@ -106,6 +106,15 @@ This is an example showcasing the ability to invert (negate) connections between
 :spec: ../../build/kpm_jsons/spec_ir_examples_inverted.json
 ```
 
+## Complex hierarchy parsing
+
+This example shows a complex hierarchy with subgraphs parsed from SystemVerilog files
+
+```{kpm_iframe}
+:dataflow: ../../build/kpm_jsons/data_ir_examples_parse_hierarchy.json
+:spec: ../../build/kpm_jsons/spec_ir_examples_parse_hierarchy.json
+```
+
 ## Other
 
 Something that was not taken into account previously, because we don't support it yet, and it's impossible to represent in either format, is a feature/syntax that would allow us to dynamically change the collection of ports/interfaces an IP/hierarchy has. Similarly to how we can control the width of a port using a parameter (like in the "simple" example).

@@ -289,11 +289,6 @@ class TestCoreFileHandler:
 
         assert len(cores) == len(names)
 
-        for core in cast(list[Core], cores):
-            # We won't have proper dependency gathering without
-            # design parsing support in SV frontend
-            assert len(core.sources) == 1
-
     def test_parse_with_tops_filtering(
         self, verilog_modules: tuple[list[str], list[str]], saved_modules: list[File]
     ):
@@ -308,7 +303,7 @@ class TestCoreFileHandler:
         [mytop_all] = cast(list[Core], cores_all)
 
         assert mytop.top_level_name == mytop_all.top_level_name == "mytop"
-        assert len(mytop.sources) == 1
+
         assert len(mytop_all.sources) == len(v_files)
 
 

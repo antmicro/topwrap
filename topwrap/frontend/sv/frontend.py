@@ -4,7 +4,7 @@
 from pathlib import Path
 from typing import Iterable, Union
 
-from pyslang import DiagnosticSeverity, SourceLocation, SyntaxTree
+from pyslang import Bag, DiagnosticSeverity, PreprocessorOptions, SourceLocation, SyntaxTree
 
 from topwrap.frontend.frontend import (
     Frontend,
@@ -51,10 +51,23 @@ class SystemVerilogFrontend(Frontend):
 
         return FrontendParseOutput(modules=modules, interfaces=interfaces)
 
-    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+    def parse_files(
+        self, sources: Iterable[Path], *, include_dirs: Iterable[Path] = ()
+    ) -> FrontendParseOutput:
         s_sources = [str(p) for p in sources]
         inst = self._parser_instance()
-        tree = SyntaxTree.fromFiles(s_sources, inst.src_man)
+        options = None
+        inc_dirs = [str(p) for p in include_dirs]
+        if inc_dirs:
+            options = Bag()
+            preproc = PreprocessorOptions()
+            preproc.additionalIncludePaths = inc_dirs
+            options.preprocessorOptions = preproc
+        tree = (
+            SyntaxTree.fromFiles(s_sources, inst.src_man, options)
+            if options is not None
+            else SyntaxTree.fromFiles(s_sources, inst.src_man)
+        )
         modules, interfaces = inst.parse_tree(tree)
 
         return FrontendParseOutput(modules=modules, interfaces=interfaces)

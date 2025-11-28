@@ -92,6 +92,7 @@ extend-exclude = [
   "venv",
   "build",
   "workspace",
+  "examples/caliptra/Caliptra",
 ]
 
 [tool.ruff.lint]
@@ -108,7 +109,7 @@ select = [
 max-complexity = 18
 
 [tool.codespell]
-skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace"
+skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace,Caliptra"
 ignore-words-list = "convertor, inout, inouts"
 
 [tool.pyright]

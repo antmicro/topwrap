@@ -140,10 +140,13 @@ class SystemVerilogBackend(Backend[SVOutput]):
         if len(interconnects) != 0:
             modules.extend(interconnects)
 
+        intf_defs = [i.resolve() for i in intfs]
+        intf_defs.sort(key=lambda i: i.id.name)
+
         return SVOutput(
             base_name=used_module.id.name,
             package=pkg,
-            interfaces=[self.represent_interface(i.resolve(), pkg_name) for i in intfs],
+            interfaces=[self.represent_interface(i, pkg_name) for i in intf_defs],
             modules=modules,
         )
 

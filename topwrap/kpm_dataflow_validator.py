@@ -20,11 +20,12 @@ from .kpm_common import (
     get_all_graph_nodes,
     get_dataflow_constant_metanodes,
     get_dataflow_current_hierarchy_ip_nodes,
+    get_dataflow_exposed_interfaces,
     get_dataflow_external_interfaces,
     get_dataflow_external_metanodes,
     get_dataflow_ips_interfaces,
-    get_dataflow_subgraph_meta_interfaces,
     get_dataflow_subgraph_metanodes,
+    get_dataflow_subgraph_node_interfaces,
     get_dataflow_subgraph_nodes,
     get_exposed_subgraph_meta_iface,
     get_graph_id_from_node,
@@ -33,6 +34,8 @@ from .kpm_common import (
     get_metanode_interface_id,
     get_metanode_property_value,
     is_metanode,
+    is_subgraph_metanode,
+    is_subgraph_node,
 )
 from .util import JsonType, UnreachableError
 
@@ -186,22 +189,37 @@ class DataflowValidator:
                 (node["instanceName"], interface["name"], interface["id"])
                 for node in get_all_graph_nodes(self.dataflow)
                 for interface in node["interfaces"]
+                # Exclude subgraph node interfaces - they share IDs with exposed interfaces
+                # but need to be checked for connections in their parent graph
+                # Also exclude subgraph metanodes - their interfaces are internal connection points
+                if not is_subgraph_node(node) and not is_subgraph_metanode(node)
             ]
         )
 
-        # Extract all subgraph metanode interfaces
-        exposed_subgraph_metanodes_interfaces = [
-            (sub_metanode["instanceName"], get_exposed_subgraph_meta_iface(sub_metanode))
-            for sub_metanode in get_dataflow_subgraph_metanodes(self.dataflow)
-        ]
-        metanodes_interfaces_data = [
-            (metanode_name, metanode_iface["name"], metanode_iface["id"])
-            for metanode_name, metanode_iface in exposed_subgraph_metanodes_interfaces
-        ]
+        # Add subgraph node interfaces separately
+        subgraph_node_ifaces = set(
+            [
+                (node["instanceName"], interface["name"], interface["id"])
+                for node in get_dataflow_subgraph_nodes(self.dataflow)
+                for interface in node["interfaces"]
+            ]
+        )
+        unconn_ifaces.update(subgraph_node_ifaces)
 
-        # Remove externally referenced interfaces because they will always be unconnected
-        for exposed_interface in metanodes_interfaces_data:
-            unconn_ifaces.discard(exposed_interface)
+        exposed_iface_ids = set(get_dataflow_exposed_interfaces(self.dataflow).keys())
+        for sub_metanode in get_dataflow_subgraph_metanodes(self.dataflow):
+            exposed_iface_ids.add(get_exposed_subgraph_meta_iface(sub_metanode)["id"])
+
+        # Get subgraph node interface IDs - these should NOT be excluded even if they
+        # match exposed interface IDs, since they need connections in the parent graph
+        subgraph_node_iface_ids = set(get_dataflow_subgraph_node_interfaces(self.dataflow).keys())
+
+        if exposed_iface_ids:
+            unconn_ifaces = {
+                iface
+                for iface in unconn_ifaces
+                if iface[2] not in exposed_iface_ids or iface[2] in subgraph_node_iface_ids
+            }
 
         for conn in get_all_graph_connections(self.dataflow):
             iface_to = find_dataflow_interface_by_id(
@@ -280,7 +298,11 @@ class DataflowValidator:
         """
 
         check_name = "Connections to exposed subgraph ports"
-        for sub_metanode in get_dataflow_subgraph_metanodes(self.dataflow):
+        subgraph_metanodes = get_dataflow_subgraph_metanodes(self.dataflow)
+        if not subgraph_metanodes:
+            return CheckResult(check_name, MessageType.OK)
+
+        for sub_metanode in subgraph_metanodes:
             sub_metanode_iface_id = get_exposed_subgraph_meta_iface(sub_metanode)["id"]
             graph_id = get_graph_id_from_node(self.dataflow, sub_metanode["id"])
             if check_for_iface_in_conn_graph(self.dataflow, sub_metanode_iface_id, graph_id):
@@ -385,10 +407,15 @@ class DataflowValidator:
 
         ext_ifaces_ids = get_dataflow_external_interfaces(self.dataflow).keys()
 
-        for iface_id, iface in [
+        # Note: We don't include get_dataflow_subgraph_meta_interfaces here because
+        # subgraph metanode interfaces share IDs with subgraph node interfaces,
+        # which would cause double-counting of the same logical port
+        interfaces = [
             *get_dataflow_ips_interfaces(self.dataflow).items(),
-            *get_dataflow_subgraph_meta_interfaces(self.dataflow).items(),
-        ]:
+            *get_dataflow_subgraph_node_interfaces(self.dataflow).items(),
+        ]
+
+        for iface_id, iface in interfaces:
             # All connections where given iface id occurred
             iface_conns = [
                 conn

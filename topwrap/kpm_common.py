@@ -244,6 +244,25 @@ def get_dataflow_subgraph_meta_interfaces(
     return _get_interfaces(get_dataflow_subgraph_metanodes(dataflow_json))
 
 
+def get_dataflow_subgraph_node_interfaces(
+    dataflow_json: JsonType,
+) -> Dict[str, List[InterfaceData]]:
+    """Return a dict of all interfaces belonging to subgraph nodes."""
+    return _get_interfaces(get_dataflow_subgraph_nodes(dataflow_json))
+
+
+def get_dataflow_exposed_interfaces(dataflow_json: JsonType) -> Dict[str, List[InterfaceData]]:
+    """Return a dict of all interfaces marked with externalName."""
+    result = defaultdict(list)
+    for node in get_all_graph_nodes(dataflow_json):
+        for interface in node["interfaces"]:
+            if is_exposed_iface(interface):
+                result[interface["id"]].append(
+                    InterfaceData(node["instanceName"], interface["name"], interface["direction"])
+                )
+    return result
+
+
 def get_dataflow_subgraph_meta_connections(dataflow_json: JsonType) -> List[Dict[str, str]]:
     """Return connections that are related to subgraph metanodes"""
     ifaces_ids = get_dataflow_subgraph_meta_interfaces(dataflow_json).keys()

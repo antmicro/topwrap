@@ -104,6 +104,7 @@
       "interfaces": [
         {
           "direction": "input",
+          "maxConnectionsCount": -1,
           "name": "in",
           "type": [
             "intf__ext",
@@ -112,6 +113,7 @@
         },
         {
           "direction": "inout",
+          "maxConnectionsCount": -1,
           "name": "inout",
           "type": [
             "intf__ext",
@@ -120,6 +122,7 @@
         },
         {
           "direction": "output",
+          "maxConnectionsCount": -1,
           "name": "out",
           "type": [
             "intf__ext",

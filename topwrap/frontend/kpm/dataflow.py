@@ -129,6 +129,7 @@ class KpmDataflowFrontend:
     #: Used to generate an anonymous IR ``Identifier`` in case one
     #: wasn't provided by the user with the Identifier metanode.
     _subs: int
+    _subgraph_cache: dict[str, Module]
 
     def __init__(self, modules: Iterable[Module]) -> None:
         """
@@ -139,6 +140,7 @@ class KpmDataflowFrontend:
         super().__init__()
         self._modmap = {}
         self._subs = 0
+        self._subgraph_cache = {}
         modids = {m.id: m for m in modules}
 
         spec = KpmSpecificationBackend.default()
@@ -301,7 +303,10 @@ class KpmDataflowFrontend:
     ) -> ModuleInstance:
         if node.subgraph is not None:
             subg = data.flow.get_graph_by_id(node.subgraph)
-            module = self._parse(source, subg, data)
+            module = self._subgraph_cache.get(subg.id)
+            if module is None:
+                module = self._parse(source, subg, data)
+                self._subgraph_cache[subg.id] = module
         else:
             module = self._modmap.get(node.name)
             if module is None:
@@ -514,7 +519,12 @@ class KpmDataflowFrontend:
             for uintf in data.intfconnmap.get(intf.id, ()):
                 yield from self._infer_io_type(data, uintf.graph, uintf.interface, visited)
             subg = data.flow.get_graph_by_id(node.subgraph)
-            yield from self._infer_io_type(data, subg, intf, visited)
+            # Find the corresponding interface inside the subgraph by matching external_name
+            for subg_node in subg._nodes.values():
+                for subg_intf in subg_node.interfaces:
+                    if subg_intf.external_name == intf.name:
+                        yield from self._infer_io_type(data, subg, subg_intf, visited)
+                        break
         elif not is_metanode(node.name) and (mod := self._modmap.get(node.name)) is not None:
             for t in chain(mod.interfaces, mod.non_intf_ports()):
                 if t.name == intf.name:

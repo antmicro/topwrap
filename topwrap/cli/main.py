@@ -531,6 +531,10 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
         )
         sys.exit(1)
     spec = spec.build()
+    if design_module and design_module.design:
+        flow = KpmDataflowBackend(spec)
+        flow.represent_design(design_module.design, depth=-1)
+        spec = flow.apply_subgraphs_to_spec(spec)
 
     with open(output, "w") as f:
         f.write(json.dumps(spec))

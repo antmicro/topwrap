@@ -1,6 +1,7 @@
 # Copyright (c) 2024-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import uuid
 from itertools import chain
 from typing import Any, Optional, Union, cast
 
@@ -15,7 +16,6 @@ from pipeline_manager.dataflow_builder.entities import Direction, Node, Property
 from pipeline_manager.dataflow_builder.entities import Interface as KpmInterface
 
 from topwrap.backend.kpm.common import (
-    SUGBRAPH_NODE_NAME,
     ConstMetanode,
     IdentifierMetanode,
     InterconnectMetanode,
@@ -58,6 +58,14 @@ class KpmNodeNotFound(KpmDataflowBackendException):
 _REFTYPE = dict[tuple[Optional[ModuleInstance], int], KpmInterface]
 
 
+def _graph_sort_key(graph: JsonType) -> str:
+    name = graph.get("name")
+    if isinstance(name, str) and name:
+        return name
+    graph_id = graph.get("id")
+    return graph_id if isinstance(graph_id, str) else ""
+
+
 class KpmDataflowBackend:
     flow: GraphBuilder
     _spec: JsonType
@@ -67,6 +75,8 @@ class KpmDataflowBackend:
 
     # Constant node cache: (graph ID, value) -> node
     _consts: dict[tuple[str, str], Node]
+    # Subgraph cache: module identifier -> graph
+    _subgraphs: dict[str, DataflowGraph]
 
     def __init__(self, specification: JsonType) -> None:
         """
@@ -78,6 +88,7 @@ class KpmDataflowBackend:
         self._nodeids = {}
         self._refx = {}
         self._consts = {}
+        self._subgraphs = {}
 
         for node in self._spec["nodes"]:
             add: Optional[KpmNodeAdditionalData] = node.get("additionalData")
@@ -86,8 +97,40 @@ class KpmDataflowBackend:
 
         self.flow = GraphBuilder(specification, SPECIFICATION_VERSION)
 
+    def _subgraph_uuid(self, module_key: str) -> str:
+        namespace = uuid.uuid5(uuid.NAMESPACE_URL, "topwrap-kpm-subgraph")
+        return str(uuid.uuid5(namespace, module_key))
+
     def build(self) -> JsonType:
-        return cast(JsonType, self.flow.to_json(False))
+        dataflow = cast(JsonType, self.flow.to_json(False))
+        for graph in dataflow.get("graphs", []):
+            for node in graph.get("nodes", []):
+                if node.get("graphState") is None:
+                    node.pop("graphState", None)
+        return dataflow
+
+    def subgraph_templates(self) -> list[JsonType]:
+        templates: list[JsonType] = []
+        for graph in self._subgraphs.values():
+            graph_json = graph.to_json(as_str=False)
+            if isinstance(graph_json, dict):
+                templates.append(cast(JsonType, graph_json))
+        return sorted(templates, key=_graph_sort_key)
+
+    def apply_subgraphs_to_spec(self, spec: JsonType) -> JsonType:
+        subgraphs = self.subgraph_templates()
+        if subgraphs:
+            spec["graphs"] = subgraphs
+
+        subgraph_ids = {key: graph.id for key, graph in self._subgraphs.items()}
+        for node in spec.get("nodes", []):
+            add: Optional[KpmNodeAdditionalData] = node.get("additionalData")
+            if add is None:
+                continue
+            node_key = Identifier(**add["full_module_id"]).combined()
+            if node_key in subgraph_ids:
+                node["subgraphId"] = subgraph_ids[node_key]
+        return spec
 
     def represent_design(self, design: Design, *, depth: int = 0) -> DataflowGraph:
         """
@@ -102,6 +145,7 @@ class KpmDataflowBackend:
             Setting this to any negative value is equivalent to a depth of infinity.
         """
         self.flow.graphs.clear()
+        self._subgraphs.clear()
         graph = self.flow.create_graph()
 
         return self._represent_design(design, graph, depth=depth)
@@ -139,27 +183,38 @@ class KpmDataflowBackend:
         node.set_property(IdentifierMetanode().properties[2].propname, id.library)
 
     def add_component(self, graph: DataflowGraph, comp: ModuleInstance, depth: int, refs: _REFTYPE):
-        node_name, subg = self._nodeids.get(comp.module.id.combined()), None
+        node_name = self._nodeids.get(comp.module.id.combined())
+        module_key = comp.module.id.combined()
 
-        if depth != 0 and comp.module.design is not None or node_name is None:
-            subg = self.flow.create_graph()
-            # ugly workaround for the lack of subgraph functionality inside dataflow builder
+        use_subgraph = (depth != 0 and comp.module.design is not None) or node_name is None
+
+        if use_subgraph:
+            subg = self._subgraphs.get(module_key)
+            if subg is None:
+                subg = self.flow.create_graph()
+                subg._id = self._subgraph_uuid(module_key)
+                subg.name = comp.module.id.name
+                self._subgraphs[module_key] = subg
+                des = Design()
+                des.parent = comp.module
+                self._represent_design(comp.module.design or des, subg, depth - 1)
+
+            node = graph.create_subgraph_node(
+                name=node_name or comp.module.id.name,
+                subgraph_id=subg.id,
+            )
+            node.instance_name = comp.name
+            node.properties = [
+                Property(p.name, value=p.default_value.value if p.default_value is not None else "")
+                for p in comp.module.parameters
+            ]
+            node.interfaces = []
+        else:
             node = graph.create_node(
-                name=IoMetanode.name,
+                name=node_name if node_name is not None else comp.module.id.name,
                 instance_name=comp.name,
                 interfaces=[],
-                properties=[
-                    Property(p.name, p.default_value.value if p.default_value is not None else "")
-                    for p in comp.module.parameters
-                ],
             )
-            node.subgraph = subg._id
-            node._node_name = SUGBRAPH_NODE_NAME
-            des = Design()
-            des.parent = comp.module
-            self._represent_design(comp.module.design or des, subg, depth - 1)
-        else:
-            node = graph.create_node(name=node_name, instance_name=comp.name, interfaces=[])
 
         for param, val in comp.parameters.items():
             node.set_property(param.resolve().name, val.value)
@@ -172,19 +227,13 @@ class KpmDataflowBackend:
         }
         for intf in chain(comp.module.interfaces, comp.module.non_intf_ports()):
             dir = kpm_dir_from(intf.direction if isinstance(intf, Port) else intf.mode)
-            intf = KpmInterface(
+            kpm_intf = KpmInterface(
                 name=intf.name,
                 direction=dir,
                 side=Side.LEFT if dir == Direction.INPUT else Side.RIGHT,
             )
-            node.interfaces.append(intf)
-            if subg is not None:
-                for node_name in subg._nodes.values():
-                    if node_name.name == IoMetanode.name:
-                        for nintf in node_name.interfaces:
-                            if intf.name == nintf.external_name:
-                                intf.id = nintf.id
-            refs[(comp, id(ir_io[intf.name]))] = intf
+            node.interfaces.append(kpm_intf)
+            refs[(comp, id(ir_io[intf.name]))] = kpm_intf
 
     def add_external(
         self, graph: DataflowGraph, io: Union[Port, Interface], refs: _REFTYPE
@@ -224,20 +273,31 @@ class KpmDataflowBackend:
             port = conn.target.io
             if port is None:
                 raise TranslationError("Connection to Logic with an unreferenced port")
-            self._connect(graph, node.interfaces[0], ref[(conn.target.instance, id(port))])
+            tgt_key = (conn.target.instance, id(port))
+            if tgt_key not in ref and conn.target.instance is None:
+                self.add_external(graph, port, ref)
+            self._connect(graph, node.interfaces[0], ref[tgt_key])
         elif isinstance(conn, PortConnection):
             port1 = conn.source.io
             port2 = conn.target.io
             if port1 is None or port2 is None:
                 raise TranslationError("Connection to Logic with an unreferenced port")
+
+            src_key = (conn.source.instance, id(port1))
+            tgt_key = (conn.target.instance, id(port2))
+            if src_key not in ref and conn.source.instance is None:
+                self.add_external(graph, port1, ref)
+            if tgt_key not in ref and conn.target.instance is None:
+                self.add_external(graph, port2, ref)
+
             if conn.invert:
                 node = graph.create_node(
                     name=InverterMetanode.name,
                     instance_name=InverterMetanode.name,
                 )
 
-                ref1 = ref[(conn.source.instance, id(port1))]
-                ref2 = ref[(conn.target.instance, id(port2))]
+                ref1 = ref[src_key]
+                ref2 = ref[tgt_key]
 
                 if ref1.direction is Direction.INPUT:
                     ref1, ref2 = ref2, ref1
@@ -256,15 +316,17 @@ class KpmDataflowBackend:
             else:
                 self._connect(
                     graph,
-                    ref[(conn.source.instance, id(port1))],
-                    ref[(conn.target.instance, id(port2))],
+                    ref[src_key],
+                    ref[tgt_key],
                 )
         elif isinstance(conn, InterfaceConnection):
-            self._connect(
-                graph,
-                ref[(conn.source.instance, id(conn.source.io))],
-                ref[(conn.target.instance, id(conn.target.io))],
-            )
+            src_key = (conn.source.instance, id(conn.source.io))
+            tgt_key = (conn.target.instance, id(conn.target.io))
+            if src_key not in ref and conn.source.instance is None:
+                self.add_external(graph, conn.source.io, ref)
+            if tgt_key not in ref and conn.target.instance is None:
+                self.add_external(graph, conn.target.io, ref)
+            self._connect(graph, ref[src_key], ref[tgt_key])
 
     def add_interconnect(self, graph: DataflowGraph, intr: Interconnect, ref: _REFTYPE):
         node = graph.create_node(name=InterconnectMetanode.name, instance_name=intr.name)

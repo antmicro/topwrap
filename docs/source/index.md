@@ -30,8 +30,20 @@ developers_guide/checks
 developers_guide/future_enhancements
 developers_guide/inline_kpm_howto
 developers_guide/ir-examples
+developers_guide/caliptra
 developers_guide/ipxact-design
 developers_guide/generator.md
 developers_guide/interconnect.md
 developers_guide/repo
+```
+
+```{toctree}
+:caption: Parsed design examples
+:maxdepth: 2
+parsed_examples/caliptra_uart
+parsed_examples/veer_el2
+parsed_examples/hmac
+parsed_examples/sha256
+parsed_examples/sha512
+parsed_examples/sha3
 ```

@@ -157,6 +157,8 @@ def doc_gen(session: nox.Session) -> None:
         with TemporaryDirectory() as tmpdir, TemporaryFile(mode="w+") as errfile:
             shutil.copytree(Path("."), tmpdir, dirs_exist_ok=True)
             for example in (Path(tmpdir) / "examples").glob("**/Makefile"):
+                if "Caliptra" in str(example):
+                    continue
                 with session.chdir(example.parent):
                     try:
                         session.run(
@@ -335,6 +337,7 @@ def check_yaml_extension(session: nox.Session):
     ignore.parse_rule_files(".")
     ignore.add_rule(".github", ".")
     ignore.add_rule(".ci.yml", ".")
+    ignore.add_rule("Caliptra", ".")
     count = 0
 
     for path in Path().glob("**/*.yml"):

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -23,6 +24,8 @@ from typing import (
 from typing_extensions import override
 
 from topwrap.model.misc import ElaboratableValue, ModelBase, VariableName, set_parent
+
+_SYMBOLIC_DIM_RE = re.compile(r"[A-Za-z_$]")
 
 
 @dataclass
@@ -78,6 +81,20 @@ class Logic(ModelBase, ABC):
     @abstractmethod
     def size(self) -> ElaboratableValue:
         """All ``Logic`` subclasses should have an elaboratable size (the number of bits)"""
+
+
+def has_symbolic_dimensions(net_type: Optional[Logic]) -> bool:
+    if net_type is None:
+        return False
+    dims = getattr(net_type, "dimensions", None) or []
+    for dim in dims:
+        upper = getattr(dim, "upper", None)
+        lower = getattr(dim, "lower", None)
+        if upper is not None and _SYMBOLIC_DIM_RE.search(str(upper)):
+            return True
+        if lower is not None and _SYMBOLIC_DIM_RE.search(str(lower)):
+            return True
+    return False
 
 
 class Bit(Logic):

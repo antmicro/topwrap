@@ -5,16 +5,28 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from collections import defaultdict
 from enum import Enum
 from importlib.metadata import PackageNotFoundError, distribution, version
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, DefaultDict, Dict, TypeVar, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, TypeVar, Union
 
 if TYPE_CHECKING:
     from topwrap.config import Config
 
 JsonType = Dict[str, Any]
+
+_SIMPLE_SV_LITERAL_PATTERN = (
+    r"(?:"
+    r"\d+"
+    r"|(?:\d+'[sS]?[bBdDhHoO][0-9a-fA-F_xXzZ?]+)"
+    r"|(?:'[sS]?[bBdDhHoO][0-9a-fA-F_xXzZ?]+)"
+    r"|(?:'[01xXzZ])"
+    r")"
+)
+_SIMPLE_SV_LITERAL_RE = re.compile(_SIMPLE_SV_LITERAL_PATTERN)
+_PARENTHESIZED_SIMPLE_SV_LITERAL_RE = re.compile(rf"\(\s*({_SIMPLE_SV_LITERAL_PATTERN})\s*\)")
 
 
 class ExistsStrategy(str, Enum):
@@ -37,6 +49,15 @@ def removeprefix(s: str, prefix: str) -> str:
     if s.startswith(prefix):
         return s[len(prefix) :]
     return s
+
+
+def is_simple_sv_literal(text: str) -> bool:
+    return _SIMPLE_SV_LITERAL_RE.fullmatch(text) is not None
+
+
+def unwrap_simple_parenthesized_sv_literal(text: str) -> str:
+    match = _PARENTHESIZED_SIMPLE_SV_LITERAL_RE.fullmatch(text.strip())
+    return match.group(1) if match else text
 
 
 _R = DefaultDict[Any, Union["_R", Any]]
@@ -133,6 +154,45 @@ def path_relative_to(org_path: Path, rel_to: Path) -> Path:
         raise ValueError(f"{str(org_path)!r} and {str(rel_to)!r} have different anchors")
     parts = ("..",) * step + org_path.parts[len(path.parts) :]
     return type(org_path)(*parts)
+
+
+def _resolve_caliptra_var_path(path: str, caliptra_path: Path) -> Path:
+    resolved = (
+        path.replace("${CALIPTRA_ROOT}", str(caliptra_path))
+        .replace("${CALIPTRA_PRIM_ROOT}", str(caliptra_path / "src/caliptra_prim"))
+        .replace("${CALIPTRA_PRIM_MODULE_PREFIX}", "caliptra_prim")
+    )
+    return Path(resolved)
+
+
+def collect_filelist_sources(
+    filelist_path: Path,
+    *,
+    sourcefiles: Iterable[Path] | None = None,
+    base_sources: Iterable[Path] = (),
+) -> tuple[list[Path], set[Path]]:
+    """Collect Caliptra SV source files and include directories from `.vf` manifests."""
+    sv_sources = set(base_sources)
+    include_dirs: set[Path] = set()
+
+    vf_files = set(sourcefiles) if sourcefiles is not None else set(filelist_path.rglob("*.vf"))
+    for vf_path in vf_files:
+        with open(vf_path) as vf:
+            for line in vf:
+                entry = line.strip()
+                if entry.startswith("+incdir+"):
+                    include_dir = _resolve_caliptra_var_path(
+                        entry.split("+incdir+", 1)[1], filelist_path
+                    )
+                    if include_dir.exists():
+                        include_dirs.add(include_dir)
+                    continue
+
+                sv_path = _resolve_caliptra_var_path(entry, filelist_path)
+                if sv_path.exists():
+                    sv_sources.add(sv_path)
+
+    return list(sv_sources), include_dirs
 
 
 def get_config() -> Config:

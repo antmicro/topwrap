@@ -1,3 +1,8 @@
+.common_only: &common_only
+  only:
+    - main
+    - merge_requests
+
 stages:
   - test
   - deploy_docs
@@ -6,48 +11,57 @@ variables:
   DEBIAN_FRONTEND: noninteractive
 
 lint:
+  <<: *common_only
   stage: test
   image: debian:bookworm
   variables:
     SCALENODE_RAM: 4096
-    SCALENODE_CPU: 4
+    SCALENODE_CPU: 1
+    SCALENODE_DISK: 5
   script:
     - ./.github/scripts/ci.sh lint
 
 test_kpm_server:
+  <<: *common_only
   stage: test
   image: debian:bookworm
   variables:
-    SCALENODE_RAM: 10240
-    SCALENODE_CPU: 8
-    SCALENODE_DISK: 20
+    SCALENODE_RAM: 8192
+    SCALENODE_CPU: 1
+    SCALENODE_DISK: 10
   script:
     - ./.github/scripts/ci.sh test_kpm_server
 
 test_python:
+  <<: *common_only
   stage: test
   image: debian:bookworm
   parallel: ["3.9", "3.10", "3.11", "3.12", "3.13"]
   variables:
-    SCALENODE_RAM: 10240
-    SCALENODE_CPU: 8
-    SCALENODE_DISK: 20
+    SCALENODE_RAM: 8192
+    SCALENODE_CPU: 2
+    SCALENODE_DISK: 10
+    SCALENODE_FEATURES: "ryzen" # We need high IPC and frequency for the roundtrip test
   script:
     - ./.github/scripts/ci.sh test_python ${CI_PARALLEL_NAME}
 
 package_test:
+  <<: *common_only
   stage: test
   image: debian:bookworm
   variables:
-    SCALENODE_CPU: 4
+    SCALENODE_CPU: 2
     SCALENODE_RAM: 8192
+    SCALENODE_DISK: 5
   script:
     - ./.github/scripts/ci.sh package_dist
 
 examples:
+  <<: *common_only
   variables:
-    SCALENODE_CPU: 6
-    SCALENODE_RAM: 8192
+    SCALENODE_CPU: 1
+    SCALENODE_RAM: 4096
+    SCALENODE_DISK: 5
   stage: test
   image: debian:bookworm
   script:
@@ -57,9 +71,11 @@ examples:
       - examples/**/build
 
 package_cores:
+  <<: *common_only
   variables:
-    SCALENODE_CPU: 4
+    SCALENODE_CPU: 2
     SCALENODE_RAM: 16384
+    SCALENODE_DISK: 5
   stage: test
   image: debian:bookworm
   script:
@@ -70,9 +86,11 @@ package_cores:
       - build/cores_export.tar
 
 pyright_check:
+  <<: *common_only
   variables:
-    SCALENODE_RAM: 6144
-    SCALENODE_CPU: 4
+    SCALENODE_RAM: 8192
+    SCALENODE_CPU: 1
+    SCALENODE_DISK: 5
   stage: test
   image: debian:bookworm
   script:
@@ -80,21 +98,25 @@ pyright_check:
   allow_failure: true
 
 changelog_check:
+  <<: *common_only
   stage: test
   image: debian:bookworm
   variables:
     SCALENODE_RAM: 3072
-    SCALENODE_CPU: 3
+    SCALENODE_CPU: 1
+    SCALENODE_DISK: 5
   script:
     - ./.github/scripts/ci.sh changelog_check
   allow_failure: true
 
 build_docs:
+  <<: *common_only
   stage: test
   image: debian:bookworm
   variables:
     SCALENODE_RAM: 18432
     SCALENODE_CPU: 5
+    SCALENODE_DISK: 20
   script:
     - ./.github/scripts/ci.sh docs
     - tar cf "$CI_DOCS_ARCHIVE" -C docs/build/html/ .
@@ -104,12 +126,14 @@ build_docs:
       - $CI_DOCS_ARCHIVE
 
 deploy_docs:
+  <<: *common_only
   stage: deploy_docs
   image: debian:bookworm
   variables:
     GIT_STRATEGY: none
     SCALENODE_RAM: 2048
     SCALENODE_CPU: 1
+    SCALENODE_DISK: 5
   dependencies: [build_docs]
   tags: [docs]
   script: echo 'Deploying docs'

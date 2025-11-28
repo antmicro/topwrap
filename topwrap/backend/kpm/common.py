@@ -46,7 +46,6 @@ EXT_COLOR = "#ffffff"
 EXT_INTF_TYPE = "intf__ext"
 INTF_COLOR = "#5ad1cd"
 INTF_CONN_STYLE = KpmConnPattern.DASHED
-SUGBRAPH_NODE_NAME = "New Graph Node"
 
 
 class KpmNodeAdditionalData(TypedDict):
@@ -124,9 +123,9 @@ class IoMetanode(Metanode):
     layer: Optional[LayerType] = LayerType.EXTERNAL
     interfaces: list[KpmInterface] = field(
         default_factory=lambda: [
-            KpmInterface("in", KpmDirection.INPUT.value),
-            KpmInterface("out", KpmDirection.OUTPUT.value),
-            KpmInterface("inout", KpmDirection.INOUT.value),
+            KpmInterface("in", KpmDirection.INPUT.value, maxcount=-1),
+            KpmInterface("out", KpmDirection.OUTPUT.value, maxcount=-1),
+            KpmInterface("inout", KpmDirection.INOUT.value, maxcount=-1),
         ]
     )
 
