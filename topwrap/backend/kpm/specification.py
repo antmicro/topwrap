@@ -180,6 +180,7 @@ class KpmSpecificationBackend:
                     "iconName": "Validate",
                     "procedureName": "dataflow_validate",
                     "allowToRunInParallelWith": ["dataflow_run", "custom_lint_files"],
+                    "requireResponse": True,
                 },
                 {
                     "name": "Run",
@@ -187,6 +188,7 @@ class KpmSpecificationBackend:
                     "iconName": "Run",
                     "procedureName": "dataflow_run",
                     "allowToRunInParallelWith": ["dataflow_validate", "custom_lint_files"],
+                    "requireResponse": True,
                 },
             ],
         }
