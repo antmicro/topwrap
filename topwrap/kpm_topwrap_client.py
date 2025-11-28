@@ -8,7 +8,7 @@ import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Optional, TypedDict, Union, cast
+from typing import Any, Iterable, Optional, TypedDict, Union, cast
 
 from pipeline_manager_backend_communication.communication_backend import (
     CommunicationBackend,
@@ -57,8 +57,8 @@ class RPCMethods:
         self.default_save_file = xdg_data_home_var / "topwrap/dataflow_latest_save.json"
         self.initial_load = True
 
-    def app_capabilities_get(self) -> Dict[Literal["stoppable_methods"], List[str]]:
-        return {"stoppable_methods": ["dataflow_run"]}
+    def app_capabilities_get(self) -> list[None]:
+        return []
 
     def specification_get(self) -> RPCEndpointReturnType:
         logging.info(f"Specification get request from {self.host}:{self.port}")
