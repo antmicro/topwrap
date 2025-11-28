@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections import defaultdict
 from enum import Enum
+from importlib.metadata import PackageNotFoundError, distribution, version
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, DefaultDict, Dict, TypeVar, Union
 
@@ -142,3 +144,28 @@ def get_config() -> Config:
     from topwrap.config import config
 
     return config
+
+
+def get_package_identifier(package_name: str) -> str:
+    """Return the identifier of an installed Python package as a string
+
+    For packages installed from a Git repository, the commit SHA is returned.
+    For packages installed from a standard distribution, the version is returned.
+    """
+
+    result = "unknown"
+    try:
+        dist = distribution(package_name)
+    except PackageNotFoundError:
+        logging.warning(f"Unable to get identifier for {package_name}, package not found")
+        return "unknown"
+
+    try:
+        data = json.loads(dist.read_text("direct_url.json"))
+        return data.get("vcs_info", {}).get("commit_id", result)
+    except FileNotFoundError:
+        logging.info(f"Unable to get SHA of {package_name}")
+        pass
+
+    logging.info(f"Using {package_name} package version as identifier")
+    return version(package_name)
