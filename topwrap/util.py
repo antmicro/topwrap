@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from enum import Enum
+from importlib.metadata import distribution
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, DefaultDict, Dict, TypeVar, Union
 
@@ -142,3 +143,15 @@ def get_config() -> Config:
     from topwrap.config import config
 
     return config
+
+
+def get_package_sha(package_name: str) -> str:
+    """Return the Git commit SHA used to install a Python package as a string"""
+
+    dist = distribution(package_name)
+
+    try:
+        data = json.loads(dist.read_text("direct_url.json"))
+        return data.get("vcs_info", {}).get("commit_id")
+    except FileNotFoundError:
+        return "unknown"

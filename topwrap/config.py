@@ -18,11 +18,15 @@ from topwrap.common_serdes import (
     ext_field,
 )
 from topwrap.repo.user_repo import UserRepo
+from topwrap.util import get_package_sha
 
 logger = logging.getLogger(__name__)
 
+kpm_sha = get_package_sha("pipeline_manager")
 DEFAULT_SERVER_BASE_DIR = (
-    Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser() / "topwrap/kpm_build"
+    Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser()
+    / "topwrap/kpm_build"
+    / kpm_sha
 )
 DEFAULT_WORKSPACE_DIR = "workspace"
 DEFAULT_BACKEND_DIR = "backend"
