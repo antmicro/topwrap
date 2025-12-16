@@ -1,0 +1,400 @@
+{
+  "version": "20240723.13",
+  "entryGraph": "172863346611533",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "ni_172863346611511",
+          "id": "1242acf6-f6bc-47af-9255-2f0838da1946",
+          "to": "ni_17286334661152"
+        },
+        {
+          "from": "ni_172863346611511",
+          "id": "742aeb4c-56f0-45e6-8fd8-dac5a2d2dd2d",
+          "to": "ni_17286334661150"
+        },
+        {
+          "from": "ni_172863346611511",
+          "id": "6ebc3afc-8382-49f2-b5e9-ba4a604be6da",
+          "to": "ni_17286334661153"
+        },
+        {
+          "from": "ni_17286334661151",
+          "id": "3a9d0b37-65dc-476f-aa47-10d363c5f605",
+          "to": "705fe919-ece7-4e48-ade1-4be24a69d399"
+        }
+      ],
+      "id": "172863346611533",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_17286334661154",
+          "instanceName": "c_mod_3",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_17286334661152",
+              "name": "c_int_const_in",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_17286334661150",
+              "name": "c_int_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_17286334661153",
+              "name": "c_int_in_2",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ni_17286334661151",
+              "name": "c_mod_out_1",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "c_mod_3",
+          "position": {
+            "x": 75,
+            "y": 75
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172863346611512",
+          "instanceName": "External Input",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "ni_172863346611511",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Input",
+          "position": {
+            "x": -465,
+            "y": -75
+          },
+          "properties": [
+            {
+              "id": "172863346611510",
+              "name": "External Name",
+              "value": "ca"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "id": "ae7750e2-582f-4ff5-be5d-66fc755aa498",
+          "instanceName": "Sub node",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "705fe919-ece7-4e48-ade1-4be24a69d399",
+              "name": "subgraph in",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "New Graph Node",
+          "position": {
+            "x": 525,
+            "y": 105
+          },
+          "subgraph": "af8ed627-449f-4cc8-8d43-dbd983b8a3e2",
+          "twoColumn": false,
+          "width": 200
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "from": "309ac566-42ff-4859-8ee9-18763102da56",
+          "id": "a5000a4c-4d02-41ae-85d2-f8d71a3fb775",
+          "to": "0b657271-a122-4945-af31-1b47213ab2c8"
+        },
+        {
+          "from": "309ac566-42ff-4859-8ee9-18763102da56",
+          "id": "82f0c987-d0c3-4ae5-b911-c52f9fe3758f",
+          "to": "12906ced-b8c0-425f-a44e-2dd92f12ca81"
+        },
+        {
+          "from": "e6a58ed6-9b78-4545-b345-67100fc2ba3f",
+          "id": "24f0ccff-8eb9-4cc6-baf5-33d1baf1c73c",
+          "to": "a231c33a-ecf8-45b7-8d1e-e104d8c7e3ea"
+        },
+        {
+          "from": "6bc4b163-4076-4185-96d2-806e66bd1bbf",
+          "id": "885f0e32-db58-4bc2-9b15-39f77a2ced18",
+          "to": "8802d494-d003-4416-9790-fa06b506b4bb"
+        },
+        {
+          "from": "ba3c8aa1-4b59-4c1a-b7bb-9dd243585ad8",
+          "id": "d4aea141-a1e7-41ef-9b4c-42f07b641523",
+          "to": "a5ee1354-3952-4961-b146-1eaf1b04f608"
+        },
+        {
+          "from": "0cec94d5-c1ad-462a-aff6-5536471a368b",
+          "id": "ec61beb3-fede-4907-af04-7df0f1f2d3f8",
+          "to": "54222346-176c-4c8c-a430-ce5bd71c8afe"
+        },
+        {
+          "from": "0cec94d5-c1ad-462a-aff6-5536471a368b",
+          "id": "c5cbdb1b-532a-4f76-b968-da008a45a063",
+          "to": "f40cb309-21cd-420b-b3d0-26b456a98fd4"
+        },
+        {
+          "from": "0cec94d5-c1ad-462a-aff6-5536471a368b",
+          "id": "12ffcfb2-a9dd-446c-a493-9645e9576139",
+          "to": "1d88fdb5-91ab-4a57-a04c-50d75b97872f"
+        }
+      ],
+      "id": "af8ed627-449f-4cc8-8d43-dbd983b8a3e2",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "1126f6c2-667f-46fc-94e3-6989fc937b91",
+          "instanceName": "c_mod_3",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "0b657271-a122-4945-af31-1b47213ab2c8",
+              "name": "c_int_const_in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "12906ced-b8c0-425f-a44e-2dd92f12ca81",
+              "name": "c_int_in_1",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "8802d494-d003-4416-9790-fa06b506b4bb",
+              "name": "c_int_in_2",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "e6a58ed6-9b78-4545-b345-67100fc2ba3f",
+              "name": "c_mod_out_1",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "c_mod_3",
+          "position": {
+            "x": 540,
+            "y": 330
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "483c601c-c4d6-41f6-8e89-17893ae05bee",
+          "instanceName": "Constant",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "309ac566-42ff-4859-8ee9-18763102da56",
+              "name": "constant",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Constant",
+          "position": {
+            "x": 45,
+            "y": 270
+          },
+          "properties": [
+            {
+              "id": "208c6167-1d4b-46dc-8319-6e85a2753c30",
+              "name": "Constant Value",
+              "value": "0"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "ef959337-6750-4957-aac3-c0e2e06d4d9f",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "a231c33a-ecf8-45b7-8d1e-e104d8c7e3ea",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 975,
+            "y": 345
+          },
+          "properties": [
+            {
+              "id": "8fbac329-9e4e-402e-bd9b-8e19d3a8b390",
+              "name": "External Name",
+              "value": "aas"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "067c16f5-1f5c-4984-a459-dfa8a04095fe",
+          "instanceName": "Subgraph port",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "subgraph in",
+              "id": "705fe919-ece7-4e48-ade1-4be24a69d399",
+              "name": "subgraph in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "6bc4b163-4076-4185-96d2-806e66bd1bbf",
+              "name": "subgraph out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Subgraph port",
+          "position": {
+            "x": 90,
+            "y": 510
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "44e23173-e3c2-472b-b548-bff1897acf22",
+          "instanceName": "c_mod_3",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "54222346-176c-4c8c-a430-ce5bd71c8afe",
+              "name": "c_int_const_in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "f40cb309-21cd-420b-b3d0-26b456a98fd4",
+              "name": "c_int_in_1",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "1d88fdb5-91ab-4a57-a04c-50d75b97872f",
+              "name": "c_int_in_2",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "ba3c8aa1-4b59-4c1a-b7bb-9dd243585ad8",
+              "name": "c_mod_out_1",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "c_mod_3",
+          "position": {
+            "x": 585,
+            "y": 735
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "433c367c-1906-47c9-b6c5-2bde3dccb2e2",
+          "instanceName": "External Input",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "0cec94d5-c1ad-462a-aff6-5536471a368b",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Input",
+          "position": {
+            "x": 210,
+            "y": 825
+          },
+          "properties": [
+            {
+              "id": "fb738fae-5083-4285-a694-408fce78a996",
+              "name": "External Name",
+              "value": "testin"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "3eb3d216-6ed6-4075-81cf-117357222606",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "a5ee1354-3952-4961-b146-1eaf1b04f608",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 975,
+            "y": 750
+          },
+          "properties": [
+            {
+              "id": "850ced46-42a6-4533-bf46-8c1722341070",
+              "name": "External Name",
+              "value": "testout"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}
