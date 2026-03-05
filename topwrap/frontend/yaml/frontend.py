@@ -33,9 +33,9 @@ class YamlFrontend(Frontend):
         src: Union[str, Path],
         loaded: Any,
     ) -> tuple[Optional[Module], Optional[Union[str, Path]]]:
-        if any(k in loaded for k in ("signals", "parameters", "interfaces")):
+        if any(k in loaded for k in ("signals", "parameters")):
             return (ip_core_method(IPCoreDescriptionFrontend(), src), None)
-        elif any(k in loaded for k in ("externals", "design", "ips")):
+        elif any(k in loaded for k in ("external", "ips")):
             return (None, src)
         else:
             raise FrontendParseException(f"{name} is neither an IP Core, nor a Design Description")

@@ -18,8 +18,9 @@ from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignIP:
+class DesignIP(MarshmallowDataclassExtensions):
     file: ResourcePathT
+    parameters: Dict[str, IPCoreParameter] = ext_field(dict, deep_cleanup=True)
 
     @cached_property
     def module(self):
@@ -95,36 +96,30 @@ DS_InterfacesT = Dict[str, Dict[str, Union[str, Tuple[str, str]]]]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
-class DesignSection(MarshmallowDataclassExtensions):
+class DesignDescription(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(
         None
     )  # This field is relevant only for the top-level design section
-    parameters: Dict[str, Dict[str, IPCoreParameter]] = ext_field(dict, deep_cleanup=True)
+    ips: Dict[str, DesignIP] = ext_field(dict)
     ports: DS_PortsT = ext_field(dict, deep_cleanup=True, inline_depth=2)
     interfaces: DS_InterfacesT = ext_field(dict, deep_cleanup=True, inline_depth=2)
     interconnects: Dict[str, DesignSectionInterconnect] = ext_field(dict)
     hierarchies: Dict[str, "DesignDescription"] = ext_field(dict)
-
-
-@marshmallow_dataclass.dataclass(frozen=True)
-class DesignDescription(MarshmallowDataclassExtensions):
-    design: DesignSection = ext_field(DesignSection)
     external: DesignExternalSection = ext_field(DesignExternalSection)
-    ips: Dict[str, DesignIP] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
 
     @property
     def all_ips(self) -> Iterator[DesignIP]:
         yield from self.ips.values()
-        for hier in self.design.hierarchies.values():
+        for hier in self.hierarchies.values():
             yield from hier.all_ips
 
     def save(self, path: Optional[Path] = None, **kwargs: Any):
         if path is None:
-            if self.design.name is None:
+            if self.name is None:
                 path = Path("top.yaml")
             else:
-                path = Path(self.design.name + ".yaml")
+                path = Path(self.name + ".yaml")
 
         super().save(path, **kwargs)

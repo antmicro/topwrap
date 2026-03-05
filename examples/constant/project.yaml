@@ -1,18 +1,18 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+name: project_top
+
 ips:
   ip_ibuf:
     file: file:ipcores/ibuf.yaml
 
-design:
-  name: project_top
-  ports:
-    ip_ibuf:
-      clk: PORT_CLK
-      rst: 0
-      a: 1
-      z: PORT_OUT
+ports:
+  ip_ibuf:
+    clk: PORT_CLK
+    rst: 0
+    a: 1
+    z: PORT_OUT
 
 external:
   ports:

@@ -1,74 +1,71 @@
 # Copyright (c) 2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+name: simple_soc
 ips:
   vexriscv:
     file: repo[my_repo]:VexRiscv
   wb_ram_data:
     file: repo[my_repo]:mem
+    parameters:
+      depth: 0x1000
   wb_ram_instr:
     file: repo[my_repo]:mem
+    parameters:
+      depth: 0xA000
+      memfile: '"build/bios.init"'
   crg:
     file: repo[my_repo]:crg
   wb_uart:
     file: repo[my_repo]:wb_uart
-
-design:
-  name: simple_soc
-  parameters:
-    wb_ram_data:
-      depth: 0x1000
-    wb_ram_instr:
-      depth: 0xA000
-      memfile: '"build/bios.init"'
-  ports:
-    wb_ram_data:
-      sys_clk: clk100
-      sys_rst: [crg, sys_rst]
-    wb_ram_instr:
-      sys_clk: clk100
-      sys_rst: [crg, sys_rst]
-    crg:
-      clk100: clk100
-    vexriscv:
-      clk: clk100
-      reset: [crg, sys_rst]
-      softwareInterrupt: 0
-      externalInterruptArray: 0
-      timerInterrupt: 0
-      externalResetVector: 0x00000000
-    wb_uart:
-      sys_clk: clk100
-      sys_rst: [crg, sys_rst]
-      serial1_tx: serial_tx
-      serial1_rx: serial_rx
-  interconnects:
-    wishbone_interconnect:
-      clock: clk100
-      reset: [crg, sys_rst]
-      type: 'Wishbone Round-Robin'
-      params:
-        addr_width: 30
-        data_width: 32
-        granularity: 8
-        features: ['CTI', 'BTE', 'ERR']
-      subordinates:
-        wb_uart:
-          csr_wishbone:
-            address: 0xF0000000
-            size: 0x1000
-        wb_ram_data:
-          mem_bus:
-            address: 0x10000000
-            size: 0x1000
-        wb_ram_instr:
-          mem_bus:
-            address: 0x0
-            size: 0xA000
-      managers:
-        vexriscv:
-          - iBusWishbone_
-          - dBusWishbone_
+ports:
+  wb_ram_data:
+    sys_clk: clk100
+    sys_rst: [crg, sys_rst]
+  wb_ram_instr:
+    sys_clk: clk100
+    sys_rst: [crg, sys_rst]
+  crg:
+    clk100: clk100
+  vexriscv:
+    clk: clk100
+    reset: [crg, sys_rst]
+    softwareInterrupt: 0
+    externalInterruptArray: 0
+    timerInterrupt: 0
+    externalResetVector: 0x00000000
+  wb_uart:
+    sys_clk: clk100
+    sys_rst: [crg, sys_rst]
+    serial1_tx: serial_tx
+    serial1_rx: serial_rx
+interconnects:
+  wishbone_interconnect:
+    clock: clk100
+    reset: [crg, sys_rst]
+    type: 'Wishbone Round-Robin'
+    params:
+      addr_width: 30
+      data_width: 32
+      granularity: 8
+      features: ['CTI', 'BTE', 'ERR']
+    subordinates:
+      wb_uart:
+        csr_wishbone:
+          address: 0xF0000000
+          size: 0x1000
+      wb_ram_data:
+        mem_bus:
+          address: 0x10000000
+          size: 0x1000
+      wb_ram_instr:
+        mem_bus:
+          address: 0x0
+          size: 0xA000
+    managers:
+      vexriscv:
+        - iBusWishbone_
+        - dBusWishbone_
 
 external:
   ports:

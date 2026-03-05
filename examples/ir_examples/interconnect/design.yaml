@@ -1,3 +1,55 @@
+ips:
+  cpu:
+    file: file:ips/cpu.yaml
+  wb_pass:
+    file: file:ips/wb_passthrough.yaml
+    parameters:
+      DW: 8
+  mem:
+    file: file:ips/mem.yaml
+    parameters:
+      WIDTH: 8
+      DEPTH: 0xFFFF
+  dsp:
+    file: file:ips/dsp.yaml
+
+ports:
+  cpu: &clkrst
+    clk: clk
+    rst: rst
+  mem: *clkrst
+  dsp: *clkrst
+
+interfaces:
+  wb_pass:
+    wb_in: ext_manager
+
+interconnects:
+  wishbone_bus:
+    clock: clk
+    reset: rst
+    type: Wishbone Round-Robin
+
+    params:
+      addr_width: 32
+      data_width: 8
+      granularity: 8
+      features: [ERR, STALL]
+
+    managers:
+      cpu: [bus_manager]
+      wb_pass: [wb_out]
+
+    subordinates:
+      dsp:
+        bus:
+          address: 0
+          size: 0xFF
+      mem:
+        bus:
+          address: 0x10000
+          size: 0xFF
+
 external:
   ports:
     in:
@@ -6,58 +58,3 @@ external:
   interfaces:
     in:
       - ext_manager
-
-ips:
-  cpu:
-    file: file:ips/cpu.yaml
-  wb_pass:
-    file: file:ips/wb_passthrough.yaml
-  mem:
-    file: file:ips/mem.yaml
-  dsp:
-    file: file:ips/dsp.yaml
-
-design:
-  ports:
-    cpu: &clkrst
-      clk: clk
-      rst: rst
-    mem: *clkrst
-    dsp: *clkrst
-
-  parameters:
-    mem:
-      WIDTH: 8
-      DEPTH: 0xFFFF
-    wb_pass:
-      DW: 8
-
-  interfaces:
-    wb_pass:
-      wb_in: ext_manager
-
-  interconnects:
-    wishbone_bus:
-      clock: clk
-      reset: rst
-      type: Wishbone Round-Robin
-
-      params:
-        addr_width: 32
-        data_width: 8
-        granularity: 8
-        features: [ERR, STALL]
-
-      managers:
-        cpu: [bus_manager]
-        wb_pass: [wb_out]
-
-      subordinates:
-        dsp:
-          bus:
-            address: 0
-            size: 0xFF
-        mem:
-          bus:
-            address: 0x10000
-            size: 0xFF

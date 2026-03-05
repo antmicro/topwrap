@@ -57,7 +57,7 @@ class DesignDescriptionFrontend:
         """
 
         desc = DesignDescription.load(path)
-        return self._parse_hier(path, desc, "top" if desc.design.name is None else desc.design.name)
+        return self._parse_hier(path, desc, "top" if desc.name is None else desc.name)
 
     def parse_str(self, source: str) -> Design:
         """
@@ -67,7 +67,7 @@ class DesignDescriptionFrontend:
         """
 
         desc = DesignDescription.from_yaml(source)
-        return self._parse_hier(None, desc, "top" if desc.design.name is None else desc.design.name)
+        return self._parse_hier(None, desc, "top" if desc.name is None else desc.name)
 
     def _parse_hier(
         self, source: Optional[Path], desc: DesignDescription, name_hint: str
@@ -85,7 +85,7 @@ class DesignDescriptionFrontend:
             design.add_component(ModuleInstance(name=cname, module=cmod))
 
         # Parse hierarchical design descriptions as more components
-        for hname, hdesc in desc.design.hierarchies.items():
+        for hname, hdesc in desc.hierarchies.items():
             parsed = self._parse_hier(source, hdesc, hname)
             design.add_component(ModuleInstance(name=hname, module=parsed.parent))
 
@@ -103,7 +103,7 @@ class DesignDescriptionFrontend:
                     declared_exts[d] = (dir, port)
 
         # Parse regular connections between ports, interfaces and externals
-        for group in (desc.design.ports, desc.design.interfaces):
+        for group in (desc.ports, desc.interfaces):
             for comp, maps in group.items():
                 for sig, ref in maps.items():
                     try:
@@ -123,7 +123,7 @@ class DesignDescriptionFrontend:
                 continue
 
         # Parse interconnects
-        for iname, intr in desc.design.interconnects.items():
+        for iname, intr in desc.interconnects.items():
             try:
                 self._parse_interconnect(design, iname, intr)
             except DDFE as e:
@@ -147,12 +147,12 @@ class DesignDescriptionFrontend:
         return design
 
     def _parse_parameters(self, desc: DesignDescription, design: Design):
-        for cname, params in desc.design.parameters.items():
+        for cname, ip in desc.ips.items():
             comp = design.components.find_by_name(cname)
             if comp is None:
                 logger.warning(f"Skipping unresolved component: '{cname}'")
                 continue
-            for pname, val in params.items():
+            for pname, val in ip.parameters.items():
                 pdef = comp.module.parameters.find_by_name(pname)
                 if pdef is None:
                     logger.warning(

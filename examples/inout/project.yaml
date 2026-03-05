@@ -1,6 +1,8 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+name: project_top
+
 ips:
   ip_ibuf:
     file:   repo[my_repo]:ibuf
@@ -9,26 +11,24 @@ ips:
   ip_iobuf:
     file:   repo[my_repo]:iobuf
 
-design:
-  name: project_top
-  ports:
-    ip_obuf:
-      clk: PORT_CLK
-      rst: PORT_RST
-      oe: PORT_CLK
-      a: PORT_IN
-      z: PORT_OUT_0
-    ip_iobuf:
-      clk: PORT_CLK
-      rst: PORT_RST
-      oe: PORT_CLK
-      a: PORT_IN
-      y: PORT_OUT_1
-    ip_ibuf:
-      clk: PORT_CLK
-      rst: PORT_RST
-      a: PORT_IN
-      z: PORT_OUT_2
+ports:
+  ip_obuf:
+    clk: PORT_CLK
+    rst: PORT_RST
+    oe: PORT_CLK
+    a: PORT_IN
+    z: PORT_OUT_0
+  ip_iobuf:
+    clk: PORT_CLK
+    rst: PORT_RST
+    oe: PORT_CLK
+    a: PORT_IN
+    y: PORT_OUT_1
+  ip_ibuf:
+    clk: PORT_CLK
+    rst: PORT_RST
+    a: PORT_IN
+    z: PORT_OUT_2
 
 external:
   ports:

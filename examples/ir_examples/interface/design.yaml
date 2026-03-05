@@ -1,15 +1,20 @@
-design:
-  ports:
-    streamer:
-      clk: clk
-      rst: rst
-    receiver:
-      clk: clk
-      rst: rst
-      noise: 2888
-  interfaces:
-    receiver:
-      io: [streamer, io]
+ips:
+  streamer:
+    file: file:ips/streamer.yaml
+  receiver:
+    file: file:ips/receiver.yaml
+
+ports:
+  streamer:
+    clk: clk
+    rst: rst
+  receiver:
+    clk: clk
+    rst: rst
+    noise: 2888
+interfaces:
+  receiver:
+    io: [streamer, io]
 
 external:
   ports:
@@ -18,9 +23,3 @@ external:
       - rst
     inout:
       - [receiver, ext]
-
-ips:
-  streamer:
-    file: file:ips/streamer.yaml
-  receiver:
-    file: file:ips/receiver.yaml

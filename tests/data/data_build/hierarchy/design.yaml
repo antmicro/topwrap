@@ -1,47 +1,42 @@
 # Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+# This design contains `pwm` module connected with `counter_hier`
+# which is a hierarchy containing a single `counter` module
 ips:
   pwm:
     file: file:pwm.yaml
-
-# This design contains `pwm` module connected with `counter_hier`
-# which is a hierarchy containing a single `counter` module
-design:
-  parameters:
-    pwm:
+    parameters:
       COMP_WIDTH: 16
 
-  hierarchies:
-    counter_hier:
-      ips:
-        counter:
-          file: file:counter.yaml
-      design:
+hierarchies:
+  counter_hier:
+    ips:
+      counter:
+        file: file:counter.yaml
         parameters:
-          counter:
-            CNT_WIDTH: 16
-        ports:
-          counter:
-            clk: in_clk
-            en: in_en
-            cnt: out_cnt
-      external:
-        ports:
-          in:
-            - in_clk
-            - in_en
-          out:
-            - out_cnt
+          CNT_WIDTH: 16
+    ports:
+      counter:
+        clk: in_clk
+        en: in_en
+        cnt: out_cnt
+    external:
+      ports:
+        in:
+          - in_clk
+          - in_en
+        out:
+          - out_cnt
 
-  ports:
-    counter_hier:
-      in_clk: top_clk
-      in_en: [pwm, sig_pwm]
-      out_cnt: top_cnt
-    pwm:
-      clk: top_clk
-      compare: top_compare
+ports:
+  counter_hier:
+    in_clk: top_clk
+    in_en: [pwm, sig_pwm]
+    out_cnt: top_cnt
+  pwm:
+    clk: top_clk
+    compare: top_compare
 
 external:
   ports:
