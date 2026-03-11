@@ -82,7 +82,7 @@ def package_cores(log_level: str, save_path: Path):
             continue
 
         try:
-            [*modules] = frontend.parse_files(sv_sources)
+            [*modules] = frontend.parse_files(sv_sources).modules
             for mod in modules:
                 mod.id = Identifier(name=mod.id.name, vendor="", library="fusesoc")
                 repo.add_resource(
