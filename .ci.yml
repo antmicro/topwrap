@@ -20,7 +20,7 @@ test_kpm_server:
   variables:
     SCALENODE_RAM: 10240
     SCALENODE_CPU: 8
-    SCALENODE_DISK: 20 
+    SCALENODE_DISK: 20
   script:
     - ./.github/scripts/ci.sh test_kpm_server
 
@@ -31,7 +31,7 @@ test_python:
   variables:
     SCALENODE_RAM: 10240
     SCALENODE_CPU: 8
-    SCALENODE_DISK: 20 
+    SCALENODE_DISK: 20
   script:
     - ./.github/scripts/ci.sh test_python ${CI_PARALLEL_NAME}
 
@@ -59,7 +59,7 @@ examples:
 package_cores:
   variables:
     SCALENODE_CPU: 4
-    SCALENODE_RAM: 8192
+    SCALENODE_RAM: 16384
   stage: test
   image: debian:bookworm
   script:
