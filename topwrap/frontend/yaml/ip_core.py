@@ -148,12 +148,17 @@ class IPCoreDescriptionFrontend:
                 (PortDirection.INOUT, iface.signals.inout),
             ):
                 for sname, sig in sigs.items():
-                    pname, type, slice = self._parse_signal(sig)
-                    mod.add_port(port := Port(name=pname, type=type, direction=dir))
-                    logic_slice = LogicSelect(logic=type)
-                    if slice is not None:
-                        logic_slice.ops.append(LogicBitSelect(slice))
-                    signals[byname[sname]._id] = ReferencedPort.external(port, select=logic_slice)
+                    if sig:
+                        pname, type, slice = self._parse_signal(sig)
+                        mod.add_port(port := Port(name=pname, type=type, direction=dir))
+                        logic_slice = LogicSelect(logic=type)
+                        if slice is not None:
+                            logic_slice.ops.append(LogicBitSelect(slice))
+                        signals[byname[sname]._id] = ReferencedPort.external(
+                            port, select=logic_slice
+                        )
+                    else:
+                        signals[byname[sname]._id] = None
             mod.add_interface(Interface(name=iname, mode=mode, definition=ird, signals=signals))
 
         return mod

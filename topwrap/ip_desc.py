@@ -127,9 +127,9 @@ class IPCorePorts(MarshmallowDataclassExtensions):
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreIntfPorts(MarshmallowDataclassExtensions):
-    input: Dict[str, Signal] = ext_field(dict, data_key="in", deep_cleanup=True, inline_depth=1)
-    output: Dict[str, Signal] = ext_field(dict, data_key="out", deep_cleanup=True, inline_depth=1)
-    inout: Dict[str, Signal] = ext_field(dict, deep_cleanup=True, inline_depth=1)
+    input: Dict[str, Optional[Signal]] = ext_field(dict, data_key="in", inline_depth=1)
+    output: Dict[str, Optional[Signal]] = ext_field(dict, data_key="out", inline_depth=1)
+    inout: Dict[str, Optional[Signal]] = ext_field(dict, inline_depth=1)
 
     @cached_property
     def flat(self):
@@ -140,7 +140,10 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
             (PortDirection.INOUT, self.inout),
         ):
             for iport_name, sig in sigs.items():
-                ports[iport_name] = IPCorePort.from_sig_and_dir(sig, dir)
+                if sig:
+                    ports[iport_name] = IPCorePort.from_sig_and_dir(sig, dir)
+                else:
+                    ports[iport_name] = IPCorePort.from_sig_and_dir(iport_name, dir)
         return ports
 
     @staticmethod
