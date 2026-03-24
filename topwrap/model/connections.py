@@ -41,13 +41,22 @@ class Port(ModelBase):
     #: The type of this port. (``Bit``, ``BitStruct``, ``LogicArray`` etc.)
     type: Logic
 
+    #: The default value to assign to this port if left unconnected.
+    default_value: Optional[ElaboratableValue]
+
     def __init__(
-        self, *, name: VariableName, direction: PortDirection, type: Optional[Logic] = None
+        self,
+        *,
+        name: VariableName,
+        direction: PortDirection,
+        type: Optional[Logic] = None,
+        default_value: Optional[ElaboratableValue] = None,
     ):
         super().__init__()
         self.name = name
         self.direction = direction
         self.type = Bit() if type is None else type
+        self.default_value = default_value
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, Port):
@@ -55,6 +64,7 @@ class Port(ModelBase):
                 self.name == value.name
                 and self.direction == value.direction
                 and self.type == value.type
+                and self.default_value == value.default_value
             )
         return NotImplemented
 
