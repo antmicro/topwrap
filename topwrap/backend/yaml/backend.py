@@ -9,7 +9,14 @@ from typing_extensions import override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo
 from topwrap.interface import InterfaceMode as IPCoreInterfaceMode
-from topwrap.ip_desc import IPCoreDescription, IPCoreInterface, IPCoreIntfPorts, IPCorePorts, Signal
+from topwrap.ip_desc import (
+    IPCoreDescription,
+    IPCoreInterface,
+    IPCoreIntfPorts,
+    IPCoreParameter,
+    IPCorePorts,
+    Signal,
+)
 from topwrap.model.connections import (
     Port,
     PortDirection,
@@ -20,7 +27,7 @@ from topwrap.model.interface import (
     InterfaceDefinition,
     InterfaceMode,
 )
-from topwrap.model.misc import QuerableView
+from topwrap.model.misc import Parameter, QuerableView
 from topwrap.model.module import Module
 
 
@@ -45,11 +52,12 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
 
         ports = self._represent_ports(module.ports)
         intfs = {intf.name: self._represent_intf(intf) for intf in module.interfaces}
+        params = self._represent_params(module.parameters)
 
         desc = IPCoreDescription(
             name=module.id.name,
             signals=ports,
-            parameters={},
+            parameters=params,
             interfaces=intfs,
         )
 
@@ -141,6 +149,17 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
             mode=mode,
             signals=IPCoreIntfPorts(input, output, inout),
         )
+
+    def _represent_params(self, params: Iterable[Parameter]) -> dict[str, IPCoreParameter]:
+        out = {}
+
+        for param in params:
+            if param.default_value:
+                out[param.name] = param.default_value.value
+            else:
+                out[param.name] = None
+
+        return out
 
     @override
     def serialize(self, repr: IpCoreDescriptionOutput) -> Iterator[BackendOutputInfo]:

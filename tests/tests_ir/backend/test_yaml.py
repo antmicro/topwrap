@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import copy
@@ -19,7 +19,7 @@ from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.ip_core import InterfaceDescriptionFrontend, IPCoreDescriptionFrontend
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.interface import Interface, InterfaceMode
-from topwrap.model.misc import Identifier
+from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
 from topwrap.model.module import Module
 
 
@@ -146,4 +146,27 @@ class TestIpCoreDescriptionBackend:
                 }
             },
             "name": "bar",
+        }
+
+    def test_parameters(self):
+        mod = Module(
+            id=Identifier(name="top"),
+            parameters=[
+                Parameter(name="foo", default_value=ElaboratableValue("32")),
+                Parameter(name="bar"),
+            ],
+        )
+
+        backend = IpCoreDescriptionBackend()
+
+        out = backend.represent(mod)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree == {
+            "name": "top",
+            "parameters": {
+                "foo": "32",
+                "bar": None,
+            },
         }
