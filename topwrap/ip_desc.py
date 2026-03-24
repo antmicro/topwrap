@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from functools import cached_property
 from pathlib import Path
@@ -203,7 +203,7 @@ class IPCoreComplexParameter(MarshmallowDataclassExtensions):
     value: Union[int, str]
 
 
-IPCoreParameter = Union[int, str, IPCoreComplexParameter]
+IPCoreParameter = Optional[Union[int, str, IPCoreComplexParameter]]
 
 
 class BuiltinIPCoreException(Exception):
@@ -216,7 +216,7 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
 
     name: str
     signals: IPCorePorts = ext_field(IPCorePorts)
-    parameters: Dict[str, IPCoreParameter] = ext_field(dict, deep_cleanup=True)
+    parameters: Dict[str, IPCoreParameter] = ext_field(dict)
     interfaces: Dict[str, IPCoreInterface] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]]

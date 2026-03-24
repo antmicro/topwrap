@@ -159,7 +159,11 @@ class DesignDescriptionFrontend:
                         f"Skipping non-existent parameter '{pname}' of component '{cname}'"
                     )
                     continue
-                comp.parameters[pdef._id] = _param_to_ir_param(val)
+
+                maybe_param = _param_to_ir_param(val)
+                assert maybe_param is not None, "Parameter value cannot be None here"
+
+                comp.parameters[pdef._id] = maybe_param
 
     def _parse_interconnect(self, des: Design, iname: str, intr: DesignSectionInterconnect):
         itype = INTERCONNECT_TYPES[intr.type]

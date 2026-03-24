@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import re
@@ -39,10 +39,10 @@ class IPCoreDescriptionFrontendException(Exception):
     pass
 
 
-def _param_to_ir_param(par: IPCoreParameter) -> ElaboratableValue:
+def _param_to_ir_param(par: IPCoreParameter) -> Optional[ElaboratableValue]:
     if isinstance(par, IPCoreComplexParameter):
         par = f"{par.width}'d{par.value}"
-    return ElaboratableValue(par)
+    return ElaboratableValue(par) if par is not None else None
 
 
 class InterfaceDescriptionFrontend:
