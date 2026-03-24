@@ -26,6 +26,7 @@ from topwrap.model.connections import (
     PortDirection,
     ReferencedPort,
 )
+from topwrap.model.design import ModuleInstance
 from topwrap.model.hdl_types import (
     Bit,
     Bits,
@@ -514,3 +515,101 @@ endinterface
         backend = SystemVerilogBackend()
         with pytest.raises(GeneratorNotImplementedError):
             backend.represent(module)
+
+    def test_default_port_value(self):
+        bv = Bits(dimensions=[Dimensions(upper=ElaboratableValue(3))])
+        inner_ports = [
+            Port(
+                name="foo",
+                type=bv,
+                direction=PortDirection.IN,
+                default_value=ElaboratableValue("3"),
+            ),
+            Port(
+                name="bar",
+                type=bv,
+                direction=PortDirection.IN,
+                default_value=ElaboratableValue("4"),
+            ),
+            Port(
+                name="baz",
+                type=bv,
+                direction=PortDirection.IN,
+                default_value=ElaboratableValue("4"),
+            ),
+            Port(name="qux", type=bv, direction=PortDirection.IN),
+        ]
+        inner_module = Module(
+            id=Identifier(name="inner"),
+            ports=inner_ports,
+            design=Design(),
+        )
+        inner_inst = ModuleInstance(name="xinner", module=inner_module)
+
+        outer_ports = [
+            Port(
+                name="foo",
+                type=bv,
+                direction=PortDirection.IN,
+                default_value=ElaboratableValue("3"),
+            ),
+            Port(
+                name="bar",
+                type=bv,
+                direction=PortDirection.IN,
+                default_value=ElaboratableValue("4"),
+            ),
+        ]
+        outer_module = Module(
+            id=Identifier(name="outer"),
+            ports=outer_ports,
+            design=Design(
+                components=[inner_inst],
+                connections=[
+                    ConstantConnection(
+                        ElaboratableValue("5"),
+                        ReferencedPort(io=inner_ports[0], instance=inner_inst),
+                    ),
+                    ConstantConnection(
+                        ElaboratableValue("6"),
+                        ReferencedPort(io=inner_ports[3], instance=inner_inst),
+                    ),
+                    PortConnection(
+                        ReferencedPort.external(outer_ports[0]),
+                        ReferencedPort(io=inner_ports[2], instance=inner_inst),
+                    ),
+                ],
+            ),
+        )
+
+        backend = SystemVerilogBackend(desc_comms=False)
+        out = backend.represent(outer_module)
+        [out] = backend.serialize(out, combine=True)
+
+        assert (
+            out.content
+            == """module outer (
+    input logic [3:0] foo,
+    input logic [3:0] bar
+);
+
+  inner xinner (
+    .foo(5),
+    .qux(6),
+    .baz(foo),
+    .bar(4)
+  );
+
+endmodule
+
+
+module inner (
+    input logic [3:0] foo,
+    input logic [3:0] bar,
+    input logic [3:0] baz,
+    input logic [3:0] qux
+);
+
+endmodule
+"""
+        )

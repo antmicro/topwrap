@@ -79,6 +79,11 @@ class _SystemVerilogDesignData:
         list[_SystemVerilogPartialConn],
     ]
 
+    #: A set of ports where something has been connected. Used for
+    #: determining whether a port needs to have it's default value
+    #: assigned to it.
+    used_ports: set[tuple[Optional[ObjectId[ModuleInstance]], ObjectId[Port]]]
+
     def __init__(self) -> None:
         self.intf_exts = {}
         self.intf_decls = {}
@@ -86,6 +91,7 @@ class _SystemVerilogDesignData:
         self.port_maps = defaultdict(dict)
         self.assign_map = {}
         self.conns_to_partials = defaultdict(list)
+        self.used_ports = set()
 
     def store_sel(
         self,
@@ -99,6 +105,9 @@ class _SystemVerilogDesignData:
         self.conns_to_partials[(i if i is None else i._id, ref.io._id)].append(
             _SystemVerilogPartialConn(ref.select, other, invert)
         )
+
+        if i is not None:
+            self.used_ports.add((i._id, ref.io._id))
 
     def parse_connection(self, conn: Connection):
         if isinstance(conn, ConstantConnection):
@@ -533,6 +542,17 @@ class SystemVerilogDesignBackend:
             data.parse_connection(conn)
         data.parse_partial_conns()
         data.compact_passthrough_nets({sv_varname(p.name) for p in des.parent.ports})
+
+        # Fill in default values for ports with nothing assigned to them
+        for comp in des.components:
+            for io in comp.module.ios:
+                if (comp._id, io._id) not in data.used_ports:
+                    if (
+                        isinstance(io, Port)
+                        and io.default_value is not None
+                        and io.direction is PortDirection.IN
+                    ):
+                        data.port_maps[comp._id][io.name] = io.default_value.value
 
         if self.all_pins:
             for comp in des.components:
