@@ -11,6 +11,7 @@ from topwrap.interface import InterfaceMode as LegacyInterfaceMode
 from topwrap.interface import get_interface_by_name
 from topwrap.ip_desc import (
     IPCoreComplexParameter,
+    IPCoreComplexSignal,
     IPCoreDescription,
     IPCoreParameter,
     Signal,
@@ -123,8 +124,13 @@ class IPCoreDescriptionFrontend:
             (PortDirection.INOUT, desc.signals.inout),
         ):
             for signal in ports:
-                name, type, _ = self._parse_signal(signal)
-                mod.add_port(Port(name=name, direction=dir, type=type))
+                name, type, _, default = self._parse_signal(signal)
+
+                if default is not None and dir is not PortDirection.IN:
+                    raise IPCoreDescriptionFrontendException(
+                        f"Default value '{default}' assigned to non-input port '{name}'"
+                    )
+                mod.add_port(Port(name=name, direction=dir, type=type, default_value=default))
 
         for iname, iface in desc.interfaces.items():
             ird = InterfaceDescriptionFrontend().from_loaded(iface.type)
@@ -149,7 +155,7 @@ class IPCoreDescriptionFrontend:
             ):
                 for sname, sig in sigs.items():
                     if sig:
-                        pname, type, slice = self._parse_signal(sig)
+                        pname, type, slice, _ = self._parse_signal(sig)
                         mod.add_port(port := Port(name=pname, type=type, direction=dir))
                         logic_slice = LogicSelect(logic=type)
                         if slice is not None:
@@ -163,7 +169,33 @@ class IPCoreDescriptionFrontend:
 
         return mod
 
-    def _parse_signal(self, signal: Signal) -> tuple[str, Logic, Optional[Dimensions]]:
+    def _parse_signal(
+        self, signal: Signal
+    ) -> tuple[str, Logic, Optional[Dimensions], Optional[ElaboratableValue]]:
+        if isinstance(signal, IPCoreComplexSignal):
+            slice = (
+                Dimensions(
+                    upper=ElaboratableValue(signal.slice[0]),
+                    lower=ElaboratableValue(signal.slice[1]),
+                )
+                if signal.slice is not None
+                else None
+            )
+            if signal.bound is None:
+                type = Bit()
+            else:
+                type = Bits(
+                    dimensions=[
+                        Dimensions(
+                            upper=ElaboratableValue(signal.bound[0]),
+                            lower=ElaboratableValue(signal.bound[1]),
+                        )
+                    ]
+                )
+            default = ElaboratableValue(signal.default) if signal.default is not None else None
+
+            return signal.name, type, slice, default
+
         data = [signal] if isinstance(signal, str) else signal
         slice = (
             Dimensions(upper=ElaboratableValue(data[3]), lower=ElaboratableValue(data[4]))
@@ -179,4 +211,4 @@ class IPCoreDescriptionFrontend:
                 ]
             )
 
-        return data[0], type, slice
+        return data[0], type, slice, None

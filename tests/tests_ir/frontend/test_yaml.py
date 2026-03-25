@@ -19,7 +19,7 @@ from topwrap.interface import get_interface_by_name
 from topwrap.ip_desc import IPCoreComplexParameter
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.design import Design
-from topwrap.model.hdl_types import Bit, Bits
+from topwrap.model.hdl_types import Bit, Bits, Dimensions
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import ElaboratableValue
 from topwrap.model.module import Module
@@ -235,6 +235,36 @@ class TestIPCoreDescriptionFrontend:
     def test_complex_param(self):
         param = IPCoreComplexParameter(32, 563)
         assert _param_to_ir_param(param) == ElaboratableValue("32'd563")
+
+    def test_complex_signal(self):
+        ip = """
+        name: top
+        signals:
+          in:
+            - name: foo
+              bound: [7, 0]
+              default: 4
+            - ["bar", 7, 0]
+        """
+
+        mod = IPCoreDescriptionFrontend().parse_str(ip)
+
+        assert mod.id.name == "top"
+
+        assert len(mod.ports) == 2
+        foo = mod.ports.find_by_name_or_error("foo")
+        bar = mod.ports.find_by_name_or_error("bar")
+
+        assert foo.direction == PortDirection.IN
+        assert bar.direction == PortDirection.IN
+
+        ty = Bits(dimensions=[Dimensions(upper=ElaboratableValue(7))])
+
+        assert foo.type == ty
+        assert bar.type == ty
+
+        assert foo.default_value == ElaboratableValue("4")
+        assert bar.default_value is None
 
 
 class TestInterfaceDescriptionFrontend:
