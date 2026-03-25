@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import tempfile
@@ -145,16 +145,19 @@ interfaces:
                         {"_schema": ["Not a valid string."]},
                         {"_schema": ["Length must be 3."]},
                         {"_schema": ["Length must be 5."]},
+                        {"_schema": ["Invalid input type."]},
                     ],
                     2: [
                         {"_schema": ["Not a valid string."]},
                         {"_schema": ["Length must be 3."]},
                         {"_schema": ["Length must be 5."]},
+                        {"_schema": ["Invalid input type."]},
                     ],
                     3: [
                         {"_schema": ["Not a valid string."]},
                         {"_schema": ["Not a valid tuple."]},
                         {"_schema": ["Not a valid tuple."]},
+                        {"name": ["Missing data for required field."]},
                     ],
                 },
                 "inout": ["Field may not be null."],
@@ -204,6 +207,7 @@ interfaces:
                                         {"_schema": ["Not a valid string."]},
                                         {"_schema": ["Length must be 3."]},
                                         {"_schema": ["Length must be 5."]},
+                                        {"_schema": ["Invalid input type."]},
                                     ]
                                 },
                                 "non": {
@@ -211,6 +215,7 @@ interfaces:
                                         {"_schema": ["Not a valid string."]},
                                         {"_schema": ["Length must be 3."]},
                                         {"_schema": ["Length must be 5."]},
+                                        {"_schema": ["Invalid input type."]},
                                     ]
                                 },
                             },

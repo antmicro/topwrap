@@ -28,7 +28,16 @@ from .interface import InterfaceDefinition, InterfaceMode, get_interface_by_name
 
 _T = Union[str, int]
 
-Signal = Union[str, Tuple[str, _T, _T], Tuple[str, _T, _T, _T, _T]]
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreComplexSignal(MarshmallowDataclassExtensions):
+    name: str
+    bound: Optional[tuple[_T, _T]] = ext_field(None)
+    slice: Optional[tuple[_T, _T]] = ext_field(None)
+    default: Optional[Union[int, str]] = ext_field(None)
+
+
+Signal = Union[str, Tuple[str, _T, _T], Tuple[str, _T, _T, _T, _T], IPCoreComplexSignal]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -57,6 +66,16 @@ class IPCorePort:
 
     @staticmethod
     def from_sig_and_dir(sig: Signal, dir: PortDirection) -> "IPCorePort":
+        if isinstance(sig, IPCoreComplexSignal):
+            return IPCorePort(
+                name=sig.name,
+                direction=dir,
+                upper_bound=sig.bound[0] if sig.bound else 0,
+                lower_bound=sig.bound[1] if sig.bound else 0,
+                upper_slice=sig.slice[0] if sig.slice else 0,
+                lower_slice=sig.slice[1] if sig.slice else 0,
+            )
+
         data = [sig] if isinstance(sig, str) else sig
         if len(data) == 1:
             bounds = [0, 0, 0, 0]
