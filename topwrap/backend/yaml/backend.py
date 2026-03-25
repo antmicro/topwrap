@@ -10,6 +10,7 @@ from typing_extensions import override
 from topwrap.backend.backend import Backend, BackendOutputInfo
 from topwrap.interface import InterfaceMode as IPCoreInterfaceMode
 from topwrap.ip_desc import (
+    IPCoreComplexSignal,
     IPCoreDescription,
     IPCoreInterface,
     IPCoreIntfPorts,
@@ -27,7 +28,7 @@ from topwrap.model.interface import (
     InterfaceDefinition,
     InterfaceMode,
 )
-from topwrap.model.misc import Parameter, QuerableView
+from topwrap.model.misc import ElaboratableValue, Parameter, QuerableView
 from topwrap.model.module import Module
 
 
@@ -64,41 +65,43 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         return IpCoreDescriptionOutput(base_name=module.id.name, description=desc)
 
     def _represent_signal(
-        self, name: str, type: Logic, slice: Optional[tuple[str, str]] = None
+        self,
+        name: str,
+        type: Logic,
+        slice: Optional[tuple[str, str]] = None,
+        default: Optional[ElaboratableValue] = None,
     ) -> Signal:
+        bound = None
+
         if isinstance(type, Bit) or isinstance(type, BitStruct):
             if slice:
                 raise ValueError("Trying to slice a single bit or bit struct")
-
-            return name
         elif isinstance(type, Bits):
             if len(type.dimensions) > 1:
                 raise ValueError("IP core YAML format only supports one-dimensional bit vectors")
 
-            if slice:
-                return (
-                    name,
-                    type.dimensions[0].upper.value,
-                    type.dimensions[0].lower.value,
-                    slice[0],
-                    slice[1],
-                )
-            else:
-                return (name, type.dimensions[0].upper.value, type.dimensions[0].lower.value)
+            bound = (type.dimensions[0].upper.value, type.dimensions[0].lower.value)
         else:
             logging.warning(f"Got unexpected type {type} for signal in IP core YAML backend")
-            return name
+
+        return IPCoreComplexSignal(
+            name=name,
+            bound=bound,
+            slice=slice,
+            default=default.value if default else None,
+        )
 
     def _represent_ports(self, ports: QuerableView[Port]) -> IPCorePorts:
         input, output, inout = set[Signal](), set[Signal](), set[Signal]()
         for port in ports:
+            represented_sig = self._represent_signal(port.name, port.type, None, port.default_value)
             if port.direction == PortDirection.IN:
-                input.add(self._represent_signal(port.name, port.type, None))
+                input.add(represented_sig)
             elif port.direction == PortDirection.OUT:
-                output.add(self._represent_signal(port.name, port.type, None))
+                output.add(represented_sig)
             else:
                 assert port.direction == PortDirection.INOUT
-                inout.add(self._represent_signal(port.name, port.type, None))
+                inout.add(represented_sig)
 
         return IPCorePorts(input, output, inout)
 

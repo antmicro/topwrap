@@ -13,6 +13,7 @@ from examples.ir_examples.modules import (
     intr_top,
     simp_top,
 )
+from examples.soc.ir.mem import Bits, Dimensions
 from tests.tests_ir.test_kpm_non_destructive import _compare_modules
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
@@ -146,6 +147,38 @@ class TestIpCoreDescriptionBackend:
                 }
             },
             "name": "bar",
+        }
+
+    def test_complex_port(self):
+        ty = Bits(dimensions=[Dimensions(upper=ElaboratableValue(7))])
+
+        ports = [
+            Port(
+                name="foo", direction=PortDirection.IN, type=ty, default_value=ElaboratableValue(4)
+            ),
+        ]
+        top = Module(
+            id=Identifier(name="top"),
+            ports=ports,
+        )
+
+        backend = IpCoreDescriptionBackend()
+
+        out = backend.represent(top)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree == {
+            "name": "top",
+            "signals": {
+                "in": [
+                    {
+                        "name": "foo",
+                        "bound": ["7", "0"],
+                        "default": "4",
+                    },
+                ],
+            },
         }
 
     def test_parameters(self):

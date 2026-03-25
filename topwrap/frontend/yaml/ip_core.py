@@ -4,7 +4,7 @@
 import re
 from functools import cache
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Sequence, Union
 
 from topwrap.interface import InterfaceDefinition as LegacyInterfaceDefinition
 from topwrap.interface import InterfaceMode as LegacyInterfaceMode
@@ -172,43 +172,27 @@ class IPCoreDescriptionFrontend:
     def _parse_signal(
         self, signal: Signal
     ) -> tuple[str, Logic, Optional[Dimensions], Optional[ElaboratableValue]]:
-        if isinstance(signal, IPCoreComplexSignal):
-            slice = (
-                Dimensions(
-                    upper=ElaboratableValue(signal.slice[0]),
-                    lower=ElaboratableValue(signal.slice[1]),
-                )
-                if signal.slice is not None
-                else None
+        def to_dims(lst: Sequence[Union[str, int]]):
+            return Dimensions(
+                upper=ElaboratableValue(lst[0]),
+                lower=ElaboratableValue(lst[1]),
             )
+
+        if isinstance(signal, IPCoreComplexSignal):
+            slice = None if signal.slice is None else to_dims(signal.slice)
             if signal.bound is None:
                 type = Bit()
             else:
-                type = Bits(
-                    dimensions=[
-                        Dimensions(
-                            upper=ElaboratableValue(signal.bound[0]),
-                            lower=ElaboratableValue(signal.bound[1]),
-                        )
-                    ]
-                )
+                type = Bits(dimensions=[to_dims(signal.bound)])
             default = ElaboratableValue(signal.default) if signal.default is not None else None
 
             return signal.name, type, slice, default
 
         data = [signal] if isinstance(signal, str) else signal
-        slice = (
-            Dimensions(upper=ElaboratableValue(data[3]), lower=ElaboratableValue(data[4]))
-            if len(data) == 5
-            else None
-        )
+        slice = to_dims(data[3:5]) if len(data) == 5 else None
         if len(data) == 1:
             type = Bit()
         else:
-            type = Bits(
-                dimensions=[
-                    Dimensions(upper=ElaboratableValue(data[1]), lower=ElaboratableValue(data[2]))
-                ]
-            )
+            type = Bits(dimensions=[to_dims(data[1:3])])
 
         return data[0], type, slice, None
