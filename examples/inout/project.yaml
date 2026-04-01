@@ -11,24 +11,25 @@ ips:
   ip_iobuf:
     file:   repo[my_repo]:iobuf
 
-ports:
-  ip_obuf:
-    clk: PORT_CLK
-    rst: PORT_RST
-    oe: PORT_CLK
-    a: PORT_IN
-    z: PORT_OUT_0
-  ip_iobuf:
-    clk: PORT_CLK
-    rst: PORT_RST
-    oe: PORT_CLK
-    a: PORT_IN
-    y: PORT_OUT_1
-  ip_ibuf:
-    clk: PORT_CLK
-    rst: PORT_RST
-    a: PORT_IN
-    z: PORT_OUT_2
+connections:
+  ports:
+    ip_obuf:
+      clk: PORT_CLK
+      rst: PORT_RST
+      oe: PORT_CLK
+      a: PORT_IN
+      z: PORT_OUT_0
+    ip_iobuf:
+      clk: PORT_CLK
+      rst: PORT_RST
+      oe: PORT_CLK
+      a: PORT_IN
+      y: PORT_OUT_1
+    ip_ibuf:
+      clk: PORT_CLK
+      rst: PORT_RST
+      a: PORT_IN
+      z: PORT_OUT_2
 
 external:
   ports:

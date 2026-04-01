@@ -103,7 +103,7 @@ class DesignDescriptionFrontend:
                     declared_exts[d] = (dir, port)
 
         # Parse regular connections between ports, interfaces and externals
-        for group in (desc.ports, desc.interfaces):
+        for group in (desc.connections.ports, desc.connections.interfaces):
             for comp, maps in group.items():
                 for sig, ref in maps.items():
                     try:

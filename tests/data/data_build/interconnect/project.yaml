@@ -18,24 +18,25 @@ ips:
   crg:
     file: file:ipcores/crg.yaml
 
-ports:
-  wb_ram_data:
-    sys_clk: clk100
-    sys_rst: [crg, sys_rst]
-  wb_ram_instr:
-    sys_clk: clk100
-    sys_rst: [crg, sys_rst]
-  crg:
-    clk100: clk100
-  soc:
-    sys_clk: clk100
-    sys_rst: [crg, sys_rst]
-    sim_serial_source_ready: sim_serial_source_ready
-    sim_serial_sink_valid: sim_serial_sink_valid
-    sim_serial_sink_data: sim_serial_sink_data
-    sim_serial_sink_ready: sim_serial_sink_ready
-    sim_serial_source_valid: sim_serial_source_valid
-    sim_serial_source_data: sim_serial_source_data
+connections:
+  ports:
+    wb_ram_data:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    wb_ram_instr:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    crg:
+      clk100: clk100
+    soc:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+      sim_serial_source_ready: sim_serial_source_ready
+      sim_serial_sink_valid: sim_serial_sink_valid
+      sim_serial_sink_data: sim_serial_sink_data
+      sim_serial_sink_ready: sim_serial_sink_ready
+      sim_serial_source_valid: sim_serial_source_valid
+      sim_serial_source_data: sim_serial_source_data
 
 interconnects:
   interconnect0:

@@ -5,11 +5,12 @@ name: top
 ips:
   core1:
     file: file:clog2_tester2.yaml
-ports:
-  core1:
-    i_clk: PORT_CLK
-    i_waddr: PORT_VEC_IN
-    o_waddr: PORT_VEC_OUT
+connections:
+  ports:
+    core1:
+      i_clk: PORT_CLK
+      i_waddr: PORT_VEC_IN
+      o_waddr: PORT_VEC_OUT
 external:
   ports:
     in:

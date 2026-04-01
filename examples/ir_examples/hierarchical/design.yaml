@@ -11,19 +11,20 @@ hierarchies:
             file: file:ips/adder.yaml
             parameters:
                 WIDTH: 4
-        ports:
-          D-flipflop:
-            D:
-            - adder
-            - sum
-            Q: sum
-            clk: impulse
-            rst: rst
-          adder:
-            a:
-            - D-flipflop
-            - Q
-            b: impulse
+        connections:
+          ports:
+            D-flipflop:
+              D:
+              - adder
+              - sum
+              Q: sum
+              clk: impulse
+              rst: rst
+            adder:
+              a:
+              - D-flipflop
+              - Q
+              b: impulse
         external:
           ports:
             in:
@@ -46,23 +47,24 @@ hierarchies:
         file: file:ips/debouncer.yaml
         parameters:
           GRACE: 1000
-    ports:
-      4-bit counter:
-        impulse:
-        - debouncer
-        - filtered_out
-        rst: rst
-      debouncer:
-        clk: clk
-        in: btn
-      encoder:
-        clk: clk
-        enc0: enc0
-        enc1: enc1
-        enc2: enc2
-        number:
-        - 4-bit counter
-        - sum
+    connections:
+      ports:
+        4-bit counter:
+          impulse:
+          - debouncer
+          - filtered_out
+          rst: rst
+        debouncer:
+          clk: clk
+          in: btn
+        encoder:
+          clk: clk
+          enc0: enc0
+          enc1: enc1
+          enc2: enc2
+          number:
+          - 4-bit counter
+          - sum
     external:
       ports:
         in:
@@ -73,14 +75,15 @@ hierarchies:
         - enc0
         - enc1
         - enc2
-ports:
-  proc:
-    btn: btn
-    clk: clk
-    enc0: disp0
-    enc1: disp1
-    enc2: disp2
-    rst: rst
+connections:
+  ports:
+    proc:
+      btn: btn
+      clk: clk
+      enc0: disp0
+      enc1: disp1
+      enc2: disp2
+      rst: rst
 external:
   ports:
     in:

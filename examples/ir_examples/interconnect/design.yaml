@@ -13,16 +13,16 @@ ips:
   dsp:
     file: file:ips/dsp.yaml
 
-ports:
-  cpu: &clkrst
-    clk: clk
-    rst: rst
-  mem: *clkrst
-  dsp: *clkrst
-
-interfaces:
-  wb_pass:
-    wb_in: ext_manager
+connections:
+  ports:
+    cpu: &clkrst
+      clk: clk
+      rst: rst
+    mem: *clkrst
+    dsp: *clkrst
+  interfaces:
+    wb_pass:
+      wb_in: ext_manager
 
 interconnects:
   wishbone_bus:

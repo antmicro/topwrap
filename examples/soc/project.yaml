@@ -18,27 +18,28 @@ ips:
     file: repo[my_repo]:crg
   wb_uart:
     file: repo[my_repo]:wb_uart
-ports:
-  wb_ram_data:
-    sys_clk: clk100
-    sys_rst: [crg, sys_rst]
-  wb_ram_instr:
-    sys_clk: clk100
-    sys_rst: [crg, sys_rst]
-  crg:
-    clk100: clk100
-  vexriscv:
-    clk: clk100
-    reset: [crg, sys_rst]
-    softwareInterrupt: 0
-    externalInterruptArray: 0
-    timerInterrupt: 0
-    externalResetVector: 0x00000000
-  wb_uart:
-    sys_clk: clk100
-    sys_rst: [crg, sys_rst]
-    serial1_tx: serial_tx
-    serial1_rx: serial_rx
+connections:
+  ports:
+    wb_ram_data:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    wb_ram_instr:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+    crg:
+      clk100: clk100
+    vexriscv:
+      clk: clk100
+      reset: [crg, sys_rst]
+      softwareInterrupt: 0
+      externalInterruptArray: 0
+      timerInterrupt: 0
+      externalResetVector: 0x00000000
+    wb_uart:
+      sys_clk: clk100
+      sys_rst: [crg, sys_rst]
+      serial1_tx: serial_tx
+      serial1_rx: serial_rx
 interconnects:
   wishbone_interconnect:
     clock: clk100

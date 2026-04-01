@@ -4,17 +4,18 @@ ips:
   receiver:
     file: file:ips/receiver.yaml
 
-ports:
-  streamer:
-    clk: clk
-    rst: rst
-  receiver:
-    clk: clk
-    rst: rst
-    noise: 2888
-interfaces:
-  receiver:
-    io: [streamer, io]
+connections:
+  ports:
+    streamer:
+      clk: clk
+      rst: rst
+    receiver:
+      clk: clk
+      rst: rst
+      noise: 2888
+  interfaces:
+    receiver:
+      io: [streamer, io]
 
 external:
   ports:

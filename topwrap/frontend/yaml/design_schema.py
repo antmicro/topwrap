@@ -96,13 +96,18 @@ DS_InterfacesT = Dict[str, Dict[str, Union[str, Tuple[str, str]]]]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
+class ConnectionsSection(MarshmallowDataclassExtensions):
+    ports: DS_PortsT = ext_field(dict, deep_cleanup=True, inline_depth=2)
+    interfaces: DS_InterfacesT = ext_field(dict, deep_cleanup=True, inline_depth=2)
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
 class DesignDescription(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(
         None
     )  # This field is relevant only for the top-level design section
+    connections: ConnectionsSection = ext_field(ConnectionsSection)
     ips: Dict[str, DesignIP] = ext_field(dict)
-    ports: DS_PortsT = ext_field(dict, deep_cleanup=True, inline_depth=2)
-    interfaces: DS_InterfacesT = ext_field(dict, deep_cleanup=True, inline_depth=2)
     interconnects: Dict[str, DesignSectionInterconnect] = ext_field(dict)
     hierarchies: Dict[str, "DesignDescription"] = ext_field(dict)
     external: DesignExternalSection = ext_field(DesignExternalSection)

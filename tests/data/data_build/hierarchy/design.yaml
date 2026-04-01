@@ -16,11 +16,12 @@ hierarchies:
         file: file:counter.yaml
         parameters:
           CNT_WIDTH: 16
-    ports:
-      counter:
-        clk: in_clk
-        en: in_en
-        cnt: out_cnt
+    connections:
+      ports:
+        counter:
+          clk: in_clk
+          en: in_en
+          cnt: out_cnt
     external:
       ports:
         in:
@@ -29,14 +30,15 @@ hierarchies:
         out:
           - out_cnt
 
-ports:
-  counter_hier:
-    in_clk: top_clk
-    in_en: [pwm, sig_pwm]
-    out_cnt: top_cnt
-  pwm:
-    clk: top_clk
-    compare: top_compare
+connections:
+  ports:
+    counter_hier:
+      in_clk: top_clk
+      in_en: [pwm, sig_pwm]
+      out_cnt: top_cnt
+    pwm:
+      clk: top_clk
+      compare: top_compare
 
 external:
   ports:

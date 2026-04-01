@@ -3,18 +3,19 @@ ips:
     file: repo[my_repo]:example_core1
   core2:
     file: repo[my_repo]:example_core2
-interfaces:
-  core2:
-    inter_2: [core1, inter_1]
-ports:
-  core1:
-    in_1: ex_in_1
-    in_2: ex_in_1
-    in_3: ex_in_2
-  core2:
-    in_1: [core1, out_1]
-    in_2: ex_in_2
-    out_1: ex_out_1
+connections:
+  interfaces:
+    core2:
+      inter_2: [core1, inter_1]
+  ports:
+    core1:
+      in_1: ex_in_1
+      in_2: ex_in_1
+      in_3: ex_in_2
+    core2:
+      in_1: [core1, out_1]
+      in_2: ex_in_2
+      out_1: ex_out_1
 external:
   ports:
     in:

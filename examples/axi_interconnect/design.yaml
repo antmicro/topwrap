@@ -6,13 +6,14 @@ ips:
   manager_axi:
     file: repo[axi_example_repo]:manager_axi
 
-ports:
-  subordinator_axi:
-    clk: clk
-    rst: rst
-  manager_axi:
-    clk: clk
-    rst: rst
+connections:
+  ports:
+    subordinator_axi:
+      clk: clk
+      rst: rst
+    manager_axi:
+      clk: clk
+      rst: rst
 
 interconnects:
   axi_interconnect:

@@ -2,16 +2,17 @@ hierarchies:
   complex_sub:
     hierarchies:
       sub_1:
-        ports:
-          s1_mod_1:
-            cs_s1_f_ext_const_in: cs_s1_int_const_in
-            cs_s1_f_mod_in_1: cs_s1_mod_in_1
-          s1_mod_2:
-            cs_s1_f_int_out_1: cs_s1_int_out_1
-            cs_s1_mint_in_1: [s1_mod_1, cs_s1_mint_out_1]
-          s1_mod_3:
-            cs_s1_f_int_out_2: cs_s1_int_out_2
-            cs_s1_mint_in_2: [s1_mod_1, cs_s1_mint_out_1]
+        connections:
+          ports:
+            s1_mod_1:
+              cs_s1_f_ext_const_in: cs_s1_int_const_in
+              cs_s1_f_mod_in_1: cs_s1_mod_in_1
+            s1_mod_2:
+              cs_s1_f_int_out_1: cs_s1_int_out_1
+              cs_s1_mint_in_1: [s1_mod_1, cs_s1_mint_out_1]
+            s1_mod_3:
+              cs_s1_f_int_out_2: cs_s1_int_out_2
+              cs_s1_mint_in_2: [s1_mod_1, cs_s1_mint_out_1]
         external:
           ports:
             in:
@@ -32,14 +33,15 @@ hierarchies:
             parameters:
               SUB_VALUE: 18
       sub_2:
-        ports:
-          s2_mod_1:
-            cs_s2_f_int_in_1: cs_s2_int_in_1
-            cs_s2_f_int_in_2: cs_s2_int_in_2
-          s2_mod_2:
-            cs_s2_f_mod_out_1: cs_s2_mod_out_1
-            cs_s2_mint_in_1: [s2_mod_1, cs_s2_mint_out_1]
-            cs_s2_mint_in_2: [s2_mod_1, cs_s2_mint_out_2]
+        connections:
+          ports:
+            s2_mod_1:
+              cs_s2_f_int_in_1: cs_s2_int_in_1
+              cs_s2_f_int_in_2: cs_s2_int_in_2
+            s2_mod_2:
+              cs_s2_f_mod_out_1: cs_s2_mod_out_1
+              cs_s2_mint_in_1: [s2_mod_1, cs_s2_mint_out_1]
+              cs_s2_mint_in_2: [s2_mod_1, cs_s2_mint_out_2]
         external:
           ports:
             in:
@@ -52,14 +54,15 @@ hierarchies:
             file: file:repo/cores/s2_mod_1/s2_mod_1.yaml
           s2_mod_2:
             file: file:repo/cores/s2_mod_2/s2_mod_2.yaml
-    ports:
-      sub_1:
-        cs_s1_int_const_in: 1
-        cs_s1_mod_in_1: cs_in_1
-      sub_2:
-        cs_s2_int_in_1: [sub_1, cs_s1_int_out_1]
-        cs_s2_int_in_2: [sub_1, cs_s1_int_out_2]
-        cs_s2_mod_out_1: cs_out_1
+    connections:
+      ports:
+        sub_1:
+          cs_s1_int_const_in: 1
+          cs_s1_mod_in_1: cs_in_1
+        sub_2:
+          cs_s2_int_in_1: [sub_1, cs_s1_int_out_1]
+          cs_s2_int_in_2: [sub_1, cs_s1_int_out_2]
+          cs_s2_mod_out_1: cs_out_1
     external:
       ports:
         in:
@@ -68,16 +71,17 @@ hierarchies:
         out:
         - cs_out_1
   counter:
-    ports:
-      c_mod_1:
-        c_mod_in_1: c_in_1
-      c_mod_2:
-        c_mod_in_2: c_in_2
-      c_mod_3:
-        c_int_const_in: 1
-        c_int_in_1: [c_mod_2, c_int_out_2]
-        c_int_in_2: [c_mod_1, c_int_out_1]
-        c_mod_out_1: c_out_1
+    connections:
+      ports:
+        c_mod_1:
+          c_mod_in_1: c_in_1
+        c_mod_2:
+          c_mod_in_2: c_in_2
+        c_mod_3:
+          c_int_const_in: 1
+          c_int_in_1: [c_mod_2, c_int_out_2]
+          c_int_in_2: [c_mod_1, c_int_out_1]
+          c_mod_out_1: c_out_1
     external:
       ports:
         in:
@@ -94,13 +98,14 @@ hierarchies:
         file: file:repo/cores/c_mod_2/c_mod_2.yaml
       c_mod_3:
         file: file:repo/cores/c_mod_3/c_mod_3.yaml
-ports:
-  complex_sub:
-    cs_in_1: [counter, c_out_1]
-    cs_out_1: ex_in_1
-  counter:
-    c_in_1: ex_out_1
-    c_in_2: ex_out_2
+connections:
+  ports:
+    complex_sub:
+      cs_in_1: [counter, c_out_1]
+      cs_out_1: ex_in_1
+    counter:
+      c_in_1: ex_out_1
+      c_in_2: ex_out_2
 external:
   ports:
     in:

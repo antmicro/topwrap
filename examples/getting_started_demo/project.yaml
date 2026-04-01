@@ -4,14 +4,15 @@ ips:
   simple_core_2:
     file: repo[my_repo]:simple_core_2
 
-ports:
-  simple_core_1:
-    clk: clk
-    rst: rst
-  simple_core_2:
-    a: [simple_core_1, z]
-    c: Output_c
-    y: Output_y
+connections:
+  ports:
+    simple_core_1:
+      clk: clk
+      rst: rst
+    simple_core_2:
+      a: [simple_core_1, z]
+      c: Output_c
+      y: Output_y
 
 external:
   ports:
