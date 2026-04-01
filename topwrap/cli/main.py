@@ -129,7 +129,7 @@ def build_main(
     map_interfaces_to_modules_from_repos(list(repo_modules))
 
     frontend = YamlFrontend(repo_modules)
-    frontend_output = frontend.parse_files([design])
+    frontend_output = frontend.parse_design_file(design)
     module = frontend_output.modules[0]
 
     backend = SystemVerilogBackend(existing_ifaces)
@@ -223,14 +223,14 @@ class KPM:
 
         frontend = YamlFrontend(repo_modules)
         if design is not None:
-            design_module = frontend.parse_files([design]).modules[0]
+            design_module = frontend.parse_design_file(design).modules[0]
         else:
             design_module = None
         if design_module and not design_module.design:
             logging.error("Given design YAML file does not contain a design.")
             return
 
-        modules = frontend.parse_files(list(yamlfiles)).modules
+        modules = frontend.parse_module_files(list(yamlfiles)).modules
 
         spec = KpmSpecificationBackend.default()
 
@@ -513,10 +513,10 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
 
     frontend = YamlFrontend(repo_modules)
     if design is not None:
-        design_module = frontend.parse_files([design]).modules[0]
+        design_module = frontend.parse_design_file(design).modules[0]
     else:
         design_module = None
-    modules = frontend.parse_files(list(files)).modules
+    modules = frontend.parse_module_files(list(files)).modules
 
     spec = KpmSpecificationBackend.default()
     for module in modules:
@@ -564,13 +564,13 @@ def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     map_interfaces_to_modules_from_repos(list(repo_modules))
 
     frontend = YamlFrontend(repo_modules)
-    design_module = frontend.parse_files([design]).modules[0]
+    design_module = frontend.parse_design_file(design).modules[0]
 
     if not design_module.design:
         logging.error("Given design YAML file does not contain a design.")
         sys.exit(1)
 
-    modules = frontend.parse_files(list(files)).modules
+    modules = frontend.parse_module_files(list(files)).modules
 
     spec = KpmSpecificationBackend.default()
     for module in modules:

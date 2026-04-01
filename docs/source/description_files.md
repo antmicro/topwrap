@@ -6,30 +6,28 @@ This chapter explains how to create a design in Topwrap, including a detailed ov
 
 To create a complete and fully synthesizable design, a design file is needed. It is used for:
 
-* specifying interconnects and IP cores
-* setting parameter values and describing hierarchies for the project
+* specifying IP cores and their parameters
+* specifying interconnects
+* describing hierarchies for the project
 * connecting the IPs and hierarchies
-* picking external ports (those which will be connected to the physical I/O).
+* defining design interfaces and ports
 
 You can see example design files in the `examples` directory. The structure of the design file is shown below:
 
 ```yaml
+name: {design_name} # optional name of the toplevel
+
 ips:
   # specify relations between IPs instance names in the
   # design yaml and IP cores description YAMLs
   {ip1_instance_name}:
     file: {resource_path} # see "Resource path syntax" section for more information
-  ...
-
-design:
-  name: {design_name} # optional name of the toplevel
-  hierarchies:
-      # see "Hierarchies" below for a detailed description of the format
-      ...
-  parameters: # specify IP parameter values to be overridden
-    {ip_instance_name}:
+    parameters:  # specify IP parameter values to be overridden
       {parameters_name} : {parameters_value}
       ...
+  ...
+
+connections:
   ports:
     # specify the incoming ports connections of an IP named `ip1_name`
     {ip1_name}:
@@ -62,19 +60,23 @@ design:
       {interface_name} : ext_interface_name
     ...
 
-  interconnects:
-    # see the "Interconnect generation" page for a detailed description of the format
-    ...
+interconnects:
+  # see the "Interconnect generation" page for a detailed description of the format
+  ...
 external: # specify the names of external ports and interfaces of the top module
-  ports:
-    out:
-      - {ext_port_name}
-    inout:
-      - [{ip_name/hierarchy_name, port_name}]
-  interfaces:
-    in:
-      - {ext_interface_name}
-    # note that `inout:` is invalid in the interfaces section
+ports:
+  out:
+    - {ext_port_name}
+  inout:
+    - [{ip_name/hierarchy_name, port_name}]
+interfaces:
+  in:
+    - {ext_interface_name}
+  # note that `inout:` is invalid in the interfaces section
+
+hierarchies:
+   # see "Hierarchies" below for a detailed description of the format
+      ...
 ```
 
 `inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
@@ -95,33 +97,9 @@ The format is as follows:
 
 ```yaml
 hierarchies:
-    {hierarchy_name_1}:
-      ips: # ips that are used on this hierarchy level
-        {ip_name}:
-          ...
-
-      design:
-        parameters:
-          ...
-        ports: # ports connections internal to this hierarchy.
-          # note that also you have to connect port to it's external port equivalent (if exists).
-          {ip1_name}:
-              {port1_name} : [{ip2_name}, {port2_name}]
-              {port2_name} : {port2_external_equivalent} # connection to external port equivalent. Note that it has to be the parent port.
-            ...
-        hierarchies:
-          {nested_hierarchy_name}:
-            # structure here will be the same as for {hierarchy_name_1}
-            ...
-      external:
-        # external ports and/or interfaces of this hierarchy; these can be
-        # referenced in the upper-level `ports`, `interfaces` or `external` section
-        ports:
-            in:
-              - {port2_external_equivalent}
-        ...
-    {hierarchy_name_2}:
-      ...
+  {hierarchy_name_1}:
+     # Design description, see above
+     ...
 ```
 
 A more complex example of a hierarchy can be found in the [examples/hierarchy](https://github.com/antmicro/topwrap/tree/main/examples/hierarchy) directory.

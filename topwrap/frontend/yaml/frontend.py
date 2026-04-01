@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Iterable, Union
 
 import yaml
 
@@ -26,39 +26,44 @@ class YamlFrontend(Frontend):
     def metadata(self):
         return FrontendMetadata(name="yaml", file_association=[".yaml", ".yml"])
 
-    def _parse_source(
-        self,
-        ip_core_method: Callable[[IPCoreDescriptionFrontend, Any], Module],
-        name: str,
-        src: Union[str, Path],
-        loaded: Any,
-    ) -> tuple[Optional[Module], Optional[Union[str, Path]]]:
+    def detect_description_type(self, src: str, filename: str) -> str:
+        loaded = yaml.safe_load(src)
         if any(k in loaded for k in ("signals", "parameters", "ports", "interfaces")):
-            return (ip_core_method(IPCoreDescriptionFrontend(), src), None)
+            return "ip_core"
         elif any(k in loaded for k in ("external", "connections", "ips")):
-            return (None, src)
+            return "design_description"
         else:
-            raise FrontendParseException(f"{name} is neither an IP Core, nor a Design Description")
+            raise FrontendParseException(f"{src} is neither an IP Core, nor a Design Description")
+
+    def parse_design_file(self, source: Path) -> FrontendParseOutput:
+        modules = list[Module]()
+
+        modules.append(DesignDescriptionFrontend(self.modules + modules).parse_file(source).parent)
+
+        return FrontendParseOutput(modules=modules)
+
+    def parse_module_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+        modules = list[Module]()
+
+        for src in sources:
+            modules.append(IPCoreDescriptionFrontend.parse_file(IPCoreDescriptionFrontend(), src))
+        return FrontendParseOutput(modules=modules)
 
     def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         modules = list[Module]()
-        designs: list[tuple[Path, Any]] = []
+        designs = list[Path]()
 
         for src in sources:
             logger.debug("Parsing file {}".format(src))
             with open(src) as f:
-                [module, design] = self._parse_source(
-                    IPCoreDescriptionFrontend.parse_file, str(src), src, yaml.safe_load(f)
-                )
-                if module:
-                    modules.append(module)
-                if design:
-                    design_data = src, design
-                    designs.append(design_data)
+                if self.detect_description_type(f.read(), src.name) == "design_description":
+                    designs.append(src)
+                else:
+                    modules.extend(self.parse_module_files([src]).modules)
 
-        for src, des in designs:
-            logger.info("Analyzing source {}".format(src))
-            modules.append(DesignDescriptionFrontend(self.modules + modules).parse_file(des).parent)
+        for des in designs:
+            logger.info("Analyzing source {}".format(des))
+            modules.extend(self.parse_design_file(des).modules)
             params = modules[-1].parameters
             ports = modules[-1].ports
             interfaces = modules[-1].interfaces
@@ -78,21 +83,15 @@ class YamlFrontend(Frontend):
         designs = []
 
         for src in sources:
-            if isinstance(src, str):
-                [module, design] = self._parse_source(
-                    IPCoreDescriptionFrontend.parse_str, "<input string>", src, yaml.safe_load(src)
-                )
+            content = src.content if isinstance(src, FrontendParseStrInput) else src
+            name = src.name if isinstance(src, FrontendParseStrInput) else "<input string>"
+
+            if self.detect_description_type(content, name) == "design_description":
+                designs.append(content)
             else:
-                [module, design] = self._parse_source(
-                    IPCoreDescriptionFrontend.parse_str,
-                    src.name,
-                    src.content,
-                    yaml.safe_load(src.content),
+                modules.append(
+                    IPCoreDescriptionFrontend.parse_str(IPCoreDescriptionFrontend(), content)
                 )
-            if module:
-                modules.append(module)
-            if design:
-                designs.append(design)
 
         for des in designs:
             modules.append(DesignDescriptionFrontend(self.modules + modules).parse_str(des).parent)
