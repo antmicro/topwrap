@@ -1,6 +1,6 @@
 # Topwrap
 
-Copyright (c) 2021-2025 [Antmicro](https://antmicro.com)
+Copyright (c) 2021-2026 [Antmicro](https://antmicro.com)
 
 ![Topwrap logo](docs/source/img/topwrap--github-readme.png)
 
