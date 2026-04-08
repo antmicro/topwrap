@@ -5,4 +5,4 @@ They are used to gather requirements for our internal data format based on featu
 
 More information about them is available in the documentation at https://antmicro.github.io/topwrap/developers_guide/ir-examples
 
-Copyright (c) 2024 [Antmicro](https://antmicro.com)
+Copyright (c) 2026 [Antmicro](https://antmicro.com)

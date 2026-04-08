@@ -1,0 +1,9 @@
+name: inv_adder
+
+signals:
+  in:
+    - enable
+    - [a, 7, 0]
+    - [b, 7, 0]
+  out:
+    - [out, 8, 0]

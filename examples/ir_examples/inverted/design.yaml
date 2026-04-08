@@ -1,0 +1,30 @@
+external:
+  ports:
+    in:
+      - clkin
+      - val
+    out:
+      - sum
+
+ips:
+  crg:
+    file: file:ips/inv_crg.yaml
+  adder1:
+    file: file:ips/inv_adder.yaml
+  adder2:
+    file: file:ips/inv_adder.yaml
+
+design:
+  name: inv_top
+  ports:
+    crg:
+      clkin: clkin
+    adder1:
+      a: 32
+      b: ~val
+      enable: ~[crg, rstout]
+      out: ~[adder2, a]
+    adder2:
+      b: 33
+      enable: ~[crg, rstout]
+      out: ~sum

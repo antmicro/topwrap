@@ -1,0 +1,8 @@
+name: inv_crg
+
+signals:
+  in:
+    - clkin
+  out:
+    - clkout
+    - rstout
