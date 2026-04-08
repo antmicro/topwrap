@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -160,8 +160,12 @@ class ConstantConnection(_Connection[ElaboratableValue, ReferencedPort]):
     """Represents a connection between a constant value and a port of a component"""
 
 
+@dataclass
 class PortConnection(_Connection[ReferencedPort, ReferencedPort]):
     "Represents a connection between two ports of some components"
+
+    #: Specifies whether the connection should be bitwise inverted.
+    invert: bool = False
 
 
 class InterfaceConnection(_Connection[ReferencedInterface, ReferencedInterface]):
