@@ -34,6 +34,8 @@ design:
     # specify the incoming ports connections of an IP named `ip1_name`
     {ip1_name}:
       {port1_name} : [{ip2_name}, {port2_name}]
+      # connections between modules can be (bit-wise) inverted
+      {port3_name} : ~[{ip2_name}, {port4_name}]
       ...
     # specify the incoming ports connections of a hierarchy named `hier_name`
     {hier_name}:
@@ -42,6 +44,8 @@ design:
     # specify the external port connections
     {ip_instance_name}:
       {port_name} : ext_port_name
+      # connections to external ports can be (bit-wise) inverted
+      {other_port_name} : ~other_ext_port_name
     ...
 
   interfaces:
