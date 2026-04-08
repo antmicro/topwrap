@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -90,6 +90,7 @@ class TestKpmDataflowFrontend:
             ("ir_hier_flow", TestIrExamples.ir_hierarchy),
             ("ir_interface_flow", TestIrExamples.ir_interface),
             ("ir_interconn_flow", TestIrExamples.ir_interconnect),
+            ("ir_inverted_flow", TestIrExamples.ir_inverted),
         ],
     )
     def test_ir(self, files: dict[str, JsonType], file: str, validator: Callable[[Module], None]):

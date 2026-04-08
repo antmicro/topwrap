@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -10,6 +10,7 @@ from examples.ir_examples.modules import (
     hier_top,
     intf_top,
     intr_top,
+    inv_top,
     simp_top,
 )
 from examples.ir_examples.SoC_AXI.ir.design import top as axi_soc_top
@@ -104,6 +105,11 @@ class TestSystemVerilogDesignBackend:
     def adv_des(self) -> Design:
         assert adv_top.design is not None
         return adv_top.design
+
+    @pytest.fixture
+    def inv_des(self) -> Design:
+        assert inv_top.design is not None
+        return inv_top.design
 
     def test_ser_select(self):
         logic = LogicArray(
@@ -319,6 +325,32 @@ class TestSystemVerilogDesignBackend:
                 assert svdb.assign_map[trg] == src
             else:
                 assert svdb.assign_map[src] == trg
+
+    def test_plain_inv_port_conn(self, svdb: _SystemVerilogDesignData, inv_des: Design):
+        conn = inv_des.connections.find_by(
+            lambda c: isinstance(c, PortConnection) and c.source.io.name == "rstout"
+        )
+        assert isinstance(conn, PortConnection)
+
+        svdb.parse_connection(conn)
+        svdb.parse_partial_conns()
+
+        assert conn.target.instance is not None
+        assert svdb.port_maps == {
+            conn.target.instance._id: {"enable": f"~crg.{sv_varname('rstout')}"}
+        }
+
+    def test_external_inv_port_conn(self, svdb: _SystemVerilogDesignData, inv_des: Design):
+        ext_conn = inv_des.connections.find_by(
+            lambda c: isinstance(c, PortConnection) and c.source.io.name == "val"
+        )
+        assert isinstance(ext_conn, PortConnection)
+
+        svdb.parse_connection(ext_conn)
+        svdb.parse_partial_conns()
+
+        assert ext_conn.target.instance is not None
+        assert svdb.port_maps == {ext_conn.target.instance._id: {"b": f"~{sv_varname('val')}"}}
 
 
 class TestSystemVerilogBackend:

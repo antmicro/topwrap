@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from pathlib import Path
@@ -60,6 +60,7 @@ class TestDesignDescriptionFrontend:
             (Path("examples/ir_examples/interface/design.yaml"), TestIrExamples.ir_interface),
             (Path("examples/ir_examples/hierarchical/design.yaml"), TestIrExamples.ir_hierarchy),
             (Path("examples/ir_examples/interconnect/design.yaml"), TestIrExamples.ir_interconnect),
+            (Path("examples/ir_examples/inverted/design.yaml"), TestIrExamples.ir_inverted),
         ],
     )
     def test_ir(self, design: Path, validator: Callable[[Module], None]):

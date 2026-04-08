@@ -1,7 +1,9 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+
+from typing import Union
 
 import pytest
 
@@ -11,6 +13,9 @@ from examples.ir_examples.modules import (
     hier_top,
     intf_top,
     intr_top,
+    inv_adder,
+    inv_crg,
+    inv_top,
     lfsr_gen,
     proc_mod,
     seq_sci_mod,
@@ -26,7 +31,10 @@ from topwrap.interconnects.wishbone_rr import (
 from topwrap.model.connections import (
     ConstantConnection,
     InterfaceConnection,
+    PortConnection,
     PortDirection,
+    ReferencedInterface,
+    ReferencedPort,
 )
 from topwrap.model.hdl_types import (
     Bit,
@@ -291,6 +299,62 @@ class TestIrExamples:
         # TODO: implement design validation when needed
         # Possibly when the SV frontend can parse designs
 
+    @staticmethod
+    def ir_inverted(mod: Module):
+        assert mod.id == Identifier(name="inv_top")
+
+        ports = [(p.name, p.direction) for p in mod.ports]
+        assert all(
+            n in ports
+            for n in (
+                ("clkin", PortDirection.IN),
+                ("val", PortDirection.IN),
+                ("sum", PortDirection.OUT),
+            )
+        )
+
+        assert len(mod.interfaces) == 0
+
+        assert mod.design is not None
+        components = [c.name for c in mod.design.components]
+        assert all(n in components for n in ["adder1", "adder2", "crg"])
+
+        adder1 = mod.design.components.find_by_name_or_error("adder1")
+        adder2 = mod.design.components.find_by_name_or_error("adder2")
+        crg = mod.design.components.find_by_name_or_error("crg")
+        assert adder1.module is inv_adder
+        assert adder2.module is inv_adder
+        assert crg.module is inv_crg
+
+        assert len(mod.design.connections) == 8
+
+        def _ref_str(io: Union[ReferencedPort, ReferencedInterface, ElaboratableValue]) -> str:
+            if isinstance(io, ElaboratableValue):
+                return io.value
+            inst_name = io.instance.name if io.instance else "<external>"
+            return f"{inst_name}.{io.io.name}"
+
+        def _ref_tuple(
+            connection: Union[ConstantConnection, InterfaceConnection, PortConnection],
+        ) -> tuple[str, ...]:
+            return tuple(sorted((_ref_str(connection.target), _ref_str(connection.source))))
+
+        conns = {
+            _ref_tuple(connection): isinstance(connection, PortConnection) and connection.invert
+            for connection in mod.design.connections
+        }
+
+        assert conns == {
+            ("<external>.clkin", "crg.clkin"): False,
+            ("32", "adder1.a"): False,
+            ("<external>.val", "adder1.b"): True,
+            ("adder1.enable", "crg.rstout"): True,
+            ("adder1.out", "adder2.a"): True,
+            ("33", "adder2.b"): False,
+            ("adder2.enable", "crg.rstout"): True,
+            ("<external>.sum", "adder2.out"): True,
+        }
+
     @pytest.mark.parametrize(
         ["mod", "validator"],
         [
@@ -299,6 +363,7 @@ class TestIrExamples:
             (intf_top, lambda: TestIrExamples.ir_interface),
             (intr_top, lambda: TestIrExamples.ir_interconnect),
             (adv_top, lambda: TestIrExamples.ir_advanced),
+            (inv_top, lambda: TestIrExamples.ir_inverted),
         ],
     )
     def test_ir_example(self, mod: Module, validator):

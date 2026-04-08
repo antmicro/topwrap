@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -10,6 +10,7 @@ from examples.ir_examples.modules import (
     hier_top,
     intf_top,
     intr_top,
+    inv_top,
     simp_top,
 )
 from tests.tests_ir.frontend.test_kpm_examples import _all_inst_params, _flatten_conns_to_dict
@@ -161,7 +162,7 @@ def _compare_modules(left: Module, right: Module):
 
 
 class TestKpmNonDestructivity:
-    @pytest.mark.parametrize("orig_module", [simp_top, intf_top, intr_top, hier_top])
+    @pytest.mark.parametrize("orig_module", [simp_top, intf_top, intr_top, hier_top, inv_top])
     def test_kpm_non_destructivity(
         self,
         orig_module: Module,

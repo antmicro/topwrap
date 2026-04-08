@@ -8,6 +8,8 @@ from .interconnect.ir.design import cpu, dsp, mem
 from .interconnect.ir.design import top as intr_top
 from .interface.ir.design import axis_receiver, axis_streamer
 from .interface.ir.design import module as intf_top
+from .inverted.ir.design import inv_adder, inv_crg
+from .inverted.ir.design import module as inv_top
 from .simple.ir.design import lfsr_gen, two_mux
 from .simple.ir.design import module as simp_top
 
@@ -38,4 +40,7 @@ ALL_MODULES = [
     seq_sci_mod,
     proc_mod,
     adv_top,
+    inv_crg,
+    inv_adder,
+    inv_top,
 ]
