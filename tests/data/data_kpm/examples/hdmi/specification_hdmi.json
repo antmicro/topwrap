@@ -1,5 +1,5 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "metadata": {
     "allowLoopbacks": true,
     "backgroundSize": 15,
@@ -30,9 +30,9 @@
     },
     "layers": [
       {
-        "name": "IP Cores",
+        "name": "Constants",
         "nodeLayers": [
-          "IP Cores"
+          "Constants"
         ]
       },
       {
@@ -42,9 +42,9 @@
         ]
       },
       {
-        "name": "Constants",
+        "name": "IP Cores",
         "nodeLayers": [
-          "Constants"
+          "IP Cores"
         ]
       },
       {
@@ -65,6 +65,7 @@
         "iconName": "Validate",
         "name": "Validate",
         "procedureName": "dataflow_validate",
+        "requireResponse": true,
         "stopName": "Stop"
       },
       {
@@ -75,11 +76,22 @@
         "iconName": "Run",
         "name": "Run",
         "procedureName": "dataflow_run",
+        "requireResponse": true,
         "stopName": "Stop"
       }
     ],
     "notifyWhenChanged": true,
-    "twoColumn": true
+    "styles": {
+      "inverter": {
+        "minimal": true,
+        "pill": {
+          "color": "#cccccc",
+          "text": "Inverter"
+        }
+      }
+    },
+    "twoColumn": true,
+    "welcome": false
   },
   "nodes": [
     {
@@ -105,9 +117,58 @@
     {
       "abstract": false,
       "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "in",
+          "type": [
+            "intf__ext",
+            "intf__port",
+            "vendor_libdefault_AXI3",
+            "vendor_libdefault_AXI4",
+            "vendor_libdefault_AXI4Lite",
+            "vendor_libdefault_AXI4Stream"
+          ]
+        },
+        {
+          "direction": "inout",
+          "name": "inout",
+          "type": [
+            "intf__ext",
+            "intf__port",
+            "vendor_libdefault_AXI3",
+            "vendor_libdefault_AXI4",
+            "vendor_libdefault_AXI4Lite",
+            "vendor_libdefault_AXI4Stream"
+          ]
+        },
+        {
+          "direction": "output",
+          "name": "out",
+          "type": [
+            "intf__ext",
+            "intf__port",
+            "vendor_libdefault_AXI3",
+            "vendor_libdefault_AXI4",
+            "vendor_libdefault_AXI4Lite",
+            "vendor_libdefault_AXI4Stream"
+          ]
+        }
+      ],
+      "layer": "Externals",
+      "name": "External I/O"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
       "layer": "Identifiers",
       "name": "Identifier",
       "properties": [
+        {
+          "default": "libdefault",
+          "name": "Library",
+          "type": "text"
+        },
         {
           "default": "",
           "name": "Name",
@@ -117,13 +178,1237 @@
           "default": "vendor",
           "name": "Vendor",
           "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "clk",
+          "type": "intf__port"
         },
         {
-          "default": "libdefault",
-          "name": "Library",
+          "direction": "input",
+          "dynamic": true,
+          "maxConnectionsCount": 1,
+          "name": "manager",
+          "type": [
+            "vendor_libdefault_AXI3",
+            "vendor_libdefault_AXI4",
+            "vendor_libdefault_AXI4Lite",
+            "vendor_libdefault_AXI4Stream"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "dynamic": true,
+          "maxConnectionsCount": 1,
+          "name": "subordinate",
+          "type": [
+            "vendor_libdefault_AXI3",
+            "vendor_libdefault_AXI4",
+            "vendor_libdefault_AXI4Lite",
+            "vendor_libdefault_AXI4Stream"
+          ]
+        }
+      ],
+      "name": "Interconnect",
+      "properties": [
+        {
+          "default": false,
+          "group": [
+            {
+              "default": "",
+              "name": "Interconnect configuration",
+              "type": "text"
+            },
+            {
+              "default": "",
+              "name": "Managers configuration",
+              "type": "text"
+            },
+            {
+              "default": "",
+              "name": "Subordinates configuration",
+              "type": "text"
+            }
+          ],
+          "name": "Advanced configuration",
+          "type": "bool"
+        },
+        {
+          "default": "Wishbone Round-Robin",
+          "name": "Type",
+          "type": "select",
+          "values": [
+            "AXI",
+            "Wishbone Round-Robin"
+          ]
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "in",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "name": "out",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Inverter",
+      "style": "inverter"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axi_axil_adapter",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axi",
+          "type": "vendor_libdefault_AXI4Lite"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "s_axi",
+          "type": "vendor_libdefault_AXI4"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axi_axil_adapter",
+      "properties": [
+        {
+          "default": "32",
+          "name": "ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "AXIL_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "AXIL_DATA_WIDTH/8",
+          "name": "AXIL_STRB_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "AXI_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "8",
+          "name": "AXI_ID_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "AXI_DATA_WIDTH/8",
+          "name": "AXI_STRB_WIDTH",
           "type": "text"
         }
       ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axi_dispctrl",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "CTL_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "DATA_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "DE_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "DGUARD_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "DIEN_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "DIH_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "FSYNC_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HSYNC_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "LOCKED_I",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "S00_AXI",
+          "type": "vendor_libdefault_AXI4Lite"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "S_AXIS",
+          "type": "vendor_libdefault_AXI4Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "S_AXIS_ACLK",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "VGUARD_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "VSYNC_O",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "s00_axi_aclk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "s00_axi_aresetn",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axi_dispctrl"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axi_interconnect",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axi_0",
+          "type": "vendor_libdefault_AXI4"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axi_1",
+          "type": "vendor_libdefault_AXI4"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axi_2",
+          "type": "vendor_libdefault_AXI4"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "s_axi_0",
+          "type": "vendor_libdefault_AXI4"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axi_interconnect",
+      "properties": [
+        {
+          "default": "32",
+          "name": "ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "ARUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "AWUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "BUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "12",
+          "name": "ID_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "96'd295147905248072302608",
+          "name": "M_ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "0",
+          "name": "M_BASE_ADDR",
+          "type": "text"
+        },
+        {
+          "default": "4",
+          "name": "M_COUNT",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "RUSER_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "DATA_WIDTH/8",
+          "name": "STRB_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "S_COUNT",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "WUSER_WIDTH",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axi_protocol_converter",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "M_AXI",
+          "type": "vendor_libdefault_AXI3"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "S_AXI",
+          "type": "vendor_libdefault_AXI4"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "aclk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "aresetn",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axi_protocol_converter"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axis_async_fifo",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "async_rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axis",
+          "type": "vendor_libdefault_AXI4Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "m_clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "m_status_bad_frame",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "m_status_good_frame",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "m_status_overflow",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "s_axis",
+          "type": "vendor_libdefault_AXI4Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "s_clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "s_status_bad_frame",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "s_status_good_frame",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "s_status_overflow",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axis_async_fifo",
+      "properties": [
+        {
+          "default": "8",
+          "name": "DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "8",
+          "name": "DEST_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "0",
+          "name": "ID_ENABLE",
+          "type": "text"
+        },
+        {
+          "default": "8",
+          "name": "ID_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "(DATA_WIDTH+7)/8",
+          "name": "KEEP_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "USER_ENABLE",
+          "type": "text"
+        },
+        {
+          "default": "1",
+          "name": "USER_WIDTH",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axis_dwidth_converter",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "aclk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "aresetn",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axis",
+          "type": "vendor_libdefault_AXI4Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "s_axis",
+          "type": "vendor_libdefault_AXI4Stream"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axis_dwidth_converter",
+      "properties": [
+        {
+          "default": "64",
+          "name": "IN_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "OUT_DATA_WIDTH",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "clock_crossing",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "A",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "B",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clkA",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clkB",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "clock_crossing"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "dma_axi_in_axis_out",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clock",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "io_irq_readerDone",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "io_irq_writerDone",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "io_sync_readerSync",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "io_sync_writerSync",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axi",
+          "type": "vendor_libdefault_AXI4"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axis",
+          "type": "vendor_libdefault_AXI4Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "reset",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "s_axi",
+          "type": "vendor_libdefault_AXI4Lite"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "dma_axi_in_axis_out"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "hdmi_tx",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "CTL",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "DATA_I",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "DGUARD",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "DIEN",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "DIH",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_CLK_N",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_CLK_P",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_D0_N",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_D0_P",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_D1_N",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_D1_P",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_D2_N",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "HDMI_D2_P",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "LOCKED_I",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "PXLCLK_5X_I",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "PXLCLK_I",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "VGA_DE",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "VGA_HS",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "VGA_VS",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "VGUARD",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "hdmi_tx"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "litex_mmcm",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "axi",
+          "type": "vendor_libdefault_AXI4Lite"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "clkgen_locked",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "clkgen_out0",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "clkgen_out1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clkgen_ref",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "sys_clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "sys_rst",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "litex_mmcm"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "proc_sys_reset",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "aux_reset_in",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "bus_struct_reset",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "dcm_locked",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "ext_reset_in",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "interconnect_aresetn",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "mb_debug_sys_rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "mb_reset",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "peripheral_aresetn",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "peripheral_reset",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "slowest_sync_clk",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "proc_sys_reset"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "ps7",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "FCLK0",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "FCLK1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "FCLK_RESET0_N",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "IRQ_F2P_0",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "IRQ_F2P_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "MAXIGP0ACLK",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "MAXIGP0ARESETN",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "M_AXI_GP0",
+          "type": "vendor_libdefault_AXI4"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "SAXIHP0ACLK",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "SAXIHP0ARESETN",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "SAXIHP0RACOUNT",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "SAXIHP0RCOUNT",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "SAXIHP0WACOUNT",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "SAXIHP0WCOUNT",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "S_AXI_HP0",
+          "type": "vendor_libdefault_AXI3"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_addr",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_bankaddr",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_cas_n",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_cke",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_clk",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_clk_n",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_cs_n",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_dm",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_dq",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_dqs",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_dqs_n",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_drstb",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_odt",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_ras_n",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_vr",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_vr_n",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ddr_web",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ps_clk",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ps_mio",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ps_porb",
+          "side": "right",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "ps_srstb",
+          "side": "right",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "ps7"
     },
     {
       "abstract": false,
@@ -285,14 +1570,14 @@
         {
           "direction": "inout",
           "maxConnectionsCount": -1,
-          "name": "ddr_vr_n",
+          "name": "ddr_vr",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
           "maxConnectionsCount": -1,
-          "name": "ddr_vr",
+          "name": "ddr_vr_n",
           "side": "right",
           "type": "intf__port"
         },
@@ -306,14 +1591,14 @@
         {
           "direction": "inout",
           "maxConnectionsCount": -1,
-          "name": "ps_mio",
+          "name": "ps_clk",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
           "maxConnectionsCount": -1,
-          "name": "ps_clk",
+          "name": "ps_mio",
           "side": "right",
           "type": "intf__port"
         },
@@ -334,1261 +1619,6 @@
       ],
       "layer": "IP Cores",
       "name": "top"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "axi_axil_adapter",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "s_axi",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axi",
-          "type": "vendor_libdefault_AXI4Lite"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "rst",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "axi_axil_adapter",
-      "properties": [
-        {
-          "default": "32",
-          "name": "ADDR_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "32",
-          "name": "AXI_DATA_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "8",
-          "name": "AXI_ID_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "AXI_DATA_WIDTH/8",
-          "name": "AXI_STRB_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "32",
-          "name": "AXIL_DATA_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "AXIL_DATA_WIDTH/8",
-          "name": "AXIL_STRB_WIDTH",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "axi_interconnect",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "s_axi_0",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axi_0",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axi_1",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axi_2",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "rst",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "axi_interconnect",
-      "properties": [
-        {
-          "default": "1",
-          "name": "S_COUNT",
-          "type": "text"
-        },
-        {
-          "default": "4",
-          "name": "M_COUNT",
-          "type": "text"
-        },
-        {
-          "default": "32",
-          "name": "DATA_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "32",
-          "name": "ADDR_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "12",
-          "name": "ID_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "0",
-          "name": "M_BASE_ADDR",
-          "type": "text"
-        },
-        {
-          "default": "96'd295147905248072302608",
-          "name": "M_ADDR_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "1",
-          "name": "AWUSER_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "1",
-          "name": "WUSER_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "1",
-          "name": "ARUSER_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "1",
-          "name": "BUSER_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "1",
-          "name": "RUSER_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "DATA_WIDTH/8",
-          "name": "STRB_WIDTH",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "axi_protocol_converter",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "S_AXI",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "M_AXI",
-          "type": "vendor_libdefault_AXI3"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "aresetn",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "aclk",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "axi_protocol_converter"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "axis_async_fifo",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "s_axis",
-          "type": "vendor_libdefault_AXI4Stream"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axis",
-          "type": "vendor_libdefault_AXI4Stream"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "m_clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "s_clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "async_rst",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "m_status_bad_frame",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "m_status_overflow",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "s_status_bad_frame",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "m_status_good_frame",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "s_status_overflow",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "s_status_good_frame",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "axis_async_fifo",
-      "properties": [
-        {
-          "default": "8",
-          "name": "DATA_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "(DATA_WIDTH+7)/8",
-          "name": "KEEP_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "8",
-          "name": "ID_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "8",
-          "name": "DEST_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "1",
-          "name": "USER_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "0",
-          "name": "ID_ENABLE",
-          "type": "text"
-        },
-        {
-          "default": "1",
-          "name": "USER_ENABLE",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "category": "Metanode",
-      "interfaces": [
-        {
-          "direction": "input",
-          "name": "in",
-          "type": [
-            "intf__ext",
-            "intf__port",
-            "vendor_libdefault_AXI3",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite",
-            "vendor_libdefault_AXI4Stream"
-          ]
-        },
-        {
-          "direction": "output",
-          "name": "out",
-          "type": [
-            "intf__ext",
-            "intf__port",
-            "vendor_libdefault_AXI3",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite",
-            "vendor_libdefault_AXI4Stream"
-          ]
-        },
-        {
-          "direction": "inout",
-          "name": "inout",
-          "type": [
-            "intf__ext",
-            "intf__port",
-            "vendor_libdefault_AXI3",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite",
-            "vendor_libdefault_AXI4Stream"
-          ]
-        }
-      ],
-      "layer": "Externals",
-      "name": "External I/O"
-    },
-    {
-      "abstract": false,
-      "category": "Metanode",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "rst",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "dynamic": true,
-          "maxConnectionsCount": 1,
-          "name": "manager",
-          "type": [
-            "vendor_libdefault_AXI3",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite",
-            "vendor_libdefault_AXI4Stream"
-          ]
-        },
-        {
-          "direction": "output",
-          "dynamic": true,
-          "maxConnectionsCount": 1,
-          "name": "subordinate",
-          "type": [
-            "vendor_libdefault_AXI3",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite",
-            "vendor_libdefault_AXI4Stream"
-          ]
-        }
-      ],
-      "name": "Interconnect",
-      "properties": [
-        {
-          "default": "Wishbone Round-Robin",
-          "name": "Type",
-          "type": "select",
-          "values": [
-            "Wishbone Round-Robin",
-            "AXI"
-          ]
-        },
-        {
-          "default": false,
-          "group": [
-            {
-              "default": "",
-              "name": "Interconnect configuration",
-              "type": "text"
-            },
-            {
-              "default": "",
-              "name": "Managers configuration",
-              "type": "text"
-            },
-            {
-              "default": "",
-              "name": "Subordinates configuration",
-              "type": "text"
-            }
-          ],
-          "name": "Advanced configuration",
-          "type": "bool"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "axis_dwidth_converter",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "s_axis",
-          "type": "vendor_libdefault_AXI4Stream"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axis",
-          "type": "vendor_libdefault_AXI4Stream"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "aresetn",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "aclk",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "axis_dwidth_converter",
-      "properties": [
-        {
-          "default": "64",
-          "name": "IN_DATA_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "32",
-          "name": "OUT_DATA_WIDTH",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "clock_crossing",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "clkB",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "clkA",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "A",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "B",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "clock_crossing"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "axi_dispctrl",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "S00_AXI",
-          "type": "vendor_libdefault_AXI4Lite"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "S_AXIS",
-          "type": "vendor_libdefault_AXI4Stream"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "s00_axi_aclk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "s00_axi_aresetn",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "S_AXIS_ACLK",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "LOCKED_I",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "DE_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "DATA_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "DIEN_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "VSYNC_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "DGUARD_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "VGUARD_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "CTL_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "FSYNC_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HSYNC_O",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "DIH_O",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "axi_dispctrl"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "dma_axi_in_axis_out",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axis",
-          "type": "vendor_libdefault_AXI4Stream"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "s_axi",
-          "type": "vendor_libdefault_AXI4Lite"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axi",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "reset",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "io_sync_readerSync",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "io_sync_writerSync",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "clock",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "io_irq_writerDone",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "io_irq_readerDone",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "dma_axi_in_axis_out"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "hdmi_tx",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "CTL",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "PXLCLK_5X_I",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "DGUARD",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "VGUARD",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "DIEN",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "VGA_DE",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "VGA_VS",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "DATA_I",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "DIH",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "VGA_HS",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "PXLCLK_I",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "LOCKED_I",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_D2_P",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_D2_N",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_CLK_P",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_D1_P",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_D0_N",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_D1_N",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_D0_P",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "HDMI_CLK_N",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "hdmi_tx"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "litex_mmcm",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "axi",
-          "type": "vendor_libdefault_AXI4Lite"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "sys_rst",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "sys_clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "clkgen_ref",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "clkgen_out0",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "clkgen_locked",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "clkgen_out1",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "litex_mmcm"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "ps7",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "M_AXI_GP0",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "S_AXI_HP0",
-          "type": "vendor_libdefault_AXI3"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "IRQ_F2P_0",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "MAXIGP0ACLK",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "IRQ_F2P_1",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "SAXIHP0ACLK",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "FCLK_RESET0_N",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "FCLK0",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "SAXIHP0RACOUNT",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "SAXIHP0ARESETN",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "FCLK1",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "SAXIHP0RCOUNT",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "SAXIHP0WCOUNT",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "MAXIGP0ARESETN",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "SAXIHP0WACOUNT",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_clk_n",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_web",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_ras_n",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_bankaddr",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_dm",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ps_srstb",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ps_porb",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ps_clk",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_dq",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_vr",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_vr_n",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_cas_n",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_drstb",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ps_mio",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_addr",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_cke",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_cs_n",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_dqs",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_odt",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_clk",
-          "side": "right",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "ddr_dqs_n",
-          "side": "right",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "ps7"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "proc_sys_reset",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "mb_debug_sys_rst",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "dcm_locked",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "aux_reset_in",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "ext_reset_in",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "slowest_sync_clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "mb_reset",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "interconnect_aresetn",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "peripheral_reset",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "peripheral_aresetn",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "bus_struct_reset",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "proc_sys_reset"
     }
   ]
 }

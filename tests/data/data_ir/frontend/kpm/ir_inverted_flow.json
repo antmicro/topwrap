@@ -1,0 +1,432 @@
+{
+  "version": "20250623.14",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "0953f8e3-7f4e-46bf-85d0-438217a62371",
+          "id": "f49ffa6e-8b2c-40e6-a9c2-97909c616c37",
+          "to": "77adc421-5fbf-4dd2-b2d9-42a6896fe9d6"
+        },
+        {
+          "from": "da8b51d9-9cb2-4619-a06d-d2304400eebd",
+          "id": "5a1a92bf-d676-4e72-8c3b-2abec48089a4",
+          "to": "c99c7654-db2e-40b2-afb1-e87050a16453"
+        },
+        {
+          "from": "6dcf5bf7-313a-4a12-97d3-1a595d9cc8a7",
+          "id": "99053b2a-56a0-429f-ac24-c98581a7fcfc",
+          "to": "dec5151c-088c-48b5-a1d0-5bc39d624e76"
+        },
+        {
+          "from": "b3eb4279-ee62-4de1-a4cf-55e61be55602",
+          "id": "253b9c49-847c-45c1-9ec8-59a4d083ae80",
+          "to": "329c687c-4526-4edd-a691-fe1d46e926f4"
+        },
+        {
+          "from": "a29059b5-a8fc-4fb1-a77b-7f57266984d0",
+          "id": "a4172e89-650a-4d41-8957-805da2764f5f",
+          "to": "075ac201-fcba-4d3b-baed-70f01b674775"
+        },
+        {
+          "from": "23b34882-5562-4aa9-a9d6-b5f97928f86e",
+          "id": "3eb145da-1615-4e0d-8c84-e7fd847e0e57",
+          "to": "9e808fbb-f2ab-4f30-80d1-ca098d179120"
+        },
+        {
+          "from": "f4188902-edab-4b4a-a8a4-1831d2a9730f",
+          "id": "a73de2ae-277e-4969-91f9-9f5597a45f33",
+          "to": "066c8972-1db7-4e7c-93ba-7c294d39e7f9"
+        },
+        {
+          "from": "17a8bd38-6eb6-4d87-a061-3d92bc55fa1d",
+          "id": "5e226a09-48a3-46e1-85eb-a5e743bf422c",
+          "to": "edfe60ab-3289-4184-851b-25122c611d95"
+        },
+        {
+          "from": "9d947690-e566-431e-8d7b-70eeffd4991a",
+          "id": "d8473353-d7e0-4a6f-af31-d6e4d43c612f",
+          "to": "4c1456b2-50ee-4d60-b919-bc71414724e6"
+        },
+        {
+          "from": "a29059b5-a8fc-4fb1-a77b-7f57266984d0",
+          "id": "642115ac-f273-4848-8b96-38cada44a978",
+          "to": "55831370-3a4a-462d-b754-694b4e1511eb"
+        },
+        {
+          "from": "9bba5c15-1f84-4492-a43f-c3eb6fd42836",
+          "id": "ee54eea6-7af0-4cba-9edf-eb210fa44d2d",
+          "to": "e037299c-c8f8-44e3-b043-fc4a7f276335"
+        },
+        {
+          "from": "2f7740aa-2447-40c8-8c25-b35eecd54809",
+          "id": "ca94bd28-13f7-4039-a8ed-55af1da30724",
+          "to": "a403af19-8c24-426e-abb6-53f5ba5f6dc2"
+        },
+        {
+          "from": "bd7bd21b-fe84-4855-80ad-ddf2379e66bf",
+          "id": "24e745fe-89a7-4f65-8fd5-18fd51376a84",
+          "to": "65484cb1-b946-4bb2-8091-3082912da20b"
+        }
+      ],
+      "id": "fd72303c-855d-4d60-80f6-b8ebddac06e6",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "784e1a41-865c-4b9b-bb95-ef45ff2cd528",
+          "instanceName": "Identifier",
+          "interfaces": [],
+          "name": "Identifier",
+          "properties": [
+            {
+              "id": "454ce747-9fbc-4e7e-908d-e54880a5f660",
+              "name": "Library",
+              "value": "libdefault"
+            },
+            {
+              "id": "454ce747-9fbc-4e7e-908d-e54880a5f660",
+              "name": "Name",
+              "value": "inv_top"
+            },
+            {
+              "id": "454ce747-9fbc-4e7e-908d-e54880a5f660",
+              "name": "Vendor",
+              "value": "vendor"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "1a95ccb1-8e05-4011-8ffc-2ae349a9aff2",
+          "instanceName": "crg",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "77adc421-5fbf-4dd2-b2d9-42a6896fe9d6",
+              "name": "clkin",
+              "side": "left"
+            },
+            {
+              "direction": "output",
+              "id": "a29059b5-a8fc-4fb1-a77b-7f57266984d0",
+              "name": "rstout",
+              "side": "right"
+            },
+            {
+              "direction": "output",
+              "id": "c2832e08-f51f-4def-9cda-8594a7c09b50",
+              "name": "clkout",
+              "side": "right"
+            }
+          ],
+          "name": "inv_crg",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "476e3f2b-37f3-4e0c-a725-d594747f7e50",
+          "instanceName": "adder1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "329c687c-4526-4edd-a691-fe1d46e926f4",
+              "name": "b",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "c99c7654-db2e-40b2-afb1-e87050a16453",
+              "name": "a",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "9e808fbb-f2ab-4f30-80d1-ca098d179120",
+              "name": "enable",
+              "side": "left"
+            },
+            {
+              "direction": "output",
+              "id": "f4188902-edab-4b4a-a8a4-1831d2a9730f",
+              "name": "out",
+              "side": "right"
+            }
+          ],
+          "name": "inv_adder",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "178ff9c6-93af-4b47-9cf9-bf92ea9e0749",
+          "instanceName": "adder2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "4c1456b2-50ee-4d60-b919-bc71414724e6",
+              "name": "b",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "edfe60ab-3289-4184-851b-25122c611d95",
+              "name": "a",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "e037299c-c8f8-44e3-b043-fc4a7f276335",
+              "name": "enable",
+              "side": "left"
+            },
+            {
+              "direction": "output",
+              "id": "2f7740aa-2447-40c8-8c25-b35eecd54809",
+              "name": "out",
+              "side": "right"
+            }
+          ],
+          "name": "inv_adder",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "30f8d45c-f58d-462e-960f-40d2c1eadf32",
+          "instanceName": "clkin",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "clkin",
+              "id": "c7543f8a-f739-499d-a430-5e653f77fe36",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "0953f8e3-7f4e-46bf-85d0-438217a62371",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "b3caf4a8-a015-4692-b84e-0246f675cb8c",
+              "name": "inout"
+            }
+          ],
+          "name": "External I/O",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "67c5a755-c747-496f-a4bc-3adc78d43ce4",
+          "instanceName": "val",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "val",
+              "id": "afa1efeb-06b0-45e9-84b0-565a722c0914",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "6dcf5bf7-313a-4a12-97d3-1a595d9cc8a7",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "eebb66fb-4add-4aca-a28c-71bbc242afa6",
+              "name": "inout"
+            }
+          ],
+          "name": "External I/O",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "1bf402c6-0ae2-4695-8c32-bf8b3e4818e2",
+          "instanceName": "sum",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "65484cb1-b946-4bb2-8091-3082912da20b",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "externalName": "sum",
+              "id": "dd36d24d-fc4e-4fb6-b055-7ad9b92497d4",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "bac5fff1-5ece-4519-9738-b7020c63e098",
+              "name": "inout"
+            }
+          ],
+          "name": "External I/O",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "852aaf87-bb75-4f4e-b7de-becff8a16a0a",
+          "instanceName": "Constant",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "da8b51d9-9cb2-4619-a06d-d2304400eebd",
+              "name": "constant"
+            }
+          ],
+          "name": "Constant",
+          "properties": [
+            {
+              "id": "454ce747-9fbc-4e7e-908d-e54880a5f660",
+              "name": "Constant Value",
+              "value": "32"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "95f9497b-5bfd-414c-8c63-530ea675df68",
+          "instanceName": "Inverter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "dec5151c-088c-48b5-a1d0-5bc39d624e76",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "b3eb4279-ee62-4de1-a4cf-55e61be55602",
+              "name": "out"
+            }
+          ],
+          "name": "Inverter",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "59fc0405-aff3-4091-a42a-642f0857164e",
+          "instanceName": "Inverter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "075ac201-fcba-4d3b-baed-70f01b674775",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "23b34882-5562-4aa9-a9d6-b5f97928f86e",
+              "name": "out"
+            }
+          ],
+          "name": "Inverter",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "d77a9d50-d7fa-4a98-af94-9eb788eb5816",
+          "instanceName": "Inverter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "066c8972-1db7-4e7c-93ba-7c294d39e7f9",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "17a8bd38-6eb6-4d87-a061-3d92bc55fa1d",
+              "name": "out"
+            }
+          ],
+          "name": "Inverter",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "1be3df36-43d5-427f-949b-733be35ea3c1",
+          "instanceName": "Constant",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "9d947690-e566-431e-8d7b-70eeffd4991a",
+              "name": "constant"
+            }
+          ],
+          "name": "Constant",
+          "properties": [
+            {
+              "id": "454ce747-9fbc-4e7e-908d-e54880a5f660",
+              "name": "Constant Value",
+              "value": "33"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "fffb2196-c182-40f1-a418-34e4fc3934c9",
+          "instanceName": "Inverter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "55831370-3a4a-462d-b754-694b4e1511eb",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "9bba5c15-1f84-4492-a43f-c3eb6fd42836",
+              "name": "out"
+            }
+          ],
+          "name": "Inverter",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "99eaa890-5122-4ea8-99c0-66804dffd2dd",
+          "instanceName": "Inverter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "a403af19-8c24-426e-abb6-53f5ba5f6dc2",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "bd7bd21b-fe84-4855-80ad-ddf2379e66bf",
+              "name": "out"
+            }
+          ],
+          "name": "Inverter",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}

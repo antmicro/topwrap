@@ -1,5 +1,5 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "metadata": {
     "allowLoopbacks": true,
     "backgroundSize": 15,
@@ -22,9 +22,9 @@
     },
     "layers": [
       {
-        "name": "IP Cores",
+        "name": "Constants",
         "nodeLayers": [
-          "IP Cores"
+          "Constants"
         ]
       },
       {
@@ -34,9 +34,9 @@
         ]
       },
       {
-        "name": "Constants",
+        "name": "IP Cores",
         "nodeLayers": [
-          "Constants"
+          "IP Cores"
         ]
       },
       {
@@ -57,6 +57,7 @@
         "iconName": "Validate",
         "name": "Validate",
         "procedureName": "dataflow_validate",
+        "requireResponse": true,
         "stopName": "Stop"
       },
       {
@@ -67,11 +68,22 @@
         "iconName": "Run",
         "name": "Run",
         "procedureName": "dataflow_run",
+        "requireResponse": true,
         "stopName": "Stop"
       }
     ],
     "notifyWhenChanged": true,
-    "twoColumn": true
+    "styles": {
+      "inverter": {
+        "minimal": true,
+        "pill": {
+          "color": "#cccccc",
+          "text": "Inverter"
+        }
+      }
+    },
+    "twoColumn": true,
+    "welcome": false
   },
   "nodes": [
     {
@@ -97,135 +109,10 @@
     {
       "abstract": false,
       "category": "Metanode",
-      "layer": "Identifiers",
-      "name": "Identifier",
-      "properties": [
-        {
-          "default": "",
-          "name": "Name",
-          "type": "text"
-        },
-        {
-          "default": "vendor",
-          "name": "Vendor",
-          "type": "text"
-        },
-        {
-          "default": "libdefault",
-          "name": "Library",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "top",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "pwm",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "top"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "axi_axil_adapter",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "s_axi",
-          "type": "vendor_libdefault_AXI4"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "m_axi",
-          "type": "vendor_libdefault_AXI4Lite"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "rst",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "axi_axil_adapter",
-      "properties": [
-        {
-          "default": "32",
-          "name": "ADDR_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "32",
-          "name": "AXI_DATA_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "8",
-          "name": "AXI_ID_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "AXI_DATA_WIDTH/8",
-          "name": "AXI_STRB_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "32",
-          "name": "AXIL_DATA_WIDTH",
-          "type": "text"
-        },
-        {
-          "default": "AXIL_DATA_WIDTH/8",
-          "name": "AXIL_STRB_WIDTH",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "category": "Metanode",
       "interfaces": [
         {
           "direction": "input",
           "name": "in",
-          "type": [
-            "intf__ext",
-            "intf__port",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite"
-          ]
-        },
-        {
-          "direction": "output",
-          "name": "out",
           "type": [
             "intf__ext",
             "intf__port",
@@ -242,10 +129,43 @@
             "vendor_libdefault_AXI4",
             "vendor_libdefault_AXI4Lite"
           ]
+        },
+        {
+          "direction": "output",
+          "name": "out",
+          "type": [
+            "intf__ext",
+            "intf__port",
+            "vendor_libdefault_AXI4",
+            "vendor_libdefault_AXI4Lite"
+          ]
         }
       ],
       "layer": "Externals",
       "name": "External I/O"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "layer": "Identifiers",
+      "name": "Identifier",
+      "properties": [
+        {
+          "default": "libdefault",
+          "name": "Library",
+          "type": "text"
+        },
+        {
+          "default": "",
+          "name": "Name",
+          "type": "text"
+        },
+        {
+          "default": "vendor",
+          "name": "Vendor",
+          "type": "text"
+        }
+      ]
     },
     {
       "abstract": false,
@@ -259,12 +179,6 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "rst",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
           "dynamic": true,
           "maxConnectionsCount": 1,
           "name": "manager",
@@ -272,6 +186,12 @@
             "vendor_libdefault_AXI4",
             "vendor_libdefault_AXI4Lite"
           ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "rst",
+          "type": "intf__port"
         },
         {
           "direction": "output",
@@ -286,15 +206,6 @@
       ],
       "name": "Interconnect",
       "properties": [
-        {
-          "default": "Wishbone Round-Robin",
-          "name": "Type",
-          "type": "select",
-          "values": [
-            "Wishbone Round-Robin",
-            "AXI"
-          ]
-        },
         {
           "default": false,
           "group": [
@@ -316,6 +227,104 @@
           ],
           "name": "Advanced configuration",
           "type": "bool"
+        },
+        {
+          "default": "Wishbone Round-Robin",
+          "name": "Type",
+          "type": "select",
+          "values": [
+            "AXI",
+            "Wishbone Round-Robin"
+          ]
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "in",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "name": "out",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Inverter",
+      "style": "inverter"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axi_axil_adapter",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "m_axi",
+          "type": "vendor_libdefault_AXI4Lite"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "s_axi",
+          "type": "vendor_libdefault_AXI4"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axi_axil_adapter",
+      "properties": [
+        {
+          "default": "32",
+          "name": "ADDR_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "AXIL_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "AXIL_DATA_WIDTH/8",
+          "name": "AXIL_STRB_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "32",
+          "name": "AXI_DATA_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "8",
+          "name": "AXI_ID_WIDTH",
+          "type": "text"
+        },
+        {
+          "default": "AXI_DATA_WIDTH/8",
+          "name": "AXI_STRB_WIDTH",
+          "type": "text"
         }
       ]
     },
@@ -331,6 +340,12 @@
       "category": "vendor/libdefault",
       "interfaces": [
         {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "pwm",
+          "type": "intf__port"
+        },
+        {
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "s_axi",
@@ -339,19 +354,13 @@
         {
           "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "sys_rst",
+          "name": "sys_clk",
           "type": "intf__port"
         },
         {
           "direction": "input",
           "maxConnectionsCount": -1,
-          "name": "sys_clk",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "pwm",
+          "name": "sys_rst",
           "type": "intf__port"
         }
       ],
@@ -371,9 +380,15 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": 1,
-          "name": "M_AXI_GP0",
-          "type": "vendor_libdefault_AXI4"
+          "maxConnectionsCount": -1,
+          "name": "FCLK0",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "FCLK_RESET0_N",
+          "type": "intf__port"
         },
         {
           "direction": "input",
@@ -389,19 +404,34 @@
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "FCLK_RESET0_N",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "FCLK0",
-          "type": "intf__port"
+          "maxConnectionsCount": 1,
+          "name": "M_AXI_GP0",
+          "type": "vendor_libdefault_AXI4"
         }
       ],
       "layer": "IP Cores",
       "name": "ps7"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "top",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "pwm",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "top"
     }
   ]
 }

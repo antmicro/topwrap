@@ -1,5 +1,5 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "metadata": {
     "allowLoopbacks": true,
     "backgroundSize": 15,
@@ -14,9 +14,9 @@
     },
     "layers": [
       {
-        "name": "IP Cores",
+        "name": "Constants",
         "nodeLayers": [
-          "IP Cores"
+          "Constants"
         ]
       },
       {
@@ -26,9 +26,9 @@
         ]
       },
       {
-        "name": "Constants",
+        "name": "IP Cores",
         "nodeLayers": [
-          "Constants"
+          "IP Cores"
         ]
       },
       {
@@ -49,6 +49,7 @@
         "iconName": "Validate",
         "name": "Validate",
         "procedureName": "dataflow_validate",
+        "requireResponse": true,
         "stopName": "Stop"
       },
       {
@@ -59,13 +60,45 @@
         "iconName": "Run",
         "name": "Run",
         "procedureName": "dataflow_run",
+        "requireResponse": true,
         "stopName": "Stop"
       }
     ],
     "notifyWhenChanged": true,
-    "twoColumn": true
+    "styles": {
+      "inverter": {
+        "minimal": true,
+        "pill": {
+          "color": "#cccccc",
+          "text": "Inverter"
+        }
+      }
+    },
+    "twoColumn": true,
+    "welcome": false
   },
   "nodes": [
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "BETWEEN",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "exposed",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "BETWEEN"
+    },
     {
       "abstract": false,
       "category": "Metanode",
@@ -89,41 +122,10 @@
     {
       "abstract": false,
       "category": "Metanode",
-      "layer": "Identifiers",
-      "name": "Identifier",
-      "properties": [
-        {
-          "default": "",
-          "name": "Name",
-          "type": "text"
-        },
-        {
-          "default": "vendor",
-          "name": "Vendor",
-          "type": "text"
-        },
-        {
-          "default": "libdefault",
-          "name": "Library",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "category": "Metanode",
       "interfaces": [
         {
           "direction": "input",
           "name": "in",
-          "type": [
-            "intf__ext",
-            "intf__port"
-          ]
-        },
-        {
-          "direction": "output",
-          "name": "out",
           "type": [
             "intf__ext",
             "intf__port"
@@ -136,10 +138,41 @@
             "intf__ext",
             "intf__port"
           ]
+        },
+        {
+          "direction": "output",
+          "name": "out",
+          "type": [
+            "intf__ext",
+            "intf__port"
+          ]
         }
       ],
       "layer": "Externals",
       "name": "External I/O"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "layer": "Identifiers",
+      "name": "Identifier",
+      "properties": [
+        {
+          "default": "libdefault",
+          "name": "Library",
+          "type": "text"
+        },
+        {
+          "default": "",
+          "name": "Name",
+          "type": "text"
+        },
+        {
+          "default": "vendor",
+          "name": "Vendor",
+          "type": "text"
+        }
+      ]
     },
     {
       "abstract": false,
@@ -153,16 +186,16 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": 1,
-          "name": "rst",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
           "dynamic": true,
           "maxConnectionsCount": 1,
           "name": "manager",
           "type": []
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "rst",
+          "type": "intf__port"
         },
         {
           "direction": "output",
@@ -174,15 +207,6 @@
       ],
       "name": "Interconnect",
       "properties": [
-        {
-          "default": "Wishbone Round-Robin",
-          "name": "Type",
-          "type": "select",
-          "values": [
-            "Wishbone Round-Robin",
-            "AXI"
-          ]
-        },
         {
           "default": false,
           "group": [
@@ -204,160 +228,35 @@
           ],
           "name": "Advanced configuration",
           "type": "bool"
+        },
+        {
+          "default": "Wishbone Round-Robin",
+          "name": "Type",
+          "type": "select",
+          "values": [
+            "AXI",
+            "Wishbone Round-Robin"
+          ]
         }
       ]
     },
     {
       "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "top",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
+      "category": "Metanode",
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_unt_in",
+          "name": "in",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_int_out_2",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cin",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cout",
-          "type": "intf__port"
-        },
-        {
-          "direction": "inout",
-          "maxConnectionsCount": -1,
-          "name": "legacy_external_type",
-          "side": "right",
+          "name": "out",
           "type": "intf__port"
         }
       ],
-      "layer": "IP Cores",
-      "name": "top"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "s1_mod_3",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_mint_in_2",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_int_out_2",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s1_mod_3",
-      "properties": [
-        {
-          "default": "18",
-          "name": "SUB_VALUE",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "s2_mod_1",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_f_int_in_2",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_f_int_in_1",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_out_2",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_out_1",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s2_mod_1"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "s2_mod_2",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_in_1",
-          "type": "intf__port"
-        },
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_mint_in_2",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s2_f_mod_out_1",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "s2_mod_2"
+      "name": "Inverter",
+      "style": "inverter"
     },
     {
       "abstract": false,
@@ -391,48 +290,13 @@
       "additionalData": {
         "full_module_id": {
           "library": "libdefault",
-          "name": "s1_mod_2",
+          "name": "SUBEMPTY",
           "vendor": "vendor"
         }
       },
       "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_mint_in_1",
-          "type": "intf__port"
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "cs_s1_f_int_out_1",
-          "type": "intf__port"
-        }
-      ],
       "layer": "IP Cores",
-      "name": "s1_mod_2"
-    },
-    {
-      "abstract": false,
-      "additionalData": {
-        "full_module_id": {
-          "library": "libdefault",
-          "name": "BETWEEN",
-          "vendor": "vendor"
-        }
-      },
-      "category": "vendor/libdefault",
-      "interfaces": [
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "exposed",
-          "type": "intf__port"
-        }
-      ],
-      "layer": "IP Cores",
-      "name": "BETWEEN"
+      "name": "SUBEMPTY"
     },
     {
       "abstract": false,
@@ -446,15 +310,15 @@
       "category": "vendor/libdefault",
       "interfaces": [
         {
-          "direction": "input",
-          "maxConnectionsCount": -1,
-          "name": "c_mod_in_2",
-          "type": "intf__port"
-        },
-        {
           "direction": "output",
           "maxConnectionsCount": -1,
           "name": "c_int_out_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_mod_in_2",
           "type": "intf__port"
         }
       ],
@@ -466,13 +330,179 @@
       "additionalData": {
         "full_module_id": {
           "library": "libdefault",
-          "name": "SUBEMPTY",
+          "name": "s1_mod_2",
           "vendor": "vendor"
         }
       },
       "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_mint_in_1",
+          "type": "intf__port"
+        }
+      ],
       "layer": "IP Cores",
-      "name": "SUBEMPTY"
+      "name": "s1_mod_2"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "s1_mod_3",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_mint_in_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s1_mod_3",
+      "properties": [
+        {
+          "default": "18",
+          "name": "SUB_VALUE",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "s2_mod_1",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s2_mod_1"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "s2_mod_2",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_mod_out_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_in_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_in_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s2_mod_2"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "top",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_unt_in",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cin",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cout",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "legacy_external_type",
+          "side": "right",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "top"
     }
   ]
 }
