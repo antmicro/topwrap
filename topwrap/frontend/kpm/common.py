@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
@@ -7,6 +7,7 @@ from topwrap.backend.kpm.common import (
     ConstMetanode,
     IdentifierMetanode,
     InterconnectMetanode,
+    InverterMetanode,
     IoMetanode,
 )
 from topwrap.frontend.frontend import FrontendParseException
@@ -25,6 +26,7 @@ def is_metanode(node_name: str) -> bool:
         IoMetanode.name,
         InterconnectMetanode.name,
         IdentifierMetanode.name,
+        InverterMetanode.name,
     ]
 
 

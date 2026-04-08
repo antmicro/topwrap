@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -111,7 +111,8 @@ class KpmInterface:
 @dataclass
 class Metanode:
     name: str
-    category = "Metanode"
+    category: str = "Metanode"
+    style: Optional[str] = None
     layer: Optional[LayerType] = None
     interfaces: list[KpmInterface] = field(default_factory=list)
     properties: list[KpmProperty] = field(default_factory=list)
@@ -223,5 +224,17 @@ class IdentifierMetanode(Metanode):
             KpmProperty("Name", KpmPropertyType.TEXT.value, ""),
             KpmProperty("Vendor", KpmPropertyType.TEXT.value, Identifier(name="").vendor),
             KpmProperty("Library", KpmPropertyType.TEXT.value, Identifier(name="").library),
+        ]
+    )
+
+
+@dataclass
+class InverterMetanode(Metanode):
+    name: str = "Inverter"
+    style: Optional[str] = "inverter"
+    interfaces: list[KpmInterface] = field(
+        default_factory=lambda: [
+            KpmInterface("in", KpmDirection.INPUT.value, interfacetype=PORT_INTF_TYPE),
+            KpmInterface("out", KpmDirection.OUTPUT.value, interfacetype=PORT_INTF_TYPE),
         ]
     )

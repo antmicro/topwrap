@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from itertools import chain
@@ -20,6 +20,7 @@ from topwrap.backend.kpm.common import (
     IdentifierMetanode,
     InterconnectMetanode,
     InterconnectMetanodeStrings,
+    InverterMetanode,
     IoMetanode,
     KpmNodeAdditionalData,
     kpm_dir_from,
@@ -229,11 +230,35 @@ class KpmDataflowBackend:
             port2 = conn.target.io
             if port1 is None or port2 is None:
                 raise TranslationError("Connection to Logic with an unreferenced port")
-            self._connect(
-                graph,
-                ref[(conn.source.instance, id(port1))],
-                ref[(conn.target.instance, id(port2))],
-            )
+            if conn.invert:
+                node = graph.create_node(
+                    name=InverterMetanode.name,
+                    instance_name=InverterMetanode.name,
+                )
+
+                ref1 = ref[(conn.source.instance, id(port1))]
+                ref2 = ref[(conn.target.instance, id(port2))]
+
+                if ref1.direction is Direction.INPUT:
+                    ref1, ref2 = ref2, ref1
+
+                self._connect(
+                    graph,
+                    ref1,
+                    node.interfaces[0],
+                )
+
+                self._connect(
+                    graph,
+                    node.interfaces[1],
+                    ref2,
+                )
+            else:
+                self._connect(
+                    graph,
+                    ref[(conn.source.instance, id(port1))],
+                    ref[(conn.target.instance, id(port2))],
+                )
         elif isinstance(conn, InterfaceConnection):
             self._connect(
                 graph,

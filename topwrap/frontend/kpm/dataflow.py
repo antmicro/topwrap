@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import re
@@ -21,6 +21,7 @@ from topwrap.backend.kpm.common import (
     ConstMetanode,
     IdentifierMetanode,
     InterconnectMetanode,
+    InverterMetanode,
     IoMetanode,
 )
 from topwrap.backend.kpm.common import InterconnectMetanodeStrings as IMS
@@ -178,6 +179,11 @@ class KpmDataflowFrontend:
 
         unrealised_intrs = list[Node]()
 
+        inverters = list[Node]()
+        inverter_intfs = dict[KpmUniqueInterface, Node]()
+        to_inverter_conns = dict[str, KpmUniqueInterface]()
+        from_inverter_conns = dict[str, KpmUniqueInterface]()
+
         for node in graph._nodes.values():
             if not is_metanode(node.name):
                 mod.design.add_component(self._create_mod_instance(source, graph, node, data))
@@ -200,6 +206,10 @@ class KpmDataflowFrontend:
                             f"External IO metanode '{node.instance_name}'"
                             f"({node.id}) doesn't have an exposed interface"
                         )
+                elif node.name == InverterMetanode.name:
+                    inverters.append(node)
+                    inverter_intfs[KpmUniqueInterface(graph, node.interfaces[0])] = node
+                    inverter_intfs[KpmUniqueInterface(graph, node.interfaces[1])] = node
 
             for intf in node.interfaces:
                 if intf.external_name is not None:
@@ -209,18 +219,78 @@ class KpmDataflowFrontend:
             mod.design.add_interconnect(self._create_interconnect(graph, node, data))
 
         for conn in graph._connections.values():
+            from_uniq = KpmUniqueInterface(graph, conn.from_interface)
+            to_uniq = KpmUniqueInterface(graph, conn.to_interface)
+            special_conn = False
+
+            if from_uniq in inverter_intfs:
+                from_inverter_conns[inverter_intfs[from_uniq].id] = to_uniq
+                special_conn = True
+
+            if to_uniq in inverter_intfs:
+                to_inverter_conns[inverter_intfs[to_uniq].id] = from_uniq
+                special_conn = True
+
+            if special_conn:
+                continue
+
             if (
                 conn.from_interface not in data.skip_iface_conns
                 and conn.to_interface not in data.skip_iface_conns
             ):
                 mod.design.add_connection(
                     self._create_connection(
-                        data.refmap.get(KpmUniqueInterface(graph, conn.from_interface)),
-                        data.refmap.get(KpmUniqueInterface(graph, conn.to_interface)),
+                        data.refmap.get(from_uniq),
+                        data.refmap.get(to_uniq),
                     )
                 )
 
+        self._create_inverter_conns(mod, data, inverters, to_inverter_conns, from_inverter_conns)
+
         return mod
+
+    def _create_inverter_conns(
+        self,
+        mod: Module,
+        data: _KpmDataflowInstanceData,
+        inverters: list[Node],
+        to_inverter_conns: dict[str, KpmUniqueInterface],
+        from_inverter_conns: dict[str, KpmUniqueInterface],
+    ):
+        assert mod.design is not None
+
+        for node in inverters:
+            if node.id not in to_inverter_conns:
+                raise KpmFrontendParseException(
+                    f"Inverter node ({node.id}) does not have anything connected to it's input"
+                )
+
+            if node.id not in from_inverter_conns:
+                raise KpmFrontendParseException(
+                    f"Inverter node ({node.id}) does not have anything connected to it's output"
+                )
+
+            from_intf = to_inverter_conns[node.id]
+            to_intf = from_inverter_conns[node.id]
+
+            if from_intf not in data.refmap:
+                raise KpmFrontendParseException(
+                    f"Inverter node ({node.id}) input is not connected to a module or external port"
+                )
+
+            if to_intf not in data.refmap:
+                raise KpmFrontendParseException(
+                    f"Inverter node ({node.id}) output is not connected to a "
+                    "module or external port"
+                )
+
+            mod.design.add_connection(
+                self._create_connection(
+                    data.refmap.get(from_intf),
+                    data.refmap.get(to_intf),
+                    invert=True,
+                )
+            )
 
     def _create_mod_instance(
         self,
@@ -366,12 +436,23 @@ class KpmDataflowFrontend:
         self,
         source: Optional[Union[ElaboratableValue, ReferencedIO]],
         target: Optional[Union[ElaboratableValue, ReferencedIO]],
+        invert: bool = False,
     ) -> Connection:
         if isinstance(source, ElaboratableValue) and isinstance(target, ReferencedPort):
+            if invert:
+                raise KpmFrontendParseException(
+                    f"Attempted to invert connection between port '{target.io.name}' "
+                    f"and constant '{source.value}'"
+                )
             return ConstantConnection(source, target)
         elif isinstance(source, ReferencedPort) and isinstance(target, ReferencedPort):
-            return PortConnection(source, target)
+            return PortConnection(source, target, invert=invert)
         elif isinstance(source, ReferencedInterface) and isinstance(target, ReferencedInterface):
+            if invert:
+                raise KpmFrontendParseException(
+                    f"Attempted to invert connection between interface '{source.io.name}' "
+                    f"and interface '{target.io.name}'"
+                )
             return InterfaceConnection(source, target)
         else:
             raise KpmFrontendParseException(

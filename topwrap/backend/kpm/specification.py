@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import asdict
@@ -19,6 +19,7 @@ from topwrap.backend.kpm.common import (
     ConstMetanode,
     IdentifierMetanode,
     InterconnectMetanode,
+    InverterMetanode,
     IoMetanode,
     KpmNodeAdditionalData,
     KpmNodeId,
@@ -55,10 +56,11 @@ class KpmSpecificationBackend:
         metadata and metanodes included."""
 
         self = cls()
+        self._add_metadata()
         self._add_metanode(ConstMetanode())
         self._add_metanode(IdentifierMetanode())
+        self._add_metanode(InverterMetanode())
         self._update_metanodes()
-        self._add_metadata()
         return self
 
     def add_module(self, mod: Module, *, recursive: bool = False):
@@ -143,6 +145,8 @@ class KpmSpecificationBackend:
     def _add_metanode(self, meta: Metanode):
         layer = None if meta.layer is None else meta.layer.value
         self._spec.add_node_type(meta.name, meta.category, layer)
+        if meta.style:
+            self._spec.add_node_type_style(meta.name, meta.style)
         for intf in meta.interfaces:
             self._spec.add_node_type_interface(meta.name, **asdict(intf))
         for prop in meta.properties:
@@ -191,6 +195,15 @@ class KpmSpecificationBackend:
                     "requireResponse": True,
                 },
             ],
+            "styles": {
+                "inverter": {
+                    "minimal": True,
+                    "pill": {
+                        "text": "Inverter",
+                        "color": "#cccccc",
+                    },
+                }
+            },
         }
 
         for meta_name, meta_value in metadata.items():
