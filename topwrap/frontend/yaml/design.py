@@ -1,10 +1,12 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
 from dataclasses import asdict
 from pathlib import Path
 from typing import Iterable, Optional, Union
+
+import yaml
 
 from topwrap.frontend.yaml.design_schema import (
     DesignDescription,
@@ -261,8 +263,18 @@ class DesignDescriptionFrontend:
         ref: Union[int, str, tuple[str, str]],
     ):
         refio, refsig = self._resolve_ref(des, comp, sig)
+        inverted = False
+
+        # Try parse the ref if it's inverted
+        if isinstance(ref, str) and ref.startswith("~"):
+            inverted = True
+            ref = ref[1:]
+            ref = yaml.safe_load(ref)
+            pass
 
         if isinstance(ref, int):
+            if inverted:
+                raise DDFE(f"Attempted to invert a constant value: '{comp}.{sig} -> ~{ref}'")
             if not isinstance(refio, ReferencedPort):
                 raise DDFE(
                     f"Attempted constant connection to an interface: '{comp}.{sig} -> {ref}'"
@@ -286,8 +298,13 @@ class DesignDescriptionFrontend:
             srcref, _ = self._resolve_ref(des, ref[0], ref[1])
 
         if isinstance(srcref, ReferencedPort) and isinstance(refio, ReferencedPort):
-            des.add_connection(PortConnection(source=srcref, target=refio))
+            des.add_connection(PortConnection(source=srcref, target=refio, invert=inverted))
         elif isinstance(srcref, ReferencedInterface) and isinstance(refio, ReferencedInterface):
+            if inverted:
+                raise DDFE(
+                    f"Attempted to invert an interface connection: '{comp}.{sig} -> ~{ref}'."
+                )
+
             des.add_connection(InterfaceConnection(source=srcref, target=refio))
         else:
             raise DDFE(
