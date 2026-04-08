@@ -1,8 +1,9 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import ClassVar, Optional, Union
 
 from jinja2 import Template
@@ -24,6 +25,13 @@ from topwrap.model.misc import ElaboratableValue, ObjectId
 from topwrap.util import MISSING
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class _SystemVerilogPartialConn:
+    select: LogicSelect
+    source: Union[ReferencedPort, ElaboratableValue, str]
+    invert: bool
 
 
 class _SystemVerilogDesignData:
@@ -67,7 +75,7 @@ class _SystemVerilogDesignData:
     #: port map and slices of that net are added to the assign map with their drivers
     conns_to_partials: dict[
         tuple[Optional[ObjectId[ModuleInstance]], ObjectId[Port]],
-        list[tuple[LogicSelect, Union[ReferencedPort, ElaboratableValue, str]]],
+        list[_SystemVerilogPartialConn],
     ]
 
     def __init__(self) -> None:
@@ -78,15 +86,22 @@ class _SystemVerilogDesignData:
         self.assign_map = {}
         self.conns_to_partials = defaultdict(list)
 
-    def store_sel(self, ref: ReferencedPort, other: Union[ReferencedPort, ElaboratableValue, str]):
+    def store_sel(
+        self,
+        ref: ReferencedPort,
+        other: Union[ReferencedPort, ElaboratableValue, str],
+        invert: bool,
+    ):
         """Shortcut for storing a connection to a slice of an input"""
 
         i = ref.instance
-        self.conns_to_partials[(i if i is None else i._id, ref.io._id)].append((ref.select, other))
+        self.conns_to_partials[(i if i is None else i._id, ref.io._id)].append(
+            _SystemVerilogPartialConn(ref.select, other, invert)
+        )
 
     def parse_connection(self, conn: Connection):
         if isinstance(conn, ConstantConnection):
-            self.store_sel(conn.target, conn.source)
+            self.store_sel(conn.target, conn.source, False)
         elif isinstance(conn, PortConnection):
             self.handle_port_con(conn)
         elif isinstance(conn, InterfaceConnection):
@@ -99,9 +114,9 @@ class _SystemVerilogDesignData:
             or not conn.source.is_external
             and conn.source.io.direction is PortDirection.IN
         ):
-            self.store_sel(conn.source, conn.target)
+            self.store_sel(conn.source, conn.target, conn.invert)
         else:
-            self.store_sel(conn.target, conn.source)
+            self.store_sel(conn.target, conn.source, conn.invert)
 
     def _check_warn_incompatible_intf_defs(self, conn: InterfaceConnection):
         sio = conn.source.io
@@ -174,6 +189,7 @@ class _SystemVerilogDesignData:
                         self.store_sel(
                             ReferencedPort(instance=side.instance, select=this.select, io=this.io),
                             sig.default,
+                            False,
                         )
                         continue
 
@@ -218,8 +234,65 @@ class _SystemVerilogDesignData:
                     inst = None if ref_side.instance is None else ref_side.instance._id
                     sigref = f"{intf}.{sv_varname(sig.name)}"
                     self.conns_to_partials[(inst, ref_port.io._id)].append(
-                        (ref_port.select, sigref)
+                        _SystemVerilogPartialConn(ref_port.select, sigref, False)
                     )
+
+    def _sright(self, right: Union[ElaboratableValue, ReferencedPort, str]) -> str:
+        """Serialize the right-hand side of an assign statement"""
+
+        if isinstance(right, ReferencedPort):
+            if right.instance is None:
+                return sv_varname(right.io.name) + serialize_select(right.select)
+            else:
+                return (
+                    f"{sv_varname(right.instance.name)}.{sv_varname(right.io.name)}"
+                    + serialize_select(right.select)
+                )
+        return str(right)
+
+    def _port_map_or_assign(
+        self,
+        port: Union[ElaboratableValue, ReferencedPort, str],
+        right: Union[ElaboratableValue, ReferencedPort, str],
+        invert: bool,
+    ):
+        """
+        Connect `port` to `right` through a port map, or if the slot
+        in the port map is already taken, through an assign statement
+        """
+
+        if (
+            isinstance(port, ReferencedPort)
+            and port.instance is not None
+            and port.select.ops == []
+            and not (invert and isinstance(right, str))
+        ):
+            if port.io.name not in self.port_maps[port.instance._id]:
+                self.port_maps[port.instance._id][port.io.name] = (
+                    "~" if invert else ""
+                ) + self._sright(right)
+        else:
+            self.assign_map[self._sright(right)] = ("~" if invert else "") + self._sright(port)
+
+    def _is_port_map_eligible(
+        self,
+        lhs: Port,
+        partial: _SystemVerilogPartialConn,
+    ) -> bool:
+        if len(partial.select.ops) > 0:
+            return False
+        if not partial.invert:
+            return True
+
+        assert isinstance(partial.source, ReferencedPort)
+
+        if lhs.direction is PortDirection.IN and partial.source.io.direction is PortDirection.OUT:
+            return True
+
+        if lhs.direction is PortDirection.IN and partial.source.is_external:
+            return True
+
+        return False
 
     def parse_partial_conns(self):
         """
@@ -227,54 +300,28 @@ class _SystemVerilogDesignData:
         port map, potentially add nets and add entries to the assign map
         """
 
-        def _sright(right: Union[ElaboratableValue, ReferencedPort, str]) -> str:
-            """Serialize the right-hand side of an assign statement"""
-
-            if isinstance(right, ReferencedPort):
-                if right.instance is None:
-                    return sv_varname(right.io.name) + serialize_select(right.select)
-                else:
-                    return (
-                        f"{sv_varname(right.instance.name)}.{sv_varname(right.io.name)}"
-                        + serialize_select(right.select)
-                    )
-            return str(right)
-
-        def _port_map_or_assign(
-            port: Union[ElaboratableValue, ReferencedPort, str],
-            right: Union[ElaboratableValue, ReferencedPort, str],
-        ):
-            """
-            Connect `port` to `right` through a port map, or if the slot
-            in the port map is already taken, through an assign statement
-            """
-
-            if (
-                isinstance(port, ReferencedPort)
-                and port.instance is not None
-                and port.select.ops == []
-            ):
-                if port.io.name not in self.port_maps[port.instance._id]:
-                    self.port_maps[port.instance._id][port.io.name] = _sright(right)
-            else:
-                self.assign_map[_sright(right)] = _sright(port)
-
-        for (instance, port), selects in self.conns_to_partials.items():
+        for (instance, port), partials in self.conns_to_partials.items():
             port = port.resolve()
 
             # if there is only one connection to the entire (unsliced) port
             # we can just put the target directly into the port map
             # without creating any intermediate nets
-            if len(selects) == 1:
-                select, target = selects[0]
-                if select.ops == []:
+            if len(partials) == 1:
+                partial = partials[0]
+                if self._is_port_map_eligible(port, partial):
                     if instance is not None:
-                        _port_map_or_assign(
-                            ReferencedPort(instance=instance.resolve(), io=port), target
+                        self._port_map_or_assign(
+                            ReferencedPort(instance=instance.resolve(), io=port),
+                            partial.source,
+                            partial.invert,
                         )
                     else:
-                        _port_map_or_assign(target, sv_varname(port.name))
+                        self._port_map_or_assign(
+                            partial.source, sv_varname(port.name), partial.invert
+                        )
                     continue
+
+            any_inverted = any(partial.invert for partial in partials)
 
             # if there are any sliced connections, a net is created,
             # its appropriate slices are driven from assigns, and
@@ -283,19 +330,27 @@ class _SystemVerilogDesignData:
                 wire = f"{sv_varname(instance.resolve().name)}__{port.name}"
                 self.nets[wire] = port.type
                 self.port_maps[instance][sv_varname(port.name)] = wire
+            elif instance is None and any_inverted:
+                wire = f"net__{port.name}"
+                self.nets[wire] = port.type
+                self.assign_map[port.name] = wire
             else:
                 wire = sv_varname(port.name)
 
-            for select, right in selects:
+            for partial in partials:
                 if (
                     instance is None
                     and port.direction is PortDirection.OUT
                     or instance is not None
                     and port.direction is PortDirection.IN
                 ):
-                    _port_map_or_assign(right, wire + serialize_select(select))
+                    self._port_map_or_assign(
+                        partial.source, wire + serialize_select(partial.select), partial.invert
+                    )
                 else:
-                    _port_map_or_assign(wire + serialize_select(select), right)
+                    self._port_map_or_assign(
+                        wire + serialize_select(partial.select), partial.source, partial.invert
+                    )
 
 
 class SystemVerilogDesignBackend:
