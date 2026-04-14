@@ -183,3 +183,53 @@ class InterfaceConnection(_Connection[ReferencedInterface, ReferencedInterface])
 
 
 Connection = Union[ConstantConnection, PortConnection, InterfaceConnection]
+
+
+class Clock(ModelBase):
+    """Represents a clock input"""
+
+    name: str
+    clock: Port
+
+    #: The module definition that this clock belongs to.
+    parent: Module
+
+    def __init__(self, *, name: str, clock: Port):
+        super().__init__()
+        self.name = name
+        self.clock = clock
+
+
+class ResetPolarity(Enum):
+    ACTIVE_LOW = "active low"
+    ACTIVE_HIGH = "active high"
+
+
+class Reset(ModelBase):
+    """Represents a reset input"""
+
+    name: str
+    reset: Port
+
+    #: Polarity of the reset signal.
+    polarity: ResetPolarity
+
+    #: Clock to which this reset is synchronous to. ``None`` if the reset is asynchronous.
+    synchronous_to: Optional[Clock]
+
+    #: The module definition that this reset belongs to.
+    parent: Module
+
+    def __init__(
+        self,
+        *,
+        name: str,
+        reset: Port,
+        polarity: ResetPolarity,
+        synchronous_to: Optional[Clock] = None,
+    ):
+        super().__init__()
+        self.name = name
+        self.reset = reset
+        self.polarity = polarity
+        self.synchronous_to = synchronous_to

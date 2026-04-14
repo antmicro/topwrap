@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -6,7 +6,7 @@ from __future__ import annotations
 from collections import deque
 from typing import Iterable, Iterator, Optional, Union
 
-from topwrap.model.connections import Port
+from topwrap.model.connections import Clock, Port, Reset
 from topwrap.model.design import Design
 from topwrap.model.interface import Interface
 from topwrap.model.misc import (
@@ -33,6 +33,8 @@ class Module(ModelBase):
     _ports: list[Port]
     _parameters: list[Parameter]
     _interfaces: list[Interface]
+    _clocks: list[Clock]
+    _resets: list[Reset]
     _design: Optional[Design]
 
     def __init__(
@@ -43,6 +45,8 @@ class Module(ModelBase):
         ports: Iterable[Port] = (),
         parameters: Iterable[Parameter] = (),
         interfaces: Iterable[Interface] = (),
+        clocks: Iterable[Clock] = (),
+        resets: Iterable[Reset] = (),
         design: Optional[Design] = None,
     ) -> None:
         super().__init__()
@@ -51,6 +55,8 @@ class Module(ModelBase):
         self._ports = []
         self._parameters = []
         self._interfaces = []
+        self._clocks = []
+        self._resets = []
         self._design = None
 
         for port in ports:
@@ -61,6 +67,10 @@ class Module(ModelBase):
             self.add_interface(intf)
         for ref in refs:
             self.add_reference(ref)
+        for clock in clocks:
+            self.add_clock(clock)
+        for reset in resets:
+            self.add_reset(reset)
         self.design = design
 
     @property
@@ -101,6 +111,14 @@ class Module(ModelBase):
 
         return QuerableView(self._refs)
 
+    @property
+    def clocks(self) -> QuerableView[Clock]:
+        return QuerableView(self._clocks)
+
+    @property
+    def resets(self) -> QuerableView[Reset]:
+        return QuerableView(self._resets)
+
     def add_port(self, port: Port):
         set_parent(port, self)
         self._ports.append(port)
@@ -115,6 +133,14 @@ class Module(ModelBase):
 
     def add_reference(self, ref: FileReference):
         self._refs.append(ref)
+
+    def add_clock(self, clock: Clock):
+        set_parent(clock, self)
+        self._clocks.append(clock)
+
+    def add_reset(self, reset: Reset):
+        set_parent(reset, self)
+        self._resets.append(reset)
 
     def non_intf_ports(self) -> Iterator[Port]:
         """Yield ports that don't realise signals of any interface"""
