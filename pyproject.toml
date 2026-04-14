@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
@@ -30,7 +30,7 @@ dependencies = [
   "pygtrie",
   "pyslang",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@b39681ee785d7c094b78226243c44fe956e12d76",
-  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@c20b22c6042854666cf78319e2affc882c0f1ffe",
+  "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@5e05d9e91c7256ee174674d0b8e46ca20c5a3bbd",
   "topwrap_axi_core_plugin @ https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl"
 ]
 
