@@ -13,6 +13,7 @@ from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.frontend.yaml.ip_core import (
     InterfaceDescriptionFrontend,
     IPCoreDescriptionFrontend,
+    IPCoreDescriptionFrontendException,
     _param_to_ir_param,
 )
 from topwrap.interface import get_interface_by_name
@@ -265,6 +266,32 @@ class TestIPCoreDescriptionFrontend:
 
         assert foo.default_value == ElaboratableValue("4")
         assert bar.default_value is None
+
+    def test_bad_intf_clock(self):
+        ip = """
+        name: top
+        interfaces:
+          foo:
+            type: wishbone
+            mode: manager
+            clock: asdf
+        """
+
+        with pytest.raises(IPCoreDescriptionFrontendException, match="use non-existent clock"):
+            IPCoreDescriptionFrontend().parse_str(ip)
+
+    def test_bad_intf_reset(self):
+        ip = """
+        name: top
+        interfaces:
+          foo:
+            type: wishbone
+            mode: manager
+            reset: asdf
+        """
+
+        with pytest.raises(IPCoreDescriptionFrontendException, match="use non-existent reset"):
+            IPCoreDescriptionFrontend().parse_str(ip)
 
 
 class TestInterfaceDescriptionFrontend:
