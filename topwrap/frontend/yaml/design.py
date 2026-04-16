@@ -16,6 +16,7 @@ from topwrap.frontend.yaml.design_schema import (
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend, _param_to_ir_param
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.connections import (
+    Clock,
     ConstantConnection,
     InterfaceConnection,
     Port,
@@ -24,11 +25,13 @@ from topwrap.model.connections import (
     ReferencedInterface,
     ReferencedIO,
     ReferencedPort,
+    Reset,
+    ResetPolarity,
 )
-from topwrap.model.design import Design, ModuleInstance
+from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit
 from topwrap.model.interface import Interface, InterfaceMode
-from topwrap.model.misc import ElaboratableValue, FileReference, Identifier
+from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId
 from topwrap.model.module import Module
 from topwrap.resource_field import RepoReferenceHandler
 
@@ -143,6 +146,8 @@ class DesignDescriptionFrontend:
             design.add_connection(
                 PortConnection(source=refio, target=ReferencedPort.external(port))
             )
+
+        self._parse_clocks_resets(design, desc)
 
         return design
 
@@ -381,3 +386,128 @@ class DesignDescriptionFrontend:
                 self._modules[mod.id.name] = mod
 
         return mod
+
+    def _parse_clock_reset_domains(self, design: Design, desc: DesignDescription):
+        for name, domain in desc.clock_domains.items():
+            if isinstance(domain.signal, str):
+                comp = None
+                sig = domain.signal
+            else:
+                comp, sig = domain.signal
+
+            refio, _ = self._resolve_ref(design, comp, sig)
+
+            if isinstance(refio, ReferencedInterface):
+                raise DDFE(f"Attempted to use interface '{domain.signal}' as clock signal")
+
+            design.add_clock_domain(
+                ClockDomain(
+                    name=name,
+                    clock=refio,
+                )
+            )
+
+        for name, domain in desc.reset_domains.items():
+            if isinstance(domain.signal, str):
+                comp = None
+                sig = domain.signal
+            else:
+                comp, sig = domain.signal
+
+            refio, _ = self._resolve_ref(design, comp, sig)
+
+            if isinstance(refio, ReferencedInterface):
+                raise DDFE(f"Attempted to use interface '{domain.signal}' as reset signal")
+
+            synchronous_to = (
+                design.clock_domains.find_by_name(domain.synchronous_to)
+                if domain.synchronous_to is not None
+                else None
+            )
+
+            if synchronous_to is None and domain.synchronous_to is not None:
+                raise DDFE(
+                    f"Attempted to use non-existent clock domain '{domain.synchronous_to}'"
+                    f" for reset domain '{name}'"
+                )
+
+            design.add_reset_domain(
+                ResetDomain(
+                    name=name,
+                    reset=refio,
+                    polarity=ResetPolarity(domain.polarity),
+                    synchronous_to=synchronous_to,
+                )
+            )
+
+    def _parse_clock_reset_assignments(
+        self, design: Design, name: str, mod: Module, ip: DesignIP
+    ) -> tuple[dict[ObjectId[Clock], ClockDomain], dict[ObjectId[Reset], ResetDomain]]:
+        clock_dom_names = {}
+        for cname, dname in ip.clocks.items():
+            clock = mod.clocks.find_by_name(cname)
+            if clock is None:
+                raise DDFE(
+                    f"Instance '{name}' of module '{mod.id.name}' references "
+                    f"non-existent clock '{cname}'"
+                )
+            clock_dom_names[clock._id] = dname
+
+        # Assign default domain to all unmentioned clocks
+        for clock in mod.clocks:
+            if clock._id in clock_dom_names:
+                continue
+            clock_dom_names[clock._id] = "default"
+
+        reset_dom_names = {}
+        for rname, dname in ip.resets.items():
+            reset = mod.resets.find_by_name(rname)
+            if reset is None:
+                raise DDFE(
+                    f"Instance '{name}' of module '{mod.id.name}' references "
+                    f"non-existent reset '{rname}'"
+                )
+            reset_dom_names[reset._id] = dname
+
+        # Assign default domain to all unmentioned resets
+        for reset in mod.resets:
+            if reset._id in reset_dom_names:
+                continue
+            reset_dom_names[reset._id] = "default"
+
+        clocks = {}
+        for cid, dname in clock_dom_names.items():
+            dom = design.clock_domains.find_by_name(dname)
+            if dom is None:
+                raise DDFE(
+                    f"Clock '{cid.resolve().name}' of instance '{name}' of "
+                    f"module '{mod.id.name}' references non-existent clock domain '{dname}'"
+                )
+            clocks[cid] = dom
+
+        resets = {}
+        for rid, dname in reset_dom_names.items():
+            dom = design.reset_domains.find_by_name(dname)
+            if dom is None:
+                raise DDFE(
+                    f"Reset '{rid.resolve().name}' of instance '{name}' of "
+                    f"module '{mod.id.name}' references non-existent reset domain '{dname}'"
+                )
+            resets[rid] = dom
+
+        return clocks, resets
+
+    def _parse_clocks_resets(self, design: Design, desc: DesignDescription):
+        self._parse_clock_reset_domains(design, desc)
+
+        for cname, ip in desc.ips.items():
+            cmod = self._get_module(ip)
+            clocks, resets = self._parse_clock_reset_assignments(design, cname, cmod, ip)
+
+            inst = design.components.find_by_name(cname)
+            assert inst is not None
+
+            inst.clocks.update(clocks)
+            inst.resets.update(resets)
+
+        design.lower_domains()

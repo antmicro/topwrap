@@ -1,8 +1,8 @@
-# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from functools import cached_property
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Iterator, List, Optional, Tuple, Type, Union
+from typing import Any, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple, Type, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -21,6 +21,8 @@ from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 class DesignIP(MarshmallowDataclassExtensions):
     file: ResourcePathT
     parameters: Dict[str, IPCoreParameter] = ext_field(dict, deep_cleanup=True)
+    clocks: dict[str, str] = ext_field(dict)
+    resets: dict[str, str] = ext_field(dict)
 
     @cached_property
     def module(self):
@@ -91,6 +93,18 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
     subordinates: Dict[str, Dict[str, Subordinate]] = ext_field(dict)
 
 
+@marshmallow_dataclass.dataclass(frozen=True)
+class DesignSectionClockDomain(MarshmallowDataclassExtensions):
+    signal: Union[str, Tuple[str, str]]
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class DesignSectionResetDomain(MarshmallowDataclassExtensions):
+    signal: Union[str, Tuple[str, str]]
+    polarity: Union[Literal["active low"], Literal["active high"]]
+    synchronous_to: Optional[str] = ext_field(None)
+
+
 DS_PortsT = Dict[str, Dict[str, Union[int, str, Tuple[str, str]]]]
 DS_InterfacesT = Dict[str, Dict[str, Union[str, Tuple[str, str]]]]
 
@@ -111,6 +125,8 @@ class DesignDescription(MarshmallowDataclassExtensions):
     interconnects: Dict[str, DesignSectionInterconnect] = ext_field(dict)
     hierarchies: Dict[str, "DesignDescription"] = ext_field(dict)
     external: DesignExternalSection = ext_field(DesignExternalSection)
+    clock_domains: Dict[str, DesignSectionClockDomain] = ext_field(dict)
+    reset_domains: Dict[str, DesignSectionResetDomain] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
 
