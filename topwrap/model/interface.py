@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional
 
-from topwrap.model.connections import PortDirection, ReferencedPort
+from topwrap.model.connections import Clock, PortDirection, ReferencedPort, Reset
 from topwrap.model.hdl_types import Logic
 from topwrap.model.misc import (
     ElaboratableValue,
@@ -170,18 +170,28 @@ class Interface(ModelBase):
     #: ``InterfaceSignalConfiguration``.
     signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]]
 
+    #: Clock signal used by this interface.
+    clock: Optional[Clock]
+
+    #: Reset signal used by this interface.
+    reset: Optional[Reset]
+
     def __init__(
         self,
         name: VariableName,
         mode: InterfaceMode,
         definition: InterfaceDefinition,
         signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]],
+        clock: Optional[Clock] = None,
+        reset: Optional[Reset] = None,
     ):
         super().__init__()
         self.name = name
         self.mode = mode
         self.definition = definition
         self.signals = signals
+        self.clock = clock
+        self.reset = reset
 
     @property
     def independent_signals(self) -> Iterator[InterfaceSignal]:
