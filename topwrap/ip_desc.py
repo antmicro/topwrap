@@ -8,6 +8,7 @@ from typing import (
     Collection,
     Dict,
     List,
+    Literal,
     Mapping,
     Optional,
     Set,
@@ -184,6 +185,8 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
     type: str
     mode: InterfaceMode = ext_field(by_value=True)
     signals: IPCoreIntfPorts = ext_field(IPCoreIntfPorts)
+    clock: Optional[str] = ext_field(None)
+    reset: Optional[str] = ext_field(None)
 
     @marshmallow.validates("type")
     def _validate_type(self, type: str) -> bool:
@@ -225,6 +228,18 @@ class IPCoreComplexParameter(MarshmallowDataclassExtensions):
 IPCoreParameter = Optional[Union[int, str, IPCoreComplexParameter]]
 
 
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreClock(MarshmallowDataclassExtensions):
+    signal: str
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreReset(MarshmallowDataclassExtensions):
+    signal: str
+    polarity: Union[Literal["active low"], Literal["active high"]]
+    synchronous_to: Optional[str] = ext_field(None)
+
+
 class BuiltinIPCoreException(Exception):
     """Raised when an exception occurred during handling a built-in IP Core"""
 
@@ -237,6 +252,8 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
     signals: IPCorePorts = ext_field(IPCorePorts)
     parameters: Dict[str, IPCoreParameter] = ext_field(dict)
     interfaces: Dict[str, IPCoreInterface] = ext_field(dict)
+    clocks: Dict[str, IPCoreClock] = ext_field(dict)
+    resets: Dict[str, IPCoreReset] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]]
 

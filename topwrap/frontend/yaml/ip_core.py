@@ -16,7 +16,14 @@ from topwrap.ip_desc import (
     IPCoreParameter,
     Signal,
 )
-from topwrap.model.connections import Port, PortDirection, ReferencedPort
+from topwrap.model.connections import (
+    Clock,
+    Port,
+    PortDirection,
+    ReferencedPort,
+    Reset,
+    ResetPolarity,
+)
 from topwrap.model.hdl_types import (
     Bit,
     Bits,
@@ -38,6 +45,9 @@ from topwrap.model.module import Module
 
 class IPCoreDescriptionFrontendException(Exception):
     pass
+
+
+IPDFE = IPCoreDescriptionFrontendException
 
 
 def _param_to_ir_param(par: IPCoreParameter) -> Optional[ElaboratableValue]:
@@ -132,6 +142,8 @@ class IPCoreDescriptionFrontend:
                     )
                 mod.add_port(Port(name=name, direction=dir, type=type, default_value=default))
 
+        self._parse_clocks_resets(desc, mod)
+
         for iname, iface in desc.interfaces.items():
             ird = InterfaceDescriptionFrontend().from_loaded(iface.type)
 
@@ -165,7 +177,26 @@ class IPCoreDescriptionFrontend:
                         )
                     else:
                         signals[byname[sname]._id] = None
-            mod.add_interface(Interface(name=iname, mode=mode, definition=ird, signals=signals))
+
+            clock = mod.clocks.find_by_name(iface.clock) if iface.clock is not None else None
+
+            if clock is None and iface.clock is not None:
+                raise IPDFE(
+                    f"Attempted to use non-existent clock '{iface.clock}' for interface '{iname}'"
+                )
+
+            reset = mod.resets.find_by_name(iface.reset) if iface.reset is not None else None
+
+            if reset is None and iface.reset is not None:
+                raise IPDFE(
+                    f"Attempted to use non-existent reset '{iface.reset}' for interface '{iname}'"
+                )
+
+            mod.add_interface(
+                Interface(
+                    name=iname, mode=mode, definition=ird, signals=signals, clock=clock, reset=reset
+                )
+            )
 
         return mod
 
@@ -196,3 +227,44 @@ class IPCoreDescriptionFrontend:
             type = Bits(dimensions=[to_dims(data[1:3])])
 
         return data[0], type, slice, None
+
+    def _parse_clocks_resets(self, desc: IPCoreDescription, mod: Module):
+        for name, domain in desc.clocks.items():
+            sig = mod.ports.find_by_name(domain.signal)
+
+            if not sig:
+                raise IPDFE(f"Attempted to use non-existent port '{domain.signal}' as clock signal")
+
+            mod.add_clock(
+                Clock(
+                    name=name,
+                    clock=sig,
+                )
+            )
+
+        for name, domain in desc.resets.items():
+            sig = mod.ports.find_by_name(domain.signal)
+
+            if not sig:
+                raise IPDFE(f"Attempted to use non-existent port '{domain.signal}' as reset signal")
+
+            synchronous_to = (
+                mod.clocks.find_by_name(domain.synchronous_to)
+                if domain.synchronous_to is not None
+                else None
+            )
+
+            if synchronous_to is None and domain.synchronous_to is not None:
+                raise IPDFE(
+                    f"Attempted to use non-existent clock '{domain.synchronous_to}'"
+                    f" for reset '{name}'"
+                )
+
+            mod.add_reset(
+                Reset(
+                    name=name,
+                    reset=sig,
+                    polarity=ResetPolarity(domain.polarity),
+                    synchronous_to=synchronous_to,
+                )
+            )
