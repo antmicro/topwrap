@@ -103,12 +103,6 @@ install_pyenv() {
     end_command_group
 }
 
-update_submodules() {
-    begin_command_group "Update submodules"
-    log_cmd git submodule update --init --recursive
-    end_command_group
-}
-
 run_lint() {
     install_common_system_packages
     install_nox
@@ -134,7 +128,6 @@ run_python_tests() {
     install_interconnect_test_system_deps
     install_nox
     install_pyenv
-    update_submodules
 
     begin_command_group "Run Python $1 tests"
     log_cmd nox -s tests_in_env -- "$1"
@@ -161,7 +154,6 @@ generate_examples() {
 generate_docs() {
     install_common_system_packages
     install_topwrap_system_deps
-    update_submodules
     begin_command_group "Install system packages for doc generation"
     log_cmd apt-get install -y texlive-full imagemagick make
     log_cmd npm install -g @mermaid-js/mermaid-cli
@@ -187,7 +179,6 @@ package_dist() {
     install_common_system_packages
     install_topwrap_system_deps
     install_nox
-    update_submodules
 
     begin_command_group "Build and test the topwrap package"
     log_cmd nox -s build

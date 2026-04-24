@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -323,5 +324,16 @@ def normalize_sv(text: str) -> str:
 def get_caliptra_sources() -> tuple[list[Path], set[Path]]:
     """Collect Caliptra source files and include directories from all `.vf` manifests."""
     here = Path(__file__).resolve().parent
-    caliptra_path = here / "../../../examples/caliptra/Caliptra"
+    caliptra_path = (here / "../../../examples/caliptra/Caliptra").resolve()
+    if not caliptra_path.is_dir():
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "https://github.com/chipsalliance/caliptra-rtl.git",
+                caliptra_path.name,
+            ],
+            cwd=caliptra_path.parent,
+            check=True,
+        )
     return collect_filelist_sources(caliptra_path)

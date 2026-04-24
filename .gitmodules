@@ -1,4 +1,0 @@
-[submodule "examples/caliptra/Caliptra"]
-	path = examples/caliptra/Caliptra
-	url = https://github.com/chipsalliance/caliptra-rtl.git
-	branch = main
