@@ -7,8 +7,10 @@
 
 # Signal description
 # - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 113,126
-name: AXI4Lite
-port_prefix: AXIL
+id:
+  library: libdefault
+  name: AXI4Lite
+  vendor: vendor
 signals:
     required:
         out:

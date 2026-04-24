@@ -23,7 +23,6 @@ from topwrap.cli import (
     RepositoryPathParam,
     load_interfaces_from_repos,
     load_modules_from_repos,
-    map_interfaces_to_modules_from_repos,
 )
 from topwrap.cli.repo import repo
 from topwrap.config import (
@@ -126,7 +125,6 @@ def build_main(
     all_sources = list(sources)
 
     repo_modules, existing_ifaces = load_modules_from_repos()
-    map_interfaces_to_modules_from_repos(list(repo_modules))
 
     frontend = YamlFrontend(repo_modules)
     frontend_output = frontend.parse_design_file(design)
@@ -219,7 +217,6 @@ class KPM:
         logging.info("Starting kenning pipeline manager client")
 
         repo_modules, _ = load_modules_from_repos()
-        map_interfaces_to_modules_from_repos(list(repo_modules))
 
         frontend = YamlFrontend(repo_modules)
         if design is not None:
@@ -509,7 +506,6 @@ def topwrap_gui(
 @click.argument("files", type=click_r_file, nargs=-1)
 def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, ...]):
     repo_modules, _ = load_modules_from_repos()
-    map_interfaces_to_modules_from_repos(list(repo_modules))
 
     frontend = YamlFrontend(repo_modules)
     if design is not None:
@@ -561,7 +557,6 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
 @click.argument("files", type=click_r_file, nargs=-1)
 def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     repo_modules, _ = load_modules_from_repos()
-    map_interfaces_to_modules_from_repos(list(repo_modules))
 
     frontend = YamlFrontend(repo_modules)
     design_module = frontend.parse_design_file(design).modules[0]

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -70,7 +70,7 @@ class TopLevelNotFoundException(Exception):
         self.core = core
 
         super().__init__(
-            f"Could not find the top level module '{core.top_level_name}'"
+            f"Could not find the top level module '{core.name}'"
             f" in the sources of '{core.name}' core",
             *args,
         )

@@ -4,8 +4,10 @@
 # Signals specification:
 # - https://cdn.opencores.org/downloads/wbspec_b4.pdf#page=27
 # - https://cdn.opencores.org/downloads/wbspec_b4.pdf#page=69
-name: wishbone
-port_prefix: wishbone
+id:
+  library: libdefault
+  name: wishbone
+  vendor: vendor
 signals:
     required:
         out:

@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -10,10 +10,13 @@ from collections import defaultdict
 from enum import Enum
 from importlib.metadata import PackageNotFoundError, distribution, version
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, TypeVar, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, Optional, TypeVar, Union
+
+from topwrap.repo.exceptions import ResourceNotFoundException
 
 if TYPE_CHECKING:
     from topwrap.config import Config
+    from topwrap.repo.user_repo import InterfaceDefinitionResource
 
 JsonType = Dict[str, Any]
 
@@ -193,6 +196,21 @@ def collect_filelist_sources(
                     sv_sources.add(sv_path)
 
     return list(sv_sources), include_dirs
+
+
+def get_interface_by_name(name: str) -> Optional["InterfaceDefinitionResource"]:
+    from topwrap.repo.user_repo import InterfaceDefinitionResource
+
+    for repo in get_config().loaded_repos.values():
+        try:
+            res = repo.get_resource(InterfaceDefinitionResource, name)
+        except ResourceNotFoundException:
+            # Try with vendor_libdefault_ as prefix
+            try:
+                res = repo.get_resource(InterfaceDefinitionResource, f"vendor_libdefault_{name}")
+            except ResourceNotFoundException:
+                continue
+        return res
 
 
 def get_config() -> Config:

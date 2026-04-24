@@ -8,12 +8,13 @@ from typing import Iterable, Optional, Union
 
 import yaml
 
+from topwrap.backend.yaml.common.ip_core_schema import param_to_ir_param
 from topwrap.frontend.yaml.design_schema import (
     DesignDescription,
     DesignIP,
     DesignSectionInterconnect,
 )
-from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend, _param_to_ir_param
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.connections import (
     Clock,
@@ -165,7 +166,7 @@ class DesignDescriptionFrontend:
                     )
                     continue
 
-                maybe_param = _param_to_ir_param(val)
+                maybe_param = param_to_ir_param(val)
                 assert maybe_param is not None, "Parameter value cannot be None here"
 
                 comp.parameters[pdef._id] = maybe_param
@@ -373,14 +374,14 @@ class DesignDescriptionFrontend:
             mod = self._modules.get(key)
             if mod is not None:
                 return mod
-            mod = ip.file.to_resource(Core).ir_module.top_level
+            mod = ip.file.to_resource(Core).top
             if mod.id.name in self._modules:
                 mod = self._modules[mod.id.name]
             else:
                 self._modules[mod.id.name] = mod
             self._modules[key] = mod
         else:
-            mod = self._modules.get(ip.module.name)
+            mod = self._modules.get(ip.module.id.name)
             if mod is None:
                 mod = IPCoreDescriptionFrontend().parse_file(ip.path)
                 self._modules[mod.id.name] = mod

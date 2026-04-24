@@ -7,8 +7,10 @@
 
 # Signal description
 # - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 31,101,113
-name: AXI4
-port_prefix: AXI4
+id:
+  library: libdefault
+  name: AXI4
+  vendor: vendor
 signals:
     required:
         out:

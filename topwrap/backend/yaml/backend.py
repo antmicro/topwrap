@@ -8,8 +8,8 @@ from typing import Iterable, Iterator, Optional
 from typing_extensions import override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo
-from topwrap.interface import InterfaceMode as IPCoreInterfaceMode
-from topwrap.ip_desc import (
+from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
+from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexSignal,
     IPCoreDescription,
     IPCoreInterface,
@@ -56,7 +56,7 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         params = self._represent_params(module.parameters)
 
         desc = IPCoreDescription(
-            name=module.id.name,
+            id=module.id,
             signals=ports,
             parameters=params,
             interfaces=intfs,
@@ -106,11 +106,11 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         return IPCorePorts(input, output, inout)
 
     def _represent_intf(self, intf: Interface) -> IPCoreInterface:
-        mode = IPCoreInterfaceMode.UNSPECIFIED
+        mode = InterfaceModeDescription.UNSPECIFIED
         if intf.mode == InterfaceMode.MANAGER:
-            mode = IPCoreInterfaceMode.MANAGER
+            mode = InterfaceModeDescription.MANAGER
         elif intf.mode == InterfaceMode.SUBORDINATE:
-            mode = IPCoreInterfaceMode.SUBORDINATE
+            mode = InterfaceModeDescription.SUBORDINATE
 
         input, output, inout = (
             dict[str, Optional[Signal]](),

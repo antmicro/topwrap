@@ -7,11 +7,9 @@ from typing import Any, Iterable, Iterator, Optional
 
 import click
 
-from topwrap.frontend.yaml.ip_core import InterfaceDescriptionFrontend
-from topwrap.model.inference.mapping import InterfacePortMapping, map_interfaces_to_module
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
-from topwrap.repo.user_repo import Core, InterfaceDescription, InterfaceMapping
+from topwrap.repo.user_repo import Core, InterfaceDefinitionResource
 from topwrap.util import get_config
 
 logger = logging.getLogger(__name__)
@@ -41,14 +39,8 @@ def load_modules_from_repos() -> tuple[Iterable[Module], list[InterfaceDefinitio
     for repo in get_config().loaded_repos.values():
         for core in repo.get_resources(Core):
             try:
-                loaded_core = core.ir_module
-                for unknown_source in loaded_core.unknown_sources:
-                    logger.warning(
-                        f"Could not find a matching frontend for source '{unknown_source}' "
-                        f"of core '{core.name}' in repo '{repo.name}'"
-                    )
-                modules.append(loaded_core.top_level)
-                existing_ifaces.extend(loaded_core.existing_interfaces)
+                modules.append(core.top)
+                existing_ifaces.extend(core.existing_ifaces)
             except Exception as e:
                 logger.error(f"Could not load core '{core.name}' from repo '{repo.name}': {e}")
     return (modules, existing_ifaces)
@@ -56,24 +48,5 @@ def load_modules_from_repos() -> tuple[Iterable[Module], list[InterfaceDefinitio
 
 def load_interfaces_from_repos() -> Iterator[InterfaceDefinition]:
     for repo in get_config().loaded_repos.values():
-        for intf in repo.get_resources(InterfaceDescription):
-            yield InterfaceDescriptionFrontend().parse(intf.file.path)
-
-
-def load_interface_mappings_from_repos() -> Iterator[InterfacePortMapping]:
-    for repo in get_config().loaded_repos.values():
-        for map_defs in repo.get_resources(InterfaceMapping):
-            for mapping in map_defs.definition.modules:
-                yield mapping
-
-
-def map_interfaces_to_modules_from_repos(modules: list[Module]):
-    [*mappings] = load_interface_mappings_from_repos()
-    [*intf_defs] = load_interfaces_from_repos()
-
-    for module in modules:
-        map_interfaces_to_module(
-            mappings,
-            intf_defs,
-            module,
-        )
+        for intf in repo.get_resources(InterfaceDefinitionResource):
+            yield intf.definition

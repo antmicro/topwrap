@@ -3,8 +3,10 @@
 
 # Signals specification
 # - https://developer.arm.com/documentation/ihi0051/latest (version B), page 52
-name: AXI4Stream
-port_prefix: AXIS
+id:
+  library: libdefault
+  name: AXI4Stream
+  vendor: vendor
 signals:
     # assuming transmitter = manager
     required:

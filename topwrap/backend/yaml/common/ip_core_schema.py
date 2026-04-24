@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from functools import cached_property
 from pathlib import Path
@@ -15,17 +15,21 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
 )
 
 import marshmallow
 import marshmallow_dataclass
 
-from topwrap.hdl_parsers_utils import PortDefinition, PortDirection
-from topwrap.util import get_config
-
-from .common_serdes import MarshmallowDataclassExtensions, ext_field
-from .interface import InterfaceDefinition, InterfaceMode, get_interface_by_name
+from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
+from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
+from topwrap.hdl_parsers_utils import PortDefinition as LegacyPortDefinition
+from topwrap.hdl_parsers_utils import PortDirection as LegacyPortDirection
+from topwrap.model.interface import (
+    InterfaceMode,
+)
+from topwrap.model.misc import ElaboratableValue, Identifier
+from topwrap.repo.exceptions import ResourceNotFoundException
+from topwrap.util import get_config, get_interface_by_name
 
 _T = Union[str, int]
 
@@ -48,7 +52,7 @@ class IPCorePort:
     lower_bound: _T
     upper_slice: _T
     lower_slice: _T
-    direction: PortDirection = ext_field(by_value=True)
+    direction: LegacyPortDirection = ext_field(by_value=True)
 
     @property
     def bounds(self) -> Tuple[_T, _T, _T, _T]:
@@ -66,7 +70,7 @@ class IPCorePort:
         return out
 
     @staticmethod
-    def from_sig_and_dir(sig: Signal, dir: PortDirection) -> "IPCorePort":
+    def from_sig_and_dir(sig: Signal, dir: LegacyPortDirection) -> "IPCorePort":
         if isinstance(sig, IPCoreComplexSignal):
             return IPCorePort(
                 name=sig.name,
@@ -96,7 +100,7 @@ class IPCorePort:
         )
 
     @staticmethod
-    def from_port_def(port: PortDefinition) -> "IPCorePort":
+    def from_port_def(port: LegacyPortDefinition) -> "IPCorePort":
         def _try_int(v: str) -> Union[int, str]:
             try:
                 return int(v)
@@ -123,23 +127,23 @@ class IPCorePorts(MarshmallowDataclassExtensions):
     def flat(self):
         ports: Set[IPCorePort] = set()
         for dir, sigs in (
-            (PortDirection.IN, self.input),
-            (PortDirection.OUT, self.output),
-            (PortDirection.INOUT, self.inout),
+            (LegacyPortDirection.IN, self.input),
+            (LegacyPortDirection.OUT, self.output),
+            (LegacyPortDirection.INOUT, self.inout),
         ):
             for sig in sigs:
                 ports.add(IPCorePort.from_sig_and_dir(sig, dir))
         return ports
 
     @staticmethod
-    def from_port_def_list(ports: Collection[PortDefinition]) -> "IPCorePorts":
+    def from_port_def_list(ports: Collection[LegacyPortDefinition]) -> "IPCorePorts":
         (inp, out, ino) = (set(), set(), set())
         for port in ports:
             (
                 inp
-                if port.direction == PortDirection.IN
+                if port.direction == LegacyPortDirection.IN
                 else out
-                if port.direction == PortDirection.OUT
+                if port.direction == LegacyPortDirection.OUT
                 else ino
             ).add(IPCorePort.from_port_def(port).raw)
         return IPCorePorts(input=inp, output=out, inout=ino)
@@ -155,9 +159,9 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
     def flat(self):
         ports: Dict[str, IPCorePort] = {}
         for dir, sigs in (
-            (PortDirection.IN, self.input),
-            (PortDirection.OUT, self.output),
-            (PortDirection.INOUT, self.inout),
+            (LegacyPortDirection.IN, self.input),
+            (LegacyPortDirection.OUT, self.output),
+            (LegacyPortDirection.INOUT, self.inout),
         ):
             for iport_name, sig in sigs.items():
                 if sig:
@@ -167,14 +171,14 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
         return ports
 
     @staticmethod
-    def from_port_def_map(ports: Mapping[str, PortDefinition]) -> "IPCoreIntfPorts":
+    def from_port_def_map(ports: Mapping[str, LegacyPortDefinition]) -> "IPCoreIntfPorts":
         (inp, out, ino) = ({}, {}, {})
         for name, port in ports.items():
             (
                 inp
-                if port.direction == PortDirection.IN
+                if port.direction == LegacyPortDirection.IN
                 else out
-                if port.direction == PortDirection.OUT
+                if port.direction == LegacyPortDirection.OUT
                 else ino
             )[name] = IPCorePort.from_port_def(port).raw
         return IPCoreIntfPorts(input=inp, output=out, inout=ino)
@@ -182,8 +186,10 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreInterface(MarshmallowDataclassExtensions):
+    """Interface specified in IP Core YAML file. `Type` field has name of InterfaceDefinition"""
+
     type: str
-    mode: InterfaceMode = ext_field(by_value=True)
+    mode: InterfaceModeDescription = ext_field(by_value=True)
     signals: IPCoreIntfPorts = ext_field(IPCoreIntfPorts)
     clock: Optional[str] = ext_field(None)
     reset: Optional[str] = ext_field(None)
@@ -198,22 +204,24 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
     def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
         if get_config().force_interface_compliance:
             errors: List[str] = []
-            i_def = cast(InterfaceDefinition, get_interface_by_name(self_obj["type"]))
-            for sig in i_def.required_signals:
-                if sig.name not in self_obj["signals"].flat:
-                    errors.append(
-                        f'Required {sig.direction.value} port "{sig.name}" of interface'
-                        f' "{self_obj["type"]}" not present'
-                    )
-            for dir in PortDirection:
-                for name in self_obj["signals"].flat:
-                    if self_obj["signals"].flat[name].direction == dir and name not in [
-                        s.name for s in i_def.signals.flat
-                    ]:
+            iface_def_resource = get_interface_by_name(self_obj["type"])
+            if iface_def_resource is None:
+                raise ResourceNotFoundException(self_obj["type"])
+            i_def = iface_def_resource.definition
+            for sig in i_def.signals:
+                mode = sig.modes[InterfaceMode.UNSPECIFIED]
+                if mode.required:
+                    if sig.name not in self_obj["signals"].flat:
                         errors.append(
-                            f'Unknown {dir.value} port "{name}", not present in interface'
-                            f' "{self_obj["type"]}"'
+                            f'Required {mode.direction} port "{sig.name}" of interface'
+                            f' "{self_obj["type"]}" not present'
                         )
+            for name, sig in self_obj["signals"].flat.items():
+                if name not in [s.name for s in i_def.signals]:
+                    errors.append(
+                        f'Unknown {sig.direction.value} port "{name}", not present in interface'
+                        f' "{self_obj["type"]}"'
+                    )
             if errors:
                 raise marshmallow.ValidationError(errors)
         return True
@@ -248,7 +256,7 @@ class BuiltinIPCoreException(Exception):
 class IPCoreDescription(MarshmallowDataclassExtensions):
     """IP Core as described in YAML IP Core definition file"""
 
-    name: str
+    id: Identifier
     signals: IPCorePorts = ext_field(IPCorePorts)
     parameters: Dict[str, IPCoreParameter] = ext_field(dict)
     interfaces: Dict[str, IPCoreInterface] = ext_field(dict)
@@ -258,4 +266,14 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
     Schema: ClassVar[Type[marshmallow.Schema]]
 
     def save(self, path: Optional[Path] = None, **kwargs: Any):
-        super().save(path if path is not None else Path(self.name + ".yaml"), **kwargs)
+        super().save(path if path is not None else Path(self.id.name + ".yaml"), **kwargs)
+
+
+class IPCoreDescriptionFrontendException(Exception):
+    pass
+
+
+def param_to_ir_param(par: IPCoreParameter) -> Optional[ElaboratableValue]:
+    if isinstance(par, IPCoreComplexParameter):
+        par = f"{par.width}'d{par.value}"
+    return ElaboratableValue(par) if par is not None else None

@@ -1,36 +1,34 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
 from typing import Iterable, List, Optional
 
-import yaml
 from typing_extensions import override
 
 from topwrap.cli import load_interfaces_from_repos
 from topwrap.frontend.automatic import AutomaticFrontend
 from topwrap.frontend.frontend import Frontend
 from topwrap.model.inference.inference import infer_interfaces_from_module, parse_grouping_hints
-from topwrap.model.inference.mapping import InterfacePortMappingDefinition
-from topwrap.model.misc import Identifier
+from topwrap.model.inference.mapping import (
+    InterfacePortMapping,
+    map_interfaces_to_module,
+)
 from topwrap.repo.files import File
 from topwrap.repo.resource import FileHandler, Resource
 from topwrap.repo.user_repo import (
     Core,
-    InterfaceDescription,
-    InterfaceMapping,
-    ResourcePathWithType,
+    InterfaceDefinitionResource,
 )
-from topwrap.resource_field import FileReferenceHandler
 
 logger = logging.getLogger(__name__)
 
 
-class CoreFileHandler(FileHandler):
+class ModuleFileHandler(FileHandler):
     """
     Implementation of FileHandler for various files that can be parsed into
-    IR modules using one of the frontends. This handler emits :class:`Core`
-    resources that can be later saved into a user repository.
+    IR :class:`Module`'s using one of the frontends. This handler emits :class:`Core` and
+    :class:`InterfaceDefinitionResource` resources that can be later saved into a user repository.
     """
 
     def __init__(
@@ -54,9 +52,9 @@ class CoreFileHandler(FileHandler):
     @override
     def parse(self) -> List[Resource]:
         resources: List[Resource] = []
-        modules = self.frontend.parse_files(f.path for f in self._files).modules
+        frontend_output = self.frontend.parse_files(f.path for f in self._files)
 
-        for mod in modules:
+        for mod in frontend_output.modules:
             if (
                 mod.id.name not in self.tops
                 and mod.id.combined() not in self.tops
@@ -64,54 +62,26 @@ class CoreFileHandler(FileHandler):
             ):
                 continue
 
-            if not self.all_sources:
-                deps = set(FileReferenceHandler(f.file) for m in mod.hierarchy() for f in m.refs)
-            else:
-                deps = (FileReferenceHandler(f.path) for f in self._files)
+            [*intf_defs] = load_interfaces_from_repos()
+            cand_intf_defs = intf_defs
+            if self.inference_interfaces:
+                cand_intf_defs = [
+                    x
+                    for x in intf_defs
+                    if (x.id.name in self.inference_interfaces)
+                    or (x.id.combined() in self.inference_interfaces)
+                ]
 
-            if not isinstance(self.frontend, AutomaticFrontend):
-                deps = [ResourcePathWithType(d, self.frontend.metadata.name) for d in deps]
+            mapping: InterfacePortMapping = infer_interfaces_from_module(
+                mod,
+                cand_intf_defs,
+                grouping_hints=parse_grouping_hints(self.grouping_hints),
+            )  # mapping to interface port mapping definition
+            map_interfaces_to_module([mapping], cand_intf_defs, mod)
 
-            res_name = mod.id.combined().removeprefix(Identifier("").combined())
-            resources.append(Core(name=res_name, top_level_name=mod.id.name, sources=list(deps)))
+            resources.append(Core(mod.id.name, top_or_source_yaml=mod))
 
-            if self.inference:
-                [*intf_defs] = load_interfaces_from_repos()
+        for iface in frontend_output.interfaces:
+            resources.append(InterfaceDefinitionResource(iface))
 
-                cand_intf_defs = intf_defs
-                if self.inference_interfaces:
-                    cand_intf_defs = [
-                        x for x in intf_defs if x.id.name in self.inference_interfaces
-                    ]
-
-                mapping = infer_interfaces_from_module(
-                    mod,
-                    cand_intf_defs,
-                    grouping_hints=parse_grouping_hints(self.grouping_hints),
-                )
-
-                if mapping.interfaces:
-                    resources.append(
-                        InterfaceMapping(
-                            name=mod.id.combined(),
-                            definition=InterfacePortMappingDefinition([mapping]),
-                        )
-                    )
-
-        return resources
-
-
-class InterfaceFileHandler(FileHandler):
-    def __init__(self, files: List[File]):
-        self._files = files
-
-    @override
-    def parse(self) -> List[Resource]:
-        resources: List[Resource] = []
-        for f in self._files:
-            with open(f.path) as fd:
-                data = yaml.safe_load(fd)
-            name = data["name"]
-            iface_desc = InterfaceDescription(name, f)
-            resources.append(iface_desc)
         return resources

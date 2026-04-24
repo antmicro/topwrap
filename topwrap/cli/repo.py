@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import List, cast
+from typing import List
 
 import click
 import yaml
@@ -11,13 +11,13 @@ import yaml
 from topwrap.config import ConfigManager, config
 from topwrap.frontend.automatic import AutomaticFrontend, FrontendRegistry
 from topwrap.repo.exceptions import ResourceNotSupportedException
-from topwrap.repo.file_handlers import CoreFileHandler
+from topwrap.repo.file_handlers import ModuleFileHandler
 from topwrap.repo.files import File, LocalFile
 from topwrap.repo.repo import (
     ExistsStrategy,
 )
 from topwrap.repo.resource import ResourceExistsException
-from topwrap.repo.user_repo import Core, UserRepo
+from topwrap.repo.user_repo import UserRepo
 from topwrap.resource_field import FileReferenceHandler
 from topwrap.util import get_config
 
@@ -129,7 +129,7 @@ def parse_repo(
 
     file_srcs: List[File] = [LocalFile(s) for s in srcs if not s.is_dir()]
     try:
-        cores = CoreFileHandler(
+        resources = ModuleFileHandler(
             file_srcs,
             FrontendRegistry.BY_NAME[frontend](),
             module,
@@ -138,10 +138,8 @@ def parse_repo(
             inference_interface,
             grouping_hint,
         ).parse()
-        for core in cores:
-            if reference:
-                cast(Core, core).by_ref = True
-            repo.add_resource(core, exists_strategy)
+        for res in resources:
+            repo.add_resource(res, exists_strategy)
         repo.save(repo_path.to_path())
     except (
         ResourceExistsException,

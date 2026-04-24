@@ -7,6 +7,7 @@ from typing import Any, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple
 import marshmallow
 import marshmallow_dataclass
 
+from topwrap.backend.yaml.common.ip_core_schema import IPCoreDescription, IPCoreParameter
 from topwrap.common_serdes import (
     MarshmallowDataclassExtensions,
     ResourcePathT,
@@ -14,7 +15,6 @@ from topwrap.common_serdes import (
 )
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.interconnects.types import INTERCONNECT_TYPES
-from topwrap.ip_desc import IPCoreDescription, IPCoreParameter
 
 
 @marshmallow_dataclass.dataclass(frozen=True)

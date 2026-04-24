@@ -1,20 +1,19 @@
-# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-
-import re
-from functools import cache
 from pathlib import Path
-from typing import Optional, Sequence, Union
+from typing import (
+    Optional,
+    Sequence,
+    Union,
+)
 
-from topwrap.interface import InterfaceDefinition as LegacyInterfaceDefinition
-from topwrap.interface import InterfaceMode as LegacyInterfaceMode
-from topwrap.interface import get_interface_by_name
-from topwrap.ip_desc import (
-    IPCoreComplexParameter,
+from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
+from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexSignal,
     IPCoreDescription,
-    IPCoreParameter,
+    IPCoreDescriptionFrontendException,
     Signal,
+    param_to_ir_param,
 )
 from topwrap.model.connections import (
     Clock,
@@ -34,71 +33,13 @@ from topwrap.model.hdl_types import (
 )
 from topwrap.model.interface import (
     Interface,
-    InterfaceDefinition,
     InterfaceMode,
-    InterfaceSignal,
-    InterfaceSignalConfiguration,
 )
-from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, Parameter
+from topwrap.model.misc import ElaboratableValue, FileReference, Parameter
 from topwrap.model.module import Module
-
-
-class IPCoreDescriptionFrontendException(Exception):
-    pass
-
+from topwrap.util import get_config
 
 IPDFE = IPCoreDescriptionFrontendException
-
-
-def _param_to_ir_param(par: IPCoreParameter) -> Optional[ElaboratableValue]:
-    if isinstance(par, IPCoreComplexParameter):
-        par = f"{par.width}'d{par.value}"
-    return ElaboratableValue(par) if par is not None else None
-
-
-class InterfaceDescriptionFrontend:
-    @staticmethod
-    @cache
-    def from_loaded(name: str) -> Optional[InterfaceDefinition]:
-        old = get_interface_by_name(name)
-        if old is not None:
-            return InterfaceDescriptionFrontend().parse(old)
-
-    def parse(self, desc: Union[LegacyInterfaceDefinition, Path]) -> InterfaceDefinition:
-        """
-        Parse Interface description YAML to IR ``InterfaceDefinition``.
-
-        :param desc: Either a deserialized interfaced description or
-            a path to its YAML.
-        """
-
-        desc = LegacyInterfaceDefinition.load(desc) if isinstance(desc, Path) else desc
-
-        intf = InterfaceDefinition(id=Identifier(name=desc.name))
-        for req, sigs in ((True, desc.signals.required), (False, desc.signals.optional)):
-            for dir, dirsigs in (
-                (PortDirection.IN, sigs.input.items()),
-                (PortDirection.OUT, sigs.output.items()),
-                (PortDirection.INOUT, sigs.inout.items()),
-            ):
-                for name, regex in dirsigs:
-                    intf.add_signal(
-                        InterfaceSignal(
-                            name=name,
-                            type=Bit(),
-                            regexp=re.compile(regex),
-                            modes={
-                                InterfaceMode.MANAGER: InterfaceSignalConfiguration(
-                                    direction=dir, required=req
-                                ),
-                                InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
-                                    direction=dir.reverse(), required=req
-                                ),
-                            },
-                        )
-                    )
-
-        return intf
 
 
 class IPCoreDescriptionFrontend:
@@ -123,10 +64,19 @@ class IPCoreDescriptionFrontend:
         return self._parse(None, desc)
 
     def _parse(self, source: Optional[Path], desc: IPCoreDescription) -> Module:
-        mod = Module(id=Identifier(name=desc.name), refs=[FileReference(source)] if source else ())
+        # TODO: Is this best way to get existing_interfaces?
+        # `_parse` method can have different effects when loaded_repos changes
+        existing_interfaces = []
+        from topwrap.repo.user_repo import InterfaceDefinitionResource
+
+        for repo in get_config().loaded_repos.values():
+            for res in repo.get_resources(InterfaceDefinitionResource):
+                existing_interfaces.append(res.definition)
+
+        mod = Module(id=desc.id, refs=[FileReference(source)] if source else ())
 
         for name, param in desc.parameters.items():
-            mod.add_parameter(Parameter(name=name, default_value=_param_to_ir_param(param)))
+            mod.add_parameter(Parameter(name=name, default_value=param_to_ir_param(param)))
 
         for dir, ports in (
             (PortDirection.IN, desc.signals.input),
@@ -145,16 +95,18 @@ class IPCoreDescriptionFrontend:
         self._parse_clocks_resets(desc, mod)
 
         for iname, iface in desc.interfaces.items():
-            ird = InterfaceDescriptionFrontend().from_loaded(iface.type)
-
-            if ird is None:
+            for existing_iface in existing_interfaces:
+                if iface.type == existing_iface.id.name:
+                    ird = existing_iface
+                    break
+            else:
                 raise IPCoreDescriptionFrontendException(
                     f"Could not find interface {iface.type} among loaded interfaces"
                 )
 
-            if iface.mode is LegacyInterfaceMode.MANAGER:
+            if iface.mode is InterfaceModeDescription.MANAGER:
                 mode = InterfaceMode.MANAGER
-            elif iface.mode is LegacyInterfaceMode.SUBORDINATE:
+            elif iface.mode is InterfaceModeDescription.SUBORDINATE:
                 mode = InterfaceMode.SUBORDINATE
             else:
                 mode = InterfaceMode.UNSPECIFIED
