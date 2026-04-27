@@ -109,7 +109,7 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
     @property
     def size(self):
         return self.item.size * reduce(
-            lambda a, b: (b.upper - b.lower) * a, self.dimensions, ElaboratableValue(0)
+            lambda a, b: (b.upper - b.lower) * a, self.dimensions, ElaboratableValue(1)
         )
 
     @override
