@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional, Union
 
 from topwrap.model.connections import (
     Clock,
     Connection,
+    PortConnection,
     ReferencedIO,
     ReferencedPort,
     Reset,
@@ -26,6 +28,9 @@ from topwrap.model.misc import (
 
 if TYPE_CHECKING:
     from topwrap.model.module import Module
+
+
+logger = logging.getLogger(__name__)
 
 
 class ModuleInstance(ModelBase):
@@ -125,6 +130,12 @@ class ResetDomain(ModelBase):
         self.reset = reset
         self.polarity = polarity
         self.synchronous_to = synchronous_to
+
+
+class DesignDomainException(Exception):
+    """Error relating to clock and reset domains within a design."""
+
+    pass
 
 
 class Design(ModelBase):
@@ -227,3 +238,76 @@ class Design(ModelBase):
                 yield conn.target
             elif conn.target == io:
                 yield conn.source
+
+    def lower_domains(self):
+        """
+        Lower clock/reset domain assignments into regular port connections.
+        """
+
+        def _ref_port_str(ref: ReferencedPort) -> str:
+            if ref.external:
+                return f"external port {ref.io.name}"
+            else:
+                assert ref.instance is not None
+                return f"port {ref.instance.name}.{ref.io.name}"
+
+        for comp in self.components:
+            # Create clock connections
+            for clock in comp.module.clocks:
+                clock_dom = comp.clocks[clock._id]
+
+                logger.info(
+                    f"Connecting clock '{clock.name}' of module '{comp.name}' to "
+                    f"clock domain '{clock_dom.name}' "
+                    f"({_ref_port_str(clock_dom.clock)} to "
+                    f"port {comp.name}.{clock.clock.name})"
+                )
+
+                self.add_connection(
+                    PortConnection(
+                        source=clock_dom.clock,
+                        target=ReferencedPort(io=clock.clock, instance=comp),
+                    )
+                )
+
+            # Create reset connections
+            for reset in comp.module.resets:
+                reset_dom = comp.resets[reset._id]
+
+                invert = reset_dom.polarity is not reset.polarity
+
+                # TODO: Insert synchronizer
+                if reset.synchronous_to is not None and reset_dom.synchronous_to is None:
+                    raise DesignDomainException(
+                        f"Reset '{reset.name}', which is synchronous to clock "
+                        f"'{reset.synchronous_to.clock}' is connected to "
+                        f"asynchronous reset domain '{reset_dom.name}'"
+                    )
+
+                if reset.synchronous_to is not None and (
+                    comp.clocks[reset.synchronous_to._id] != reset_dom.synchronous_to
+                ):
+                    assert reset_dom.synchronous_to
+
+                    raise DesignDomainException(
+                        f"Reset '{reset.name}', which is synchronous to clock domain "
+                        f"'{comp.clocks[reset.synchronous_to._id].name}' is connected to "
+                        f"reset domain '{reset_dom.name}', which is synchronous to "
+                        f"clock domain '{reset_dom.synchronous_to.name}'"
+                    )
+
+                invert_msg = "(inverted due to polarity)" if invert else ""
+                logger.info(
+                    f"Connecting reset '{reset.name}' of module '{comp.name}' to "
+                    f"reset domain '{reset_dom.name}' "
+                    f"({_ref_port_str(reset_dom.reset)} to "
+                    f"port {comp.name}.{reset.reset.name}) {invert_msg}"
+                )
+
+                self.add_connection(
+                    PortConnection(
+                        source=reset_dom.reset,
+                        target=ReferencedPort(io=reset.reset, instance=comp),
+                        invert=invert,
+                    )
+                )
