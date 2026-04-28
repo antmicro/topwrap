@@ -9,7 +9,9 @@ from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional, Union
 from topwrap.model.connections import (
     Clock,
     Connection,
+    InterfaceConnection,
     PortConnection,
+    ReferencedInterface,
     ReferencedIO,
     ReferencedPort,
     Reset,
@@ -310,4 +312,56 @@ class Design(ModelBase):
                         target=ReferencedPort(io=reset.reset, instance=comp),
                         invert=invert,
                     )
+                )
+
+            self.check_intf_cdc()
+
+    def check_intf_cdc(self):
+        # Check if any interface connections need CDC
+        for conn in self.connections:
+            if not isinstance(conn, InterfaceConnection):
+                continue
+
+            def _inst(ref: ReferencedInterface) -> str:
+                return (
+                    f"from instance '{ref.instance.name}'"
+                    if ref.instance is not None
+                    else "external"
+                )
+
+            src_io, tgt_io = conn.source.io, conn.target.io
+            src_clk, tgt_clk = src_io.clock, tgt_io.clock
+            src_inst, tgt_inst = _inst(conn.source), _inst(conn.target)
+
+            # If no clocks are known, ignore this connection.
+            if src_clk is None and tgt_clk is None:
+                continue
+
+            # If one side has a clock and the other doesn't, issue a warning.
+            if (src_clk is None) != (tgt_clk is None):
+                logger.warning(
+                    f"Connection between interface '{src_io.name}' ({src_inst}) "
+                    f"and interface '{tgt_io.name}' ({tgt_inst}) cannot be checked for "
+                    "CDC: one of the interfaces does not have clock information."
+                )
+                continue
+
+            assert src_clk is not None and tgt_clk is not None
+
+            # TODO: Currently this holds, since there is no way to reasonably attach clocks to
+            # external interfaces. This should probably be changed though.
+            assert conn.source.instance is not None and conn.target.instance is not None
+
+            src_domain = conn.source.instance.clocks.get(src_clk._id)
+            assert src_domain is not None
+            tgt_domain = conn.target.instance.clocks.get(tgt_clk._id)
+            assert tgt_domain is not None
+
+            if src_domain != tgt_domain:
+                # TODO: Insert a CDC block between the two sides of the connection if possible
+                raise DesignDomainException(
+                    f"Connection between interface '{src_io.name}' ({src_inst}) "
+                    f"and interface '{tgt_io.name}' ({tgt_inst}) crosses clock domains: "
+                    f"former is driven by domain '{src_domain.name}', while "
+                    f"latter is driven by domain '{tgt_domain.name}'."
                 )
