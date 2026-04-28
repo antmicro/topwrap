@@ -1,0 +1,30 @@
+name: axis_clk_receiver
+
+signals:
+  in:
+    - clk
+    - rst
+
+interfaces:
+  io:
+    type: AXI4Stream
+    mode: subordinate
+    clock: clk
+    reset: rst
+    signals:
+      in:
+        TDATA: [dat_i, 31, 0]
+
+        # PORT SLICING
+        # reversed situation from streamer.yaml
+        TVALID: [ctrl_i, 4, 0, 4, 4]
+        TKEEP: [ctrl_i, 4, 0, 3, 0]
+
+clocks:
+  clk:
+    signal: clk
+
+resets:
+  rst:
+    signal: rst
+    polarity: active high

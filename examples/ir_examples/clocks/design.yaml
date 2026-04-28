@@ -1,0 +1,37 @@
+clock_domains:
+  default:
+    signal: clk
+  fast:
+    signal: fast_clk
+
+reset_domains:
+  default:
+    signal: rst
+    polarity: active high
+
+connections:
+  interfaces:
+    receiver:
+      io: [cdc, io_b]
+    streamer:
+      io: [cdc, io_a]
+
+external:
+  ports:
+    in:
+      - clk
+      - rst
+      - fast_clk
+
+ips:
+  streamer:
+    file: file:ips/streamer.yaml
+    clocks:
+      clk: fast
+  receiver:
+    file: file:ips/receiver.yaml
+  cdc:
+    file: file:ips/cdc.yaml
+    clocks:
+      clk_a: fast
+      clk_b: default

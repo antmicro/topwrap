@@ -1,0 +1,41 @@
+name: axis_cdc
+
+signals:
+  in:
+    - clk_a
+    - clk_b
+    - rst
+
+interfaces:
+  io_a:
+    type: AXI4Stream
+    mode: subordinate
+    clock: clk_a
+    reset: rst
+    signals:
+      in:
+        TDATA: [a_dat_i, 31, 0]
+        TVALID: [a_ctrl_i, 4, 0, 4, 4]
+        TKEEP: [a_ctrl_i, 4, 0, 3, 0]
+
+  io_b:
+    type: AXI4Stream
+    mode: manager
+    clock: clk_b
+    reset: rst
+    signals:
+      out:
+        TDATA: [b_dat_o, 31, 0]
+        TVALID: [b_ctrl_o, 4, 0, 0, 0]
+        TKEEP: [b_ctrl_o, 4, 0, 4, 1]
+
+clocks:
+  clk_a:
+    signal: clk_a
+  clk_b:
+    signal: clk_b
+
+resets:
+  rst:
+    signal: rst
+    polarity: active high

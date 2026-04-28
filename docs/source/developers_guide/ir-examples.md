@@ -106,6 +106,15 @@ This is an example showcasing the ability to invert (negate) connections between
 :spec: ../../build/kpm_jsons/spec_ir_examples_inverted.json
 ```
 
+## Clocks
+
+This is an example showcasing the clock and reset domain functionality.
+
+```{kpm_iframe}
+:dataflow: ../../build/kpm_jsons/data_ir_examples_clocks.json
+:spec: ../../build/kpm_jsons/spec_ir_examples_clocks.json
+```
+
 ## Complex hierarchy parsing
 
 This example shows a complex hierarchy with subgraphs parsed from SystemVerilog files

@@ -2,6 +2,8 @@ from topwrap.model.misc import Identifier
 
 from .advanced.ir.design import module as adv_top
 from .advanced.ir.design import proc_mod, seq_sci_mod, sseq_mod
+from .clocks.ir.design import axis_cdc, axis_clk_receiver, axis_clk_streamer
+from .clocks.ir.design import module as clk_top
 from .hierarchical.ir.design import adder, bitcnt4, d_ff, debouncer, encoder, proc
 from .hierarchical.ir.design import top as hier_top
 from .interconnect.ir.design import cpu, dsp, mem
@@ -17,9 +19,14 @@ hier_top.id = Identifier("hier_top")
 intr_top.id = Identifier("intr_top")
 intf_top.id = Identifier("intf_top")
 simp_top.id = Identifier("simp_top")
+clk_top.id = Identifier("clk_top")
 
 ALL_MODULES = [
     adder,
+    axis_cdc,
+    axis_clk_streamer,
+    axis_clk_receiver,
+    clk_top,
     d_ff,
     debouncer,
     encoder,
