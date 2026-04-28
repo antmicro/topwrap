@@ -62,6 +62,7 @@ class TestDesignDescriptionFrontend:
             (Path("examples/ir_examples/hierarchical/design.yaml"), TestIrExamples.ir_hierarchy),
             (Path("examples/ir_examples/interconnect/design.yaml"), TestIrExamples.ir_interconnect),
             (Path("examples/ir_examples/inverted/design.yaml"), TestIrExamples.ir_inverted),
+            (Path("examples/ir_examples/clocks/design.yaml"), TestIrExamples.ir_clocks),
         ],
     )
     def test_ir(self, design: Path, validator: Callable[[Module], None]):

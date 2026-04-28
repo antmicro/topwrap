@@ -91,6 +91,7 @@ class TestKpmDataflowFrontend:
             ("ir_interface_flow", TestIrExamples.ir_interface),
             ("ir_interconn_flow", TestIrExamples.ir_interconnect),
             ("ir_inverted_flow", TestIrExamples.ir_inverted),
+            ("ir_clocks_flow", TestIrExamples.ir_clocks),
         ],
     )
     def test_ir(self, files: dict[str, JsonType], file: str, validator: Callable[[Module], None]):

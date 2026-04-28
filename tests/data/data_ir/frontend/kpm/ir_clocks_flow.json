@@ -1,0 +1,392 @@
+{
+  "version": "20250623.14",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "01624360-581a-45de-9a37-ea91d7d5c557",
+          "id": "06a104bd-9997-4be1-a0d9-ab8c1fe88d63",
+          "to": "e1b28180-7d0f-48ae-b179-0843013fc264"
+        },
+        {
+          "from": "1f5eeba3-3e52-47e6-9e88-0698b39a36d8",
+          "id": "d698f881-1d24-47ff-a874-6d552154b599",
+          "to": "f4dd6124-a370-4307-99be-1866e910ad7b"
+        },
+        {
+          "from": "88b76675-7f4a-4663-b3c9-342504de367f",
+          "id": "564dac5d-5fd9-4116-be3e-2ea3ab73e12b",
+          "to": "d8dc6663-4670-4026-aca1-1b3e8f39c21c"
+        },
+        {
+          "from": "aac88a25-7084-42f9-9ee3-b9e3b0fd7a22",
+          "id": "fb5c321f-5ce1-42f6-a0b9-0961f2b988bd",
+          "to": "ac49cf70-8e79-41a6-9de8-4271363edb9e"
+        },
+        {
+          "from": "354f1090-a85d-414c-86d9-33cb57fe1692",
+          "id": "508ee69b-ac8d-46e5-96c4-8d3e45f1962b",
+          "to": "9946b181-f2fd-4ead-8472-0578949e0b45"
+        },
+        {
+          "from": "aac88a25-7084-42f9-9ee3-b9e3b0fd7a22",
+          "id": "4b43a315-bfee-414c-b6c8-24e8115a87d2",
+          "to": "438912e1-5c27-4fde-9a73-d6a601f2635d"
+        },
+        {
+          "from": "88b76675-7f4a-4663-b3c9-342504de367f",
+          "id": "7d6fc8e5-5953-493d-93b1-596cb9ffba94",
+          "to": "a337ce6d-5c76-4414-929a-6ab0e27ba056"
+        },
+        {
+          "from": "354f1090-a85d-414c-86d9-33cb57fe1692",
+          "id": "6f544c6d-0345-4917-8ffb-61c976cdf968",
+          "to": "7193cdae-2293-49c0-a498-3fa5affb254c"
+        },
+        {
+          "from": "aac88a25-7084-42f9-9ee3-b9e3b0fd7a22",
+          "id": "5bb04a8b-042e-4ef1-b2b9-a9a732972f84",
+          "to": "876218de-ddf5-45a0-9081-f54cf5f3291b"
+        },
+        {
+          "from": "354f1090-a85d-414c-86d9-33cb57fe1692",
+          "id": "19cda063-d590-401e-a94f-bc0815403b4a",
+          "to": "acf7fe73-cb20-4a7b-8b45-7a01885e1870"
+        },
+        {
+          "from": "88b76675-7f4a-4663-b3c9-342504de367f",
+          "id": "7542e4ea-68fd-4da6-9073-61bac678588c",
+          "to": "3256308a-97f6-43ee-b08a-4721476d05b4"
+        },
+        {
+          "from": "aac88a25-7084-42f9-9ee3-b9e3b0fd7a22",
+          "id": "316aa841-3741-4f08-9721-2f7491a99999",
+          "to": "0682a32d-9147-4451-8651-76ea03ea3145"
+        }
+      ],
+      "id": "2cb35211-bc56-43be-b9bd-c499c1721368",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "7bfcb82c-f4e1-4b0b-83ff-767906e8cd65",
+          "instanceName": "Identifier",
+          "interfaces": [],
+          "name": "Identifier",
+          "properties": [
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Library",
+              "value": "libdefault"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Name",
+              "value": "top"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Vendor",
+              "value": "vendor"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "d7fd3a19-c818-48e2-b1ef-e42e5f3599ed",
+          "instanceName": "streamer",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "1f5eeba3-3e52-47e6-9e88-0698b39a36d8",
+              "name": "io",
+              "side": "right"
+            },
+            {
+              "direction": "input",
+              "id": "d8dc6663-4670-4026-aca1-1b3e8f39c21c",
+              "name": "clk",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "ac49cf70-8e79-41a6-9de8-4271363edb9e",
+              "name": "rst",
+              "side": "left"
+            }
+          ],
+          "name": "axis_clk_streamer",
+          "properties": [
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain for clock 'clk'",
+              "value": "fast"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain for reset 'rst'",
+              "value": "default"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "24e26c71-14ef-4b75-a83a-7d4238b64788",
+          "instanceName": "receiver",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "e1b28180-7d0f-48ae-b179-0843013fc264",
+              "name": "io",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "9946b181-f2fd-4ead-8472-0578949e0b45",
+              "name": "clk",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "438912e1-5c27-4fde-9a73-d6a601f2635d",
+              "name": "rst",
+              "side": "left"
+            }
+          ],
+          "name": "axis_clk_receiver",
+          "properties": [
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain for clock 'clk'",
+              "value": "default"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain for reset 'rst'",
+              "value": "default"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "f0ce2545-4cf3-4d0c-984d-db83733c6211",
+          "instanceName": "cdc",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "f4dd6124-a370-4307-99be-1866e910ad7b",
+              "name": "io_a",
+              "side": "left"
+            },
+            {
+              "direction": "output",
+              "id": "01624360-581a-45de-9a37-ea91d7d5c557",
+              "name": "io_b",
+              "side": "right"
+            },
+            {
+              "direction": "input",
+              "id": "7193cdae-2293-49c0-a498-3fa5affb254c",
+              "name": "clk_b",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "876218de-ddf5-45a0-9081-f54cf5f3291b",
+              "name": "rst",
+              "side": "left"
+            },
+            {
+              "direction": "input",
+              "id": "a337ce6d-5c76-4414-929a-6ab0e27ba056",
+              "name": "clk_a",
+              "side": "left"
+            }
+          ],
+          "name": "axis_cdc",
+          "properties": [
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain for clock 'clk_a'",
+              "value": "fast"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain for clock 'clk_b'",
+              "value": "default"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain for reset 'rst'",
+              "value": "default"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "1d88476d-71b0-433b-b84f-486e0c560d00",
+          "instanceName": "clk",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "clk",
+              "id": "f416f285-ac57-406d-968d-989e2dcfd471",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "354f1090-a85d-414c-86d9-33cb57fe1692",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "e9d5f727-7d86-4e78-9b8a-f220969cc34e",
+              "name": "inout"
+            }
+          ],
+          "name": "External I/O",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "673820f5-d4a6-48e4-a5b6-3ebbe34e356e",
+          "instanceName": "rst",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "rst",
+              "id": "7d19cdb7-7fad-4287-b6f6-c66665d46df1",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "aac88a25-7084-42f9-9ee3-b9e3b0fd7a22",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "9b483dcf-f527-42c9-b8f2-8787f9729bbb",
+              "name": "inout"
+            }
+          ],
+          "name": "External I/O",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "c2c7d647-2277-42a4-acd9-ff6bf977b05b",
+          "instanceName": "fast_clk",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "fast_clk",
+              "id": "486d7669-9d43-404d-b414-3e61e5b8c3eb",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "88b76675-7f4a-4663-b3c9-342504de367f",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "f73fe2d0-8ada-4e50-a213-ac2731cd1c73",
+              "name": "inout"
+            }
+          ],
+          "name": "External I/O",
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "0a0e328b-f8ac-4b05-bfb3-17a119d8206c",
+          "instanceName": "Clock domain",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "acf7fe73-cb20-4a7b-8b45-7a01885e1870",
+              "name": "clock"
+            }
+          ],
+          "name": "Clock domain",
+          "properties": [
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain",
+              "value": "default"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "227f1421-873d-4dfa-86bc-3a547fb4fd61",
+          "instanceName": "Clock domain",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "3256308a-97f6-43ee-b08a-4721476d05b4",
+              "name": "clock"
+            }
+          ],
+          "name": "Clock domain",
+          "properties": [
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain",
+              "value": "fast"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "e6873134-c311-463d-be16-a2a1d5f817e1",
+          "instanceName": "Reset domain",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "0682a32d-9147-4451-8651-76ea03ea3145",
+              "name": "reset"
+            }
+          ],
+          "name": "Reset domain",
+          "properties": [
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Domain",
+              "value": "default"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Polarity",
+              "value": "active high"
+            },
+            {
+              "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
+              "name": "Synchronous to",
+              "value": ""
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}

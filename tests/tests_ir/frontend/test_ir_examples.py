@@ -10,6 +10,7 @@ import pytest
 from examples.ir_examples.advanced.ir.types import sci_intf
 from examples.ir_examples.modules import (
     adv_top,
+    clk_top,
     hier_top,
     intf_top,
     intr_top,
@@ -35,6 +36,7 @@ from topwrap.model.connections import (
     PortDirection,
     ReferencedInterface,
     ReferencedPort,
+    ResetPolarity,
 )
 from topwrap.model.hdl_types import (
     Bit,
@@ -355,6 +357,99 @@ class TestIrExamples:
             ("<external>.sum", "adder2.out"): True,
         }
 
+    @staticmethod
+    def ir_clocks(mod: Module):
+        assert mod.design is not None
+
+        des = mod.design
+
+        clk_port = mod.ports.find_by_name_or_error("clk")
+        rst_port = mod.ports.find_by_name_or_error("rst")
+        fast_clk_port = mod.ports.find_by_name_or_error("fast_clk")
+
+        assert clk_port.direction is PortDirection.IN
+        assert rst_port.direction is PortDirection.IN
+        assert fast_clk_port.direction is PortDirection.IN
+
+        assert len(des.components) == 3
+        assert len(des.clock_domains) == 2
+        assert len(des.reset_domains) == 1
+        assert len(des.connections) == 9
+
+        default_clk_dom = des.clock_domains.find_by_name_or_error("default")
+        fast_clk_dom = des.clock_domains.find_by_name_or_error("fast")
+        default_rst_dom = des.reset_domains.find_by_name_or_error("default")
+
+        assert default_clk_dom.clock == ReferencedPort.external(clk_port)
+        assert fast_clk_dom.clock == ReferencedPort.external(fast_clk_port)
+        assert default_rst_dom.reset == ReferencedPort.external(rst_port)
+        assert default_rst_dom.polarity == ResetPolarity.ACTIVE_HIGH
+        assert default_rst_dom.synchronous_to is None
+
+        streamer = des.components.find_by_name_or_error("streamer")
+        receiver = des.components.find_by_name_or_error("receiver")
+        cdc = des.components.find_by_name_or_error("cdc")
+
+        assert len(streamer.module.clocks) == 1
+        assert streamer.module.clocks[0].clock == streamer.module.ports.find_by_name_or_error("clk")
+        assert len(streamer.module.resets) == 1
+        assert streamer.module.resets[0].reset == streamer.module.ports.find_by_name_or_error("rst")
+        assert streamer.module.resets[0].polarity == ResetPolarity.ACTIVE_HIGH
+        assert streamer.module.resets[0].synchronous_to is None
+
+        assert len(receiver.module.clocks) == 1
+        assert receiver.module.clocks[0].clock == receiver.module.ports.find_by_name_or_error("clk")
+        assert len(receiver.module.resets) == 1
+        assert receiver.module.resets[0].reset == receiver.module.ports.find_by_name_or_error("rst")
+        assert receiver.module.resets[0].polarity == ResetPolarity.ACTIVE_HIGH
+        assert receiver.module.resets[0].synchronous_to is None
+
+        assert len(cdc.module.clocks) == 2
+        assert cdc.module.clocks[0].clock == cdc.module.ports.find_by_name_or_error("clk_a")
+        assert cdc.module.clocks[1].clock == cdc.module.ports.find_by_name_or_error("clk_b")
+        assert len(cdc.module.resets) == 1
+        assert cdc.module.resets[0].reset == cdc.module.ports.find_by_name_or_error("rst")
+        assert cdc.module.resets[0].polarity == ResetPolarity.ACTIVE_HIGH
+        assert cdc.module.resets[0].synchronous_to is None
+
+        assert streamer.clocks == {
+            streamer.module.clocks[0]._id: fast_clk_dom,
+        }
+        assert cdc.clocks == {
+            cdc.module.clocks[0]._id: fast_clk_dom,
+            cdc.module.clocks[1]._id: default_clk_dom,
+        }
+        assert receiver.clocks == {
+            receiver.module.clocks[0]._id: default_clk_dom,
+        }
+
+        def _ref_str(io: Union[ReferencedPort, ReferencedInterface, ElaboratableValue]) -> str:
+            if isinstance(io, ElaboratableValue):
+                return io.value
+            inst_name = io.instance.name if io.instance else "<external>"
+            return f"{inst_name}.{io.io.name}"
+
+        def _ref_tuple(
+            connection: Union[ConstantConnection, InterfaceConnection, PortConnection],
+        ) -> tuple[str, ...]:
+            return tuple(sorted((_ref_str(connection.target), _ref_str(connection.source))))
+
+        conns = set(_ref_tuple(connection) for connection in mod.design.connections)
+
+        print(conns)
+
+        assert conns == {
+            ("cdc.io_a", "streamer.io"),
+            ("cdc.io_b", "receiver.io"),
+            ("<external>.fast_clk", "streamer.clk"),
+            ("<external>.rst", "streamer.rst"),
+            ("<external>.clk", "receiver.clk"),
+            ("<external>.rst", "receiver.rst"),
+            ("<external>.fast_clk", "cdc.clk_a"),
+            ("<external>.clk", "cdc.clk_b"),
+            ("<external>.rst", "cdc.rst"),
+        }
+
     @pytest.mark.parametrize(
         ["mod", "validator"],
         [
@@ -364,6 +459,7 @@ class TestIrExamples:
             (intr_top, lambda: TestIrExamples.ir_interconnect),
             (adv_top, lambda: TestIrExamples.ir_advanced),
             (inv_top, lambda: TestIrExamples.ir_inverted),
+            (clk_top, lambda: TestIrExamples.ir_clocks),
         ],
     )
     def test_ir_example(self, mod: Module, validator):
