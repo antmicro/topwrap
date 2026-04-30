@@ -16,13 +16,16 @@ from pipeline_manager.dataflow_builder.entities import Direction, Node, Property
 from pipeline_manager.dataflow_builder.entities import Interface as KpmInterface
 
 from topwrap.backend.kpm.common import (
+    ClockDomainMetanode,
     ConstMetanode,
+    DomainMetanodeStrings,
     IdentifierMetanode,
     InterconnectMetanode,
     InterconnectMetanodeStrings,
     InverterMetanode,
     IoMetanode,
     KpmNodeAdditionalData,
+    ResetDomainMetanode,
     kpm_dir_from,
 )
 from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
@@ -33,8 +36,9 @@ from topwrap.model.connections import (
     InterfaceConnection,
     Port,
     PortConnection,
+    ResetPolarity,
 )
-from topwrap.model.design import ModuleInstance
+from topwrap.model.design import ClockDomain, ModuleInstance, ResetDomain
 from topwrap.model.interconnect import Interconnect, InterconnectParams
 from topwrap.model.interface import Interface
 from topwrap.model.misc import Identifier, TranslationError
@@ -171,6 +175,12 @@ class KpmDataflowBackend:
         for intr in design.interconnects:
             self.add_interconnect(graph, intr, ref)
 
+        for domain in design.clock_domains:
+            self.add_clock_domain(graph, domain, ref)
+
+        for domain in design.reset_domains:
+            self.add_reset_domain(graph, domain, ref)
+
         return graph
 
     def add_id_node(self, graph: DataflowGraph, id: Identifier):
@@ -234,6 +244,16 @@ class KpmDataflowBackend:
             )
             node.interfaces.append(kpm_intf)
             refs[(comp, id(ir_io[intf.name]))] = kpm_intf
+
+        for clock in comp.module.clocks:
+            domain = comp.clocks.get(clock._id)
+            assert domain is not None
+            node.set_property(f"Domain for clock '{clock.name}'", domain.name)
+
+        for reset in comp.module.resets:
+            domain = comp.resets.get(reset._id)
+            assert domain is not None
+            node.set_property(f"Domain for reset '{reset.name}'", domain.name)
 
     def add_external(
         self, graph: DataflowGraph, io: Union[Port, Interface], refs: _REFTYPE
@@ -353,6 +373,48 @@ class KpmDataflowBackend:
                 params = params.to_dict()
             set = yaml.safe_dump(params, default_flow_style=True).strip()[1:-1]
             node.properties.append(Property(name=pname.value, value=set))
+
+    def add_clock_domain(self, graph: DataflowGraph, domain: ClockDomain, ref: _REFTYPE):
+        node = graph.create_node(
+            name=ClockDomainMetanode.name,
+            instance_name=ClockDomainMetanode.name,
+        )
+
+        node.set_property(DomainMetanodeStrings.DOMAIN_PROP.value, domain.name)
+
+        self._connect(
+            graph,
+            ref[(domain.clock.instance, id(domain.clock.io))],
+            node.interfaces[0],
+        )
+
+    def add_reset_domain(self, graph: DataflowGraph, domain: ResetDomain, ref: _REFTYPE):
+        node = graph.create_node(
+            name=ResetDomainMetanode.name,
+            instance_name=ResetDomainMetanode.name,
+        )
+
+        node.set_property(DomainMetanodeStrings.DOMAIN_PROP.value, domain.name)
+
+        polarity = None
+        if domain.polarity == ResetPolarity.ACTIVE_LOW:
+            polarity = "active low"
+        elif domain.polarity == ResetPolarity.ACTIVE_HIGH:
+            polarity = "active high"
+        else:
+            raise ValueError(f"Illegal value {domain.polarity} for reset polarity")
+        node.set_property(DomainMetanodeStrings.POLARITY_PROP.value, polarity)
+
+        node.set_property(
+            DomainMetanodeStrings.SYNCHR_PROP.value,
+            domain.synchronous_to.name if domain.synchronous_to is not None else "",
+        )
+
+        self._connect(
+            graph,
+            ref[(domain.reset.instance, id(domain.reset.io))],
+            node.interfaces[0],
+        )
 
     def _connect(self, graph: DataflowGraph, i1: KpmInterface, i2: KpmInterface):
         if i1.direction == Direction.INPUT:

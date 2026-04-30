@@ -46,6 +46,7 @@ EXT_COLOR = "#ffffff"
 EXT_INTF_TYPE = "intf__ext"
 INTF_COLOR = "#5ad1cd"
 INTF_CONN_STYLE = KpmConnPattern.DASHED
+CLOCK_INTF_TYPE = "intf__clock"
 
 
 class KpmNodeAdditionalData(TypedDict):
@@ -235,5 +236,64 @@ class InverterMetanode(Metanode):
         default_factory=lambda: [
             KpmInterface("in", KpmDirection.INPUT.value, interfacetype=PORT_INTF_TYPE),
             KpmInterface("out", KpmDirection.OUTPUT.value, interfacetype=PORT_INTF_TYPE),
+        ]
+    )
+
+
+class DomainMetanodeStrings(Enum):
+    CLOCK_PORT = "clock"
+    RESET_PORT = "reset"
+    DOMAIN_PROP = "Domain"
+    POLARITY_PROP = "Polarity"
+    SYNCHR_PROP = "Synchronous to"
+
+
+@dataclass
+class ClockDomainMetanode(Metanode):
+    name: str = "Clock domain"
+    interfaces: list[KpmInterface] = field(
+        default_factory=lambda: [
+            KpmInterface(
+                DomainMetanodeStrings.CLOCK_PORT.value,
+                KpmDirection.INPUT.value,
+                interfacetype=PORT_INTF_TYPE,
+            ),
+        ]
+    )
+    properties: list[KpmProperty] = field(
+        default_factory=lambda: [
+            KpmProperty(
+                DomainMetanodeStrings.DOMAIN_PROP.value, KpmPropertyType.TEXT.value, "default"
+            ),
+        ]
+    )
+
+
+@dataclass
+class ResetDomainMetanode(Metanode):
+    name: str = "Reset domain"
+    interfaces: list[KpmInterface] = field(
+        default_factory=lambda: [
+            KpmInterface(
+                DomainMetanodeStrings.RESET_PORT.value,
+                KpmDirection.INPUT.value,
+                interfacetype=PORT_INTF_TYPE,
+            ),
+        ]
+    )
+    properties: list[KpmProperty] = field(
+        default_factory=lambda: [
+            KpmProperty(
+                DomainMetanodeStrings.DOMAIN_PROP.value, KpmPropertyType.TEXT.value, "default"
+            ),
+            KpmProperty(
+                DomainMetanodeStrings.POLARITY_PROP.value,
+                KpmPropertyType.SELECT.value,
+                values=["active high", "active low"],
+                default="active high",
+            ),
+            KpmProperty(
+                DomainMetanodeStrings.SYNCHR_PROP.value, KpmPropertyType.TEXT.value, "default"
+            ),
         ]
     )

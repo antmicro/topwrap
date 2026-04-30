@@ -10,12 +10,14 @@ from pipeline_manager.specification_builder import (
 )
 
 from topwrap.backend.kpm.common import (
+    CLOCK_INTF_TYPE,
     EXT_COLOR,
     EXT_INTF_TYPE,
     INTF_COLOR,
     INTF_CONN_STYLE,
     PORT_COLOR,
     PORT_INTF_TYPE,
+    ClockDomainMetanode,
     ConstMetanode,
     IdentifierMetanode,
     InterconnectMetanode,
@@ -26,6 +28,7 @@ from topwrap.backend.kpm.common import (
     KpmPropertyType,
     LayerType,
     Metanode,
+    ResetDomainMetanode,
     kpm_dir_from,
 )
 from topwrap.kpm_common import SPECIFICATION_VERSION
@@ -60,6 +63,8 @@ class KpmSpecificationBackend:
         self._add_metanode(ConstMetanode())
         self._add_metanode(IdentifierMetanode())
         self._add_metanode(InverterMetanode())
+        self._add_metanode(ClockDomainMetanode())
+        self._add_metanode(ResetDomainMetanode())
         self._update_metanodes()
         return self
 
@@ -100,14 +105,30 @@ class KpmSpecificationBackend:
                 side=Side.RIGHT.value if intf.mode == InterfaceMode.UNSPECIFIED else None,
             )
 
+        clock_reset_ports = set(clock.clock._id for clock in mod.clocks) | set(
+            reset.reset._id for reset in mod.resets
+        )
+
         for port in mod.non_intf_ports():
             self._spec.add_node_type_interface(
                 nid.name,
                 port.name,
-                PORT_INTF_TYPE,
+                [PORT_INTF_TYPE, CLOCK_INTF_TYPE]
+                if port._id in clock_reset_ports
+                else PORT_INTF_TYPE,
                 kpm_dir_from(port.direction).value,
                 maxcount=-1,
                 side=Side.RIGHT.value if port.direction == PortDirection.INOUT else None,
+            )
+
+        for clock in mod.clocks:
+            self._spec.add_node_type_property(
+                nid.name, f"Domain for clock '{clock.name}'", KpmPropertyType.TEXT.value, "default"
+            )
+
+        for reset in mod.resets:
+            self._spec.add_node_type_property(
+                nid.name, f"Domain for reset '{reset.name}'", KpmPropertyType.TEXT.value, "default"
             )
 
         if recursive and mod.design is not None:
@@ -212,5 +233,8 @@ class KpmSpecificationBackend:
         for layer in LayerType:
             self._spec.metadata_add_layer(layer.value, [layer.value])
 
+        self._spec.metadata_add_layer("Clock and reset ports", [], [CLOCK_INTF_TYPE])
+
         self._spec.metadata_add_interface_styling(PORT_INTF_TYPE, PORT_COLOR)
+        self._spec.metadata_add_interface_styling(CLOCK_INTF_TYPE, PORT_COLOR)
         self._spec.metadata_add_interface_styling(EXT_INTF_TYPE, EXT_COLOR)
