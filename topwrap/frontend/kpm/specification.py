@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
@@ -96,13 +96,25 @@ class KpmSpecificationFrontend:
 
             prop: JsonType
             for prop in node.get("properties", ()):
+                # skip clock/reset domain assignment properties
+                if prop["name"].startswith("Domain for"):
+                    continue
                 mod.add_parameter(
                     Parameter(name=prop["name"], default_value=ElaboratableValue(prop["default"]))
                 )
 
             intf: JsonType
             for intf in node.get("interfaces", ()):
-                type: str = intf["type"]
+                type: str = ""
+                if isinstance(intf["type"], str):
+                    type = intf["type"]
+                elif PORT_INTF_TYPE in intf["type"]:
+                    type = PORT_INTF_TYPE
+                else:
+                    raise KpmFrontendParseException(
+                        f"Unexpected KPM interface type '{intf['type']}'"
+                    )
+
                 dir = cast(
                     Direction,
                     Direction._value2member_map_[intf.get("direction", Direction.INOUT.value)],

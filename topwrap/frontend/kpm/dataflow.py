@@ -18,11 +18,14 @@ from pipeline_manager.dataflow_builder.entities import Interface as KpmInterface
 from pipeline_manager.dataflow_builder.entities import Node, NodeAttributeType, Property
 
 from topwrap.backend.kpm.common import (
+    ClockDomainMetanode,
     ConstMetanode,
+    DomainMetanodeStrings,
     IdentifierMetanode,
     InterconnectMetanode,
     InverterMetanode,
     IoMetanode,
+    ResetDomainMetanode,
 )
 from topwrap.backend.kpm.common import InterconnectMetanodeStrings as IMS
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
@@ -35,6 +38,7 @@ from topwrap.frontend.kpm.common import (
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import (
+    Clock,
     Connection,
     ConstantConnection,
     InterfaceConnection,
@@ -43,12 +47,14 @@ from topwrap.model.connections import (
     ReferencedInterface,
     ReferencedIO,
     ReferencedPort,
+    Reset,
+    ResetPolarity,
 )
-from topwrap.model.design import ModuleInstance
+from topwrap.model.design import ClockDomain, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit, Logic
 from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import Interface, InterfaceDefinition
-from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId
+from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId, QuerableView
 from topwrap.model.module import Design, Module
 from topwrap.util import JsonType, UnreachableError
 
@@ -99,11 +105,63 @@ class _KpmDataflowInstanceData:
     #: Maps a KPM interface to every other interface connected to it
     intfconnmap: dict[KpmIntfId, list[KpmUniqueInterface]]
 
+    #: List of all inverter nodes.
+    inverters: list[Node]
+
+    #: Maps inverter interfaces to their nodes of origin.
+    inverter_intfs: dict[KpmUniqueInterface, Node]
+
+    #: Maps between inverter nodes and interfaces connected to their inputs.
+    to_inverter_conns: dict[str, KpmUniqueInterface]
+
+    #: Maps between inverter nodes and interfaces connected to their outputs.
+    from_inverter_conns: dict[str, KpmUniqueInterface]
+
+    #: List of clock domain nodes.
+    clock_doms: list[Node]
+
+    #: Maps between clock domain interfaces and their nodes of origin.
+    clock_dom_intfs: dict[KpmUniqueInterface, Node]
+
+    #: Maps between clock domain nodes and interfaces connected to their inputs.
+    to_clock_dom_conns: dict[str, KpmUniqueInterface]
+
+    #: List of reset domain nodes.
+    reset_doms: list[Node]
+
+    #: Maps between reset domain interfaces and their nodes of origin.
+    reset_dom_intfs: dict[KpmUniqueInterface, Node]
+
+    #: Maps between reset domain nodes and interfaces connected to their inputs.
+    to_reset_dom_conns: dict[str, KpmUniqueInterface]
+
+    #: Maps clock inputs of a particular instance to the domain names they're assigned to.
+    pending_clk_assignments: dict[tuple[ObjectId[ModuleInstance], ObjectId[Clock]], str]
+
+    #: Maps reset inputs of a particular instance to the domain names they're assigned to.
+    pending_rst_assignments: dict[tuple[ObjectId[ModuleInstance], ObjectId[Reset]], str]
+
     def __init__(self, spec: JsonType, flow: JsonType):
         self.refmap = {}
         self.skip_iface_conns = []
         self.intfnodemap = {}
         self.intfconnmap = {}
+
+        self.inverters = []
+        self.inverter_intfs = {}
+        self.to_inverter_conns = {}
+        self.from_inverter_conns = {}
+
+        self.clock_doms = []
+        self.clock_dom_intfs = {}
+        self.to_clock_dom_conns = {}
+
+        self.reset_doms = []
+        self.reset_dom_intfs = {}
+        self.to_reset_dom_conns = {}
+
+        self.pending_clk_assignments = {}
+        self.pending_rst_assignments = {}
 
         self.flow = GraphBuilder(spec, SPECIFICATION_VERSION)
 
@@ -181,11 +239,6 @@ class KpmDataflowFrontend:
 
         unrealised_intrs = list[Node]()
 
-        inverters = list[Node]()
-        inverter_intfs = dict[KpmUniqueInterface, Node]()
-        to_inverter_conns = dict[str, KpmUniqueInterface]()
-        from_inverter_conns = dict[str, KpmUniqueInterface]()
-
         for node in graph._nodes.values():
             if not is_metanode(node.name):
                 mod.design.add_component(self._create_mod_instance(source, graph, node, data))
@@ -209,9 +262,15 @@ class KpmDataflowFrontend:
                             f"({node.id}) doesn't have an exposed interface"
                         )
                 elif node.name == InverterMetanode.name:
-                    inverters.append(node)
-                    inverter_intfs[KpmUniqueInterface(graph, node.interfaces[0])] = node
-                    inverter_intfs[KpmUniqueInterface(graph, node.interfaces[1])] = node
+                    data.inverters.append(node)
+                    data.inverter_intfs[KpmUniqueInterface(graph, node.interfaces[0])] = node
+                    data.inverter_intfs[KpmUniqueInterface(graph, node.interfaces[1])] = node
+                elif node.name == ClockDomainMetanode.name:
+                    data.clock_doms.append(node)
+                    data.clock_dom_intfs[KpmUniqueInterface(graph, node.interfaces[0])] = node
+                elif node.name == ResetDomainMetanode.name:
+                    data.reset_doms.append(node)
+                    data.reset_dom_intfs[KpmUniqueInterface(graph, node.interfaces[0])] = node
 
             for intf in node.interfaces:
                 if intf.external_name is not None:
@@ -220,17 +279,43 @@ class KpmDataflowFrontend:
         for node in unrealised_intrs:
             mod.design.add_interconnect(self._create_interconnect(graph, node, data))
 
+        self._process_connections(mod, data, graph)
+
+        self._create_inverter_conns(mod, data)
+
+        self._create_clock_domains(mod, data)
+        self._create_reset_domains(mod, data)
+        self._realize_clock_reset_assignments(mod, data)
+
+        return mod
+
+    def _process_connections(
+        self,
+        mod: Module,
+        data: _KpmDataflowInstanceData,
+        graph: DataflowGraph,
+    ):
+        assert mod.design is not None
+
         for conn in graph._connections.values():
             from_uniq = KpmUniqueInterface(graph, conn.from_interface)
             to_uniq = KpmUniqueInterface(graph, conn.to_interface)
             special_conn = False
 
-            if from_uniq in inverter_intfs:
-                from_inverter_conns[inverter_intfs[from_uniq].id] = to_uniq
+            if from_uniq in data.inverter_intfs:
+                data.from_inverter_conns[data.inverter_intfs[from_uniq].id] = to_uniq
                 special_conn = True
 
-            if to_uniq in inverter_intfs:
-                to_inverter_conns[inverter_intfs[to_uniq].id] = from_uniq
+            if to_uniq in data.inverter_intfs:
+                data.to_inverter_conns[data.inverter_intfs[to_uniq].id] = from_uniq
+                special_conn = True
+
+            if to_uniq in data.clock_dom_intfs:
+                data.to_clock_dom_conns[data.clock_dom_intfs[to_uniq].id] = from_uniq
+                special_conn = True
+
+            if to_uniq in data.reset_dom_intfs:
+                data.to_reset_dom_conns[data.reset_dom_intfs[to_uniq].id] = from_uniq
                 special_conn = True
 
             if special_conn:
@@ -247,33 +332,26 @@ class KpmDataflowFrontend:
                     )
                 )
 
-        self._create_inverter_conns(mod, data, inverters, to_inverter_conns, from_inverter_conns)
-
-        return mod
-
     def _create_inverter_conns(
         self,
         mod: Module,
         data: _KpmDataflowInstanceData,
-        inverters: list[Node],
-        to_inverter_conns: dict[str, KpmUniqueInterface],
-        from_inverter_conns: dict[str, KpmUniqueInterface],
     ):
         assert mod.design is not None
 
-        for node in inverters:
-            if node.id not in to_inverter_conns:
+        for node in data.inverters:
+            if node.id not in data.to_inverter_conns:
                 raise KpmFrontendParseException(
                     f"Inverter node ({node.id}) does not have anything connected to it's input"
                 )
 
-            if node.id not in from_inverter_conns:
+            if node.id not in data.from_inverter_conns:
                 raise KpmFrontendParseException(
                     f"Inverter node ({node.id}) does not have anything connected to it's output"
                 )
 
-            from_intf = to_inverter_conns[node.id]
-            to_intf = from_inverter_conns[node.id]
+            from_intf = data.to_inverter_conns[node.id]
+            to_intf = data.from_inverter_conns[node.id]
 
             if from_intf not in data.refmap:
                 raise KpmFrontendParseException(
@@ -293,6 +371,96 @@ class KpmDataflowFrontend:
                     invert=True,
                 )
             )
+
+    def _create_clock_domains(
+        self,
+        mod: Module,
+        data: _KpmDataflowInstanceData,
+    ):
+        assert mod.design is not None
+
+        for dom in data.clock_doms:
+            props = QuerableView(dom.properties)
+
+            name = props.find_by_name_or_error(DomainMetanodeStrings.DOMAIN_PROP.value).value
+            intf = data.to_clock_dom_conns[dom.id]
+            port = data.refmap.get(intf)
+
+            assert isinstance(port, ReferencedPort)
+
+            mod.design.add_clock_domain(
+                ClockDomain(
+                    name=name,
+                    clock=port,
+                )
+            )
+
+    def _create_reset_domains(
+        self,
+        mod: Module,
+        data: _KpmDataflowInstanceData,
+    ):
+        assert mod.design is not None
+
+        for dom in data.reset_doms:
+            props = QuerableView(dom.properties)
+
+            name = props.find_by_name_or_error(DomainMetanodeStrings.DOMAIN_PROP.value).value
+            intf = data.to_reset_dom_conns[dom.id]
+            port = data.refmap.get(intf)
+
+            polarity = ResetPolarity(
+                props.find_by_name_or_error(DomainMetanodeStrings.POLARITY_PROP.value).value
+            )
+            clock_name = props.find_by_name_or_error(DomainMetanodeStrings.SYNCHR_PROP.value).value
+
+            synchronous_to = None
+            if clock_name and clock_name != "none":
+                synchronous_to = mod.design.clock_domains.find_by_name(clock_name)
+                if not synchronous_to:
+                    raise KpmFrontendParseException(
+                        f"Reset domain '{name}' synchronous to non-existent clock '{clock_name}'"
+                    )
+
+            assert isinstance(port, ReferencedPort)
+
+            mod.design.add_reset_domain(
+                ResetDomain(
+                    name=name,
+                    reset=port,
+                    polarity=polarity,
+                    synchronous_to=synchronous_to,
+                )
+            )
+
+    def _realize_clock_reset_assignments(
+        self,
+        mod: Module,
+        data: _KpmDataflowInstanceData,
+    ):
+        assert mod.design is not None
+
+        for (inst_id, clk_id), dom_name in data.pending_clk_assignments.items():
+            inst = inst_id.resolve()
+            dom = mod.design.clock_domains.find_by_name(dom_name)
+            if dom is None:
+                raise KpmFrontendParseException(
+                    f"Clock '{clk_id.resolve().name}' of instance '{inst.name}' of "
+                    f"module '{mod.id.name}' references non-existent clock domain '{dom_name}'"
+                )
+
+            inst.clocks[clk_id] = dom
+
+        for (inst_id, rst_id), dom_name in data.pending_rst_assignments.items():
+            inst = inst_id.resolve()
+            dom = mod.design.reset_domains.find_by_name(dom_name)
+            if dom is None:
+                raise KpmFrontendParseException(
+                    f"Reset '{rst_id.resolve().name}' of instance '{inst.name}' of "
+                    f"module '{mod.id.name}' references non-existent reset domain '{dom_name}'"
+                )
+
+            inst.resets[rst_id] = dom
 
     def _create_mod_instance(
         self,
@@ -328,6 +496,20 @@ class KpmDataflowFrontend:
                 data.refmap[uintf] = ReferencedInterface(instance=inst, io=twints[intf.name])
             elif intf.name in twports:
                 data.refmap[uintf] = ReferencedPort(instance=inst, io=twports[intf.name])
+
+        for clock in module.clocks:
+            props = QuerableView(node.properties)
+            propname = f"Domain for clock '{clock.name}'"
+
+            if (prop := props.find_by_name(propname)) is not None:
+                data.pending_clk_assignments[(inst._id, clock._id)] = prop.value
+
+        for reset in module.resets:
+            props = QuerableView(node.properties)
+            propname = f"Domain for reset '{reset.name}'"
+
+            if (prop := props.find_by_name(propname)) is not None:
+                data.pending_rst_assignments[(inst._id, reset._id)] = prop.value
 
         return inst
 

@@ -4,11 +4,13 @@
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
 from topwrap.backend.kpm.common import (
+    ClockDomainMetanode,
     ConstMetanode,
     IdentifierMetanode,
     InterconnectMetanode,
     InverterMetanode,
     IoMetanode,
+    ResetDomainMetanode,
 )
 from topwrap.frontend.frontend import FrontendParseException
 from topwrap.model.connections import PortDirection
@@ -27,6 +29,8 @@ def is_metanode(node_name: str) -> bool:
         InterconnectMetanode.name,
         IdentifierMetanode.name,
         InverterMetanode.name,
+        ClockDomainMetanode.name,
+        ResetDomainMetanode.name,
     ]
 
 
