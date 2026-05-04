@@ -1,6 +1,7 @@
 # Copyright (c) 2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 from pathlib import Path
 from typing import Any, Callable, Iterable, Optional, Union
 
@@ -16,6 +17,8 @@ from topwrap.frontend.frontend import (
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.module import Module
+
+logger = logging.getLogger(__name__)
 
 
 class YamlFrontend(Frontend):
@@ -39,9 +42,10 @@ class YamlFrontend(Frontend):
 
     def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         modules = list[Module]()
-        designs = []
+        designs: list[tuple[Path, Any]] = []
 
         for src in sources:
+            logger.debug("Parsing file {}".format(src))
             with open(src) as f:
                 [module, design] = self._parse_source(
                     IPCoreDescriptionFrontend.parse_file, str(src), src, yaml.safe_load(f)
@@ -49,10 +53,22 @@ class YamlFrontend(Frontend):
                 if module:
                     modules.append(module)
                 if design:
-                    designs.append(design)
+                    design_data = src, design
+                    designs.append(design_data)
 
-        for des in designs:
+        for src, des in designs:
+            logger.info("Analyzing source {}".format(src))
             modules.append(DesignDescriptionFrontend(self.modules + modules).parse_file(des).parent)
+            params = modules[-1].parameters
+            ports = modules[-1].ports
+            interfaces = modules[-1].interfaces
+            for p in params:
+                logger.info("Found parameter {}".format(p.name))
+            for p in ports:
+                logger.info("Found port {} {}".format(p.name, p.direction.name))
+            for i in interfaces:
+                logger.info("Found interface {}".format(i.name))
+
         return FrontendParseOutput(modules=modules)
 
     def parse_str(

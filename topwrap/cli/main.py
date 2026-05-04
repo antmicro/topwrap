@@ -4,6 +4,7 @@
 import asyncio
 import json
 import logging
+import logging.config
 import queue
 import subprocess
 import sys
@@ -11,10 +12,11 @@ import threading
 import webbrowser
 from itertools import chain
 from pathlib import Path
-from typing import Any, Callable, Coroutine, Optional, Tuple
+from typing import Any, Callable, Coroutine, Optional, Tuple, Union
 
 import click
 
+import topwrap.logger
 from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
 from topwrap.cli import (
@@ -55,7 +57,14 @@ click_w_file = click.Path(
 @click.option(
     "--log-level",
     type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]),
-    default="INFO",
+    default=None,
+    show_default=True,
+    help="Log level",
+)
+@click.option(
+    "--log-cfg",
+    default=None,
+    type=RepositoryPathParam(path_type=Path),
     show_default=True,
     help="Log level",
 )
@@ -65,9 +74,9 @@ click_w_file = click.Path(
     type=RepositoryPathParam(path_type=Path),
     help="Additional user repository to load",
 )
-def main(log_level: str, repo: tuple[Path]):
-    logging.basicConfig(level=log_level)
-    logging.getLogger().setLevel(log_level)
+def main(log_level: Union[str, None], log_cfg: Union[Path, None], repo: tuple[Path]):
+    topwrap.logger.configure(log_level, log_cfg)
+
     for rep in repo:
         config.repositories[rep.name] = FileReferenceHandler(rep)
 

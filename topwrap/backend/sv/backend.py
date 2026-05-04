@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import copy
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import ClassVar, Iterable, Iterator, Optional
@@ -14,9 +15,8 @@ from topwrap.backend.generator import GeneratorNotImplementedError
 from topwrap.backend.sv.common import SVFile, SVFileType, get_template
 from topwrap.backend.sv.design import SystemVerilogDesignBackend
 from topwrap.backend.sv.generators import verilog_generators_map
-from topwrap.model.connections import (
-    PortDirection,
-)
+from topwrap.logger import log_module_interfaces
+from topwrap.model.connections import PortDirection
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import BitStruct, Logic
 from topwrap.model.interconnect import Interconnect
@@ -27,6 +27,8 @@ from topwrap.model.interface import (
 )
 from topwrap.model.misc import ObjectId
 from topwrap.model.module import Module
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -81,6 +83,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
         :raises InterconnectGenerationError: Raised when there is problem with generating HDL code
             in one of `Interconnect`s
         """
+
         pkg_items = dict[str, Logic]()
         if module.design is not None and len(module.design.interconnects) > 0:
             used_module = copy.deepcopy(module)
@@ -118,6 +121,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
                     des = Design()
                     des.parent = mod
                     mods_to_repr.append(des)
+            log_module_interfaces(logger, mod)
 
         design = used_module.design
 

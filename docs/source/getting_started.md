@@ -183,3 +183,12 @@ Where `{design_name.yaml}` is the design saved at the end of the previous sectio
 ### Synthesis & FuseSoC
 
 You can additionally generate a [FuseSoC core](#fusesoc) file during `topwrap build` to automate further synthesis and implementation by simply adding the `-f` (`--fuse`) option.
+
+### Logging
+
+Topwrap uses Python’s built-in `logging` module. By default, logging is configured with the `WARNING` level.
+The default can be changed using the `--log-level` option:
+
+```bash
+topwrap --log-level DEBUG build --design {design_name.yaml}
+```
