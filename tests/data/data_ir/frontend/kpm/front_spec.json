@@ -9,6 +9,9 @@
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       },
+      "intf__clock": {
+        "interfaceColor": "#00ca7c"
+      },
       "intf__ext": {
         "interfaceColor": "#ffffff"
       },
@@ -25,6 +28,13 @@
       }
     },
     "layers": [
+      {
+        "name": "Clock and reset ports",
+        "nodeInterfaces": [
+          "intf__clock"
+        ],
+        "nodeLayers": []
+      },
       {
         "name": "Constants",
         "nodeLayers": [
@@ -173,6 +183,25 @@
       ],
       "layer": "IP Cores",
       "name": "4-bit counter"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "clock",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Clock domain",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain",
+          "type": "text"
+        }
+      ]
     },
     {
       "abstract": false,
@@ -398,6 +427,39 @@
     },
     {
       "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "reset",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Reset domain",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain",
+          "type": "text"
+        },
+        {
+          "default": "active high",
+          "name": "Polarity",
+          "type": "select",
+          "values": [
+            "active high",
+            "active low"
+          ]
+        },
+        {
+          "default": "default",
+          "name": "Synchronous to",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
       "additionalData": {
         "full_module_id": {
           "library": "libdefault",
@@ -501,6 +563,179 @@
         {
           "default": "64",
           "name": "CIF_DATA_WIDTH",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axis_cdc",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk_a",
+          "type": [
+            "intf__clock",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk_b",
+          "type": [
+            "intf__clock",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "io_a",
+          "type": "amba.com_AMBA4_AXI 4 Stream"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "io_b",
+          "type": "amba.com_AMBA4_AXI 4 Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": [
+            "intf__clock",
+            "intf__port"
+          ]
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axis_cdc",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain for clock 'clk_a'",
+          "type": "text"
+        },
+        {
+          "default": "default",
+          "name": "Domain for clock 'clk_b'",
+          "type": "text"
+        },
+        {
+          "default": "default",
+          "name": "Domain for reset 'rst'",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axis_clk_receiver",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk",
+          "type": [
+            "intf__clock",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "io",
+          "type": "amba.com_AMBA4_AXI 4 Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": [
+            "intf__clock",
+            "intf__port"
+          ]
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axis_clk_receiver",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain for clock 'clk'",
+          "type": "text"
+        },
+        {
+          "default": "default",
+          "name": "Domain for reset 'rst'",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "axis_clk_streamer",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk",
+          "type": [
+            "intf__clock",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": 1,
+          "name": "io",
+          "type": "amba.com_AMBA4_AXI 4 Stream"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": [
+            "intf__clock",
+            "intf__port"
+          ]
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "axis_clk_streamer",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain for clock 'clk'",
+          "type": "text"
+        },
+        {
+          "default": "default",
+          "name": "Domain for reset 'rst'",
           "type": "text"
         }
       ]
@@ -622,6 +857,39 @@
       ],
       "layer": "IP Cores",
       "name": "char_processor"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "library": "libdefault",
+          "name": "clk_top",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "fast_clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "rst",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "clk_top"
     },
     {
       "abstract": false,

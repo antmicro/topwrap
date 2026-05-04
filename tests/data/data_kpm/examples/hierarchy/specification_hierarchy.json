@@ -5,6 +5,9 @@
     "backgroundSize": 15,
     "connectionStyle": "orthogonal",
     "interfaces": {
+      "intf__clock": {
+        "interfaceColor": "#00ca7c"
+      },
       "intf__ext": {
         "interfaceColor": "#ffffff"
       },
@@ -13,6 +16,13 @@
       }
     },
     "layers": [
+      {
+        "name": "Clock and reset ports",
+        "nodeInterfaces": [
+          "intf__clock"
+        ],
+        "nodeLayers": []
+      },
       {
         "name": "Constants",
         "nodeLayers": [
@@ -78,6 +88,25 @@
     "welcome": false
   },
   "nodes": [
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "clock",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Clock domain",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain",
+          "type": "text"
+        }
+      ]
+    },
     {
       "abstract": false,
       "category": "Metanode",
@@ -239,6 +268,39 @@
       ],
       "name": "Inverter",
       "style": "inverter"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "reset",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Reset domain",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain",
+          "type": "text"
+        },
+        {
+          "default": "active high",
+          "name": "Polarity",
+          "type": "select",
+          "values": [
+            "active high",
+            "active low"
+          ]
+        },
+        {
+          "default": "default",
+          "name": "Synchronous to",
+          "type": "text"
+        }
+      ]
     },
     {
       "abstract": false,
