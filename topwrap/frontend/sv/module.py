@@ -3328,6 +3328,13 @@ class SystemVerilogSlangParser:
             )
             return
 
+        if not param_ast.name:
+            logger.warning(
+                f"Got empty parameter in parameter list: '{param_ast}' of "
+                f"{param_ast.lexicalPath}. Parameter list likely contains extraneous commas."
+            )
+            return
+
         def_val = None if def_val is None else ElaboratableValue(def_val)
         return Parameter(name=param_ast.name, default_value=def_val)
 

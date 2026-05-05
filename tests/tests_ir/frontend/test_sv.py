@@ -43,6 +43,16 @@ class TestSystemVerilogSlangParser:
         ]
         assert mod.ports == [Port(name="a", direction=PortDirection.IN, type=Bit())]
 
+    def test_empty_parameter(self):
+        front = SystemVerilogSlangParser()
+        mod_str = """module abc #(, parameter X = 32)(input logic a);
+                     endmodule"""
+        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        assert mod.parameters == [
+            Parameter(name="X", default_value=ElaboratableValue("32")),
+        ]
+        assert mod.ports == [Port(name="a", direction=PortDirection.IN, type=Bit())]
+
     def test_unpacked(self):
         front = SystemVerilogSlangParser()
         mod_str = """module abc (output logic sigs[4]); endmodule"""
