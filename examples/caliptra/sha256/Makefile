@@ -6,7 +6,7 @@ JSONS = kpm_spec.json kpm_dataflow.json
 all: $(JSONS)
 
 $(JSONS) &: kpm_build.py
-	[ ! -d "../Caliptra" ] && git clone https://github.com/chipsalliance/caliptra-rtl.git ../Caliptra || true || true
+	if [ ! -d "../Caliptra" ]; then git clone https://github.com/chipsalliance/caliptra-rtl.git ../Caliptra; fi
 	python -m kpm_build
 
 clean:
