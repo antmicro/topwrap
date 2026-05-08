@@ -1,4 +1,7 @@
-name: memory_block
+id:
+  name: memory_block
+  vendor: vendor
+  library: libdefault
 
 signals:
   in:

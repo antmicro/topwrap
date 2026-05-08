@@ -1,4 +1,7 @@
-name: axis_streamer
+id:
+  name: axis_streamer
+  vendor: vendor
+  library: libdefault
 
 signals:
   in:

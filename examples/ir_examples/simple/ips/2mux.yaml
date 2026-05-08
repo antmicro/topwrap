@@ -1,4 +1,7 @@
-name: 2mux_compressor
+id:
+  name: 2mux_compressor
+  vendor: vendor
+  library: libdefault
 
 parameters:
   WIDTH: 64

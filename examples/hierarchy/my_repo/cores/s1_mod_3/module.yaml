@@ -1,0 +1,11 @@
+id:
+  library: libdefault
+  name: s1_mod_3
+  vendor: vendor
+parameters:
+  SUB_VALUE: '18'
+signals:
+  in:
+  - {name: cs_s1_mint_in_2}
+  out:
+  - {name: cs_s1_f_int_out_2}

@@ -1,0 +1,11 @@
+id:
+  library: libdefault
+  name: c_mod_1
+  vendor: vendor
+parameters:
+  MAX_VALUE: '32'
+signals:
+  in:
+  - {name: c_mod_in_1}
+  out:
+  - {name: c_int_out_1}

@@ -1,4 +1,7 @@
-name: wishbone_passthrough
+id:
+  name: wishbone_passthrough
+  vendor: vendor
+  library: libdefault
 
 parameters:
   AW: 32

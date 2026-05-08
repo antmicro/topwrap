@@ -1,4 +1,7 @@
-name: adder
+id:
+  name: adder
+  vendor: vendor
+  library: libdefault
 
 parameters:
   WIDTH: 4

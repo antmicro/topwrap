@@ -1,0 +1,11 @@
+id:
+  library: libdefault
+  name: c_mod_3
+  vendor: vendor
+signals:
+  in:
+  - {name: c_int_in_1}
+  - {name: c_int_in_2}
+  - {name: c_int_const_in}
+  out:
+  - {name: c_mod_out_1}

@@ -1,4 +1,7 @@
-name: debouncer
+id:
+  name: debouncer
+  vendor: vendor
+  library: libdefault
 
 parameters:
   GRACE: 1000

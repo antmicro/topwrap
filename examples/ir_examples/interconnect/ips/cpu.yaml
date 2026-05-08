@@ -1,4 +1,7 @@
-name: example_cpu
+id:
+  name: example_cpu
+  vendor: vendor
+  library: libdefault
 
 signals:
   in:

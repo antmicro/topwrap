@@ -1,4 +1,7 @@
-name: axis_cdc
+id:
+  vendor: vendor
+  library: libdefault
+  name: axis_cdc
 
 signals:
   in:

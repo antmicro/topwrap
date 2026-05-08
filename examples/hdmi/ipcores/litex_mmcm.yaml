@@ -1,7 +1,10 @@
-# Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
-name: litex_mmcm
+id:
+  library: libdefault
+  vendor: vendor
+  name: litex_mmcm
 
 interfaces:
     axi:

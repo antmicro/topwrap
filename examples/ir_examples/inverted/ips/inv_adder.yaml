@@ -1,4 +1,7 @@
-name: inv_adder
+id:
+  name: inv_adder
+  vendor: vendor
+  library: libdefault
 
 signals:
   in:

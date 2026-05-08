@@ -25,11 +25,11 @@ hierarchies:
             - cs_s1_empty_out
         ips:
           s1_mod_1:
-            file: file:repo/cores/s1_mod_1/s1_mod_1.yaml
+            file: file:my_repo/cores/s1_mod_1/module.yaml
           s1_mod_2:
-            file: file:repo/cores/s1_mod_2/s1_mod_2.yaml
+            file: file:my_repo/cores/s1_mod_2/module.yaml
           s1_mod_3:
-            file: file:repo/cores/s1_mod_3/s1_mod_3.yaml
+            file: file:my_repo/cores/s1_mod_3/module.yaml
             parameters:
               SUB_VALUE: 18
       sub_2:
@@ -51,9 +51,9 @@ hierarchies:
             - cs_s2_mod_out_1
         ips:
           s2_mod_1:
-            file: file:repo/cores/s2_mod_1/s2_mod_1.yaml
+            file: file:my_repo/cores/s2_mod_1/module.yaml
           s2_mod_2:
-            file: file:repo/cores/s2_mod_2/s2_mod_2.yaml
+            file: file:my_repo/cores/s2_mod_2/module.yaml
     connections:
       ports:
         sub_1:
@@ -91,13 +91,13 @@ hierarchies:
         - c_out_1
     ips:
       c_mod_1:
-        file: file:repo/cores/c_mod_1/c_mod_1.yaml
+        file: file:my_repo/cores/c_mod_1/module.yaml
         parameters:
           MAX_VALUE: 16
       c_mod_2:
-        file: file:repo/cores/c_mod_2/c_mod_2.yaml
+        file: file:my_repo/cores/c_mod_2/module.yaml
       c_mod_3:
-        file: file:repo/cores/c_mod_3/c_mod_3.yaml
+        file: file:my_repo/cores/c_mod_3/module.yaml
 connections:
   ports:
     complex_sub:

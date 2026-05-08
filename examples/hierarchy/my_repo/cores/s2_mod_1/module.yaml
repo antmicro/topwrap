@@ -1,0 +1,11 @@
+id:
+  library: libdefault
+  name: s2_mod_1
+  vendor: vendor
+signals:
+  in:
+  - {name: cs_s2_f_int_in_1}
+  - {name: cs_s2_f_int_in_2}
+  out:
+  - {name: cs_s2_mint_out_2}
+  - {name: cs_s2_mint_out_1}

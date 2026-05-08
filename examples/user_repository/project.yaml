@@ -1,8 +1,8 @@
 ips:
   core1:
-    file: repo[my_repo]:example_core1
+    file: repo[my_repo]:core1
   core2:
-    file: repo[my_repo]:example_core2
+    file: repo[my_repo]:core2
 connections:
   interfaces:
     core2:

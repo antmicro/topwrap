@@ -1,4 +1,7 @@
-name: dsp_block
+id:
+  name: dsp_block
+  vendor: vendor
+  library: libdefault
 
 signals:
   in:

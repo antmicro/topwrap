@@ -1,4 +1,7 @@
-name: lfsr_gen
+id:
+  name: lfsr_gen
+  vendor: vendor
+  library: libdefault
 
 parameters:
   WIDTH: 64

@@ -1,0 +1,17 @@
+id:
+  library: libdefault
+  name: coreStream
+  vendor: vendor
+signals:
+  optional:
+    in: {}
+    inout: {}
+    out: {}
+  required:
+    in:
+      CREADY: cready
+    inout: {}
+    out:
+      CDATA: cdata
+      CKEEP: ckeep
+      CVALID: cvalid

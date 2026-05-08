@@ -1,4 +1,7 @@
-name: axis_clk_receiver
+id:
+  name: axis_clk_receiver
+  vendor: vendor
+  library: libdefault
 
 signals:
   in:

@@ -1,4 +1,7 @@
-name: inv_crg
+id:
+  name: inv_crg
+  vendor: vendor
+  library: libdefault
 
 signals:
   in:
