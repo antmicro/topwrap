@@ -25,6 +25,10 @@ ips:
     parameters:  # specify IP parameter values to be overridden
       {parameters_name} : {parameters_value}
       ...
+    clocks:
+      {module_clock_name}: {domain_name}
+    resets:
+      {module_reset_name}: {domain_name}
   ...
 
 connections:
@@ -63,6 +67,29 @@ connections:
 interconnects:
   # see the "Interconnect generation" page for a detailed description of the format
   ...
+
+clock_domains:
+  default:
+    signal: [{ip_name}, {port_name}]
+  {other_domain_name}:
+    signal: [{ip_name}, {port_name}]
+  {another_domain_name}:
+    signal: {external_port_name}
+  ...
+
+reset_domains:
+  default:
+    signal: [{ip_name}, {port_name}]
+    polarity: active high
+  {other_domain_name}:
+    signal: [{ip_name}, {port_name}]
+    polarity: active low
+  {another_domain_name}:
+    signal: {external_port_name}
+    polarity: active low
+    synchronous_to: default
+  ...
+
 external: # specify the names of external ports and interfaces of the top module
 ports:
   out:
@@ -84,6 +111,20 @@ hierarchies:
 The design description YAML format allows for creating hierarchical designs. In order to create a hierarchy, add its name as a key in the `design` section and describe the hierarchy design "recursively" by using the same keys and values (`ports`, `parameters` etc.) as in the top-level design (see above). Hierarchies can be nested recursively, which means that you can create a hierarchy inside another one.
 
 Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it is possible to have `ip_name` key in this section and `ip_name` in the `design` section of a separate hierarchy.
+
+Additionally, designs can contain clock and reset domains.
+These domains allow for automatic wiring of clock and reset inputs of IP cores, and performing sanity checks for interface connections.
+Domains reference a port that acts as the source. This may be either a module port (for example from a PLL instance), or an external port.
+
+Additionally, reset domains contain information about the reset signal's polarity and whether it's synchronous to some domain or asynchronous.
+The polarity may be either `active low` or `active high`.
+The synchronicity is specified via the `synchronous_to` key, which can be `null`/omitted if asynchronous, or otherwise specifies the name of a clock domain.
+
+When instantiating IP cores, their clocks and resets can be assigned to domains via the `clocks` and `resets` keys.
+If a domain is not assigned explicitly, the clock/reset signal is implicitly assigned to the corresponding `default` domain.
+
+For reset connections, Topwrap will automatically invert connections between resets of different polarities.
+For resets that don't have the same synchronicity, an error is raised describing the problem.
 
 ### Hierarchies
 
@@ -236,6 +277,11 @@ signals: # These ports do not belong to an interface
 The names `s_axis` and `m_axis` will be used to group the selected ports.
 Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` must connect to `TDATA: other_port_name`.
 
+Interfaces can also specify which clock and reset input of the IP core they use.
+This is done via the optional `clock` and `reset` keys, which specify the name of the input (see below).
+
+When connecting interfaces that have clock inputs assigned on both sides of the connection, Topwrap will automatically perform sanity checks, and report errors for connections between interfaces that belong to different clock domains.
+
 ### Parameterization
 
 Port widths don't have to be hardcoded, as parameters can describe an IP core in a generic way, and values specified in IP core YAMLs can be overridden in a design description file (see [Design description](description_files.md#design-description)).
@@ -263,6 +309,37 @@ interfaces:
 ```
 
 The parameter values can be integers or math expressions.
+
+### Clock and reset inputs
+
+IPs can define clock and reset inputs, which allow for automatic connections to clock/reset domains within a design.
+Each clock/reset specifies a port that is used for it.
+Additionally, reset inputs specify polarity and synchronicity similarly to reset domains in the design description.
+
+Example clock and reset definition:
+
+```yaml
+# Two independent clocks
+clocks:
+  some_clock:
+    signal: some_clock_port
+  some_other_clock:
+    signal: some_other_clock_port
+
+# Two resets, one synchronous, one asynchronous
+resets:
+  some_reset:
+    signal: some_reset_port
+    polarity: active high
+    synchronous_to: some_other_clock
+  some_other_reset:
+    signal: some_other_reset_port
+    polarity: active low
+    synchronous_to: null
+```
+
+In both cases, the `signal` key defines which of the module's ports belongs to this clock/reset.
+The `polarity` and `synchronous_to` keys are the same as the ones in the design description, with one difference: in IP cores `synchronous_to` references a clock input, not a clock domain.
 
 ## Interface description files
 
