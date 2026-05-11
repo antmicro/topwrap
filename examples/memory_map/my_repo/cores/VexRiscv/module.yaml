@@ -1,0 +1,70 @@
+id:
+  library: libdefault
+  name: VexRiscv
+  vendor: vendor
+interfaces:
+  dBusWishbone_:
+    mode: manager
+    signals:
+      in:
+        ack: {name: dBusWishbone_ACK}
+        dat_r: {bound: ['31', '0'], name: dBusWishbone_DAT_MISO}
+        err: {name: dBusWishbone_ERR}
+      out:
+        adr: {bound: ['29', '0'], name: dBusWishbone_ADR}
+        bte: {bound: ['1', '0'], name: dBusWishbone_BTE}
+        cti: {bound: ['2', '0'], name: dBusWishbone_CTI}
+        cyc: {name: dBusWishbone_CYC}
+        dat_w: {bound: ['31', '0'], name: dBusWishbone_DAT_MOSI}
+        sel: {bound: ['3', '0'], name: dBusWishbone_SEL}
+        stb: {name: dBusWishbone_STB}
+        we: {name: dBusWishbone_WE}
+    type: wishbone
+  iBusWishbone_:
+    mode: manager
+    signals:
+      in:
+        ack: {name: iBusWishbone_ACK}
+        dat_r: {bound: ['31', '0'], name: iBusWishbone_DAT_MISO}
+        err: {name: iBusWishbone_ERR}
+      out:
+        adr: {bound: ['29', '0'], name: iBusWishbone_ADR}
+        bte: {bound: ['1', '0'], name: iBusWishbone_BTE}
+        cti: {bound: ['2', '0'], name: iBusWishbone_CTI}
+        cyc: {name: iBusWishbone_CYC}
+        dat_w: {bound: ['31', '0'], name: iBusWishbone_DAT_MOSI}
+        sel: {bound: ['3', '0'], name: iBusWishbone_SEL}
+        stb: {name: iBusWishbone_STB}
+        we: {name: iBusWishbone_WE}
+    type: wishbone
+signals:
+  in:
+  - {name: dBusWishbone_ERR}
+  - {name: clk}
+  - {name: softwareInterrupt}
+  - {name: dBusWishbone_ACK}
+  - {bound: ['31', '0'], name: iBusWishbone_DAT_MISO}
+  - {name: iBusWishbone_ERR}
+  - {bound: ['31', '0'], name: dBusWishbone_DAT_MISO}
+  - {name: reset}
+  - {bound: ['31', '0'], name: externalInterruptArray}
+  - {name: iBusWishbone_ACK}
+  - {name: timerInterrupt}
+  - {bound: ['31', '0'], name: externalResetVector}
+  out:
+  - {bound: ['2', '0'], name: iBusWishbone_CTI}
+  - {bound: ['31', '0'], name: iBusWishbone_DAT_MOSI}
+  - {name: iBusWishbone_CYC}
+  - {bound: ['1', '0'], name: iBusWishbone_BTE}
+  - {name: iBusWishbone_STB}
+  - {bound: ['29', '0'], name: dBusWishbone_ADR}
+  - {name: dBusWishbone_STB}
+  - {bound: ['31', '0'], name: dBusWishbone_DAT_MOSI}
+  - {name: dBusWishbone_WE}
+  - {name: dBusWishbone_CYC}
+  - {bound: ['1', '0'], name: dBusWishbone_BTE}
+  - {bound: ['2', '0'], name: dBusWishbone_CTI}
+  - {bound: ['29', '0'], name: iBusWishbone_ADR}
+  - {bound: ['3', '0'], name: dBusWishbone_SEL}
+  - {name: iBusWishbone_WE}
+  - {bound: ['3', '0'], name: iBusWishbone_SEL}

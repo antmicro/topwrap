@@ -17,7 +17,8 @@ from topwrap.model.connections import (
     Reset,
     ResetPolarity,
 )
-from topwrap.model.interconnect import Interconnect
+from topwrap.model.interconnect import Interconnect, InterconnectSubordinateParams
+from topwrap.model.memory_map import MemoryMap
 from topwrap.model.misc import (
     ElaboratableValue,
     ModelBase,
@@ -152,6 +153,7 @@ class Design(ModelBase):
     _connections: list[Connection]
     _clock_domains: list[ClockDomain]
     _reset_domains: list[ResetDomain]
+    memory_maps: dict[str, MemoryMap]
     parent: Module
 
     def __init__(
@@ -162,6 +164,7 @@ class Design(ModelBase):
         connections: Iterable[Connection] = (),
         clock_domains: Iterable[ClockDomain] = (),
         reset_domains: Iterable[ResetDomain] = (),
+        memory_maps: Optional[dict[str, MemoryMap]] = None,
     ) -> None:
         super().__init__()
         self._components = []
@@ -169,7 +172,10 @@ class Design(ModelBase):
         self._connections = []
         self._clock_domains = []
         self._reset_domains = []
+        self.memory_maps = {}
 
+        if memory_maps is not None:
+            self.add_memory_maps(memory_maps)
         for component in components:
             self.add_component(component)
         for intercon in interconnects:
@@ -220,6 +226,11 @@ class Design(ModelBase):
     def add_reset_domain(self, domain: ResetDomain):
         set_parent(domain, self)
         self._reset_domains.append(domain)
+
+    def add_memory_maps(self, mem_maps: dict[str, MemoryMap]):
+        for memory_map in mem_maps.values():
+            memory_map.parent = self
+        self.memory_maps.update(mem_maps)
 
     def connections_with(
         self, io: ReferencedIO
@@ -365,3 +376,26 @@ class Design(ModelBase):
                     f"former is driven by domain '{src_domain.name}', while "
                     f"latter is driven by domain '{tgt_domain.name}'."
                 )
+
+    def update_interconnects_from_memory_maps(self):
+        for interconnect in self._interconnects:
+            if interconnect.memory_map:
+                for addr, entry in interconnect.memory_map.map.items():
+                    iface = entry.ref_iface
+                    size = None
+                    # First check in module.yaml
+                    if iface.io.size is not None:
+                        size = iface.io.size
+                    # Then check in design.yaml and overwrite if present
+                    if "size" in entry.parameters:
+                        size = entry.parameters["size"]
+                    if size is None:
+                        raise Exception(
+                            f"interface '{iface.instance.name}.{iface.io.name}' in "
+                            f"'{interconnect.memory_map.name}' address map don't have defines "
+                            "size in design.yaml or module.yaml"
+                        )
+                    subordinate = InterconnectSubordinateParams(
+                        address=ElaboratableValue(addr), size=ElaboratableValue(size)
+                    )
+                    interconnect.subordinates[iface._id] = subordinate

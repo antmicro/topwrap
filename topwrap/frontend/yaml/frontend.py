@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
@@ -38,7 +38,9 @@ class YamlFrontend(Frontend):
     def parse_design_file(self, source: Path) -> FrontendParseOutput:
         modules = list[Module]()
 
-        modules.append(DesignDescriptionFrontend(self.modules + modules).parse_file(source).parent)
+        ir_des = DesignDescriptionFrontend(self.modules + modules).parse_file(source)
+        ir_des.update_interconnects_from_memory_maps()
+        modules.append(ir_des.parent)
 
         return FrontendParseOutput(modules=modules)
 

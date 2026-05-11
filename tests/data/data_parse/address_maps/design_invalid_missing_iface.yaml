@@ -1,7 +1,5 @@
-# Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-
-name: top
 ips:
   soc:
     file: file:ipcores/soc.yaml
@@ -17,7 +15,10 @@ ips:
       memfile: '"top_rom.init"'
   crg:
     file: file:ipcores/crg.yaml
+  complex_subordinate:
+    file: file:ipcores/complex_subordinate.yaml
 
+name: top
 connections:
   ports:
     wb_ram_data:
@@ -68,14 +69,15 @@ external:
 memory_maps:
   map1:
     wb_ram_instr:
-      s_wishbone:
-        address: 0x00000000
-        size: 0xA000
+      address: 0x00000000
+      size: 0xA000
     wb_ram_data:
-      s_wishbone:
-        address: 0x10000000
-        size: 0x1000
+      address: 0x10000000
+      size: 0x1000
     soc:
       s_csr_wishbone:
         address: 0xF0000000
         size: 0x1000
+    complex_subordinate:
+      address: 0xA0000000
+      size: 0x10

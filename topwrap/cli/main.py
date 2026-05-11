@@ -129,6 +129,10 @@ def build_main(
     frontend = YamlFrontend(repo_modules)
     frontend_output = frontend.parse_design_file(design)
     module = frontend_output.modules[0]
+    if module.design is None:
+        logging.error("Given design YAML file does not contain a design.")
+        return
+    module.design.update_interconnects_from_memory_maps()
 
     backend = SystemVerilogBackend(existing_ifaces)
     repr = backend.represent(module)
@@ -242,6 +246,8 @@ class KPM:
                 return
 
         if design_module:
+            assert design_module.design
+            design_module.design.update_interconnects_from_memory_maps()
             try:
                 spec.add_module(design_module, recursive=True)
             except Exception:
@@ -537,6 +543,7 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
         sys.exit(1)
     spec = spec.build()
     if design_module and design_module.design:
+        design_module.design.update_interconnects_from_memory_maps()
         flow = KpmDataflowBackend(spec)
         flow.represent_design(design_module.design, depth=-1)
         spec = flow.apply_subgraphs_to_spec(spec)
@@ -564,6 +571,8 @@ def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
     if not design_module.design:
         logging.error("Given design YAML file does not contain a design.")
         sys.exit(1)
+
+    design_module.design.update_interconnects_from_memory_maps()
 
     modules = frontend.parse_module_files(list(files)).modules
 

@@ -1,0 +1,53 @@
+id:
+  library: libdefault
+  name: InstructionCache
+  vendor: vendor
+signals:
+  in:
+  - {bound: ['31', '0'], name: io_cpu_fill_payload}
+  - {name: io_cpu_fetch_mmuBus_rsp_isIoAccess}
+  - {name: io_cpu_fetch_mmuBus_rsp_exception}
+  - {name: io_cpu_prefetch_isValid}
+  - {name: reset}
+  - {bound: ['31', '0'], name: io_cpu_fetch_mmuBus_rsp_physicalAddress}
+  - {name: io_cpu_decode_isValid}
+  - {name: io_mem_rsp_valid}
+  - {name: io_cpu_fill_valid}
+  - {bound: ['31', '0'], name: io_cpu_prefetch_pc}
+  - {bound: ['31', '0'], name: io_mem_rsp_payload_data}
+  - {name: io_cpu_fetch_mmuBus_rsp_allowWrite}
+  - {name: io_cpu_fetch_mmuBus_busy}
+  - {name: io_cpu_fetch_isRemoved}
+  - {name: io_cpu_fetch_isStuck}
+  - {name: io_flush}
+  - {bound: ['31', '0'], name: io_cpu_fetch_pc}
+  - {name: io_cpu_decode_isUser}
+  - {name: io_cpu_fetch_dataBypassValid}
+  - {name: clk}
+  - {name: io_mem_cmd_ready}
+  - {bound: ['31', '0'], name: io_cpu_decode_pc}
+  - {name: io_cpu_decode_isStuck}
+  - {name: io_mem_rsp_payload_error}
+  - {bound: ['31', '0'], name: io_cpu_fetch_dataBypass}
+  - {name: io_cpu_fetch_mmuBus_rsp_allowExecute}
+  - {name: io_cpu_fetch_isValid}
+  - {name: io_cpu_fetch_mmuBus_rsp_allowRead}
+  - {name: io_cpu_fetch_mmuBus_rsp_refilling}
+  out:
+  - {name: io_cpu_fetch_mmuBus_cmd_bypassTranslation}
+  - {bound: ['31', '0'], name: io_cpu_fetch_data}
+  - {bound: ['31', '0'], name: io_cpu_decode_physicalAddress}
+  - {bound: ['31', '0'], name: io_cpu_fetch_physicalAddress}
+  - {name: io_cpu_decode_mmuException}
+  - {bound: ['31', '0'], name: io_mem_cmd_payload_address}
+  - {name: io_cpu_fetch_mmuBus_cmd_isValid}
+  - {name: io_cpu_fetch_mmuBus_end}
+  - {name: io_cpu_decode_error}
+  - {name: io_mem_cmd_valid}
+  - {name: io_cpu_prefetch_haltIt}
+  - {bound: ['31', '0'], name: io_cpu_decode_data}
+  - {bound: ['31', '0'], name: io_cpu_fetch_mmuBus_cmd_virtualAddress}
+  - {name: io_cpu_decode_mmuRefilling}
+  - {bound: ['2', '0'], name: io_mem_cmd_payload_size}
+  - {name: io_cpu_fetch_haltIt}
+  - {name: io_cpu_decode_cacheMiss}

@@ -1,0 +1,42 @@
+id:
+  library: libdefault
+  name: mem
+  vendor: vendor
+interfaces:
+  mem_bus:
+    mode: subordinate
+    signals:
+      in:
+        adr: {bound: ['29', '0'], name: mem_bus_adr}
+        bte: {bound: ['1', '0'], name: mem_bus_bte}
+        cti: {bound: ['2', '0'], name: mem_bus_cti}
+        cyc: {name: mem_bus_cyc}
+        dat_w: {bound: ['31', '0'], name: mem_bus_dat_w}
+        sel: {bound: ['3', '0'], name: mem_bus_sel}
+        stb: {name: mem_bus_stb}
+        we: {name: mem_bus_we}
+      out:
+        ack: {name: mem_bus_ack}
+        dat_r: {bound: ['31', '0'], name: mem_bus_dat_r}
+        err: {name: mem_bus_err}
+    type: wishbone
+parameters:
+  aw: $clog2(depth)
+  depth: '256'
+  memfile: '""'
+signals:
+  in:
+  - {bound: ['31', '0'], name: mem_bus_dat_w}
+  - {bound: ['3', '0'], name: mem_bus_sel}
+  - {name: mem_bus_stb}
+  - {name: sys_clk}
+  - {name: mem_bus_we}
+  - {bound: ['2', '0'], name: mem_bus_cti}
+  - {name: mem_bus_cyc}
+  - {bound: ['1', '0'], name: mem_bus_bte}
+  - {name: sys_rst}
+  - {bound: ['29', '0'], name: mem_bus_adr}
+  out:
+  - {name: mem_bus_ack}
+  - {bound: ['31', '0'], name: mem_bus_dat_r}
+  - {name: mem_bus_err}

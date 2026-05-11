@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from base64 import b64encode
@@ -68,6 +68,7 @@ def all_design_specifications() -> Dict[str, JsonType]:
         spec = KpmSpecificationBackend.default()
         modules = frontend.parse_files([design]).modules
         design_module = modules[0]
+        design_module.design.update_interconnects_from_memory_maps()
         spec.add_module(design_module, recursive=True)
         specs[name] = spec.build()
 

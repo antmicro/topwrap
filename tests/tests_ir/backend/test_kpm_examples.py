@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from pathlib import Path
@@ -46,9 +46,12 @@ def all_design_paths(test_dirs: Dict[str, Path]) -> Dict[str, Path]:
 @pytest.fixture
 def all_design_modules(all_design_paths: Dict[str, Path]) -> Dict[str, Module]:
     frontend = YamlFrontend()
-    return {
-        name: frontend.parse_files([path]).modules[0] for name, path in all_design_paths.items()
-    }
+    output = {}
+    for name, path in all_design_paths.items():
+        des_module = frontend.parse_files([path]).modules[0]
+        des_module.design.update_interconnects_from_memory_maps()
+        output[name] = des_module
+    return output
 
 
 def _filter_id(object: Dict[Any, Any]):

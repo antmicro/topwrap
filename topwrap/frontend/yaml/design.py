@@ -4,7 +4,7 @@
 import logging
 from dataclasses import asdict
 from pathlib import Path
-from typing import Iterable, Optional, Union
+from typing import Dict, Iterable, Optional, Union
 
 import yaml
 
@@ -13,6 +13,8 @@ from topwrap.frontend.yaml.design_schema import (
     DesignDescription,
     DesignIP,
     DesignSectionInterconnect,
+    MemoryMap,
+    MemoryMapEntry,
 )
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.interconnects.types import INTERCONNECT_TYPES
@@ -32,6 +34,8 @@ from topwrap.model.connections import (
 from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit
 from topwrap.model.interface import Interface, InterfaceMode
+from topwrap.model.memory_map import MemoryMap as IRMemoryMap
+from topwrap.model.memory_map import MemoryMapSubordinate
 from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId
 from topwrap.model.module import Module
 from topwrap.resource_field import RepoReferenceHandler
@@ -72,6 +76,42 @@ class DesignDescriptionFrontend:
 
         desc = DesignDescription.from_yaml(source)
         return self._parse_hier(None, desc, "top" if desc.name is None else desc.name)
+
+    def _parse_memory_maps(self, des: Design, memory_maps: Dict[str, MemoryMap]):
+        ir_maps = dict[str, IRMemoryMap]()
+        for map_name, memory_map in memory_maps.items():
+            map = dict[int, ReferencedInterface]()
+            for module_name, entry_or_entries in memory_map.items():
+                try:
+                    component = des.components.find_by_name_or_error(module_name)
+                    if isinstance(entry_or_entries, MemoryMapEntry):
+                        # yaml don't specify iface
+                        entry: MemoryMapEntry = entry_or_entries
+                        ifaces = component.module.interfaces
+                        # so there should be only one iface in module
+                        if len(ifaces) > 1:
+                            raise DDFE(
+                                "subordinate has more that one interface, it is needed "
+                                "to specify which one needs to be connected"
+                            )
+                        if len(ifaces) == 0:
+                            raise DDFE("subordinate doesn't have any interface")
+                        ref_iface = ReferencedInterface(instance=component, io=ifaces[0])
+                        map[entry.address] = MemoryMapSubordinate(ref_iface, entry.params)
+                    else:
+                        # yaml specified iface's
+                        entries: dict[str, MemoryMapEntry] = entry_or_entries
+                        for iface_name, entry in entries.items():
+                            iface = component.module.interfaces.find_by_name_or_error(iface_name)
+                            ref_iface = ReferencedInterface(instance=component, io=iface)
+                            map[entry.address] = MemoryMapSubordinate(ref_iface, entry.params)
+                except DDFE as e:
+                    logger.warning(
+                        f"Skipping subordinate '{module_name}' in address map '{map_name}' "
+                        f"because {e}"
+                    )
+            ir_maps[map_name] = IRMemoryMap(map_name, map)
+        des.add_memory_maps(ir_maps)
 
     def _parse_hier(
         self, source: Optional[Path], desc: DesignDescription, name_hint: str
@@ -126,6 +166,9 @@ class DesignDescriptionFrontend:
                 )
                 continue
 
+        # Parse memory maps, need to be done after interfaces are parsed
+        self._parse_memory_maps(design, desc.memory_maps)
+
         # Parse interconnects
         for iname, intr in desc.interconnects.items():
             try:
@@ -171,7 +214,7 @@ class DesignDescriptionFrontend:
 
                 comp.parameters[pdef._id] = maybe_param
 
-    def _parse_interconnect(self, des: Design, iname: str, intr: DesignSectionInterconnect):
+    def _parse_interconnect(self, des: Design, iname: str, intr: DesignSectionInterconnect):  # noqa: C901
         itype = INTERCONNECT_TYPES[intr.type]
         params = itype.params.from_dict(intr.params)
         try:
@@ -187,7 +230,19 @@ class DesignDescriptionFrontend:
         if not isinstance(clock, ReferencedPort) or not isinstance(reset, ReferencedPort):
             raise DDFE("Clock or reset is not connected to a port")
 
-        ir_intr = itype.intercon(name=iname, params=params, clock=clock, reset=reset)
+        mem_map = None
+        try:
+            if intr.memory_map is not None:
+                if intr.memory_map not in des.memory_maps:
+                    raise DDFE(f"Memory map: '{intr.memory_map}' is not defined")
+                else:
+                    mem_map = des.memory_maps[intr.memory_map]
+        except DDFE as e:
+            logger.warning(f"Skipping memory map in '{iname}' interconnect, because of: {e}")
+
+        ir_intr = itype.intercon(
+            name=iname, params=params, clock=clock, reset=reset, memory_map=mem_map
+        )
 
         def get_refio_from_manager(
             des: Design, mname: str, man: str

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -21,6 +21,7 @@ def update_dataflows():
     for example_name, design in all_design_paths().items():
         frontend = YamlFrontend()
         [design_module] = frontend.parse_files([design])
+        design_module.design.update_interconnects_from_memory_maps()
 
         backend = KpmBackend(depth=-1)
         repr = backend.represent(design_module)
@@ -37,6 +38,7 @@ def update_specifications():
     for example_name, design in all_design_paths().items():
         frontend = YamlFrontend()
         [design_module] = frontend.parse_files([design])
+        design_module.design.update_interconnects_from_memory_maps()
 
         spec = KpmSpecificationBackend.default()
         spec.add_module(design_module, recursive=True)

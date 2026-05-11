@@ -62,11 +62,14 @@ class TestDesignDescriptionFrontend:
         ],
     )
     def test_ir(self, design: Path, validator: Callable[[Module], None]):
-        validator(DesignDescriptionFrontend(ALL_MODULES).parse_file(design).parent)
+        design_ir = DesignDescriptionFrontend(ALL_MODULES).parse_file(design)
+        design_ir.update_interconnects_from_memory_maps()
+        validator(design_ir.parent)
 
     def test_complex_yaml(self):
         front = DesignDescriptionFrontend()
         des = front.parse_file(Path("tests/data/data_kpm/conversions/complex/project_complex.yaml"))
+        des.update_interconnects_from_memory_maps()
 
         comps = ("s1_mod_3", "s1_mod_3_2", "s1_mod_3_3", "s2_mod_1", "s2_mod_2", "SUB")
         assert len(des.components) == len(comps)

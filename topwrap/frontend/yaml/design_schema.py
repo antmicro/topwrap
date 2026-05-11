@@ -1,5 +1,6 @@
 # Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from dataclasses import field, fields
 from functools import cached_property
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple, Type, Union
@@ -91,6 +92,7 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
     params: Dict[str, Any] = ext_field(dict)
     managers: Dict[str, Union[List[str], Dict[str, Dict[str, Any]]]] = ext_field(dict)
     subordinates: Dict[str, Dict[str, Subordinate]] = ext_field(dict)
+    memory_map: Optional[str] = ext_field(None)
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -116,6 +118,30 @@ class ConnectionsSection(MarshmallowDataclassExtensions):
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
+class MemoryMapEntry(MarshmallowDataclassExtensions):
+    address: int
+    params: dict[str, Any] = field(default_factory=dict)
+
+    class Meta:
+        unknown = marshmallow.INCLUDE
+
+    @marshmallow.post_load()
+    def collect_params(self, data: dict[str, Any], **kwargs: Dict[Any, Any]):
+        known_fiels = {f.name for f in fields(MemoryMapEntry)}
+        extra = {k: v for k, v in data.items() if k not in known_fiels}
+
+        for k in extra:
+            data.pop(k)
+        data["params"] = extra
+
+        return data
+
+
+MemoryMapSubordinate = Union[MemoryMapEntry, dict[str, MemoryMapEntry]]
+MemoryMap = dict[str, MemoryMapSubordinate]  # key is module_name
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
 class DesignDescription(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(
         None
@@ -127,6 +153,7 @@ class DesignDescription(MarshmallowDataclassExtensions):
     external: DesignExternalSection = ext_field(DesignExternalSection)
     clock_domains: Dict[str, DesignSectionClockDomain] = ext_field(dict)
     reset_domains: Dict[str, DesignSectionResetDomain] = ext_field(dict)
+    memory_maps: Dict[str, MemoryMap] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
 

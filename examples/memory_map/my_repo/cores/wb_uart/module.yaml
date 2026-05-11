@@ -1,0 +1,41 @@
+id:
+  library: libdefault
+  name: wb_uart
+  vendor: vendor
+interfaces:
+  csr_wishbone:
+    size: 0x1000
+    mode: subordinate
+    signals:
+      in:
+        adr: {bound: ['29', '0'], name: csr_wishbone_adr}
+        bte: {bound: ['1', '0'], name: csr_wishbone_bte}
+        cti: {bound: ['2', '0'], name: csr_wishbone_cti}
+        cyc: {name: csr_wishbone_cyc}
+        dat_w: {bound: ['31', '0'], name: csr_wishbone_mosi}
+        sel: {bound: ['3', '0'], name: csr_wishbone_sel}
+        stb: {name: csr_wishbone_stb}
+        we: {name: csr_wishbone_we}
+      out:
+        ack: {name: csr_wishbone_ack}
+        dat_r: {bound: ['31', '0'], name: csr_wishbone_miso}
+        err: {name: csr_wishbone_err}
+    type: wishbone
+signals:
+  in:
+  - {name: csr_wishbone_cyc}
+  - {bound: ['3', '0'], name: csr_wishbone_sel}
+  - {name: csr_wishbone_stb}
+  - {bound: ['1', '0'], name: csr_wishbone_bte}
+  - {bound: ['29', '0'], name: csr_wishbone_adr}
+  - {name: sys_clk}
+  - {name: serial1_rx}
+  - {bound: ['31', '0'], name: csr_wishbone_mosi}
+  - {bound: ['2', '0'], name: csr_wishbone_cti}
+  - {name: csr_wishbone_we}
+  - {name: sys_rst}
+  out:
+  - {name: serial1_tx}
+  - {name: csr_wishbone_ack}
+  - {name: csr_wishbone_err}
+  - {bound: ['31', '0'], name: csr_wishbone_miso}

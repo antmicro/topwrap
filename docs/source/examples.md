@@ -339,6 +339,19 @@ For `generate`, `sim` and `bitstream` targets there also targets with suffix `-i
 they can be used to generate HDL sources, simulate or generate the bitstream using topwrap generated or from source interconnect.
 :::
 
+## Memory Map
+
+[Link to source](https://github.com/antmicro/topwrap/tree/main/examples/memory_map)
+
+```{kpm_iframe}
+:spec: ../build/kpm_jsons/spec_memory_map.json
+:dataflow: ../build/kpm_jsons/data_memory_map.json
+```
+
+This example is based on the SoC example and it uses memory maps instead of the `subordinates` section in the interconnect.
+The repository contains hand-edited yaml files with the interface size specified for the `wb_uart` module.
+Refer to the [Description Files](description_files.md#design-description) and the [Interconnect Generation](interconnect_gen.md#interconnect_generation) for more information about memory maps.
+
 
 ## AXI interconnect
 

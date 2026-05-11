@@ -1,0 +1,10 @@
+id:
+  library: libdefault
+  name: crg
+  vendor: vendor
+signals:
+  in:
+  - {name: clk100}
+  out:
+  - {name: sys_clk}
+  - {name: sys_rst}

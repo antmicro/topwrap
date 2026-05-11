@@ -1,0 +1,55 @@
+id:
+  library: libdefault
+  name: DataCache
+  vendor: vendor
+signals:
+  in:
+  - {name: io_cpu_memory_mmuBus_rsp_allowRead}
+  - {name: io_cpu_memory_mmuBus_rsp_allowWrite}
+  - {name: io_cpu_execute_args_wr}
+  - {bound: ['31', '0'], name: io_cpu_writeBack_address}
+  - {name: io_cpu_memory_isRemoved}
+  - {bound: ['31', '0'], name: io_cpu_memory_address}
+  - {name: reset}
+  - {name: io_cpu_memory_mmuBus_rsp_allowExecute}
+  - {name: io_cpu_memory_isStuck}
+  - {name: io_cpu_memory_mmuBus_rsp_exception}
+  - {name: io_cpu_writeBack_isValid}
+  - {name: io_mem_rsp_valid}
+  - {name: io_cpu_writeBack_isStuck}
+  - {name: io_cpu_writeBack_isUser}
+  - {name: io_cpu_memory_mmuBus_rsp_refilling}
+  - {bound: ['31', '0'], name: io_cpu_execute_address}
+  - {bound: ['31', '0'], name: io_mem_rsp_payload_data}
+  - {name: io_cpu_memory_isValid}
+  - {name: io_cpu_execute_isValid}
+  - {name: io_cpu_flush_valid}
+  - {bound: ['31', '0'], name: io_cpu_execute_args_data}
+  - {name: io_cpu_memory_mmuBus_rsp_isIoAccess}
+  - {bound: ['31', '0'], name: io_cpu_memory_mmuBus_rsp_physicalAddress}
+  - {name: clk}
+  - {name: io_cpu_memory_mmuBus_busy}
+  - {name: io_mem_cmd_ready}
+  - {bound: ['1', '0'], name: io_cpu_execute_args_size}
+  - {name: io_mem_rsp_payload_error}
+  out:
+  - {name: io_cpu_memory_mmuBus_cmd_bypassTranslation}
+  - {name: io_cpu_memory_mmuBus_cmd_isValid}
+  - {name: io_cpu_writeBack_isWrite}
+  - {name: io_cpu_flush_ready}
+  - {name: io_mem_cmd_valid}
+  - {bound: ['2', '0'], name: io_mem_cmd_payload_length}
+  - {name: io_mem_cmd_payload_last}
+  - {name: io_cpu_writeBack_unalignedAccess}
+  - {bound: ['31', '0'], name: io_cpu_writeBack_data}
+  - {name: io_mem_cmd_payload_wr}
+  - {bound: ['31', '0'], name: io_cpu_memory_mmuBus_cmd_virtualAddress}
+  - {name: io_cpu_writeBack_accessError}
+  - {bound: ['31', '0'], name: io_mem_cmd_payload_address}
+  - {bound: ['31', '0'], name: io_mem_cmd_payload_data}
+  - {name: io_cpu_writeBack_haltIt}
+  - {name: io_cpu_memory_mmuBus_end}
+  - {name: io_cpu_redo}
+  - {name: io_cpu_writeBack_mmuException}
+  - {bound: ['3', '0'], name: io_mem_cmd_payload_mask}
+  - {name: io_cpu_memory_isWrite}

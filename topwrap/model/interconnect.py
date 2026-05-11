@@ -1,17 +1,18 @@
-# Copyright (c) 2024-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2024-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 from abc import ABC
 from dataclasses import field
-from typing import TYPE_CHECKING, Generic, Mapping
+from typing import TYPE_CHECKING, Generic, Mapping, Optional
 
 import marshmallow_dataclass
 from typing_extensions import TypeVar
 
 from topwrap.common_serdes import MarshmallowDataclassExtensions
 from topwrap.model.connections import ReferencedInterface, ReferencedPort
+from topwrap.model.memory_map import MemoryMap
 from topwrap.model.misc import ElaboratableValue, ObjectId, VariableName
 
 if TYPE_CHECKING:
@@ -89,6 +90,8 @@ class Interconnect(ABC, Generic[_IPAR, _MANPAR, _SUBPAR]):
     #: described in the same format as managers
     subordinates: dict[ObjectId[ReferencedInterface], _SUBPAR]
 
+    memory_map: Optional[MemoryMap]
+
     def __init__(
         self,
         *,
@@ -98,6 +101,7 @@ class Interconnect(ABC, Generic[_IPAR, _MANPAR, _SUBPAR]):
         params: _IPAR,
         managers: Mapping[ObjectId[ReferencedInterface], _MANPAR] = {},
         subordinates: Mapping[ObjectId[ReferencedInterface], _SUBPAR] = {},
+        memory_map: Optional[MemoryMap] = None,
     ):
         self.name = name
         self.clock = clock
@@ -105,3 +109,4 @@ class Interconnect(ABC, Generic[_IPAR, _MANPAR, _SUBPAR]):
         self.params = params
         self.managers = dict(managers)
         self.subordinates = dict(subordinates)
+        self.memory_map = memory_map

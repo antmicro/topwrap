@@ -55,6 +55,7 @@ dsp = Module(
                 wishbone.signals[7]._id: ReferencedPort.external(exts[9]),
                 wishbone.signals[8]._id: ReferencedPort.external(exts[10]),
             },
+            # A size is only needed when memory maps are used in the design.yaml
         )
     ],
 )

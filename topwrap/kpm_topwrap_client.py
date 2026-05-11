@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -117,6 +117,7 @@ class RPCMethods:
                 "type": MessageType.ERROR.value,
                 "content": "Given design YAML file does not contain a design.",
             }
+        design_module.design.update_interconnects_from_memory_maps()
 
         dataflow = KpmDataflowBackend(self.specification)
         dataflow.represent_design(design_module.design, depth=-1)

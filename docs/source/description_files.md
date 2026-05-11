@@ -104,6 +104,20 @@ interfaces:
 hierarchies:
    # see "Hierarchies" below for a detailed description of the format
       ...
+
+memory_maps:
+  {memory_map_name}: # this name is used in an interconnect
+    {instance_name}:
+      {interface_name1}:
+        address: {address1}
+        {additional_parameter_name}: {value_accepted_by_an_interconnect_implementation} # additional parameters for specific interconnects can be specified
+        ...
+      {interface_name2}:
+        address: {address2}
+        size: {size2} # a default size can be overwritten
+    ...
+    {instance_name}: # when an instance has only one interface, it is not required to specify the interface name
+      address: {address1}
 ```
 
 `inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.

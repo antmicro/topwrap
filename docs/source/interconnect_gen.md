@@ -75,6 +75,10 @@ interconnects:
           size: {range_size}
         ...
       ...
+
+    # additionally, in addition to the subordinates section, a map from the memory_maps section can be specified
+    # the subordinates is updated with data present in the selected memory map
+    memory_map: {map_name}
   ...
 ```
 
