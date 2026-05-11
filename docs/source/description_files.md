@@ -147,13 +147,75 @@ A more complex example of a hierarchy can be found in the [examples/hierarchy](h
 
 ## IP description files
 
-IP description files are used to provide definitions for modules external to the topwrap design. Each file contains the specification of the module's name, its ports, and its interfaces.
-The module name of an IP should be placed in the global `name` key, and it should be consistent with the definition in the HDL file.
-The ports of an IP should be placed in the global `signals` key, followed by the direction - `in`, `out` or `inout`.
+The primary purpose of the IP core YAML is to provide the tool with essential metadata and structural information about a specific IP core to facilitate automated SoC assembly.
+It contains information about signals, clock domains, parameterization and interfaces.
+Interfaces are defined as a list of signals and parameters such as `mode` and `type`.
+
+The example below presents an example IP YAML core description file.
+
+```yaml
+id:
+  library: libdefault
+  name: axi4_to_ahb
+  vendor: vendor
+
+parameters:
+  RESET_ADDRESS: 32'h80000000
+
+signals:
+  in:
+    - sys_clk
+    - sys_rst
+    - name: core_id
+      bound: [3, 0]
+      default: 0
+  out:
+    - core_halted
+
+interfaces:
+  ifu_axi:
+    type: AXI4
+    mode: manager
+    # the size field in manager mode is unused by topwrap
+    signals:
+      out:
+        bready: ifu_bready
+        awaddr: [ifu_awaddr, 31, 0]
+        # ... remainder of AXI signals ...
+      in:
+        awready: ifu_awready
+        rdata: [ifu_rdata, 63, 0]
+        # ... remainder of AXI signals ...
+  iface1_wb:
+    type: wishbone
+    mode: subordinate
+    size: 0xFFFF # the size field in subordinate mode is optional
+    signals:
+      # wishbone signals
+```
+
+### File format explanation
+
+- `id` \- identification of the Core. An instance of [Identifier IR class](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)
+  - `library` \- by default `libdefault`
+  - `vendor` \- by default `vendor`
+  - `name` \- same as the name in the HDL file
+- `parameters` \- a dictionary with IP core parameters
+- `signals` \- contains the names of signals used in the module ports
+  - `out` \- a list of signals that are in the output direction
+  - `in` \- a list of signals that are in the input direction
+  - `inout` \- a list of signals that can be both input and output, similar to an `inout` port in Verilog
+- `interfaces` \- a list of interfaces
+  - `type` \- the name of the interface definition that is used for that interface. See the [Interface Definition YAML](#interface-description-files).
+  - `mode` \- `manager`, `subordinate` or `unspecified`. When generating ports, the mode is used to determine the direction of the port. `unspecified` behaves the same as `manager`. When doing inference, all newly created interfaces have their `type` set to `unspecified`.
+  - `size` \- the optional field that is only used when `mode` is `subordinate`, it is used when there is an instance of this module specified in `address_maps` in the design YAML.
+  - `signals` \- a list of signals mapped to ports. Signals from the interface definition need to be mapped to ports in the HDL module.
+
+### Signals
 
 Each signal (for both port and interface definitions) can be specified in one of two formats.
 
-### New signal format
+#### New signal format
 
 The signal is defined by a YAML object, with the following properties:
 
@@ -190,7 +252,7 @@ interfaces:
                     name: BAZ
 ```
 
-### Old signal format
+#### Old signal format
 
 The signal is defined by either:
 
@@ -234,48 +296,54 @@ signals:
 
 ### Interface definitions
 
-The previous example can be used with any IP. However, in order to benefit from connecting entire interfaces simultaneously, the ports must belong to a named interface as in this example:
+The purpose of the interface YAML file is to store information about interface definitions. These definitions are used for inferring ports to interface instances. It contains the id of the interface, which is used to reference the definition from the IP core YAML file.
+The YAML file separates `signals` into those that are required for a list of ports to be interpreted as this interface and optional signals that, if present, are inferred into a single interface instance.
+
+Regular expressions are used to find ports in the HDL module that correspond to the signals in the interface definition.
 
 ```yaml
-#file: axis_width_converter.yaml
-name: axis_width_converter
-interfaces:
-    s_axis:
-        type: AXIStream
-        mode: subordinate
-        signals:
-            in:
-                TDATA: [s_axis_tdata, 63, 0]
-                TKEEP: [s_axis_tkeep, 7, 0]
-                TVALID: s_axis_tvalid
-                TLAST: s_axis_tlast
-                TID: [s_axis_tid, 7, 0]
-                TDEST: [s_axis_tdest, 7, 0]
-                TUSER: s_axis_tuser
-            out:
-                TREADY: s_axis_tready
-    m_axis:
-        type: AXIStream
-        mode: manager
-        signals:
-            in:
-                TREADY: m_axis_tready
-            out:
-                TDATA: [m_axis_tdata, 31, 0]
-                TKEEP: [m_axis_tkeep, 3, 0]
-                TVALID: m_axis_tvalid
-                TLAST: m_axis_tlast
-                TID: [m_axis_tid, 7, 0]
-                TDEST: [m_axis_tdest, 7, 0]
-                TUSER: m_axis_tuser
-signals: # These ports do not belong to an interface
-    in:
-        - clk
-        - rst
+id:
+  library: libdefault
+  name: wishbone
+  vendor: vendor
+signals:
+    required:
+        out:
+            cyc: cyc
+            stb: stb
+        in:
+            ack: ack
+    optional:
+        out:
+            dat_w: dat_(w|mosi)|mosi
+            adr: adr
+            tgd_w: tgd_w
+            lock: lock
+            sel: sel
+            tga: tga
+            tgc: tgc
+            we: we
+            cti: cti
+            bte: bte
+        in:
+            dat_r: dat_(r|miso)|miso
+            tgd_r: tgd_r
+            stall: stall
+            err: err
+            rty: rty
 ```
+File format explanation:
 
-The names `s_axis` and `m_axis` will be used to group the selected ports.
-Each signal in an interface has a name which must match with the signal that it is connected to, for example `TDATA: port_name` must connect to `TDATA: other_port_name`.
+- `id` \- identification of the interface. An instance of [Identifier IR class](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)
+  - `library` \- by default `libdefault`
+  - `vendor` \- by default `vendor`
+  - `name` \- same as the name in the HDL file
+- `signals` \- contains the names of signals with regular expressions that are used in the ports of Modules.
+  - `required` \- contains signals that must be present in the list of ports in the module
+  - `optional` \- contains signals that are connected to the interface instance when present in the list of ports in the module
+    - `out` \- a list of signals that are in the output direction
+    - `in` \- a list of signals that are in the input direction
+    - `inout` \- a list of signals that can be both the input and the output, similar to an `inout` port in Verilog
 
 Interfaces can also specify which clock and reset input of the IP core they use.
 This is done via the optional `clock` and `reset` keys, which specify the name of the input (see below).
@@ -341,7 +409,7 @@ resets:
 In both cases, the `signal` key defines which of the module's ports belongs to this clock/reset.
 The `polarity` and `synchronous_to` keys are the same as the ones in the design description, with one difference: in IP cores `synchronous_to` references a clock input, not a clock domain.
 
-## Interface description files
+## Interface definition files
 
 Topwrap can use predefined interfaces, as illustrated in YAML files that come packaged with the tool.
 The currently supported interfaces are AXI3, AXI4, AXI Lite, AXI Stream and Wishbone.
