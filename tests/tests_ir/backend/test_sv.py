@@ -602,7 +602,6 @@ endinterface
 
 endmodule
 
-
 module inner (
     input logic [3:0] foo,
     input logic [3:0] bar,
@@ -610,6 +609,5 @@ module inner (
     input logic [3:0] qux
 );
 
-endmodule
-"""
+endmodule"""
         )
