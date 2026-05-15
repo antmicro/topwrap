@@ -15,6 +15,7 @@ parameters:
 
 interfaces:
   intf1:
+    size: 0x2f
     type: wishbone
     mode: manager
     signals:

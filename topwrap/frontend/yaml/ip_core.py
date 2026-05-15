@@ -146,7 +146,13 @@ class IPCoreDescriptionFrontend:
 
             mod.add_interface(
                 Interface(
-                    name=iname, mode=mode, definition=ird, signals=signals, clock=clock, reset=reset
+                    name=iname,
+                    mode=mode,
+                    definition=ird,
+                    signals=signals,
+                    clock=clock,
+                    reset=reset,
+                    size=iface.size,
                 )
             )
 

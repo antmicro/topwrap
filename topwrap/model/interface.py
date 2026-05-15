@@ -176,6 +176,8 @@ class Interface(ModelBase):
     #: Reset signal used by this interface.
     reset: Optional[Reset]
 
+    size: Optional[int]
+
     def __init__(
         self,
         name: VariableName,
@@ -184,6 +186,7 @@ class Interface(ModelBase):
         signals: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]],
         clock: Optional[Clock] = None,
         reset: Optional[Reset] = None,
+        size: Optional[int] = None,
     ):
         super().__init__()
         self.name = name
@@ -192,6 +195,7 @@ class Interface(ModelBase):
         self.signals = signals
         self.clock = clock
         self.reset = reset
+        self.size = size
 
     @property
     def independent_signals(self) -> Iterator[InterfaceSignal]:

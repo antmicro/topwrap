@@ -193,6 +193,7 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
     signals: IPCoreIntfPorts = ext_field(IPCoreIntfPorts)
     clock: Optional[str] = ext_field(None)
     reset: Optional[str] = ext_field(None)
+    size: Optional[int] = ext_field(None)
 
     @marshmallow.validates("type")
     def _validate_type(self, type: str) -> bool:

@@ -294,6 +294,7 @@ interfaces:
                         output={"cyc": "cyc", "stb": ("cyc", 3, 0, 1, 0)},
                         inout={},
                     ),
+                    size=0x2F,
                 )
             },
         )
