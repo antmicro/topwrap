@@ -18,17 +18,17 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  "PyYAML",
-  "click",
+  "PyYAML==6.0.3",
+  "click==8.1.3",
   "amaranth==0.4.0.*",
   "amaranth-soc @ git+https://github.com/antmicro/amaranth-soc@236384fcaee6e3d192aedcf6ff119d90c5f56046",
   "amaranth-yosys==0.40.0.0.post103",
-  "simpleeval",
+  "simpleeval==1.0.3",
   "typing_extensions",
   "marshmallow>=3.20,<4.0",
   "marshmallow-dataclass[enum]~=8.7.0",
-  "pygtrie",
-  "pyslang",
+  "pygtrie==2.5.0",
+  "pyslang==10.0.0",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@b39681ee785d7c094b78226243c44fe956e12d76",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@5e05d9e91c7256ee174674d0b8e46ca20c5a3bbd",
   "topwrap_axi_core_plugin @ https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl"
