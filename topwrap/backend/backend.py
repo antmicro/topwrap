@@ -9,7 +9,7 @@ from typing import Generic, Iterable, Iterator, TypeVar
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
 
-_T = TypeVar("_T")
+_MODFORMAT = TypeVar("_MODFORMAT")
 
 
 @dataclass
@@ -36,11 +36,11 @@ class BackendOutputInfo:
             f.write(self.content)
 
 
-class Backend(ABC, Generic[_T]):
+class Backend(ABC, Generic[_MODFORMAT]):
     """
     The base class for backend implementations used to convert our IR
     represented by the ``Module`` class into various external formats,
-    represented by the generic parameter ``_T``.
+    represented by the generic parameter ``_MODFORMAT``.
     """
 
     #: List of InterfaceDefinition's that already exists in source files or has been serialized, it
@@ -52,13 +52,13 @@ class Backend(ABC, Generic[_T]):
         super().__init__()
 
     @abstractmethod
-    def represent(self, module: Module, /) -> _T:
+    def represent(self, module: Module, /) -> _MODFORMAT:
         """
         Convert the IR into an arbitrary custom external format.
         """
 
     @abstractmethod
-    def serialize(self, repr: _T, /) -> Iterator[BackendOutputInfo]:
+    def serialize(self, repr: _MODFORMAT, /) -> Iterator[BackendOutputInfo]:
         """
         Serialize the custom format object into one or more text files,
         represented by their content, alongside with additional

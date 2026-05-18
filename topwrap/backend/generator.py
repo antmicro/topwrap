@@ -24,8 +24,8 @@ from topwrap.model.interface import (
 from topwrap.model.misc import Identifier, ObjectId
 from topwrap.model.module import Module
 
-_T = TypeVar("_T")
-_IT = TypeVar("_IT", bound=Interconnect)
+_HDL = TypeVar("_HDL")
+_INTERCONNECT = TypeVar("_INTERCONNECT", bound=Interconnect)
 
 CLK_PORT_NAME = "clk"
 RST_PORT_NAME = "rst"
@@ -47,9 +47,9 @@ class InterconnectGenerationError(Exception):
     """
 
 
-class Generator(ABC, Generic[_T, _IT]):
+class Generator(ABC, Generic[_HDL, _INTERCONNECT]):
     @abstractmethod
-    def generate(self, interconnect: _IT, module_instance: ModuleInstance) -> _T:
+    def generate(self, interconnect: _INTERCONNECT, module_instance: ModuleInstance) -> _HDL:
         """
         Returns generated HDL code wrapped in class specific for backend
 
@@ -79,7 +79,7 @@ class Generator(ABC, Generic[_T, _IT]):
         self,
         module: Module,
         module_instance: ModuleInstance,
-        interconnect: _IT,
+        interconnect: _INTERCONNECT,
     ):
         design = interconnect.parent
         clk_port = Port(name=CLK_PORT_NAME, direction=PortDirection.IN, type=Bit())
@@ -140,7 +140,7 @@ class Generator(ABC, Generic[_T, _IT]):
         )
 
     def _add_interfaces_from_subordinates_and_managers(
-        self, interconnect: _IT, module_instance: ModuleInstance
+        self, interconnect: _INTERCONNECT, module_instance: ModuleInstance
     ):
         design = interconnect.parent
         for managers_or_subordinates, interface_mode in [
@@ -157,7 +157,7 @@ class Generator(ABC, Generic[_T, _IT]):
 
     def add_module_instance_to_design(
         self,
-        interconnect: _IT,
+        interconnect: _INTERCONNECT,
     ) -> ModuleInstance:
         """
         Returns generated `ModuleInstance` based on `Interconnect`, generated `ModuleInsance`

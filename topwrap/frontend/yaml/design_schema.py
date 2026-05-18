@@ -141,7 +141,36 @@ MemoryMapSubordinate = Union[MemoryMapEntry, dict[str, MemoryMapEntry]]
 MemoryMap = dict[str, MemoryMapSubordinate]  # key is module_name
 
 
-@marshmallow_dataclass.dataclass(frozen=True)
+class DesignDescriptionSchema(marshmallow.Schema):
+    """
+    Schema class providing exception message formatting
+    """
+
+    def handle_error(
+        self, error: marshmallow.ValidationError, data: Any, *, many: bool, **kwargs: Any
+    ):
+        SKIPPED_KEYS = ("value", "_schema")
+
+        stack: list[tuple[Any, str]] = []
+        final: list[tuple[str, str]] = []
+        if type(error.messages) is not dict:
+            raise TypeError
+        for k in error.messages.keys():
+            stack.append((error.messages[k], "{}".format(k)))
+        while len(stack) > 0:
+            last_el, last_str = stack.pop()
+            if type(last_el) is dict:
+                for k in last_el.keys():
+                    new_str = "{}.{}".format(last_str, k) if k not in SKIPPED_KEYS else last_str
+                    stack.append((last_el[k], new_str))
+            elif type(last_el) is list:
+                for err in last_el:
+                    final.append((last_str, err))
+
+        raise marshmallow.ValidationError(final)
+
+
+@marshmallow_dataclass.dataclass(frozen=True, base_schema=DesignDescriptionSchema)
 class DesignDescription(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(
         None
@@ -155,7 +184,7 @@ class DesignDescription(MarshmallowDataclassExtensions):
     reset_domains: Dict[str, DesignSectionResetDomain] = ext_field(dict)
     memory_maps: Dict[str, MemoryMap] = ext_field(dict)
 
-    Schema: ClassVar[Type[marshmallow.Schema]] = marshmallow.Schema
+    Schema: ClassVar[Type[marshmallow.Schema]] = DesignDescriptionSchema
 
     @property
     def all_ips(self) -> Iterator[DesignIP]:

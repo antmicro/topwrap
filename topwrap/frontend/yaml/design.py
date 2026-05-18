@@ -48,9 +48,6 @@ class DesignDescriptionFrontendException(Exception):
     pass
 
 
-DDFE = DesignDescriptionFrontendException
-
-
 class DesignDescriptionFrontend:
     #: A list of preparsed modules by name
     _modules: dict[str, Module]
@@ -91,12 +88,14 @@ class DesignDescriptionFrontend:
                         ifaces = component.module.interfaces
                         # so there should be only one iface in module
                         if len(ifaces) > 1:
-                            raise DDFE(
+                            raise DesignDescriptionFrontendException(
                                 "subordinate has more that one interface, it is needed "
                                 "to specify which one needs to be connected"
                             )
                         if len(ifaces) == 0:
-                            raise DDFE("subordinate doesn't have any interface")
+                            raise DesignDescriptionFrontendException(
+                                "subordinate doesn't have any interface"
+                            )
                         ref_iface = ReferencedInterface(instance=component, io=ifaces[0])
                         map[entry.address] = MemoryMapSubordinate(ref_iface, entry.params)
                     else:
@@ -106,7 +105,7 @@ class DesignDescriptionFrontend:
                             iface = component.module.interfaces.find_by_name_or_error(iface_name)
                             ref_iface = ReferencedInterface(instance=component, io=iface)
                             map[entry.address] = MemoryMapSubordinate(ref_iface, entry.params)
-                except DDFE as e:
+                except DesignDescriptionFrontendException as e:
                     logger.warning(
                         f"Skipping subordinate '{module_name}' in address map '{map_name}' "
                         f"because {e}"
@@ -147,7 +146,7 @@ class DesignDescriptionFrontend:
                 for sig, ref in maps.items():
                     try:
                         self._parse_connection(design, declared_exts, comp, sig, ref)
-                    except DDFE as e:
+                    except DesignDescriptionFrontendException as e:
                         logger.warning(f"Skipping invalid connection: {e}")
 
     def _add_ports(self, mod: Module, declared_exts: dict[str, tuple[PortDirection, bool]]):
@@ -165,7 +164,7 @@ class DesignDescriptionFrontend:
         for iname, intr in desc.interconnects.items():
             try:
                 self._parse_interconnect(design, iname, intr)
-            except DDFE as e:
+            except DesignDescriptionFrontendException as e:
                 logger.warning(f"Skipping interconnect '{iname}' because of: {e}")
 
     def _parse_inout(self, desc: DesignDescription, design: Design):
@@ -174,8 +173,10 @@ class DesignDescriptionFrontend:
                 refio, refsig = self._resolve_ref(design, comp, io)
                 port = self._parse_external(design, refsig, io, PortDirection.INOUT, True)
                 if not isinstance(refio, ReferencedPort) or not isinstance(port, Port):
-                    raise DDFE("Not a port or not connected to a port")
-            except DDFE as e:
+                    raise DesignDescriptionFrontendException(
+                        "Not a port or not connected to a port"
+                    )
+            except DesignDescriptionFrontendException as e:
                 logger.warning(f"Skipping inout '{comp}.{io}' because: {e}'")
                 continue
 
@@ -250,10 +251,12 @@ class DesignDescriptionFrontend:
             try:
                 refio, _ = self._resolve_ref(des, mname, man)
                 if not isinstance(refio, ReferencedInterface):
-                    raise DDFE("Manager reference is not an interface")
+                    raise DesignDescriptionFrontendException(
+                        "Manager reference is not an interface"
+                    )
                 else:
                     return refio
-            except DDFE as e:
+            except DesignDescriptionFrontendException as e:
                 logger.warning(
                     f"Skipping manager '{man}' for interconnect '{iname}' because of: {e}"
                 )
@@ -285,8 +288,10 @@ class DesignDescriptionFrontend:
                 try:
                     refio, _ = self._resolve_ref(des, sname, sub)
                     if not isinstance(refio, ReferencedInterface):
-                        raise DDFE("Subordinate reference is not an interface")
-                except DDFE as e:
+                        raise DesignDescriptionFrontendException(
+                            "Subordinate reference is not an interface"
+                        )
+                except DesignDescriptionFrontendException as e:
                     logger.warning(
                         f"Skipping subordinate '{sub}' for interconnect '{iname}' because of: {e}"
                     )
@@ -303,20 +308,24 @@ class DesignDescriptionFrontend:
             reset, _ = self._resolve_ref(
                 des, *([None, intr.reset] if isinstance(intr.reset, str) else [*intr.reset])
             )
-        except DDFE as e:
-            raise DDFE("Couldn't resolve a clock or a reset reference") from e
+        except DesignDescriptionFrontendException as e:
+            raise DesignDescriptionFrontendException(
+                "Couldn't resolve a clock or a reset reference"
+            ) from e
 
         if not isinstance(clock, ReferencedPort) or not isinstance(reset, ReferencedPort):
-            raise DDFE("Clock or reset is not connected to a port")
+            raise DesignDescriptionFrontendException("Clock or reset is not connected to a port")
 
         mem_map = None
         try:
             if intr.memory_map is not None:
                 if intr.memory_map not in des.memory_maps:
-                    raise DDFE(f"Memory map: '{intr.memory_map}' is not defined")
+                    raise DesignDescriptionFrontendException(
+                        f"Memory map: '{intr.memory_map}' is not defined"
+                    )
                 else:
                     mem_map = des.memory_maps[intr.memory_map]
-        except DDFE as e:
+        except DesignDescriptionFrontendException as e:
             logger.warning(f"Skipping memory map in '{iname}' interconnect, because of: {e}")
 
         ir_intr = itype.intercon(
@@ -345,14 +354,20 @@ class DesignDescriptionFrontend:
             target_comp = None
             target_sig = des.parent.ios.find_by_name(io)
             if target_sig is None:
-                raise DDFE(f"Design YAML references non-existent external: '{io}'")
+                raise DesignDescriptionFrontendException(
+                    f"Design YAML references non-existent external: '{io}'"
+                )
         else:
             target_comp = des.components.find_by_name(comp)
             if target_comp is None:
-                raise DDFE(f"Design YAML contains an unresolved component: '{comp}'")
+                raise DesignDescriptionFrontendException(
+                    f"Design YAML contains an unresolved component: '{comp}'"
+                )
             target_sig = target_comp.module.ios.find_by_name(io)
             if target_sig is None:
-                raise DDFE(f"Design YAML references non-existent IO: '{io}' in component: '{comp}'")
+                raise DesignDescriptionFrontendException(
+                    f"Design YAML references non-existent IO: '{io}' in component: '{comp}'"
+                )
         refio = (
             ReferencedInterface(instance=target_comp, io=target_sig)
             if isinstance(target_sig, Interface)
@@ -380,9 +395,11 @@ class DesignDescriptionFrontend:
 
         if isinstance(ref, int):
             if inverted:
-                raise DDFE(f"Attempted to invert a constant value: '{comp}.{sig} -> ~{ref}'")
+                raise DesignDescriptionFrontendException(
+                    f"Attempted to invert a constant value: '{comp}.{sig} -> ~{ref}'"
+                )
             if not isinstance(refio, ReferencedPort):
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"Attempted constant connection to an interface: '{comp}.{sig} -> {ref}'"
                 )
             des.add_connection(ConstantConnection(source=ElaboratableValue(ref), target=refio))
@@ -394,7 +411,9 @@ class DesignDescriptionFrontend:
                     external = self._parse_external(des, refsig, ref, decls[ref][0], decls[ref][1])
                     del decls[ref]
                 else:
-                    raise DDFE(f"Connection to non-existent external: '{comp}.{sig} -> {ref}'")
+                    raise DesignDescriptionFrontendException(
+                        f"Connection to non-existent external: '{comp}.{sig} -> {ref}'"
+                    )
             srcref = (
                 ReferencedInterface.external(external)
                 if isinstance(external, Interface)
@@ -407,13 +426,13 @@ class DesignDescriptionFrontend:
             des.add_connection(PortConnection(source=srcref, target=refio, invert=inverted))
         elif isinstance(srcref, ReferencedInterface) and isinstance(refio, ReferencedInterface):
             if inverted:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"Attempted to invert an interface connection: '{comp}.{sig} -> ~{ref}'."
                 )
 
             des.add_connection(InterfaceConnection(source=srcref, target=refio))
         else:
-            raise DDFE(
+            raise DesignDescriptionFrontendException(
                 f"IO type mismatch: '{comp}.{sig}' is {type(refio)}, but '{ref}' is {type(srcref)}"
             )
 
@@ -432,14 +451,14 @@ class DesignDescriptionFrontend:
 
         if isinstance(conn_to, Port):
             if not is_port:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"External '{name}' was declared as an interface, but tries to represent a port"
                 )
             io = Port(name=name, direction=dir, type=conn_to.type)
             des.parent.add_port(io)
         else:
             if is_port:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"External '{name}' was declared as a port, but tries to represent an interface"
                 )
             if (
@@ -448,7 +467,7 @@ class DesignDescriptionFrontend:
                 or conn_to.mode == InterfaceMode.SUBORDINATE
                 and dir != PortDirection.IN
             ):
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"External interface '{name}' was declared as {dir}, "
                     f"but is connected to {conn_to.mode}"
                 )
@@ -495,7 +514,9 @@ class DesignDescriptionFrontend:
             refio, _ = self._resolve_ref(design, comp, sig)
 
             if isinstance(refio, ReferencedInterface):
-                raise DDFE(f"Attempted to use interface '{domain.signal}' as clock signal")
+                raise DesignDescriptionFrontendException(
+                    f"Attempted to use interface '{domain.signal}' as clock signal"
+                )
 
             design.add_clock_domain(
                 ClockDomain(
@@ -514,7 +535,9 @@ class DesignDescriptionFrontend:
             refio, _ = self._resolve_ref(design, comp, sig)
 
             if isinstance(refio, ReferencedInterface):
-                raise DDFE(f"Attempted to use interface '{domain.signal}' as reset signal")
+                raise DesignDescriptionFrontendException(
+                    f"Attempted to use interface '{domain.signal}' as reset signal"
+                )
 
             synchronous_to = (
                 design.clock_domains.find_by_name(domain.synchronous_to)
@@ -523,7 +546,7 @@ class DesignDescriptionFrontend:
             )
 
             if synchronous_to is None and domain.synchronous_to is not None:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"Attempted to use non-existent clock domain '{domain.synchronous_to}'"
                     f" for reset domain '{name}'"
                 )
@@ -544,7 +567,7 @@ class DesignDescriptionFrontend:
         for cname, dname in ip.clocks.items():
             clock = mod.clocks.find_by_name(cname)
             if clock is None:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"Instance '{name}' of module '{mod.id.name}' references "
                     f"non-existent clock '{cname}'"
                 )
@@ -560,7 +583,7 @@ class DesignDescriptionFrontend:
         for rname, dname in ip.resets.items():
             reset = mod.resets.find_by_name(rname)
             if reset is None:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"Instance '{name}' of module '{mod.id.name}' references "
                     f"non-existent reset '{rname}'"
                 )
@@ -576,7 +599,7 @@ class DesignDescriptionFrontend:
         for cid, dname in clock_dom_names.items():
             dom = design.clock_domains.find_by_name(dname)
             if dom is None:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"Clock '{cid.resolve().name}' of instance '{name}' of "
                     f"module '{mod.id.name}' references non-existent clock domain '{dname}'"
                 )
@@ -586,7 +609,7 @@ class DesignDescriptionFrontend:
         for rid, dname in reset_dom_names.items():
             dom = design.reset_domains.find_by_name(dname)
             if dom is None:
-                raise DDFE(
+                raise DesignDescriptionFrontendException(
                     f"Reset '{rid.resolve().name}' of instance '{name}' of "
                     f"module '{mod.id.name}' references non-existent reset domain '{dname}'"
                 )

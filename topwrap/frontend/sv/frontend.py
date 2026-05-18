@@ -63,11 +63,13 @@ class SystemVerilogFrontend(Frontend):
             preproc = PreprocessorOptions()
             preproc.additionalIncludePaths = inc_dirs
             options.preprocessorOptions = preproc
-        tree = (
-            SyntaxTree.fromFiles(s_sources, inst.src_man, options)
-            if options is not None
-            else SyntaxTree.fromFiles(s_sources, inst.src_man)
-        )
-        modules, interfaces = inst.parse_tree(tree)
+        if len(s_sources) > 0:
+            tree = (
+                SyntaxTree.fromFiles(s_sources, inst.src_man, options)
+                if options is not None
+                else SyntaxTree.fromFiles(s_sources, inst.src_man)
+            )
+            modules, interfaces = inst.parse_tree(tree)
+            return FrontendParseOutput(modules=modules, interfaces=interfaces)
 
-        return FrontendParseOutput(modules=modules, interfaces=interfaces)
+        return FrontendParseOutput(modules=[], interfaces=[])

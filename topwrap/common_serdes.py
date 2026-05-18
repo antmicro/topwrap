@@ -83,15 +83,15 @@ RegexpT = Annotated[Pattern[str], RegexpField]
 ResourcePathT = Annotated[ResourceReferenceHandler, ResourcePathField]
 
 
-T = TypeVar("T")
-U = TypeVar("U")
-W = TypeVar("W")
-NestedDict = Dict[T, Union[U, "NestedDict"]]
-FlatTree = List[Sequence[T]]
-AnnotatedFlatTree = Iterable[Dict[T, U]]
+_DICTKEY = TypeVar("_DICTKEY")
+_DICTVAL = TypeVar("_DICTVAL")
+_LISTEL = TypeVar("_LISTEL")
+NestedDict = Dict[_DICTKEY, Union[_DICTVAL, "NestedDict"]]
+FlatTree = List[Sequence[_DICTKEY]]
+AnnotatedFlatTree = Iterable[Dict[_DICTKEY, _DICTVAL]]
 
 
-def flatten_tree(tree: NestedDict[T, U]) -> FlatTree[Union[T, U]]:
+def flatten_tree(tree: NestedDict[_DICTKEY, _DICTVAL]) -> FlatTree[Union[_DICTKEY, _DICTVAL]]:
     """
     Flattens a nested dictionary by removing mappings key: value and transforming them to
     tuples (key, value) recursively, flattening the tuples in the process.
@@ -123,7 +123,9 @@ def flatten_tree(tree: NestedDict[T, U]) -> FlatTree[Union[T, U]]:
     return list(flatten(tree))
 
 
-def annotate_flat_tree(flat_tree: FlatTree[U], field_names: List[T]) -> AnnotatedFlatTree[T, U]:
+def annotate_flat_tree(
+    flat_tree: FlatTree[_DICTKEY], field_names: List[_DICTKEY]
+) -> AnnotatedFlatTree[_DICTKEY, _DICTVAL]:
     """
     Transforms a flattened tree (such as one returned by `flatten_tree`) into a list of
     dictionaries, with each dictionary mapping names from `field_names` to consecutive elements of a
@@ -154,7 +156,7 @@ def annotate_flat_tree(flat_tree: FlatTree[U], field_names: List[T]) -> Annotate
     ]
     """
 
-    def mapfunc(elem: Sequence[T]) -> Dict[T, U]:
+    def mapfunc(elem: Sequence[_DICTKEY]) -> Dict[_DICTKEY, _DICTVAL]:
         # make sure that len(field_names) == len(elem)
         if len(field_names) > len(elem):
             raise ValueError(f"Missing nested fields named {field_names[len(elem) :]}")
@@ -167,8 +169,10 @@ def annotate_flat_tree(flat_tree: FlatTree[U], field_names: List[T]) -> Annotate
 
 
 def unflatten_annotated_tree(
-    flat_annot_tree: AnnotatedFlatTree[T, U], field_order: List[T], sort: bool = False
-) -> NestedDict[U, U]:
+    flat_annot_tree: AnnotatedFlatTree[_DICTKEY, _DICTVAL],
+    field_order: List[_DICTKEY],
+    sort: bool = False,
+) -> NestedDict[_DICTVAL, _DICTVAL]:
     """
     Transforms a flat annotated tree `flat_annot_tree` (such as one returned by
     `annotate_flat_tree`) back into a nested dictionary grouped by values of fields in
@@ -270,8 +274,8 @@ def unflatten_annotated_tree(
 
 
 def flatten_and_annotate(
-    data: NestedDict[T, U], field_names: List[W]
-) -> AnnotatedFlatTree[W, Union[T, U]]:
+    data: NestedDict[_DICTKEY, _DICTVAL], field_names: List[_LISTEL]
+) -> AnnotatedFlatTree[_LISTEL, Union[_DICTKEY, _DICTVAL]]:
     """
     A combination of annotate_flat_tree(flatten_tree(data)) possibly
     wrapped in marshmallow ValidationError commonly used in handlers
@@ -293,14 +297,14 @@ class MetaKeys(Enum):
 
 
 def ext_field(
-    default: MaybeMissing[Union[T, Callable[[], T]]] = MISSING,
+    default: MaybeMissing[Union[_DICTKEY, Callable[[], _DICTVAL]]] = MISSING,
     *,
     self_cleanup: bool = True,
     deep_cleanup: bool = False,
     inline_depth: Optional[int] = None,
     dcls_field_kws: Mapping[str, Any] = {},
     **kwargs: Any,
-) -> T:
+) -> _DICTKEY:
     """
     A shorthand wrapper for a marshmallow_dataclass field.
     Useful for specifying a field that should be optional and have a default value
@@ -375,8 +379,8 @@ def ext_field(
 
 
 @dataclass
-class Inline(Generic[T]):
-    inner: T
+class Inline(Generic[_DICTKEY]):
+    inner: _DICTKEY
 
 
 class InlineYamlDumper(yaml.SafeDumper):
@@ -386,7 +390,7 @@ class InlineYamlDumper(yaml.SafeDumper):
     """
 
     @staticmethod
-    def represent_inline(dumper: yaml.SafeDumper, data: Inline[T]) -> yaml.Node:
+    def represent_inline(dumper: yaml.SafeDumper, data: Inline[_DICTKEY]) -> yaml.Node:
         node = dumper.represent_data(data.inner)
         if isinstance(node, yaml.CollectionNode):
             node.flow_style = True

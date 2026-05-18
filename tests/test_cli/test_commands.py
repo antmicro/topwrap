@@ -9,6 +9,7 @@ from itertools import chain
 from pathlib import Path
 
 import click
+import marshmallow
 import pytest
 from click.testing import CliRunner
 
@@ -72,6 +73,14 @@ class TestCli:
                 build_dir=tmp_path,
             )
         assert Path(tmp_path / "top.sv").exists()
+
+    def test_main_handle_validation_exception(self):
+        try:
+            build_main.main(["-d", "./tests/test_cli/sample_design.yml"])
+        except marshmallow.ValidationError:
+            pytest.fail("Shouldn't raise an exception")
+        except SystemExit:
+            pass
 
     def create_socket_client(self, sock: socket.socket, exit: threading.Event):
         sock.listen(1)

@@ -4,7 +4,6 @@
 import asyncio
 import json
 import logging
-import logging.config
 import queue
 import subprocess
 import sys
@@ -15,6 +14,7 @@ from pathlib import Path
 from typing import Any, Callable, Coroutine, Optional, Tuple, Union
 
 import click
+import marshmallow
 
 import topwrap.logger
 from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
@@ -34,6 +34,7 @@ from topwrap.config import (
     DEFAULT_WORKSPACE_DIR,
     config,
 )
+from topwrap.frontend.yaml.design import DesignDescriptionFrontendException
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
 from topwrap.kpm_common import RPCparams
@@ -50,6 +51,8 @@ click_r_file = click.Path(
 click_w_file = click.Path(
     exists=False, file_okay=True, dir_okay=False, writable=True, path_type=Path
 )
+
+logger = logging.getLogger(__name__)
 
 
 @click.group(help="Topwrap")
@@ -120,41 +123,58 @@ def build_main(
     part: Optional[str],
     iface_compliance: bool,
 ):
-    config.force_interface_compliance = iface_compliance
+    try:
+        config.force_interface_compliance = iface_compliance
 
-    all_sources = list(sources)
+        all_sources = list(sources)
 
-    repo_modules, existing_ifaces = load_modules_from_repos()
+        repo_modules, existing_ifaces = load_modules_from_repos()
 
-    frontend = YamlFrontend(repo_modules)
-    frontend_output = frontend.parse_design_file(design)
-    module = frontend_output.modules[0]
-    if module.design is None:
-        logging.error("Given design YAML file does not contain a design.")
-        return
-    module.design.update_interconnects_from_memory_maps()
+        frontend = YamlFrontend(repo_modules)
+        frontend_output = frontend.parse_files([design])
+        module = frontend_output.modules[0]
 
-    backend = SystemVerilogBackend(existing_ifaces)
-    repr = backend.represent(module)
-    [out] = backend.serialize(repr, combine=True)
+        backend = SystemVerilogBackend(existing_ifaces)
+        repr = backend.represent(module)
+        [out] = backend.serialize(repr, combine=True)
 
-    build_dir.mkdir(exist_ok=True)
-    out.save(build_dir)
+        build_dir.mkdir(exist_ok=True)
+        out.save(build_dir)
 
-    if fuse:
-        if part is None:
-            logging.warning(
-                "You didn't specify the part number using the --part option. "
-                "It will remain unspecified in the generated FuseSoC .core "
-                "and your further implementation/synthesis may fail."
+        if fuse:
+            if part is None:
+                logging.warning(
+                    "You didn't specify the part number using the --part option. "
+                    "It will remain unspecified in the generated FuseSoC .core "
+                    "and your further implementation/synthesis may fail."
+                )
+
+            fuse_builder = FuseSocBuilder(part)
+
+            fuse_builder.add_source(out.filename, "systemVerilogSource")
+            fuse_builder.build(
+                module.id.name, build_dir / f"{module.id.name}.core", sources_dir=all_sources
             )
 
-        fuse_builder = FuseSocBuilder(part)
+    except DesignDescriptionFrontendException as err:
+        while err is not None:
+            logger.error(err)
+            err = err.__cause__
+        sys.exit(1)
+    except marshmallow.ValidationError as err:
+        ERROR_FIELDNAME_INDEX = 0
+        ERROR_MSG_INDEX = 1
 
-        fuse_builder.add_source(out.filename, "systemVerilogSource")
-        fuse_builder.build(
-            module.id.name, build_dir / f"{module.id.name}.core", sources_dir=all_sources
-        )
+        for e in err.messages:
+            logger.error(
+                "Failed to parse {} field in {}. {}".format(
+                    e[ERROR_FIELDNAME_INDEX], design, e[ERROR_MSG_INDEX]
+                )
+            )
+        sys.exit(1)
+    except Exception as err:
+        logger.error(err)
+        sys.exit(1)
 
 
 class KPM:

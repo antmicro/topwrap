@@ -31,14 +31,14 @@ from topwrap.model.interface import (
 from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 
-_IT = TypeVar("_IT", bound=Interconnect)
+_INTERCONNECT = TypeVar("_INTERCONNECT", bound=Interconnect)
 
 
 PULP_AXI_VERILOGWRITER_NAME = "verilogwriter.py"
 PULP_AXI_AXIINTERCONGEN_NAME = "axi_intercon_gen.py"
 
 
-class SystemVerilogGenerator(Generator[SVFile, _IT], ABC, Generic[_IT]):
+class SystemVerilogGenerator(Generator[SVFile, _INTERCONNECT], ABC, Generic[_INTERCONNECT]):
     """
     It is System Verilog specific generator, it's empty and need subclass for each Interconnect
     that SV backend need to support

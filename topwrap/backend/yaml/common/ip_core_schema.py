@@ -31,31 +31,36 @@ from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.repo.exceptions import ResourceNotFoundException
 from topwrap.util import get_config, get_interface_by_name
 
-_T = Union[str, int]
+_StrOrInt = Union[str, int]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreComplexSignal(MarshmallowDataclassExtensions):
     name: str
-    bound: Optional[tuple[_T, _T]] = ext_field(None)
-    slice: Optional[tuple[_T, _T]] = ext_field(None)
+    bound: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
+    slice: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
     default: Optional[Union[int, str]] = ext_field(None)
 
 
-Signal = Union[str, Tuple[str, _T, _T], Tuple[str, _T, _T, _T, _T], IPCoreComplexSignal]
+Signal = Union[
+    str,
+    Tuple[str, _StrOrInt, _StrOrInt],
+    Tuple[str, _StrOrInt, _StrOrInt, _StrOrInt, _StrOrInt],
+    IPCoreComplexSignal,
+]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCorePort:
     name: str
-    upper_bound: _T
-    lower_bound: _T
-    upper_slice: _T
-    lower_slice: _T
+    upper_bound: _StrOrInt
+    lower_bound: _StrOrInt
+    upper_slice: _StrOrInt
+    lower_slice: _StrOrInt
     direction: LegacyPortDirection = ext_field(by_value=True)
 
     @property
-    def bounds(self) -> Tuple[_T, _T, _T, _T]:
+    def bounds(self) -> Tuple[_StrOrInt, _StrOrInt, _StrOrInt, _StrOrInt]:
         return (self.upper_bound, self.lower_bound, self.upper_slice, self.lower_slice)
 
     @cached_property

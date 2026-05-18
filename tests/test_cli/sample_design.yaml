@@ -1,0 +1,9 @@
+# File contains wrong design format
+# misses external.ports section which causes an exception
+
+name: sample_design
+external:
+  in:
+    - PORT_X
+  out:
+    - PORT_Y
