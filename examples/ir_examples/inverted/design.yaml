@@ -1,3 +1,5 @@
+name: inv_top
+
 external:
   ports:
     in:
@@ -14,8 +16,7 @@ ips:
   adder2:
     file: file:ips/inv_adder.yaml
 
-design:
-  name: inv_top
+connections:
   ports:
     crg:
       clkin: clkin
