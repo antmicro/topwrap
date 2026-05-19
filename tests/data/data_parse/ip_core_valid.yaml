@@ -1,4 +1,7 @@
-name: correct_core
+id:
+  name: correct_core
+  vendor: vendor
+  library: libdefault
 
 parameters:
   p1: 3

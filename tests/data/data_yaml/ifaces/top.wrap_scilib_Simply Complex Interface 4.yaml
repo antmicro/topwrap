@@ -1,0 +1,20 @@
+id:
+  library: scilib
+  name: Simply Complex Interface 4
+  vendor: top.wrap
+signals:
+  optional:
+    in: {}
+    inout: {}
+    out:
+      wdata: (wdata)|(odata)
+  required:
+    in:
+      rdata: (rdata)|(idata)
+      sack: (sack|s_ack)
+    inout: {}
+    out:
+      ack: ack
+      addr: addr
+      strb: strb
+      write: write

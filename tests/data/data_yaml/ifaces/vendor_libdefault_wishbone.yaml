@@ -1,0 +1,22 @@
+id:
+  library: libdefault
+  name: wishbone
+  vendor: vendor
+signals:
+  optional:
+    in:
+      dat_r: dat_r|miso
+      err: err
+      stall: stall
+    inout: {}
+    out:
+      adr: adr
+      dat_w: dat_w|mosi
+      we: we
+  required:
+    in:
+      ack: ack
+    inout: {}
+    out:
+      cyc: cyc
+      stb: stb

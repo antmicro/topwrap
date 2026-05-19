@@ -1,0 +1,10 @@
+id:
+  library: libdefault
+  name: intf_top
+  vendor: vendor
+signals:
+  in:
+  - {name: clk}
+  - {name: rst}
+  inout:
+  - {bound: ['31', '0'], name: ext}

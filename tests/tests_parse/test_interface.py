@@ -6,48 +6,49 @@ from typing import Any
 
 import pytest
 
-from topwrap.common_serdes import NestedDict
-from topwrap.hdl_parsers_utils import PortDirection
-from topwrap.interface import (
-    IfacePortSpecification,
-    InterfaceDefinition,
-    InterfaceDefinitionSignals,
-    InterfaceSignalType,
-    get_interface_by_name,
+from topwrap.backend.yaml.common.interface_schema import (
+    IfacePortSpecificationDescription,
+    InterfaceDefinitionDescription,
+    InterfaceDefinitionSignalsDescription,
+    InterfaceSignalTypeDescription,
 )
+from topwrap.common_serdes import NestedDict
+from topwrap.model.connections import PortDirection
+from topwrap.model.misc import Identifier
+from topwrap.repo.user_repo import InterfaceDefinitionResource
+from topwrap.util import get_config
 
 
 class TestInterfaceDefinition:
     @pytest.fixture
-    def iface(self) -> InterfaceDefinition:
-        return InterfaceDefinition(
-            name="barInterface",
-            port_prefix="bar",
-            signals=InterfaceDefinitionSignals.from_flat(
+    def iface(self) -> InterfaceDefinitionDescription:
+        return InterfaceDefinitionDescription(
+            id=Identifier(name="barInterface"),
+            signals=InterfaceDefinitionSignalsDescription.from_flat(
                 [
-                    IfacePortSpecification(
+                    IfacePortSpecificationDescription(
                         name="foo",
                         regexp=re.compile("foo"),
                         direction=PortDirection.IN,
-                        type=InterfaceSignalType.REQUIRED,
+                        type=InterfaceSignalTypeDescription.REQUIRED,
                     ),
-                    IfacePortSpecification(
+                    IfacePortSpecificationDescription(
                         name="baz",
                         regexp=re.compile("baz"),
                         direction=PortDirection.OUT,
-                        type=InterfaceSignalType.REQUIRED,
+                        type=InterfaceSignalTypeDescription.REQUIRED,
                     ),
-                    IfacePortSpecification(
+                    IfacePortSpecificationDescription(
                         name="foobar",
                         regexp=re.compile("foobar"),
                         direction=PortDirection.IN,
-                        type=InterfaceSignalType.OPTIONAL,
+                        type=InterfaceSignalTypeDescription.OPTIONAL,
                     ),
-                    IfacePortSpecification(
+                    IfacePortSpecificationDescription(
                         name="foobaz",
                         regexp=re.compile("foobaz"),
                         direction=PortDirection.OUT,
-                        type=InterfaceSignalType.OPTIONAL,
+                        type=InterfaceSignalTypeDescription.OPTIONAL,
                     ),
                 ]
             ),
@@ -67,14 +68,6 @@ class TestInterfaceDefinition:
         }
 
     def test_predefined(self):
-        assert len(InterfaceDefinition.get_builtins()) == 5, (
+        assert len(get_config().builtin_repo.get_resources(InterfaceDefinitionResource)) == 5, (
             "No predefined interfaces could be retrieved"
         )
-
-    def test_iface_retrieve_by_name(self):
-        name = "AXI4Stream"
-        assert get_interface_by_name(name) is not None
-
-    def test_iface_retrieve_by_name_negative(self):
-        name = "zxcvbnm"
-        assert get_interface_by_name(name) is None

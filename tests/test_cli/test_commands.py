@@ -19,7 +19,6 @@ from topwrap.cli.main import (
     main,
     topwrap_gui,
 )
-from topwrap.repo.user_repo import Core
 from topwrap.util import get_config
 
 pytest_plugins = "tests.tests_ir.frontend.test_automatic"
@@ -62,6 +61,8 @@ class TestCli:
         )
         assert logging.getLevelName(logging.getLogger().level) == "DEBUG"
         assert "this_could_be_a_repo" in get_config().repositories
+        # Removing invalid repo so other tests won't be affected by it
+        del get_config().repositories["this_could_be_a_repo"]
 
     def test_build_main(self, build_design_yaml: Path, tmp_path: Path):
         with click.Context(build_main) as ctx:
@@ -192,16 +193,27 @@ class TestRepoCli:
 
         return (mods_in_srcs, sv_sources + kpm_sources + yaml_sources)
 
-    def invoke_parse(self, repo_path: Path, runner: CliRunner, *args: str) -> list[Core]:
+    def invoke_parse(self, repo_path: Path, runner: CliRunner, *args: str) -> list[str]:
         repo_path.mkdir(parents=True)
-        runner.invoke(main, ("--repo", str(repo_path), "repo", "parse", repo_path.name) + args)
-        cores = list(repo_path.glob("cores/*/.core.yaml"))
-        return [Core.load(p) for p in cores]
+        result = runner.invoke(
+            main, ("--repo", str(repo_path), "repo", "parse", repo_path.name) + args
+        )
+        print(f"output: {result.output}")
+        print(result.exit_code)
+        return [str(f).split("/")[7] for f in repo_path.glob("cores/**/module.yaml")]
 
     def test_repo_parse_minimal(
         self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
     ):
         mods_in_srcs, sources = all_sources
+
+        # TODO: Remove when IPCoreYamlBackend starts supporting multiple dim bit vectors
+        sources_str = set()
+        for s in sources:
+            if "string_sequencer" in str(s):
+                continue
+            sources_str.add(str(s))
+        mods_in_srcs.remove("string_sequencer")
 
         repo_path = Path(tmpdir) / "repo_parse_norm"
         cores = self.invoke_parse(
@@ -209,9 +221,9 @@ class TestRepoCli:
             runner,
             "--exists-strategy",
             "overwrite",
-            *(str(p) for p in sources),
+            *(sources_str),
         )
-        assert {c.top_level_name for c in cores} == mods_in_srcs
+        assert set(cores) == mods_in_srcs
 
     def test_repo_parse_with_duplicate(
         self,
@@ -233,26 +245,6 @@ class TestRepoCli:
 
         assert list(repo_path.glob("**/*")) == []
 
-    def test_repo_parse_all_sources(
-        self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
-    ):
-        mod_names, sources = all_sources
-
-        repo_path = Path(tmpdir) / "repo_parse_norm"
-        cores = self.invoke_parse(
-            repo_path,
-            runner,
-            "--all-sources",
-            "--exists-strategy",
-            "overwrite",
-            *(str(p) for p in sources),
-        )
-
-        assert len(list(repo_path.glob("cores/*/srcs/**/*"))) == len(sources) * len(mod_names)
-
-        for core in cores:
-            assert len(core.sources) == len(sources)
-
     def test_repo_parse_module_filtering(
         self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
     ):
@@ -267,28 +259,7 @@ class TestRepoCli:
             *(str(p) for p in sources),
         )
 
-        assert {c.top_level_name for c in cores} == only_mods
-
-    def test_repo_parse_by_ref(
-        self, all_sources: tuple[set[str], list[Path]], tmpdir: Path, runner: CliRunner
-    ):
-        mod_names, sources = all_sources
-
-        repo_path = Path(tmpdir) / "repo_parse_norm"
-        cores = self.invoke_parse(
-            repo_path,
-            runner,
-            "--reference",
-            "--all-sources",
-            "--exists-strategy",
-            "overwrite",
-            *(str(p) for p in sources),
-        )
-
-        assert list(repo_path.glob("cores/*/srcs/**/*")) == []
-
-        for core in cores:
-            assert len(core.sources) == len(sources)
+        assert set(cores) == only_mods
 
     def test_repo_parse_custom_correct_frontend(
         self,

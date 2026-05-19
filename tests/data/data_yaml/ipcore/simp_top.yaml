@@ -1,0 +1,11 @@
+id:
+  library: libdefault
+  name: simp_top
+  vendor: vendor
+signals:
+  in:
+  - {name: clk}
+  - {name: sel_gen}
+  - {name: rst}
+  out:
+  - {name: rnd_bit}

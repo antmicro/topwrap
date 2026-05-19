@@ -65,7 +65,10 @@ interfaces:
         RVALID: s_axi_rvalid
         WREADY: s_axi_wready
     type: AXI3
-name: axi_axil_adapter
+id:
+  library: libdefault
+  vendor: vendor
+  name: axi_axil_adapter
 parameters:
   ADDR_WIDTH: 32
   AXIL_DATA_WIDTH: 32

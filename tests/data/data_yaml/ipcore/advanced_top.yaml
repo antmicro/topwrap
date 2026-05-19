@@ -1,0 +1,53 @@
+id:
+  library: libdefault
+  name: advanced_top
+  vendor: vendor
+interfaces:
+  SCI_ctrl:
+    mode: subordinate
+    signals:
+      in:
+        ack: null
+        addr: null
+        strb: null
+        write: null
+      out:
+        rdata: null
+        sack: null
+    type: Simply Complex Interface 4
+  SCI_ext_man:
+    mode: manager
+    signals:
+      in:
+        rdata: null
+        sack: null
+      out:
+        ack: null
+        addr: null
+        strb: null
+        wdata: null
+        write: null
+    type: Simply Complex Interface 4
+  SCI_ext_sub:
+    mode: subordinate
+    signals:
+      in:
+        ack: null
+        addr: null
+        strb: null
+        wdata: null
+        write: null
+      out:
+        rdata: null
+        sack: null
+    type: Simply Complex Interface 4
+parameters:
+  CIF_ADDR_WIDTH: '32'
+  CIF_DATA_WIDTH: '64'
+signals:
+  in:
+  - {name: clk}
+  - {name: char_streams}
+  out:
+  - {bound: ['31', '0'], name: hw_id}
+  - {bound: ['7', '0'], name: cow_out}

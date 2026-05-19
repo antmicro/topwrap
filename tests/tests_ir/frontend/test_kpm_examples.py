@@ -8,7 +8,6 @@ from typing import Dict, Union, cast
 import pytest
 
 from topwrap.frontend.kpm.frontend import KpmFrontend
-from topwrap.frontend.yaml.ip_core import InterfaceDescriptionFrontend
 from topwrap.model.connections import (
     ConstantConnection,
     InterfaceConnection,
@@ -18,7 +17,9 @@ from topwrap.model.connections import (
 from topwrap.model.design import ModuleInstance
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
-from topwrap.util import JsonType, read_json_file
+from topwrap.repo.exceptions import ResourceNotFoundException
+from topwrap.repo.user_repo import InterfaceDefinitionResource
+from topwrap.util import JsonType, get_config, read_json_file
 
 
 @pytest.fixture
@@ -52,8 +53,21 @@ def all_dataflow_files(test_dirs: Dict[str, Path]) -> Dict[str, JsonType]:
 def all_design_modules(
     all_dataflow_files: Dict[str, JsonType], all_specification_files: Dict[str, JsonType]
 ) -> Dict[str, Module]:
-    if_names = ["AXI4", "AXI3", "AXI4Lite", "AXI4Stream"]
-    ifs = [InterfaceDescriptionFrontend.from_loaded(x) for x in if_names]
+    if_names = [
+        "vendor_libdefault_AXI4",
+        "vendor_libdefault_AXI3",
+        "vendor_libdefault_AXI4Lite",
+        "vendor_libdefault_AXI4Stream",
+    ]
+    ifs = []
+    for repo in get_config().loaded_repos.values():
+        for iface in if_names:
+            try:
+                iface = repo.get_resource(InterfaceDefinitionResource, iface)
+                ifs.append(iface.definition)
+            except ResourceNotFoundException:
+                continue
+    assert len(ifs) == len(if_names)
     frontend = KpmFrontend(interfaces=cast(list[InterfaceDefinition], ifs))
 
     designs = {}

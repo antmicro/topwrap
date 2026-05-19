@@ -1,0 +1,10 @@
+id:
+  library: libdefault
+  name: inv_top
+  vendor: vendor
+signals:
+  in:
+  - {name: clkin}
+  - {bound: ['7', '0'], name: val}
+  out:
+  - {bound: ['8', '0'], name: sum}

@@ -15,9 +15,10 @@ from examples.ir_examples.modules import (
 )
 from examples.soc.ir.mem import Bits, Dimensions
 from tests.tests_ir.test_kpm_non_destructive import _compare_modules
+from topwrap import util
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
-from topwrap.frontend.yaml.ip_core import InterfaceDescriptionFrontend, IPCoreDescriptionFrontend
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
@@ -45,7 +46,8 @@ class TestIpCoreDescriptionBackend:
             _compare_modules(golden, mod)
 
     def test_independent_signals(self):
-        wishbone = InterfaceDescriptionFrontend().from_loaded("wishbone")
+        wishbone = util.get_interface_by_name("vendor_libdefault_wishbone").definition
+
         assert wishbone
 
         extp = [
@@ -135,7 +137,7 @@ class TestIpCoreDescriptionBackend:
                     "type": "my_intf",
                 }
             },
-            "name": "foo",
+            "id": {"name": "foo", "library": "libdefault", "vendor": "vendor"},
         }
 
         assert tree2 == {
@@ -146,7 +148,7 @@ class TestIpCoreDescriptionBackend:
                     "type": "my_intf",
                 }
             },
-            "name": "bar",
+            "id": {"name": "bar", "library": "libdefault", "vendor": "vendor"},
         }
 
     def test_complex_port(self):
@@ -169,7 +171,7 @@ class TestIpCoreDescriptionBackend:
         tree = yaml.safe_load(out.content)
 
         assert tree == {
-            "name": "top",
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
             "signals": {
                 "in": [
                     {
@@ -197,7 +199,7 @@ class TestIpCoreDescriptionBackend:
         tree = yaml.safe_load(out.content)
 
         assert tree == {
-            "name": "top",
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
             "parameters": {
                 "foo": "32",
                 "bar": None,

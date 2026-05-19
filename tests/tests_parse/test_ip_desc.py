@@ -11,14 +11,15 @@ import yaml
 from deepdiff import DeepDiff
 from marshmallow import ValidationError
 
-from topwrap.interface import InterfaceMode
-from topwrap.ip_desc import (
+from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
+from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexParameter,
     IPCoreDescription,
     IPCoreInterface,
     IPCoreIntfPorts,
     IPCorePorts,
 )
+from topwrap.model.misc import Identifier
 from topwrap.util import get_config
 
 
@@ -27,7 +28,11 @@ class TestIPCoreDescription:
     def invalid_interface_type_core(self):
         return yaml.safe_load(
             r"""
-name: test_ip
+
+id:
+  vendor: vendor
+  library: libdefault
+  name: test_ip
 interfaces:
     intf1:
         mode: INVALID
@@ -38,7 +43,10 @@ interfaces:
     def invalid_interface_compliance_core(self):
         return yaml.safe_load(
             r"""
-name: test_ip
+id:
+  vendor: vendor
+  library: libdefault
+  name: test_ip
 interfaces:
     i1:
         mode: subordinate
@@ -56,7 +64,10 @@ interfaces:
     def optional_missing_interface_compliance_core(self):
         return yaml.safe_load(
             r"""
-name: test_ip
+id:
+  vendor: vendor
+  library: libdefault
+  name: test_ip
 interfaces:
     i1:
         mode: subordinate
@@ -128,7 +139,6 @@ interfaces:
         ):
             core = get_config().builtin_repo.get_core_by_name(ip)
             assert core is not None, f"Builtin IP {ip} is missing"
-            _ip = IPCoreDescription.load(core.sources[0].to_path())
 
     def test_save(self, expected_output: IPCoreDescription):
         with tempfile.NamedTemporaryFile(suffix=".yaml") as f:
@@ -138,7 +148,13 @@ interfaces:
 
     def test_invalid_syntax(self, completely_invalid_core):
         EXPECTED = {
-            "name": ["Not a valid string."],
+            "id": {
+                "name": ["Missing data for required field."],
+                "hey": ["Unknown field."],
+                "hi": ["Unknown field."],
+                "hello": ["Unknown field."],
+            },
+            "name": ["Unknown field."],
             "signals": {
                 "in": {
                     1: [
@@ -251,7 +267,7 @@ interfaces:
         ip: IPCoreDescription = IPCoreDescription.from_dict(completely_valid_core)
 
         assert ip == IPCoreDescription(
-            name="correct_core",
+            id=Identifier(name="correct_core"),
             signals=IPCorePorts(
                 input={
                     "clk",
@@ -272,7 +288,7 @@ interfaces:
             interfaces={
                 "intf1": IPCoreInterface(
                     type="wishbone",
-                    mode=InterfaceMode.MANAGER,
+                    mode=InterfaceModeDescription.MANAGER,
                     signals=IPCoreIntfPorts(
                         input={"ack": ("ack", 2, 0)},
                         output={"cyc": "cyc", "stb": ("cyc", 3, 0, 1, 0)},

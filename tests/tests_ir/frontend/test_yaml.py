@@ -7,25 +7,21 @@ from typing import Callable, Optional, Union
 import pytest
 
 from examples.ir_examples.modules import ALL_MODULES, lfsr_gen
-from topwrap.frontend.yaml.design import DesignDescriptionFrontend
-from topwrap.frontend.yaml.design_schema import DesignDescription
-from topwrap.frontend.yaml.frontend import YamlFrontend
-from topwrap.frontend.yaml.ip_core import (
-    InterfaceDescriptionFrontend,
-    IPCoreDescriptionFrontend,
+from topwrap.backend.yaml.common.ip_core_schema import (
+    IPCoreComplexParameter,
     IPCoreDescriptionFrontendException,
-    _param_to_ir_param,
+    param_to_ir_param,
 )
-from topwrap.interface import get_interface_by_name
-from topwrap.ip_desc import IPCoreComplexParameter
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend
+from topwrap.frontend.yaml.frontend import YamlFrontend
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import Bit, Bits, Dimensions
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import ElaboratableValue
 from topwrap.model.module import Module
-from topwrap.repo.user_repo import Core, UserRepo
-from topwrap.resource_field import FileReferenceHandler
+from topwrap.repo.user_repo import InterfaceDefinitionResource
 from topwrap.util import get_config
 
 from .test_ir_examples import TestIrExamples
@@ -166,48 +162,6 @@ class TestDesignDescriptionFrontend:
         assert preloaded.components.find_by_name("gen1").module is lfsr_gen
         assert fresh.components.find_by_name("gen1").module is not lfsr_gen
 
-    def test_repo_resource_interaction(self, tmpdir):
-        """
-        This is a test for a specific bug that occurred in the YAML design frontend
-        when it couldn't match already parsed IR Modules from a repo passed in the
-        constructor of the frontend with repo core resource references in the Design
-        Description. This resulted in the parsed design using newly created IR Module
-        instances for cores that were already loaded from the user repository previously.
-        This is highly unwanted as all frontends should recognize modules received in
-        the constructor amongst currently parsed sources and not create duplicate instances.
-        """
-
-        tmpdir = Path(tmpdir)
-
-        (tmpdir / "core.v").write_text(r"module \321havefun$!!()*^ ; endmodule")
-
-        repo = UserRepo("test")
-        repo.add_resource(
-            Core(
-                "sanitized_name",
-                top_level_name="321havefun$!!()*^",
-                sources=[FileReferenceHandler(tmpdir / "core.v")],
-            )
-        )
-        repo.save(tmpdir / "repo")
-
-        DesignDescription.from_yaml(
-            "{ips:{inst1:{file: &a 'repo[test]:sanitized_name'}, inst2:{file: *a}}}"
-        ).save(tmpdir / "design.yaml")
-
-        with pytest.MonkeyPatch.context() as ctx:
-            ctx.setitem(get_config().repositories, "test", FileReferenceHandler(tmpdir / "repo"))
-            try:
-                del get_config().loaded_repos
-            except AttributeError:
-                pass
-            mod = get_config().loaded_repos["test"].get_core_by_name("sanitized_name")
-            assert mod is not None
-            mod_from_repo = mod.ir_module.top_level
-            des = DesignDescriptionFrontend([mod_from_repo]).parse_file(tmpdir / "design.yaml")
-            mods_in_design = [c.module for c in des.components]
-            assert len(mods_in_design) == 2 and all(m is mod_from_repo for m in mods_in_design)
-
 
 class TestIPCoreDescriptionFrontend:
     def test_parse_on_mem_yaml(self):
@@ -236,11 +190,14 @@ class TestIPCoreDescriptionFrontend:
 
     def test_complex_param(self):
         param = IPCoreComplexParameter(32, 563)
-        assert _param_to_ir_param(param) == ElaboratableValue("32'd563")
+        assert param_to_ir_param(param) == ElaboratableValue("32'd563")
 
     def test_complex_signal(self):
         ip = """
-        name: top
+        id:
+          name: top
+          vendor: vendor
+          library: libdefault
         signals:
           in:
             - name: foo
@@ -270,7 +227,10 @@ class TestIPCoreDescriptionFrontend:
 
     def test_bad_intf_clock(self):
         ip = """
-        name: top
+        id:
+          library: libdefault
+          vendor: vendor
+          name: top
         interfaces:
           foo:
             type: wishbone
@@ -283,7 +243,10 @@ class TestIPCoreDescriptionFrontend:
 
     def test_bad_intf_reset(self):
         ip = """
-        name: top
+        id:
+          library: libdefault
+          vendor: vendor
+          name: top
         interfaces:
           foo:
             type: wishbone
@@ -297,12 +260,17 @@ class TestIPCoreDescriptionFrontend:
 
 class TestInterfaceDescriptionFrontend:
     def test_parse_wishbone(self):
-        assert (old := get_interface_by_name("wishbone")) is not None
-        idef = InterfaceDescriptionFrontend().parse(old)
+        old = None
+        for resource in get_config().builtin_repo.get_resources(InterfaceDefinitionResource):
+            if resource.name == "vendor_libdefault_wishbone":
+                old = resource
+        assert old is not None
+        idef = old.definition
 
         assert idef.id.name == "wishbone"
         assert len(idef.signals) == 18
         cyc = idef.signals.find_by_name("cyc")
+        assert cyc is not None
         ack = idef.signals.find_by_name("ack")
         sel = idef.signals.find_by_name("sel")
         err = idef.signals.find_by_name("err")

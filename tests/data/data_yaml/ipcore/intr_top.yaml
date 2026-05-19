@@ -1,0 +1,34 @@
+id:
+  library: libdefault
+  name: intr_top
+  vendor: vendor
+interfaces:
+  ext_manager:
+    mode: subordinate
+    signals:
+      in:
+        adr: {bound: ['31', '0'], name: o_wb_adr}
+        cyc: {name: o_wb_cyc}
+        dat_w: {bound: ['7', '0'], name: o_wb_dat}
+        stb: {name: o_wb_stb}
+        we: {name: o_wb_we}
+      out:
+        ack: {name: i_wb_ack}
+        dat_r: {bound: ['7', '0'], name: i_wb_dat}
+        err: {name: i_wb_err}
+        stall: {name: i_wb_stall}
+    type: wishbone
+signals:
+  in:
+  - {name: o_wb_we}
+  - {bound: ['7', '0'], name: o_wb_dat}
+  - {name: clk}
+  - {bound: ['31', '0'], name: o_wb_adr}
+  - {name: o_wb_cyc}
+  - {name: rst}
+  - {name: o_wb_stb}
+  out:
+  - {name: i_wb_ack}
+  - {bound: ['7', '0'], name: i_wb_dat}
+  - {name: i_wb_err}
+  - {name: i_wb_stall}

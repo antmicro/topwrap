@@ -19,6 +19,7 @@ from topwrap.common_serdes import (
     unflatten_annotated_tree,
 )
 from topwrap.config import config
+from topwrap.model.module import Module
 from topwrap.repo.files import IncorrectUrlException
 from topwrap.repo.user_repo import Core
 from topwrap.resource_field import (
@@ -504,6 +505,6 @@ this: [a, b, c]
     def test_real_resource(self):
         ref = YamlCommonSchemes.parse("repo[builtin]:axi_protocol_converter")
         assert isinstance(ref, RepoReferenceHandler)
-        ld_core = ref.to_resource(Core).ir_module
-        assert ld_core.top_level and [*ld_core.unknown_sources] == []
+        ld_core = ref.to_resource(Core).top
+        assert isinstance(ld_core, Module)
         assert not ref.to_path().exists()

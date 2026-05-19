@@ -1,34 +1,34 @@
 ips:
   s1_mod_3:
-    file: file:../../../../../examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+    file: file:../../../../../examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml
     parameters:
       SUB_VALUE: 12
   s1_mod_3_2:
-    file: file:../../../../../examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+    file: file:../../../../../examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml
     parameters:
       SUB_VALUE: 11
   s1_mod_3_3:
-    file: file:../../../../../examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+    file: file:../../../../../examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml
     parameters:
       SUB_VALUE: 13
   s2_mod_1:
-    file: file:../../../../../examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+    file: file:../../../../../examples/hierarchy/my_repo/cores/s2_mod_1/module.yaml
   s2_mod_2:
-    file: file:../../../../../examples/hierarchy/repo/cores/s2_mod_2/s2_mod_2.yaml
+    file: file:../../../../../examples/hierarchy/my_repo/cores/s2_mod_2/module.yaml
 
 hierarchies:
   SUB:
     ips:
       s1_mod_2:
-        file: file:../../../../../examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml
+        file: file:../../../../../examples/hierarchy/my_repo/cores/s1_mod_2/module.yaml
       s1_mod_2_2:
-        file: file:../../../../../examples/hierarchy/repo/cores/s1_mod_2/s1_mod_2.yaml
+        file: file:../../../../../examples/hierarchy/my_repo/cores/s1_mod_2/module.yaml
 
     hierarchies:
       BETWEEN:
         ips:
           c_mod_2:
-            file: file:../../../../../examples/hierarchy/repo/cores/c_mod_2/c_mod_2.yaml
+            file: file:../../../../../examples/hierarchy/my_repo/cores/c_mod_2/module.yaml
         connections:
           ports:
             c_mod_2:
@@ -41,17 +41,17 @@ hierarchies:
       SUB:
         ips:
           s1_mod_3:
-            file: file:../../../../../examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+            file: file:../../../../../examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml
             parameters:
               SUB_VALUE: 18
           s1_mod_3_2:
-            file: file:../../../../../examples/hierarchy/repo/cores/s1_mod_3/s1_mod_3.yaml
+            file: file:../../../../../examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml
             parameters:
               SUB_VALUE: 18
           s2_mod_1:
-            file: file:../../../../../examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+            file: file:../../../../../examples/hierarchy/my_repo/cores/s2_mod_1/module.yaml
           s2_mod_1_2:
-            file: file:../../../../../examples/hierarchy/repo/cores/s2_mod_1/s2_mod_1.yaml
+            file: file:../../../../../examples/hierarchy/my_repo/cores/s2_mod_1/module.yaml
         connections:
           ports:
             s1_mod_3:
