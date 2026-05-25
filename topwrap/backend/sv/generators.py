@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC
@@ -62,9 +62,11 @@ class WishboneRRSystemVerilogGenerator(SystemVerilogGenerator[WishboneInterconne
     ) -> SVFile:
         wb_params = interconnect.params
         features = frozenset([x.value for x in interconnect.params.features])
+        data_width = int(wb_params.data_width.value)
+        data_width_in_bytes = data_width >> 3
         ic = wb_inter.WishboneRRInterconnect(
             addr_width=int(wb_params.addr_width.value),
-            data_width=int(wb_params.data_width.value),
+            data_width=data_width,
             granularity=wb_params.granularity,
             features=features,
         )
@@ -76,12 +78,12 @@ class WishboneRRSystemVerilogGenerator(SystemVerilogGenerator[WishboneInterconne
         for referenced_interface_id in interconnect.subordinates:
             referenced_interface = referenced_interface_id.resolve()
             subordinate = interconnect.subordinates[referenced_interface_id]
+            size = int(int(subordinate.size.value) / data_width_in_bytes)
             ic.add_subordinator(
                 name=self.generate_instance_name(referenced_interface),
                 addr=int(subordinate.address.value),
-                size=int(subordinate.size.value),
+                size=size,
             )
-
         return SVFile(
             content=verilog.convert(ic, name=f"interconnect_{interconnect.name}"),
             name=f"interconnect_{interconnect.name}",

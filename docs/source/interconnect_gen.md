@@ -81,6 +81,13 @@ interconnects:
     memory_map: {map_name}
   ...
 ```
+ - `clock` \- a port that has the clock signal
+ - `reset` \- a port that has the reset signal
+ - `type` \- a type of interconnect, listed in [Supported interconnect types][#supported-interconnect-types]
+ - `parameters` \- a list of parameters specific to the interconnect
+ - `managers` \- a list of interfaces used as managers, each ip module can have multiple interfaces connected
+ - `subordinates` \- a list of interfaces used as subordinates, each ip module can have multiple interfaces connected. Address and size is specified in bytes.
+ - `memory_map` \- the memory map used to update subordinates
 
 ## Supported interconnect types
 
