@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.0]
 
 ### Added
 
@@ -27,7 +27,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The order of fields in generated KPM specifications are now deterministic
 - Topwrap's builtin cores and interfaces have been repackaged into a user repository automatically loaded at start named `builtin`
 - All YAML files internal to Topwrap (examples, tests, built-in repo) now only use the `.yaml` extension
-- Default location for built KPM server from `./build/` to `$XDG_CACHE_HOME/topwrap/kpm_build`
+- Default location for built KPM server from `./build/` to `$XDG_CACHE_HOME/topwrap/kpm_build/<kpm_commit_sha>/`
+- The YAML file syntax has changed. Detailed information about the updated YAML format can be found in the documentation: https://antmicro.github.io/topwrap/description_files.html
+  - The format of the design description YAML files has changed. To convert existing designs, the following changes are needed:
+    - IP core instance parameters are now specified within the `ips` section, instead of a separate `parameters` section:
+      ```yaml
+      ips:
+        some_core:
+          ...
+          parameters:
+            SOME_PARAM: some_value
+      ```
+    - The `design` section has been removed and it's contents have moved.
+      - `name`, `hierarchies`, `interconnects` are now specified at the top level of the YAML file
+      - `ports`, `interfaces` are in a new `connections` section specified at the top level:
+        ```yaml
+        connections:
+          ports:
+            ...
+          interfaces:
+            ...
+        ```
+  - IP core YAML files and interface description YAML files have a new way of specifying identifiers:
+    - The `name` key has been replaced by an `id` key, with the following structure:
+      ```yaml
+      id:
+        name: some_ip_name
+        vendor: some_ip_vendor
+        library: some_ip_library
+      ```
+      - The `vendor` and `library` fields may be omitted, and default to `vendor` and `libdefault` respectively in that case.
+  - The `port_prefix` key has been removed from interface description YAML files.
+  - Sizes of interconnect subordinates (defined both in the interconnect and address maps) is now consistently specified in bytes (like the address). Previously, the meaning of `size` depended on the interconnect type (bytes for AXI, data width units for Wishbone RR).
+- The way the user repository works has changed.
+  - Instead of storing (System)Verilog sources directly for an IP core, repositories now store IP core YAML files describing the cores instead.
+  - The `.core.yaml` description file has been removed.
+  - The YAML file in each IP core directory has a uniform name: `module.yaml`.
 
 ### Fixed
 
@@ -37,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resolved an issue with YAML files produced by `topwrap parse`, where unnecessary double hyphens (`--`) appeared in signal definitions
 - Changed how validation is done in topwrap in order to support hierarchical designs and check for more errors while creating design
 
-## [0.1.0] - 2024-09-27
+## [0.6.0]
 
 ### Added
 
