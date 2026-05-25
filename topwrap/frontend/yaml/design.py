@@ -17,7 +17,7 @@ from topwrap.frontend.yaml.design_schema import (
     MemoryMapEntry,
 )
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
-from topwrap.interconnects.types import INTERCONNECT_TYPES
+from topwrap.interconnects.types import INTERCONNECT_TYPES, InterconnectTypeInfo
 from topwrap.model.connections import (
     Clock,
     ConstantConnection,
@@ -33,6 +33,7 @@ from topwrap.model.connections import (
 )
 from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit
+from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.memory_map import MemoryMap as IRMemoryMap
 from topwrap.model.memory_map import MemoryMapSubordinate
@@ -113,16 +114,7 @@ class DesignDescriptionFrontend:
             ir_maps[map_name] = IRMemoryMap(map_name, map)
         des.add_memory_maps(ir_maps)
 
-    def _parse_hier(
-        self, source: Optional[Path], desc: DesignDescription, name_hint: str
-    ) -> Design:
-        design = Design()
-        mod = Module(
-            id=Identifier(name=name_hint),
-            design=design,
-            refs=[FileReference(source)] if source else (),
-        )
-
+    def _parse_components(self, desc: DesignDescription, design: Design, source: Optional[Path]):
         # Parse regular component instances
         for cname, ip in desc.ips.items():
             cmod = self._get_module(ip)
@@ -133,10 +125,7 @@ class DesignDescriptionFrontend:
             parsed = self._parse_hier(source, hdesc, hname)
             design.add_component(ModuleInstance(name=hname, module=parsed.parent))
 
-        self._parse_parameters(desc, design)
-
-        # Gather declarations of external ports and interfaces so that
-        # they can be instantiated with the inferred type later on
+    def _parse_ports(self, desc: DesignDescription) -> dict[str, tuple[PortDirection, bool]]:
         declared_exts = dict[str, tuple[PortDirection, bool]]()
         for port, group in ((True, desc.external.ports), (False, desc.external.interfaces)):
             for dir, decls in ((PortDirection.IN, group.input), (PortDirection.OUT, group.output)):
@@ -145,8 +134,14 @@ class DesignDescriptionFrontend:
                         logger.warning(f"Skipping duplicated external IO: '{d}'")
                         continue
                     declared_exts[d] = (dir, port)
+        return declared_exts
 
-        # Parse regular connections between ports, interfaces and externals
+    def _parse_connections(
+        self,
+        desc: DesignDescription,
+        design: Design,
+        declared_exts: dict[str, tuple[PortDirection, bool]],
+    ):
         for group in (desc.connections.ports, desc.connections.interfaces):
             for comp, maps in group.items():
                 for sig, ref in maps.items():
@@ -155,7 +150,7 @@ class DesignDescriptionFrontend:
                     except DDFE as e:
                         logger.warning(f"Skipping invalid connection: {e}")
 
-        # Realize leftover, internally unconnected, external IO declarations
+    def _add_ports(self, mod: Module, declared_exts: dict[str, tuple[PortDirection, bool]]):
         for name, (dir, port) in declared_exts.items():
             if port:
                 mod.add_port(Port(name=name, direction=dir, type=Bit()))
@@ -166,17 +161,14 @@ class DesignDescriptionFrontend:
                 )
                 continue
 
-        # Parse memory maps, need to be done after interfaces are parsed
-        self._parse_memory_maps(design, desc.memory_maps)
-
-        # Parse interconnects
+    def _parse_interconnects(self, desc: DesignDescription, design: Design):
         for iname, intr in desc.interconnects.items():
             try:
                 self._parse_interconnect(design, iname, intr)
             except DDFE as e:
                 logger.warning(f"Skipping interconnect '{iname}' because of: {e}")
 
-        # Handle the specific syntax of inout connections
+    def _parse_inout(self, desc: DesignDescription, design: Design):
         for comp, io in desc.external.ports.inout:
             try:
                 refio, refsig = self._resolve_ref(design, comp, io)
@@ -190,6 +182,36 @@ class DesignDescriptionFrontend:
             design.add_connection(
                 PortConnection(source=refio, target=ReferencedPort.external(port))
             )
+
+    def _parse_hier(
+        self, source: Optional[Path], desc: DesignDescription, name_hint: str
+    ) -> Design:
+        design = Design()
+        mod = Module(
+            id=Identifier(name=name_hint),
+            design=design,
+            refs=[FileReference(source)] if source else (),
+        )
+
+        self._parse_components(desc, design, source)
+        self._parse_parameters(desc, design)
+
+        # Gather declarations of external ports and interfaces so that
+        # they can be instantiated with the inferred type later on
+        declared_exts = self._parse_ports(desc)
+        # Parse regular connections between ports, interfaces and externals
+        self._parse_connections(desc, design, declared_exts)
+        # Realize leftover, internally unconnected, external IO declarations
+        self._add_ports(mod, declared_exts)
+
+        # Parse memory maps, need to be done after interfaces are parsed
+        self._parse_memory_maps(design, desc.memory_maps)
+
+        # Parse interconnects
+        self._parse_interconnects(desc, design)
+
+        # Handle the specific syntax of inout connections
+        self._parse_inout(desc, design)
 
         self._parse_clocks_resets(design, desc)
 
@@ -214,7 +236,64 @@ class DesignDescriptionFrontend:
 
                 comp.parameters[pdef._id] = maybe_param
 
-    def _parse_interconnect(self, des: Design, iname: str, intr: DesignSectionInterconnect):  # noqa: C901
+    def _parse_interconnect_managers(
+        self,
+        des: Design,
+        intr: DesignSectionInterconnect,
+        ir_intr: Interconnect,
+        itype: InterconnectTypeInfo,
+        iname: str,
+    ):
+        def get_refio_from_manager(
+            des: Design, mname: str, man: str
+        ) -> Optional[ReferencedInterface]:
+            try:
+                refio, _ = self._resolve_ref(des, mname, man)
+                if not isinstance(refio, ReferencedInterface):
+                    raise DDFE("Manager reference is not an interface")
+                else:
+                    return refio
+            except DDFE as e:
+                logger.warning(
+                    f"Skipping manager '{man}' for interconnect '{iname}' because of: {e}"
+                )
+
+        for mname, mans in intr.managers.items():
+            if isinstance(mans, list):
+                for man in mans:
+                    refio = get_refio_from_manager(des, mname, man)
+                    if not refio:
+                        continue
+                    ir_intr.managers[refio._id] = itype.man_params()
+            else:  # Dict
+                for man, params in mans.items():
+                    refio = get_refio_from_manager(des, mname, man)
+                    if not refio:
+                        continue
+                    ir_intr.managers[refio._id] = itype.man_params.from_dict(params)
+
+    def _parse_interconnect_subordinates(
+        self,
+        des: Design,
+        intr: DesignSectionInterconnect,
+        ir_intr: Interconnect,
+        itype: InterconnectTypeInfo,
+        iname: str,
+    ):
+        for sname, subs in intr.subordinates.items():
+            for sub, params in subs.items():
+                try:
+                    refio, _ = self._resolve_ref(des, sname, sub)
+                    if not isinstance(refio, ReferencedInterface):
+                        raise DDFE("Subordinate reference is not an interface")
+                except DDFE as e:
+                    logger.warning(
+                        f"Skipping subordinate '{sub}' for interconnect '{iname}' because of: {e}"
+                    )
+                    continue
+                ir_intr.subordinates[refio._id] = itype.sub_params.from_dict(asdict(params))
+
+    def _parse_interconnect(self, des: Design, iname: str, intr: DesignSectionInterconnect):
         itype = INTERCONNECT_TYPES[intr.type]
         params = itype.params.from_dict(intr.params)
         try:
@@ -244,46 +323,8 @@ class DesignDescriptionFrontend:
             name=iname, params=params, clock=clock, reset=reset, memory_map=mem_map
         )
 
-        def get_refio_from_manager(
-            des: Design, mname: str, man: str
-        ) -> Optional[ReferencedInterface]:
-            try:
-                refio, _ = self._resolve_ref(des, mname, man)
-                if not isinstance(refio, ReferencedInterface):
-                    raise DDFE("Manager reference is not an interface")
-                else:
-                    return refio
-            except DDFE as e:
-                logger.warning(
-                    f"Skipping manager '{man}' for interconnect '{iname}' because of: {e}"
-                )
-
-        for mname, mans in intr.managers.items():
-            if isinstance(mans, list):
-                for man in mans:
-                    refio = get_refio_from_manager(des, mname, man)
-                    if not refio:
-                        continue
-                    ir_intr.managers[refio._id] = itype.man_params()
-            else:  # Dict
-                for man, params in mans.items():
-                    refio = get_refio_from_manager(des, mname, man)
-                    if not refio:
-                        continue
-                    ir_intr.managers[refio._id] = itype.man_params.from_dict(params)
-
-        for sname, subs in intr.subordinates.items():
-            for sub, params in subs.items():
-                try:
-                    refio, _ = self._resolve_ref(des, sname, sub)
-                    if not isinstance(refio, ReferencedInterface):
-                        raise DDFE("Subordinate reference is not an interface")
-                except DDFE as e:
-                    logger.warning(
-                        f"Skipping subordinate '{sub}' for interconnect '{iname}' because of: {e}"
-                    )
-                    continue
-                ir_intr.subordinates[refio._id] = itype.sub_params.from_dict(asdict(params))
+        self._parse_interconnect_managers(des, intr, ir_intr, itype, iname)
+        self._parse_interconnect_subordinates(des, intr, ir_intr, itype, iname)
 
         des.add_interconnect(ir_intr)
 
