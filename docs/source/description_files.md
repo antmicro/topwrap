@@ -106,9 +106,9 @@ hierarchies:
       ...
 
 memory_maps:
-  {memory_map_name}: # this name is used in an interconnect
-    {instance_name}:
-      {interface_name1}:
+  {memory_map_name}: # this name is referenced in an interconnect
+    {instance_name}: # component instance reference
+      {interface_name1}: # interface of component
         address: {address1}
         {additional_parameter_name}: {value_accepted_by_an_interconnect_implementation} # additional parameters for specific interconnects can be specified
         ...
