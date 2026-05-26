@@ -104,6 +104,10 @@ def parse_repo(
         ResourceNotSupportedException,
     ) as e:
         logging.error(e)
+    except OSError as e:
+        logger.warning(
+            "Path {} exceeding the limit. Contents of the file won't be used.".format(e.filename)
+        )
 
 
 @repo_cli.command(name="list")
