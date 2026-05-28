@@ -3,13 +3,12 @@
 
 import logging
 import os
+from importlib import reload
 from pathlib import Path
 
 import pytest
 
 import topwrap.logger
-
-logger = logging.getLogger()
 
 
 class TestLogger:
@@ -18,15 +17,22 @@ class TestLogger:
     def test_logger_using_level(self, caplog: pytest.LogCaptureFixture):
         level = "INFO"
         cfg_path = None
+        logger = logging.getLogger()
         topwrap.logger.configure(level, cfg_path)
+
         with caplog.at_level(level):
             logger.debug(self.log_content)
             logger.info(self.log_content)
             assert len(caplog.records) == 1
 
+        logging.shutdown()
+        reload(logging)
+        topwrap.logger.configure("WARNING", None)
+
     def test_logger_using_default(self, caplog: pytest.LogCaptureFixture):
         level = None
         cfg_path = None
+        logger = logging.getLogger()
         topwrap.logger.configure(level, cfg_path)
         with caplog.at_level(topwrap.logger.DEFAULT_LOG_LEVEL):
             logger.debug(self.log_content)
@@ -34,11 +40,16 @@ class TestLogger:
             logger.warning(self.log_content)
             assert len(caplog.records) == 1
 
+        logging.shutdown()
+        reload(logging)
+        topwrap.logger.configure("WARNING", None)
+
     def test_logger_using_cfg(self):
         level = None
         dir_path = Path(os.getcwd()) / "tests" / "test_logger"
         cfg_path = dir_path / "logger.cfg"
         log_path = dir_path / "test.log"
+        logger = logging.getLogger()
         topwrap.logger.configure(level, cfg_path)
         logger.debug(self.log_content)
         logger.info(self.log_content)
@@ -49,11 +60,16 @@ class TestLogger:
             line_count = line_count + 1
         assert line_count == 2
 
+        logging.shutdown()
+        reload(logging)
+        topwrap.logger.configure("WARNING", None)
+
     def test_logger_using_level_and_cfg(self):
         level = "INFO"
         dir_path = Path(os.getcwd()) / "tests" / "test_logger"
         cfg_path = dir_path / "logger.cfg"
         log_path = dir_path / "test.log"
+        logger = logging.getLogger()
         topwrap.logger.configure(level, cfg_path)
         logger.debug(self.log_content)
         logger.info(self.log_content)
@@ -62,3 +78,7 @@ class TestLogger:
         for _ in log_file:
             line_count = line_count + 1
         assert line_count == 1
+
+        logging.shutdown()
+        reload(logging)
+        topwrap.logger.configure("WARNING", None)
