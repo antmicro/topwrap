@@ -33,14 +33,23 @@ from topwrap.model.module import Module
 
 
 class PortSelectorField(marshmallow.fields.Field):
-    def _serialize(self, value: PortSelector, attr: Optional[str], obj: Any, **kwargs: Any) -> str:
-        return str(value)
+    def _serialize(
+        self, value: Optional[PortSelector], attr: Optional[str], obj: Any, **kwargs: Any
+    ) -> Optional[str]:
+        return str(value) if value is not None else None
 
     def _deserialize(
-        self, value: str, attr: Optional[str], data: Optional[Mapping[str, Any]], **kwargs: Any
-    ) -> PortSelector:
+        self,
+        value: Optional[str],
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs: Any,
+    ) -> Optional[PortSelector]:
         try:
-            return PortSelector.from_str(value)
+            if value is not None:
+                return PortSelector.from_str(value)
+            else:
+                return None
         except ValueError as e:
             raise marshmallow.ValidationError(f"Malformed port selector: {str(e)}") from e
 

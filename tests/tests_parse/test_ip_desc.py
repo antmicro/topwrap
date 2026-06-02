@@ -183,7 +183,7 @@ interfaces:
                         {"_schema": ["Not a valid string."]},
                         {"_schema": ["Not a valid tuple."]},
                         {"_schema": ["Not a valid tuple."]},
-                        {"name": ["Missing data for required field."]},
+                        {"_schema": ["Signal requires either a port name, or a path"]},
                     ],
                 },
                 "inout": ["Field may not be null."],

@@ -24,6 +24,7 @@ from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescriptio
 from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.hdl_parsers_utils import PortDefinition as LegacyPortDefinition
 from topwrap.hdl_parsers_utils import PortDirection as LegacyPortDirection
+from topwrap.model.inference.port import PortSelectorT
 from topwrap.model.interface import (
     InterfaceMode,
 )
@@ -36,10 +37,18 @@ _StrOrInt = Union[str, int]
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreComplexSignal(MarshmallowDataclassExtensions):
-    name: str
+    name: Optional[str] = ext_field(None)
     bound: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
     slice: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
-    default: Optional[Union[int, str]] = ext_field(None)
+    default: Optional[_StrOrInt] = ext_field(None)
+    path: Optional[PortSelectorT] = ext_field(None)
+
+    @marshmallow.validates_schema
+    def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
+        if self_obj["name"] is None and self_obj["path"] is None:
+            raise marshmallow.ValidationError("Signal requires either a port name, or a path")
+
+        return True
 
 
 Signal = Union[
@@ -77,8 +86,11 @@ class IPCorePort:
     @staticmethod
     def from_sig_and_dir(sig: Signal, dir: LegacyPortDirection) -> "IPCorePort":
         if isinstance(sig, IPCoreComplexSignal):
+            name = sig.name if sig.name is not None else str(sig.path)
+            assert name is not None
+
             return IPCorePort(
-                name=sig.name,
+                name=name,
                 direction=dir,
                 upper_bound=sig.bound[0] if sig.bound else 0,
                 lower_bound=sig.bound[1] if sig.bound else 0,
