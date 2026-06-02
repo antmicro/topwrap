@@ -23,6 +23,7 @@ from topwrap.model.connections import (
     PortDirection,
 )
 from topwrap.model.hdl_types import Bit, Bits, BitStruct, Logic, LogicBitSelect
+from topwrap.model.inference.port import PortSelector
 from topwrap.model.interface import (
     Interface,
     InterfaceDefinition,
@@ -123,21 +124,28 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
             select = port.select if port else None
 
             slice = None
+            use_path = False
             if select and len(select.ops) > 0:
                 if not isinstance(select.ops[0], LogicBitSelect):
-                    raise ValueError("IP core YAML format only supports bit slicing ports")
+                    use_path = True
 
                 if len(select.ops) > 1:
-                    raise ValueError("IP core YAML format only supports single level of slice")
+                    use_path = True
 
                 if not io:
                     raise ValueError("Trying to slice an independent signal")
 
-                slice = (select.ops[0].slice.upper.value, select.ops[0].slice.lower.value)
+                if not use_path:
+                    assert isinstance(select.ops[0], LogicBitSelect)
+                    slice = (select.ops[0].slice.upper.value, select.ops[0].slice.lower.value)
 
-            represented_sig = None
-            if io:
-                represented_sig = self._represent_signal(io.name, io.type, slice)
+            if use_path:
+                assert port is not None
+                represented_sig = IPCoreComplexSignal(path=PortSelector.from_referenced_port(port))
+            else:
+                represented_sig = None
+                if io:
+                    represented_sig = self._represent_signal(io.name, io.type, slice)
 
             if dir == PortDirection.IN:
                 input[sig.resolve().name] = represented_sig

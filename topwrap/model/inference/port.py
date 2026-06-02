@@ -141,6 +141,30 @@ class PortSelector:
 
         return PortSelector(port, tuple(ops))
 
+    @classmethod
+    def from_referenced_port(cls, ref: ReferencedPort) -> PortSelector:
+        """
+        Turn a :class:`ReferencedPort` instance into an instance of :class:`PortSelector`.
+        """
+
+        ops = list[PortSelectorOpT]()
+
+        for op in ref.select.ops:
+            if isinstance(op, LogicBitSelect):
+                try:
+                    hi = int(op.slice.upper.value)
+                    lo = int(op.slice.lower.value)
+                except ValueError:
+                    raise ValueError("Non-integer bounds") from None
+
+                ops.append((PortSelectorOp.SLICE, (hi, lo)))
+            elif isinstance(op, LogicFieldSelect):
+                ops.append((PortSelectorOp.FIELD, op.field.field_name))
+            else:
+                raise ValueError("Unexpected select type")
+
+        return PortSelector(ref.io.name, tuple(ops))
+
     def __str__(self) -> str:
         """
         Represent a :class:`PortSelector` as a port selector string.

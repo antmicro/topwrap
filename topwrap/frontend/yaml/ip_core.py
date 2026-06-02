@@ -27,13 +27,13 @@ from topwrap.model.hdl_types import (
     Bit,
     Bits,
     Dimensions,
-    Logic,
     LogicBitSelect,
     LogicSelect,
 )
 from topwrap.model.interface import (
     Interface,
     InterfaceMode,
+    InterfaceSignal,
 )
 from topwrap.model.misc import ElaboratableValue, FileReference, Parameter
 from topwrap.model.module import Module
@@ -75,13 +75,12 @@ class IPCoreDescriptionFrontend:
             (PortDirection.INOUT, desc.signals.inout),
         ):
             for signal in ports:
-                name, type, _, default = self._parse_signal(signal)
+                port = self._parse_signal(mod, dir, signal)
 
-                if default is not None and dir is not PortDirection.IN:
+                if isinstance(port, ReferencedPort):
                     raise IPCoreDescriptionFrontendException(
-                        f"Default value '{default}' assigned to non-input port '{name}'"
+                        f"Unexpected slice in definition of port '{port.io.name}'"
                     )
-                mod.add_port(Port(name=name, direction=dir, type=type, default_value=default))
 
         self._parse_clocks_resets(desc, mod)
 
@@ -90,8 +89,13 @@ class IPCoreDescriptionFrontend:
         return mod
 
     def _parse_signal(
-        self, signal: Signal
-    ) -> tuple[str, Logic, Optional[Dimensions], Optional[ElaboratableValue]]:
+        self,
+        mod: Module,
+        direction: PortDirection,
+        signal: Signal,
+        intf_sig: Optional[InterfaceSignal] = None,
+        intf_mode: Optional[InterfaceMode] = None,
+    ) -> Union[Port, ReferencedPort]:
         def to_dims(lst: Sequence[Union[str, int]]):
             return Dimensions(
                 upper=ElaboratableValue(lst[0]),
@@ -99,14 +103,41 @@ class IPCoreDescriptionFrontend:
             )
 
         if isinstance(signal, IPCoreComplexSignal):
-            slice = None if signal.slice is None else to_dims(signal.slice)
-            if signal.bound is None:
-                type = Bit()
-            else:
-                type = Bits(dimensions=[to_dims(signal.bound)])
-            default = ElaboratableValue(signal.default) if signal.default is not None else None
+            if signal.name is not None:
+                slice = None if signal.slice is None else to_dims(signal.slice)
+                if signal.bound is None:
+                    type = Bit()
+                else:
+                    type = Bits(dimensions=[to_dims(signal.bound)])
+                default = ElaboratableValue(signal.default) if signal.default is not None else None
 
-            return signal.name, type, slice, default
+                if default is not None and direction is not PortDirection.IN:
+                    raise IPCoreDescriptionFrontendException(
+                        f"Default value '{default}' assigned to non-input port '{signal.name}'"
+                    )
+
+                if not (port := mod.ports.find_by_name(signal.name)):
+                    mod.add_port(
+                        port := Port(
+                            name=signal.name, type=type, direction=direction, default_value=default
+                        )
+                    )
+
+                if slice is not None:
+                    return ReferencedPort.external(
+                        port, select=LogicSelect(logic=type, ops=[LogicBitSelect(slice)])
+                    )
+                else:
+                    return port
+            else:
+                assert signal.path is not None
+
+                if intf_sig is None or intf_mode is None:
+                    raise IPCoreDescriptionFrontendException(
+                        f"Signal 'path': '{signal.path}' specified for non-interface signal"
+                    )
+
+                return signal.path.make_referenced_port(mod, intf_mode, intf_sig)
 
         data = [signal] if isinstance(signal, str) else signal
         slice = to_dims(data[3:5]) if len(data) == 5 else None
@@ -115,7 +146,15 @@ class IPCoreDescriptionFrontend:
         else:
             type = Bits(dimensions=[to_dims(data[1:3])])
 
-        return data[0], type, slice, None
+        if not (port := mod.ports.find_by_name(data[0])):
+            mod.add_port(port := Port(name=data[0], type=type, direction=direction))
+
+        if slice is not None:
+            return ReferencedPort.external(
+                port, select=LogicSelect(logic=type, ops=[LogicBitSelect(slice)])
+            )
+        else:
+            return port
 
     def _parse_intfs(self, desc: IPCoreDescription, mod: Module):
         # TODO: Is this best way to get existing_interfaces?
@@ -156,15 +195,12 @@ class IPCoreDescriptionFrontend:
             ):
                 for sname, sig in sigs.items():
                     if sig:
-                        pname, type, slice, _ = self._parse_signal(sig)
-                        if not (port := mod.ports.find_by_name(pname)):
-                            mod.add_port(port := Port(name=pname, type=type, direction=dir))
-                        logic_slice = LogicSelect(logic=type)
-                        if slice is not None:
-                            logic_slice.ops.append(LogicBitSelect(slice))
-                        signals[byname[sname]._id] = ReferencedPort.external(
-                            port, select=logic_slice
-                        )
+                        port = self._parse_signal(mod, dir, sig, byname[sname], mode)
+
+                        if isinstance(port, Port):
+                            port = ReferencedPort.external(port)
+
+                        signals[byname[sname]._id] = port
                     else:
                         signals[byname[sname]._id] = None
 
