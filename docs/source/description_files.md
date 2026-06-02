@@ -122,9 +122,9 @@ memory_maps:
 
 `inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
 
-The design description YAML format allows for creating hierarchical designs. In order to create a hierarchy, add its name as a key in the `design` section and describe the hierarchy design "recursively" by using the same keys and values (`ports`, `parameters` etc.) as in the top-level design (see above). Hierarchies can be nested recursively, which means that you can create a hierarchy inside another one.
+The design description YAML format allows for creating hierarchical designs. In order to create a hierarchy, add its name as a key in the `hierarchies` section and describe the hierarchy design "recursively" by using the same keys and values (`ports`, `parameters` etc.) as in the top-level design (see above). Hierarchies can be nested recursively, which means that you can create a hierarchy inside another one.
 
-Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level. For example, the `design` section cannot contain two identical keys, but it is possible to have `ip_name` key in this section and `ip_name` in the `design` section of a separate hierarchy.
+Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level, as each entry in `hierarchies` is treated as equal with entries in `ips`.
 
 Additionally, designs can contain clock and reset domains.
 These domains allow for automatic wiring of clock and reset inputs of IP cores, and performing sanity checks for interface connections.
