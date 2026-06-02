@@ -64,15 +64,6 @@ class IPCoreDescriptionFrontend:
         return self._parse(None, desc)
 
     def _parse(self, source: Optional[Path], desc: IPCoreDescription) -> Module:
-        # TODO: Is this best way to get existing_interfaces?
-        # `_parse` method can have different effects when loaded_repos changes
-        existing_interfaces = []
-        from topwrap.repo.user_repo import InterfaceDefinitionResource
-
-        for repo in get_config().loaded_repos.values():
-            for res in repo.get_resources(InterfaceDefinitionResource):
-                existing_interfaces.append(res.definition)
-
         mod = Module(id=desc.id, refs=[FileReference(source)] if source else ())
 
         for name, param in desc.parameters.items():
@@ -93,6 +84,48 @@ class IPCoreDescriptionFrontend:
                 mod.add_port(Port(name=name, direction=dir, type=type, default_value=default))
 
         self._parse_clocks_resets(desc, mod)
+
+        self._parse_intfs(desc, mod)
+
+        return mod
+
+    def _parse_signal(
+        self, signal: Signal
+    ) -> tuple[str, Logic, Optional[Dimensions], Optional[ElaboratableValue]]:
+        def to_dims(lst: Sequence[Union[str, int]]):
+            return Dimensions(
+                upper=ElaboratableValue(lst[0]),
+                lower=ElaboratableValue(lst[1]),
+            )
+
+        if isinstance(signal, IPCoreComplexSignal):
+            slice = None if signal.slice is None else to_dims(signal.slice)
+            if signal.bound is None:
+                type = Bit()
+            else:
+                type = Bits(dimensions=[to_dims(signal.bound)])
+            default = ElaboratableValue(signal.default) if signal.default is not None else None
+
+            return signal.name, type, slice, default
+
+        data = [signal] if isinstance(signal, str) else signal
+        slice = to_dims(data[3:5]) if len(data) == 5 else None
+        if len(data) == 1:
+            type = Bit()
+        else:
+            type = Bits(dimensions=[to_dims(data[1:3])])
+
+        return data[0], type, slice, None
+
+    def _parse_intfs(self, desc: IPCoreDescription, mod: Module):
+        # TODO: Is this best way to get existing_interfaces?
+        # `_parse` method can have different effects when loaded_repos changes
+        existing_interfaces = []
+        from topwrap.repo.user_repo import InterfaceDefinitionResource
+
+        for repo in get_config().loaded_repos.values():
+            for res in repo.get_resources(InterfaceDefinitionResource):
+                existing_interfaces.append(res.definition)
 
         for iname, iface in desc.interfaces.items():
             for existing_iface in existing_interfaces:
@@ -124,7 +157,8 @@ class IPCoreDescriptionFrontend:
                 for sname, sig in sigs.items():
                     if sig:
                         pname, type, slice, _ = self._parse_signal(sig)
-                        mod.add_port(port := Port(name=pname, type=type, direction=dir))
+                        if not (port := mod.ports.find_by_name(pname)):
+                            mod.add_port(port := Port(name=pname, type=type, direction=dir))
                         logic_slice = LogicSelect(logic=type)
                         if slice is not None:
                             logic_slice.ops.append(LogicBitSelect(slice))
@@ -159,36 +193,6 @@ class IPCoreDescriptionFrontend:
                     size=iface.size,
                 )
             )
-
-        return mod
-
-    def _parse_signal(
-        self, signal: Signal
-    ) -> tuple[str, Logic, Optional[Dimensions], Optional[ElaboratableValue]]:
-        def to_dims(lst: Sequence[Union[str, int]]):
-            return Dimensions(
-                upper=ElaboratableValue(lst[0]),
-                lower=ElaboratableValue(lst[1]),
-            )
-
-        if isinstance(signal, IPCoreComplexSignal):
-            slice = None if signal.slice is None else to_dims(signal.slice)
-            if signal.bound is None:
-                type = Bit()
-            else:
-                type = Bits(dimensions=[to_dims(signal.bound)])
-            default = ElaboratableValue(signal.default) if signal.default is not None else None
-
-            return signal.name, type, slice, default
-
-        data = [signal] if isinstance(signal, str) else signal
-        slice = to_dims(data[3:5]) if len(data) == 5 else None
-        if len(data) == 1:
-            type = Bit()
-        else:
-            type = Bits(dimensions=[to_dims(data[1:3])])
-
-        return data[0], type, slice, None
 
     def _parse_clocks_resets(self, desc: IPCoreDescription, mod: Module):
         for name, domain in desc.clocks.items():
