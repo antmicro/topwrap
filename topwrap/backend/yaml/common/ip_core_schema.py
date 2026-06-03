@@ -42,11 +42,15 @@ class IPCoreComplexSignal(MarshmallowDataclassExtensions):
     slice: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
     default: Optional[_StrOrInt] = ext_field(None)
     path: Optional[PortSelectorT] = ext_field(None)
+    type: Optional[str] = ext_field(None)
 
     @marshmallow.validates_schema
     def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
         if self_obj["name"] is None and self_obj["path"] is None:
             raise marshmallow.ValidationError("Signal requires either a port name, or a path")
+
+        if self_obj["bound"] is not None and self_obj["type"] is not None:
+            raise marshmallow.ValidationError("Signal requires either a bound or a type, not both")
 
         return True
 
@@ -266,6 +270,20 @@ class IPCoreReset(MarshmallowDataclassExtensions):
     synchronous_to: Optional[str] = ext_field(None)
 
 
+IPCoreType = Union[tuple[_StrOrInt, _StrOrInt], "IPCoreStruct"]
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreStructField(MarshmallowDataclassExtensions):
+    name: str
+    type: IPCoreType
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreStruct(MarshmallowDataclassExtensions):
+    members: list[IPCoreStructField] = ext_field(list)
+
+
 class BuiltinIPCoreException(Exception):
     """Raised when an exception occurred during handling a built-in IP Core"""
 
@@ -280,6 +298,7 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
     interfaces: Dict[str, IPCoreInterface] = ext_field(dict)
     clocks: Dict[str, IPCoreClock] = ext_field(dict)
     resets: Dict[str, IPCoreReset] = ext_field(dict)
+    types: Dict[str, IPCoreType] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]]
 

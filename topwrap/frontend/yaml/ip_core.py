@@ -12,6 +12,8 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexSignal,
     IPCoreDescription,
     IPCoreDescriptionFrontendException,
+    IPCoreStruct,
+    IPCoreType,
     Signal,
     param_to_ir_param,
 )
@@ -26,9 +28,12 @@ from topwrap.model.connections import (
 from topwrap.model.hdl_types import (
     Bit,
     Bits,
+    BitStruct,
     Dimensions,
+    Logic,
     LogicBitSelect,
     LogicSelect,
+    StructField,
 )
 from topwrap.model.interface import (
     Interface,
@@ -66,6 +71,14 @@ class IPCoreDescriptionFrontend:
     def _parse(self, source: Optional[Path], desc: IPCoreDescription) -> Module:
         mod = Module(id=desc.id, refs=[FileReference(source)] if source else ())
 
+        types = {}
+
+        for name, type in desc.types.items():
+            if name in types:
+                raise IPCoreDescriptionFrontendException(f"Type '{name}' is already defined")
+
+            types[name] = self._parse_type(type)
+
         for name, param in desc.parameters.items():
             mod.add_parameter(Parameter(name=name, default_value=param_to_ir_param(param)))
 
@@ -75,7 +88,7 @@ class IPCoreDescriptionFrontend:
             (PortDirection.INOUT, desc.signals.inout),
         ):
             for signal in ports:
-                port = self._parse_signal(mod, dir, signal)
+                port = self._parse_signal(mod, dir, signal, types)
 
                 if isinstance(port, ReferencedPort):
                     raise IPCoreDescriptionFrontendException(
@@ -84,7 +97,7 @@ class IPCoreDescriptionFrontend:
 
         self._parse_clocks_resets(desc, mod)
 
-        self._parse_intfs(desc, mod)
+        self._parse_intfs(desc, mod, types)
 
         return mod
 
@@ -93,6 +106,7 @@ class IPCoreDescriptionFrontend:
         mod: Module,
         direction: PortDirection,
         signal: Signal,
+        types: dict[str, Logic],
         intf_sig: Optional[InterfaceSignal] = None,
         intf_mode: Optional[InterfaceMode] = None,
     ) -> Union[Port, ReferencedPort]:
@@ -105,10 +119,17 @@ class IPCoreDescriptionFrontend:
         if isinstance(signal, IPCoreComplexSignal):
             if signal.name is not None:
                 slice = None if signal.slice is None else to_dims(signal.slice)
-                if signal.bound is None:
-                    type = Bit()
+                if signal.type is None:
+                    if signal.bound is None:
+                        type = Bit()
+                    else:
+                        type = Bits(dimensions=[to_dims(signal.bound)])
                 else:
-                    type = Bits(dimensions=[to_dims(signal.bound)])
+                    if signal.type not in types:
+                        raise IPCoreDescriptionFrontendException(
+                            f"Signal '{signal.name}' references unknown type '{signal.type}'"
+                        )
+                    type = types[signal.type]
                 default = ElaboratableValue(signal.default) if signal.default is not None else None
 
                 if default is not None and direction is not PortDirection.IN:
@@ -156,7 +177,7 @@ class IPCoreDescriptionFrontend:
         else:
             return port
 
-    def _parse_intfs(self, desc: IPCoreDescription, mod: Module):
+    def _parse_intfs(self, desc: IPCoreDescription, mod: Module, types: dict[str, Logic]):
         # TODO: Is this best way to get existing_interfaces?
         # `_parse` method can have different effects when loaded_repos changes
         existing_interfaces = []
@@ -195,7 +216,7 @@ class IPCoreDescriptionFrontend:
             ):
                 for sname, sig in sigs.items():
                     if sig:
-                        port = self._parse_signal(mod, dir, sig, byname[sname], mode)
+                        port = self._parse_signal(mod, dir, sig, types, byname[sname], mode)
 
                         if isinstance(port, Port):
                             port = ReferencedPort.external(port)
@@ -270,3 +291,20 @@ class IPCoreDescriptionFrontend:
                     synchronous_to=synchronous_to,
                 )
             )
+
+    def _parse_type(self, type: IPCoreType) -> Logic:
+        if isinstance(type, tuple):
+            if type[0] == type[1]:
+                return Bit()
+
+            dims = Dimensions(upper=ElaboratableValue(type[0]), lower=ElaboratableValue(type[0]))
+            return Bits(dimensions=[dims])
+        else:
+            assert isinstance(type, IPCoreStruct)
+
+            fields = [
+                StructField(name=field.name, type=self._parse_type(field.type))
+                for field in type.members
+            ]
+
+            return BitStruct(fields=fields)
