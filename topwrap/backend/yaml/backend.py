@@ -16,21 +16,26 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreIntfPorts,
     IPCoreParameter,
     IPCorePorts,
+    IPCoreStruct,
+    IPCoreStructField,
+    IPCoreType,
     Signal,
 )
 from topwrap.model.connections import (
     Port,
     PortDirection,
 )
-from topwrap.model.hdl_types import Bit, Bits, BitStruct, Logic, LogicBitSelect
+from topwrap.model.hdl_types import Bit, Bits, BitStruct, Logic, LogicArray, LogicBitSelect
 from topwrap.model.inference.port import PortSelector
 from topwrap.model.interface import (
     Interface,
     InterfaceDefinition,
     InterfaceMode,
 )
-from topwrap.model.misc import ElaboratableValue, Parameter, QuerableView
+from topwrap.model.misc import ElaboratableValue, Parameter
 from topwrap.model.module import Module
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -52,15 +57,17 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         :param module: Top module to represent.
         """
 
-        ports = self._represent_ports(module.ports)
+        needed_ports = [
+            port for port in module.ports if not self._is_trivial_type(port.type)
+        ] + list(module.non_intf_ports())
+
+        ports = self._represent_ports(needed_ports)
         intfs = {intf.name: self._represent_intf(intf) for intf in module.interfaces}
         params = self._represent_params(module.parameters)
+        types = self._represent_nontrivial_types(module.ports)
 
         desc = IPCoreDescription(
-            id=module.id,
-            signals=ports,
-            parameters=params,
-            interfaces=intfs,
+            id=module.id, signals=ports, parameters=params, interfaces=intfs, types=types
         )
 
         return IpCoreDescriptionOutput(base_name=module.id.name, description=desc)
@@ -74,16 +81,25 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
     ) -> Signal:
         bound = None
 
-        if isinstance(type, Bit) or isinstance(type, BitStruct):
+        if isinstance(type, BitStruct):
             if slice:
-                raise ValueError("Trying to slice a single bit or bit struct")
+                raise ValueError("Trying to slice a bit struct")
+
+            type_name = type.name if type.name is not None else f"tw_anon_type_{type._id._id}"
+            return IPCoreComplexSignal(
+                name=name,
+                type=type_name,
+            )
+        if isinstance(type, Bit):
+            if slice:
+                raise ValueError("Trying to slice a single bit")
         elif isinstance(type, Bits):
             if len(type.dimensions) > 1:
                 raise ValueError("IP core YAML format only supports one-dimensional bit vectors")
 
             bound = (type.dimensions[0].upper.value, type.dimensions[0].lower.value)
         else:
-            logging.warning(f"Got unexpected type {type} for signal in IP core YAML backend")
+            logger.warning(f"Got unexpected type {type} for signal in IP core YAML backend")
 
         return IPCoreComplexSignal(
             name=name,
@@ -92,7 +108,7 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
             default=default.value if default else None,
         )
 
-    def _represent_ports(self, ports: QuerableView[Port]) -> IPCorePorts:
+    def _represent_ports(self, ports: Iterable[Port]) -> IPCorePorts:
         input, output, inout = set[Signal](), set[Signal](), set[Signal]()
         for port in ports:
             represented_sig = self._represent_signal(port.name, port.type, None, port.default_value)
@@ -169,6 +185,51 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
                 out[param.name] = param.default_value.value
             else:
                 out[param.name] = None
+
+        return out
+
+    def _represent_type(self, type: Logic) -> IPCoreType:
+        if isinstance(type, Bit):
+            return (0, 0)
+        elif isinstance(type, LogicArray):
+            dim = type.dimensions[0]
+
+            if not isinstance(type.item, Bit):
+                logger.warning(f"Logic array of non-bits {type.item} {type.item.name}")
+
+            return (dim.upper.value, dim.lower.value)
+        elif isinstance(type, BitStruct):
+            return IPCoreStruct(
+                members=[
+                    IPCoreStructField(field.field_name, self._represent_type(field.type))
+                    for field in type.fields
+                ],
+            )
+        else:
+            raise ValueError(f"Unexpected type {type} {type.name}")
+
+    def _is_trivial_type(self, type: Logic) -> bool:
+        if isinstance(type, Bit):
+            return True
+        elif isinstance(type, LogicArray):
+            return True
+        elif isinstance(type, BitStruct):
+            return False
+        else:
+            raise ValueError(f"Unexpected type {type} {type.name}")
+
+    def _represent_nontrivial_types(self, ports: Iterable[Port]) -> dict[str, IPCoreType]:
+        out = {}
+        for port in ports:
+            if self._is_trivial_type(port.type):
+                continue
+
+            type_name = (
+                port.type.name
+                if port.type.name is not None
+                else f"tw_anon_type_{port.type._id._id}"
+            )
+            out[type_name] = self._represent_type(port.type)
 
         return out
 

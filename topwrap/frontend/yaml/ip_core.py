@@ -77,7 +77,7 @@ class IPCoreDescriptionFrontend:
             if name in types:
                 raise IPCoreDescriptionFrontendException(f"Type '{name}' is already defined")
 
-            types[name] = self._parse_type(type)
+            types[name] = self._parse_type(type, name)
 
         for name, param in desc.parameters.items():
             mod.add_parameter(Parameter(name=name, default_value=param_to_ir_param(param)))
@@ -292,19 +292,19 @@ class IPCoreDescriptionFrontend:
                 )
             )
 
-    def _parse_type(self, type: IPCoreType) -> Logic:
+    def _parse_type(self, type: IPCoreType, name: Optional[str]) -> Logic:
         if isinstance(type, tuple):
             if type[0] == type[1]:
                 return Bit()
 
-            dims = Dimensions(upper=ElaboratableValue(type[0]), lower=ElaboratableValue(type[0]))
+            dims = Dimensions(upper=ElaboratableValue(type[0]), lower=ElaboratableValue(type[1]))
             return Bits(dimensions=[dims])
         else:
             assert isinstance(type, IPCoreStruct)
 
             fields = [
-                StructField(name=field.name, type=self._parse_type(field.type))
+                StructField(name=field.name, type=self._parse_type(field.type, None))
                 for field in type.members
             ]
 
-            return BitStruct(fields=fields)
+            return BitStruct(fields=fields, name=name)
