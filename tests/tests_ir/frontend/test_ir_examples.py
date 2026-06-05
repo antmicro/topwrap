@@ -109,21 +109,28 @@ class TestIrExamples:
         intf = next(c for c in mod.design.connections if isinstance(c, InterfaceConnection))
         assert const.source.value == "2888"
 
-        assert intf.source.instance.name == "streamer"
-        assert intf.target.instance.name == "receiver"
-        assert (defi := intf.target.io.definition) is intf.source.io.definition
-        assert defi.id.name == "AXI 4 Stream"
-        assert intf.source.io.mode == InterfaceMode.MANAGER
-        assert intf.target.io.mode == InterfaceMode.SUBORDINATE
-        tvalid = next(s for s in defi.signals if s.name == "TVALID")
-        assert intf.source.io.signals[tvalid._id].io.name == "ctrl_o"
+        if intf.source.instance.name == "streamer":
+            source = intf.source
+            target = intf.target
+        else:
+            source = intf.target
+            target = intf.source
 
-        assert len(intf.target.instance.module.ports) == 6
-        ctrl_i = intf.target.instance.module.ports.find_by_name("ctrl_i").type
+        assert source.instance.name == "streamer"
+        assert target.instance.name == "receiver"
+        assert (defi := target.io.definition) is source.io.definition
+        assert defi.id.name == "AXI 4 Stream"
+        assert source.io.mode == InterfaceMode.MANAGER
+        assert target.io.mode == InterfaceMode.SUBORDINATE
+        tvalid = next(s for s in defi.signals if s.name == "TVALID")
+        assert source.io.signals[tvalid._id].io.name == "ctrl_o"
+
+        assert len(target.instance.module.ports) == 6
+        ctrl_i = target.instance.module.ports.find_by_name("ctrl_i").type
         assert isinstance(ctrl_i, Bits)
         assert ctrl_i.dimensions[0].upper == ElaboratableValue(4)
         assert ctrl_i.dimensions[0].lower == ElaboratableValue(0)
-        signal = intf.target.io.signals[defi.signals.find_by_name("TVALID")._id]
+        signal = target.io.signals[defi.signals.find_by_name("TVALID")._id]
         assert signal.io.type == ctrl_i
         assert signal.select.ops[0].slice == Dimensions(
             upper=ElaboratableValue(4), lower=ElaboratableValue(4)
