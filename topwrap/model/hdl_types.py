@@ -125,9 +125,17 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
 
     @property
     def size(self):
-        return self.item.size * reduce(
-            lambda a, b: (b.upper - b.lower) * a, self.dimensions, ElaboratableValue(1)
-        )
+        item_size = self.item.size.elaborate()
+        assert item_size is not None
+        a = 1
+        acc = 0
+        for d in self.dimensions:
+            up = d.upper.elaborate()
+            low = d.lower.elaborate()
+            assert up is not None
+            assert low is not None
+            acc = (up - low) * a
+        return ElaboratableValue(item_size * acc)
 
     @override
     def copy(self):
@@ -157,7 +165,12 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
     def __eq__(self, value: object) -> bool:
         if isinstance(value, LogicArray):
             return (
-                self.dimensions == value.dimensions
+                (
+                    len(self.dimensions) == len(value.dimensions)
+                    and all(
+                        [a == b for a, b in zip(self.dimensions, value.dimensions, strict=True)]
+                    )
+                )
                 and self.item == value.item
                 and super().__eq__(value)
             )
