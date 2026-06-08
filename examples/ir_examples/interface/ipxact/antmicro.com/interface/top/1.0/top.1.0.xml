@@ -34,6 +34,12 @@
 				<ipxact:name>ext</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>inout</ipxact:direction>
+					<ipxact:vectors>
+						<ipxact:vector>
+							<ipxact:left>31</ipxact:left>
+							<ipxact:right>0</ipxact:right>
+						</ipxact:vector>
+					</ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 		</ipxact:ports>

@@ -6,7 +6,7 @@
 	<ipxact:version>1.0</ipxact:version>
 	<ipxact:componentInstances>
 		<ipxact:componentInstance>
-			<ipxact:instanceName>debouncer_0</ipxact:instanceName>
+			<ipxact:instanceName>debouncer</ipxact:instanceName>
 			<ipxact:componentRef vendor="antmicro.com" library="hierarchical" name="debouncer" version="1.0"/>
 
 		</ipxact:componentInstance>
@@ -16,37 +16,37 @@
 
 		</ipxact:componentInstance>
 		<ipxact:componentInstance>
-			<ipxact:instanceName>four_bit_counter</ipxact:instanceName>
+			<ipxact:instanceName>4-bit counter</ipxact:instanceName>
 			<ipxact:componentRef vendor="antmicro.com" library="hierarchical" name="four_bit_counter" version="1.0"/>
 
 		</ipxact:componentInstance>
 	</ipxact:componentInstances>
 	<ipxact:adHocConnections>
 		<ipxact:adHocConnection>
-			<ipxact:name>debouncer_0_clk_to_clk</ipxact:name>
+			<ipxact:name>debouncer_clk_to_clk</ipxact:name>
 			<ipxact:portReferences>
-				<ipxact:internalPortReference componentInstanceRef="debouncer_0" portRef="clk"/>
+				<ipxact:internalPortReference componentInstanceRef="debouncer" portRef="clk"/>
 				<ipxact:externalPortReference portRef="clk"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 		<ipxact:adHocConnection>
-			<ipxact:name>debouncer_0_in_to_btn</ipxact:name>
+			<ipxact:name>debouncer_in_to_btn</ipxact:name>
 			<ipxact:portReferences>
-				<ipxact:internalPortReference componentInstanceRef="debouncer_0" portRef="in"/>
+				<ipxact:internalPortReference componentInstanceRef="debouncer" portRef="in"/>
 				<ipxact:externalPortReference portRef="btn"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 		<ipxact:adHocConnection>
-			<ipxact:name>debouncer_0_filtered_out_to_four_bit_counter_impulse</ipxact:name>
+			<ipxact:name>debouncer_filtered_out_to_four_bit_counter_impulse</ipxact:name>
 			<ipxact:portReferences>
-				<ipxact:internalPortReference componentInstanceRef="debouncer_0" portRef="filtered_out"/>
-				<ipxact:internalPortReference componentInstanceRef="four_bit_counter" portRef="impulse"/>
+				<ipxact:internalPortReference componentInstanceRef="debouncer" portRef="filtered_out"/>
+				<ipxact:internalPortReference componentInstanceRef="4-bit counter" portRef="impulse"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 		<ipxact:adHocConnection>
 			<ipxact:name>four_bit_counter_rst_to_rst</ipxact:name>
 			<ipxact:portReferences>
-				<ipxact:internalPortReference componentInstanceRef="four_bit_counter" portRef="rst"/>
+				<ipxact:internalPortReference componentInstanceRef="4-bit counter" portRef="rst"/>
 				<ipxact:externalPortReference portRef="rst"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
@@ -82,7 +82,7 @@
 			<ipxact:name>encoder_number_to_four_bit_counter_sum</ipxact:name>
 			<ipxact:portReferences>
 				<ipxact:internalPortReference componentInstanceRef="encoder" portRef="number"/>
-				<ipxact:internalPortReference componentInstanceRef="four_bit_counter" portRef="sum"/>
+				<ipxact:internalPortReference componentInstanceRef="4-bit counter" portRef="sum"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 	</ipxact:adHocConnections>

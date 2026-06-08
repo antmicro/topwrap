@@ -7,7 +7,7 @@
 	<ipxact:componentInstances>
 		<ipxact:componentInstance>
 			<ipxact:instanceName>two_mux</ipxact:instanceName>
-			<ipxact:componentRef vendor="antmicro.com" library="simple2" name="2mux" version="1.0">
+			<ipxact:componentRef vendor="antmicro.com" library="simple" name="2mux" version="1.0">
 				<ipxact:configurableElementValues>
 					<ipxact:configurableElementValue referenceId="uuid_8aa7308d_4062_497d_b1f7_5af6060277c9">128</ipxact:configurableElementValue>
 				</ipxact:configurableElementValues>
@@ -16,7 +16,7 @@
 		</ipxact:componentInstance>
 		<ipxact:componentInstance>
 			<ipxact:instanceName>gen1</ipxact:instanceName>
-			<ipxact:componentRef vendor="antmicro.com" library="simple2" name="lfsrgen" version="1.0">
+			<ipxact:componentRef vendor="antmicro.com" library="simple" name="lfsr_gen" version="1.2">
 				<ipxact:configurableElementValues>
 					<ipxact:configurableElementValue referenceId="uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e">128</ipxact:configurableElementValue>
 					<ipxact:configurableElementValue referenceId="uuid_38bdfd3a_4a10_498b_9bae_9ac89ab8c716">1337</ipxact:configurableElementValue>
@@ -26,7 +26,7 @@
 		</ipxact:componentInstance>
 		<ipxact:componentInstance>
 			<ipxact:instanceName>gen2</ipxact:instanceName>
-			<ipxact:componentRef vendor="antmicro.com" library="simple2" name="lfsrgen" version="1.0">
+			<ipxact:componentRef vendor="antmicro.com" library="simple" name="lfsr_gen" version="1.2">
 				<ipxact:configurableElementValues>
 					<ipxact:configurableElementValue referenceId="uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e">128</ipxact:configurableElementValue>
 				</ipxact:configurableElementValues>

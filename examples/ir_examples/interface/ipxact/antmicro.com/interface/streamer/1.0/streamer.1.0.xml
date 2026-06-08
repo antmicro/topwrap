@@ -7,7 +7,7 @@
 	<ipxact:busInterfaces>
 		<ipxact:busInterface>
 			<ipxact:name>io</ipxact:name>
-			<ipxact:busType vendor="amba.com" library="AMBA4" name="AXI4Stream" version="r0p0_1"/>
+			<ipxact:busType vendor="amba.com" library="AMBA4" name="AXI 4 Stream" version="r0p0_1"/>
 			<ipxact:abstractionTypes>
 				<ipxact:abstractionType>
 					<ipxact:abstractionRef vendor="amba.com" library="AMBA4" name="AXI4Stream_rtl" version="r0p0_1"/>

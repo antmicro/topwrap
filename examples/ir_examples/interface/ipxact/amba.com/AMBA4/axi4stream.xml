@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>amba.com</ipxact:vendor>
+  <ipxact:library>AMBA4</ipxact:library>
+  <ipxact:name>AXI4Stream_rtl</ipxact:name>
+  <ipxact:version>r0p0_1</ipxact:version>
+  <ipxact:busType vendor="amba.com" library="AMBA4" name="AXI 4 Stream" version="r0p0_1"/>
+
+  <ipxact:ports>
+    <ipxact:port>
+      <ipxact:logicalName>TVALID</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TREADY</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TDATA</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TSTRB</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TKEEP</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TLAST</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TID</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TDEST</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TUSER</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+  </ipxact:ports>
+</ipxact:abstractionDefinition>
