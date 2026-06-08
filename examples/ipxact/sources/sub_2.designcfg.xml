@@ -1,0 +1,11 @@
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:designConfiguration xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
+    <ipxact:vendor>vendor</ipxact:vendor>
+    <ipxact:library>libdefault</ipxact:library>
+    <ipxact:name>sub_2.designcfg</ipxact:name>
+    <ipxact:version>0.1</ipxact:version>
+    <ipxact:designRef vendor="vendor" library="libdefault" name="sub_2.design" version="0.1"/>
+</ipxact:designConfiguration>

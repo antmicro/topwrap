@@ -1,0 +1,55 @@
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:design xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
+    <ipxact:vendor>vendor</ipxact:vendor>
+    <ipxact:library>libdefault</ipxact:library>
+    <ipxact:name>top.design</ipxact:name>
+    <ipxact:version>0.1</ipxact:version>
+    <ipxact:componentInstances>
+        <ipxact:componentInstance>
+            <ipxact:instanceName>complex_sub</ipxact:instanceName>
+            <ipxact:componentRef vendor="vendor" library="libdefault" name="complex_sub" version="0.1">
+                <ipxact:configurableElementValues/>
+            </ipxact:componentRef>
+        </ipxact:componentInstance>
+        <ipxact:componentInstance>
+            <ipxact:instanceName>counter</ipxact:instanceName>
+            <ipxact:componentRef vendor="vendor" library="libdefault" name="counter" version="0.1">
+                <ipxact:configurableElementValues/>
+            </ipxact:componentRef>
+        </ipxact:componentInstance>
+    </ipxact:componentInstances>
+    <ipxact:interconnections/>
+    <ipxact:adHocConnections>
+        <ipxact:adHocConnection>
+            <ipxact:name>complex_sub_cs_in_1_to_counter_c_out_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="cs_in_1" componentInstanceRef="complex_sub"/>
+                <ipxact:internalPortReference portRef="c_out_1" componentInstanceRef="counter"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>complex_sub_cs_out_1_to_ex_in_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="cs_out_1" componentInstanceRef="complex_sub"/>
+                <ipxact:externalPortReference portRef="ex_in_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>counter_c_in_1_to_ex_out_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_in_1" componentInstanceRef="counter"/>
+                <ipxact:externalPortReference portRef="ex_out_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>counter_c_in_2_to_ex_out_2</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_in_2" componentInstanceRef="counter"/>
+                <ipxact:externalPortReference portRef="ex_out_2"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+    </ipxact:adHocConnections>
+</ipxact:design>

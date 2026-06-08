@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>TestBus_rtl</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+  <ipxact:busType vendor="test.com" library="test" name="TestBus" version="1.0"/>
+
+  <ipxact:ports>
+    <ipxact:port>
+      <ipxact:logicalName>HWRITE</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>TDATA</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+          <ipxact:width>31</ipxact:width>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>HBURST</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+
+    <ipxact:port>
+      <ipxact:logicalName>MYRANGE</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+          <ipxact:width>7</ipxact:width>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+  </ipxact:ports>
+</ipxact:abstractionDefinition>

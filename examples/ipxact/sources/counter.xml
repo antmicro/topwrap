@@ -1,0 +1,44 @@
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
+    <ipxact:vendor>vendor</ipxact:vendor>
+    <ipxact:library>libdefault</ipxact:library>
+    <ipxact:name>counter</ipxact:name>
+    <ipxact:version>0.1</ipxact:version>
+    <ipxact:model>
+        <ipxact:views>
+            <ipxact:view>
+                <ipxact:name>hierarchical</ipxact:name>
+                <ipxact:designConfigurationInstantiationRef>counter.designcfg_0.1</ipxact:designConfigurationInstantiationRef>
+            </ipxact:view>
+        </ipxact:views>
+        <ipxact:instantiations>
+            <ipxact:designConfigurationInstantiation>
+                <ipxact:name>counter.designcfg_0.1</ipxact:name>
+                <ipxact:designConfigurationRef vendor="vendor" library="libdefault" name="counter.designcfg" version="0.1"/>
+            </ipxact:designConfigurationInstantiation>
+        </ipxact:instantiations>
+        <ipxact:ports>
+            <ipxact:port>
+                <ipxact:name>c_in_1</ipxact:name>
+                <ipxact:wire>
+                    <ipxact:direction>in</ipxact:direction>
+                </ipxact:wire>
+            </ipxact:port>
+            <ipxact:port>
+                <ipxact:name>c_in_2</ipxact:name>
+                <ipxact:wire>
+                    <ipxact:direction>in</ipxact:direction>
+                </ipxact:wire>
+            </ipxact:port>
+            <ipxact:port>
+                <ipxact:name>c_out_1</ipxact:name>
+                <ipxact:wire>
+                    <ipxact:direction>out</ipxact:direction>
+                </ipxact:wire>
+            </ipxact:port>
+        </ipxact:ports>
+    </ipxact:model>
+</ipxact:component>

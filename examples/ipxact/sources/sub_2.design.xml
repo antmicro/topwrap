@@ -1,0 +1,62 @@
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:design xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
+    <ipxact:vendor>vendor</ipxact:vendor>
+    <ipxact:library>libdefault</ipxact:library>
+    <ipxact:name>sub_2.design</ipxact:name>
+    <ipxact:version>0.1</ipxact:version>
+    <ipxact:componentInstances>
+        <ipxact:componentInstance>
+            <ipxact:instanceName>s2_mod_1</ipxact:instanceName>
+            <ipxact:componentRef vendor="vendor" library="libdefault" name="s2_mod_1" version="0.1">
+                <ipxact:configurableElementValues/>
+            </ipxact:componentRef>
+        </ipxact:componentInstance>
+        <ipxact:componentInstance>
+            <ipxact:instanceName>s2_mod_2</ipxact:instanceName>
+            <ipxact:componentRef vendor="vendor" library="libdefault" name="s2_mod_2" version="0.1">
+                <ipxact:configurableElementValues/>
+            </ipxact:componentRef>
+        </ipxact:componentInstance>
+    </ipxact:componentInstances>
+    <ipxact:interconnections/>
+    <ipxact:adHocConnections>
+        <ipxact:adHocConnection>
+            <ipxact:name>s2_mod_1_cs_s2_f_int_in_1_to_cs_s2_int_in_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="cs_s2_f_int_in_1" componentInstanceRef="s2_mod_1"/>
+                <ipxact:externalPortReference portRef="cs_s2_int_in_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>s2_mod_1_cs_s2_f_int_in_2_to_cs_s2_int_in_2</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="cs_s2_f_int_in_2" componentInstanceRef="s2_mod_1"/>
+                <ipxact:externalPortReference portRef="cs_s2_int_in_2"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>s2_mod_2_cs_s2_f_mod_out_1_to_cs_s2_mod_out_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="cs_s2_f_mod_out_1" componentInstanceRef="s2_mod_2"/>
+                <ipxact:externalPortReference portRef="cs_s2_mod_out_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>s2_mod_2_cs_s2_mint_in_1_to_s2_mod_1_cs_s2_mint_out_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="cs_s2_mint_in_1" componentInstanceRef="s2_mod_2"/>
+                <ipxact:internalPortReference portRef="cs_s2_mint_out_1" componentInstanceRef="s2_mod_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>s2_mod_2_cs_s2_mint_in_2_to_s2_mod_1_cs_s2_mint_out_2</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="cs_s2_mint_in_2" componentInstanceRef="s2_mod_2"/>
+                <ipxact:internalPortReference portRef="cs_s2_mint_out_2" componentInstanceRef="s2_mod_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+    </ipxact:adHocConnections>
+</ipxact:design>

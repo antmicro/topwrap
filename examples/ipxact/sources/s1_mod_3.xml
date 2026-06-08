@@ -1,0 +1,45 @@
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
+    <ipxact:vendor>vendor</ipxact:vendor>
+    <ipxact:library>libdefault</ipxact:library>
+    <ipxact:name>s1_mod_3</ipxact:name>
+    <ipxact:version>0.1</ipxact:version>
+    <ipxact:model>
+        <ipxact:instantiations>
+            <ipxact:componentInstantiation>
+                <ipxact:name>rtl</ipxact:name>
+                <ipxact:displayName>rtl</ipxact:displayName>
+                <ipxact:moduleParameters>
+                    <ipxact:moduleParameter parameterId="uuid_83c2117b_59cd_4394_bd4e_95ffed545cb5">
+                        <ipxact:name>SUB_VALUE</ipxact:name>
+                        <ipxact:displayName>SUB_VALUE</ipxact:displayName>
+                        <ipxact:value>uuid_2eaac9ef_4691_4855_984f_423e565b8855</ipxact:value>
+                    </ipxact:moduleParameter>
+                </ipxact:moduleParameters>
+            </ipxact:componentInstantiation>
+        </ipxact:instantiations>
+        <ipxact:ports>
+            <ipxact:port>
+                <ipxact:name>cs_s1_mint_in_2</ipxact:name>
+                <ipxact:wire>
+                    <ipxact:direction>in</ipxact:direction>
+                </ipxact:wire>
+            </ipxact:port>
+            <ipxact:port>
+                <ipxact:name>cs_s1_f_int_out_2</ipxact:name>
+                <ipxact:wire>
+                    <ipxact:direction>out</ipxact:direction>
+                </ipxact:wire>
+            </ipxact:port>
+        </ipxact:ports>
+    </ipxact:model>
+    <ipxact:parameters>
+        <ipxact:parameter parameterId="uuid_2eaac9ef_4691_4855_984f_423e565b8855" type="longint">
+            <ipxact:name>SUB_VALUE</ipxact:name>
+            <ipxact:value>18</ipxact:value>
+        </ipxact:parameter>
+    </ipxact:parameters>
+</ipxact:component>

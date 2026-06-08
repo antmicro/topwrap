@@ -1,0 +1,45 @@
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
+    <ipxact:vendor>vendor</ipxact:vendor>
+    <ipxact:library>libdefault</ipxact:library>
+    <ipxact:name>c_mod_1</ipxact:name>
+    <ipxact:version>0.1</ipxact:version>
+    <ipxact:model>
+        <ipxact:instantiations>
+            <ipxact:componentInstantiation>
+                <ipxact:name>rtl</ipxact:name>
+                <ipxact:displayName>rtl</ipxact:displayName>
+                <ipxact:moduleParameters>
+                    <ipxact:moduleParameter parameterId="uuid_d18e1ec7_94bd_44ac_a0ec_e2e8b5c689e9">
+                        <ipxact:name>MAX_VALUE</ipxact:name>
+                        <ipxact:displayName>MAX_VALUE</ipxact:displayName>
+                        <ipxact:value>uuid_6ca83dd6_13a2_4a7f_be9b_0ea0365e0c4f</ipxact:value>
+                    </ipxact:moduleParameter>
+                </ipxact:moduleParameters>
+            </ipxact:componentInstantiation>
+        </ipxact:instantiations>
+        <ipxact:ports>
+            <ipxact:port>
+                <ipxact:name>c_mod_in_1</ipxact:name>
+                <ipxact:wire>
+                    <ipxact:direction>in</ipxact:direction>
+                </ipxact:wire>
+            </ipxact:port>
+            <ipxact:port>
+                <ipxact:name>c_int_out_1</ipxact:name>
+                <ipxact:wire>
+                    <ipxact:direction>out</ipxact:direction>
+                </ipxact:wire>
+            </ipxact:port>
+        </ipxact:ports>
+    </ipxact:model>
+    <ipxact:parameters>
+        <ipxact:parameter parameterId="uuid_6ca83dd6_13a2_4a7f_be9b_0ea0365e0c4f" type="longint">
+            <ipxact:name>MAX_VALUE</ipxact:name>
+            <ipxact:value>32</ipxact:value>
+        </ipxact:parameter>
+    </ipxact:parameters>
+</ipxact:component>

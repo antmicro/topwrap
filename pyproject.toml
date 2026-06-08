@@ -110,7 +110,7 @@ select = [
 max-complexity = 18
 
 [tool.codespell]
-skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace,Caliptra"
+skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace,Caliptra,./topwrap/frontend/ipxact/shared/xml_schema.py"
 ignore-words-list = "convertor, inout, inouts"
 
 [tool.pyright]

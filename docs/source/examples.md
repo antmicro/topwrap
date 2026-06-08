@@ -384,3 +384,25 @@ To run simulation using Verilator and generate `wave.vcd` use:
 ```bash
 make sim
 ```
+
+### IPXACT
+
+[Link to source](https://github.com/antmicro/topwrap/tree/main/examples/ipxact)
+
+```{kpm_iframe}
+:spec: ../build/kpm_jsons/spec_ipxact.json
+:dataflow: ../build/kpm_jsons/data_ipxact.json
+```
+
+This example contains IP-XACT 2022 files as sources. It shows how to use [IpXactFrontend](frontends.md#IpXactFrontend) to parse IP-XACT sources into a Topwrap repo.
+
+### Usage
+
+```bash
+cd examples/ipxact
+```
+
+To generate the HDL top file, use:
+```bash
+make generate
+```

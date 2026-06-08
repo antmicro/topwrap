@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import ClassVar, Iterable, Type
 
 from topwrap.frontend.frontend import Frontend, FrontendMetadata, FrontendParseOutput
+from topwrap.frontend.ipxact.frontend import IpXactFrontend
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
@@ -74,12 +75,14 @@ class FrontendRegistry:
         Systemverilog = "systemverilog"
         Yaml = "yaml"
         Kpm = "kpm"
+        Ipxact = "ipxact"
         Automatic = "automatic"
 
     FRONTENDS: ClassVar[dict[FrontendType, type[Frontend]]] = {
         FrontendType.Systemverilog: SystemVerilogFrontend,
         FrontendType.Yaml: YamlFrontend,
         FrontendType.Kpm: KpmFrontend,
+        FrontendType.Ipxact: IpXactFrontend,
         FrontendType.Automatic: AutomaticFrontend,
     }
 

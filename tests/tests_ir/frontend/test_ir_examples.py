@@ -136,6 +136,11 @@ class TestIrExamples:
             upper=ElaboratableValue(4), lower=ElaboratableValue(4)
         )
 
+        # TDATA maps to dat_i in full (no partSelect), so no select must be produced.
+        tdata = target.io.signals[defi.signals.find_by_name("TDATA")._id]
+        assert tdata.io.name == "dat_i"
+        assert tdata.select.ops == []
+
     @staticmethod
     def ir_hierarchy(mod: Module):
         assert mod.design is not None

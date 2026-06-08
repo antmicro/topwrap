@@ -1,0 +1,77 @@
+<!--
+Copyright (c) 2026 Antmicro <www.antmicro.com>
+SPDX-License-Identifier: Apache-2.0
+-->
+<ipxact:design xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
+    <ipxact:vendor>vendor</ipxact:vendor>
+    <ipxact:library>libdefault</ipxact:library>
+    <ipxact:name>counter.design</ipxact:name>
+    <ipxact:version>0.1</ipxact:version>
+    <ipxact:componentInstances>
+        <ipxact:componentInstance>
+            <ipxact:instanceName>c_mod_1</ipxact:instanceName>
+            <ipxact:componentRef vendor="vendor" library="libdefault" name="c_mod_1" version="0.1">
+                <ipxact:configurableElementValues>
+                    <ipxact:configurableElementValue referenceId="uuid_6ca83dd6_13a2_4a7f_be9b_0ea0365e0c4f">16</ipxact:configurableElementValue>
+                </ipxact:configurableElementValues>
+            </ipxact:componentRef>
+        </ipxact:componentInstance>
+        <ipxact:componentInstance>
+            <ipxact:instanceName>c_mod_2</ipxact:instanceName>
+            <ipxact:componentRef vendor="vendor" library="libdefault" name="c_mod_2" version="0.1">
+                <ipxact:configurableElementValues/>
+            </ipxact:componentRef>
+        </ipxact:componentInstance>
+        <ipxact:componentInstance>
+            <ipxact:instanceName>c_mod_3</ipxact:instanceName>
+            <ipxact:componentRef vendor="vendor" library="libdefault" name="c_mod_3" version="0.1">
+                <ipxact:configurableElementValues/>
+            </ipxact:componentRef>
+        </ipxact:componentInstance>
+    </ipxact:componentInstances>
+    <ipxact:interconnections/>
+    <ipxact:adHocConnections>
+        <ipxact:adHocConnection>
+            <ipxact:name>c_mod_1_c_mod_in_1_to_c_in_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_mod_in_1" componentInstanceRef="c_mod_1"/>
+                <ipxact:externalPortReference portRef="c_in_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>c_mod_2_c_mod_in_2_to_c_in_2</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_mod_in_2" componentInstanceRef="c_mod_2"/>
+                <ipxact:externalPortReference portRef="c_in_2"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>c_mod_3_c_int_const_in_to_tiedValue</ipxact:name>
+            <ipxact:tiedValue>1</ipxact:tiedValue>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_int_const_in" componentInstanceRef="c_mod_3"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>c_mod_3_c_int_in_1_to_c_mod_2_c_int_out_2</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_int_in_1" componentInstanceRef="c_mod_3"/>
+                <ipxact:internalPortReference portRef="c_int_out_2" componentInstanceRef="c_mod_2"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>c_mod_3_c_int_in_2_to_c_mod_1_c_int_out_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_int_in_2" componentInstanceRef="c_mod_3"/>
+                <ipxact:internalPortReference portRef="c_int_out_1" componentInstanceRef="c_mod_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+        <ipxact:adHocConnection>
+            <ipxact:name>c_mod_3_c_mod_out_1_to_c_out_1</ipxact:name>
+            <ipxact:portReferences>
+                <ipxact:internalPortReference portRef="c_mod_out_1" componentInstanceRef="c_mod_3"/>
+                <ipxact:externalPortReference portRef="c_out_1"/>
+            </ipxact:portReferences>
+        </ipxact:adHocConnection>
+    </ipxact:adHocConnections>
+</ipxact:design>
