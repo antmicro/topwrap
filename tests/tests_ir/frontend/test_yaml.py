@@ -17,7 +17,7 @@ from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.design import Design
-from topwrap.model.hdl_types import Bit, Bits, Dimensions
+from topwrap.model.hdl_types import Bit, Bits, BitStruct, Dimensions, LogicArray
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import ElaboratableValue
 from topwrap.model.module import Module
@@ -262,6 +262,129 @@ class TestIPCoreDescriptionFrontend:
         """
 
         with pytest.raises(IPCoreDescriptionFrontendException, match="use non-existent reset"):
+            IPCoreDescriptionFrontend().parse_str(ip)
+
+    def test_typed_port(self):
+        ip = """
+        id:
+          library: libdefault
+          vendor: vendor
+          name: top
+        types:
+          some_type:
+            members:
+              - name: some_bits
+                type: [1, 0]
+        signals:
+          in:
+            - {name: foo, type: some_type}
+        """
+
+        mod = IPCoreDescriptionFrontend().parse_str(ip)
+        foo = mod.ports.find_by_name_or_error("foo")
+        some_type = foo.type
+
+        assert isinstance(some_type, BitStruct)
+        assert some_type.name == "some_type"
+        assert len(some_type.fields) == 1
+
+        fld = some_type.fields[0]
+        assert fld.field_name == "some_bits"
+        assert isinstance(fld.type, LogicArray)
+        assert isinstance(fld.type.item, Bit)
+        assert fld.type.dimensions == [
+            Dimensions(upper=ElaboratableValue(1), lower=ElaboratableValue(0))
+        ]
+
+    def test_bad_port_type(self):
+        ip = """
+        id:
+          library: libdefault
+          vendor: vendor
+          name: top
+        signals:
+          in:
+            - {name: foo, type: some_type}
+        """
+
+        with pytest.raises(IPCoreDescriptionFrontendException, match="references unknown type"):
+            IPCoreDescriptionFrontend().parse_str(ip)
+
+    def test_intf_signal_path(self):
+        ip = """
+        id:
+          library: libdefault
+          vendor: vendor
+          name: top
+        interfaces:
+          foo:
+            type:
+              name: wishbone
+            mode: manager
+            signals:
+              in:
+                ack: {path: wb_resp_port.foo.ack}
+        types:
+          wb_resp_t:
+            members:
+              - name: foo
+                type:
+                  members:
+                    - name: ack
+                      type: [0, 0]
+        signals:
+          in:
+            - {name: wb_resp_port, type: wb_resp_t}
+        """
+
+        mod = IPCoreDescriptionFrontend().parse_str(ip)
+
+        wb_resp_port = mod.ports.find_by_name_or_error("wb_resp_port")
+        type_outer = wb_resp_port.type
+
+        assert isinstance(type_outer, BitStruct)
+        assert type_outer.name == "wb_resp_t"
+        assert len(type_outer.fields) == 1
+
+        fld_outer = type_outer.fields[0]
+        assert fld_outer.field_name == "foo"
+        type_inner = fld_outer.type
+
+        assert isinstance(type_inner, BitStruct)
+        assert type_inner.name is None
+        assert len(type_inner.fields) == 1
+
+        fld_inner = type_inner.fields[0]
+        assert fld_inner.field_name == "ack"
+
+    def test_bad_intf_signal_path(self):
+        ip = """
+        id:
+          library: libdefault
+          vendor: vendor
+          name: top
+        interfaces:
+          foo:
+            type:
+              name: wishbone
+            mode: manager
+            signals:
+              in:
+                ack: {path: wb_resp_port.foo.missing}
+        types:
+          wb_resp_t:
+            members:
+              - name: foo
+                type:
+                  members:
+                    - name: ack
+                      type: [0, 0]
+        signals:
+          in:
+            - {name: wb_resp_port, type: wb_resp_t}
+        """
+
+        with pytest.raises(ValueError, match="is not a member of struct"):
             IPCoreDescriptionFrontend().parse_str(ip)
 
 
