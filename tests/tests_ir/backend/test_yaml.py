@@ -20,6 +20,14 @@ from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
+from topwrap.model.hdl_types import (
+    Bit,
+    BitStruct,
+    LogicBitSelect,
+    LogicFieldSelect,
+    LogicSelect,
+    StructField,
+)
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
 from topwrap.model.module import Module
@@ -203,5 +211,145 @@ class TestIpCoreDescriptionBackend:
             "parameters": {
                 "foo": "32",
                 "bar": None,
+            },
+        }
+
+    def test_struct_port(self):
+        ty = BitStruct(
+            name="some_type",
+            fields=[
+                StructField(
+                    name="some_field",
+                    type=Bit(),
+                ),
+            ],
+        )
+
+        ports = [
+            Port(name="foo", direction=PortDirection.IN, type=ty),
+        ]
+        top = Module(
+            id=Identifier(name="top"),
+            ports=ports,
+        )
+
+        backend = IpCoreDescriptionBackend()
+
+        out = backend.represent(top)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree == {
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
+            "signals": {
+                "in": [
+                    {
+                        "name": "foo",
+                        "type": "some_type",
+                    },
+                ],
+            },
+            "types": {
+                "some_type": {
+                    "members": [
+                        {
+                            "name": "some_field",
+                            "type": [0, 0],
+                        },
+                    ],
+                },
+            },
+        }
+
+    def test_intf_signal_path(self):
+        wishbone = util.get_interface_by_id(Identifier("wishbone")).definition
+
+        assert wishbone
+
+        field_ty = Bits(dimensions=[Dimensions(upper=ElaboratableValue(7))])
+        ty = BitStruct(
+            name="some_type",
+            fields=[
+                StructField(
+                    name="some_field",
+                    type=field_ty,
+                ),
+            ],
+        )
+
+        ports = [
+            Port(name="foo", direction=PortDirection.IN, type=ty),
+        ]
+        intfs = [
+            Interface(
+                name="ext_manager",
+                mode=InterfaceMode.MANAGER,
+                definition=wishbone,
+                signals={
+                    wishbone.signals.find_by_name_or_error("stall")._id: ReferencedPort.external(
+                        ports[0],
+                        select=LogicSelect(
+                            logic=Bit(),
+                            ops=[
+                                LogicFieldSelect(
+                                    field=ty.fields[0],
+                                ),
+                                LogicBitSelect(
+                                    slice=Dimensions(),
+                                ),
+                            ],
+                        ),
+                    ),
+                },
+            ),
+        ]
+        top = Module(
+            id=Identifier(name="top"),
+            ports=ports,
+            interfaces=intfs,
+        )
+
+        backend = IpCoreDescriptionBackend()
+
+        out = backend.represent(top)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree == {
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
+            "signals": {
+                "in": [
+                    {
+                        "name": "foo",
+                        "type": "some_type",
+                    },
+                ],
+            },
+            "types": {
+                "some_type": {
+                    "members": [
+                        {
+                            "name": "some_field",
+                            "type": ["7", "0"],
+                        },
+                    ],
+                },
+            },
+            "interfaces": {
+                "ext_manager": {
+                    "type": {
+                        "vendor": "vendor",
+                        "library": "libdefault",
+                        "name": "wishbone",
+                    },
+                    "mode": "manager",
+                    "signals": {
+                        "in": {
+                            "stall": {
+                                "path": "foo.some_field[0]",
+                            },
+                        },
+                    },
+                },
             },
         }
