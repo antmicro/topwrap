@@ -38,7 +38,7 @@ topwrap repo init my_repo_name my_repo
 
 # To automatically parse all supported HDL sources from the `verilogs` directory
 # and copy them to the previously created `my_repo` repository
-topwrap repo parse my_repo verilogs
+topwrap repo parse my_repo_name verilogs
 ```
 
 The `topwrap repo init` command will add the newly created repository to the project [configuration file](./config.md) or create one if it's missing.
