@@ -15,7 +15,10 @@ signals:
 
 interfaces:
   s_axi:
-    type: AXI4Lite
+    type: 
+      name: AXI4Lite
+      vendor: vendor
+      library: libdefault
     mode: subordinate
     signals:
       in:

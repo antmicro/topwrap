@@ -13,7 +13,8 @@ signals:
 
 interfaces:
   io:
-    type: AXI4Stream
+    type:
+      name: AXI4Stream
     mode: subordinate
     signals:
       in:

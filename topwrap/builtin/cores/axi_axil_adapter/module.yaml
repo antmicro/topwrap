@@ -17,7 +17,10 @@ parameters:
 interfaces:
 # 1 subordinate
     s_axi:
-        type: AXI4
+        type: 
+            name: AXI4
+            vendor: vendor
+            library: libdefault
         mode: subordinate
         signals:
             in:
@@ -60,7 +63,10 @@ interfaces:
 
     # 1 manager
     m_axi:
-        type: AXI4Lite
+        type: 
+            name: AXI4Lite
+            vendor: vendor
+            library: libdefault
         mode: manager
         signals:
             in:

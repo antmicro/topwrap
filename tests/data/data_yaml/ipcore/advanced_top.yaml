@@ -14,7 +14,10 @@ interfaces:
       out:
         rdata: null
         sack: null
-    type: Simply Complex Interface 4
+    type: 
+      name: Simply Complex Interface 4
+      vendor: vendor
+      library: libdefault
   SCI_ext_man:
     mode: manager
     signals:
@@ -27,7 +30,10 @@ interfaces:
         strb: null
         wdata: null
         write: null
-    type: Simply Complex Interface 4
+    type:
+      name: Simply Complex Interface 4
+      vendor: vendor
+      library: libdefault
   SCI_ext_sub:
     mode: subordinate
     signals:
@@ -40,7 +46,10 @@ interfaces:
       out:
         rdata: null
         sack: null
-    type: Simply Complex Interface 4
+    type: 
+      name: Simply Complex Interface 4
+      vendor: vendor
+      library: libdefault
 parameters:
   CIF_ADDR_WIDTH: '32'
   CIF_DATA_WIDTH: '64'

@@ -17,7 +17,10 @@ parameters:
 
 interfaces:
     s_axis:
-        type: AXI4Stream
+        type: 
+            name: AXI4Stream
+            vendor: vendor
+            library: libdefault
         mode: subordinate
         signals:
             in:
@@ -32,7 +35,10 @@ interfaces:
                 TREADY: s_axis_tready
 
     m_axis:
-        type: AXI4Stream
+        type: 
+            name: AXI4Stream
+            vendor: vendor
+            library: libdefault
         mode: manager
         signals:
             in:

@@ -8,7 +8,10 @@ id:
 
 interfaces:
     AXIS_m0:
-        type: AXI4Stream
+        type:
+            name: AXI4Stream
+            vendor: vendor
+            library: libdefault
         mode: manager
         signals:
             in:
@@ -20,7 +23,10 @@ interfaces:
                 TUSER: io_write_tuser
 
     AXI_s0:
-        type: AXI4
+        type: 
+            name: AXI4
+            vendor: vendor
+            library: libdefault
         mode: subordinate
         signals:
             in:
@@ -46,7 +52,10 @@ interfaces:
                 RVALID: io_control_r_rvalid
 
     AXI_m1:
-        type: AXI4
+        type: 
+            name: AXI4
+            vendor: vendor
+            library: libdefault
         mode: manager
         signals:
             in:

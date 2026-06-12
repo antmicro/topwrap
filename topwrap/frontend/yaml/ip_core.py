@@ -96,7 +96,11 @@ class IPCoreDescriptionFrontend:
 
         for iname, iface in desc.interfaces.items():
             for existing_iface in existing_interfaces:
-                if iface.type == existing_iface.id.name:
+                if (
+                    iface.type.name == existing_iface.id.name
+                    and iface.type.library == existing_iface.id.library
+                    and iface.type.vendor == existing_iface.id.vendor
+                ):
                     ird = existing_iface
                     break
             else:

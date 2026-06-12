@@ -20,7 +20,10 @@ interfaces:
         ack: {name: csr_wishbone_ack}
         dat_r: {bound: ['31', '0'], name: csr_wishbone_miso}
         err: {name: csr_wishbone_err}
-    type: wishbone
+    type:
+      name: wishbone
+      vendor: vendor
+      library: libdefault
 signals:
   in:
   - {name: csr_wishbone_cyc}

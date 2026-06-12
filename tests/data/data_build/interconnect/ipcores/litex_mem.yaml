@@ -11,7 +11,10 @@ signals:
 
 interfaces:
   s_wishbone:
-    type: wishbone
+    type: 
+      name: wishbone
+      vendor: vendor
+      library: libdefault
     mode: subordinate
     signals:
       in:

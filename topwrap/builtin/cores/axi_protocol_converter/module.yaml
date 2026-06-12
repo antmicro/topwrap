@@ -17,7 +17,10 @@ id:
 interfaces:
     # 1 subordinate
     S_AXI:
-        type: AXI4
+        type: 
+            name: AXI4
+            vendor: vendor
+            library: libdefault
         mode: subordinate
         signals:
             in:
@@ -65,7 +68,10 @@ interfaces:
 
     # 1 manager
     M_AXI:
-        type: AXI3
+        type: 
+            name: AXI3
+            vendor: vendor
+            library: libdefault
         mode: manager
         signals:
             in:

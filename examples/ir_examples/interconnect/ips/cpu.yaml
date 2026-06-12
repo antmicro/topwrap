@@ -10,7 +10,8 @@ signals:
 
 interfaces:
   bus_manager:
-    type: wishbone
+    type:
+      name: wishbone
     mode: manager
     signals:
       out:

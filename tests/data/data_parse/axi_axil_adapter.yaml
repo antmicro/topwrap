@@ -23,7 +23,10 @@ interfaces:
         WDATA: [m_axil_wdata, (AXIL_DATA_WIDTH-1), 0]
         WSTRB: [m_axil_wstrb, (AXIL_STRB_WIDTH-1), 0]
         WVALID: m_axil_wvalid
-    type: AXI4Lite
+    type: 
+      name: AXI4Lite
+      vendor: vendor
+      library: libdefault
   s_axi:
     mode: subordinate
     signals:
@@ -64,7 +67,10 @@ interfaces:
         RRESP: [s_axi_rresp, 1, 0]
         RVALID: s_axi_rvalid
         WREADY: s_axi_wready
-    type: AXI3
+    type: 
+      name: AXI3
+      vendor: vendor
+      library: libdefault
 id:
   library: libdefault
   vendor: vendor

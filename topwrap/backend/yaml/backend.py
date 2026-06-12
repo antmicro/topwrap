@@ -148,7 +148,7 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
                 inout[sig.resolve().name] = represented_sig
 
         return IPCoreInterface(
-            type=intf.definition.id.name,
+            type=intf.definition.id,
             mode=mode,
             signals=IPCoreIntfPorts(input, output, inout),
         )

@@ -48,7 +48,10 @@ signals:
 
 interfaces:
     M_AXI_GP0:
-        type: AXI4
+        type:
+            name: AXI4
+            vendor: vendor
+            library: libdefault
         mode: manager
         signals:
             in:
@@ -93,7 +96,10 @@ interfaces:
                 BREADY: MAXIGP0BREADY
 
     S_AXI_HP0:
-        type: AXI3
+        type: 
+            name: AXI3
+            vendor: vendor
+            library: libdefault
         mode: subordinate
         signals:
             in:

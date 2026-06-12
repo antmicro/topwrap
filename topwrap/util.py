@@ -12,6 +12,7 @@ from importlib.metadata import PackageNotFoundError, distribution, version
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, Optional, TypeVar, Union
 
+from topwrap.model.misc import Identifier
 from topwrap.repo.exceptions import ResourceNotFoundException
 
 if TYPE_CHECKING:
@@ -198,18 +199,14 @@ def collect_filelist_sources(
     return list(sv_sources), include_dirs
 
 
-def get_interface_by_name(name: str) -> Optional["InterfaceDefinitionResource"]:
+def get_interface_by_id(id: Identifier) -> Optional["InterfaceDefinitionResource"]:
     from topwrap.repo.user_repo import InterfaceDefinitionResource
 
     for repo in get_config().loaded_repos.values():
         try:
-            res = repo.get_resource(InterfaceDefinitionResource, name)
+            res = repo.get_resource(InterfaceDefinitionResource, id.combined())
         except ResourceNotFoundException:
-            # Try with vendor_libdefault_ as prefix
-            try:
-                res = repo.get_resource(InterfaceDefinitionResource, f"vendor_libdefault_{name}")
-            except ResourceNotFoundException:
-                continue
+            continue
         return res
 
 

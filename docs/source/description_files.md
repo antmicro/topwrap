@@ -188,7 +188,10 @@ signals:
 
 interfaces:
   ifu_axi:
-    type: AXI4
+    type:
+      name: AXI4
+      vendor: vendor
+      library: libdefault
     mode: manager
     # the size field in manager mode is unused by topwrap
     signals:
@@ -220,7 +223,7 @@ interfaces:
   - `in` \- a list of signals that are in the input direction
   - `inout` \- a list of signals that can be both input and output, similar to an `inout` port in Verilog
 - `interfaces` \- a list of interfaces
-  - `type` \- the name of the interface definition that is used for that interface. See the [Interface Definition YAML](#interface-description-files).
+  - `type` \- the [ID](developers_guide/internal_representation.html#topwrap.model.misc.Identifier) of the interface definition that is used for that interface. See the [Interface Definition YAML](#interface-description-files).
   - `mode` \- `manager`, `subordinate` or `unspecified`. When generating ports, the mode is used to determine the direction of the port. `unspecified` behaves the same as `manager`. When doing inference, all newly created interfaces have their `type` set to `unspecified`.
   - `size` \- the optional field that is only used when `mode` is `subordinate`, it is used when there is an instance of this module specified in `address_maps` in the design YAML.
   - `signals` \- a list of signals mapped to ports. Signals from the interface definition need to be mapped to ports in the HDL module.

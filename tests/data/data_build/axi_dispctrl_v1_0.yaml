@@ -13,7 +13,10 @@ parameters:
 
 interfaces:
     AXI_s0:
-        type: AXI4
+        type:
+            name: AXI4
+            vendor: vendor
+            library: libdefault
         mode: subordinate
         signals:
             in:
@@ -39,7 +42,10 @@ interfaces:
                 RVALID: s00_axi_rvalid
 
     AXIS_s0:
-        type: AXI4Stream
+        type: 
+            name: AXI4Stream
+            vendor: vendor
+            library: libdefault
         mode: subordinate
         signals:
             in:

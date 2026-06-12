@@ -46,7 +46,7 @@ class TestIpCoreDescriptionBackend:
             _compare_modules(golden, mod)
 
     def test_independent_signals(self):
-        wishbone = util.get_interface_by_name("vendor_libdefault_wishbone").definition
+        wishbone = util.get_interface_by_id(Identifier("wishbone")).definition
 
         assert wishbone
 
@@ -134,7 +134,7 @@ class TestIpCoreDescriptionBackend:
                 "mgr": {
                     "mode": "manager",
                     "signals": {"in": {"foo": None}, "out": {"bar": None}},
-                    "type": "my_intf",
+                    "type": {"name": "my_intf", "vendor": "vendor", "library": "libdefault"},
                 }
             },
             "id": {"name": "foo", "library": "libdefault", "vendor": "vendor"},
@@ -145,7 +145,7 @@ class TestIpCoreDescriptionBackend:
                 "sub": {
                     "mode": "subordinate",
                     "signals": {"out": {"foo": None}, "in": {"bar": None}},
-                    "type": "my_intf",
+                    "type": {"name": "my_intf", "vendor": "vendor", "library": "libdefault"},
                 }
             },
             "id": {"name": "bar", "library": "libdefault", "vendor": "vendor"},

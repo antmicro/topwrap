@@ -14,7 +14,8 @@ signals:
 
 interfaces:
   s_wishbone:
-    type: wishbone
+    type:
+      name: wishbone
     mode: subordinate
     signals:
       in:

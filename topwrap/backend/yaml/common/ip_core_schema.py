@@ -29,7 +29,7 @@ from topwrap.model.interface import (
 )
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.repo.exceptions import ResourceNotFoundException
-from topwrap.util import get_config, get_interface_by_name
+from topwrap.util import get_config, get_interface_by_id
 
 _StrOrInt = Union[str, int]
 
@@ -193,7 +193,7 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
 class IPCoreInterface(MarshmallowDataclassExtensions):
     """Interface specified in IP Core YAML file. `Type` field has name of InterfaceDefinition"""
 
-    type: str
+    type: Identifier
     mode: InterfaceModeDescription = ext_field(by_value=True)
     signals: IPCoreIntfPorts = ext_field(IPCoreIntfPorts)
     clock: Optional[str] = ext_field(None)
@@ -201,18 +201,18 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
     size: Optional[int] = ext_field(None)
 
     @marshmallow.validates("type")
-    def _validate_type(self, type: str) -> bool:
-        if get_interface_by_name(type) is None:
-            raise marshmallow.ValidationError(f"Invalid interface type: {type}")
+    def _validate_type(self, id: Identifier) -> bool:
+        if get_interface_by_id(id) is None:
+            raise marshmallow.ValidationError(f"Invalid interface type: {id.combined()}")
         return True
 
     @marshmallow.validates_schema
     def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
         if get_config().force_interface_compliance:
             errors: List[str] = []
-            iface_def_resource = get_interface_by_name(self_obj["type"])
+            iface_def_resource = get_interface_by_id(self_obj["type"])
             if iface_def_resource is None:
-                raise ResourceNotFoundException(self_obj["type"])
+                raise ResourceNotFoundException(self_obj["type"].combined())
             i_def = iface_def_resource.definition
             for sig in i_def.signals:
                 mode = sig.modes[InterfaceMode.UNSPECIFIED]
@@ -226,7 +226,7 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
                 if name not in [s.name for s in i_def.signals]:
                     errors.append(
                         f'Unknown {sig.direction.value} port "{name}", not present in interface'
-                        f' "{self_obj["type"]}"'
+                        f' "{self_obj["type"].combined()}"'
                     )
             if errors:
                 raise marshmallow.ValidationError(errors)

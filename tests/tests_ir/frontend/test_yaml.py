@@ -236,7 +236,8 @@ class TestIPCoreDescriptionFrontend:
           name: top
         interfaces:
           foo:
-            type: wishbone
+            type:
+                name: wishbone
             mode: manager
             clock: asdf
         """
@@ -252,7 +253,10 @@ class TestIPCoreDescriptionFrontend:
           name: top
         interfaces:
           foo:
-            type: wishbone
+            type:
+                name: wishbone
+                vendor: vendor
+                library: libdefault
             mode: manager
             reset: asdf
         """

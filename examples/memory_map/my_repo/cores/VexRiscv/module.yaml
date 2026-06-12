@@ -19,7 +19,10 @@ interfaces:
         sel: {bound: ['3', '0'], name: dBusWishbone_SEL}
         stb: {name: dBusWishbone_STB}
         we: {name: dBusWishbone_WE}
-    type: wishbone
+    type: 
+      name: wishbone
+      vendor: vendor
+      library: libdefault
   iBusWishbone_:
     mode: manager
     signals:
@@ -36,7 +39,10 @@ interfaces:
         sel: {bound: ['3', '0'], name: iBusWishbone_SEL}
         stb: {name: iBusWishbone_STB}
         we: {name: iBusWishbone_WE}
-    type: wishbone
+    type: 
+      name: wishbone
+      vendor: vendor
+      library: libdefault
 signals:
   in:
   - {name: dBusWishbone_ERR}

@@ -16,7 +16,10 @@ signals:
 
 interfaces:
     M_AXI_GP0:
-        type: AXI4
+        type: 
+            name: AXI4
+            vendor: vendor
+            library: libdefault
         mode: manager
         signals:
             in:

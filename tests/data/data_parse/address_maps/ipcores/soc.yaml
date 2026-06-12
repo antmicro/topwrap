@@ -20,7 +20,8 @@ signals:
 
 interfaces:
   m_dbus_wishbone:
-    type: wishbone
+    type: 
+      name: wishbone
     mode: manager
     signals:
       in:
@@ -37,7 +38,8 @@ interfaces:
         cti: [dbus_cti, 2, 0]
         bte: [dbus_bte, 1, 0]
   m_ibus_wishbone:
-    type: wishbone
+    type: 
+      name: wishbone
     mode: manager
     signals:
       in:
@@ -54,7 +56,8 @@ interfaces:
         cti: [ibus_cti, 2, 0]
         bte: [ibus_bte, 1, 0]
   s_csr_wishbone:
-    type: wishbone
+    type: 
+      name: wishbone
     mode: subordinate
     signals:
       in:

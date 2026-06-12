@@ -19,7 +19,10 @@ interfaces:
         ack: {name: mem_bus_ack}
         dat_r: {bound: ['31', '0'], name: mem_bus_dat_r}
         err: {name: mem_bus_err}
-    type: wishbone
+    type: 
+      name: wishbone
+      vendor: vendor
+      library: libdefault
 parameters:
   aw: $clog2(depth)
   depth: '256'

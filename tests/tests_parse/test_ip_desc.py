@@ -50,7 +50,10 @@ id:
 interfaces:
     i1:
         mode: subordinate
-        type: AXI4Stream
+        type:
+            name: AXI4Stream
+            vendor: vendor
+            library: libdefault
         signals:
             out:
                 TDATA: p1
@@ -71,7 +74,10 @@ id:
 interfaces:
     i1:
         mode: subordinate
-        type: AXI4Stream
+        type:
+            name: AXI4Stream
+            vendor: vendor
+            library: libdefault
         signals:
             out:
                 TDATA: p1
@@ -115,9 +121,13 @@ interfaces:
         self, invalid_interface_compliance_core, force_compliance
     ):
         with pytest.raises(
-            ValidationError, match='Required out port "TLAST" of interface "AXI4Stream" not present'
+            ValidationError,
+            match='Required out port "TLAST" of interface "vendor_libdefault_AXI4Stream" '
+            "not present",
         ) and pytest.raises(
-            ValidationError, match='Unknown out port "TBUBU", not present in interface "AXI4Stream"'
+            ValidationError,
+            match='Unknown out port "TBUBU", not present in interface '
+            '"vendor_libdefault_AXI4Stream"',
         ):
             IPCoreDescription.from_dict(invalid_interface_compliance_core)
 
@@ -214,7 +224,7 @@ interfaces:
             "interfaces": {
                 "foo_bar_adapter": {
                     "value": {
-                        "type": ["Not a valid string."],
+                        "type": {"_schema": ["Invalid input type."]},
                         "mode": ["Must be one of: manager, subordinate, unspecified."],
                         "signals": {
                             "out": {
@@ -287,7 +297,7 @@ interfaces:
             },
             interfaces={
                 "intf1": IPCoreInterface(
-                    type="wishbone",
+                    type=Identifier(name="wishbone"),
                     mode=InterfaceModeDescription.MANAGER,
                     signals=IPCoreIntfPorts(
                         input={"ack": ("ack", 2, 0)},
