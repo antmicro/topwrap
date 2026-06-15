@@ -1,13 +1,20 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 
+from pathlib import Path
+
 import pytest
+import yaml
 
 from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.data.data_ir.inference.axi_if import axi4_intf
 from tests.data.data_ir.inference.axilite_if import axi4lite_intf
 from tests.data.data_ir.inference.bbox_if import bbox_full_intf, bbox_in_only_intf, bbox_intf
+from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
+from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
+from topwrap.frontend.sv.frontend import SystemVerilogFrontend
+from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import Bit, BitStruct, StructField
@@ -317,3 +324,196 @@ class TestInterfaceInference:
 
         bbox_used_ports = {x.io.name if x else "?" for _, x in bbox.signals.items()}
         assert bbox_used_ports == {"bbox_in", "bbox_out"}
+
+    def test_sv_struct_port_inference(self):
+        sv = SystemVerilogFrontend()
+        sv_mod = sv.parse_files(
+            [Path("tests/data/data_ir/inference/structs/sram_wrapper.sv")]
+        ).modules[0]
+
+        with open(
+            "tests/data/data_ir/inference/structs/vendor_libdefault_AXIstructs.yaml", "r"
+        ) as f:
+            intf_def = InterfaceDefinitionDescription.from_yaml(f.read())
+            intf = InterfaceDefinitionDescriptionFrontend().parse(intf_def)
+
+        mapping = infer_interfaces_from_module(
+            sv_mod,
+            [intf],
+            grouping_hints={
+                "axi_req": "axi",
+                "axi_resp": "axi",
+            },
+        )
+        map_interfaces_to_module([mapping], [intf], sv_mod)
+
+        backend = IpCoreDescriptionBackend()
+
+        out = backend.represent(sv_mod)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        # Parsing SV does not yield ports in a fixed order due to dict randomness
+        tree["signals"]["in"].sort(key=lambda x: x["name"])
+
+        assert tree == {
+            "id": {"library": "libdefault", "name": "sram_wrapper", "vendor": "vendor"},
+            "interfaces": {
+                "axi": {
+                    "mode": "subordinate",
+                    "signals": {
+                        "in": {
+                            "ARADDR": {"path": "axi_req.ar.addr"},
+                            "ARBURST": {"path": "axi_req.ar.burst"},
+                            "ARCACHE": {"path": "axi_req.ar.cache"},
+                            "ARLEN": {"path": "axi_req.ar.len"},
+                            "ARLOCK": {"path": "axi_req.ar.lock"},
+                            "ARPROT": {"path": "axi_req.ar.prot"},
+                            "ARQOS": {"path": "axi_req.ar.qos"},
+                            "ARREGION": {"path": "axi_req.ar.region"},
+                            "ARSIZE": {"path": "axi_req.ar.size"},
+                            "ARUSER": {"path": "axi_req.ar.user"},
+                            "ARVALID": {"path": "axi_req.ar_valid"},
+                            "AWADDR": {"path": "axi_req.aw.addr"},
+                            "AWATOP": {"path": "axi_req.aw.atop"},
+                            "AWBURST": {"path": "axi_req.aw.burst"},
+                            "AWCACHE": {"path": "axi_req.aw.cache"},
+                            "AWID": {"path": "axi_req.aw.id"},
+                            "AWLEN": {"path": "axi_req.aw.len"},
+                            "AWLOCK": {"path": "axi_req.aw.lock"},
+                            "AWPROT": {"path": "axi_req.aw.prot"},
+                            "AWQOS": {"path": "axi_req.aw.qos"},
+                            "AWREGION": {"path": "axi_req.aw.region"},
+                            "AWSIZE": {"path": "axi_req.aw.size"},
+                            "AWUSER": {"path": "axi_req.aw.user"},
+                            "AWVALID": {"path": "axi_req.aw_valid"},
+                            "BREADY": {"path": "axi_req.b_ready"},
+                            "RREADY": {"path": "axi_req.r_ready"},
+                            "WDATA": {"path": "axi_req.w.data"},
+                            "WLAST": {"path": "axi_req.w.last"},
+                            "WSTRB": {"path": "axi_req.w.strb"},
+                            "WUSER": {"path": "axi_req.w.user"},
+                            "WVALID": {"path": "axi_req.w_valid"},
+                        },
+                        "out": {
+                            "ARREADY": {"path": "axi_resp.ar_ready"},
+                            "AWREADY": {"path": "axi_resp.aw_ready"},
+                            "BID": {"path": "axi_resp.b.id"},
+                            "BRESP": {"path": "axi_resp.b.resp"},
+                            "BUSER": {"path": "axi_resp.b.user"},
+                            "BVALID": {"path": "axi_resp.b_valid"},
+                            "RDATA": {"path": "axi_resp.r.data"},
+                            "RID": {"path": "axi_resp.r.id"},
+                            "RLAST": {"path": "axi_resp.r.last"},
+                            "RRESP": {"path": "axi_resp.r.resp"},
+                            "RUSER": {"path": "axi_resp.r.user"},
+                            "RVALID": {"path": "axi_resp.r_valid"},
+                            "WREADY": {"path": "axi_resp.w_ready"},
+                        },
+                    },
+                    "type": {
+                        "vendor": "vendor",
+                        "library": "libdefault",
+                        "name": "AXIstructs",
+                    },
+                }
+            },
+            "signals": {
+                "in": [
+                    {"name": "axi_req", "type": "axi_req_t"},
+                    {"name": "clk_i"},
+                    {"name": "rst_ni"},
+                ],
+                "out": [{"name": "axi_resp", "type": "axi_resp_t"}],
+            },
+            "types": {
+                "axi_req_t": {
+                    "members": [
+                        {
+                            "name": "aw",
+                            "type": {
+                                "members": [
+                                    {"name": "id", "type": ["5", "0"]},
+                                    {"name": "addr", "type": ["31", "0"]},
+                                    {"name": "len", "type": ["7", "0"]},
+                                    {"name": "size", "type": ["2", "0"]},
+                                    {"name": "burst", "type": ["1", "0"]},
+                                    {"name": "lock", "type": [0, 0]},
+                                    {"name": "cache", "type": ["3", "0"]},
+                                    {"name": "prot", "type": ["2", "0"]},
+                                    {"name": "qos", "type": ["3", "0"]},
+                                    {"name": "region", "type": ["3", "0"]},
+                                    {"name": "atop", "type": ["5", "0"]},
+                                    {"name": "user", "type": [0, 0]},
+                                ]
+                            },
+                        },
+                        {"name": "aw_valid", "type": [0, 0]},
+                        {
+                            "name": "w",
+                            "type": {
+                                "members": [
+                                    {"name": "data", "type": ["63", "0"]},
+                                    {"name": "strb", "type": ["7", "0"]},
+                                    {"name": "last", "type": [0, 0]},
+                                    {"name": "user", "type": [0, 0]},
+                                ]
+                            },
+                        },
+                        {"name": "w_valid", "type": [0, 0]},
+                        {"name": "b_ready", "type": [0, 0]},
+                        {
+                            "name": "ar",
+                            "type": {
+                                "members": [
+                                    {"name": "id", "type": ["5", "0"]},
+                                    {"name": "addr", "type": ["31", "0"]},
+                                    {"name": "len", "type": ["7", "0"]},
+                                    {"name": "size", "type": ["2", "0"]},
+                                    {"name": "burst", "type": ["1", "0"]},
+                                    {"name": "lock", "type": [0, 0]},
+                                    {"name": "cache", "type": ["3", "0"]},
+                                    {"name": "prot", "type": ["2", "0"]},
+                                    {"name": "qos", "type": ["3", "0"]},
+                                    {"name": "region", "type": ["3", "0"]},
+                                    {"name": "user", "type": [0, 0]},
+                                ]
+                            },
+                        },
+                        {"name": "ar_valid", "type": [0, 0]},
+                        {"name": "r_ready", "type": [0, 0]},
+                    ]
+                },
+                "axi_resp_t": {
+                    "members": [
+                        {"name": "aw_ready", "type": [0, 0]},
+                        {"name": "ar_ready", "type": [0, 0]},
+                        {"name": "w_ready", "type": [0, 0]},
+                        {"name": "b_valid", "type": [0, 0]},
+                        {
+                            "name": "b",
+                            "type": {
+                                "members": [
+                                    {"name": "id", "type": ["5", "0"]},
+                                    {"name": "resp", "type": ["1", "0"]},
+                                    {"name": "user", "type": [0, 0]},
+                                ]
+                            },
+                        },
+                        {"name": "r_valid", "type": [0, 0]},
+                        {
+                            "name": "r",
+                            "type": {
+                                "members": [
+                                    {"name": "id", "type": ["5", "0"]},
+                                    {"name": "data", "type": ["63", "0"]},
+                                    {"name": "resp", "type": ["1", "0"]},
+                                    {"name": "last", "type": [0, 0]},
+                                    {"name": "user", "type": [0, 0]},
+                                ]
+                            },
+                        },
+                    ]
+                },
+            },
+        }

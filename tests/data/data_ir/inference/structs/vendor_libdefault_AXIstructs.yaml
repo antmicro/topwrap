@@ -1,0 +1,60 @@
+id:
+  library: libdefault
+  name: AXIstructs
+  vendor: vendor
+signals:
+  optional:
+    in:
+      BID: b[\._]?id
+      BRESP: b[\._]?resp
+      BUSER: b[\._]?user
+      RID: r[\._]?id
+      RLAST: r[\._]?last
+      RRESP: r[\._]?resp
+      RUSER: r[\._]?user
+    inout: {}
+    out:
+      ARBURST: ar[\._]?burst
+      ARCACHE: ar[\._]?cache
+      ARDOMAIN: ar[\._]?domain
+      ARID: aryid
+      ARLEN: ar[\._]?len
+      ARLOCK: ar[\._]?lock
+      ARPROT: ar[\._]?prot
+      ARQOS: ar[\._]?qos
+      ARREGION: ar[\._]?region
+      ARSIZE: ar[\._]?size
+      ARUSER: ar[\._]?user
+      AWATOP: aw[\._]?atop
+      AWBURST: aw[\._]?burst
+      AWCACHE: aw[\._]?cache
+      AWDOMAIN: aw[\._]?domain
+      AWID: aw[\._]?id
+      AWLEN: aw[\._]?len
+      AWLOCK: aw[\._]?lock
+      AWPROT: aw[\._]?prot
+      AWQOS: aw[\._]?qos
+      AWREGION: aw[\._]?region
+      AWSIZE: aw[\._]?size
+      AWUSER: aw[\._]?user
+      WLAST: w[\._]?last
+      WSTRB: w[\._]?strb
+      WUSER: w[\._]?user
+  required:
+    in:
+      ARREADY: ar[\._]?ready
+      AWREADY: aw[\._]?ready
+      BVALID: b[\._]?valid
+      RDATA: r[\._]?data
+      RVALID: r[\._]?valid
+      WREADY: w[\._]?ready
+    inout: {}
+    out:
+      ARADDR: ar[\._]?addr
+      ARVALID: ar[\._]?valid
+      AWADDR: aw[\._]?addr
+      AWVALID: aw[\._]?valid
+      BREADY: b[\._]?ready
+      RREADY: r[\._]?ready
+      WDATA: w[\._]?data
+      WVALID: w[\._]?valid
