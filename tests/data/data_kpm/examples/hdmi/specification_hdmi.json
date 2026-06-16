@@ -344,6 +344,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "axi_axil_adapter",
           "vendor": "vendor"
@@ -415,6 +416,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "axi_dispctrl",
           "vendor": "vendor"
@@ -526,6 +528,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "axi_interconnect",
           "vendor": "vendor"
@@ -644,6 +647,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "axi_protocol_converter",
           "vendor": "vendor"
@@ -683,6 +687,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "axis_async_fifo",
           "vendor": "vendor"
@@ -801,6 +806,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "axis_dwidth_converter",
           "vendor": "vendor"
@@ -852,6 +858,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "clock_crossing",
           "vendor": "vendor"
@@ -891,6 +898,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "dma_axi_in_axis_out",
           "vendor": "vendor"
@@ -960,6 +968,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "hdmi_tx",
           "vendor": "vendor"
@@ -1095,6 +1104,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "litex_mmcm",
           "vendor": "vendor"
@@ -1152,6 +1162,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "proc_sys_reset",
           "vendor": "vendor"
@@ -1227,6 +1238,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "ps7",
           "vendor": "vendor"
@@ -1479,6 +1491,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "top",
           "vendor": "vendor"

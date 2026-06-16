@@ -251,6 +251,7 @@ class Identifier:
     name: str
     vendor: str = field(default="vendor")
     library: str = field(default="libdefault")
+    version: str = field(default="0.1")
 
     def combined(self) -> str:
         return "_".join([self.vendor, self.library, self.name])

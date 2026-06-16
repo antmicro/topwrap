@@ -326,6 +326,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "axi_axil_adapter",
           "vendor": "vendor"
@@ -397,6 +398,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "litex_pwm",
           "vendor": "vendor"
@@ -436,6 +438,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "ps7",
           "vendor": "vendor"
@@ -481,6 +484,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "top",
           "vendor": "vendor"

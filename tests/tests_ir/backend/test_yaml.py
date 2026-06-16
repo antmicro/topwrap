@@ -157,10 +157,15 @@ class TestIpCoreDescriptionBackend:
                 "mgr": {
                     "mode": "manager",
                     "signals": {"in": {"foo": None}, "out": {"bar": None}},
-                    "type": {"name": "my_intf", "vendor": "vendor", "library": "libdefault"},
+                    "type": {
+                        "name": "my_intf",
+                        "vendor": "vendor",
+                        "library": "libdefault",
+                        "version": "0.1",
+                    },
                 }
             },
-            "id": {"name": "foo", "library": "libdefault", "vendor": "vendor"},
+            "id": {"name": "foo", "library": "libdefault", "vendor": "vendor", "version": "0.1"},
         }
 
         assert tree2 == {
@@ -168,10 +173,15 @@ class TestIpCoreDescriptionBackend:
                 "sub": {
                     "mode": "subordinate",
                     "signals": {"out": {"foo": None}, "in": {"bar": None}},
-                    "type": {"name": "my_intf", "vendor": "vendor", "library": "libdefault"},
+                    "type": {
+                        "name": "my_intf",
+                        "vendor": "vendor",
+                        "library": "libdefault",
+                        "version": "0.1",
+                    },
                 }
             },
-            "id": {"name": "bar", "library": "libdefault", "vendor": "vendor"},
+            "id": {"name": "bar", "library": "libdefault", "vendor": "vendor", "version": "0.1"},
         }
 
     def test_complex_port(self):
@@ -194,7 +204,7 @@ class TestIpCoreDescriptionBackend:
         tree = yaml.safe_load(out.content)
 
         assert tree == {
-            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor", "version": "0.1"},
             "signals": {
                 "in": [
                     {
@@ -222,7 +232,7 @@ class TestIpCoreDescriptionBackend:
         tree = yaml.safe_load(out.content)
 
         assert tree == {
-            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor", "version": "0.1"},
             "parameters": {
                 "foo": "32",
                 "bar": None,
@@ -255,7 +265,7 @@ class TestIpCoreDescriptionBackend:
         tree = yaml.safe_load(out.content)
 
         assert tree == {
-            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor", "version": "0.1"},
             "signals": {
                 "in": [
                     {
@@ -329,7 +339,7 @@ class TestIpCoreDescriptionBackend:
         tree = yaml.safe_load(out.content)
 
         assert tree == {
-            "id": {"name": "top", "library": "libdefault", "vendor": "vendor"},
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor", "version": "0.1"},
             "signals": {
                 "in": [
                     {
@@ -354,6 +364,7 @@ class TestIpCoreDescriptionBackend:
                         "vendor": "vendor",
                         "library": "libdefault",
                         "name": "wishbone",
+                        "version": "0.1",
                     },
                     "mode": "manager",
                     "signals": {

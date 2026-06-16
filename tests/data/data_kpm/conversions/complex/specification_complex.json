@@ -92,6 +92,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "BETWEEN",
           "vendor": "vendor"
@@ -327,6 +328,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "SUB",
           "vendor": "vendor"
@@ -354,6 +356,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "SUBEMPTY",
           "vendor": "vendor"
@@ -367,6 +370,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "c_mod_2",
           "vendor": "vendor"
@@ -394,6 +398,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "s1_mod_2",
           "vendor": "vendor"
@@ -421,6 +426,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "s1_mod_3",
           "vendor": "vendor"
@@ -455,6 +461,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "s2_mod_1",
           "vendor": "vendor"
@@ -494,6 +501,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "s2_mod_2",
           "vendor": "vendor"
@@ -527,6 +535,7 @@
       "abstract": false,
       "additionalData": {
         "full_module_id": {
+          "version": "0.1",
           "library": "libdefault",
           "name": "top",
           "vendor": "vendor"

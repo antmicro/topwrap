@@ -357,7 +357,12 @@ class TestInterfaceInference:
         tree["signals"]["in"].sort(key=lambda x: x["name"])
 
         assert tree == {
-            "id": {"library": "libdefault", "name": "sram_wrapper", "vendor": "vendor"},
+            "id": {
+                "library": "libdefault",
+                "name": "sram_wrapper",
+                "vendor": "vendor",
+                "version": "0.1",
+            },
             "interfaces": {
                 "axi": {
                     "mode": "subordinate",
@@ -415,6 +420,7 @@ class TestInterfaceInference:
                         "vendor": "vendor",
                         "library": "libdefault",
                         "name": "AXIstructs",
+                        "version": "0.1",
                     },
                 }
             },
