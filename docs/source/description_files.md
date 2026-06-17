@@ -183,8 +183,12 @@ signals:
     - name: core_id
       bound: [3, 0]
       default: 0
+    - name: wb_req
+      type: wb_req_t
   out:
     - core_halted
+    - name: wb_resp
+      type: wb_resp_t
 
 interfaces:
   ifu_axi:
@@ -209,6 +213,20 @@ interfaces:
     size: 0xFFFF # the size field in subordinate mode is optional
     signals:
       # wishbone signals
+      addr:
+        path: wb_req.addr
+
+types:
+  wb_req_t:
+    members:
+      - name: cyc
+        type: [0, 0]
+      - name: addr
+        type: ...
+      ...
+  wb_resp_t:
+    members:
+      ...
 ```
 
 ### File format explanation
@@ -227,6 +245,8 @@ interfaces:
   - `mode` \- `manager`, `subordinate` or `unspecified`. When generating ports, the mode is used to determine the direction of the port. `unspecified` behaves the same as `manager`. When doing inference, all newly created interfaces have their `type` set to `unspecified`.
   - `size` \- the optional field that is only used when `mode` is `subordinate`, it is used when there is an instance of this module specified in `address_maps` in the design YAML.
   - `signals` \- a list of signals mapped to ports. Signals from the interface definition need to be mapped to ports in the HDL module.
+- `types` \- structure type definitions used by signals (described below in more detail)
+  - `members` \- member fields of a struct type
 
 ### Signals
 
@@ -236,12 +256,23 @@ Each signal (for both port and interface definitions) can be specified in one of
 
 The signal is defined by a YAML object, with the following properties:
 
- - `name` (required) - the name of the signal.
+ - `name` (optional) - the name of the signal.
  - `bound` (optional) - the bounds of the bit range, determining the width.
  - `slice` (optional) - the bounds of the slice bit range (only applicable to interface definitions).
  - `default` (optional) - default value to assign to this port if nothing is connected to it, applicable only to input ports.
+ - `type` (optional) - the name of the type (defined in the `types` section) used for this signal
+ - `path` (optional) - the path to a field to use as the source for this signal
 
-Example port definition using this format:
+A signal must have either a `name` or a `path` specified, but not both at once.
+
+Additionally, `path` may only be specified for interface signals.
+For example, a path of `some_port.some_field` describes a signal that uses a subfield of a port.
+Paths can also describe slices, e.g. `some_port[31:0]` is equivalent to specifying a `name` of `some_port` and a `slice` of `[31, 0]`.
+Paths can use any combination of slicing and field selection operations, e.g. `some_port[3].some_field[1].some_other_field[31:0]`.
+
+A signal may specify `bound` or `type` (or neither for a single bit port), but not both at the same time.
+
+Example port definitions using this format:
 
 ```yaml
 signals:
@@ -249,9 +280,11 @@ signals:
         - name: foo
           bound: [31, 0]
           default: 32'hDEADBEEF
+        - name: bar
+          type: some_struct_t
 ```
 
-Example interface signal definition using this format:
+Example interface signal definitions using this format:
 
 ```yaml
 interfaces:
@@ -267,6 +300,8 @@ interfaces:
                 ...
                 BAZ:
                     name: BAZ
+                QUX:
+                    path: some_struct_port.qux
 ```
 
 #### Old signal format
@@ -309,6 +344,50 @@ signals:
         - clkB
     out:
         - B
+```
+
+#### Types
+
+IP core YAML files may additionally describe types used by the module's ports in a dedicated section.
+This is primarily intended to support modules using structure ports.
+
+Each named type is defined in the `types` section:
+
+```yaml
+
+types:
+  my_struct_type_t:
+    ...
+  my_other_type_t:
+    ...
+```
+
+Each type is either:
+
+ - a two element array describing a bit vector (incl. single bits), e.g. `[31, 0]` or `[0, 0]`
+ - an object with a `members` describing a struct, described below
+
+The members of a struct are defined in an array of field objects, each of which consists of the following properties:
+
+ - `name` - the name of the field
+ - `type` - the type definition for the field
+
+Example struct definition describing AXI output signals:
+
+```yaml
+
+types:
+  my_axi_req_t:
+    members:
+      - name: aw_valid
+        type: [0, 0]
+      - name: aw
+        type:
+          members:
+            - name: addr
+              type: [31, 0]
+            ...
+      ...
 ```
 
 ### Interface definitions
