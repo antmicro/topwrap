@@ -209,7 +209,7 @@ class KpmDataflowBackend:
                 des.parent = comp.module
                 self._represent_design(comp.module.design or des, subg, depth - 1)
 
-            node = graph.create_subgraph_node(
+            node = graph.create_node(
                 name=node_name or comp.module.id.name,
                 subgraph_id=subg.id,
             )
