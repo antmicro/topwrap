@@ -47,3 +47,8 @@ INTERCONNECT_TYPES: dict[str, InterconnectTypeInfo] = {
         AXISubordinateParams,
     ),
 }
+
+#: Maps interconnect type to its name
+INTERCONNECT_NAMES: dict[type[Interconnect], str] = {
+    v.intercon: n for n, v in INTERCONNECT_TYPES.items()
+}

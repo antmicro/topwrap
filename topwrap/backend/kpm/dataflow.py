@@ -29,6 +29,7 @@ from topwrap.backend.kpm.common import (
     kpm_dir_from,
 )
 from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
+from topwrap.interconnects.types import INTERCONNECT_NAMES
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import (
     Connection,
@@ -351,6 +352,10 @@ class KpmDataflowBackend:
     def add_interconnect(self, graph: DataflowGraph, intr: Interconnect, ref: _REFTYPE):
         node = graph.create_node(name=InterconnectMetanode.name, instance_name=intr.name)
         mprop, sprop = InterconnectMetanode().interfaces[2:]
+
+        node.set_property(
+            InterconnectMetanodeStrings.TYPE_PROP.value, INTERCONNECT_NAMES[type(intr)]
+        )
 
         for i, pin in enumerate((intr.clock, intr.reset)):
             self._connect(graph, node.interfaces[i], ref[(pin.instance, id(pin.io))])
