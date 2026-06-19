@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from pathlib import Path
 from typing import Dict
@@ -98,9 +99,10 @@ class TestClient:
                 )
 
                 default_rpc_params.specification = spec
-                response_message = RPCMethods(default_rpc_params).dataflow_import(
+                coro = RPCMethods(default_rpc_params).dataflow_import(
                     all_encoded_design_files[test_name], "application/x-yaml", True
                 )
+                response_message = asyncio.run(coro)
 
                 assert response_message["type"] == MessageType.OK.value, (
                     f"Dataflow import returned {response_message['type']} for test {test_name}"

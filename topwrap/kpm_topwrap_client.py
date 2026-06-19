@@ -103,7 +103,7 @@ class RPCMethods:
         flow_b64encoded = b64encode(json.dumps(dataflow).encode("utf-8")).decode("utf-8")
         return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": filename}
 
-    def dataflow_import(
+    async def dataflow_import(
         self, external_application_dataflow: str, mime: str, base64: bool
     ) -> RPCEndpointReturnType:
         logging.info(f"Dataflow import request received from {self.host}:{self.port}")
@@ -121,6 +121,9 @@ class RPCMethods:
 
         dataflow = KpmDataflowBackend(self.specification)
         dataflow.represent_design(design_module.design, depth=-1)
+        self.specification = dataflow.apply_subgraphs_to_spec(self.specification)
+        if self.client is not None:
+            await self.client.request("specification_change", {"specification": self.specification})
         dataflow = dataflow.build()
 
         return {
@@ -148,6 +151,9 @@ class RPCMethods:
             if self.client is None:
                 logging.debug("The client to send request to is not defined")
                 return
+
+            self.specification = output.specification
+            await self.client.request("specification_change", {"specification": self.specification})
             await self.client.request("graph_change", {"dataflow": output.dataflow})
         else:
             # Started topwrap without any design
