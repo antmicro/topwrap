@@ -8,7 +8,7 @@ import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Optional, TypedDict, Union, cast
+from typing import Any, Optional, TypedDict, Union, cast
 
 from pipeline_manager_backend_communication.communication_backend import (
     CommunicationBackend,
@@ -17,15 +17,10 @@ from pipeline_manager_backend_communication.misc_structures import MessageType
 from pipeline_manager_backend_communication.utils import convert_message_to_string
 from typing_extensions import NotRequired
 
+from topwrap.backend.backend import BackendOutputInfo
 from topwrap.backend.kpm.backend import KpmBackend
-from topwrap.backend.kpm.dataflow import KpmDataflowBackend
-from topwrap.backend.sv.backend import SystemVerilogBackend
-from topwrap.backend.yaml.backend import DesignDescriptionBackend
-from topwrap.frontend.kpm.frontend import KpmFrontend
-from topwrap.frontend.yaml.frontend import YamlFrontend
-from topwrap.fuse_helper import FuseSocBuilder
-from topwrap.model.interface import InterfaceDefinition
-from topwrap.model.module import Module
+from topwrap.plugin.pipeline import BuildPipeline
+from topwrap.plugin.steps import KpmDataflowOutputStage, YamlDesignOutputStage
 from topwrap.util import JsonType
 
 from .kpm_common import RPCparams
@@ -82,9 +77,7 @@ class RPCMethods:
 
     def dataflow_run(self, dataflow: JsonType) -> RPCEndpointReturnType:
         logging.info(f"Dataflow run request received from {self.host}:{self.port}")
-        errors = _kpm_dataflow_run_handler(
-            self.modules, self.interfaces, dataflow, self.specification, self.build_dir
-        )
+        errors = _kpm_dataflow_run_handler(dataflow, self.specification, self.build_dir)
         if errors:
             # note: only the first error is sent to the KPM frontend
             return {"type": MessageType.ERROR.value, "content": errors[0]}
@@ -98,23 +91,24 @@ class RPCMethods:
     def dataflow_export(self, dataflow: JsonType) -> RPCExportEndpointReturnType:
         logging.info(f"Dataflow export request received from {self.host}:{self.port}")
 
-        frontend = KpmFrontend(self.modules, self.interfaces)
-        output = frontend.parse_str([json.dumps(dataflow), json.dumps(self.specification)])
-        design = frontend.get_top_design(output.modules)
+        pipeline = BuildPipeline.kpm_yaml_pipeline()
+        pipeline.prepare_str([json.dumps(self.specification)], json.dumps(dataflow))
+        pipeline.process()
+
+        ctx = pipeline.ctx
+        assert ctx.top_module
+
+        out = cast(BackendOutputInfo, ctx.outputs[YamlDesignOutputStage.name])
 
         filename = (
             datetime.now()
             .strftime("design_{}_{}_{}_%Y%m%d_%H%M%S.yaml")
             .format(
-                design.parent.id.vendor,
-                design.parent.id.library,
-                design.parent.id.name,
+                ctx.top_module.id.vendor,
+                ctx.top_module.id.library,
+                ctx.top_module.id.name,
             )
         )
-
-        backend = DesignDescriptionBackend(output.interfaces)
-        repr = backend.represent(design.parent)
-        out = next(backend.serialize(repr))
 
         flow_b64encoded = b64encode(out.content.encode("utf-8")).decode("utf-8")
         return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": filename}
@@ -125,26 +119,24 @@ class RPCMethods:
         logging.info(f"Dataflow import request received from {self.host}:{self.port}")
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
 
-        frontend = YamlFrontend(self.modules, self.interfaces)
-        modules = frontend.parse_str([yaml_str]).modules
-        design_module = modules[0]
-        if not design_module.design:
+        try:
+            pipeline = BuildPipeline.yaml_kpm_flow_pipeline(None, specification=self.specification)
+            pipeline.prepare_str([], yaml_str)
+            pipeline.process()
+        except Exception as e:
             return {
                 "type": MessageType.ERROR.value,
-                "content": "Given design YAML file does not contain a design.",
+                "content": str(e),
             }
-        design_module.design.update_interconnects_from_memory_maps()
 
-        dataflow = KpmDataflowBackend(self.specification)
-        dataflow.represent_design(design_module.design, depth=-1)
-        self.specification = dataflow.apply_subgraphs_to_spec(self.specification)
+        flow = cast(JsonType, pipeline.ctx.outputs[KpmDataflowOutputStage.name])
+
         if self.client is not None:
             await self.client.request("specification_change", {"specification": self.specification})
-        dataflow = dataflow.build()
 
         return {
             "type": MessageType.OK.value,
-            "content": dataflow,
+            "content": flow,
         }
 
     async def frontend_on_connect(self):
@@ -229,8 +221,6 @@ async def _kpm_handle_graph_change(
 
 
 def _kpm_dataflow_run_handler(
-    repo_mods: Iterable[Module],
-    interfaces: Iterable[InterfaceDefinition],
     data: JsonType,
     spec: JsonType,
     build_dir: Path,
@@ -240,23 +230,10 @@ def _kpm_dataflow_run_handler(
     """
     messages = DataflowValidator(data).validate_kpm_design()
     if not messages["errors"]:
-        frontend = KpmFrontend(repo_mods, interfaces)
-        output = frontend.parse_str([json.dumps(data), json.dumps(spec)])
-        design = frontend.get_top_design(output.modules)
-
-        backend = SystemVerilogBackend(output.interfaces)
-        repr = backend.represent(design.parent)
-        out = next(backend.serialize(repr, combine=True))
-
-        build_dir.mkdir(exist_ok=True)
-        out.save(Path(build_dir))
-
         # TODO: No part or source dir specified here, because the user can't specify it when doing
         # the "run" action from KPM currently.
-        fuse_builder = FuseSocBuilder(None)
-
-        fuse_builder.add_source(out.filename, "systemVerilogSource")
-        fuse_builder.build(design.parent.id.name, build_dir / f"{design.parent.id.name}.core")
+        pipeline = BuildPipeline.kpm_sv_pipeline(fuse=True, fuse_part=None, fuse_src_dirs=[])
+        pipeline.run_str([json.dumps(spec)], json.dumps(data), build_dir)
 
     return messages["errors"]
 

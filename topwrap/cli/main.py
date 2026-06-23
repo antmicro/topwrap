@@ -2,27 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import json
 import logging
 import queue
 import subprocess
 import sys
 import threading
 import webbrowser
-from itertools import chain
 from pathlib import Path
-from typing import Any, Callable, Coroutine, Optional, Tuple
+from typing import Any, Callable, Coroutine, Optional, Tuple, cast
 
 import rich.console
 from cyclopts.types import ExistingDirectory, ExistingFile
 
-from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
-from topwrap.backend.sv.backend import SystemVerilogBackend
-from topwrap.cli import (
-    cli,
-    load_interfaces_from_repos,
-    load_modules_from_repos,
-)
+from topwrap.cli import cli
 from topwrap.config import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
@@ -32,10 +24,12 @@ from topwrap.config import (
     DEFAULT_WORKSPACE_DIR,
     config,
 )
-from topwrap.frontend.yaml.frontend import YamlFrontend
-from topwrap.fuse_helper import FuseSocBuilder
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
+from topwrap.plugin.base import BuildException
+from topwrap.plugin.pipeline import BuildPipeline
+from topwrap.plugin.steps import KpmSpecificationOutputStage
+from topwrap.util import JsonType
 
 logger = logging.getLogger(__name__)
 
@@ -76,35 +70,14 @@ def build_main(
 
     config.force_interface_compliance = iface_compliance
 
-    all_sources = list(sources)
-
-    repo_modules, existing_ifaces = load_modules_from_repos()
-
-    frontend = YamlFrontend(repo_modules)
-    frontend_output = frontend.parse_files([design])
-    module = frontend_output.modules[0]
-
-    backend = SystemVerilogBackend(existing_ifaces)
-    repr = backend.represent(module)
-    [out] = backend.serialize(repr, combine=True)
-
-    build_dir.mkdir(exist_ok=True)
-    out.save(build_dir)
-
-    if fuse:
-        if part is None:
-            logging.warning(
-                "You didn't specify the part number using the --part option. "
-                "It will remain unspecified in the generated FuseSoC .core "
-                "and your further implementation/synthesis may fail."
-            )
-
-        fuse_builder = FuseSocBuilder(part)
-
-        fuse_builder.add_source(out.filename, "systemVerilogSource")
-        fuse_builder.build(
-            module.id.name, build_dir / f"{module.id.name}.core", sources_dir=all_sources
+    try:
+        pipeline = BuildPipeline.yaml_sv_pipeline(
+            fuse=fuse, fuse_part=part, fuse_src_dirs=list(sources)
         )
+        pipeline.run_files([], design, build_dir)
+    except BuildException as e:
+        logger.error(f"{e}")
+        sys.exit(1)
 
 
 class KPM:
@@ -170,44 +143,17 @@ class KPM:
     ):
         logging.info("Starting kenning pipeline manager client")
 
-        repo_modules, _ = load_modules_from_repos()
+        try:
+            pipeline = BuildPipeline.yaml_kpm_spec_pipeline()
+            pipeline.prepare_files(list(yamlfiles), design)
+            pipeline.process()
 
-        frontend = YamlFrontend(repo_modules)
-        if design is not None:
-            design_module = frontend.parse_design_file(design).modules[0]
-        else:
-            design_module = None
-        if design_module and not design_module.design:
-            logging.error("Given design YAML file does not contain a design.")
-            return
+            ctx = pipeline.ctx
 
-        modules = frontend.parse_module_files(list(yamlfiles)).modules
-
-        spec = KpmSpecificationBackend.default()
-
-        for module in chain(repo_modules, modules):
-            try:
-                spec.add_module(module)
-            except Exception:
-                logging.error(
-                    "An error occurred while generating specification for module "
-                    f"'{module.id.name}' from '{module.refs[0].file}'"
-                )
-                return
-
-        if design_module:
-            assert design_module.design
-            design_module.design.update_interconnects_from_memory_maps()
-            try:
-                spec.add_module(design_module, recursive=True)
-            except Exception:
-                logging.error(
-                    "An error occurred while generating specification for design module "
-                    f"'{design_module.id.name}' from '{design_module.refs[0].file}'"
-                )
-                return
-
-        spec = spec.build()
+            spec = cast(JsonType, ctx.outputs[KpmSpecificationOutputStage.name])
+        except BuildException as e:
+            logger.error(f"{e}")
+            sys.exit(1)
 
         asyncio.run(
             KPM._run_client(
@@ -217,9 +163,9 @@ class KPM:
                         port,
                         spec,
                         build_dir,
-                        design_module.design if design_module else None,
-                        list(repo_modules) + modules,
-                        [*load_interfaces_from_repos()],
+                        ctx.top_module.design if ctx.top_module else None,
+                        [*ctx.all_modules],
+                        [*ctx.all_interfaces],
                     ),
                     client_ready_event,
                 )
@@ -438,44 +384,12 @@ def generate_kpm_spec(
     if output is None:
         output = Path("kpm_spec.json")
 
-    repo_modules, _ = load_modules_from_repos()
-
-    frontend = YamlFrontend(repo_modules)
-    design_module = None
-    if design is not None:
-        design_module = frontend.parse_design_file(design).modules[0]
-    modules = frontend.parse_module_files(list(files)).modules
-
-    spec = KpmSpecificationBackend.default()
-    for module in modules:
-        try:
-            spec.add_module(module)
-        except Exception:
-            logging.error(
-                "An error occurred while generating specification for module "
-                f"'{module.id.name}' from '{module.refs[0].file}'"
-            )
-            sys.exit(1)
-
     try:
-        if design_module:
-            spec.add_module(design_module, recursive=True)
-    except Exception:
-        assert design_module
-        logging.error(
-            "An error occurred while generating specification for design module "
-            f"'{design_module.id.name}' from '{design_module.refs[0].file}'"
-        )
+        pipeline = BuildPipeline.yaml_kpm_spec_pipeline(output)
+        pipeline.run_files(list(files), design, Path())
+    except BuildException as e:
+        logger.error(f"{e}")
         sys.exit(1)
-    spec = spec.build()
-    if design_module and design_module.design:
-        design_module.design.update_interconnects_from_memory_maps()
-        flow = KpmDataflowBackend(spec)
-        flow.represent_design(design_module.design, depth=-1)
-        spec = flow.apply_subgraphs_to_spec(spec)
-
-    with open(output, "w") as f:
-        f.write(json.dumps(spec))
 
 
 @cli.command(name="dataflow")
@@ -490,50 +404,9 @@ def generate_kpm_design(
     if output is None:
         output = Path("kpm_dataflow.json")
 
-    repo_modules, _ = load_modules_from_repos()
-
-    frontend = YamlFrontend(repo_modules)
-    design_module = frontend.parse_design_file(design).modules[0]
-
-    if not design_module.design:
-        logging.error("Given design YAML file does not contain a design.")
-        sys.exit(1)
-
-    design_module.design.update_interconnects_from_memory_maps()
-
-    modules = frontend.parse_module_files(list(files)).modules
-
-    spec = KpmSpecificationBackend.default()
-    for module in modules:
-        try:
-            spec.add_module(module)
-        except Exception:
-            logging.error(
-                "An error occurred while generating specification for module "
-                f"'{module.id.name}' from '{module.refs[0].file}'"
-            )
-            sys.exit(1)
-
     try:
-        spec.add_module(design_module, recursive=True)
-    except Exception:
-        logging.error(
-            "An error occurred while generating specification for design module "
-            f"'{design_module.id.name}' from '{design_module.refs[0].file}'"
-        )
+        pipeline = BuildPipeline.yaml_kpm_flow_pipeline(output)
+        pipeline.run_files(list(files), design, Path())
+    except BuildException as e:
+        logger.error(f"{e}")
         sys.exit(1)
-    spec = spec.build()
-
-    dataflow = KpmDataflowBackend(spec)
-    try:
-        dataflow.represent_design(design_module.design, depth=-1)
-    except Exception:
-        logging.error(
-            "An error occurred while generating dataflow for design "
-            f"'{design_module.id.name} from '{design_module.refs[0].file}'"
-        )
-        sys.exit(1)
-    dataflow = dataflow.build()
-
-    with open(output, "w") as f:
-        f.write(json.dumps(dataflow))
