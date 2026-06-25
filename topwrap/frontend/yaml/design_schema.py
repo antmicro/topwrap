@@ -175,6 +175,8 @@ class DesignDescription(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(
         None
     )  # This field is relevant only for the top-level design section
+    vendor: Optional[str] = ext_field(None)
+    library: Optional[str] = ext_field(None)
     connections: ConnectionsSection = ext_field(ConnectionsSection)
     ips: Dict[str, DesignIP] = ext_field(dict)
     interconnects: Dict[str, DesignSectionInterconnect] = ext_field(dict)

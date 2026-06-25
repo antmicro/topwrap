@@ -188,8 +188,13 @@ class DesignDescriptionFrontend:
         self, source: Optional[Path], desc: DesignDescription, name_hint: str
     ) -> Design:
         design = Design()
+        args = {"name": name_hint}
+        if desc.vendor is not None:
+            args["vendor"] = desc.vendor
+        if desc.library is not None:
+            args["library"] = desc.library
         mod = Module(
-            id=Identifier(name=name_hint),
+            id=Identifier(**args),
             design=design,
             refs=[FileReference(source)] if source else (),
         )
