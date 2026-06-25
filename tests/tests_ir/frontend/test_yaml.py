@@ -387,6 +387,57 @@ class TestIPCoreDescriptionFrontend:
         with pytest.raises(ValueError, match="is not a member of struct"):
             IPCoreDescriptionFrontend().parse_str(ip)
 
+    def test_parse_vendor_field(self):
+        vendor_name = "antmicro"
+        YAML = f"""
+        name: test_design
+        vendor: {vendor_name}
+
+        external:
+            ports:
+                out:
+                    - PORT_OUT
+        """
+
+        frontend = YamlFrontend()
+        res = frontend.parse_str([YAML]).modules[0]
+        assert res.id.vendor == vendor_name
+
+    def test_parse_library_field(self):
+        library_name = "default"
+        YAML = f"""
+        name: test_design
+        library: {library_name}
+
+        external:
+            ports:
+                out:
+                    - PORT_OUT
+        """
+
+        frontend = YamlFrontend()
+        res = frontend.parse_str([YAML]).modules[0]
+        assert res.id.library == library_name
+
+    def test_parse_vendor_and_library_field(self):
+        vendor_name = "antmicro"
+        library_name = "default"
+        YAML = f"""
+        name: foo
+        vendor: {vendor_name}
+        library: {library_name}
+
+        external:
+            ports:
+                out:
+                    - PORT_OUT
+        """
+
+        frontend = YamlFrontend()
+        res = frontend.parse_str([YAML]).modules[0]
+        assert res.id.vendor == vendor_name
+        assert res.id.library == library_name
+
 
 class TestInterfaceDescriptionFrontend:
     def test_parse_wishbone(self):
