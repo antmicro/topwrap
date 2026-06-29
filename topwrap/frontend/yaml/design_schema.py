@@ -185,6 +185,7 @@ class DesignDescription(MarshmallowDataclassExtensions):
     clock_domains: Dict[str, DesignSectionClockDomain] = ext_field(dict)
     reset_domains: Dict[str, DesignSectionResetDomain] = ext_field(dict)
     memory_maps: Dict[str, MemoryMap] = ext_field(dict)
+    extensions: Dict[str, Any] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]] = DesignDescriptionSchema
 

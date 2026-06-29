@@ -37,7 +37,13 @@ from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.memory_map import MemoryMap as IRMemoryMap
 from topwrap.model.memory_map import MemoryMapSubordinate
-from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId
+from topwrap.model.misc import (
+    ElaboratableValue,
+    FileReference,
+    Identifier,
+    ObjectId,
+    PluginMetadata,
+)
 from topwrap.model.module import Module
 from topwrap.resource_field import RepoReferenceHandler
 
@@ -221,7 +227,14 @@ class DesignDescriptionFrontend:
 
         self._parse_clocks_resets(design, desc)
 
+        self._parse_extensions(design, desc)
+
         return design
+
+    def _parse_extensions(self, des: Design, desc: DesignDescription):
+        for plugin_name, metadata in desc.extensions.items():
+            md = PluginMetadata(name=plugin_name, data=metadata)
+            des.add_metadata(md)
 
     def _parse_parameters(self, desc: DesignDescription, design: Design):
         for cname, ip in desc.ips.items():

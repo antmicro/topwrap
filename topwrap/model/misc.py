@@ -290,3 +290,17 @@ class Parameter(ModelBase):
         if isinstance(value, Parameter):
             return self.name == value.name and self.default_value == value.default_value
         return NotImplemented
+
+
+class PluginMetadata(ModelBase):
+    """Represents generic module data"""
+
+    parent: Module
+    name: VariableName
+    data: Any
+
+    def __init__(self, *, name: VariableName, data: Any) -> None:
+        super().__init__()
+        self.name = name
+        self.data = data
+
