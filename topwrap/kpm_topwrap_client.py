@@ -20,6 +20,7 @@ from typing_extensions import NotRequired
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
+from topwrap.backend.yaml.backend import DesignDescriptionBackend
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
@@ -97,10 +98,25 @@ class RPCMethods:
     def dataflow_export(self, dataflow: JsonType) -> RPCExportEndpointReturnType:
         logging.info(f"Dataflow export request received from {self.host}:{self.port}")
 
-        filename = datetime.now().strftime("kpm_dataflow_%Y%m%d_%H%M%S.json")
-        # TODO: We can't hide the "Save file" button, so let's just
-        # make it save the dataflow JSON instead.
-        flow_b64encoded = b64encode(json.dumps(dataflow).encode("utf-8")).decode("utf-8")
+        frontend = KpmFrontend(self.modules, self.interfaces)
+        output = frontend.parse_str([json.dumps(dataflow), json.dumps(self.specification)])
+        design = frontend.get_top_design(output.modules)
+
+        filename = (
+            datetime.now()
+            .strftime("design_{}_{}_{}_%Y%m%d_%H%M%S.yaml")
+            .format(
+                design.parent.id.vendor,
+                design.parent.id.library,
+                design.parent.id.name,
+            )
+        )
+
+        backend = DesignDescriptionBackend(output.interfaces)
+        repr = backend.represent(design.parent)
+        out = next(backend.serialize(repr))
+
+        flow_b64encoded = b64encode(out.content.encode("utf-8")).decode("utf-8")
         return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": filename}
 
     async def dataflow_import(

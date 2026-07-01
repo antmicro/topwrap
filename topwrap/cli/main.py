@@ -288,7 +288,7 @@ class KPM:
                         spec,
                         build_dir,
                         design_module.design if design_module else None,
-                        list(repo_modules),
+                        list(repo_modules) + modules,
                         [*load_interfaces_from_repos()],
                     ),
                     client_ready_event,
