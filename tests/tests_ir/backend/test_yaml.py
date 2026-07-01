@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import copy
+from pathlib import Path
 
 import pytest
 import yaml
@@ -13,24 +14,40 @@ from examples.ir_examples.modules import (
     intr_top,
     simp_top,
 )
-from examples.soc.ir.mem import Bits, Dimensions
 from tests.tests_ir.test_kpm_non_destructive import _compare_modules
 from topwrap import util
-from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
+from topwrap.backend.yaml.backend import DesignDescriptionBackend, IpCoreDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
-from topwrap.model.connections import Port, PortDirection, ReferencedPort
+from topwrap.interconnects.wishbone_rr import (
+    WishboneInterconnect,
+    WishboneRRManagerParams,
+    WishboneRRParams,
+    WishboneRRSubordinateParams,
+)
+from topwrap.model.connections import Port, PortDirection, ReferencedInterface, ReferencedPort
+from topwrap.model.design import Design, ModuleInstance
 from topwrap.model.hdl_types import (
     Bit,
+    Bits,
     BitStruct,
+    Dimensions,
     LogicBitSelect,
     LogicFieldSelect,
     LogicSelect,
     StructField,
 )
-from topwrap.model.interface import Interface, InterfaceMode
-from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
+from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode
+from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, Parameter
 from topwrap.model.module import Module
+
+
+def get_intf_def_by_id_or_error(id: Identifier) -> InterfaceDefinition:
+    rsc = util.get_interface_by_id(id)
+    if rsc is None:
+        raise ValueError(f"No such interface: {id}")
+    return rsc.definition
 
 
 class TestIpCoreDescriptionBackend:
@@ -54,9 +71,7 @@ class TestIpCoreDescriptionBackend:
             _compare_modules(golden, mod)
 
     def test_independent_signals(self):
-        wishbone = util.get_interface_by_id(Identifier("wishbone")).definition
-
-        assert wishbone
+        wishbone = get_intf_def_by_id_or_error(Identifier("wishbone"))
 
         extp = [
             Port(name="i_wb_stall", direction=PortDirection.IN),
@@ -262,9 +277,7 @@ class TestIpCoreDescriptionBackend:
         }
 
     def test_intf_signal_path(self):
-        wishbone = util.get_interface_by_id(Identifier("wishbone")).definition
-
-        assert wishbone
+        wishbone = get_intf_def_by_id_or_error(Identifier("wishbone"))
 
         field_ty = Bits(dimensions=[Dimensions(upper=ElaboratableValue(7))])
         ty = BitStruct(
@@ -353,3 +366,98 @@ class TestIpCoreDescriptionBackend:
                 },
             },
         }
+
+
+class TestDesignDescriptionBackend:
+    @pytest.mark.parametrize(
+        "src",
+        [
+            Path("examples/constant/project.yaml"),
+            Path("examples/hierarchy/project.yaml"),
+            Path("examples/hdmi/project.yaml"),
+            Path("examples/pwm/project.yaml"),
+            Path("examples/ir_examples/inverted/design.yaml"),
+            Path("examples/ir_examples/clocks/design.yaml"),
+            Path("examples/ir_examples/interconnect/design.yaml"),
+            Path("examples/ir_examples/interface/design.yaml"),
+            Path("examples/ir_examples/simple/design.yaml"),
+        ],
+    )
+    def test_examples(self, src: Path):
+        front = DesignDescriptionFrontend()
+        back = DesignDescriptionBackend()
+
+        orig_des = front.parse_file(src)
+
+        out = back.represent(orig_des.parent)
+        [out] = back.serialize(out)
+
+        new_des = front.parse_str(out.content)
+
+        _compare_modules(orig_des.parent, new_des.parent)
+
+    def test_intr_comp_intfs(self):
+        wishbone = get_intf_def_by_id_or_error(Identifier("wishbone"))
+
+        topp = [
+            Port(name="clk", direction=PortDirection.IN),
+            Port(name="rst", direction=PortDirection.IN),
+        ]
+        subi = [
+            Interface(
+                name="ext_mgr",
+                mode=InterfaceMode.MANAGER,
+                definition=wishbone,
+                signals={},
+            ),
+            Interface(
+                name="ext_sub",
+                mode=InterfaceMode.SUBORDINATE,
+                definition=wishbone,
+                signals={},
+            ),
+        ]
+        sub = Module(
+            id=Identifier(name="sub"),
+            ports=[],
+            interfaces=subi,
+            refs=[FileReference(Path("/this/does/not/exist"))],
+        )
+        comp = ModuleInstance(name="sub", module=sub)
+
+        des = Design(
+            components=[comp],
+            interconnects=[
+                WishboneInterconnect(
+                    name="",
+                    clock=ReferencedPort.external(topp[0]),
+                    reset=ReferencedPort.external(topp[1]),
+                    params=WishboneRRParams(
+                        data_width=ElaboratableValue(32),
+                        addr_width=ElaboratableValue(32),
+                        granularity=8,
+                        features=set(),
+                    ),
+                    managers={
+                        ReferencedInterface(
+                            io=subi[0], instance=comp
+                        )._id: WishboneRRManagerParams(),
+                    },
+                    subordinates={
+                        ReferencedInterface(
+                            io=subi[1], instance=comp
+                        )._id: WishboneRRSubordinateParams(),
+                    },
+                )
+            ],
+        )
+        top = Module(
+            id=Identifier(name="top"),
+            ports=topp,
+            design=des,
+        )
+
+        back = DesignDescriptionBackend()
+
+        out = back.represent(top)
+        [out] = back.serialize(out)
