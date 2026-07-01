@@ -3,8 +3,9 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Iterable, Iterator, Optional
+from typing import Iterable, Iterator, Optional, Union
 
+import yaml
 from typing_extensions import override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo
@@ -21,19 +22,43 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreType,
     Signal,
 )
-from topwrap.model.connections import (
-    Port,
-    PortDirection,
+from topwrap.frontend.yaml.design_schema import (
+    ConnectionsSection,
+    DesignDescription,
+    DesignExternalIntfs,
+    DesignExternalPorts,
+    DesignExternalSection,
+    DesignIP,
+    DesignSectionClockDomain,
+    DesignSectionInterconnect,
+    DesignSectionResetDomain,
+    DS_InterfacesT,
+    DS_PortsT,
+    MemoryMapSubordinate,
 )
+from topwrap.interconnects.types import INTERCONNECT_NAMES
+from topwrap.model.connections import (
+    ConstantConnection,
+    InterfaceConnection,
+    Port,
+    PortConnection,
+    PortDirection,
+    ReferencedIO,
+)
+from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit, Bits, BitStruct, Logic, LogicArray, LogicBitSelect
 from topwrap.model.inference.port import PortSelector
+from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import (
     Interface,
     InterfaceDefinition,
     InterfaceMode,
 )
+from topwrap.model.memory_map import MemoryMap
 from topwrap.model.misc import ElaboratableValue, Parameter
 from topwrap.model.module import Module
+from topwrap.resource_field import FileReferenceHandler, RepoReferenceHandler
+from topwrap.util import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +67,16 @@ logger = logging.getLogger(__name__)
 class IpCoreDescriptionOutput:
     base_name: str
     description: IPCoreDescription
+
+
+@dataclass
+class DesignDescriptionOutput:
+    base_name: str
+    description: DesignDescription
+
+
+class DesignDescriptionBackendException(Exception):
+    pass
 
 
 class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
@@ -235,5 +270,325 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
 
     @override
     def serialize(self, repr: IpCoreDescriptionOutput) -> Iterator[BackendOutputInfo]:
+        out = repr.description.to_yaml()
+        yield BackendOutputInfo(content=out, filename=f"{repr.base_name}.yaml")
+
+
+class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
+    @override
+    def represent(self, module: Module) -> DesignDescriptionOutput:
+        """
+        :param module: Top module to represent.
+        """
+
+        if module.design is None:
+            raise DesignDescriptionBackendException(
+                f"Module '{module.id.name}' with no design given to DesignDescriptionBackend"
+            )
+
+        return DesignDescriptionOutput(
+            base_name=module.id.name, description=self._represent_hier(module.design)
+        )
+
+    def _represent_hier(self, design: Design) -> DesignDescription:
+        ips = {}
+        hierarchies = {}
+
+        for comp in design.components:
+            if comp.module.design is not None:
+                hierarchies[comp.name] = self._represent_hier(comp.module.design)
+            else:
+                ips[comp.name] = self._represent_ip(comp)
+
+        connections = self._represent_connections(design)
+        interconnects = {
+            intr.name: self._represent_interconnect(intr) for intr in design.interconnects
+        }
+        external = self._represent_externals(design.parent)
+        clock_domains = {
+            dom.name: self._represent_clock_domain(dom) for dom in design.clock_domains
+        }
+        reset_domains = {
+            dom.name: self._represent_reset_domain(dom) for dom in design.reset_domains
+        }
+        memory_maps = {
+            name: self._represent_memory_map(mmap) for name, mmap in design.memory_maps.items()
+        }
+
+        id = design.parent.id
+        return DesignDescription(
+            name=id.name,
+            library=id.library,
+            vendor=id.vendor,
+            hierarchies=hierarchies,
+            ips=ips,
+            connections=connections,
+            interconnects=interconnects,
+            external=external,
+            clock_domains=clock_domains,
+            reset_domains=reset_domains,
+            memory_maps=memory_maps,
+        )
+
+    def _represent_ip(self, comp: ModuleInstance) -> DesignIP:
+        source = None
+
+        # Check repos for the module
+        # Imported here due to circular import
+        from topwrap.repo.user_repo import Core
+
+        for name, repo in get_config().loaded_repos.items():
+            for core in repo.get_resources(Core):
+                if core.top is comp.module:
+                    source = RepoReferenceHandler(core.name, [name])
+                    break
+
+        # Fall back to file path
+        if source is None:
+            if not comp.module.refs:
+                raise DesignDescriptionBackendException(
+                    f"Cannot determine source for module {comp.module.id.name}: "
+                    "It does not belong to any repository, and has no file references."
+                )
+
+            source = FileReferenceHandler(comp.module.refs[0].file)
+
+        return DesignIP(
+            file=source,
+            parameters={p.resolve().name: v.value for p, v in comp.parameters.items()},
+            clocks={c.resolve().name: d.name for c, d in comp.clocks.items()},
+            resets={r.resolve().name: d.name for r, d in comp.resets.items()},
+        )
+
+    def _represent_connections(self, des: Design) -> ConnectionsSection:
+        return ConnectionsSection(
+            ports=self._represent_port_conns(des),
+            interfaces=self._represent_intf_conns(des),
+        )
+
+    def _represent_port_conns(self, des: Design) -> DS_PortsT:
+        out = {}
+
+        for conn in des.connections:
+            if isinstance(conn, PortConnection):
+                lhs, rhs = conn.target, conn.source
+                if lhs.instance is None:
+                    lhs, rhs = rhs, lhs
+
+                if lhs.instance is None:
+                    raise DesignDescriptionBackendException(
+                        f"Connection between external ports '{lhs.io.name}' and "
+                        f"'{rhs.io.name}' is not representable in design YAML"
+                    )
+
+                if lhs.instance.name not in out:
+                    out[lhs.instance.name] = {}
+
+                if not conn.invert:
+                    out[lhs.instance.name][lhs.io.name] = self._represent_ref_io(rhs)
+                else:
+                    io = self._represent_ref_io(rhs)
+                    if isinstance(io, str):
+                        rep = io
+                    else:
+                        rep = yaml.safe_dump(io, default_flow_style=True).strip()
+                    out[lhs.instance.name][lhs.io.name] = f"~{rep}"
+            elif isinstance(conn, ConstantConnection):
+                lhs = conn.target
+                if lhs.instance is None:
+                    raise DesignDescriptionBackendException(
+                        f"Constant connection to external port '{lhs.io.name}' "
+                        "is not representable in design YAML"
+                    )
+
+                if lhs.instance.name not in out:
+                    out[lhs.instance.name] = {}
+
+                out[lhs.instance.name][lhs.io.name] = conn.source.value
+
+        return out
+
+    def _represent_intf_conns(self, des: Design) -> DS_InterfacesT:
+        out = {}
+
+        for conn in des.connections:
+            if isinstance(conn, InterfaceConnection):
+                lhs, rhs = conn.target, conn.source
+                if lhs.instance is None:
+                    lhs, rhs = rhs, lhs
+
+                if lhs.instance is None:
+                    raise DesignDescriptionBackendException(
+                        f"Connection between external interfaces '{lhs.io.name}' "
+                        f"and '{rhs.io.name}' is not representable in design YAML"
+                    )
+
+                if lhs.instance.name not in out:
+                    out[lhs.instance.name] = {}
+
+                out[lhs.instance.name][lhs.io.name] = self._represent_ref_io(rhs)
+
+        return out
+
+    def _represent_interconnect(self, intr: Interconnect) -> DesignSectionInterconnect:
+        managers = {}
+
+        for mgr in intr.managers:
+            mgr = mgr.resolve()
+
+            if mgr.instance is None:
+                raise DesignDescriptionBackendException(
+                    f"Manager {mgr.io.name} of interconnect {intr.name} does not "
+                    "connect to a module"
+                )
+
+            if mgr.instance.name not in managers:
+                managers[mgr.instance.name] = []
+
+            managers[mgr.instance.name].append(mgr.io.name)
+
+        subordinates = {}
+
+        for i_sub, par in intr.subordinates.items():
+            i_sub = i_sub.resolve()
+
+            if i_sub.instance is None:
+                raise DesignDescriptionBackendException(
+                    f"Subordinate {i_sub.io.name} of interconnect {intr.name} does not "
+                    "connect to a module"
+                )
+
+            # Skip subordinates covered by a memory map
+            if intr.memory_map:
+                for m_sub in intr.memory_map.map.values():
+                    if i_sub == m_sub.ref_iface:
+                        continue
+
+            if i_sub.instance.name not in subordinates:
+                subordinates[i_sub.instance.name] = {}
+
+            subordinates[i_sub.instance.name][i_sub.io.name] = par.to_dict()
+
+        return DesignSectionInterconnect(
+            type=INTERCONNECT_NAMES[type(intr)],
+            clock=self._represent_ref_io(intr.clock),
+            reset=self._represent_ref_io(intr.reset),
+            params=intr.params.to_dict(),
+            managers=managers,
+            subordinates=subordinates,
+            memory_map=intr.memory_map and intr.memory_map.name,
+        )
+
+    def _represent_externals(self, mod: Module) -> DesignExternalSection:
+        return DesignExternalSection(
+            ports=self._represent_external_ports(mod),
+            interfaces=self._represent_external_intfs(mod),
+        )
+
+    def _represent_external_ports(self, mod: Module) -> DesignExternalPorts:
+        inputs = []
+        outputs = []
+        inouts = []
+
+        for port in mod.non_intf_ports():
+            if port.direction is PortDirection.IN:
+                inputs.append(port.name)
+            elif port.direction is PortDirection.OUT:
+                outputs.append(port.name)
+            elif port.direction is PortDirection.INOUT:
+                # Look for connection that this port is a part of, then from that
+                # find the module port it's connected to.
+                des = mod.design
+                assert des is not None
+                found = False
+
+                for conn in des.connections:
+                    if isinstance(conn, PortConnection):
+                        other = None
+                        if conn.source.io is port:
+                            other = conn.target
+                        elif conn.target.io is port:
+                            other = conn.source
+                        if other is not None:
+                            if found:
+                                raise DesignDescriptionBackendException(
+                                    f"Inout port {port.name} is connected to multiple modules"
+                                )
+
+                            if other.instance is None:
+                                raise DesignDescriptionBackendException(
+                                    f"Inout port {port.name} is connected to another external port"
+                                )
+
+                            inouts.append((other.instance.name, other.io.name))
+                            found = True
+
+                if not found:
+                    raise DesignDescriptionBackendException(
+                        f"Inout port {port.name} is not connected to any module port"
+                    )
+
+        return DesignExternalPorts(input=inputs, output=outputs, inout=inouts)
+
+    def _represent_external_intfs(self, mod: Module) -> DesignExternalIntfs:
+        inputs = []
+        outputs = []
+
+        for intf in mod.interfaces:
+            if intf.mode is InterfaceMode.SUBORDINATE:
+                inputs.append(intf.name)
+            elif intf.mode is InterfaceMode.MANAGER:
+                outputs.append(intf.name)
+            else:
+                assert intf.mode is InterfaceMode.UNSPECIFIED
+                raise DesignDescriptionBackendException(
+                    f"Interface '{intf.name}' with mode UNSPECIFIED is not representable "
+                    "in design YAML"
+                )
+
+        return DesignExternalIntfs(input=inputs, output=outputs)
+
+    def _represent_clock_domain(self, clock_dom: ClockDomain) -> DesignSectionClockDomain:
+        return DesignSectionClockDomain(
+            signal=self._represent_ref_io(clock_dom.clock),
+        )
+
+    def _represent_reset_domain(self, reset_dom: ResetDomain) -> DesignSectionResetDomain:
+        return DesignSectionResetDomain(
+            signal=self._represent_ref_io(reset_dom.reset),
+            polarity=reset_dom.polarity.value,
+            synchronous_to=reset_dom.synchronous_to and reset_dom.synchronous_to.name,
+        )
+
+    def _represent_memory_map(self, mmap: MemoryMap) -> dict[str, MemoryMapSubordinate]:
+        out = {}
+
+        for addr, sub in mmap.map.items():
+            ref = sub.ref_iface
+
+            if ref.instance is None:
+                raise DesignDescriptionBackendException(
+                    f"Subordinate {ref.io.name} of memory map {mmap.name} does not "
+                    "connect to a module"
+                )
+
+            if ref.instance.name not in out:
+                out[ref.instance.name] = {}
+
+            params = dict[str, Union[str, int]]()
+            params["address"] = addr
+            params.update({name: value.value for name, value in sub.parameters.items()})
+            out[ref.instance.name][ref.io.name] = params
+
+        return out
+
+    def _represent_ref_io(self, ref: ReferencedIO) -> Union[str, tuple[str, str]]:
+        if ref.is_external:
+            return ref.io.name
+        assert ref.instance is not None
+        return (ref.instance.name, ref.io.name)
+
+    @override
+    def serialize(self, repr: DesignDescriptionOutput) -> Iterator[BackendOutputInfo]:
         out = repr.description.to_yaml()
         yield BackendOutputInfo(content=out, filename=f"{repr.base_name}.yaml")
