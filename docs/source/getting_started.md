@@ -110,7 +110,7 @@ Now we can start creating the design under the `design` section. The design does
 In our design, it is represented like this:
 
 ```yaml
-design:
+connections:
   ports:
     simple_core_2:
       a: [simple_core_1, z]
@@ -132,7 +132,7 @@ external:
 Now connect them to IP cores.
 
 ```yaml
-design:
+connections:
   ports:
     simple_core_1:
       clk: clk
@@ -151,7 +151,7 @@ ips:
     file: repo[my_repo]:simple_core_1
   simple_core_2:
     file: repo[my_repo]:simple_core_2
-design:
+connections:
   ports:
     simple_core_1:
       clk: clk
