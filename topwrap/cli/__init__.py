@@ -19,7 +19,7 @@ from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 from topwrap.repo.user_repo import Core, InterfaceDefinitionResource
 from topwrap.resource_field import FileReferenceHandler
-from topwrap.util import get_config, parse_incdirs
+from topwrap.util import MarshmallowErrorRewriter, get_config, parse_incdirs
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +54,7 @@ def cmd(
     log_cfg: Optional[ExistingFile] = None,
     repo: Tuple[RepoDirectory, ...] = (),
 ):
+    err_rewriter = MarshmallowErrorRewriter()
     levelname = None if log_level is None else log_level.name
     topwrap.logger.configure(levelname, log_cfg)
 
@@ -83,9 +84,12 @@ def cmd(
             err = err.__cause__
         sys.exit(1)
     except marshmallow.ValidationError as err:
-        for fieldname, message in err.messages:
-            logger.error("Failed to parse {} field. {}".format(fieldname, message))
+        err_rewriter.parse(err.messages)
+        for e in err_rewriter.messages:
+            logger.error(e)
+
         sys.exit(1)
+
     except Exception as err:
         logger.error(err)
         sys.exit(1)

@@ -12,6 +12,8 @@ from importlib.metadata import PackageNotFoundError, distribution, version
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, Optional, TypeVar, Union
 
+import marshmallow
+
 from topwrap.model.misc import Identifier
 from topwrap.repo.exceptions import ResourceNotFoundException
 
@@ -258,3 +260,76 @@ def parse_incdirs(tokens: tuple[str, ...]) -> list[str]:
         if t.startswith("+incdir+"):
             incdirs.extend(parse_params("+incdir+", "+", t))
     return incdirs
+
+
+class MarshmallowErrorRewriter:
+    """Specialized class handling proper error formatting"""
+
+    ERROR_FIELDNAME_INDEX = 0
+    ERROR_MSG_INDEX = 1
+    SKIPPED_KEYS = ("value", "_schema")
+
+    messages: list[str]
+    stack: list[tuple[Any, str]]
+    final: list[tuple[str, marshmallow.ValidationError]]
+
+    def __init__(self):
+        self.messages = []
+        self.stack = []
+        self.final = []
+
+    def parse(self, msgs: Union[list[Any], dict[Any, Any]]) -> None:
+        self._clear()
+        self._populate(msgs)
+        self._rewrite()
+
+    def _populate(self, msgs: Union[list[Any], dict[Any, Any]]) -> None:
+        """Transforms nested dict into pair of str and exception"""
+
+        if type(msgs) is dict:
+            for k in msgs.keys():
+                self.stack.append((msgs[k], str(k)))
+        elif type(msgs) is list:
+            for k in msgs:
+                self.stack.append((k, str(k)))
+
+        while len(self.stack) > 0:
+            last_el, last_str = self.stack.pop()
+            if type(last_el) is dict:
+                for k in last_el.keys():
+                    new_str = (
+                        "{}.{}".format(last_str, k) if k not in self.SKIPPED_KEYS else last_str
+                    )
+                    self.stack.append((last_el[k], new_str))
+            elif type(last_el) is list:
+                for err_idx in range(len(last_el)):
+                    new_str = "{}.{}".format(last_str, err_idx)
+                    self.final.append((last_str, last_el[err_idx]))
+
+    def _rewrite(self) -> None:
+        """Formats pair of str and exception into a str"""
+
+        while len(self.final) > 0:
+            last = self.final.pop(0)
+            field_name = last[self.ERROR_FIELDNAME_INDEX]
+            err_msg = last[self.ERROR_MSG_INDEX]
+            if type(err_msg) is str:
+                self.messages.append(self._format(field_name, err_msg))
+            elif type(err_msg.messages) is list:
+                for e in err_msg.messages:
+                    self.messages.append(self._format(field_name, e))
+            elif type(err_msg.messages) is dict:
+                for e in err_msg.messages.values():
+                    self.final.append((field_name, marshmallow.ValidationError(e)))
+
+    def _format(self, field_name: str, msg: str) -> str:
+        """Transforms field name and error message into exception message"""
+
+        return "Failed to parse {} field. {}".format(field_name, msg)
+
+    def _clear(self):
+        """Clears all internal structures"""
+
+        self.messages.clear()
+        self.stack.clear()
+        self.final.clear()
