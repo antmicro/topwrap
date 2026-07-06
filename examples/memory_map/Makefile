@@ -11,8 +11,11 @@ build:
 	mkdir build
 
 $(REPO_NAME): $(IPCORE_SOURCES)
-	topwrap repo init ${REPO_NAME} ${REPO_NAME}
-	topwrap repo parse ${REPO_NAME} ${IPCORE_SOURCES} --inference
+	#FIXME: When ran in CI and without overwrite flag repo is still over written
+	@if [ ! -d "$(REPO_NAME)" ]; then \
+		topwrap repo init ${REPO_NAME} ${REPO_NAME}; \
+		topwrap repo parse ${REPO_NAME} ${IPCORE_SOURCES} --inference; \
+	fi
 
 build/simple_soc.sv: project.yaml $(REPO_NAME) | build
 	topwrap --repo ${REPO_NAME} build -b build --design $< --fuse

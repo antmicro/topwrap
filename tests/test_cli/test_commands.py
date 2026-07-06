@@ -12,7 +12,9 @@ from typing import List
 import pytest
 
 import topwrap.cli.main  # noqa: F401
+from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.cli import cli
+from topwrap.frontend.ipxact.frontend import IpXactFrontend
 from topwrap.util import get_config
 
 pytest_plugins = "tests.tests_ir.frontend.test_automatic"
@@ -263,3 +265,41 @@ class TestRepoCli:
         )
 
         assert cores != []
+
+    def test_repo_parse_ipxact_iface_from_repo(self, tmpdir: Path):
+        repo_path = Path(tmpdir) / "ipxact_repo"
+
+        iface_yaml = (
+            IpXactFrontend()
+            .parse_files(
+                [Path("examples/ir_examples/interface/ipxact/amba.com/AMBA4/axi4stream.xml")]
+            )
+            .interfaces[0]
+        )
+        ifaces_dir = repo_path / "interfaces"
+        ifaces_dir.mkdir(parents=True)
+        InterfaceDefinitionDescriptionBackend().represent(iface_yaml).save(
+            ifaces_dir / f"{iface_yaml.id.combined()}.yaml"
+        )
+
+        get_config().__dict__.pop("loaded_repos", None)
+        try:
+            run_cli(
+                "--repo",
+                str(repo_path),
+                "repo",
+                "parse",
+                "--exists-strategy",
+                "overwrite",
+                repo_path.name,
+                str(
+                    Path(
+                        "examples/ir_examples/interface/ipxact/antmicro.com/interface"
+                        "/receiver/1.0/receiver.1.0.xml"
+                    )
+                ),
+            )
+            assert (repo_path / "cores" / "receiver" / "module.yaml").exists()
+        finally:
+            del get_config().repositories[repo_path.name]
+            get_config().__dict__.pop("loaded_repos", None)

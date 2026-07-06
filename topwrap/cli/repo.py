@@ -8,7 +8,7 @@ from typing import List, Tuple
 import yaml
 from cyclopts.types import ExistingPath
 
-from topwrap.cli import repo_cli
+from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos, repo_cli
 from topwrap.config import ConfigManager, config
 from topwrap.frontend.automatic import FrontendRegistry
 from topwrap.repo.exceptions import ResourceNotSupportedException
@@ -82,10 +82,14 @@ def parse_repo(
             srcs.extend(src.glob("**/*"))
 
     file_srcs: List[File] = [LocalFile(s) for s in srcs if not s.is_dir()]
+
+    repo_modules, repo_ifaces = load_modules_from_repos()
+    repo_ifaces.extend(load_interfaces_from_repos())
+
     try:
         resources = ModuleFileHandler(
             file_srcs,
-            FrontendRegistry.BY_NAME[frontend](),
+            FrontendRegistry.BY_NAME[frontend](modules=repo_modules, interfaces=repo_ifaces),
             module,
             all_sources,
             inference,
