@@ -9,7 +9,7 @@ parameters:
 
 interfaces:
   wb_in:
-    type: 
+    type:
       name: wishbone
     mode: subordinate
     signals:
@@ -26,7 +26,7 @@ interfaces:
         err: o_err
 
   wb_out:
-    type: 
+    type:
       name: wishbone
     mode: manager
     signals:

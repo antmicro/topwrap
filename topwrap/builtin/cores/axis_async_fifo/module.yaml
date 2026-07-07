@@ -17,7 +17,7 @@ parameters:
 
 interfaces:
     s_axis:
-        type: 
+        type:
             name: AXI4Stream
             vendor: vendor
             library: libdefault
@@ -35,7 +35,7 @@ interfaces:
                 TREADY: s_axis_tready
 
     m_axis:
-        type: 
+        type:
             name: AXI4Stream
             vendor: vendor
             library: libdefault

@@ -15,7 +15,7 @@ signals:
 
 interfaces:
   s_axi:
-    type: 
+    type:
       name: AXI4Lite
       vendor: vendor
       library: libdefault

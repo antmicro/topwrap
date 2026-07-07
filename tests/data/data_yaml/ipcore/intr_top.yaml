@@ -17,7 +17,7 @@ interfaces:
         dat_r: {bound: ['7', '0'], name: i_wb_dat}
         err: {name: i_wb_err}
         stall: {name: i_wb_stall}
-    type: 
+    type:
       name: wishbone
       vendor: vendor
       library: libdefault

@@ -11,7 +11,7 @@ signals:
 
 interfaces:
   io_a:
-    type: 
+    type:
       name: AXI4Stream
     mode: subordinate
     clock: clk_a
@@ -23,7 +23,7 @@ interfaces:
         TKEEP: [a_ctrl_i, 4, 0, 3, 0]
 
   io_b:
-    type: 
+    type:
       name: AXI4Stream
     mode: manager
     clock: clk_b

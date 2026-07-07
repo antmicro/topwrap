@@ -14,7 +14,7 @@ interfaces:
       out:
         rdata: null
         sack: null
-    type: 
+    type:
       name: Simply Complex Interface 4
       vendor: vendor
       library: libdefault
@@ -46,7 +46,7 @@ interfaces:
       out:
         rdata: null
         sack: null
-    type: 
+    type:
       name: Simply Complex Interface 4
       vendor: vendor
       library: libdefault

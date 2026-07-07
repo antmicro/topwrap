@@ -12,7 +12,7 @@ interfaces:
         CVALID: {name: c_tvalid}
       out:
         CREADY: {name: c_tready}
-    type: 
+    type:
       name: coreStream
       vendor: vendor
       library: libdefault

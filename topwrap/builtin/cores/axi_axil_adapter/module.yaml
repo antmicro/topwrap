@@ -17,7 +17,7 @@ parameters:
 interfaces:
 # 1 subordinate
     s_axi:
-        type: 
+        type:
             name: AXI4
             vendor: vendor
             library: libdefault
@@ -63,7 +63,7 @@ interfaces:
 
     # 1 manager
     m_axi:
-        type: 
+        type:
             name: AXI4Lite
             vendor: vendor
             library: libdefault

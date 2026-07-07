@@ -10,7 +10,7 @@ signals:
 
 interfaces:
   io:
-    type: 
+    type:
       name: AXI4Stream
     mode: manager
     signals:

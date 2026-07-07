@@ -42,7 +42,7 @@ interfaces:
                 RVALID: s00_axi_rvalid
 
     AXIS_s0:
-        type: 
+        type:
             name: AXI4Stream
             vendor: vendor
             library: libdefault

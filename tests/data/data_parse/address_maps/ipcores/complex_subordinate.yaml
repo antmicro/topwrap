@@ -15,7 +15,7 @@ signals:
 interfaces:
   s_wishbone0:
     size: 0x2F
-    type: 
+    type:
       name: wishbone
     mode: subordinate
     signals:
@@ -34,7 +34,7 @@ interfaces:
         dat_r: [mem_bus_dat_r, 31, 0]
   s_wishbone1:
     size: 0x2F
-    type: 
+    type:
       name: wishbone
     mode: subordinate
     signals:

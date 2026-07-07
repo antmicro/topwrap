@@ -14,7 +14,7 @@ parameters:
 
 interfaces:
   bus:
-    type: 
+    type:
       name: wishbone
     mode: subordinate
     signals:

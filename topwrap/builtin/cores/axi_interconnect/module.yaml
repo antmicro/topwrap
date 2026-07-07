@@ -26,7 +26,7 @@ parameters:
 
 interfaces:
     s_axi_0:
-        type: 
+        type:
             name: AXI4
             vendor: vendor
             library: libdefault
@@ -83,7 +83,7 @@ interfaces:
 
     # 3 managers
     m_axi_0:
-        type: 
+        type:
             name: AXI4
             vendor: vendor
             library: libdefault
@@ -139,7 +139,7 @@ interfaces:
                 RREADY: [m_axi_rready, M_COUNT-1, 0, M_COUNT-1, M_COUNT-1]
 
     m_axi_1:
-        type: 
+        type:
             name: AXI4
             vendor: vendor
             library: libdefault
@@ -195,7 +195,7 @@ interfaces:
                 RREADY: [m_axi_rready, M_COUNT-1, 0, M_COUNT-2, M_COUNT-2]
 
     m_axi_2:
-        type: 
+        type:
             name: AXI4
             vendor: vendor
             library: libdefault

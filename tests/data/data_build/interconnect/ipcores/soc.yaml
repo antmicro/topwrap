@@ -17,7 +17,7 @@ signals:
 
 interfaces:
   m_dbus_wishbone:
-    type: 
+    type:
       name: wishbone
       vendor: vendor
       library: libdefault
@@ -37,7 +37,7 @@ interfaces:
         cti: [dbus_cti, 2, 0]
         bte: [dbus_bte, 1, 0]
   m_ibus_wishbone:
-    type: 
+    type:
       name: wishbone
       vendor: vendor
       library: libdefault

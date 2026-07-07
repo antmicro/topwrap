@@ -12,7 +12,7 @@ interfaces:
         CDATA: {bound: ['31', '0'], name: c_tdata}
         CKEEP: {bound: ['3', '0'], name: c_tkeep}
         CVALID: {name: c_tvalid}
-    type: 
+    type:
       name: coreStream
       vendor: vendor
       library: libdefault

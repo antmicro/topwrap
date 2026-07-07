@@ -96,7 +96,7 @@ interfaces:
                 BREADY: MAXIGP0BREADY
 
     S_AXI_HP0:
-        type: 
+        type:
             name: AXI3
             vendor: vendor
             library: libdefault
