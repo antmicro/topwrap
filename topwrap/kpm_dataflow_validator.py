@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 
 from pipeline_manager_backend_communication.misc_structures import MessageType
 
+from topwrap.backend.kpm.common import IoMetanode
 from topwrap.hdl_parsers_utils import (
     ParameterToEval,
     evaluate_parameter_list,
@@ -30,9 +31,11 @@ from .kpm_common import (
     get_exposed_subgraph_meta_iface,
     get_graph_id_from_node,
     get_graph_id_name,
+    get_graph_with_id,
     get_interfaces_from_connection,
     get_metanode_interface_id,
     get_metanode_property_value,
+    is_exposed_iface,
     is_metanode,
     is_subgraph_metanode,
     is_subgraph_node,
@@ -460,6 +463,88 @@ class DataflowValidator:
             )
         return CheckResult(check_name, MessageType.OK)
 
+    def check_external_io_exposed_ifaces(self):
+        """
+        Check whether subgraph interfaces are the same as interfaces opposite to
+        connected External I/O node interfaces inside the subgraph.
+        """
+
+        check_name = "Exposure of External I/O interfaces in subgraphs"
+
+        opposite = {"in": "out", "out": "in", "inout": "inout"}
+
+        for sub_node in get_dataflow_subgraph_nodes(self.dataflow):
+            subgraph = get_graph_with_id(self.dataflow, sub_node["subgraph"])
+            if subgraph is None:
+                raise ValueError("Encountered subgraph node with no attached subgraph")
+
+            all_exposed = []
+            msg = []
+
+            # Check if all unconnected External I/O interfaces are exposed
+            for node in subgraph["nodes"]:
+                if node["name"] == IoMetanode.name:
+                    connected = None
+                    exposed = None
+                    for iface in node["interfaces"]:
+                        if check_for_iface_in_conn_graph(
+                            self.dataflow, iface["id"], subgraph["id"]
+                        ):
+                            if connected is not None:
+                                msg.append(
+                                    f"Too many connected interfaces {subgraph['id']}:{node['id']}"
+                                )
+                            else:
+                                connected = iface
+                        elif is_exposed_iface(iface):
+                            if exposed is not None:
+                                msg.append(
+                                    f"Too many exposed interfaces {subgraph['id']}:{node['id']}"
+                                )
+                            else:
+                                exposed = iface
+                    if connected is None:
+                        msg.append(f"No connected interface {subgraph['id']}:{node['id']}")
+                    if exposed is None:
+                        msg.append(f"No exposed interface {subgraph['id']}:{node['id']}")
+                    if (
+                        connected is not None
+                        and exposed is not None
+                        and connected["name"] != opposite[exposed["name"]]
+                    ):
+                        msg.append(
+                            "Exposed and connected interfaces"
+                            f"do not match {subgraph['id']}:{node['id']}"
+                        )
+                    all_exposed.append(exposed)
+
+            if len(msg) > 0:
+                return CheckResult(
+                    check_name,
+                    MessageType.ERROR,
+                    len(msg),
+                    f"External I/O exposure: {msg}",
+                )
+
+            # Check if exposed ifaces are actually unconnected External I/O ifaces in subgraph
+            exposed_ids = [iface["id"] for iface in all_exposed]
+            for iface in sub_node["interfaces"]:
+                if iface["id"] not in exposed_ids:
+                    msg.append(
+                        "Subgraph has exposed interface which is not exposed internally"
+                        f"from External I/O: {subgraph['id']}:{iface['id']}"
+                    )
+
+            if len(msg) > 0:
+                return CheckResult(
+                    check_name,
+                    MessageType.ERROR,
+                    len(msg),
+                    f"External I/O exposure: {msg}",
+                )
+
+        return CheckResult(check_name, MessageType.OK)
+
     def validate_kpm_design(self) -> Dict[str, List[str]]:
         """
         Run checks to validate the user-created design in KPM.
@@ -475,6 +560,7 @@ class DataflowValidator:
             self.check_duplicate_metanode_names,
             self.check_connection_to_subgraph_metanodes,
             self.check_unconnected_ports_interfaces,
+            self.check_external_io_exposed_ifaces,
         ]
 
         messages = {"errors": [], "warnings": []}

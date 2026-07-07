@@ -19,6 +19,7 @@ from typing_extensions import NotRequired
 
 from topwrap.backend.backend import BackendOutputInfo
 from topwrap.backend.kpm.backend import KpmBackend
+from topwrap.backend.kpm.common import IoMetanode
 from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.plugin.steps import (
     KpmDataflowOutputStage,
