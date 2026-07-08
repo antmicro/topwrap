@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "topwrap"
 version = "0.0.1"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [{name = "Antmicro"}]
 description = "Package for generating HDL wrappers and top modules for your HDL sources"
 readme = "README.md"

@@ -36,7 +36,7 @@ test_python:
   <<: *common_only
   stage: test
   image: debian:bookworm
-  parallel: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+  parallel: ["3.10", "3.11", "3.12", "3.13"]
   variables:
     SCALENODE_RAM: 8192
     SCALENODE_CPU: 2

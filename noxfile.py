@@ -16,7 +16,7 @@ from typing import Dict, List, Tuple
 import nox
 from nox.command import CommandFailed
 
-PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13"]
 
 
 def argument(session: nox.Session, *args: str) -> bool:
