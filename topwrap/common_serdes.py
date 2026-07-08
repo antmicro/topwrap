@@ -163,7 +163,7 @@ def annotate_flat_tree(
         elif len(field_names) < len(elem):
             raise ValueError(f"Too many levels of nested fields named {elem[len(field_names) :]}")
         # pair each field with its name
-        return dict(zip(field_names, elem))
+        return dict(zip(field_names, elem, strict=True))
 
     return list(map(mapfunc, flat_tree))
 

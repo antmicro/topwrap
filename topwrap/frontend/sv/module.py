@@ -2023,7 +2023,9 @@ class _ModuleAstParserState:
             ranges.append((low, high, drv))
         ranges.sort(key=lambda r: r[0])
         non_overlapping = [ranges[0]]
-        for (_, prev_high, prev_drv), (cur_low, cur_high, cur_drv) in zip(ranges, ranges[1:]):
+        for (_, prev_high, prev_drv), (cur_low, cur_high, cur_drv) in zip(
+            ranges, ranges[1:], strict=False
+        ):
             if cur_low <= prev_high:
                 logger.error(
                     "Overlapping driver ranges for range [%d:%d] of %s: {%s}, {%s}",

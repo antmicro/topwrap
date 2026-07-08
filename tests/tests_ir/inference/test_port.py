@@ -61,7 +61,7 @@ TEST_SELECTORS_OPS = [
 class TestPortSelector:
     @pytest.mark.parametrize(
         "selector_str,port,ops",
-        zip(TEST_SELECTORS_BASIC, TEST_SELECTORS_PORTS, TEST_SELECTORS_OPS),
+        zip(TEST_SELECTORS_BASIC, TEST_SELECTORS_PORTS, TEST_SELECTORS_OPS, strict=True),
     )
     def test_parse_basic(self, selector_str: str, port: str, ops: tuple[PortSelectorOpT, ...]):
         sel = PortSelector.from_str(selector_str)
@@ -70,7 +70,7 @@ class TestPortSelector:
 
     @pytest.mark.parametrize(
         "selector_str,port,ops",
-        zip(TEST_SELECTORS_WHITESPACE, TEST_SELECTORS_PORTS, TEST_SELECTORS_OPS),
+        zip(TEST_SELECTORS_WHITESPACE, TEST_SELECTORS_PORTS, TEST_SELECTORS_OPS, strict=True),
     )
     def test_parse_whitespace(self, selector_str: str, port: str, ops: tuple[PortSelectorOpT, ...]):
         sel = PortSelector.from_str(selector_str)
