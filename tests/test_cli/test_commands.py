@@ -248,11 +248,18 @@ class TestRepoCli:
     ):
         repo_path = Path(tmpdir) / "repo_parse_norm"
 
+        # TODO: Remove when IPCoreYamlBackend starts supporting multiple dim bit vectors
+        sources = []
+        for s in sv_sources:
+            if "string_sequencer" in str(s):
+                continue
+            sources.append(s)
+
         cores = self.invoke_parse(
             repo_path,
             "--frontend",
             "systemverilog",
-            *(str(p) for p in sv_sources),
+            *(str(p) for p in sources),
         )
 
         assert cores != []
