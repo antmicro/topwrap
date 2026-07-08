@@ -56,7 +56,7 @@ clean:
 	rm -rf ${BUILD_DIR}
 
 deps:
-	pip install -r requirements.txt
+	python3 -m pip install -r requirements.txt
 
 ci: deps generate
 

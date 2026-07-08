@@ -17,19 +17,23 @@ jobs:
       image: debian:bookworm
 
     steps:
-      - name: Install git package
+      - name: Install just
         run: |
-          apt-get update -qq
-          apt-get install -y git
+          apt-get update && apt-get install -y wget tar
+          wget https://github.com/casey/just/releases/download/1.55.1/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -P /tmp
+          tar -xvf just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
+          mv /tmp/just /usr/bin/
 
       - uses: actions/checkout@v4
 
       - name: Build packages
-        run: ./.github/scripts/ci.sh package_dist
+        run: |
+          just install-debian-deps
+          just package
 
       - name: Build package cores
         run: |
-          ./.github/scripts/ci.sh package_cores
+          just build
           tar -cf build/cores_export.tar -C build/export .
 
       - name: Publish or update the release

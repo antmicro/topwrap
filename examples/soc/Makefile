@@ -61,7 +61,7 @@ clean:
 	rm -f $(JSONS)
 
 deps:
-	pip install '../../.'
+	pip3 install '../../.'
 
 ci: deps generate
 

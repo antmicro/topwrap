@@ -1,41 +1,40 @@
 .common_only: &common_only
-  only:
-    - main
-    - merge_requests
+  stage: test
+  before_script:
+    - apt-get update && apt-get install -y wget tar
+    - wget https://github.com/casey/just/releases/download/1.55.1/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -P /tmp
+    - tar -xvf /tmp/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
+    - mv /tmp/just /usr/bin/
 
 stages:
   - test
   - deploy_docs
 
+image: debian:bookworm
 variables:
   DEBIAN_FRONTEND: noninteractive
+  SCALENODE_RAM: 4096
+  SCALENODE_CPU: 1
+  SCALENODE_DISK: 5
 
 lint:
-  <<: *common_only
   stage: test
-  image: debian:bookworm
-  variables:
-    SCALENODE_RAM: 4096
-    SCALENODE_CPU: 1
-    SCALENODE_DISK: 5
+  <<: *common_only
   script:
-    - ./.github/scripts/ci.sh lint
+    - just install-debian-deps
+    - just test-lint
 
 test_kpm_server:
   <<: *common_only
-  stage: test
-  image: debian:bookworm
   variables:
     SCALENODE_RAM: 8192
-    SCALENODE_CPU: 1
     SCALENODE_DISK: 10
   script:
-    - ./.github/scripts/ci.sh test_kpm_server
+    - just install-debian-deps
+    - just test-kpm-server
 
 test_python:
   <<: *common_only
-  stage: test
-  image: debian:bookworm
   parallel: ["3.10", "3.11", "3.12", "3.13"]
   variables:
     SCALENODE_RAM: 8192
@@ -43,29 +42,23 @@ test_python:
     SCALENODE_DISK: 10
     SCALENODE_FEATURES: "ryzen" # We need high IPC and frequency for the roundtrip test
   script:
-    - ./.github/scripts/ci.sh test_python ${CI_PARALLEL_NAME}
+    - just install-debian-deps
+    - if [[ ${CI_PARALLEL_NAME} == "3.10" ]];then just test; else just test ${CI_PARALLEL_NAME}; fi
 
 package_test:
   <<: *common_only
-  stage: test
-  image: debian:bookworm
   variables:
     SCALENODE_CPU: 2
     SCALENODE_RAM: 8192
-    SCALENODE_DISK: 5
   script:
-    - ./.github/scripts/ci.sh package_dist
+    - just install-debian-deps
+    - just build
 
 examples:
   <<: *common_only
-  variables:
-    SCALENODE_CPU: 1
-    SCALENODE_RAM: 4096
-    SCALENODE_DISK: 5
-  stage: test
-  image: debian:bookworm
   script:
-    - ./.github/scripts/ci.sh examples
+    - just install-debian-deps
+    - just examples
   artifacts:
     paths:
       - examples/**/build
@@ -73,13 +66,11 @@ examples:
 package_cores:
   <<: *common_only
   variables:
-    SCALENODE_CPU: 2
-    SCALENODE_RAM: 16384
-    SCALENODE_DISK: 5
-  stage: test
-  image: debian:bookworm
+    SCALENODE_CPU: 4
+    SCALENODE_RAM: 32768
   script:
-    - ./.github/scripts/ci.sh package_cores
+    - just install-debian-deps
+    - just package
     - tar -cf build/cores_export.tar -C build/export .
   artifacts:
     paths:
@@ -89,36 +80,20 @@ pyright_check:
   <<: *common_only
   variables:
     SCALENODE_RAM: 8192
-    SCALENODE_CPU: 1
-    SCALENODE_DISK: 5
-  stage: test
-  image: debian:bookworm
   script:
-    - ./.github/scripts/ci.sh pyright_check
-  allow_failure: true
-
-changelog_check:
-  <<: *common_only
-  stage: test
-  image: debian:bookworm
-  variables:
-    SCALENODE_RAM: 3072
-    SCALENODE_CPU: 1
-    SCALENODE_DISK: 5
-  script:
-    - ./.github/scripts/ci.sh changelog_check
+    - just install-debian-deps
+    - just pyright
   allow_failure: true
 
 build_docs:
   <<: *common_only
-  stage: test
-  image: debian:bookworm
   variables:
     SCALENODE_RAM: 18432
     SCALENODE_CPU: 5
     SCALENODE_DISK: 20
   script:
-    - ./.github/scripts/ci.sh docs
+    - just install-debian-deps --docs
+    - just docs
     - tar cf "$CI_DOCS_ARCHIVE" -C docs/build/html/ .
   artifacts:
     paths:
@@ -128,12 +103,9 @@ build_docs:
 deploy_docs:
   <<: *common_only
   stage: deploy_docs
-  image: debian:bookworm
   variables:
     GIT_STRATEGY: none
     SCALENODE_RAM: 2048
-    SCALENODE_CPU: 1
-    SCALENODE_DISK: 5
   dependencies: [build_docs]
   tags: [docs]
   script: echo 'Deploying docs'
