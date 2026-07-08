@@ -36,7 +36,7 @@ build:
 
 $(REPO_NAME): $(IPCORE_SOURCES)
 	topwrap repo init $(REPO_NAME) $(REPO_NAME)
-	topwrap repo parse $(REPO_NAME) $(IPCORE_SOURCES) -i
+	topwrap repo parse $(REPO_NAME) $(IPCORE_SOURCES) --inference
 
 $(FLIST_FILE_SOURCES) $(FLIST_FILE_INCLUDES): $(SCRIPTS_DIR)/gen_flist.py | build
 	python3 $< $(FLIST_FILE_SOURCES) $(FLIST_FILE_INCLUDES)

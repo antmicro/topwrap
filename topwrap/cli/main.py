@@ -11,20 +11,18 @@ import threading
 import webbrowser
 from itertools import chain
 from pathlib import Path
-from typing import Any, Callable, Coroutine, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, Optional, Tuple
 
-import click
-import marshmallow
+import rich.console
+from cyclopts.types import ExistingDirectory, ExistingFile
 
-import topwrap.logger
 from topwrap.backend.kpm.backend import KpmDataflowBackend, KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
 from topwrap.cli import (
-    RepositoryPathParam,
+    cli,
     load_interfaces_from_repos,
     load_modules_from_repos,
 )
-from topwrap.cli.repo import repo
 from topwrap.config import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
@@ -34,147 +32,79 @@ from topwrap.config import (
     DEFAULT_WORKSPACE_DIR,
     config,
 )
-from topwrap.frontend.yaml.design import DesignDescriptionFrontendException
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
-from topwrap.resource_field import FileReferenceHandler
-
-click_r_dir = click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path)
-click_opt_rw_dir = click.Path(
-    exists=False, file_okay=False, dir_okay=True, readable=True, writable=True, path_type=Path
-)
-click_r_file = click.Path(
-    exists=True, file_okay=True, dir_okay=False, readable=True, path_type=Path
-)
-click_w_file = click.Path(
-    exists=False, file_okay=True, dir_okay=False, writable=True, path_type=Path
-)
 
 logger = logging.getLogger(__name__)
 
 
-@click.group(help="Topwrap")
-@click.option(
-    "--log-level",
-    type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]),
-    default=None,
-    show_default=True,
-    help="Log level",
-)
-@click.option(
-    "--log-cfg",
-    default=None,
-    type=RepositoryPathParam(path_type=Path),
-    show_default=True,
-    help="Log level",
-)
-@click.option(
-    "--repo",
-    multiple=True,
-    type=RepositoryPathParam(path_type=Path),
-    help="Additional user repository to load",
-)
-def main(log_level: Union[str, None], log_cfg: Union[Path, None], repo: tuple[Path]):
-    topwrap.logger.configure(log_level, log_cfg)
-
-    for rep in repo:
-        config.repositories[rep.name] = FileReferenceHandler(rep)
+def main():
+    cli.meta(console=rich.console.Console(no_color=True))
 
 
-main.add_command(repo)
-
-
-@main.command("build", help="Generate top module")
-@click.option(
-    "--sources",
-    "-s",
-    type=click_r_dir,
-    multiple=True,
-    help="Specify directory to scan for additional sources",
-)
-@click.option("--design", "-d", type=click_r_file, required=True, help="Specify top design file")
-@click.option(
-    "--build-dir",
-    "-b",
-    type=click_opt_rw_dir,
-    default="build",
-    help="Specify directory name for output files",
-)
-@click.option(
-    "--fuse",
-    "-f",
-    default=False,
-    is_flag=True,
-    help="Generate a FuseSoC .core file for further synthesis",
-)
-@click.option("--part", "-p", help="Specify the FPGA part number (ignored without --fuse)")
-@click.option(
-    "--iface-compliance/--no-iface-compliance",
-    default=False,
-    help="Force compliance checks for predefined interfaces",
-)
+@cli.command(name="build")
 def build_main(
-    sources: Tuple[Path, ...],
-    design: Path,
-    build_dir: Path,
-    fuse: bool,
-    part: Optional[str],
-    iface_compliance: bool,
+    *,
+    sources: Tuple[ExistingDirectory, ...] = (),
+    design: ExistingFile,
+    build_dir: Optional[Path] = None,
+    fuse: bool = False,
+    part: Optional[str] = None,
+    iface_compliance: bool = False,
 ):
-    try:
-        config.force_interface_compliance = iface_compliance
+    """Generate SystemVerilog from a top design YAML file.
 
-        all_sources = list(sources)
+    Parameters
+    ----------
+    sources
+        Directories to scan for additional sources.
+    design
+        Top design file.
+    build_dir
+        Output directory for generated files.
+    fuse
+        Generate a FuseSoC .core file for further synthesis.
+    part
+        FPGA part number (ignored without --fuse).
+    iface_compliance
+        Force interface compliance checking.
+    """
+    if build_dir is None:
+        build_dir = Path("build")
 
-        repo_modules, existing_ifaces = load_modules_from_repos()
+    config.force_interface_compliance = iface_compliance
 
-        frontend = YamlFrontend(repo_modules)
-        frontend_output = frontend.parse_files([design])
-        module = frontend_output.modules[0]
+    all_sources = list(sources)
 
-        backend = SystemVerilogBackend(existing_ifaces)
-        repr = backend.represent(module)
-        [out] = backend.serialize(repr, combine=True)
+    repo_modules, existing_ifaces = load_modules_from_repos()
 
-        build_dir.mkdir(exist_ok=True)
-        out.save(build_dir)
+    frontend = YamlFrontend(repo_modules)
+    frontend_output = frontend.parse_files([design])
+    module = frontend_output.modules[0]
 
-        if fuse:
-            if part is None:
-                logging.warning(
-                    "You didn't specify the part number using the --part option. "
-                    "It will remain unspecified in the generated FuseSoC .core "
-                    "and your further implementation/synthesis may fail."
-                )
+    backend = SystemVerilogBackend(existing_ifaces)
+    repr = backend.represent(module)
+    [out] = backend.serialize(repr, combine=True)
 
-            fuse_builder = FuseSocBuilder(part)
+    build_dir.mkdir(exist_ok=True)
+    out.save(build_dir)
 
-            fuse_builder.add_source(out.filename, "systemVerilogSource")
-            fuse_builder.build(
-                module.id.name, build_dir / f"{module.id.name}.core", sources_dir=all_sources
+    if fuse:
+        if part is None:
+            logging.warning(
+                "You didn't specify the part number using the --part option. "
+                "It will remain unspecified in the generated FuseSoC .core "
+                "and your further implementation/synthesis may fail."
             )
 
-    except DesignDescriptionFrontendException as err:
-        while err is not None:
-            logger.error(err)
-            err = err.__cause__
-        sys.exit(1)
-    except marshmallow.ValidationError as err:
-        ERROR_FIELDNAME_INDEX = 0
-        ERROR_MSG_INDEX = 1
+        fuse_builder = FuseSocBuilder(part)
 
-        for e in err.messages:
-            logger.error(
-                "Failed to parse {} field in {}. {}".format(
-                    e[ERROR_FIELDNAME_INDEX], design, e[ERROR_MSG_INDEX]
-                )
-            )
-        sys.exit(1)
-    except Exception as err:
-        logger.error(err)
-        sys.exit(1)
+        fuse_builder.add_source(out.filename, "systemVerilogSource")
+        fuse_builder.build(
+            module.id.name, build_dir / f"{module.id.name}.core", sources_dir=all_sources
+        )
 
 
 class KPM:
@@ -302,137 +232,113 @@ class KPM:
         await KPM.kpm_run_client_task
 
 
-@main.command("kpm_client", help="Run a client app, that connects to a running KPM server")
-@click.option("--host", "-h", default=DEFAULT_SERVER_ADDR, help="KPM server address")
-@click.option("--port", "-p", default=DEFAULT_SERVER_PORT, help="KPM server listening port")
-@click.option(
-    "--design",
-    "-d",
-    type=click_r_file,
-    help="Specify design file to load initially",
-)
-@click.option(
-    "--build-dir",
-    "-b",
-    type=click_opt_rw_dir,
-    default="build",
-    help="Specify directory name for output files",
-)
-@click.argument("yamlfiles", type=click_r_file, nargs=-1)
+@cli.command(name="kpm_client")
 def kpm_client_main(
-    host: str,
-    port: int,
-    design: Optional[Path],
-    yamlfiles: Tuple[Path, ...],
-    build_dir: Path,
+    yamlfiles: Tuple[ExistingFile, ...] = (),
+    *,
+    host: str = DEFAULT_SERVER_ADDR,
+    port: int = DEFAULT_SERVER_PORT,
+    design: Optional[ExistingFile] = None,
+    build_dir: Optional[Path] = None,
 ):
+    """Run a client app that connects to a running KPM server.
+
+    Parameters
+    ----------
+    yamlfiles
+        Module YAML files to load.
+    host
+        KPM server address.
+    port
+        KPM server listening port.
+    design
+        Design file to load initially.
+    build_dir
+        Output directory for generated files.
+    """
+    if build_dir is None:
+        build_dir = Path("build")
+
     KPM.run_client(host, port, design, yamlfiles, build_dir)
     KPM.cleanup()
 
 
-@main.command("kpm_build_server", help="Build KPM server")
-@click.option(
-    "--workspace-directory",
-    type=click_opt_rw_dir,
-    default=Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR,
-    help="Directory where the frontend sources should be stored",
-)
-@click.option(
-    "--output-directory",
-    type=click_opt_rw_dir,
-    default=Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR,
-    help="Directory where the built frontend should be stored",
-)
-@click.pass_context
-def kpm_build_server_ctx(ctx: click.Context, **_):
-    KPM.build_server(**ctx.params)
+@cli.command(name="kpm_build_server")
+def kpm_build_server(
+    workspace_directory: Optional[Path] = None,
+    output_directory: Optional[Path] = None,
+):
+    """Build KPM server"""
+    if workspace_directory is None:
+        workspace_directory = Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR
+
+    if output_directory is None:
+        output_directory = Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR
+
+    KPM.build_server(
+        workspace_directory=workspace_directory,
+        output_directory=output_directory,
+    )
 
 
-@main.command("kpm_run_server", help="Run a KPM server")
-@click.option(
-    "--frontend-directory",
-    type=click_r_dir,
-    default=Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR,
-    help="Location of the built frontend",
-)
-@click.option(
-    "--server-host",
-    default=DEFAULT_SERVER_ADDR,
-    help="The address of the Pipeline Manager TCP Server",
-)
-@click.option(
-    "--server-port", default=DEFAULT_SERVER_PORT, help="The port of the Pipeline Manager TCP Server"
-)
-@click.option(
-    "--backend-host",
-    default=DEFAULT_BACKEND_ADDR,
-    help="The address of the backend of Pipeline Manager",
-)
-@click.option(
-    "--backend-port",
-    default=DEFAULT_BACKEND_PORT,
-    help="The port of the backend of Pipeline Manager",
-)
-@click.option("--verbosity", default="INFO", help="Verbosity level for KPM server logs")
-@click.pass_context
-def kpm_run_server_ctx(ctx: click.Context, **_):
+@cli.command(name="kpm_run_server")
+def kpm_run_server(
+    frontend_directory: Optional[ExistingDirectory] = None,
+    server_host: str = DEFAULT_SERVER_ADDR,
+    server_port: int = DEFAULT_SERVER_PORT,
+    backend_host: str = DEFAULT_BACKEND_ADDR,
+    backend_port: int = DEFAULT_BACKEND_PORT,
+    verbosity: str = "INFO",
+):
+    """Run a KPM server"""
+    if frontend_directory is None:
+        frontend_directory = Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR
+
     try:
-        KPM.run_server(**ctx.params)
+        KPM.run_server(
+            frontend_directory=frontend_directory,
+            server_host=server_host,
+            server_port=server_port,
+            backend_host=backend_host,
+            backend_port=backend_port,
+            verbosity=verbosity,
+        )
     except Exception as e:
         logging.error(f"{e}")
     KPM.cleanup()
 
 
-@main.command("gui", help="Start GUI")
-@click.option(
-    "--server-host",
-    default=DEFAULT_SERVER_ADDR,
-    help="The address of the Pipeline Manager TCP Server",
-)
-@click.option(
-    "--server-port", default=DEFAULT_SERVER_PORT, help="The port of the Pipeline Manager TCP Server"
-)
-@click.option(
-    "--backend-host",
-    default=DEFAULT_BACKEND_ADDR,
-    help="The address of the backend of Pipeline Manager",
-)
-@click.option(
-    "--backend-port",
-    default=DEFAULT_BACKEND_PORT,
-    help="The port of the backend of Pipeline Manager",
-)
-@click.option(
-    "--design",
-    "-d",
-    type=click_r_file,
-    help="Specify design file to load initially",
-)
-@click.option(
-    "--frontend-directory",
-    type=click_opt_rw_dir,
-    default=Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR,
-    help="Location of the built frontend",
-)
-@click.option(
-    "--workspace-directory",
-    type=click_opt_rw_dir,
-    default=Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR,
-    help="Directory where the frontend sources should be stored",
-)
-@click.argument("yamlfiles", type=click_r_file, nargs=-1)
+@cli.command(name="gui")
 def topwrap_gui(
-    design: Optional[Path],
-    yamlfiles: Tuple[Path, ...],
-    frontend_directory: Path,
-    workspace_directory: Path,
-    server_host: str,
-    server_port: int,
-    backend_host: str,
-    backend_port: int,
+    yamlfiles: Tuple[ExistingFile, ...] = (),
+    *,
+    design: Optional[ExistingFile] = None,
+    frontend_directory: Optional[Path] = None,
+    workspace_directory: Optional[Path] = None,
+    server_host: str = DEFAULT_SERVER_ADDR,
+    server_port: int = DEFAULT_SERVER_PORT,
+    backend_host: str = DEFAULT_BACKEND_ADDR,
+    backend_port: int = DEFAULT_BACKEND_PORT,
     use_server: bool = True,
     raise_exception: bool = False,
 ):
+    """Start GUI
+
+    Parameters
+    ----------
+    design
+        Design file to load initially.
+    server_host
+        Host of the Pipeline Manager TCP server.
+    server_port
+        Port of the Pipeline Manager TCP server.
+    """
+    if frontend_directory is None:
+        frontend_directory = Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR
+
+    if workspace_directory is None:
+        workspace_directory = Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR
+
     logging.info("Checking if server is built")
     if (not frontend_directory.exists() or not workspace_directory.exists()) and use_server:
         logging.info("Server build is incomplete, building now")
@@ -520,24 +426,24 @@ def topwrap_gui(
     KPM.cleanup()
 
 
-@main.command("specification", help="Generate KPM specification from IP core YAMLs")
-@click.option(
-    "--output",
-    "-o",
-    type=click_w_file,
-    default="kpm_spec.json",
-    help="Destination file for the KPM specification",
-)
-@click.option("--design", "-d", type=click_r_file, help="Design YAML file")
-@click.argument("files", type=click_r_file, nargs=-1)
-def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, ...]):
+@cli.command(name="specification")
+def generate_kpm_spec(
+    files: Tuple[ExistingFile, ...] = (),
+    *,
+    design: Optional[ExistingFile] = None,
+    output: Optional[Path] = None,
+):
+    """Generate KPM specification from IP core YAMLs"""
+
+    if output is None:
+        output = Path("kpm_spec.json")
+
     repo_modules, _ = load_modules_from_repos()
 
     frontend = YamlFrontend(repo_modules)
+    design_module = None
     if design is not None:
         design_module = frontend.parse_design_file(design).modules[0]
-    else:
-        design_module = None
     modules = frontend.parse_module_files(list(files)).modules
 
     spec = KpmSpecificationBackend.default()
@@ -572,17 +478,18 @@ def generate_kpm_spec(output: Path, design: Optional[Path], files: Tuple[Path, .
         f.write(json.dumps(spec))
 
 
-@main.command("dataflow", help="Generate KPM dataflow from IP core YAMLs and a design YAML")
-@click.option(
-    "--output",
-    "-o",
-    type=click_w_file,
-    default="kpm_dataflow.json",
-    help="Destination file for the KPM dataflow",
-)
-@click.option("--design", "-d", required=True, type=click_r_file, help="Design YAML file")
-@click.argument("files", type=click_r_file, nargs=-1)
-def generate_kpm_design(output: Path, design: Path, files: Tuple[Path, ...]):
+@cli.command(name="dataflow")
+def generate_kpm_design(
+    files: Tuple[ExistingFile, ...] = (),
+    *,
+    design: ExistingFile,
+    output: Optional[Path] = None,
+):
+    """Generate KPM dataflow from IP core YAMLs and a design YAML"""
+
+    if output is None:
+        output = Path("kpm_dataflow.json")
+
     repo_modules, _ = load_modules_from_repos()
 
     frontend = YamlFrontend(repo_modules)

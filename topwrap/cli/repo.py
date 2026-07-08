@@ -3,11 +3,12 @@
 
 import logging
 from pathlib import Path
-from typing import List
+from typing import List, Literal, Tuple
 
-import click
 import yaml
+from cyclopts.types import ExistingPath
 
+from topwrap.cli import repo_cli
 from topwrap.config import ConfigManager, config
 from topwrap.frontend.automatic import AutomaticFrontend, FrontendRegistry
 from topwrap.repo.exceptions import ResourceNotSupportedException
@@ -24,91 +25,44 @@ from topwrap.util import get_config
 logger = logging.getLogger(__name__)
 
 
-@click.group(help="Commands related to user repositories")
-def repo():
-    pass
-
-
-@repo.command(
-    help="Parse Modules from all provided files using available frontends"
-    " and store them in a given user repository. The repository can be selected"
-    " by its name from config or a path to a directory, even when it's not"
-    " included in the config `repositories` key.",
-    name="parse",
-)
-@click.option(
-    "--all-sources",
-    "-a",
-    is_flag=True,
-    help="Instead of automatically trying to detect the minimal fileset required for a Module"
-    " among the supplied sources generously pack all of them into the repo",
-)
-@click.option(
-    "--module",
-    "-m",
-    multiple=True,
-    help="Only store the module with this name instead of all provided",
-)
-@click.option(
-    "--reference",
-    "-l",
-    is_flag=True,
-    help="Instead of copying all required sources to the repository, just reference their current"
-    " location",
-)
-@click.option(
-    "--exists-strategy",
-    "-e",
-    type=click.Choice(list(ExistsStrategy), False),
-    default=ExistsStrategy.RAISE,
-    show_default=True,
-    help="How to behave in case a Module already exists in the repository",
-)
-@click.option(
-    "--frontend",
-    "-f",
-    type=click.Choice(list(FrontendRegistry.BY_NAME), False),
-    default=AutomaticFrontend().metadata.name,
-    show_default=True,
-    help="Which frontend should be used for these sources",
-)
-@click.argument("repository")
-@click.argument(
-    "sources",
-    nargs=-1,
-    required=True,
-    type=click.Path(exists=True, file_okay=True, dir_okay=True, readable=True, path_type=Path),
-)
-@click.option(
-    "--inference",
-    "-i",
-    is_flag=True,
-    help="Perform interface inference on modules being added to the repository",
-)
-@click.option(
-    "--inference-interface",
-    "-I",
-    multiple=True,
-    help="Candidate interface for inference (can be specified multiple times)",
-)
-@click.option(
-    "--grouping-hint",
-    "-g",
-    multiple=True,
-    help="Grouping hints for interface inference",
-)
+@repo_cli.command(name="parse")
 def parse_repo(
-    exists_strategy: ExistsStrategy,
-    all_sources: bool,
-    sources: tuple[Path, ...],
     repository: str,
-    module: tuple[str, ...],
-    reference: bool,
-    frontend: str,
-    inference: bool,
-    inference_interface: tuple[str, ...],
-    grouping_hint: tuple[str, ...],
+    sources: Tuple[ExistingPath, ...],
+    *,
+    exists_strategy: ExistsStrategy = ExistsStrategy.RAISE,
+    all_sources: bool = False,
+    module: Tuple[str, ...] = (),
+    frontend: Literal[*FrontendRegistry.BY_NAME] = AutomaticFrontend().metadata.name,
+    inference: bool = False,
+    inference_interface: Tuple[str, ...] = (),
+    grouping_hint: Tuple[str, ...] = (),
 ):
+    """Parse Modules from all provided files using available frontends and store
+    them in a given user repository.
+
+    Parameters
+    ----------
+    repository
+        Repository name from config.
+    sources
+        Files to parse.
+    exists_strategy
+        How to behave when a Module already exists in the repository.
+    all_sources
+        Pack all supplied sources into each Module instead of detecting the
+        minimal required fileset.
+    module
+        Only store modules with these names (repeatable).
+    frontend
+        Which frontend to use for these sources.
+    inference
+        Perform interface inference on modules being added.
+    inference_interface
+        Candidate interfaces for inference (repeatable).
+    grouping_hint
+        Grouping hints for interface inference.
+    """
     repo_path = get_config().repositories.get(repository)
 
     if repo_path is None:
@@ -148,25 +102,24 @@ def parse_repo(
         logging.error(e)
 
 
-@repo.command(help="List all repos in current config", name="list")
+@repo_cli.command(name="list")
 def list_repos():
+    """List all repos in current config"""
+
     print("Loaded user repositories:")
     for name, path in config.repositories.items():
         print(f'"{name}" -> "{path.to_path()}"')
 
 
-@repo.command(help="Create new repo", name="init")
-@click.option(
-    "--config-update/--no-config-update",
-    default=True,
-    help="Whether the newly created repo should be added to the local Topwrap configuration file",
-)
-@click.argument("name")
-@click.argument(
-    "path",
-    type=click.Path(file_okay=False, dir_okay=True, writable=True, path_type=Path),
-)
-def init_repo(config_update: bool, name: str, path: Path):
+@repo_cli.command(name="init")
+def init_repo(
+    name: str,
+    path: Path,
+    *,
+    config_update: bool = True,
+):
+    """Create new repo"""
+
     path.mkdir(exist_ok=True, parents=True)
     if next(path.iterdir(), None) is not None:
         logging.error(f"The directory selected for the new repository ('{path}') is not empty")

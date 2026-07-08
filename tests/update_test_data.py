@@ -5,7 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-import click
+import cyclopts
 from tests_kpm.conftest import all_design_paths, test_dirs_data
 
 from topwrap.backend.kpm.backend import KpmBackend
@@ -14,6 +14,8 @@ from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.backend.yaml.common.interface_definition import InterfaceDefinitionDescriptionBackend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.util import save_file_to_json
+
+cli = cyclopts.App()
 
 
 def update_dataflows():
@@ -89,26 +91,10 @@ def update_json_ipcore_iface():
         ip_core.save(ip_core_dir)
 
 
-@click.command()
-@click.option(
-    "--dataflow",
-    default=False,
-    is_flag=True,
-    help="Update all dataflows",
-)
-@click.option(
-    "--specification",
-    default=False,
-    is_flag=True,
-    help="Update all specifications",
-)
-@click.option(
-    "--ipcore_and_iface_json",
-    default=False,
-    is_flag=True,
-    help="Update json generated from IR examples",
-)
-def update_test_data(dataflow: bool, specification: bool, ipcore_and_iface_json: bool):
+@cli.command
+def update_test_data(
+    *, dataflow: bool = False, specification: bool = False, ipcore_and_iface_json: bool = False
+):
     if dataflow:
         update_dataflows()
 

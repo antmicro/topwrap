@@ -355,8 +355,6 @@ def check_yaml_extension(session: nox.Session):
 
 @nox.session
 def test_kpm_server(session: nox.Session):
-    import click
-
     from topwrap.cli.main import (
         DEFAULT_BACKEND_ADDR,
         DEFAULT_BACKEND_PORT,
@@ -364,12 +362,11 @@ def test_kpm_server(session: nox.Session):
         DEFAULT_SERVER_ADDR,
         DEFAULT_SERVER_PORT,
         KPM,
-        kpm_build_server_ctx,
+        kpm_build_server,
     )
     from topwrap.config import config
 
-    with click.Context(kpm_build_server_ctx) as ctx:
-        ctx.invoke(kpm_build_server_ctx)
+    kpm_build_server()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         logging.info("Starting server")
