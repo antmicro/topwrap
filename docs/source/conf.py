@@ -61,7 +61,12 @@ numfig = True
 extensions = list(
     set(
         default_extensions
-        + ["sphinx.ext.imgconverter", "sphinx.ext.autodoc", "sphinxcontrib.mermaid", "kpm_plugin"]
+        + [
+            "sphinx.ext.imgconverter",
+            "sphinx.ext.autodoc",
+            "sphinxcontrib.mermaid",
+            "pipeline_manager.sphinxext.draw_graph",
+        ]
     )
 )
 

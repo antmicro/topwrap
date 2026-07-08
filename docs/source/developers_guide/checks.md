@@ -25,9 +25,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_duplicate_ip_names
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_pwm.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_duplicate_ips.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_duplicate_ips.json
 :preview: True
 ```
 
@@ -36,9 +36,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_invalid_parameters_values
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_pwm.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_invalid_params.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_invalid_params.json
 :preview: True
 ```
 
@@ -47,9 +47,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_ext_in_to_ext_out_connections
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_pwm.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_meta_to_meta_conn.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_meta_to_meta_conn.json
 :preview: True
 ```
 
@@ -58,9 +58,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_ports_multiple_external_metanodes
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_pwm.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_port_to_multiple_external_metanodes.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_port_to_multiple_external_metanodes.json
 :preview: True
 ```
 
@@ -69,9 +69,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_duplicate_metanode_names
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_pwm.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_duplicate_metanode_names.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_duplicate_metanode_names.json
 :preview: True
 ```
 
@@ -80,9 +80,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_duplicate_external_input_interfaces
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_pwm.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_duplicate_ext_input_ifaces.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_duplicate_ext_input_ifaces.json
 ```
 
 ### Unnamed Metanodes
@@ -90,9 +90,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_unnamed_metanodes
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_pwm.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_connected_unnamed_metanode.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_connected_unnamed_metanode.json
 :preview: True
 ```
 
@@ -101,9 +101,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_inouts_connections
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_inout.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_inouts_connections.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_inouts_connections.json
 :preview: True
 ```
 
@@ -112,9 +112,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_unconn_hierarchy
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_hierarchy.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_unconn_hierarchy.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_unconn_hierarchy.json
 ```
 
 ### Connection of subgraph node to multiple External Metanodes
@@ -122,9 +122,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_subgraph_multiple_external_metanodes
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_hierarchy.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_subgraph_multiple_external_metanodes.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_subgraph_multiple_external_metanodes.json
 ```
 
 ### Connection to subgraph Metanode
@@ -132,9 +132,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_conn_subgraph_metanode
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_hierarchy.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_conn_subgraph_metanode.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_conn_subgraph_metanode.json
 ```
 
 ### Complex hierarchy graph
@@ -142,9 +142,9 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_complex_hierarchy
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../../tests/data/data_kpm/conversions/complex/specification_complex.json
-:dataflow: ../../../tests/data/data_kpm/conversions/complex/dataflow_complex.json
+:graph: ../../../tests/data/data_kpm/conversions/complex/dataflow_complex.json
 ```
 
 ### Duplicate IP cores in subgraph node
@@ -152,7 +152,7 @@ Below are all the graphs that are used for testing.
 .. autofunction:: tests_kpm.test_kpm_validation.dataflow_hier_duplicate_names
 ```
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../../build/kpm_jsons/spec_hierarchy.json
-:dataflow: ../../../tests/data/data_kpm/dataflow_tests/dataflow_hierarchical_duplicate_names.json
+:graph: ../../../tests/data/data_kpm/dataflow_tests/dataflow_hierarchical_duplicate_names.json
 ```

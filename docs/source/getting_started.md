@@ -12,9 +12,9 @@ If you haven't installed Topwrap yet, go to the [Installation chapter](#installa
 
 We are going to create a design that will be visually represented in an [interactive GUI](https://antmicro.github.io/topwrap/usage.md#gui), as seen below.
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../build/kpm_jsons/spec_getting_started_demo.json
-:dataflow: ../build/kpm_jsons/data_getting_started_demo.json
+:graph: ../build/kpm_jsons/data_getting_started_demo.json
 ```
 
 It consists of two cores: `simple_core_1` and `simple_core_2` that connect to each other and to an external input/output.

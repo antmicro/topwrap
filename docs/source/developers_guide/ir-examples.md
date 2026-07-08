@@ -10,8 +10,8 @@ This example features:
 - IP core parameters
 - variable width ports
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_simple.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_simple.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_simple.json
 ```
 
@@ -25,8 +25,8 @@ This example features:
 - constant value connected to a port
 - an Inout port
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_interface.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_interface.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_interface.json
 ```
 
@@ -37,8 +37,8 @@ This is an example of a hierarchical design. The top-level features standard ext
 This example features:
 - hierarchies of more than one depth
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_hierarchical.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_hierarchical.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_hierarchical.json
 ```
 
@@ -53,8 +53,8 @@ This example features:
 - usage of interface ports
 - interconnect usage
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_interconnect.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_interconnect.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_interconnect.json
 ```
 
@@ -71,8 +71,8 @@ This example was created some time after the previous ones and it uses features 
   - Signals optional for the subordinates or masters
   - Signals legal only for one side of the interface
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_advanced.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_advanced.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_advanced.json
 ```
 
@@ -92,8 +92,8 @@ This example has connected manager and two UART subordinates to AXI interconect.
 UART0 subordinate has address 0xF0000000 and size 0x1000.
 UART1 subordinate has address 0xF0001000 and size 0x1000.
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_SoC_AXI.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_SoC_AXI.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_SoC_AXI.json
 ```
 
@@ -101,8 +101,8 @@ UART1 subordinate has address 0xF0001000 and size 0x1000.
 
 This is an example showcasing the ability to invert (negate) connections between ports of modules and external ports.
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_inverted.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_inverted.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_inverted.json
 ```
 
@@ -110,8 +110,8 @@ This is an example showcasing the ability to invert (negate) connections between
 
 This is an example showcasing the clock and reset domain functionality.
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_clocks.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_clocks.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_clocks.json
 ```
 
@@ -119,8 +119,8 @@ This is an example showcasing the clock and reset domain functionality.
 
 This example shows a complex hierarchy with subgraphs parsed from SystemVerilog files
 
-```{kpm_iframe}
-:dataflow: ../../build/kpm_jsons/data_ir_examples_parse_hierarchy.json
+```{pipeline_manager}
+:graph: ../../build/kpm_jsons/data_ir_examples_parse_hierarchy.json
 :spec: ../../build/kpm_jsons/spec_ir_examples_parse_hierarchy.json
 ```
 

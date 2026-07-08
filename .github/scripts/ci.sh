@@ -155,7 +155,9 @@ generate_docs() {
     install_common_system_packages
     install_topwrap_system_deps
     begin_command_group "Install system packages for doc generation"
-    log_cmd apt-get install -y texlive-full imagemagick make
+    # FIXME: Unpin Chromium once the issues with Chromium 150 running in headless mode are resolved.
+    # Relevant Debian bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1141571
+    log_cmd apt-get install -y texlive-full imagemagick make chromium=147.0.7727.137-1~deb12u1 chromium-common=147.0.7727.137-1~deb12u1
     log_cmd npm install -g @mermaid-js/mermaid-cli
     end_command_group
     install_nox

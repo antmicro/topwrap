@@ -26,9 +26,9 @@ Parameter values can be specified as integers in various bases (e.g., `0x28`, `4
 
 An example block design in the Topwrap GUI for the PWM project may look like this:
 
-```{kpm_iframe}
+```{pipeline_manager}
 :spec: ../build/kpm_jsons/spec_pwm.json
-:dataflow: ../build/kpm_jsons/data_pwm.json
+:graph: ../build/kpm_jsons/data_pwm.json
 ```
 
 :::{important}
