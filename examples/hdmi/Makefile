@@ -33,7 +33,7 @@ clean:
 	rm -f cdc_flag.yaml ps7_inst.yaml
 
 deps:
-	pip install -r requirements.txt
+	python3 -m pip install -r requirements.txt
 
 ci: deps generate
 

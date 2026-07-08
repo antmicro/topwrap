@@ -36,14 +36,12 @@ dependencies = [
 
 [project.optional-dependencies]
 lint = [
-  "nox==2025.02.09",
   "pre-commit==3.5.0",
   "codespell==2.3.0",
   "igittigitt==2.1.5",
   "ruff==0.12.1"
 ]
 tests = [
-  "nox==2025.02.09",
   "pytest==8.3.3",
   "pytest-cov==5.0.0",
   "pytest-lazy-fixtures==1.1.1",
@@ -53,7 +51,8 @@ tests = [
   "prettytable==3.11.0",
 ]
 deploy = [
-  "build==1.2.1"
+  "build==1.2.1",
+  "fusesoc==2.4.6"
 ]
 docs = [
   'myst-parser==4.0.0',
@@ -70,7 +69,7 @@ all = ['topwrap[parse,lint,tests,deploy,docs]']
 topwrap = "topwrap.cli.main:main"
 
 [tool.setuptools.packages.find]
-include = ["topwrap*"]
+include = ["topwrap*","tests/update_test_data.py","test_kpm_server.py"]
 
 [tool.setuptools.package-data]
 topwrap = [
@@ -86,13 +85,15 @@ extend-exclude = [
   ".eggs",
   ".git",
   ".gitignore",
-  ".nox",
   ".pytest_cache",
   "__pycache__",
   "venv",
   "build",
   "workspace",
   "examples/caliptra/Caliptra",
+  ".pre-commit-config.yaml",
+  "uv.lock",
+  "justfile"
 ]
 
 [tool.ruff.lint]
@@ -109,7 +110,7 @@ select = [
 max-complexity = 18
 
 [tool.codespell]
-skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace,Caliptra"
+skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace,Caliptra,.pre-commit-config.yaml,uv.lock,justfile"
 ignore-words-list = "convertor, inout, inouts"
 
 [tool.pyright]

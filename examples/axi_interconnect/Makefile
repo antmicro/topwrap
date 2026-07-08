@@ -71,7 +71,7 @@ clean:
 	-rm $(JSONS)
 
 deps:
-	pip install '../../.[parse]'
+	python3 -m pip install '../../.[parse]'
 
 ci: deps generate
 

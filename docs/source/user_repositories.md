@@ -83,7 +83,7 @@ To include an IP core from the open source library, there are two methods:
 2. **Download and build all available cores**: Use Topwrap's package management command:
 
 ```bash
-  nox -s package_cores
+  just package
 ```
 
 This will download and parse all the cores from Fusesoc into `build/fusesoc_workspace/build/export/cores/`, making them accessible from within Topwrap.

@@ -15,84 +15,154 @@ env:
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
+  build_docs:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+
+    steps:
+      - name: Install just
+        run: &install_deps |
+          apt-get update && apt-get install -y wget tar
+          wget https://github.com/casey/just/releases/download/1.55.1/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -P /tmp
+          tar -xvf just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
+          mv /tmp/just /usr/bin/
+
+      - uses: actions/checkout@v4
+
+      - name: Generate documentation
+        run: |
+          just install-debian-deps
+          just docs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gh-page
+          path: docs/build/html
+
+      - name: Deploy to Github Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          cd docs/build/html
+          touch .nojekyll
+          git init
+          cp ../../../.git/config ./.git/config
+          git add .
+          git config --local user.email "push@gha"
+          git config --local user.name "GHA"
+          git commit -am "update ${{ github.sha }}"
+          git push -u origin +HEAD:gh-pages
+          rm -rf .git
+
+  examples:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+
+    steps:
+      - name: Install just
+        run: *install_deps
+
+      - uses: actions/checkout@v4
+
+      - name: Generate Topwrap examples
+        run: |
+          just install-debian-deps
+          just examples
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples
+          path: examples/**/build
+
   lint:
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
-    name: "Run lint checks"
 
     steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
+      - name: Install just
+        run: *install_deps
 
       - uses: actions/checkout@v4
 
       - name: Run lint checks
         run: |
-          ./.github/scripts/ci.sh lint
+          just install-debian-deps
+          just test-lint
 
-  typing_test:
+  package_cores:
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
-    name: "Test typing"
 
     steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
+      - name: Install just
+        run: *install_deps
 
       - uses: actions/checkout@v4
+
+      - name: Pack cores into a Topwrap repository
+        run: |
+          just install-debian-deps
+          just package
+          tar -cf build/cores_export.tar -C build/export .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          fetch-depth: 0
+          name: export_cores
+          path: build/cores_export.tar
+
+  package_test:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+
+    steps:
+      - name: Install just
+        run: *install_deps
+
+      - uses: actions/checkout@v4
+
+      - name: Build and test distribution packages
+        run: |
+          just install-debian-deps
+          just build
+
+  pyright_check:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+
+    steps:
+      - name: Install just
+        run: *install_deps
+
+      - uses: actions/checkout@v4
 
       - name: Run typing checks
         continue-on-error: true
         run: |
-          ./.github/scripts/ci.sh pyright_check
-
-  changelog_changed:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
-    name: "Check if changelog was changed"
-
-    steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run changelog check
-        continue-on-error: true
-        run: |
-          git config --add safe.directory "$(pwd)"
-          ./.github/scripts/ci.sh changelog_check
+          just install-debian-deps
+          just pyright
 
   test_kpm_server:
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
-    name: "Build and run KPM server"
 
     steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
+      - name: Install just
+        run: *install_deps
 
       - uses: actions/checkout@v4
 
       - name: Build and run KPM server
         run: |
-          ./.github/scripts/ci.sh test_kpm_server
+          just install-debian-deps
+          just test-kpm-server
 
   test_python:
     strategy:
@@ -101,83 +171,15 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
-    name: Run tests on python ${{ matrix.version }}
+    name: test_python ${{ matrix.version }}
 
     steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
+      - name: Install just
+        run: *install_deps
 
       - uses: actions/checkout@v4
 
       - name: Run Python tests on python ${{ matrix.version }}
         run: |
-          ./.github/scripts/ci.sh test_python ${{ matrix.version }}
-
-  package_test:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
-    name: "Test package distribution"
-
-    steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
-
-      - uses: actions/checkout@v4
-
-      - name: Build and test distribution packages
-        run: |
-          ./.github/scripts/ci.sh package_dist
-
-  examples:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
-    name: "Generate examples"
-
-    steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
-
-      - uses: actions/checkout@v4
-
-      - name: Generate Topwrap examples
-        run: |
-          ./.github/scripts/ci.sh examples
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: examples
-          path: examples/**/build
-
-  package_cores:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
-    name: "Package cores repository"
-
-    steps:
-      - name: Install git package
-        run: |
-          apt-get update -qq
-          apt-get install -y git
-
-      - uses: actions/checkout@v4
-
-      - name: Pack cores into a Topwrap repository
-        run: |
-          ./.github/scripts/ci.sh package_cores
-          tar -cf build/cores_export.tar -C build/export .
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: export_cores
-          path: build/cores_export.tar
+          just install-debian-deps
+          if [[ ${{ matrix.version }} == "3.10" ]];then just test; else just test ${{ matrix.version }}; fi

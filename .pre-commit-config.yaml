@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 #
 # See https://pre-commit.com for more information
@@ -17,7 +17,7 @@ repos:
     -   id: check-merge-conflict
     -   id: check-toml
     -   id: check-yaml
-        exclude: ^(.*\.j2\.yml)$
+        exclude: ^(\.ci\.yml | .*\.j2\.yml)$
     -   id: end-of-file-fixer
         exclude: ^(.*\.j2)$
     -   id: mixed-line-ending
@@ -28,9 +28,14 @@ repos:
 
 -   repo: local
     hooks:
-    -   id: nox
-        name: Nox Lint
-        entry: nox -R -s lint --
+    -   id: lint
+        name: Lint
+        pass_filenames: true
+        entry: >
+          bash -c '
+            uv sync --extra lint
+            uv run ruff format "$@"
+            uv run ruff check --fix "$@"
+            uv run codespell -w "$@"
+          ' --
         language: system
-        types: [python]
-        require_serial: true
