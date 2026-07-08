@@ -3,14 +3,14 @@
 
 import logging
 from pathlib import Path
-from typing import List, Literal, Tuple
+from typing import List, Tuple
 
 import yaml
 from cyclopts.types import ExistingPath
 
 from topwrap.cli import repo_cli
 from topwrap.config import ConfigManager, config
-from topwrap.frontend.automatic import AutomaticFrontend, FrontendRegistry
+from topwrap.frontend.automatic import FrontendRegistry
 from topwrap.repo.exceptions import ResourceNotSupportedException
 from topwrap.repo.file_handlers import ModuleFileHandler
 from topwrap.repo.files import File, LocalFile
@@ -33,7 +33,7 @@ def parse_repo(
     exists_strategy: ExistsStrategy = ExistsStrategy.RAISE,
     all_sources: bool = False,
     module: Tuple[str, ...] = (),
-    frontend: Literal[*FrontendRegistry.BY_NAME] = AutomaticFrontend().metadata.name,
+    frontend: FrontendRegistry.FrontendType = FrontendRegistry.FrontendType.Automatic,
     inference: bool = False,
     inference_interface: Tuple[str, ...] = (),
     grouping_hint: Tuple[str, ...] = (),

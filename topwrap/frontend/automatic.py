@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import ClassVar, Iterable, Type
 
@@ -69,19 +70,25 @@ class AutomaticFrontend(Frontend):
 
 
 class FrontendRegistry:
-    FRONTENDS: ClassVar[list[type[Frontend]]] = [
-        SystemVerilogFrontend,
-        YamlFrontend,
-        KpmFrontend,
-        AutomaticFrontend,
-    ]
+    class FrontendType(str, Enum):
+        Systemverilog = "systemverilog"
+        Yaml = "yaml"
+        Kpm = "kpm"
+        Automatic = "automatic"
+
+    FRONTENDS: ClassVar[dict[FrontendType, type[Frontend]]] = {
+        FrontendType.Systemverilog: SystemVerilogFrontend,
+        FrontendType.Yaml: YamlFrontend,
+        FrontendType.Kpm: KpmFrontend,
+        FrontendType.Automatic: AutomaticFrontend,
+    }
 
     FILE_ASSOCIATIONS: ClassVar[dict[str, Type["Frontend"]]] = {}
     BY_NAME: ClassVar[dict[str, Type["Frontend"]]] = {}
 
     @classmethod
     def initialize(cls):
-        for frontend in cls.FRONTENDS:
+        for frontend in cls.FRONTENDS.values():
             meta = frontend().metadata
             cls.BY_NAME[meta.name] = frontend
             for ext in meta.file_association:
