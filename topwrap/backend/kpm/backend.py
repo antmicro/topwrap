@@ -3,7 +3,7 @@
 
 import json
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterator, Optional
 
 from typing_extensions import override
 
@@ -24,16 +24,17 @@ class KpmOutput:
 class KpmBackend(Backend[KpmOutput]):
     depth: int
 
-    def __init__(self, depth: int = 0) -> None:
+    def __init__(self, depth: int = 0, *, disabled_layers: Optional[list[str]] = None) -> None:
         super().__init__()
         self.depth = depth
+        self.disabled_layers = disabled_layers
 
     @override
     def represent(self, module: Module) -> KpmOutput:
         spec = KpmSpecificationBackend.default()
         spec.add_module(module, recursive=True)
         spec = spec.build()
-        flow = KpmDataflowBackend(spec)
+        flow = KpmDataflowBackend(spec, disabled_layers=self.disabled_layers)
         if module.design is not None:
             flow.represent_design(module.design, depth=self.depth)
         spec = flow.apply_subgraphs_to_spec(spec)

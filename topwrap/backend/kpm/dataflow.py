@@ -83,7 +83,9 @@ class KpmDataflowBackend:
     # Subgraph cache: module identifier -> graph
     _subgraphs: dict[str, DataflowGraph]
 
-    def __init__(self, specification: JsonType) -> None:
+    def __init__(
+        self, specification: JsonType, *, disabled_layers: Optional[list[str]] = None
+    ) -> None:
         """
         :param specification: The specification to base this dataflow on
         """
@@ -94,6 +96,7 @@ class KpmDataflowBackend:
         self._refx = {}
         self._consts = {}
         self._subgraphs = {}
+        self._disabled_layers = disabled_layers or []
 
         for node in self._spec["nodes"]:
             add: Optional[KpmNodeAdditionalData] = node.get("additionalData")
@@ -112,6 +115,11 @@ class KpmDataflowBackend:
             for node in graph.get("nodes", []):
                 if node.get("graphState") is None:
                     node.pop("graphState", None)
+            # TODO: Use the appropriate GraphBuilder API once it's available instead of poking
+            # at the JSON objects.
+            if self._disabled_layers:
+                graph["disabledLayers"] = self._disabled_layers
+
         return dataflow
 
     def subgraph_templates(self) -> list[JsonType]:
