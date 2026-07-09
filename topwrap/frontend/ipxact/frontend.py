@@ -388,11 +388,11 @@ class IpXactFrontend(Frontend):
                         modes[InterfaceMode.UNSPECIFIED] = modes[InterfaceMode.MANAGER]
 
                         # Overwrite, assumption is that onTarget and onInitiator has same width
-                        width = (
-                            Bit()
-                            if wire.onInitiator.width == 1
-                            else Bits(dimensions=[Dimensions(upper=wire.onInitiator.width)])
-                        )
+                        # No width means "unconstrained"; keep the default Bit().
+                        if wire.onInitiator.width is not None:
+                            width_val = int(wire.onInitiator.width.get_valueOf_())
+                            dims = [Dimensions(upper=ElaboratableValue(width_val))]
+                            width = Bit() if width_val == 1 else Bits(dimensions=dims)
                     if wire.onTarget:
                         required = True if wire.onTarget.presence == "required" else False
                         direction = (

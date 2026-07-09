@@ -12,7 +12,7 @@ from tests.tests_ir.frontend.test_ir_examples import TestIrExamples
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.frontend.ipxact.frontend import IpXactFrontend
 from topwrap.model.connections import PortDirection
-from topwrap.model.hdl_types import Bit, Dimensions, LogicBitSelect
+from topwrap.model.hdl_types import Bit, Bits, Dimensions, LogicBitSelect
 from topwrap.model.interface import (
     InterfaceDefinition,
     InterfaceMode,
@@ -176,6 +176,23 @@ class TestIpxactIrExamples:
         out = backend.represent(module)
         [serialized] = backend.serialize(out)
         assert serialized.content
+
+    def test_abstraction_definition_width_is_wrapped_as_elaboratable_value(
+        self, data_ir_ipxact_path: Path
+    ):
+        sources = [data_ir_ipxact_path / "portmap_cases.absDef.xml"]
+        frontend = IpXactFrontend()
+        [idef] = frontend.parse_files(sources).interfaces
+
+        tdata = idef.signals.find_by_name_or_error("TDATA")
+        assert isinstance(tdata.type, Bits)
+        upper = tdata.type.dimensions[0].upper
+        assert isinstance(upper, ElaboratableValue)
+        assert upper.elaborate() == 31
+
+        # HWRITE has no <width> at all ("unconstrained"): stays a Bit().
+        hwrite = idef.signals.find_by_name_or_error("HWRITE")
+        assert isinstance(hwrite.type, Bit)
 
     def test_ir_interface_from_repo(self, ir_examples_path: Path):
         iface_path = ir_examples_path / "interface/ipxact/amba.com/AMBA4/axi4stream.xml"
