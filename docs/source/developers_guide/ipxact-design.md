@@ -199,7 +199,7 @@ The instance name of `2mux` had to be changed to `two_mux` for this purpose.
 
 ### Parameters
 
-The special syntax of IP-XACT parameters is mostly explained in the [](#parameter-passing) section.
+The special syntax of IP-XACT parameters is mostly explained in the [Parameter passing](#parameter-passing) section.
 
 #### Variable widths
 
@@ -231,7 +231,7 @@ This is easily realisable in IP-XACT because just like our port widths, they als
 
 ### Duality of the design description
 
-The design of the [](./ir-examples.md#simple) example is defined (from the Topwrap's perspective) purely in the `design.yaml` file. This is not so simple in IP-XACT, see [](#design-structure).
+The design of the [Simple](./ir-examples.md#simple) example is defined (from the Topwrap's perspective) purely in the `design.yaml` file. This is not so simple in IP-XACT, see [Design structure](#design-structure).
 
 Mostly this means that the "external" section of our design YAML lands in its own component/IP file and the connections and module instances in a separate one that is attached to the component file as a "design instantiation".
 
@@ -258,7 +258,7 @@ There isn't much special about them, they are represented very similarly to our 
 
 ## [Interface example](./ir-examples.md#interface)
 
-The key thing about this example is that it uses an interface connection (AXI 4 Stream) between two IPs, an inout port, a constant value supplied to a port and [](../description_files.md#port-slicing).
+The key thing about this example is that it uses an interface connection (AXI 4 Stream) between two IPs, an inout port, a constant value supplied to a port and [port slicing](../description_files.md#port-slicing).
 
 :::{info}
 An interface is a named, predefined collection of logical signals used to transfer information between different IPs or other building blocks.
@@ -271,7 +271,7 @@ IP-XACT refers to the same concept as a "bus".
 
 ### Bus definitions
 
-Custom interfaces in Topwrap are defined using [](../description_files.md#interface-description-files).
+Custom interfaces in Topwrap are defined using [interface description files](../description_files.md#interface-description-files).
 
 Custom interfaces are well recognized and supported in IP-XACT.
 They are represented by two files, a "bus definition" that defines the existence of the interface/bus itself, its name and configurable parameters; and an "abstraction definition" that defines the logical signals of the interface.
@@ -354,7 +354,7 @@ While Topwrap uses the `manager` and `subordinate` terms to refer to the roles a
 
 #### Interface deduction
 
-Topwrap supports specifying both a regex for each signal and the port prefix for the entire interface in order to [automatically group raw ports](../inference.md) from HDL sources into interfaces. None of that is possible to represent in IP-XACT, though this information can be stored anyways using [](#vendor-extensions).
+Topwrap supports specifying both a regex for each signal and the port prefix for the entire interface in order to [automatically group raw ports](../inference.md) from HDL sources into interfaces. None of that is possible to represent in IP-XACT, though this information can be stored anyways using [Vendor extensions](#vendor-extensions).
 
 ### Bus instantiation
 
@@ -374,7 +374,7 @@ interfaces:
                 TDATA: [dat_i, 31, 0]
 ```
 
-This fragment of [](../description_files.md#design-description) would translate to the below IP-XACT description, assuming the `dat_i` signal was previously defined in the ad-hoc ports section.
+This fragment of [Design description](../description_files.md#design-description) would translate to the below IP-XACT description, assuming the `dat_i` signal was previously defined in the ad-hoc ports section.
 
 ```xml
 <ipxact:busInterfaces>
@@ -403,7 +403,7 @@ This fragment of [](../description_files.md#design-description) would translate 
 
 The `<ipxact:busInterfaces>` tag is a direct child of the top-level `<ipxact:component>` tag.
 
-[](../description_files.md#port-slicing) is supported as well:
+[Port slicing](../description_files.md#port-slicing) is supported as well:
 
 ```xml
 <ipxact:physicalPort>
@@ -424,7 +424,7 @@ While the [Topwrap syntax](../description_files.md#design-description) for speci
 
 ### Constant assignments
 
-This example also features a constant value (2888) assigned to the `noise` port of the `receiver` IP instead of any wire. In IP-XACT this is done similarly to [](#connections):
+This example also features a constant value (2888) assigned to the `noise` port of the `receiver` IP instead of any wire. In IP-XACT this is done similarly to [Connections](#connections):
 
 ```xml
 <ipxact:adHocConnection>
@@ -451,7 +451,7 @@ IP-XACT has no notion of any special syntax for hierarchies, because it doesn't 
 
 ## [Interconnect example](./ir-examples.md#interconnect)
 
-This example features the [](../interconnect_gen.md) functionality of Topwrap.
+This example features the [Interconnect generation](../interconnect_gen.md) functionality of Topwrap.
 
 Specifying interconnects in the Topwrap design description implies dynamic generation of necessary arbiters and bus components during build-time using parameters defined under the interconnect instance key.
 
@@ -469,7 +469,7 @@ As mentioned, it has just enough interface ports to connect the two specified ma
 
 The Wishbone interface definition from `opencores.org` was used.
 
-The main difference that differentiates the interconnect component from raw interface connections like in the [](#interface-example) is the explicit definition and mapping of the address space with the `<ipxact:addressSpaces>` tag and assignment of each manager port to one or more subordinates.
+The main difference that differentiates the interconnect component from raw interface connections like in the [Interface example](#interface-example) is the explicit definition and mapping of the address space with the `<ipxact:addressSpaces>` tag and assignment of each manager port to one or more subordinates.
 
 The extensions used in the bus instance element in the component definition.
 Focus on the `ipxact:addressSpaceRef` tag where the base address of this subordinate is specified:
@@ -538,7 +538,7 @@ In the Topwrap definition of this example, a `wishbone_passthrough` IP core is u
 
 This is not possible in IP-XACT.
 All ports/interfaces and connections need to be explicitly defined.
-While the amount of bits in a port can vary based on a parameter value, as was presented in [](#variable-widths), higher level concepts such as the number of ports cannot.
+While the amount of bits in a port can vary based on a parameter value, as was presented in [Variable widths](#variable-widths), higher level concepts such as the number of ports cannot.
 
 ## Conclusion
 
@@ -546,12 +546,12 @@ In most aspects IP-XACT is a superset of what's possible to describe in Topwrap,
 
 Syntax impossible to represent natively in IP-XACT such as:
 - Abstract interconnects without concrete implementation
-- Interface signal name regexes and port prefixes (see [](../inference.md))
+- Interface signal name regexes and port prefixes (see [Interface mapping and inference](../inference.md))
 
-can even if not implemented, be at least preserved using [](#vendor-extensions).
+can even if not implemented, be at least preserved using [Vendor extensions](#vendor-extensions).
 
 Other visible issue for this conversion are:
-- [](#vlnv) being mandatory for IP-XACT files, but Topwrap containing only the name information
+- [VLNV](#vlnv) being mandatory for IP-XACT files, but Topwrap containing only the name information
 - Lack of input sanitization of string fields on Topwrap's side
 
 On the other hand, the conversion from a generic IP-XACT file to Topwrap's internal representation may prove more tricky and definitely suffer from information loss as the IP-XACT format is packed with more features and elements that are not exactly useful for our purposes and were not even mentioned in this document at all.

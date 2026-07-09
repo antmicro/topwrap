@@ -3,7 +3,7 @@
 Repositories are used for storing, packaging and loading different types of resources that can be used by Topwrap.
 
 An example of the implementation of a concrete repository is the {class}`topwrap.repo.user_repo.UserRepo` class.
-Its user interface is documented in [](../user_repositories.md).
+Its user interface is documented in [Constructing, configuring and loading repositories](../user_repositories.md).
 
 ## API reference
 ```{eval-rst}
