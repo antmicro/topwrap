@@ -67,6 +67,10 @@ class IpXactFrontend(Frontend):
         if comp.model and comp.model.ports and comp.model.ports.port:
             for port in comp.model.ports.port:
                 name = port.name
+                if port.wire is None:
+                    raise FrontendParseException(
+                        f"Port '{name}' has no wire element; only wire ports are supported"
+                    )
                 if port.wire.direction == "in":
                     dir = PortDirection.IN
                 elif port.wire.direction == "out":
@@ -167,6 +171,8 @@ class IpXactFrontend(Frontend):
                     )
                 ir_iface_def = iface_definitions[type_id.combined()]
 
+                if busInterface.abstractionTypes is None:
+                    raise FrontendParseException(f"busInterface '{name}' has no abstractionTypes")
                 abstractionType = busInterface.abstractionTypes.abstractionType[
                     0
                 ]  # Assumption: Only one abstraction type, IR can't represent more

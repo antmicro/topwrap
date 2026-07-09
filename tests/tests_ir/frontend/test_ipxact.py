@@ -10,6 +10,7 @@ import pytest
 
 from tests.tests_ir.frontend.test_ir_examples import TestIrExamples
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
+from topwrap.frontend.frontend import FrontendParseException
 from topwrap.frontend.ipxact.frontend import IpXactFrontend
 from topwrap.model.connections import PortDirection
 from topwrap.model.hdl_types import Bit, Bits, Dimensions, LogicBitSelect
@@ -396,3 +397,61 @@ class TestIpxactIrExamples:
         sig_a, sig_b = _ref("SIG_A"), _ref("SIG_B")
         assert sig_a.io is sig_b.io
         assert sig_a.overlaps(sig_b)
+
+    def test_transactional_port_raises_parse_exception(self, tmp_path: Path):
+        component = tmp_path / "transactional_comp.xml"
+        component.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>transactional_comp</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+
+  <ipxact:model>
+    <ipxact:ports>
+      <ipxact:port>
+        <ipxact:name>tlm_port</ipxact:name>
+        <ipxact:transactional/>
+      </ipxact:port>
+    </ipxact:ports>
+  </ipxact:model>
+</ipxact:component>
+""")
+        with pytest.raises(FrontendParseException):
+            IpXactFrontend().parse_files([component])
+
+    def test_bus_interface_without_abstraction_types_raises_parse_exception(self, tmp_path: Path):
+        absdef = tmp_path / "NoAbsType.absDef.xml"
+        absdef.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>NoAbsType_rtl</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+  <ipxact:busType vendor="test.com" library="test" name="NoAbsType" version="1.0"/>
+  <ipxact:ports/>
+</ipxact:abstractionDefinition>
+""")
+        component = tmp_path / "no_abstype_comp.xml"
+        component.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>no_abstype_comp</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+
+  <ipxact:busInterfaces>
+    <ipxact:busInterface>
+      <ipxact:name>bare_iface</ipxact:name>
+      <ipxact:busType vendor="test.com" library="test" name="NoAbsType" version="1.0"/>
+      <ipxact:target/>
+    </ipxact:busInterface>
+  </ipxact:busInterfaces>
+
+  <ipxact:model>
+    <ipxact:ports/>
+  </ipxact:model>
+</ipxact:component>
+""")
+        with pytest.raises(FrontendParseException):
+            IpXactFrontend().parse_files([absdef, component])
