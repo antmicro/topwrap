@@ -78,19 +78,23 @@ class IpXactFrontend(Frontend):
                 else:
                     dir = PortDirection.INOUT
                 if port.wire.vectors:
-                    vector = port.wire.vectors.vector[0]
-                    left = vector.left.get_valueOf_()
-                    right = vector.right.get_valueOf_()
-                    left_ir = self._replace_uuid_with_param_name(left, parameter_id_to_parameter)
-                    right_ir = self._replace_uuid_with_param_name(right, parameter_id_to_parameter)
-                    ir_type = Bits(
-                        dimensions=[
+                    dims = []
+                    for vector in port.wire.vectors.vector:
+                        left = vector.left.get_valueOf_()
+                        right = vector.right.get_valueOf_()
+                        left_ir = self._replace_uuid_with_param_name(
+                            left, parameter_id_to_parameter
+                        )
+                        right_ir = self._replace_uuid_with_param_name(
+                            right, parameter_id_to_parameter
+                        )
+                        dims.append(
                             Dimensions(
                                 upper=ElaboratableValue(left_ir),
                                 lower=ElaboratableValue(right_ir),
                             )
-                        ]
-                    )
+                        )
+                    ir_type = Bits(dimensions=dims)
                 else:
                     ir_type = Bit()
                 port = Port(name=name, direction=dir, type=ir_type)
@@ -429,6 +433,7 @@ class IpXactFrontend(Frontend):
         return InterfaceDefinition(id=id, signals=signals)
 
     def _vlnv_to_str(self, vlnv: Any) -> str:
+        self._check_if_vlnv_exists(vlnv, "missing in a VLNV reference")
         return f"{vlnv.vendor}_{vlnv.library}_{vlnv.name}_{vlnv.version}"
 
     def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:

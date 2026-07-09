@@ -455,3 +455,75 @@ class TestIpxactIrExamples:
 """)
         with pytest.raises(FrontendParseException):
             IpXactFrontend().parse_files([absdef, component])
+
+    def test_port_with_multiple_vectors_keeps_all_dimensions(self, tmp_path: Path):
+        component = tmp_path / "multivec_comp.xml"
+        component.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>multivec_comp</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+
+  <ipxact:model>
+    <ipxact:ports>
+      <ipxact:port>
+        <ipxact:name>arr_port</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:vectors>
+            <ipxact:vector><ipxact:left>7</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector>
+            <ipxact:vector><ipxact:left>3</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector>
+          </ipxact:vectors>
+        </ipxact:wire>
+      </ipxact:port>
+    </ipxact:ports>
+  </ipxact:model>
+</ipxact:component>
+""")
+        ir = IpXactFrontend().parse_files([component])
+        module = next(m for m in ir.modules if m.id.name == "multivec_comp")
+        port = module.ports.find_by_name_or_error("arr_port")
+
+        assert isinstance(port.type, Bits)
+        assert [(d.upper.value, d.lower.value) for d in port.type.dimensions] == [
+            ("7", "0"),
+            ("3", "0"),
+        ]
+
+    def test_bus_type_missing_version_raises_parse_exception(self, tmp_path: Path):
+        absdef = tmp_path / "BadBus.absDef.xml"
+        absdef.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>BadBus_rtl</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+  <ipxact:busType vendor="test.com" library="test" name="BadBus" version="1.0"/>
+  <ipxact:ports/>
+</ipxact:abstractionDefinition>
+""")
+        component = tmp_path / "badbus_comp.xml"
+        component.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>badbus_comp</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+
+  <ipxact:busInterfaces>
+    <ipxact:busInterface>
+      <ipxact:name>bad_iface</ipxact:name>
+      <ipxact:busType vendor="test.com" library="test" name="BadBus"/>
+      <ipxact:target/>
+    </ipxact:busInterface>
+  </ipxact:busInterfaces>
+
+  <ipxact:model>
+    <ipxact:ports/>
+  </ipxact:model>
+</ipxact:component>
+""")
+        with pytest.raises(FrontendParseException) as exc_info:
+            IpXactFrontend().parse_files([absdef, component])
+        assert "missing in a VLNV reference" in str(exc_info.value.__cause__)
