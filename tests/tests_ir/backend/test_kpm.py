@@ -1,6 +1,7 @@
 # Copyright (c) 2025 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 from copy import deepcopy
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -79,6 +80,21 @@ class TestKpmSpecificationBackend:
         out = back.build()
 
         assert len(out["nodes"]) == 2
+
+    def test_duplicate_versions(self, caplog: pytest.LogCaptureFixture):
+        # Version-only diff must be a deduped skip, not a raised exception.
+        back = KpmSpecificationBackend()
+        back.add_module(simp_top)
+
+        newer = deepcopy(simp_top)
+        newer.id = Identifier(name=simp_top.id.name, version="99.0")
+
+        with caplog.at_level(logging.WARNING):
+            back.add_module(newer)
+        out = back.build()
+
+        assert len(out["nodes"]) == 1
+        assert "already added" in caplog.text
 
 
 class TestKpmDataflowBackend:

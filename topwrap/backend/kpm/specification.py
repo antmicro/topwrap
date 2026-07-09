@@ -1,6 +1,7 @@
 # Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 from dataclasses import asdict
 
 from pipeline_manager.dataflow_builder.entities import Side
@@ -34,9 +35,10 @@ from topwrap.backend.kpm.common import (
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 from topwrap.util import JsonType
+
+logger = logging.getLogger(__name__)
 
 
 class KpmSpecificationBackend:
@@ -44,7 +46,7 @@ class KpmSpecificationBackend:
     _io: IoMetanode
     _intr: InterconnectMetanode
     _interfaces: set[str]
-    _modules: dict[Identifier, Module]
+    _modules: dict[str, Module]
 
     def __init__(self) -> None:
         self._spec = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
@@ -78,12 +80,18 @@ class KpmSpecificationBackend:
         # Adding a duplicate module can happen when a module is both added explicitly, and is
         # brought in via recursive=True. E.g. when using `topwrap specification` like so:
         # `topwrap specification -d some/design.yaml some/ip/core.yaml`
-        if mod.id in self._modules:
+        key = mod.id.combined()  # no version: matches KpmNodeId's node identity
+        if key in self._modules:
+            if self._modules[key].id != mod.id:
+                logger.warning(
+                    f"Module '{key}' version '{self._modules[key].id.version}' already added; "
+                    f"skipping version '{mod.id.version}' (KPM node identity ignores version)."
+                )
             return
 
         nid = KpmNodeId.from_ir_id(mod.id)
         nid = self._add_node(nid)
-        self._modules[mod.id] = mod
+        self._modules[key] = mod
         self._spec.add_node_type_additional_data(
             nid.name, KpmNodeAdditionalData(full_module_id=asdict(mod.id))
         )
