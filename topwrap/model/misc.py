@@ -256,6 +256,9 @@ class Identifier:
     def combined(self) -> str:
         return "_".join([self.vendor, self.library, self.name])
 
+    def __str__(self) -> str:
+        return f"{self.vendor}:{self.library}:{self.name}:{self.version}"
+
 
 @dataclass
 class FileReference:
