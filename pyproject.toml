@@ -31,7 +31,8 @@ dependencies = [
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@b39681ee785d7c094b78226243c44fe956e12d76",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@b33a13e801e59b8dadec9dde4a247e7fa6e68d99",
   "topwrap_axi_core_plugin @ https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl",
-  "cyclopts"
+  "cyclopts",
+  "topwrap-ipxact-parser @ https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_ipxact_parser-0.0.1-py3-none-any.whl"
 ]
 
 [project.optional-dependencies]
@@ -110,7 +111,7 @@ select = [
 max-complexity = 18
 
 [tool.codespell]
-skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace,Caliptra,./topwrap/frontend/ipxact/shared/xml_schema.py"
+skip = "build,venv,cov_html,./tests/data,.git,.nox,__pycache__,workspace,Caliptra"
 ignore-words-list = "convertor, inout, inouts"
 
 [tool.pyright]

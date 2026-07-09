@@ -6,7 +6,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
-import topwrap.frontend.ipxact.shared.xml_schema as ipxact
+import topwrap_ipxact_parser as ipxact
+
 from topwrap.frontend.frontend import (
     Frontend,
     FrontendMetadata,
