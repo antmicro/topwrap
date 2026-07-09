@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 import topwrap.frontend.ipxact.shared.xml_schema as ipxact
 from topwrap.frontend.frontend import (
@@ -46,11 +47,8 @@ class IpXactFrontend(Frontend):
     def metadata(self):
         return FrontendMetadata(name="IP-XACT", file_association=[".xml"])
 
-    """
-    Replace uuid_[uuid] with name of parameter
-    """
-
     def _replace_uuid_with_param_name(self, v: str, parameters: Dict[str, Parameter]) -> str:
+        """Replace uuid_[uuid] with name of parameter"""
         tokens = re.findall(r"uuid_\w*|\d|[-+*\/]", v)
         for token in tokens:
             if token in parameters:
@@ -102,27 +100,27 @@ class IpXactFrontend(Frontend):
         return parameter_id_to_parameter
 
     def _check_if_vlnv_exists(self, obj: Any, err_message: str = "tag don't exists"):
-        if obj.vendor is None:
-            raise FrontendParseException("vendor " + err_message)
-        if obj.library is None:
-            raise FrontendParseException("library " + err_message)
-        if obj.name is None:
-            raise FrontendParseException("name " + err_message)
-        if obj.version is None:
-            raise FrontendParseException("version " + err_message)
+        for field in ("vendor", "library", "name", "version"):
+            if getattr(obj, field) is None:
+                raise FrontendParseException(f"{field} {err_message}")
 
-    """
-    Returns parsed module and dict with UUIDs mapped to parameters
-    """
+    def _find_or_raise(self, view: Any, name: str, kind: str, context: str) -> Any:
+        result = view.find_by_name(name)
+        if result is None:
+            raise FrontendParseException(f"Can't find {kind} '{name}' in {context}")
+        return result
+
+    def _vlnv_to_identifier(self, vlnv: Any, err_message: str = "tag don't exists") -> Identifier:
+        self._check_if_vlnv_exists(vlnv, err_message)
+        return Identifier(
+            vendor=vlnv.vendor, library=vlnv.library, name=vlnv.name, version=vlnv.version
+        )
 
     def _parse_component(
-        self, comp: ipxact.componentType, iface_definitions: Dict[str, InterfaceDefinition]
+        self, comp: ipxact.componentType, iface_definitions: Dict[Identifier, InterfaceDefinition]
     ) -> Tuple[Module, Dict[str, Parameter]]:
-        self._check_if_vlnv_exists(comp)
-
-        id = Identifier(
-            vendor=comp.vendor, library=comp.library, name=comp.name, version=comp.version
-        )
+        """Returns parsed module and dict with UUIDs mapped to parameters"""
+        id = self._vlnv_to_identifier(comp)
         ir_module = Module(id=id)
 
         # component has two concept of parameters, one for IPXACT parameters and second for RTL
@@ -161,19 +159,16 @@ class IpXactFrontend(Frontend):
         if comp.busInterfaces:
             for busInterface in comp.busInterfaces.busInterface:
                 name = busInterface.name
-                type_id = Identifier(
-                    vendor=busInterface.busType.vendor,
-                    library=busInterface.busType.library,
-                    name=busInterface.busType.name,
-                    version=busInterface.busType.version,
+                type_id = self._vlnv_to_identifier(
+                    busInterface.busType, "missing in a VLNV reference"
                 )
 
-                if type_id.combined() not in iface_definitions:
+                if type_id not in iface_definitions:
                     raise FrontendParseException(
-                        f"Can't find interface definition '{type_id.combined()}'"
+                        f"Can't find interface definition '{type_id}' "
                         f"in available interface definitions"
                     )
-                ir_iface_def = iface_definitions[type_id.combined()]
+                ir_iface_def = iface_definitions[type_id]
 
                 if busInterface.abstractionTypes is None:
                     raise FrontendParseException(f"busInterface '{name}' has no abstractionTypes")
@@ -191,24 +186,25 @@ class IpXactFrontend(Frontend):
                 for portMap in abstractionType.portMaps.portMap:
                     logicalPort = portMap.logicalPort
                     physicalPort = portMap.physicalPort
-                    iface_signal = ir_iface_def.signals.find_by_name(logicalPort.name)
-                    if iface_signal is None:
-                        raise FrontendParseException(
-                            f"Can't find signal '{logicalPort.name}' in interface definition "
-                            f"'{type_id.combined()}', that is present in '{id.combined()}' module "
-                            f"as '{name}' interface"
-                        )
+                    iface_signal = self._find_or_raise(
+                        ir_iface_def.signals,
+                        logicalPort.name,
+                        "signal",
+                        f"interface definition '{type_id}', that is present "
+                        f"in '{id}' module as '{name}' interface",
+                    )
                     # All ports need to be defined in model.ports in ipxact
-                    ir_port = ir_module.ports.find_by_name(physicalPort.name)
-                    if ir_port is None:
-                        raise FrontendParseException(
-                            f"Can't find port '{physicalPort.name}' in module {id.combined()} "
-                        )
+                    ir_port = self._find_or_raise(
+                        ir_module.ports,
+                        physicalPort.name,
+                        "port",
+                        f"module {id}",
+                    )
                     # BitSelect operates on the physical port. Generate it only when
                     # a partSelect is provided (otherwise the mapping covers the whole
                     # port and needs no selection) and the physical port is not a
                     # scalar ``Bit`` (slicing a 1-bit signal is not representable in IR).
-                    ops: List[LogicFieldSelect | LogicBitSelect] = []
+                    ops: List[Union[LogicFieldSelect, LogicBitSelect]] = []
                     if physicalPort.partSelect and not isinstance(ir_port.type, Bit):
                         ps = physicalPort.partSelect.range_
                         up = int(ps.left.get_valueOf_())
@@ -236,37 +232,37 @@ class IpXactFrontend(Frontend):
                     mod_name = interface.componentInstanceRef
                     iface_name = interface.busRef
                     if mod_name is not None:
-                        ir_component = ir_des.components.find_by_name(mod_name)
-                        if ir_component is None:
-                            raise FrontendParseException(
-                                f"Can't find module instance '{mod_name}' in design "
-                                f"'{module.id.combined()}'"
-                            )
-                        ir_interface = ir_component.module.interfaces.find_by_name(iface_name)
-                        if ir_interface is None:
-                            raise FrontendParseException(
-                                f"Can't find interface '{iface_name}' in instance module "
-                                f"'{ir_component.name}' that is instance of "
-                                f"'{ir_component.module.id.combined()}'"
-                            )
+                        ir_component = self._find_or_raise(
+                            ir_des.components,
+                            mod_name,
+                            "module instance",
+                            f"design '{module.id}'",
+                        )
+                        ir_interface = self._find_or_raise(
+                            ir_component.module.interfaces,
+                            iface_name,
+                            "interface",
+                            f"instance module '{ir_component.name}' that is instance of "
+                            f"'{ir_component.module.id}'",
+                        )
                     else:
                         ir_component = None
-                        ir_interface = module.interfaces.find_by_name(iface_name)
-                        if ir_interface is None:
-                            raise FrontendParseException(
-                                f"Can't find interface '{iface_name}' in module "
-                                f"'{module.id.combined()}'"
-                            )
+                        ir_interface = self._find_or_raise(
+                            module.interfaces,
+                            iface_name,
+                            "interface",
+                            f"module '{module.id}'",
+                        )
                     ref_ifaces.append(ReferencedInterface(instance=ir_component, io=ir_interface))
 
                 for hierIface in interconnection.hierInterface:
                     iface_name = hierIface.busRef
-                    iface = module.interfaces.find_by_name(iface_name)
-                    if iface is None:
-                        raise FrontendParseException(
-                            f"Can't find interface '{iface_name}' in module "
-                            f"'{module.id.combined()}'"
-                        )
+                    iface = self._find_or_raise(
+                        module.interfaces,
+                        iface_name,
+                        "interface",
+                        f"module '{module.id}'",
+                    )
                     ref_ifaces.append(ReferencedInterface.external(iface))
 
                 conn = InterfaceConnection(ref_ifaces[0], ref_ifaces[1])
@@ -279,36 +275,34 @@ class IpXactFrontend(Frontend):
                 for port in adHocConnection.portReferences.internalPortReference:
                     mod_name = port.componentInstanceRef
                     port_name = port.portRef
-                    ir_component = ir_des.components.find_by_name(mod_name)
-                    if ir_component is None:
-                        raise FrontendParseException(
-                            f"Can't find module instance '{mod_name}' in design "
-                            f"'{module.id.combined()}'"
-                        )
-                    ir_port = ir_component.module.ports.find_by_name(port_name)
-                    if ir_port is None:
-                        raise FrontendParseException(
-                            f"Can't find port '{port_name}' in instance module "
-                            f"'{ir_component.name}' that is instance of "
-                            f"'{ir_component.module.id.combined()}'"
-                        )
+                    ir_component = self._find_or_raise(
+                        ir_des.components,
+                        mod_name,
+                        "module instance",
+                        f"design '{module.id}'",
+                    )
+                    ir_port = self._find_or_raise(
+                        ir_component.module.ports,
+                        port_name,
+                        "port",
+                        f"instance module '{ir_component.name}' that is instance of "
+                        f"'{ir_component.module.id}'",
+                    )
                     ref_ports.append(ReferencedPort(instance=ir_component, io=ir_port))
 
                 for port in adHocConnection.portReferences.externalPortReference:
                     port_name = port.portRef
                     ir_component = None
-                    ir_port = module.ports.find_by_name(port_name)
-                    if ir_port is None:
-                        raise FrontendParseException(
-                            f"Can't find port '{port_name} in module '{module.id.combined()}'"
-                        )
+                    ir_port = self._find_or_raise(
+                        module.ports, port_name, "port", f"module '{module.id}'"
+                    )
                     ref_ports.append(ReferencedPort(instance=None, io=ir_port))
 
                 if adHocConnection.tiedValue:
                     if len(ref_ports) != 1:
                         raise FrontendParseException(
                             f"Connection '{adHocConnection.name}' in design"
-                            f"'{module.id.combined()}' has too many port references"
+                            f"'{module.id}' has too many port references"
                         )
                     conn = ConstantConnection(
                         ElaboratableValue(adHocConnection.tiedValue.get_valueOf_()), ref_ports[0]
@@ -317,7 +311,7 @@ class IpXactFrontend(Frontend):
                     if len(ref_ports) != 2:
                         raise FrontendParseException(
                             f"Connection '{adHocConnection.name}' in design "
-                            f"'{module.id.combined()}' need to have two ports"
+                            f"'{module.id}' need to have two ports"
                         )
                     conn = PortConnection(ref_ports[0], ref_ports[1])
 
@@ -327,7 +321,7 @@ class IpXactFrontend(Frontend):
         self,
         des: ipxact.design,
         module: Module,
-        modules: Dict[str, Module],
+        modules: Dict[Identifier, Module],
         uuid_to_param: Dict[str, Parameter],
     ):
         ir_des = Design()
@@ -337,17 +331,10 @@ class IpXactFrontend(Frontend):
             for componentInstance in des.componentInstances.componentInstance:
                 name = componentInstance.instanceName
                 component_ref = componentInstance.componentRef
-                module_id = Identifier(
-                    name=component_ref.name,
-                    library=component_ref.library,
-                    vendor=component_ref.vendor,
-                    version=component_ref.version,
-                )
-                if module_id.combined() not in modules:
-                    raise FrontendParseException(
-                        f"Can't find '{module_id.combined()}' in available modules"
-                    )
-                ir_module = modules[module_id.combined()]
+                module_id = self._vlnv_to_identifier(component_ref, "missing in a VLNV reference")
+                if module_id not in modules:
+                    raise FrontendParseException(f"Can't find '{module_id}' in available modules")
+                ir_module = modules[module_id]
                 ir_module_instance = ModuleInstance(name=name, module=ir_module)
                 configurable_elements = componentInstance.componentRef.configurableElementValues
                 if configurable_elements:
@@ -355,7 +342,10 @@ class IpXactFrontend(Frontend):
                         uuid = param.referenceId
                         value = param.valueOf_
                         if uuid not in uuid_to_param:
-                            raise FrontendParseException("")
+                            raise FrontendParseException(
+                                f"Can't find parameter for configurableElementValue "
+                                f"reference '{uuid}' in instance '{name}'"
+                            )
                         ir_param = uuid_to_param[uuid]
                         ir_module_instance.parameters[ir_param._id] = ElaboratableValue(value)
                 ir_des.add_component(ir_module_instance)
@@ -385,7 +375,7 @@ class IpXactFrontend(Frontend):
                 if port.wire:
                     wire = port.wire
                     if wire.onInitiator:
-                        required = True if wire.onInitiator.presence == "required" else False
+                        required = wire.onInitiator.presence == "required"
                         direction = (
                             PortDirection.OUT
                             if wire.onInitiator.direction == "out"
@@ -404,7 +394,7 @@ class IpXactFrontend(Frontend):
                             dims = [Dimensions(upper=ElaboratableValue(width_val))]
                             width = Bit() if width_val == 1 else Bits(dimensions=dims)
                     if wire.onTarget:
-                        required = True if wire.onTarget.presence == "required" else False
+                        required = wire.onTarget.presence == "required"
                         direction = (
                             PortDirection.OUT
                             if wire.onTarget.direction == "out"
@@ -421,36 +411,29 @@ class IpXactFrontend(Frontend):
         if definition.busType is None:
             raise FrontendParseException("busType tag don't exist")
 
-        self._check_if_vlnv_exists(definition.busType, "in busType tag don't exists")
-
-        id = Identifier(
-            name=definition.busType.name,
-            vendor=definition.busType.vendor,
-            library=definition.busType.library,
-            version=definition.busType.version,
-        )
+        id = self._vlnv_to_identifier(definition.busType, "in busType tag don't exists")
 
         return InterfaceDefinition(id=id, signals=signals)
 
-    def _vlnv_to_str(self, vlnv: Any) -> str:
-        self._check_if_vlnv_exists(vlnv, "missing in a VLNV reference")
-        return f"{vlnv.vendor}_{vlnv.library}_{vlnv.name}_{vlnv.version}"
+    @contextmanager
+    def _wrap_parse_errors(self, source: Path) -> Iterator[None]:
+        try:
+            yield
+        except FrontendParseException as e:
+            raise FrontendParseException(f"Exception while parsing file '{source}'") from e
 
     def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         # parsing component requires all interfaces, but parse_files should output only new
         # interfaces
-        all_interface_definitions: Dict[str, InterfaceDefinition] = {
-            i.id.combined(): i for i in self.interfaces
+        all_interface_definitions: Dict[Identifier, InterfaceDefinition] = {
+            i.id: i for i in self.interfaces
         }
-        ipxact_interface_definitions: Dict[str, InterfaceDefinition] = {}
+        ipxact_interface_definitions: Dict[Identifier, InterfaceDefinition] = {}
 
         parsed_components: List[Tuple[Path, ipxact.componentType]] = []
-        # the key is a VLNV of designRef
-        parsed_designs_configurations: Dict[str, ipxact.designConfiguration] = {}
+        parsed_designs_configurations: Dict[Identifier, ipxact.designConfiguration] = {}
         parsed_designs: List[Tuple[Path, ipxact.design]] = []
-
-        # the key is a VLNV of a configuration reference
-        modules_with_design: Dict[str, Module] = {}
+        modules_with_design: Dict[Identifier, Module] = {}
 
         for source in sources:
             parsed = ipxact.parse(source, True)
@@ -460,30 +443,25 @@ class IpXactFrontend(Frontend):
                 parsed_designs.append((source, parsed))
             elif isinstance(parsed, ipxact.designConfiguration):
                 designRef = parsed.designRef
-                designRef_vlnv = self._vlnv_to_str(designRef)
-                parsed_designs_configurations[designRef_vlnv] = parsed
+                designRef_id = self._vlnv_to_identifier(designRef, "missing in a VLNV reference")
+                parsed_designs_configurations[designRef_id] = parsed
             elif isinstance(parsed, ipxact.abstractionDefinition):
-                try:
+                with self._wrap_parse_errors(source):
                     interfaceDefinition = self._parse_abstraction_definition(parsed)
-                except FrontendParseException as e:
-                    raise FrontendParseException(f"Exception while parsing file '{source}'") from e
-                all_interface_definitions[interfaceDefinition.id.combined()] = interfaceDefinition
-                ipxact_interface_definitions[interfaceDefinition.id.combined()] = (
-                    interfaceDefinition
-                )
+                intf_key = interfaceDefinition.id
+                all_interface_definitions[intf_key] = interfaceDefinition
+                ipxact_interface_definitions[intf_key] = interfaceDefinition
 
         uuid_to_param: Dict[str, Parameter] = {}
-        all_modules: Dict[str, Module] = {m.id.combined(): m for m in self.modules}
-        ipxact_modules: Dict[str, Module] = {}
+        all_modules: Dict[Identifier, Module] = {m.id: m for m in self.modules}
+        ipxact_modules: Dict[Identifier, Module] = {}
         for source, parsed in parsed_components:
-            try:
+            with self._wrap_parse_errors(source):
                 module, uuid_to_param_local = self._parse_component(
                     parsed, all_interface_definitions
                 )
-            except FrontendParseException as e:
-                raise FrontendParseException(f"Exception while parsing file '{source}'") from e
-            all_modules[module.id.combined()] = module
-            ipxact_modules[module.id.combined()] = module
+            all_modules[module.id] = module
+            ipxact_modules[module.id] = module
             uuid_to_param.update(uuid_to_param_local)
             if (
                 parsed.model
@@ -497,26 +475,30 @@ class IpXactFrontend(Frontend):
                 design_conf_ref = parsed.model.instantiations.designConfigurationInstantiation[
                     0
                 ].designConfigurationRef
-                vlnv = self._vlnv_to_str(design_conf_ref)
-                modules_with_design[vlnv] = module
+                design_conf_id = self._vlnv_to_identifier(
+                    design_conf_ref, "missing in a VLNV reference"
+                )
+                modules_with_design[design_conf_id] = module
 
         for source, parsed in parsed_designs:
-            vlnv = self._vlnv_to_str(parsed)
-            if vlnv not in parsed_designs_configurations:
-                raise FrontendParseException(f"Can't find design configuration for design '{vlnv}'")
-            parsed_design_conf = parsed_designs_configurations[vlnv]
-            vlnv_conf = self._vlnv_to_str(parsed_design_conf)
-            if vlnv_conf not in modules_with_design:
+            design_id = self._vlnv_to_identifier(parsed, "missing in a VLNV reference")
+            if design_id not in parsed_designs_configurations:
                 raise FrontendParseException(
-                    f"Can't find module for design configuration '{vlnv_conf}'"
+                    f"Can't find design configuration for design '{design_id}'"
                 )
-            module_with_that_design = modules_with_design[vlnv_conf]
-            try:
+            parsed_design_conf = parsed_designs_configurations[design_id]
+            design_conf_id = self._vlnv_to_identifier(
+                parsed_design_conf, "missing in a VLNV reference"
+            )
+            if design_conf_id not in modules_with_design:
+                raise FrontendParseException(
+                    f"Can't find module for design configuration '{design_conf_id}'"
+                )
+            module_with_that_design = modules_with_design[design_conf_id]
+            with self._wrap_parse_errors(source):
                 ir_des = self._parse_design(
                     parsed, module_with_that_design, all_modules, uuid_to_param
                 )
-            except FrontendParseException as e:
-                raise FrontendParseException(f"Exception while parsing file '{source}") from e
             module_with_that_design.design = ir_des
 
         return FrontendParseOutput(
