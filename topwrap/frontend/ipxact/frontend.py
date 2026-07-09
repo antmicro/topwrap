@@ -209,7 +209,7 @@ class IpXactFrontend(Frontend):
                             )
                         )
 
-                    select = LogicSelect(logic=iface_signal.type, ops=ops) if ops else None
+                    select = LogicSelect(logic=ir_port.type, ops=ops) if ops else None
                     iface_signals[iface_signal._id] = ReferencedPort.external(ir_port, select)
                 ir_iface = Interface(
                     name=name, mode=mode, definition=ir_iface_def, signals=iface_signals

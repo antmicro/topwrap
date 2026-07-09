@@ -246,3 +246,153 @@ class TestIpxactIrExamples:
         assert io_iface is not None
         assert io_iface.definition is iface_def
         assert io_iface.definition.signals.find_by_name("TDATA") is not None
+
+    def test_same_vlnv_different_versions_stay_distinct(self, tmp_path: Path):
+        def absdef_xml(version: str, signal: str) -> str:
+            return f"""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>SameBus_rtl</ipxact:name>
+  <ipxact:version>{version}</ipxact:version>
+  <ipxact:busType vendor="test.com" library="test" name="SameBus" version="{version}"/>
+  <ipxact:ports>
+    <ipxact:port>
+      <ipxact:logicalName>{signal}</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+  </ipxact:ports>
+</ipxact:abstractionDefinition>
+"""
+
+        v1 = tmp_path / "v1.absDef.xml"
+        v1.write_text(absdef_xml("1.0", "SIG_A"))
+        v2 = tmp_path / "v2.absDef.xml"
+        v2.write_text(absdef_xml("2.0", "SIG_B"))
+
+        ir = IpXactFrontend().parse_files([v1, v2])
+
+        assert len(ir.interfaces) == 2
+        by_version = {i.id.version: [s.name for s in i.signals] for i in ir.interfaces}
+        assert by_version == {"1.0": ["SIG_A"], "2.0": ["SIG_B"]}
+
+    def test_portmap_select_overlap_uses_physical_port_type(self, tmp_path: Path):
+        # select.logic must be the shared physical port's type, not each signal's own.
+        absdef = tmp_path / "OverlapBus.absDef.xml"
+        absdef.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>OverlapBus_rtl</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+  <ipxact:busType vendor="test.com" library="test" name="OverlapBus" version="1.0"/>
+  <ipxact:ports>
+    <ipxact:port>
+      <ipxact:logicalName>SIG_A</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>SIG_B</ipxact:logicalName>
+      <ipxact:wire>
+        <ipxact:onInitiator>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>out</ipxact:direction>
+          <ipxact:width>4</ipxact:width>
+        </ipxact:onInitiator>
+        <ipxact:onTarget>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onTarget>
+      </ipxact:wire>
+    </ipxact:port>
+  </ipxact:ports>
+</ipxact:abstractionDefinition>
+""")
+        component = tmp_path / "overlap_comp.xml"
+        component.write_text("""<?xml version="1.0" encoding="UTF-8"?>
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+  <ipxact:vendor>test.com</ipxact:vendor>
+  <ipxact:library>test</ipxact:library>
+  <ipxact:name>overlap_comp</ipxact:name>
+  <ipxact:version>1.0</ipxact:version>
+
+  <ipxact:busInterfaces>
+    <ipxact:busInterface>
+      <ipxact:name>test_iface</ipxact:name>
+      <ipxact:busType vendor="test.com" library="test" name="OverlapBus" version="1.0"/>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef
+              vendor="test.com" library="test" name="OverlapBus_rtl" version="1.0"/>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort><ipxact:name>SIG_A</ipxact:name></ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>shared_port</ipxact:name>
+                <ipxact:partSelect>
+                  <ipxact:range><ipxact:left>7</ipxact:left><ipxact:right>4</ipxact:right></ipxact:range>
+                </ipxact:partSelect>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+            <ipxact:portMap>
+              <ipxact:logicalPort><ipxact:name>SIG_B</ipxact:name></ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>shared_port</ipxact:name>
+                <ipxact:partSelect>
+                  <ipxact:range><ipxact:left>5</ipxact:left><ipxact:right>2</ipxact:right></ipxact:range>
+                </ipxact:partSelect>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:target/>
+    </ipxact:busInterface>
+  </ipxact:busInterfaces>
+
+  <ipxact:model>
+    <ipxact:ports>
+      <ipxact:port>
+        <ipxact:name>shared_port</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:vectors>
+            <ipxact:vector><ipxact:left>7</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector>
+          </ipxact:vectors>
+        </ipxact:wire>
+      </ipxact:port>
+    </ipxact:ports>
+  </ipxact:model>
+</ipxact:component>
+""")
+
+        ir = IpXactFrontend().parse_files([absdef, component])
+        module = next(m for m in ir.modules if m.id.name == "overlap_comp")
+        iface = module.interfaces.find_by_name_or_error("test_iface")
+        idef = iface.definition
+
+        def _ref(logical_name: str):
+            sig_id = idef.signals.find_by_name_or_error(logical_name)._id
+            return iface.signals[sig_id]
+
+        sig_a, sig_b = _ref("SIG_A"), _ref("SIG_B")
+        assert sig_a.io is sig_b.io
+        assert sig_a.overlaps(sig_b)
