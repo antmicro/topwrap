@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from functools import reduce
 from itertools import zip_longest
 from math import ceil, log2
+from operator import mul
 from typing import (
     Collection,
     Generic,
@@ -125,17 +126,19 @@ class LogicArray(Logic, Generic[_ArrayItemOrField]):
 
     @property
     def size(self):
-        item_size = self.item.size.elaborate()
-        assert item_size is not None
-        a = 1
-        acc = 0
+        item_val = self.item.size.elaborate()
+        dim_vals = []
         for d in self.dimensions:
-            up = d.upper.elaborate()
-            low = d.lower.elaborate()
-            assert up is not None
-            assert low is not None
-            acc = (up - low) * a
-        return ElaboratableValue(item_size * acc)
+            up, low = d.upper.elaborate(), d.lower.elaborate()
+            dim_vals.append(None if up is None or low is None else up - low + 1)
+
+        if item_val is not None and all(v is not None for v in dim_vals):
+            return ElaboratableValue(reduce(mul, dim_vals, item_val))
+
+        one = ElaboratableValue(1)
+        return reduce(
+            lambda total, d: total * (d.upper - d.lower + one), self.dimensions, self.item.size
+        )
 
     @override
     def copy(self):
