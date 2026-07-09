@@ -17,7 +17,7 @@ from topwrap.frontend.kpm.specification import KpmSpecificationFrontend
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.hdl_types import Bits, Dimensions
 from topwrap.model.interface import InterfaceDefinition
-from topwrap.model.misc import ElaboratableValue
+from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 from topwrap.util import JsonType
 
@@ -97,6 +97,11 @@ class TestKpmDataflowFrontend:
     def test_ir(self, files: dict[str, JsonType], file: str, validator: Callable[[Module], None]):
         front = KpmDataflowFrontend(ALL_MODULES)
         validator(front.parse(files[file]))
+
+    def test_non_default_version(self):
+        mod = Module(id=Identifier(name="versioned_mod", version="2.0"), ports=[])
+        front = KpmDataflowFrontend([mod])
+        assert front._modmap[mod.id.name] is mod
 
     def test_io_inference(self, files: dict[str, JsonType]):
         front = KpmDataflowFrontend(ALL_MODULES)

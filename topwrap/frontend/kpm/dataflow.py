@@ -206,13 +206,7 @@ class KpmDataflowFrontend:
             spec.add_module(mod)
         for node in spec._spec._get_nodes(False):
             if (add := node.get("additionalData")) is not None:
-                self._modmap[node["name"]] = modids[
-                    Identifier(
-                        name=add["full_module_id"].get("name"),
-                        vendor=add["full_module_id"].get("vendor"),
-                        library=add["full_module_id"].get("library"),
-                    )
-                ]
+                self._modmap[node["name"]] = modids[Identifier(**add["full_module_id"])]
         self._spec = spec.build()
 
     def parse(self, dataflow: JsonType, source: Optional[Path] = None) -> Module:
