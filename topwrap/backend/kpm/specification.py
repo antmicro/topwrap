@@ -69,6 +69,7 @@ class KpmSpecificationBackend:
         self._add_metanode(ClockDomainMetanode())
         self._add_metanode(ResetDomainMetanode())
         self._update_metanodes()
+        self._register_hierarchy_export_action()
         return self
 
     def add_module(self, mod: Module, *, recursive: bool = False):
@@ -107,6 +108,10 @@ class KpmSpecificationBackend:
 
         self._spec.add_node_type_additional_data(
             nid.name, KpmNodeAdditionalData(full_module_id=asdict(mod.id), source=source)
+        )
+
+        self._spec.add_node_type_context_menu_action(
+            nid.name, "Export IP", "custom_download_ip", "Save", True
         )
 
         for param in mod.parameters:
@@ -259,3 +264,8 @@ class KpmSpecificationBackend:
         self._spec.metadata_add_interface_styling(PORT_INTF_TYPE, PORT_COLOR)
         self._spec.metadata_add_interface_styling(CLOCK_INTF_TYPE, PORT_COLOR)
         self._spec.metadata_add_interface_styling(EXT_INTF_TYPE, EXT_COLOR)
+
+    def _register_hierarchy_export_action(self):
+        self._spec.metadata_add_subgraph_context_menu_action(
+            "Export Hierarchy", "custom_download_hierarchy", "Save", True
+        )

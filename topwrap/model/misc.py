@@ -121,6 +121,12 @@ class QuerableView(Sequence[_E]):
             raise ValueError(f"Could not find value named {name!r}")
         return val
 
+    def find_by_id_or_error(self, id: Identifier) -> _E:
+        val = self.find_by(lambda e: getattr(e, "id", None) == id)
+        if val is None:
+            raise ValueError(f"Could not find value by VLNV: {id}")
+        return val
+
 
 class ModelBase(ABC):
     """

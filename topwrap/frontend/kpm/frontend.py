@@ -69,3 +69,6 @@ class KpmFrontend(Frontend):
             raise KpmFrontendParseException("Trying to get top design with no dataflow given")
 
         return design_module.design
+
+    def set_target_subgraph(self, graph_id: str) -> None:
+        self._target_subgraph_id = graph_id

@@ -20,6 +20,10 @@ from typing_extensions import NotRequired
 from topwrap.backend.backend import BackendOutputInfo
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.common import IoMetanode
+from topwrap.backend.yaml.backend import (
+    IpCoreDescriptionBackend,
+)
+from topwrap.model.misc import Identifier, QuerableView
 from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.plugin.steps import (
     KpmDataflowOutputStage,
@@ -31,6 +35,7 @@ from topwrap.util import JsonType
 from .kpm_common import (
     RPCparams,
     check_for_iface_in_conn_graph,
+    find_dataflow_node_by_id,
     get_dataflow_subgraph_nodes,
     get_graph_with_id,
 )
@@ -45,6 +50,10 @@ class RPCEndpointReturnType(TypedDict):
 
 class RPCExportEndpointReturnType(RPCEndpointReturnType):
     filename: str
+
+
+class NonexistentNodeException(Exception):
+    pass
 
 
 class RPCMethods:
@@ -256,8 +265,71 @@ class RPCMethods:
     async def viewport_on_center(self):
         pass
 
-    async def nodes_on_highlight(self, **kwargs: Any):
+    async def nodes_on_highlight(self, **wargs: Any):
         pass
+
+    def custom_download_ip(self, node_id: str) -> RPCExportEndpointReturnType:
+        logging.info(f"IP export request received from {self.host}:{self.port}")
+
+        latest_dataflow = read_json_file(self.default_save_file)
+
+        clicked_node = find_dataflow_node_by_id(latest_dataflow, node_id)
+        if clicked_node is None:
+            raise NonexistentNodeException(f"There is no node with id {node_id}")
+
+        node_type = QuerableView(self.specification["nodes"]).find_by(
+            lambda n: n["name"] == clicked_node["name"]
+        )
+        if node_type is None:
+            raise ValueError(f"Clicked node with nonexistent type {clicked_node['name']}")
+
+        if (add := node_type.get("additionalData", None)) is None:
+            raise KeyError("Selected IP node doesn't have additional data")
+        id = Identifier(**add["full_module_id"])
+
+        pipeline = BuildPipeline.kpm_yaml_pipeline()
+        pipeline.prepare_str([json.dumps(self.specification)], json.dumps(latest_dataflow))
+        pipeline.process()
+
+        ctx = pipeline.ctx
+        assert ctx.all_modules
+
+        module = QuerableView(list(ctx.all_modules)).find_by_id_or_error(id)
+
+        backend = IpCoreDescriptionBackend(ctx.existing_interfaces)
+
+        repr = backend.represent(module)
+        out = next(backend.serialize(repr))
+
+        flow_b64encoded = b64encode(out.content.encode("utf-8")).decode("utf-8")
+        return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": out.filename}
+
+    def custom_download_hierarchy(self, node_id: str) -> RPCExportEndpointReturnType:
+        logging.info(f"Hierarchy export request received from {self.host}:{self.port}")
+        logging.debug(f"Hierarchy node id: {node_id}")
+
+        latest_dataflow = read_json_file(self.default_save_file)
+        clicked_node = find_dataflow_node_by_id(latest_dataflow, node_id)
+        if clicked_node is None:
+            raise NonexistentNodeException(f"There is no node with id {node_id}")
+
+        subgraph_id = clicked_node["subgraph"]
+
+        pipeline = BuildPipeline.kpm_yaml_pipeline(target_subgraph=subgraph_id)
+        pipeline.prepare_str([json.dumps(self.specification)], json.dumps(latest_dataflow))
+        pipeline.process()
+
+        ctx = pipeline.ctx
+        assert ctx.top_module
+
+        out, _ = cast(
+            tuple[BackendOutputInfo, Optional[BackendOutputInfo]],
+            ctx.outputs[YamlDesignOutputStage.name],
+        )
+        logging.debug(f"Out type is: {type(out)}")
+
+        flow_b64encoded = b64encode(out.content.encode("utf-8")).decode("utf-8")
+        return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": out.filename}
 
 
 async def _kpm_handle_graph_change(
