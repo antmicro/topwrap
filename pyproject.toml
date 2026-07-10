@@ -30,9 +30,9 @@ dependencies = [
   "pyslang==10.0.0",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@b39681ee785d7c094b78226243c44fe956e12d76",
   "pipeline_manager @ git+https://github.com/antmicro/kenning-pipeline-manager@b33a13e801e59b8dadec9dde4a247e7fa6e68d99",
-  "topwrap_axi_core_plugin @ https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl",
+  "topwrap_axi_core_plugin @ git+https://github.com/antmicro/topwrap-cores@f0a60c40291158495891bc49d90efa342da8d174#subdirectory=cores/topwrap_axi_core_plugin",
   "cyclopts",
-  "topwrap-ipxact-parser @ https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_ipxact_parser-0.0.1-py3-none-any.whl"
+  "topwrap-ipxact-parser @ git+https://github.com/antmicro/topwrap-cores@f0a60c40291158495891bc49d90efa342da8d174#subdirectory=topwrap-ipxact-parser"
 ]
 
 [project.optional-dependencies]

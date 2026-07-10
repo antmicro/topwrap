@@ -2987,8 +2987,8 @@ requires-dist = [
     { name = "sphinx-tabs", marker = "extra == 'docs'", specifier = "==3.4.5" },
     { name = "sphinxcontrib-mermaid", marker = "extra == 'docs'", specifier = "==0.9.2" },
     { name = "topwrap", extras = ["parse", "lint", "tests", "deploy", "docs"], marker = "extra == 'all'" },
-    { name = "topwrap-axi-core-plugin", url = "https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl" },
-    { name = "topwrap-ipxact-parser", url = "https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_ipxact_parser-0.0.1-py3-none-any.whl" },
+    { name = "topwrap-axi-core-plugin", git = "https://github.com/antmicro/topwrap-cores?subdirectory=cores%2Ftopwrap_axi_core_plugin&rev=f0a60c40291158495891bc49d90efa342da8d174" },
+    { name = "topwrap-ipxact-parser", git = "https://github.com/antmicro/topwrap-cores?subdirectory=topwrap-ipxact-parser&rev=f0a60c40291158495891bc49d90efa342da8d174" },
     { name = "typing-extensions" },
 ]
 provides-extras = ["lint", "tests", "deploy", "docs", "all"]
@@ -2996,32 +2996,17 @@ provides-extras = ["lint", "tests", "deploy", "docs", "all"]
 [[package]]
 name = "topwrap-axi-core-plugin"
 version = "0.0.1"
-source = { url = "https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl" }
+source = { git = "https://github.com/antmicro/topwrap-cores?subdirectory=cores%2Ftopwrap_axi_core_plugin&rev=f0a60c40291158495891bc49d90efa342da8d174#f0a60c40291158495891bc49d90efa342da8d174" }
 dependencies = [
     { name = "pyyaml" },
 ]
-wheels = [
-    { url = "https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_axi_core_plugin-0.0.1-py3-none-any.whl", hash = "sha256:06b98ced8859c14ad3df05e335154aa8dffc0be144f8b4f9949601e92ba64194" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "pyyaml" }]
 
 [[package]]
 name = "topwrap-ipxact-parser"
 version = "0.0.1"
-source = { url = "https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_ipxact_parser-0.0.1-py3-none-any.whl" }
+source = { git = "https://github.com/antmicro/topwrap-cores?subdirectory=topwrap-ipxact-parser&rev=f0a60c40291158495891bc49d90efa342da8d174#f0a60c40291158495891bc49d90efa342da8d174" }
 dependencies = [
     { name = "lxml" },
-    { name = "six" },
-]
-wheels = [
-    { url = "https://github.com/antmicro/topwrap-cores/releases/download/tip/topwrap_ipxact_parser-0.0.1-py3-none-any.whl", hash = "sha256:74287a4378f8a4f0108b73dc1164d2fadb336927a407f84ff34ef65df1c4771c" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "lxml", specifier = ">=4.9,<7" },
     { name = "six" },
 ]
 
