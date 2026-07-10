@@ -329,15 +329,6 @@ wheels = [
 ]
 
 [[package]]
-name = "bracex"
-version = "3.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d0/f5/4473ad9b48cd0420a2d762a3750fa0e078e23e060b1af72662e5987e5530/bracex-3.0.tar.gz", hash = "sha256:b73f718d6bd98d8419e45df02426c86e9967c179949f779340d6c3a8c83b9111", size = 43162, upload-time = "2026-06-30T00:43:35.279Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f5/2e/68781b78e764e5ccc4af1e3d27e060069c73af90234853fa80000e7ee79d/bracex-3.0-py3-none-any.whl", hash = "sha256:3833e61c2f092d5aa0468fa2e6c6e990a306185abf763b6d122f0158e59c58a5", size = 11738, upload-time = "2026-06-30T00:43:34.196Z" },
-]
-
-[[package]]
 name = "build"
 version = "1.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -456,19 +447,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/80/3f/bd97d3d9c613013d07cb7733d299385b41df37f0471310f5a73dc359f0b8/charset_normalizer-3.4.9-cp314-cp314t-win_amd64.whl", hash = "sha256:9b8e0f3107e2200b76f6054de99016eac3ee6762713587b36baaa7e4bd2ae177", size = 167620, upload-time = "2026-07-07T14:34:33.438Z" },
     { url = "https://files.pythonhosted.org/packages/3d/c6/eee9dca4439b1061f76373f06ea855678cc4a64c1c3c90b50e479edbb8eb/charset_normalizer-3.4.9-cp314-cp314t-win_arm64.whl", hash = "sha256:19ac87f93086ce37b86e098888555c4b4bc48102279bae3350098c0ed664b501", size = 158037, upload-time = "2026-07-07T14:34:35.018Z" },
     { url = "https://files.pythonhosted.org/packages/98/2b/f97f1c193fb855c345d678f5077d6926034db0722df74c8f057020e05a25/charset_normalizer-3.4.9-py3-none-any.whl", hash = "sha256:68e5f26a1ad57ded6d1cfb85331d1c1a195314756471d97758c48498bb4dcdf5", size = 64538, upload-time = "2026-07-07T14:34:56.993Z" },
-]
-
-[[package]]
-name = "cli-exit-tools"
-version = "1.2.7"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "click" },
-    { name = "lib-detect-testenv" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/31/cdfa180d48d35df219dea166b6932a190c90de2a30c4c0243243abd6eba7/cli_exit_tools-1.2.7.tar.gz", hash = "sha256:e752427a4aa9db1f18370c8dc11ebef6e245cc5891ec2fa79e7169be583c2423", size = 31417, upload-time = "2024-10-02T22:59:45.138Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/04/99c10558a3f6e7b817d16bfcd56caf12ac0c0cfd5944f26b1bf5fe2f3a30/cli_exit_tools-1.2.7-py3-none-any.whl", hash = "sha256:bdfdd8b0613e49faf6f4d8695328ce815858f980ea8ab2ddb69867ca1970e551", size = 11912, upload-time = "2024-10-02T22:59:43.525Z" },
 ]
 
 [[package]]
@@ -1025,22 +1003,6 @@ wheels = [
 ]
 
 [[package]]
-name = "igittigitt"
-version = "2.1.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "attrs" },
-    { name = "cli-exit-tools" },
-    { name = "click" },
-    { name = "lib-detect-testenv" },
-    { name = "wcmatch" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/a1/c43c5e9fb8308419d6bc9c0316e214fa08229d4c3a00b08bbfddd81aa8f4/igittigitt-2.1.5.tar.gz", hash = "sha256:7ef4984bbd53b7d5832ba547926eb49774f15556bb08506273362e92b978b58a", size = 47796, upload-time = "2024-10-16T09:46:21.114Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/73/13/0d67c39993c4f3ff78daae24fd3e3524e2f170e035e05f29c4e2f4eabd88/igittigitt-2.1.5-py3-none-any.whl", hash = "sha256:bf21d657b770fea35cbe3d4f2a62f6222065460c52ca897f271bd389ec1e79af", size = 17410, upload-time = "2024-10-16T09:46:19.246Z" },
-]
-
-[[package]]
 name = "imagesize"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1140,18 +1102,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/12/ce/eb5396b34c28cbac19a6a8632f0e03d309135d77285536258b82120198d8/jsonschema_specifications-2023.7.1.tar.gz", hash = "sha256:c91a50404e88a1f6ba40636778e2ee08f6e24c5613fe4c53ac24578a5a7f72bb", size = 12689, upload-time = "2023-07-18T15:25:46.815Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1c/24/83349ac2189cc2435e84da3f69ba3c97314d3c0622628e55171c6798ed80/jsonschema_specifications-2023.7.1-py3-none-any.whl", hash = "sha256:05adf340b659828a004220a9613be00fa3f223f2b82002e273dee62fd50524b1", size = 17835, upload-time = "2023-07-18T15:25:45.245Z" },
-]
-
-[[package]]
-name = "lib-detect-testenv"
-version = "3.0.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "rich-click" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/36/83/4e6bdd0a064eff0229a89720352fbae0a3d8a37fa41fcb35028e82eb6e89/lib_detect_testenv-3.0.2.tar.gz", hash = "sha256:4963d92e1213cb5194c78ce620d9affed88ed1876c700671b559ac9b2f33561f", size = 49124, upload-time = "2026-06-14T18:59:37.388Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/dc/ba0a34ff99847658a76e7c7e3524c5ea370157dfc6602d72cec24dd16a9e/lib_detect_testenv-3.0.2-py3-none-any.whl", hash = "sha256:13ee6c577653d2219a3199a0ffdf62fd86bd833bb751a56943a97a15556592ae", size = 15788, upload-time = "2026-06-14T18:59:36.427Z" },
 ]
 
 [[package]]
@@ -2222,21 +2172,6 @@ wheels = [
 ]
 
 [[package]]
-name = "rich-click"
-version = "1.9.8"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "click" },
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-    { name = "rich" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f7/ea/21e4867ea0ef881ffd4c0550fc21a061435e50d6324bcd034396633cbc18/rich_click-1.9.8.tar.gz", hash = "sha256:4008f921da88b5d91646c134ec881c1500e5a6b3f093e90e8f29400e09608371", size = 75363, upload-time = "2026-05-28T19:54:59.144Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/97/a87901aef6b7e7e4a34c6dd6cc17dca8594a592ef9d9dd765fca2b7facf7/rich_click-1.9.8-py3-none-any.whl", hash = "sha256:12873865396e6927835d4eabb1cc3996edcd65b7ac9b2391a29eca4f335a2f93", size = 72189, upload-time = "2026-05-28T19:54:57.867Z" },
-]
-
-[[package]]
 name = "rich-rst"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2840,7 +2775,6 @@ all = [
     { name = "codespell" },
     { name = "deepdiff" },
     { name = "fusesoc" },
-    { name = "igittigitt" },
     { name = "myst-parser" },
     { name = "pre-commit" },
     { name = "prettytable" },
@@ -2871,7 +2805,6 @@ docs = [
 ]
 lint = [
     { name = "codespell" },
-    { name = "igittigitt" },
     { name = "pre-commit" },
     { name = "ruff" },
 ]
@@ -2896,7 +2829,6 @@ requires-dist = [
     { name = "cyclopts" },
     { name = "deepdiff", marker = "extra == 'tests'", specifier = "==8.0.1" },
     { name = "fusesoc", marker = "extra == 'deploy'", specifier = "==2.4.6" },
-    { name = "igittigitt", marker = "extra == 'lint'", specifier = "==2.1.5" },
     { name = "marshmallow", specifier = ">=3.20,<4.0" },
     { name = "marshmallow-dataclass", extras = ["enum"], specifier = "~=8.7.0" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = "==4.0.0" },
@@ -3314,18 +3246,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/27/0b/a54103cfd732bb703c7a749222011a0483ef3705948dae3b203158601119/watchfiles-1.2.0-pp311-pypy311_pp73-macosx_11_0_arm64.whl", hash = "sha256:094b9b70103d4e963499bdea001ee3c2697b144cd9ae6218a62c0f89ec9e31db", size = 396629, upload-time = "2026-05-18T04:32:03.268Z" },
     { url = "https://files.pythonhosted.org/packages/5e/2c/73f31a3b893886206c3f54d73e8ad8dee58cdb2f69ad2622e0a8a9e07f4e/watchfiles-1.2.0-pp311-pypy311_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b0ef001f8c25ad0fa9529f914c1600647ecd0f542d11c19b7894768c67b6acb7", size = 457318, upload-time = "2026-05-18T04:31:01.932Z" },
     { url = "https://files.pythonhosted.org/packages/e9/f9/45d021e4a5cc7b9dd567f7cbb06d3b75f751a690063fb6cc7ec60f4e46b7/watchfiles-1.2.0-pp311-pypy311_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a88fc94e647bc4eec523f1caa540258eb71d14278b9daf72fa1e2658a98df0f0", size = 457771, upload-time = "2026-05-18T04:30:56.331Z" },
-]
-
-[[package]]
-name = "wcmatch"
-version = "10.2.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "bracex" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/11/15/dc61746d8c0852f6d711ad09c774b63cf7c8211aa49e30871ac3d342b7e2/wcmatch-10.2.1.tar.gz", hash = "sha256:ecac70a5c70e62ba854b78318d3a1408e8651f8f1c96e5837743b71aa6a4fb92", size = 132497, upload-time = "2026-07-02T17:21:48.484Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/82/ba/20b48eedeab5316bf9a502bb9eb7e3b1588bd61d0f565822fefa8f06e10b/wcmatch-10.2.1-py3-none-any.whl", hash = "sha256:2d775395b93f233af66690f62cb9d52b084ec159a31cc4084f4069d72f437acd", size = 39763, upload-time = "2026-07-02T17:21:47.134Z" },
 ]
 
 [[package]]

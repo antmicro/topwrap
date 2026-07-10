@@ -30,7 +30,8 @@ install-debian-deps docs="0":
 pre-commit:
 	#!/usr/bin/env bash
 	uv sync --extra lint
-	source .venv/bin/activate
+	uv run pre-commit install
+	uv run pre-commit run --all-files
 
 # Run all configured linting checks with correction.
 lint:
@@ -43,15 +44,17 @@ test-lint:
 	#!/usr/bin/env bash
 	uv sync --extra lint
 	source .venv/bin/activate
+	uv run pre-commit run check-yaml-extension --all-files
 	uv run ruff format --check
 	uv run ruff check
 	uv run codespell
 
 # Run static type checking using Pyright.
-pyright:
+[arg("compare",long,value="1")]
+pyright compare="0":
 	#!/usr/bin/env bash
 	uv sync --extra tests
-	uv run pyright
+	if [[ {{compare}} == "1" ]];then uv run scripts/pyright_check.py --compare; else uv run scripts/pyright_check.py; fi
 
 # Execute tests for a specific Python version.
 test version="3.10":
@@ -87,7 +90,7 @@ build:
 # Create distributable packages.
 package:
 	#!/usr/bin/env bash
-	uv sync --extra all
+	uv sync --extra deploy
 	source .venv/bin/activate
 	uv run .github/scripts/package_cores.py ./build/export
 
@@ -127,4 +130,9 @@ docs:
 	done
 
 	make -C docs html
-	make -C docs latex
+	make -C docs latexpdf
+	cp docs/build/latex/topwrap.pdf docs/build/html
+
+	uv run pipeline_manager build static-html \
+		--output-directory docs/build/html/_static/kpm \
+		--workspace-directory docs/build/kpm

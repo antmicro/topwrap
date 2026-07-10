@@ -23,16 +23,16 @@ jobs:
     steps:
       - name: Install just
         run: &install_deps |
-          apt-get update && apt-get install -y wget tar
+          apt-get update && apt-get install -y git wget tar
           wget https://github.com/casey/just/releases/download/1.55.1/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -P /tmp
-          tar -xvf just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
+          tar -xvf /tmp/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
           mv /tmp/just /usr/bin/
 
       - uses: actions/checkout@v4
 
       - name: Generate documentation
         run: |
-          just install-debian-deps
+          just install-debian-deps --docs
           just docs
 
       - uses: actions/upload-artifact@v4
@@ -146,7 +146,7 @@ jobs:
         continue-on-error: true
         run: |
           just install-debian-deps
-          just pyright
+          just pyright --compare
 
   test_kpm_server:
     runs-on: ubuntu-latest
@@ -182,4 +182,4 @@ jobs:
       - name: Run Python tests on python ${{ matrix.version }}
         run: |
           just install-debian-deps
-          if [[ ${{ matrix.version }} == "3.10" ]];then just test; else just test ${{ matrix.version }}; fi
+          just test ${{ matrix.version }}

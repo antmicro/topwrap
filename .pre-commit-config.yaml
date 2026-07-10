@@ -17,7 +17,7 @@ repos:
     -   id: check-merge-conflict
     -   id: check-toml
     -   id: check-yaml
-        exclude: ^(\.ci\.yml | .*\.j2\.yml)$
+        exclude: ^(\.ci\.yml|.*\.j2\.yml)$
     -   id: end-of-file-fixer
         exclude: ^(.*\.j2)$
     -   id: mixed-line-ending
@@ -28,6 +28,15 @@ repos:
 
 -   repo: local
     hooks:
+    -   id: check-yaml-extension
+        name: Check YAML extension
+        entry: >-
+          YAML files must use the .yaml extension, not .yml
+          (only .github/ and .ci.yml are exempt)
+        language: fail
+        files: \.yml$
+        exclude: ^(\.ci\.yml|\.github/)
+
     -   id: lint
         name: Lint
         pass_filenames: true
