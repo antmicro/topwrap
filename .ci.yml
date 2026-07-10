@@ -43,7 +43,7 @@ test_python:
     SCALENODE_FEATURES: "ryzen" # We need high IPC and frequency for the roundtrip test
   script:
     - just install-debian-deps
-    - if [[ ${CI_PARALLEL_NAME} == "3.10" ]];then just test; else just test ${CI_PARALLEL_NAME}; fi
+    - just test ${CI_PARALLEL_NAME}
 
 package_test:
   <<: *common_only
@@ -82,7 +82,7 @@ pyright_check:
     SCALENODE_RAM: 8192
   script:
     - just install-debian-deps
-    - just pyright
+    - just pyright --compare
   allow_failure: true
 
 build_docs:

@@ -1,5 +1,7 @@
 export PATH := x"$PATH:$HOME/.local/bin"
 
+tested_python_versions := "3.10 3.11 3.12 3.13"
+
 default:
 	@just --list
 
@@ -21,7 +23,9 @@ install-debian-deps docs="0":
         libantlr4-runtime-dev \
         yosys
 
-    if [[ {{docs}} == "1" ]];then apt-get install -y texlive-full imagemagick make; fi
+    # FIXME: Unpin Chromium once the issues with Chromium 150 running in headless mode are resolved.
+    # Relevant Debian bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1141571
+    if [[ {{docs}} == "1" ]];then apt-get install -y texlive-full imagemagick make chromium=147.0.7727.137-1~deb12u1 chromium-common=147.0.7727.137-1~deb12u1; fi
 
     curl -LsSf https://astral.sh/uv/install.sh | sh
 
@@ -30,7 +34,8 @@ install-debian-deps docs="0":
 pre-commit:
 	#!/usr/bin/env bash
 	uv sync --extra lint
-	source .venv/bin/activate
+	uv run pre-commit install
+	uv run pre-commit run --all-files
 
 # Run all configured linting checks with correction.
 lint:
@@ -43,15 +48,17 @@ test-lint:
 	#!/usr/bin/env bash
 	uv sync --extra lint
 	source .venv/bin/activate
+	uv run pre-commit run check-yaml-extension --all-files
 	uv run ruff format --check
 	uv run ruff check
 	uv run codespell
 
 # Run static type checking using Pyright.
-pyright:
+[arg("compare",long,value="1")]
+pyright compare="0":
 	#!/usr/bin/env bash
 	uv sync --extra tests
-	uv run pyright
+	if [[ {{compare}} == "1" ]];then uv run scripts/pyright_check.py --compare; else uv run scripts/pyright_check.py; fi
 
 # Execute tests for a specific Python version.
 test version="3.10":
@@ -63,6 +70,14 @@ test version="3.10":
 		--cov=topwrap \
 		--cov-config=pyproject.toml \
 		tests
+
+# Execute tests on every Python version supported in CI.
+test-all-python-versions:
+	#!/usr/bin/env bash
+	set -e
+	for version in {{tested_python_versions}}; do
+		just test "$version"
+	done
 
 # Update generated dataflow or specification test data.
 [arg("dataflow",long,value="1")]
@@ -76,7 +91,7 @@ update-testdata dataflow="0" specification="0":
 # Run tests specific to the KPM server component.
 test-kpm-server:
 	#!/usr/bin/env bash
-	uv run test_kpm_server.py
+	uv run scripts/kpm_server_check.py
 
 # Build the project.
 build:
@@ -87,7 +102,7 @@ build:
 # Create distributable packages.
 package:
 	#!/usr/bin/env bash
-	uv sync --extra all
+	uv sync --extra deploy
 	source .venv/bin/activate
 	uv run .github/scripts/package_cores.py ./build/export
 
@@ -127,4 +142,5 @@ docs:
 	done
 
 	make -C docs html
-	make -C docs latex
+	make -C docs latexpdf
+	cp docs/build/latex/topwrap.pdf docs/build/html

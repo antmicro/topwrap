@@ -19,9 +19,9 @@ jobs:
     steps:
       - name: Install just
         run: |
-          apt-get update && apt-get install -y wget tar
+          apt-get update && apt-get install -y git wget tar
           wget https://github.com/casey/just/releases/download/1.55.1/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -P /tmp
-          tar -xvf just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
+          tar -xvf /tmp/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
           mv /tmp/just /usr/bin/
 
       - uses: actions/checkout@v4
@@ -29,11 +29,11 @@ jobs:
       - name: Build packages
         run: |
           just install-debian-deps
-          just package
+          just build
 
       - name: Build package cores
         run: |
-          just build
+          just package
           tar -cf build/cores_export.tar -C build/export .
 
       - name: Publish or update the release

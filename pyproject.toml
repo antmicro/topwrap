@@ -39,7 +39,6 @@ dependencies = [
 lint = [
   "pre-commit==3.5.0",
   "codespell==2.3.0",
-  "igittigitt==2.1.5",
   "ruff==0.12.1"
 ]
 tests = [
@@ -71,7 +70,7 @@ all = ['topwrap[parse,lint,tests,deploy,docs]']
 topwrap = "topwrap.cli.main:main"
 
 [tool.setuptools.packages.find]
-include = ["topwrap*","tests/update_test_data.py","test_kpm_server.py"]
+include = ["topwrap*","tests/update_test_data.py"]
 
 [tool.setuptools.package-data]
 topwrap = [

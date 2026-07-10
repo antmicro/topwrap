@@ -11,12 +11,10 @@ All tests can be run with `just` by specifying the `test` task:
 just test
 ```
 
-:::
-
-To force a specific Python version and avoid running tests for all listed versions, use `test:default` task:
+To force a specific Python version and avoid running tests for all listed versions, pass the version to the `test` task:
 
 ```bash
-just test:default:3.10
+just test 3.10
 ```
 
 Tests can also be launched without `just` by executing:
@@ -27,7 +25,7 @@ python -m pytest
 
 :::{warning}
 When running tests by invoking `pytest` directly, tests are ran only on the locally selected Python interpreter.
-As the CI runs on all supported Python versions, it's recommended to run tests with `nox` on all versions before pushing.
+As the CI runs on all supported Python versions, it's recommended to run tests with `just` on all versions before pushing.
 :::
 
 Ignoring a particular test can be performed with `--ignore=test_path`, e.g:
@@ -75,14 +73,14 @@ Users can either update of example data such as the specification or update ever
 
 To update everything run:
 ```bash
-just update_testdata --dataflow
+just update-testdata --dataflow --specification
 ```
 
 To update only specifications run:
 ```bash
-just update_testdata --specification
+just update-testdata --specification
 ```
 
-Valid options for `update_test_data` sessions, are:
+Valid options for the `update-testdata` task, are:
 * `specification`
 * `dataflow`
