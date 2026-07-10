@@ -436,62 +436,31 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
         for mgr in intr.managers:
             mgr = mgr.resolve()
 
-            #TODO: rewrite this properly
-            if mgr.instance is None:
-                if mgr.is_external:
-                    mgr_name = mgr.io.name
+            # if mgr is external, set its name to toplevel's name
+            instance_name = des.parent.id.name if mgr.instance is None else mgr.instance.name
 
-                    #TODO: you NEED instance name, problem is there's no instance name for external i-face
-                    #      my proposed fix is to use toplevel instace's name.
-                    #      I'm not sure if this is even acceptable design, but will allow me to contine for now
-
-                    instance_name = des.parent.id.name
-                    managers[instance_name] = []
-                    managers[instance_name].append(mgr_name)
-
-                else:
-                    raise DesignDescriptionBackendException(
-                        f"Manager {mgr.io.name} of interconnect {intr.name} does not "
-                        "connect to a module or external interface"
-                    )
-
-            else:
-                if mgr.instance.name not in managers:
-                    managers[mgr.instance.name] = []
-                    managers[mgr.instance.name].append(mgr.io.name)
+            if instance_name not in managers:
+                managers[instance_name] = []
+                managers[instance_name].append(mgr.io.name)
 
         subordinates = {}
 
         for i_sub, par in intr.subordinates.items():
             i_sub = i_sub.resolve()
 
-            #TODO: rewrite this properly
-            if i_sub.instance is None:
-                if i_sub.is_external:
-                    sub_name = i_sub.io.name
+            # if sub is external, set its name to toplevel's name
+            instance_name = des.parent.id.name if i_sub.instance is None else i_sub.instance.name
 
-                    #TODO: as in managers
+            # Skip subordinates covered by a memory map
+            if intr.memory_map:
+                for m_sub in intr.memory_map.map.values():
+                    if i_sub == m_sub.ref_iface:
+                        continue
 
-                    instance_name = des.parent.id.name
-                    subordinates[instance_name] = {}
-                    subordinates[instance_name][sub_name] = par.to_dict()                
+            if instance_name not in subordinates:
+                subordinates[instance_name] = {}
 
-                else:
-                    raise DesignDescriptionBackendException(
-                        f"Subordinate {i_sub.io.name} of interconnect {intr.name} does not "
-                        "connect to a module or external interface"
-                    )
-            else:
-                # Skip subordinates covered by a memory map
-                if intr.memory_map:
-                    for m_sub in intr.memory_map.map.values():
-                        if i_sub == m_sub.ref_iface:
-                            continue
-
-                if i_sub.instance.name not in subordinates:
-                    subordinates[i_sub.instance.name] = {}
-
-                subordinates[i_sub.instance.name][i_sub.io.name] = par.to_dict()
+            subordinates[instance_name][i_sub.io.name] = par.to_dict()
 
         return DesignSectionInterconnect(
             type=INTERCONNECT_NAMES[type(intr)],

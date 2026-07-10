@@ -34,7 +34,7 @@ from topwrap.model.connections import (
 from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit
 from topwrap.model.interconnect import Interconnect
-from topwrap.model.interface import Interface, InterfaceMode
+from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode, InterfaceSignal
 from topwrap.model.memory_map import MemoryMap as IRMemoryMap
 from topwrap.model.memory_map import MemoryMapSubordinate
 from topwrap.model.misc import (
@@ -166,10 +166,12 @@ class DesignDescriptionFrontend:
                 )
                 continue
 
-    def _parse_interconnects(self, desc: DesignDescription, design: Design):
+    def _parse_interconnects(
+        self, desc: DesignDescription, design: Design, decls: dict[str, tuple[PortDirection, bool]]
+    ):
         for iname, intr in desc.interconnects.items():
             try:
-                self._parse_interconnect(design, iname, intr)
+                self._parse_interconnect(design, iname, intr, decls)
             except DesignDescriptionFrontendException as e:
                 logger.warning(f"Skipping interconnect '{iname}' because of: {e}")
 
@@ -213,14 +215,15 @@ class DesignDescriptionFrontend:
         declared_exts = self._parse_ports(desc)
         # Parse regular connections between ports, interfaces and externals
         self._parse_connections(desc, design, declared_exts)
-        # Realize leftover, internally unconnected, external IO declarations
-        self._add_ports(mod, declared_exts)
 
         # Parse memory maps, need to be done after interfaces are parsed
         self._parse_memory_maps(design, desc.memory_maps)
 
         # Parse interconnects
-        self._parse_interconnects(desc, design)
+        self._parse_interconnects(desc, design, declared_exts)
+
+        # Realize leftover, internally unconnected, external IO declarations
+        self._add_ports(mod, declared_exts)
 
         # Handle the specific syntax of inout connections
         self._parse_inout(desc, design)
@@ -267,7 +270,10 @@ class DesignDescriptionFrontend:
             des: Design, mname: str, man: str
         ) -> Optional[ReferencedInterface]:
             try:
-                refio, _ = self._resolve_ref(des, mname, man)
+                # if manager name is the same as toplevel name, 
+                # then reference is to external interface
+                name = None if mname == des.parent.id.name else mname
+                refio, _ = self._resolve_ref(des, name, man)
                 if not isinstance(refio, ReferencedInterface):
                     raise DesignDescriptionFrontendException(
                         "Manager reference is not an interface"
@@ -304,7 +310,11 @@ class DesignDescriptionFrontend:
         for sname, subs in intr.subordinates.items():
             for sub, params in subs.items():
                 try:
-                    refio, _ = self._resolve_ref(des, sname, sub)
+                    # if sub name is the same as toplevel name, 
+                    # then reference is to external interface
+                    name = None if sname == des.parent.id.name else sname
+
+                    refio, _ = self._resolve_ref(des, name, sub)
                     if not isinstance(refio, ReferencedInterface):
                         raise DesignDescriptionFrontendException(
                             "Subordinate reference is not an interface"
@@ -316,7 +326,13 @@ class DesignDescriptionFrontend:
                     continue
                 ir_intr.subordinates[refio._id] = itype.sub_params.from_dict(asdict(params))
 
-    def _parse_interconnect(self, des: Design, iname: str, intr: DesignSectionInterconnect):
+    def _parse_interconnect(
+        self,
+        des: Design,
+        iname: str,
+        intr: DesignSectionInterconnect,
+        decls: dict[str, tuple[PortDirection, bool]],
+    ):
         itype = INTERCONNECT_TYPES[intr.type]
         params = itype.params.from_dict(intr.params)
         try:
@@ -350,10 +366,94 @@ class DesignDescriptionFrontend:
             name=iname, params=params, clock=clock, reset=reset, memory_map=mem_map
         )
 
+        self._add_interconnect_externals(des, iname, intr, decls)
         self._parse_interconnect_managers(des, intr, ir_intr, itype, iname)
         self._parse_interconnect_subordinates(des, intr, ir_intr, itype, iname)
 
         des.add_interconnect(ir_intr)
+
+    def _infer_interconnect_interface(
+        self, intr: DesignSectionInterconnect, des: Design, iname: str
+    ) -> tuple[InterfaceDefinition, dict[ObjectId[InterfaceSignal], ReferencedPort | None]]:
+        def get_refio_from_connection(
+            des: Design, name: str, ref: str
+        ) -> Optional[ReferencedInterface]:
+            # skip all externals, only ModuleInstances
+            if name == des.parent.id.name:
+                return None
+
+            refio, _ = self._resolve_ref(des, name, ref)
+            if not isinstance(refio, ReferencedInterface):
+                return None
+            else:
+                return refio
+
+        for mname, mans in intr.managers.items():
+            if isinstance(mans, list):
+                for man in mans:
+                    refio = get_refio_from_connection(des, mname, man)
+                    if not refio:
+                        continue
+                    return refio.io.definition, refio.io.signals
+
+            else:  # Dict
+                for man, _ in mans.items():
+                    refio = get_refio_from_connection(des, mname, man)
+                    if not refio:
+                        continue
+                    return refio.io.definition, refio.io.signals
+
+        for sname, subs in intr.subordinates.items():
+            for sub, _ in subs.items():
+                refio = get_refio_from_connection(des, sname, sub)
+                if not refio:
+                    continue
+                return refio.io.definition, refio.io.signals
+
+        raise DesignDescriptionFrontendException(
+            f"Interconnect '{iname}' has all its connections connecting to external ports;"
+            f"Cannot infer interface"
+        )
+
+    def _add_interconnect_externals(
+        self,
+        des: Design,
+        iname: str,
+        intr: DesignSectionInterconnect,
+        decls: dict[str, tuple[PortDirection, bool]],
+    ):
+        """
+        add all external interfaces used by this interconnect to the design
+        """
+
+        def add_external(
+            des: Design,
+            name: str,
+            decls: dict[str, tuple[PortDirection, bool]],
+            mode: InterfaceMode,
+        ):
+            intf = des.parent.ios.find_by_name(name)  # tutaj!
+            if intf is None:
+                if name in decls:
+                    logger.debug(f"adding external interconnect({iname}) interface: {name}")
+                    conn_to = Interface("dummy", mode, intf_def, intf_sigs)
+                    self._parse_external(des, conn_to, name, decls[name][0], decls[name][1])
+                    del decls[name]
+
+        intf_def, intf_sigs = self._infer_interconnect_interface(intr, des, iname)
+
+        for _, mans in intr.managers.items():
+            if isinstance(mans, list):
+                for man in mans:
+                    add_external(des, man, decls, InterfaceMode.SUBORDINATE)
+
+            else:  # Dict
+                for man, _ in mans.items():
+                    add_external(des, man, decls, InterfaceMode.SUBORDINATE)
+
+        for _, subs in intr.subordinates.items():
+            for sub, _ in subs.items():
+                add_external(des, sub, decls, InterfaceMode.MANAGER)
 
     def _resolve_ref(
         self, des: Design, comp: Optional[str], io: str
