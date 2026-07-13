@@ -23,9 +23,7 @@ install-debian-deps docs="0":
         libantlr4-runtime-dev \
         yosys
 
-    # FIXME: Unpin Chromium once the issues with Chromium 150 running in headless mode are resolved.
-    # Relevant Debian bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1141571
-    if [[ {{docs}} == "1" ]];then apt-get install -y texlive-full imagemagick make chromium=147.0.7727.137-1~deb12u1 chromium-common=147.0.7727.137-1~deb12u1; fi
+    if [[ {{docs}} == "1" ]];then apt-get install -y texlive-full imagemagick make chromium; fi
 
     curl -LsSf https://astral.sh/uv/install.sh | sh
 
