@@ -201,10 +201,6 @@ class KpmDataflowFrontend:
     #: Holds a mapping between KPM node names and IR modules
     _modmap: dict[str, Module]
 
-    #: An increasing counter of subgraphs encountered in the hierarchy.
-    #: Used to generate an anonymous IR ``Identifier`` in case one
-    #: wasn't provided by the user with the Identifier metanode.
-    _subs: int
     _subgraph_cache: dict[str, Module]
 
     def __init__(self, modules: Iterable[Module]) -> None:
@@ -215,7 +211,6 @@ class KpmDataflowFrontend:
 
         super().__init__()
         self._modmap = {}
-        self._subs = 0
         self._subgraph_cache = {}
         modids = {m.id: m for m in modules}
 
@@ -238,7 +233,7 @@ class KpmDataflowFrontend:
         into a top-level `Module` with a design.
 
         :param dataflow: The dataflow in the parsed JSON format
-        :para target_subgraph: The id of the subgraph to be parsed instead of the toplevel graph
+        :param target_subgraph: The id of the subgraph to be parsed instead of the toplevel graph
         """
 
         data = _KpmDataflowInstanceData(self._spec, dataflow)
@@ -260,10 +255,9 @@ class KpmDataflowFrontend:
         self, source: Optional[Path], graph: DataflowGraph, data: _KpmDataflowInstanceData
     ) -> Module:
         mod = Module(
-            id=Identifier(f"anon{self._subs}"),
+            id=Identifier(f"anon_{graph.id}"),
             refs=[FileReference(source)] if source else (),
         )
-        self._subs += 1
         mod.design = Design()
 
         unrealised_intrs = list[Node]()
