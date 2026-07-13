@@ -228,18 +228,31 @@ class KpmDataflowFrontend:
         self._spec = spec.build()
 
     def parse(
-        self, dataflow: JsonType, source: Optional[Path] = None
+        self,
+        dataflow: JsonType,
+        source: Optional[Path] = None,
+        target_subgraph_id: Optional[str] = None,
     ) -> tuple[Module, dict[Identifier, Positions]]:
         """
         Parses a structure representing a KPM dataflow
         into a top-level `Module` with a design.
 
         :param dataflow: The dataflow in the parsed JSON format
+        :para target_subgraph: The id of the subgraph to be parsed instead of the toplevel graph
         """
 
         data = _KpmDataflowInstanceData(self._spec, dataflow)
-        assert data.flow.entry_graph is not None
-        return self._parse(source, data.flow.entry_graph, data), {
+
+        tgt = None
+        if target_subgraph_id is None:
+            assert data.flow.entry_graph is not None
+            tgt = data.flow.entry_graph
+        else:
+            for graph in data.flow.graphs:
+                if graph.id == target_subgraph_id:
+                    tgt = graph
+        assert tgt is not None
+        return self._parse(source, tgt, data), {
             mid.resolve().id: pos for mid, pos in data._positions.items()
         }
 

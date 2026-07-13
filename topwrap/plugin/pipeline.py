@@ -239,10 +239,10 @@ class BuildPipeline:
         )
 
     @staticmethod
-    def kpm_yaml_pipeline():
+    def kpm_yaml_pipeline(target_subgraph: Optional[str] = None):
         return BuildPipeline(
             inputs=[
-                KpmInputStage(),
+                KpmInputStage(target_subgraph),
             ],
             transformations=[
                 MemoryMapTransformation(),

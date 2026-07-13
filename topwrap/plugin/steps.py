@@ -166,12 +166,19 @@ class YamlInputStage(InputStage):
 
 class KpmInputStage(InputStage):
     name: str = "KPM"
+    target_subgraph: Optional[str] = None
+
+    def __init__(self, target_subgraph: Optional[str] = None):
+        super().__init__()
+        self.target_subgraph = target_subgraph
 
     @override
     def process_input(
         self, design_source: Optional[Source], sources: list[Source], ctx: BuildContext
     ):
         frontend = KpmFrontend(ctx.all_modules, ctx.repo_interfaces)
+        if self.target_subgraph:
+            frontend.set_target_subgraph(self.target_subgraph)
 
         all_strings = all(isinstance(f, StringSource) for f in sources) and (
             design_source is None or isinstance(design_source, StringSource)

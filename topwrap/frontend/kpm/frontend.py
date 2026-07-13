@@ -3,7 +3,7 @@
 
 import json
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Optional
 
 from typing_extensions import override
 
@@ -16,6 +16,8 @@ from topwrap.model.module import Module
 
 
 class KpmFrontend(Frontend):
+    _target_subgraph_id: Optional[str] = None
+
     @property
     def metadata(self):
         return FrontendMetadata(name="kpm", file_association=[".kpm.json"])
@@ -52,7 +54,9 @@ class KpmFrontend(Frontend):
 
         flow_front = KpmDataflowFrontend([*spec_mods, *self.modules])
         for source, flow in flows:
-            mod, pos = flow_front.parse(flow, source=source)
+            mod, pos = flow_front.parse(
+                flow, source=source, target_subgraph_id=self._target_subgraph_id
+            )
             spec_mods.append(mod)
             positions.update(pos)
 
