@@ -46,7 +46,7 @@ from topwrap.model.module import Module
 class IpXactFrontend(Frontend):
     @property
     def metadata(self):
-        return FrontendMetadata(name="IP-XACT", file_association=[".xml"])
+        return FrontendMetadata(name="ipxact", file_association=[".xml"])
 
     def _replace_uuid_with_param_name(self, v: str, parameters: Dict[str, Parameter]) -> str:
         """Replace uuid_[uuid] with name of parameter"""
