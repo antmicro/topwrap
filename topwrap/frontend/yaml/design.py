@@ -270,10 +270,18 @@ class DesignDescriptionFrontend:
             des: Design, mname: str, man: str
         ) -> Optional[ReferencedInterface]:
             try:
-                # if manager name is the same as toplevel name, 
-                # then reference is to external interface
-                name = None if mname == des.parent.id.name else mname
-                refio, _ = self._resolve_ref(des, name, man)
+                # if sub name is the same as toplevel name,
+                # then reference might be to external interface
+                # check whether it will resolve to module
+                # and if not, then we know its external
+                try:
+                    refio, _ = self._resolve_ref(des, mname, man)
+                except:
+                    if mname == des.parent.id.name:
+                        refio, _ = self._resolve_ref(des, None, man)
+                    else:
+                        refio = None
+
                 if not isinstance(refio, ReferencedInterface):
                     raise DesignDescriptionFrontendException(
                         "Manager reference is not an interface"
@@ -310,11 +318,17 @@ class DesignDescriptionFrontend:
         for sname, subs in intr.subordinates.items():
             for sub, params in subs.items():
                 try:
-                    # if sub name is the same as toplevel name, 
-                    # then reference is to external interface
-                    name = None if sname == des.parent.id.name else sname
-
-                    refio, _ = self._resolve_ref(des, name, sub)
+                    # if sub name is the same as toplevel name,
+                    # then reference might be to external interface
+                    # check whether it will resolve to module
+                    # and if not, then we know its external
+                    try:
+                        refio, _ = self._resolve_ref(des, sname, sub)
+                    except:
+                        if sname == des.parent.id.name:
+                            refio, _ = self._resolve_ref(des, None, sub)
+                        else:
+                            refio = None
                     if not isinstance(refio, ReferencedInterface):
                         raise DesignDescriptionFrontendException(
                             "Subordinate reference is not an interface"
@@ -378,11 +392,11 @@ class DesignDescriptionFrontend:
         def get_refio_from_connection(
             des: Design, name: str, ref: str
         ) -> Optional[ReferencedInterface]:
-            # skip all externals, only ModuleInstances
-            if name == des.parent.id.name:
+            try:
+                refio, _ = self._resolve_ref(des, name, ref)
+            except:
+                # skip all externals, only ModuleInstances
                 return None
-
-            refio, _ = self._resolve_ref(des, name, ref)
             if not isinstance(refio, ReferencedInterface):
                 return None
             else:
@@ -432,7 +446,7 @@ class DesignDescriptionFrontend:
             decls: dict[str, tuple[PortDirection, bool]],
             mode: InterfaceMode,
         ):
-            intf = des.parent.ios.find_by_name(name)  # tutaj!
+            intf = des.parent.ios.find_by_name(name)
             if intf is None:
                 if name in decls:
                     logger.debug(f"adding external interconnect({iname}) interface: {name}")

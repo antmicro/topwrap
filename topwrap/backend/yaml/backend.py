@@ -441,7 +441,8 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
             if instance_name not in managers:
                 managers[instance_name] = []
-                managers[instance_name].append(mgr.io.name)
+
+            managers[instance_name].append(mgr.io.name)
 
         subordinates = {}
 
