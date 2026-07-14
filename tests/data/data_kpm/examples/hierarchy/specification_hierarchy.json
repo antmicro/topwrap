@@ -229,6 +229,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/c_mod_1/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "properties": [
         {
           "name": "MAX_VALUE",
@@ -265,6 +273,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/c_mod_2/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "c_int_out_2",
@@ -294,6 +310,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/c_mod_3/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "c_int_const_in",
@@ -399,6 +423,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/s1_mod_1/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "cs_s1_f_ext_const_in",
@@ -434,6 +466,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/s1_mod_2/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "cs_s1_f_int_out_1",
@@ -463,6 +503,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "properties": [
         {
           "name": "SUB_VALUE",
@@ -499,6 +547,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/s2_mod_1/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "cs_s2_f_int_in_1",
@@ -540,6 +596,14 @@
         },
         "source": "examples/hierarchy/my_repo/cores/s2_mod_2/module.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "cs_s2_f_mod_out_1",
@@ -758,6 +822,13 @@
       "intf__ext": {
         "interfaceColor": "#ffffff"
       }
-    }
+    },
+    "subgraphContextMenuActions": [
+        {
+            "name": "Export Hierarchy",
+            "procedureName": "custom_download_hierarchy",
+            "requireResponse": true
+        }
+    ]
   }
 }

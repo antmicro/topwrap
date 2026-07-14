@@ -251,6 +251,14 @@
         },
         "source": "repo[builtin]:axi_axil_adapter"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "properties": [
         {
           "name": "ADDR_WIDTH",
@@ -324,6 +332,14 @@
         },
         "source": "examples/hdmi/ipcores/axi_dispctrl.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "CTL_O",
@@ -437,6 +453,14 @@
         },
         "source": "repo[builtin]:axi_interconnect"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "properties": [
         {
           "name": "ADDR_WIDTH",
@@ -557,6 +581,14 @@
         },
         "source": "repo[builtin]:axi_protocol_converter"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "M_AXI",
@@ -598,6 +630,14 @@
         },
         "source": "repo[builtin]:axis_async_fifo"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "properties": [
         {
           "name": "DATA_WIDTH",
@@ -718,6 +758,14 @@
         },
         "source": "repo[builtin]:axis_dwidth_converter"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "properties": [
         {
           "name": "IN_DATA_WIDTH",
@@ -771,6 +819,14 @@
         },
         "source": "examples/hdmi/ipcores/clock_crossing.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "A",
@@ -812,6 +868,14 @@
         },
         "source": "examples/hdmi/ipcores/dma_axi_in_axis_out.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "clock",
@@ -883,6 +947,14 @@
         },
         "source": "examples/hdmi/ipcores/hdmi_tx.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "CTL",
@@ -1020,6 +1092,14 @@
         },
         "source": "examples/hdmi/ipcores/litex_mmcm.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "axi",
@@ -1079,6 +1159,14 @@
         },
         "source": "examples/hdmi/ipcores/proc_sys_reset.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "aux_reset_in",
@@ -1156,6 +1244,14 @@
         },
         "source": "examples/hdmi/ipcores/ps7.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "FCLK0",
@@ -1710,6 +1806,14 @@
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       }
-    }
+    },
+    "subgraphContextMenuActions": [
+        {
+            "iconName": "Save",
+            "name": "Export Hierarchy",
+            "procedureName": "custom_download_hierarchy",
+            "requireResponse": true
+        }
+    ]
   }
 }

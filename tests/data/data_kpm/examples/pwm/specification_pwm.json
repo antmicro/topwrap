@@ -241,6 +241,14 @@
         },
         "source": "repo[builtin]:axi_axil_adapter"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "properties": [
         {
           "name": "ADDR_WIDTH",
@@ -314,6 +322,14 @@
         },
         "source": "examples/pwm/ipcores/litex_pwm.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "pwm",
@@ -355,6 +371,14 @@
         },
         "source": "examples/pwm/ipcores/ps7.yaml"
       },
+      "contextMenuActions": [
+          {
+              "iconName": "Save",
+              "name": "Export IP",
+              "procedureName": "custom_download_ip",
+              "requireResponse": true
+          }
+      ],
       "interfaces": [
         {
           "name": "FCLK0",
@@ -505,6 +529,14 @@
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       }
-    }
+    },
+    "subgraphContextMenuActions": [
+        {
+            "iconName": "Save",
+            "name": "Export Hierarchy",
+            "procedureName": "custom_download_hierarchy",
+            "requireResponse": true
+        }
+    ]
   }
 }
