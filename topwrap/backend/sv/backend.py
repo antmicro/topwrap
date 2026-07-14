@@ -85,14 +85,6 @@ class SystemVerilogBackend(Backend[SVOutput]):
         """
 
         pkg_items = dict[str, Logic]()
-        if module.design is not None and len(module.design.interconnects) > 0:
-            used_module = copy.deepcopy(module)
-        else:
-            # `Design` is deepcopied when there is at least one `Interconnect` present,
-            # it is because `Interconnect` is converted to `Module` and added to `Design`
-            # as `ModuleInstance`, it is needed for generating connections and module instance
-            # in SystemVerilog code.
-            used_module = module
         intfs = set[ObjectId[InterfaceDefinition]]()
         mods_to_repr = list[Design]()
 
@@ -105,7 +97,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
                 for field in log.fields:
                     _try_append(field.type)
 
-        for mod in used_module.hierarchy():
+        for mod in module.hierarchy():
             for port in mod.ports:
                 _try_append(port.type)
             for intf in mod.interfaces:
@@ -114,24 +106,29 @@ class SystemVerilogBackend(Backend[SVOutput]):
                         intfs.add(intf.definition._id)
                 for sig in intf.signals:
                     _try_append(sig.resolve().type)
-            if mod._id not in self.modules or mod._id == used_module._id:
+            if mod._id not in self.modules or mod._id == module._id:
                 if mod.design is not None:
-                    mods_to_repr.append(mod.design)
+                    if len(mod.design.interconnects) > 0:
+                        mods_to_repr.append(copy.deepcopy(mod.design))
+                    else:
+                        # `Design` is deepcopied when there is at least one `Interconnect` present,
+                        # it is because `Interconnect` is converted to `Module` and added to `Design`
+                        # as `ModuleInstance`, it is needed for generating connections and module instance
+                        # in SystemVerilog code.
+                        mods_to_repr.append(mod.design)
                 elif self.mod_stubs:
                     des = Design()
                     des.parent = mod
                     mods_to_repr.append(des)
             log_module_interfaces(logger, mod)
 
-        design = used_module.design
-
         interconnects = []
-        if design is not None:
-            interconnects = [self.represent_interconnect(it) for it in design.interconnects]
+        for des in mods_to_repr:
+            interconnects += [self.represent_interconnect(it) for it in des.interconnects]
 
         pkg = pkg_name = None
         if len(pkg_items) > 0:
-            pkg_name = used_module.id.name + "_pkg"
+            pkg_name = module.id.name + "_pkg"
             pkg = self.represent_package(pkg_name, pkg_items)
 
         # Interconnects need to be added to design before this
@@ -148,7 +145,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
         intf_defs.sort(key=lambda i: i.id.name)
 
         return SVOutput(
-            base_name=used_module.id.name,
+            base_name=module.id.name,
             package=pkg,
             interfaces=[self.represent_interface(i, pkg_name) for i in intf_defs],
             modules=modules,
