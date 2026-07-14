@@ -18,6 +18,7 @@ from examples.soc.ir.design import top as soc_top
 from topwrap.backend.sv.backend import GeneratorNotImplementedError, SystemVerilogBackend
 from topwrap.backend.sv.common import serialize_select, serialize_type, sv_varname
 from topwrap.backend.sv.design import Design, _SystemVerilogDesignData
+from topwrap.interconnects.wishbone_rr import WishboneInterconnect, WishboneRRParams
 from topwrap.model.connections import (
     ConstantConnection,
     InterfaceConnection,
@@ -608,6 +609,60 @@ module inner (
     input logic [3:0] baz,
     input logic [3:0] qux
 );
+
+endmodule"""
+        )
+
+    def test_hierarchical_interconnect(self):
+        inner_ports = [
+            Port(name="clk", direction=PortDirection.IN),
+            Port(name="rst", direction=PortDirection.IN),
+        ]
+        inner_module = Module(
+            id=Identifier(name="inner"),
+            ports=inner_ports,
+            design=Design(
+                interconnects=[
+                    WishboneInterconnect(
+                        name="my_wb_interconnect_name",
+                        clock=ReferencedPort(io=inner_ports[0]),
+                        reset=ReferencedPort(io=inner_ports[1]),
+                        params=WishboneRRParams(
+                            data_width=ElaboratableValue(32),
+                            addr_width=ElaboratableValue(30),
+                            granularity=8,
+                            features=[],
+                        ),
+                    ),
+                ],
+            ),
+        )
+        inner_inst = ModuleInstance(name="inner", module=inner_module)
+        outer_module = Module(
+            id=Identifier(name="outer"),
+            design=Design(
+                components=[inner_inst],
+            ),
+        )
+
+        backend = SystemVerilogBackend(desc_comms=False)
+        out = backend.represent(outer_module)
+
+        assert len(out.modules) == 3
+
+        assert out.modules[0].name == "outer"
+        assert out.modules[1].name == "inner"
+        assert out.modules[2].name == "interconnect_my_wb_interconnect_name"
+
+        assert (
+            out.modules[1].content
+            == """module inner (
+    input logic clk,
+    input logic rst
+);
+
+  interconnect_my_wb_interconnect_name my_wb_interconnect_name (
+  );
 
 endmodule"""
         )
