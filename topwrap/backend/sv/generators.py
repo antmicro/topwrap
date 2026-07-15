@@ -186,9 +186,9 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
         }
 
         subordinate_names = []
-        for manager_id in interconnect.subordinates:
-            referenced_interface = manager_id.resolve()
-            subordinate = interconnect.subordinates[manager_id]
+        for subordinate_id in interconnect.subordinates:
+            referenced_interface = subordinate_id.resolve()
+            subordinate = interconnect.subordinates[subordinate_id]
             instance_name = None
             if referenced_interface.instance is not None:
                 instance_name = referenced_interface.instance.name
@@ -223,12 +223,18 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
 
     def get_name(self, referenced_interface: ReferencedInterface, signal: InterfaceSignal) -> str:
         instance_name = None
+        external = False
         if referenced_interface.instance is not None:
             instance_name = referenced_interface.instance.name
         else:
             instance_name = f"id_{referenced_interface._id._id}"
-        mode_subordinate = referenced_interface.io.mode == InterfaceMode.SUBORDINATE
-        mode = InterfaceMode.MANAGER if mode_subordinate else InterfaceMode.SUBORDINATE
+            external = True
+
+        mode = referenced_interface.io.mode
+        if not external:
+            mode_subordinate = referenced_interface.io.mode == InterfaceMode.SUBORDINATE
+            mode = InterfaceMode.MANAGER if mode_subordinate else InterfaceMode.SUBORDINATE
+
         direction = signal.modes[mode].direction
         direction_str = (
             "o" if direction == PortDirection.OUT else "i" if direction == PortDirection.IN else ""

@@ -1,3 +1,4 @@
+name: top
 ips:
   cpu:
     file: file:ips/cpu.yaml
@@ -38,7 +39,7 @@ interconnects:
 
     managers:
       cpu: [bus_manager]
-      wb_pass: [wb_out]
+      top: [ext_manager]
 
     subordinates:
       dsp:

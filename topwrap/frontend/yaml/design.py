@@ -276,11 +276,11 @@ class DesignDescriptionFrontend:
                 # and if not, then we know its external
                 try:
                     refio, _ = self._resolve_ref(des, mname, man)
-                except:
+                except DesignDescriptionFrontendException as e:
                     if mname == des.parent.id.name:
                         refio, _ = self._resolve_ref(des, None, man)
                     else:
-                        refio = None
+                        raise e
 
                 if not isinstance(refio, ReferencedInterface):
                     raise DesignDescriptionFrontendException(
@@ -324,15 +324,16 @@ class DesignDescriptionFrontend:
                     # and if not, then we know its external
                     try:
                         refio, _ = self._resolve_ref(des, sname, sub)
-                    except:
+                    except DesignDescriptionFrontendException as e:
                         if sname == des.parent.id.name:
                             refio, _ = self._resolve_ref(des, None, sub)
                         else:
-                            refio = None
+                            raise e
                     if not isinstance(refio, ReferencedInterface):
                         raise DesignDescriptionFrontendException(
                             "Subordinate reference is not an interface"
                         )
+
                 except DesignDescriptionFrontendException as e:
                     logger.warning(
                         f"Skipping subordinate '{sub}' for interconnect '{iname}' because of: {e}"
@@ -403,19 +404,11 @@ class DesignDescriptionFrontend:
                 return refio
 
         for mname, mans in intr.managers.items():
-            if isinstance(mans, list):
-                for man in mans:
-                    refio = get_refio_from_connection(des, mname, man)
-                    if not refio:
-                        continue
-                    return refio.io.definition, refio.io.signals
-
-            else:  # Dict
-                for man, _ in mans.items():
-                    refio = get_refio_from_connection(des, mname, man)
-                    if not refio:
-                        continue
-                    return refio.io.definition, refio.io.signals
+            for man in mans:
+                refio = get_refio_from_connection(des, mname, man)
+                if not refio:
+                    continue
+                return refio.io.definition, refio.io.signals
 
         for sname, subs in intr.subordinates.items():
             for sub, _ in subs.items():
@@ -450,6 +443,9 @@ class DesignDescriptionFrontend:
             if intf is None:
                 if name in decls:
                     logger.debug(f"adding external interconnect({iname}) interface: {name}")
+
+                    # This interface doesn't exist, we only describe definitions and signals
+                    # of what to infer from external interface connected to interconnect
                     conn_to = Interface("dummy", mode, intf_def, intf_sigs)
                     self._parse_external(des, conn_to, name, decls[name][0], decls[name][1])
                     del decls[name]
@@ -457,13 +453,8 @@ class DesignDescriptionFrontend:
         intf_def, intf_sigs = self._infer_interconnect_interface(intr, des, iname)
 
         for _, mans in intr.managers.items():
-            if isinstance(mans, list):
-                for man in mans:
-                    add_external(des, man, decls, InterfaceMode.SUBORDINATE)
-
-            else:  # Dict
-                for man, _ in mans.items():
-                    add_external(des, man, decls, InterfaceMode.SUBORDINATE)
+            for man in mans:
+                add_external(des, man, decls, InterfaceMode.SUBORDINATE)
 
         for _, subs in intr.subordinates.items():
             for sub, _ in subs.items():
