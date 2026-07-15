@@ -44,14 +44,19 @@ class KpmFrontend(Frontend):
 
         spec_front = KpmSpecificationFrontend(self.interfaces)
         spec_mods = list[Module]()
+        positions = {}
         for source, spec in specs:
-            spec_mods.extend(spec_front.parse(spec, source=source))
+            for mod, pos in spec_front.parse(spec, source=source):
+                spec_mods.append(mod)
+                positions.update(pos)
 
         flow_front = KpmDataflowFrontend([*spec_mods, *self.modules])
         for source, flow in flows:
-            spec_mods.append(flow_front.parse(flow, source=source))
+            mod, pos = flow_front.parse(flow, source=source)
+            spec_mods.append(mod)
+            positions.update(pos)
 
-        return FrontendParseOutput(modules=spec_mods)
+        return FrontendParseOutput(modules=spec_mods, positions=positions)
 
     def get_top_design(self, modules: Iterable[Module]) -> Design:
         *_, design_module = modules

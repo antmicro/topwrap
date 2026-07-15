@@ -76,7 +76,7 @@ class TestKpmSpecificationFrontend:
         spec["graphs"] = [graph]
 
         front = KpmSpecificationFrontend([*intf_defs])
-        mods: list[Module] = [*front.parse(spec, resolve_graphs=True)]
+        mods: list[Module] = [m for m, _ in front.parse(spec, resolve_graphs=True)]
         assert len(mods) == len(ip_cores) + 1
         graph_mod = next(m for m in mods if m.id.name == "intr_top")
         assert len(graph_mod.design.interconnects) == 1
@@ -96,7 +96,8 @@ class TestKpmDataflowFrontend:
     )
     def test_ir(self, files: dict[str, JsonType], file: str, validator: Callable[[Module], None]):
         front = KpmDataflowFrontend(ALL_MODULES)
-        validator(front.parse(files[file]))
+        mod, _ = front.parse(files[file])
+        validator(mod)
 
     def test_non_default_version(self):
         id = Identifier(name="versioned_mod", version="2.0")
@@ -109,7 +110,7 @@ class TestKpmDataflowFrontend:
 
     def test_io_inference(self, files: dict[str, JsonType]):
         front = KpmDataflowFrontend(ALL_MODULES)
-        mod = front.parse(files["io_inference_flow"])
+        mod, _ = front.parse(files["io_inference_flow"])
 
         port = next(p for p in mod.ports if p.name == "test_port")
         intf = next(i for i in mod.interfaces if i.name == "test_intf")
@@ -118,7 +119,7 @@ class TestKpmDataflowFrontend:
 
     def test_complex(self, files: dict[str, JsonType]):
         front = KpmDataflowFrontend(ALL_MODULES)
-        mod = front.parse(files["complex_flow"])
+        mod, _ = front.parse(files["complex_flow"])
         assert mod.design is not None
 
         cout = next(p for p in mod.ports if p.name == "cout")

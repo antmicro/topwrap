@@ -7,7 +7,7 @@ from typing import Iterable, Iterator, Optional, cast
 
 from pipeline_manager.dataflow_builder.entities import Direction
 
-from topwrap.backend.kpm.common import PORT_INTF_TYPE, LayerType
+from topwrap.backend.kpm.common import PORT_INTF_TYPE, LayerType, Positions
 from topwrap.frontend.kpm.common import (
     KpmFrontendParseException,
     kpm_dir_to_ir_intf,
@@ -48,7 +48,7 @@ class KpmSpecificationFrontend:
         allow_unknown_intfs: bool = True,
         resolve_graphs: bool = True,
         source: Optional[Path] = None,
-    ) -> Iterator[Module]:
+    ) -> Iterator[tuple[Module, dict[Identifier, Positions]]]:
         """
         Parse a KPM specification into multiple IR modules.
 
@@ -78,7 +78,7 @@ class KpmSpecificationFrontend:
                     source=source,
                 )
             ]
-            front = KpmDataflowFrontend(modules)
+            front = KpmDataflowFrontend([m[0] for m in modules])
             # Pass all graphs together so nested subgraph references can be resolved
             yield front.parse({"graphs": graphs})
             yield from modules
@@ -154,4 +154,4 @@ class KpmSpecificationFrontend:
                         " interface definition exists"
                     )
 
-            yield mod
+            yield mod, {}

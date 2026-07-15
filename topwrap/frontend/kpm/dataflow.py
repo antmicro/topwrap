@@ -25,6 +25,7 @@ from topwrap.backend.kpm.common import (
     InterconnectMetanode,
     InverterMetanode,
     IoMetanode,
+    Positions,
     ResetDomainMetanode,
 )
 from topwrap.backend.kpm.common import InterconnectMetanodeStrings as IMS
@@ -147,6 +148,9 @@ class _KpmDataflowInstanceData:
     #: Maps reset inputs of a particular instance to the domain names they're assigned to.
     pending_rst_assignments: dict[tuple[ObjectId[ModuleInstance], ObjectId[Reset]], str]
 
+    #: Map of modules to their node positions
+    _positions: dict[ObjectId[Module], Positions]
+
     def __init__(self, spec: JsonType, flow: JsonType):
         self.refmap = {}
         self.skip_iface_conns = []
@@ -169,6 +173,8 @@ class _KpmDataflowInstanceData:
         self.pending_clk_assignments = {}
         self.pending_rst_assignments = {}
 
+        self._positions = {}
+
         self.flow = GraphBuilder(spec, SPECIFICATION_VERSION)
 
         self.flow.load_graphs(flow, skip_validation=True)
@@ -180,6 +186,12 @@ class _KpmDataflowInstanceData:
                 src, trg = conn.from_interface, conn.to_interface
                 self.intfconnmap.setdefault(src.id, []).append(KpmUniqueInterface(graph, trg))
                 self.intfconnmap.setdefault(trg.id, []).append(KpmUniqueInterface(graph, src))
+
+    def positions_of(self, mod: Module) -> Positions:
+        if mod._id not in self._positions:
+            self._positions[mod._id] = Positions()
+
+        return self._positions[mod._id]
 
 
 class KpmDataflowFrontend:
@@ -215,7 +227,9 @@ class KpmDataflowFrontend:
                 self._modmap[node["name"]] = modids[Identifier(**add["full_module_id"])]
         self._spec = spec.build()
 
-    def parse(self, dataflow: JsonType, source: Optional[Path] = None) -> Module:
+    def parse(
+        self, dataflow: JsonType, source: Optional[Path] = None
+    ) -> tuple[Module, dict[Identifier, Positions]]:
         """
         Parses a structure representing a KPM dataflow
         into a top-level `Module` with a design.
@@ -225,7 +239,9 @@ class KpmDataflowFrontend:
 
         data = _KpmDataflowInstanceData(self._spec, dataflow)
         assert data.flow.entry_graph is not None
-        return self._parse(source, data.flow.entry_graph, data)
+        return self._parse(source, data.flow.entry_graph, data), {
+            mid.resolve().id: pos for mid, pos in data._positions.items()
+        }
 
     def _parse(
         self, source: Optional[Path], graph: DataflowGraph, data: _KpmDataflowInstanceData
@@ -242,6 +258,9 @@ class KpmDataflowFrontend:
         for node in graph._nodes.values():
             if not is_metanode(node.name):
                 mod.design.add_component(self._create_mod_instance(source, graph, node, data))
+                if node.position:
+                    name = node.instance_name or node.name
+                    data.positions_of(mod).components[name] = (node.position.x, node.position.y)
             else:
                 if node.name == InterconnectMetanode.name:
                     unrealised_intrs.append(node)
@@ -249,12 +268,19 @@ class KpmDataflowFrontend:
                     data.refmap[KpmUniqueInterface(graph, node.interfaces[0])] = ElaboratableValue(
                         node.properties[0].value
                     )
+                    if node.position:
+                        data.positions_of(mod).constants[node.properties[0].value] = (
+                            node.position.x,
+                            node.position.y,
+                        )
                 elif node.name == IdentifierMetanode.name:
                     name = self._parse_property(node, "Name").value
                     vendor = self._parse_property(node, "Vendor").value
                     library = self._parse_property(node, "Library").value
 
                     mod.id = Identifier(name=name, vendor=vendor, library=library)
+                    if node.position:
+                        data.positions_of(mod).identifier = (node.position.x, node.position.y)
                 elif node.name == IoMetanode.name:
                     if not any(itf.external_name is not None for itf in node.interfaces):
                         raise KpmFrontendParseException(
@@ -278,6 +304,9 @@ class KpmDataflowFrontend:
 
         for node in unrealised_intrs:
             mod.design.add_interconnect(self._create_interconnect(graph, node, data))
+            if node.position:
+                name = node.instance_name or node.name
+                data.positions_of(mod).interconnects[name] = (node.position.x, node.position.y)
 
         self._process_connections(mod, data, graph)
 
@@ -372,6 +401,21 @@ class KpmDataflowFrontend:
                 )
             )
 
+            if node.position:
+                from_refio = data.refmap.get(from_intf)
+                to_refio = data.refmap.get(to_intf)
+
+                assert isinstance(from_refio, ReferencedPort)
+                assert isinstance(to_refio, ReferencedPort)
+
+                sinst = from_refio.instance and from_refio.instance.name
+                sio = from_refio.io.name
+                tinst = to_refio.instance and to_refio.instance.name
+                tio = to_refio.io.name
+
+                key = ((sinst, sio), (tinst, tio))
+                data.positions_of(mod).inverters[key] = (node.position.x, node.position.y)
+
     def _create_clock_domains(
         self,
         mod: Module,
@@ -394,6 +438,8 @@ class KpmDataflowFrontend:
                     clock=port,
                 )
             )
+            if dom.position:
+                data.positions_of(mod).clock_domains[name] = (dom.position.x, dom.position.y)
 
     def _create_reset_domains(
         self,
@@ -432,6 +478,8 @@ class KpmDataflowFrontend:
                     synchronous_to=synchronous_to,
                 )
             )
+            if dom.position:
+                data.positions_of(mod).reset_domains[name] = (dom.position.x, dom.position.y)
 
     def _realize_clock_reset_assignments(
         self,
@@ -604,6 +652,12 @@ class KpmDataflowFrontend:
             )
             ref = ReferencedPort.external(port)
             des.parent.add_port(port)
+
+        if node.position:
+            data.positions_of(des.parent).externals[kpm_intf.interface.external_name] = (
+                node.position.x,
+                node.position.y,
+            )
 
         if node.name == IoMetanode.name:
             ext_intf = next(s for s in node.interfaces if s.external_name is not None)
