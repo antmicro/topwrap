@@ -24,6 +24,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 
     executor.submit(
         KPM.run_server,
+        preserve_parent_state=False,
         server_ready_event=server_ready_event,
         show_kpm_logs=True,
         server_init_failed=server_init_failed,
