@@ -4,7 +4,6 @@
 import enum
 import re
 from dataclasses import dataclass
-from datetime import datetime
 from functools import reduce
 from pathlib import Path
 
@@ -21,6 +20,7 @@ from topwrap.model.hdl_types import (
     LogicSelect,
 )
 from topwrap.model.misc import TranslationError
+from topwrap.util import get_package_identifier
 
 
 class SVFileType(enum.Enum):
@@ -84,7 +84,7 @@ def get_template(name: str) -> Template:
     return TEMPLATE.get_template(
         name,
         globals={
-            "gen_date": datetime.now,
+            "gen_version": lambda: get_package_identifier("topwrap"),
             sv_varname.__name__: sv_varname,
             serialize_type.__name__: serialize_type,
         },

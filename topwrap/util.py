@@ -236,7 +236,10 @@ def get_package_identifier(package_name: str) -> str:
         return "unknown"
 
     try:
-        data = json.loads(dist.read_text("direct_url.json"))
+        raw = dist.read_text("direct_url.json")
+        if raw is None:
+            raise FileNotFoundError
+        data = json.loads(raw)
         return data.get("vcs_info", {}).get("commit_id", result)
     except FileNotFoundError:
         logging.info(f"Unable to get SHA of {package_name}")
