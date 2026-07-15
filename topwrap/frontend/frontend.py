@@ -7,8 +7,9 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Union
 
+from topwrap.backend.kpm.common import Positions
 from topwrap.model.interface import InterfaceDefinition
-from topwrap.model.misc import TranslationError
+from topwrap.model.misc import Identifier, TranslationError
 from topwrap.model.module import Module
 
 
@@ -34,6 +35,7 @@ class FrontendMetadata:
 class FrontendParseOutput:
     modules: list[Module] = field(default_factory=list)
     interfaces: list[InterfaceDefinition] = field(default_factory=list)
+    positions: dict[Identifier, Positions] = field(default_factory=dict)
 
 
 class FrontendParseException(TranslationError):

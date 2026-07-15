@@ -49,6 +49,35 @@ INTF_CONN_STYLE = KpmConnPattern.DASHED
 CLOCK_INTF_TYPE = "intf__clock"
 
 
+@dataclass
+class Positions:
+    #: Map of component name to it's position in the KPM graph
+    components: dict[str, tuple[float, float]] = field(default_factory=dict)
+
+    #: Map of external port to it's position in the KPM graph
+    externals: dict[str, tuple[float, float]] = field(default_factory=dict)
+
+    #: Map of constant value to it's position in the KPM graph
+    constants: dict[str, tuple[float, float]] = field(default_factory=dict)
+
+    #: Map of clock domain name to it's position in the KPM graph
+    clock_domains: dict[str, tuple[float, float]] = field(default_factory=dict)
+
+    #: Map of reset domain name to it's position in the KPM graph
+    reset_domains: dict[str, tuple[float, float]] = field(default_factory=dict)
+
+    #: Map of interconnect name to it's position in the KPM graph
+    interconnects: dict[str, tuple[float, float]] = field(default_factory=dict)
+
+    #: Map of connection to it's inverter's position in the KPM graph
+    inverters: dict[
+        tuple[tuple[Optional[str], str], tuple[Optional[str], str]], tuple[float, float]
+    ] = field(default_factory=dict)
+
+    #: Position of the identifier node in the KPM graph
+    identifier: Optional[tuple[float, float]] = field(default=None)
+
+
 class KpmNodeAdditionalData(TypedDict):
     full_module_id: dict[str, str]
     source: Optional[str]
