@@ -9,6 +9,7 @@ import yaml
 from typing_extensions import Any, override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo
+from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexSignal,
@@ -28,7 +29,11 @@ from topwrap.frontend.yaml.design_schema import (
     DesignExternalIntfs,
     DesignExternalPorts,
     DesignExternalSection,
+    DesignInverterPosition,
     DesignIP,
+    DesignNodePosition,
+    DesignPositionDefinition,
+    DesignPositions,
     DesignSectionClockDomain,
     DesignSectionInterconnect,
     DesignSectionResetDomain,
@@ -73,6 +78,12 @@ class IpCoreDescriptionOutput:
 class DesignDescriptionOutput:
     base_name: str
     description: DesignDescription
+
+
+@dataclass
+class DesignPositionsOutput:
+    base_name: str
+    positions: DesignPositions
 
 
 class DesignDescriptionBackendException(Exception):
@@ -618,3 +629,57 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
     def serialize(self, repr: DesignDescriptionOutput) -> Iterator[BackendOutputInfo]:
         out = repr.description.to_yaml()
         yield BackendOutputInfo(content=out, filename=f"{repr.base_name}.yaml")
+
+
+class DesignPositionsBackend:
+    def represent(self, name: str, positions: dict[Identifier, Positions]) -> DesignPositionsOutput:
+        out = DesignPositions(modules=[self._represent(id, pos) for id, pos in positions.items()])
+
+        return DesignPositionsOutput(
+            base_name=name,
+            positions=out,
+        )
+
+    def _represent(self, id: Identifier, pos: Positions) -> DesignPositionDefinition:
+        inverters = []
+
+        for (src, tgt), inv_pos in pos.inverters.items():
+            inverters.append(
+                DesignInverterPosition(
+                    source=self._represent_io(src),
+                    target=self._represent_io(tgt),
+                    position=inv_pos,
+                )
+            )
+
+        def _repr_nodes(nodes: dict[str, tuple[float, float]]) -> list[DesignNodePosition]:
+            return [
+                DesignNodePosition(
+                    name=name,
+                    position=position,
+                )
+                for name, position in nodes.items()
+            ]
+
+        return DesignPositionDefinition(
+            id=id,
+            components=_repr_nodes(pos.components),
+            externals=_repr_nodes(pos.externals),
+            constants=_repr_nodes(pos.constants),
+            clock_domains=_repr_nodes(pos.clock_domains),
+            reset_domains=_repr_nodes(pos.reset_domains),
+            interconnects=_repr_nodes(pos.interconnects),
+            inverters=inverters,
+            identifier=pos.identifier,
+        )
+
+    def _represent_io(self, io: tuple[Optional[str], str]) -> Union[str, tuple[str, str]]:
+        inst, port = io[0], io[1]
+        if inst is None:
+            return port
+        else:
+            return (inst, port)
+
+    def serialize(self, repr: DesignPositionsOutput) -> Iterator[BackendOutputInfo]:
+        out = repr.positions.to_yaml()
+        yield BackendOutputInfo(content=out, filename=f"{repr.base_name}.kpm_positions.yaml")

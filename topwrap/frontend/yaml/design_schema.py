@@ -17,6 +17,7 @@ from topwrap.common_serdes import (
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.config import ConfigDescription
+from topwrap.model.misc import Identifier
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -205,3 +206,34 @@ class DesignDescription(MarshmallowDataclassExtensions):
                 path = Path(self.name + ".yaml")
 
         super().save(path, **kwargs)
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class DesignInverterPosition(MarshmallowDataclassExtensions):
+    source: Union[str, tuple[str, str]]
+    target: Union[str, tuple[str, str]]
+    position: tuple[float, float]
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class DesignNodePosition(MarshmallowDataclassExtensions):
+    name: str
+    position: tuple[float, float]
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class DesignPositionDefinition(MarshmallowDataclassExtensions):
+    id: Identifier
+    identifier: Optional[tuple[float, float]] = ext_field(None, inline_depth=0)
+    components: list[DesignNodePosition] = ext_field(list, inline_depth=2)
+    externals: list[DesignNodePosition] = ext_field(list, inline_depth=2)
+    constants: list[DesignNodePosition] = ext_field(list, inline_depth=2)
+    clock_domains: list[DesignNodePosition] = ext_field(list, inline_depth=2)
+    reset_domains: list[DesignNodePosition] = ext_field(list, inline_depth=2)
+    interconnects: list[DesignNodePosition] = ext_field(list, inline_depth=2)
+    inverters: list[DesignInverterPosition] = ext_field(list, inline_depth=2)
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
+class DesignPositions(MarshmallowDataclassExtensions):
+    modules: list[DesignPositionDefinition]
