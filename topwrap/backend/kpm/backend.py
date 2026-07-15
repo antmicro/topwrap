@@ -8,8 +8,10 @@ from typing import Iterator, Optional
 from typing_extensions import override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo
+from topwrap.backend.kpm.common import Positions
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
+from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 from topwrap.util import JsonType
 
@@ -24,17 +26,26 @@ class KpmOutput:
 class KpmBackend(Backend[KpmOutput]):
     depth: int
 
-    def __init__(self, depth: int = 0, *, disabled_layers: Optional[list[str]] = None) -> None:
+    def __init__(
+        self,
+        depth: int = 0,
+        *,
+        disabled_layers: Optional[list[str]] = None,
+        positions: Optional[dict[Identifier, Positions]] = None,
+    ) -> None:
         super().__init__()
         self.depth = depth
         self.disabled_layers = disabled_layers
+        self.positions = positions
 
     @override
     def represent(self, module: Module) -> KpmOutput:
         spec = KpmSpecificationBackend.default()
         spec.add_module(module, recursive=True)
         spec = spec.build()
-        flow = KpmDataflowBackend(spec, disabled_layers=self.disabled_layers)
+        flow = KpmDataflowBackend(
+            spec, disabled_layers=self.disabled_layers, positions=self.positions
+        )
         if module.design is not None:
             flow.represent_design(module.design, depth=self.depth)
         spec = flow.apply_subgraphs_to_spec(spec)

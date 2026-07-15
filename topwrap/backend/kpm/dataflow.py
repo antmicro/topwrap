@@ -12,7 +12,7 @@ from pipeline_manager.dataflow_builder.dataflow_builder import (
     DataflowGraph,
     GraphBuilder,
 )
-from pipeline_manager.dataflow_builder.entities import Direction, Node, Property, Side
+from pipeline_manager.dataflow_builder.entities import Direction, Node, Property, Side, Vector2
 from pipeline_manager.dataflow_builder.entities import Interface as KpmInterface
 
 from topwrap.backend.kpm.common import (
@@ -25,6 +25,7 @@ from topwrap.backend.kpm.common import (
     InverterMetanode,
     IoMetanode,
     KpmNodeAdditionalData,
+    Positions,
     ResetDomainMetanode,
     kpm_dir_from,
 )
@@ -84,7 +85,11 @@ class KpmDataflowBackend:
     _subgraphs: dict[str, DataflowGraph]
 
     def __init__(
-        self, specification: JsonType, *, disabled_layers: Optional[list[str]] = None
+        self,
+        specification: JsonType,
+        *,
+        disabled_layers: Optional[list[str]] = None,
+        positions: Optional[dict[Identifier, Positions]] = None,
     ) -> None:
         """
         :param specification: The specification to base this dataflow on
@@ -97,6 +102,7 @@ class KpmDataflowBackend:
         self._consts = {}
         self._subgraphs = {}
         self._disabled_layers = disabled_layers or []
+        self._positions = positions or {}
 
         for node in self._spec["nodes"]:
             add: Optional[KpmNodeAdditionalData] = node.get("additionalData")
@@ -166,33 +172,38 @@ class KpmDataflowBackend:
     def _represent_design(
         self, design: Design, graph: DataflowGraph, depth: int = 0
     ) -> DataflowGraph:
+        if design.parent.id in self._positions:
+            positions = self._positions[design.parent.id]
+        else:
+            positions = Positions()
+
         ref: _REFTYPE = {}
-        self.add_id_node(graph, design.parent.id)
+        self.add_id_node(graph, design.parent.id, positions)
 
         for comp in design.components:
-            self.add_component(graph, comp, depth, ref)
+            self.add_component(graph, comp, depth, ref, positions)
 
         for ext_intf in design.parent.interfaces:
-            self.add_external(graph, ext_intf, ref)
+            self.add_external(graph, ext_intf, ref, positions)
 
         for ext_port in design.parent.non_intf_ports():
-            self.add_external(graph, ext_port, ref)
+            self.add_external(graph, ext_port, ref, positions)
 
         for conn in design.connections:
-            self.add_connection(graph, conn, ref)
+            self.add_connection(graph, conn, ref, positions)
 
         for intr in design.interconnects:
-            self.add_interconnect(graph, intr, ref)
+            self.add_interconnect(graph, intr, ref, positions)
 
         for domain in design.clock_domains:
-            self.add_clock_domain(graph, domain, ref)
+            self.add_clock_domain(graph, domain, ref, positions)
 
         for domain in design.reset_domains:
-            self.add_reset_domain(graph, domain, ref)
+            self.add_reset_domain(graph, domain, ref, positions)
 
         return graph
 
-    def add_id_node(self, graph: DataflowGraph, id: Identifier):
+    def add_id_node(self, graph: DataflowGraph, id: Identifier, pos: Positions):
         node = graph.create_node(
             name=IdentifierMetanode.name,
             instance_name=IdentifierMetanode.name,
@@ -201,7 +212,12 @@ class KpmDataflowBackend:
         node.set_property(IdentifierMetanode().properties[1].propname, id.vendor)
         node.set_property(IdentifierMetanode().properties[2].propname, id.library)
 
-    def add_component(self, graph: DataflowGraph, comp: ModuleInstance, depth: int, refs: _REFTYPE):
+        if pos.identifier:
+            node.move(Vector2(pos.identifier[0], pos.identifier[1]))
+
+    def add_component(
+        self, graph: DataflowGraph, comp: ModuleInstance, depth: int, refs: _REFTYPE, pos: Positions
+    ):
         node_name = self._nodeids.get(comp.module.id.combined())
         module_key = comp.module.id.combined()
 
@@ -235,6 +251,10 @@ class KpmDataflowBackend:
                 interfaces=[],
             )
 
+        node_pos = pos.components.get(comp.name)
+        if node_pos:
+            node.move(Vector2(node_pos[0], node_pos[1]))
+
         for param, val in comp.parameters.items():
             node.set_property(param.resolve().name, val.value)
 
@@ -265,7 +285,7 @@ class KpmDataflowBackend:
             node.set_property(f"Domain for reset '{reset.name}'", domain.name)
 
     def add_external(
-        self, graph: DataflowGraph, io: Union[Port, Interface], refs: _REFTYPE
+        self, graph: DataflowGraph, io: Union[Port, Interface], refs: _REFTYPE, pos: Positions
     ) -> Node:
         interfaces = [
             KpmInterface(i.interfacename, kpm_dir_from(i.direction))
@@ -285,10 +305,14 @@ class KpmDataflowBackend:
 
         node = graph.create_node(name=IoMetanode.name, instance_name=io.name, interfaces=interfaces)
 
+        node_pos = pos.externals.get(io.name)
+        if node_pos:
+            node.move(Vector2(node_pos[0], node_pos[1]))
+
         refs[(None, id(io))] = target
         return node
 
-    def add_connection(self, graph: DataflowGraph, conn: Connection, ref: _REFTYPE):
+    def add_connection(self, graph: DataflowGraph, conn: Connection, ref: _REFTYPE, pos: Positions):
         if isinstance(conn, ConstantConnection):
             if (graph.id, conn.source.value) in self._consts:
                 node = self._consts[(graph.id, conn.source.value)]
@@ -299,12 +323,16 @@ class KpmDataflowBackend:
                 )
                 node.set_property(ConstMetanode().properties[0].propname, conn.source.value)
                 self._consts[(graph.id, conn.source.value)] = node
+
+                node_pos = pos.constants.get(conn.source.value)
+                if node_pos:
+                    node.move(Vector2(node_pos[0], node_pos[1]))
             port = conn.target.io
             if port is None:
                 raise TranslationError("Connection to Logic with an unreferenced port")
             tgt_key = (conn.target.instance, id(port))
             if tgt_key not in ref and conn.target.instance is None:
-                self.add_external(graph, port, ref)
+                self.add_external(graph, port, ref, pos)
             self._connect(graph, node.interfaces[0], ref[tgt_key])
         elif isinstance(conn, PortConnection):
             port1 = conn.source.io
@@ -315,15 +343,27 @@ class KpmDataflowBackend:
             src_key = (conn.source.instance, id(port1))
             tgt_key = (conn.target.instance, id(port2))
             if src_key not in ref and conn.source.instance is None:
-                self.add_external(graph, port1, ref)
+                self.add_external(graph, port1, ref, pos)
             if tgt_key not in ref and conn.target.instance is None:
-                self.add_external(graph, port2, ref)
+                self.add_external(graph, port2, ref, pos)
 
             if conn.invert:
                 node = graph.create_node(
                     name=InverterMetanode.name,
                     instance_name=InverterMetanode.name,
                 )
+
+                sinst = conn.source.instance and conn.source.instance.name
+                sio = conn.source.io.name
+                tinst = conn.target.instance and conn.target.instance.name
+                tio = conn.target.io.name
+
+                node_pos = pos.inverters.get(((sinst, sio), (tinst, tio)))
+                if not node_pos:
+                    node_pos = pos.inverters.get(((tinst, tio), (sinst, sio)))
+
+                if node_pos:
+                    node.move(Vector2(node_pos[0], node_pos[1]))
 
                 ref1 = ref[src_key]
                 ref2 = ref[tgt_key]
@@ -352,18 +392,24 @@ class KpmDataflowBackend:
             src_key = (conn.source.instance, id(conn.source.io))
             tgt_key = (conn.target.instance, id(conn.target.io))
             if src_key not in ref and conn.source.instance is None:
-                self.add_external(graph, conn.source.io, ref)
+                self.add_external(graph, conn.source.io, ref, pos)
             if tgt_key not in ref and conn.target.instance is None:
-                self.add_external(graph, conn.target.io, ref)
+                self.add_external(graph, conn.target.io, ref, pos)
             self._connect(graph, ref[src_key], ref[tgt_key])
 
-    def add_interconnect(self, graph: DataflowGraph, intr: Interconnect, ref: _REFTYPE):
+    def add_interconnect(
+        self, graph: DataflowGraph, intr: Interconnect, ref: _REFTYPE, pos: Positions
+    ):
         node = graph.create_node(name=InterconnectMetanode.name, instance_name=intr.name)
         mprop, sprop = InterconnectMetanode().interfaces[2:]
 
         node.set_property(
             InterconnectMetanodeStrings.TYPE_PROP.value, INTERCONNECT_NAMES[type(intr)]
         )
+
+        node_pos = pos.interconnects.get(intr.name)
+        if node_pos:
+            node.move(Vector2(node_pos[0], node_pos[1]))
 
         for i, pin in enumerate((intr.clock, intr.reset)):
             self._connect(graph, node.interfaces[i], ref[(pin.instance, id(pin.io))])
@@ -387,11 +433,17 @@ class KpmDataflowBackend:
             set = yaml.safe_dump(params, default_flow_style=True).strip()[1:-1]
             node.properties.append(Property(name=pname.value, value=set))
 
-    def add_clock_domain(self, graph: DataflowGraph, domain: ClockDomain, ref: _REFTYPE):
+    def add_clock_domain(
+        self, graph: DataflowGraph, domain: ClockDomain, ref: _REFTYPE, pos: Positions
+    ):
         node = graph.create_node(
             name=ClockDomainMetanode.name,
             instance_name=ClockDomainMetanode.name,
         )
+
+        node_pos = pos.clock_domains.get(domain.name)
+        if node_pos:
+            node.move(Vector2(node_pos[0], node_pos[1]))
 
         node.set_property(DomainMetanodeStrings.DOMAIN_PROP.value, domain.name)
 
@@ -401,11 +453,17 @@ class KpmDataflowBackend:
             node.interfaces[0],
         )
 
-    def add_reset_domain(self, graph: DataflowGraph, domain: ResetDomain, ref: _REFTYPE):
+    def add_reset_domain(
+        self, graph: DataflowGraph, domain: ResetDomain, ref: _REFTYPE, pos: Positions
+    ):
         node = graph.create_node(
             name=ResetDomainMetanode.name,
             instance_name=ResetDomainMetanode.name,
         )
+
+        node_pos = pos.reset_domains.get(domain.name)
+        if node_pos:
+            node.move(Vector2(node_pos[0], node_pos[1]))
 
         node.set_property(DomainMetanodeStrings.DOMAIN_PROP.value, domain.name)
 
