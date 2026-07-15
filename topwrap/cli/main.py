@@ -3,8 +3,9 @@
 
 import asyncio
 import logging
+import multiprocessing
+import os
 import queue
-import subprocess
 import sys
 import threading
 import webbrowser
@@ -80,6 +81,16 @@ def build_main(
         sys.exit(1)
 
 
+def _run_pipeline_manager_main(argv: list, write_fd: Optional[int] = None) -> None:
+    if write_fd is not None:
+        os.dup2(write_fd, sys.stdout.fileno())
+        os.dup2(write_fd, sys.stderr.fileno())
+
+    from pipeline_manager.__main__ import main
+    sys.argv = argv
+    sys.exit(main())
+
+
 class KPM:
     child_processes = []
     kpm_run_client_task: Optional[asyncio.Task[Any]] = None
@@ -97,7 +108,14 @@ class KPM:
         for k, v in params_dict.items():
             Path(v).mkdir(exist_ok=True, parents=True)
             args += [f"--{k}".replace("_", "-"), f"{v}"]
-        subprocess.check_call([sys.executable, "-m", *args])
+
+        proc = multiprocessing.get_context("fork").Process(
+            target=_run_pipeline_manager_main, args=(args,)
+        )
+        proc.start()
+        proc.join()
+        if proc.exitcode:
+            raise RuntimeError(f"pipeline_manager build failed with exit code {proc.exitcode}")
 
     @staticmethod
     def run_server(
@@ -110,27 +128,31 @@ class KPM:
         for k, v in params_dict.items():
             args += [f"--{k}".replace("_", "-"), f"{v}"]
 
-        server_process = subprocess.Popen(
-            [sys.executable, "-m", *args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        read_fd, write_fd = os.pipe()
+        server_process = multiprocessing.get_context("fork").Process(
+            target=_run_pipeline_manager_main, args=(args, write_fd)
         )
+        server_process.start()
+        os.close(write_fd)
         KPM.child_processes.append(server_process)
+
         server_ready_string = "Uvicorn running on"
-        while server_process.poll() is None and server_process.stdout is not None:
-            server_logs = server_process.stdout.readline().decode("utf-8")
-            if server_ready_event is not None and server_ready_string in server_logs:
-                server_ready_event.set()
-                if shutdown_server:
-                    server_process.terminate()
-            if show_kpm_logs:
-                sys.stdout.write(server_logs)
-        else:
-            logging.warning("KPM server has been terminated")
-            if server_ready_event is not None and not server_ready_event.is_set():
-                logging.warning(
-                    "Make sure that there isn't any instance of pipeline manager running in the"
-                    " background"
-                )
-                raise Exception("Failed to initialize KPM server")
+        with os.fdopen(read_fd, "rb") as server_logs_pipe:
+            while server_logs := server_logs_pipe.readline().decode("utf-8"):
+                if server_ready_event is not None and server_ready_string in server_logs:
+                    server_ready_event.set()
+                    if shutdown_server:
+                        server_process.terminate()
+                if show_kpm_logs:
+                    sys.stdout.write(server_logs)
+            else:
+                logging.warning("KPM server has been terminated")
+                if server_ready_event is not None and not server_ready_event.is_set():
+                    logging.warning(
+                        "Make sure that there isn't any instance of pipeline manager running in"
+                        " the background"
+                    )
+                    raise Exception("Failed to initialize KPM server")
 
     @staticmethod
     def run_client(
