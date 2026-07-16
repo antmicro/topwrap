@@ -5,7 +5,7 @@ import logging
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Iterable, Iterator, Optional, Sequence, Tuple
+from typing import Annotated, Iterable, Iterator, List, Optional, Sequence, Tuple
 
 import cyclopts
 import marshmallow
@@ -19,7 +19,7 @@ from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 from topwrap.repo.user_repo import Core, InterfaceDefinitionResource
 from topwrap.resource_field import FileReferenceHandler
-from topwrap.util import get_config
+from topwrap.util import get_config, parse_incdirs
 
 logger = logging.getLogger(__name__)
 
@@ -57,11 +57,26 @@ def cmd(
     levelname = None if log_level is None else log_level.name
     topwrap.logger.configure(levelname, log_cfg)
 
+    processed_tokens = []
+    include_dirs = parse_incdirs(tokens)
+
+    for i, _ in enumerate(tokens):
+        curr = tokens[i]
+        if not curr.startswith("+incdir+"):
+            processed_tokens.append(tokens[i])
+
     for rep in repo:
         get_config().repositories[rep.name] = FileReferenceHandler(rep)
 
     try:
-        return cli(tokens)
+        PARSE_COMMAND = ["repo", "parse"]
+        if processed_tokens[:2] == PARSE_COMMAND:
+            cli_args = []
+            cli_args.extend(processed_tokens)
+            for inc in include_dirs:
+                cli_args.extend(["--include", inc])
+            return cli(cli_args)
+        return cli(processed_tokens)
     except DesignDescriptionFrontendException as err:
         while err is not None:
             logger.error(err)

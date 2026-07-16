@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+from pathlib import Path
 from typing import Iterable, List, Optional
 
 from typing_extensions import override
@@ -37,6 +38,7 @@ class ModuleFileHandler(FileHandler):
         frontend: Optional[Frontend] = None,
         tops: Iterable[str] = (),
         all_sources: bool = False,
+        include_dirs: Iterable[Path] = (),
         inference: bool = False,
         inference_interfaces: Iterable[str] = [],
         grouping_hints: Iterable[str] = [],
@@ -45,6 +47,7 @@ class ModuleFileHandler(FileHandler):
         self.frontend = AutomaticFrontend() if frontend is None else frontend
         self.tops = set(tops)
         self.all_sources = all_sources
+        self.include_dirs = include_dirs
         self.inference = inference
         self.inference_interfaces = inference_interfaces
         self.grouping_hints = grouping_hints
@@ -52,7 +55,9 @@ class ModuleFileHandler(FileHandler):
     @override
     def parse(self) -> List[Resource]:
         resources: List[Resource] = []
-        frontend_output = self.frontend.parse_files(f.path for f in self._files)
+        frontend_output = self.frontend.parse_files(
+            (f.path for f in self._files), include_dirs=self.include_dirs
+        )
 
         for mod in frontend_output.modules:
             if (

@@ -35,7 +35,9 @@ class AutomaticFrontend(Frontend):
     def metadata(self):
         return FrontendMetadata(name="automatic")
 
-    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+    def parse_files(
+        self, sources: Iterable[Path], *, include_dirs: Iterable[Path] = ()
+    ) -> FrontendParseOutput:
         self._unknown_sources = []
         split = dict[Type[Frontend], list[Path]]()
 
@@ -53,7 +55,7 @@ class AutomaticFrontend(Frontend):
         for frontend, sources in split.items():
             frontend_output = frontend(
                 modules=self.modules, interfaces=self.interfaces
-            ).parse_files(sources)
+            ).parse_files(sources, include_dirs=include_dirs)
             modules.extend(frontend_output.modules)
             interfaces.extend(frontend_output.interfaces)
 

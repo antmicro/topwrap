@@ -21,7 +21,9 @@ class KpmFrontend(Frontend):
         return FrontendMetadata(name="kpm", file_association=[".kpm.json"])
 
     @override
-    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+    def parse_files(
+        self, sources: Iterable[Path], *, include_dirs: Iterable[Path] = ()
+    ) -> FrontendParseOutput:
         specs, flows = [], []
 
         for src in sources:

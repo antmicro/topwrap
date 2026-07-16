@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 import yaml
-from cyclopts.types import ExistingPath
+from cyclopts.types import ExistingDirectory, ExistingFile, ExistingPath
 
 from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos, repo_cli
 from topwrap.config import ConfigManager
@@ -20,7 +20,7 @@ from topwrap.repo.repo import (
 from topwrap.repo.resource import ResourceExistsException
 from topwrap.repo.user_repo import UserRepo
 from topwrap.resource_field import FileReferenceHandler
-from topwrap.util import get_config
+from topwrap.util import get_config, parse_params
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +28,13 @@ logger = logging.getLogger(__name__)
 @repo_cli.command(name="parse")
 def parse_repo(
     repository: str,
-    sources: Tuple[ExistingPath, ...],
+    sources: Tuple[ExistingPath, ...] = (),
     *,
     exists_strategy: ExistsStrategy = ExistsStrategy.RAISE,
     all_sources: bool = False,
     module: Tuple[str, ...] = (),
+    file: Tuple[ExistingFile, ...] = (),
+    include: Tuple[ExistingDirectory, ...] = (),
     frontend: FrontendRegistry.FrontendType = FrontendRegistry.FrontendType.Automatic,
     inference: bool = False,
     inference_interface: Tuple[str, ...] = (),
@@ -56,6 +58,10 @@ def parse_repo(
         Only store modules with these names (repeatable).
     frontend
         Which frontend to use for these sources.
+    file
+        Specify filelist path
+    include
+        Specify directory containing included sources
     inference
         Perform interface inference on modules being added.
     inference_interface
@@ -64,6 +70,11 @@ def parse_repo(
         Grouping hints for interface inference.
     """
     repo_path = get_config().repositories.get(repository)
+
+    if len(file) == 0:
+        if len(sources) == 0:
+            logger.error("Sources must be provided either as an argument or using -f parameter")
+            exit(1)
 
     if repo_path is None:
         logger.error(
@@ -76,6 +87,13 @@ def parse_repo(
     repo.load(repo_path.to_path())
 
     srcs = list(sources)
+    incdirs = list()
+
+    incdirs.extend(include)
+
+    if len(file) > 0:
+        for f in file:
+            load_srcs_from_file(srcs, incdirs, f)
 
     for src in srcs[:]:
         if src.is_dir():
@@ -93,6 +111,7 @@ def parse_repo(
             ),
             module,
             all_sources,
+            incdirs,
             inference,
             inference_interface,
             grouping_hint,
@@ -111,7 +130,35 @@ def parse_repo(
         )
 
 
-@repo_cli.command(name="list")
+def load_srcs_from_file(srcs: list[Path], incdirs: list[Path], file: Path) -> None:
+    def is_comment(line: str) -> bool:
+        return line.startswith("//")
+
+    files = [file]
+
+    while len(files) > 0:
+        curr_file = files.pop()
+        with open(curr_file) as f:
+            for line in f:
+                line = line.strip()
+                if len(line) == 0 or is_comment(line):
+                    continue
+                if line.startswith("+incdir+"):
+                    inc_strs: list[str] = parse_params("+incdir+", "+", line)
+                    for inc in inc_strs:
+                        incdirs.append(Path(inc))
+                    continue
+                elif line.startswith("-F "):
+                    files.append(curr_file.parent / Path(line.lstrip("-F ")))
+                    continue
+                path = Path(line)
+                if not path.exists():
+                    logger.warning("Path {} does not exist".format(line))
+                    continue
+                srcs.append(path)
+
+
+@repo_cli.command(name="list", help="List all repos in current config")
 def list_repos():
     """List all repos in current config"""
 

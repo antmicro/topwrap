@@ -88,7 +88,9 @@ class Frontend(ABC):
         "Return metadata about this frontend such as its file associations"
 
     @abstractmethod
-    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+    def parse_files(
+        self, sources: Iterable[Path], *, include_dirs: Iterable[Path] = ()
+    ) -> FrontendParseOutput:
         """
         Parse a collection of source files into IR modules
 

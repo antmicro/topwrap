@@ -423,7 +423,9 @@ class IpXactFrontend(Frontend):
         except FrontendParseException as e:
             raise FrontendParseException(f"Exception while parsing file '{source}'") from e
 
-    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+    def parse_files(
+        self, sources: Iterable[Path], *, include_dirs: Iterable[Path] = ()
+    ) -> FrontendParseOutput:
         # parsing component requires all interfaces, but parse_files should output only new
         # interfaces
         all_interface_definitions: Dict[Identifier, InterfaceDefinition] = {

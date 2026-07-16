@@ -11,7 +11,7 @@ build:
 
 $(REPO_NAME): $(IPCORE_SOURCES)
 	topwrap repo init $(REPO_NAME) $(REPO_NAME)
-	topwrap repo parse $(REPO_NAME) $(IPCORE_SOURCES) -f systemverilog -e skip
+	topwrap repo parse $(REPO_NAME) $(IPCORE_SOURCES) --frontend systemverilog -e skip
 
 $(BUILD_DIR)/existing_iface_example.sv: design.yaml $(REPO_NAME) | build
 	topwrap build -b build --design $<

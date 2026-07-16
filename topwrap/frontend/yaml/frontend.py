@@ -51,7 +51,9 @@ class YamlFrontend(Frontend):
             modules.append(IPCoreDescriptionFrontend.parse_file(IPCoreDescriptionFrontend(), src))
         return FrontendParseOutput(modules=modules)
 
-    def parse_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
+    def parse_files(
+        self, sources: Iterable[Path], *, include_dirs: Iterable[Path] = ()
+    ) -> FrontendParseOutput:
         modules = list[Module]()
         designs = list[Path]()
 
