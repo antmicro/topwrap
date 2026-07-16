@@ -249,7 +249,7 @@ class BuildPipeline:
             ],
             validations=[],
             outputs=[
-                YamlDesignOutputStage(),
+                YamlDesignOutputStage(save_positions=True),
             ],
         )
 

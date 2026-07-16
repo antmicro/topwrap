@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
@@ -7,8 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from topwrap.backend.kpm.common import Positions
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.model.design import Design
+from topwrap.model.misc import Identifier
 from topwrap.util import UnreachableError
 
 from .util import JsonType
@@ -45,6 +47,7 @@ class RPCparams:
     build_dir: Path
     design: Optional[Design]
     extra_yamls: list[Path]
+    positions: dict[Identifier, Positions]
 
 
 def get_all_graph_nodes(dataflow_json: JsonType) -> List[JsonType]:

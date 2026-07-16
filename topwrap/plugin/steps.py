@@ -14,7 +14,7 @@ from topwrap.backend.backend import BackendOutputInfo
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
-from topwrap.backend.yaml.backend import DesignDescriptionBackend
+from topwrap.backend.yaml.backend import DesignDescriptionBackend, DesignPositionsBackend
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
@@ -340,7 +340,7 @@ class KpmDataflowOutputStage(OutputStage):
 
             self.specification = spec.build()
 
-        flow = KpmDataflowBackend(self.specification)
+        flow = KpmDataflowBackend(self.specification, positions=ctx.positions)
         flow.represent_design(ctx.top_module.design, depth=-1)
 
         self.specification = flow.apply_subgraphs_to_spec(self.specification)
@@ -366,6 +366,11 @@ class KpmDataflowOutputStage(OutputStage):
 class YamlDesignOutputStage(OutputStage):
     name: str = "Design YAML"
 
+    save_positions: bool
+
+    def __init__(self, *, save_positions: bool = False):
+        self.save_positions = save_positions
+
     @override
     def generate_output(self, ctx: BuildContext):
         if ctx.top_module is None:
@@ -373,15 +378,30 @@ class YamlDesignOutputStage(OutputStage):
 
         assert ctx.top_module.design
 
-        backend = DesignDescriptionBackend(ctx.existing_interfaces)
-        repr = backend.represent(ctx.top_module)
+        if self.save_positions:
+            pos_backend = DesignPositionsBackend()
+            repr_pos = pos_backend.represent(ctx.top_module.id.name, ctx.positions)
+            out_pos = next(pos_backend.serialize(repr_pos))
+        else:
+            out_pos = None
+
+        des_backend = DesignDescriptionBackend(
+            ctx.existing_interfaces, positions_file=out_pos and Path(out_pos.filename)
+        )
+        repr_des = des_backend.represent(ctx.top_module)
+        out_des = next(des_backend.serialize(repr_des))
 
         assert self.name not in ctx.outputs
-        ctx.outputs[self.name] = next(backend.serialize(repr))
+        ctx.outputs[self.name] = (out_des, out_pos)
 
     @override
     def write_output_to(self, target_dir: Path, ctx: BuildContext):
         assert self.name in ctx.outputs
-        out = cast(BackendOutputInfo, ctx.outputs[self.name])
+        out_des, out_pos = cast(
+            tuple[BackendOutputInfo, Optional[BackendOutputInfo]], ctx.outputs[self.name]
+        )
 
-        out.save(target_dir)
+        out_des.save(target_dir)
+        if self.save_positions:
+            assert out_pos is not None
+            out_pos.save(target_dir)

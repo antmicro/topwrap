@@ -49,6 +49,7 @@ class RPCMethods:
         self.build_dir = params.build_dir
         self.design = params.design
         self.extra_yamls = params.extra_yamls
+        self.positions = params.positions
         self.client = client
         # Use the $XDG_DATA_HOME as a destination for saving the dataflow, which defaults to
         # ~/.local/share
@@ -91,7 +92,7 @@ class RPCMethods:
         logging.info(f"Dataflow stop request from {self.host}:{self.port}")
         return {"type": MessageType.OK.value}
 
-    def dataflow_export(self, dataflow: JsonType) -> RPCExportEndpointReturnType:
+    async def dataflow_export(self, dataflow: JsonType) -> RPCExportEndpointReturnType:
         logging.info(f"Dataflow export request received from {self.host}:{self.port}")
 
         pipeline = BuildPipeline.kpm_yaml_pipeline()
@@ -101,11 +102,16 @@ class RPCMethods:
         ctx = pipeline.ctx
         assert ctx.top_module
 
-        out = cast(BackendOutputInfo, ctx.outputs[YamlDesignOutputStage.name])
+        self.positions.update(ctx.positions)
 
-        filename = (
+        out_des, _ = cast(
+            tuple[BackendOutputInfo, Optional[BackendOutputInfo]],
+            ctx.outputs[YamlDesignOutputStage.name],
+        )
+
+        basename = (
             datetime.now()
-            .strftime("design_{}_{}_{}_%Y%m%d_%H%M%S.yaml")
+            .strftime("design_{}_{}_{}_%Y%m%d_%H%M%S")
             .format(
                 ctx.top_module.id.vendor,
                 ctx.top_module.id.library,
@@ -113,8 +119,30 @@ class RPCMethods:
             )
         )
 
-        flow_b64encoded = b64encode(out.content.encode("utf-8")).decode("utf-8")
-        return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": filename}
+        target_dir = Path(basename)
+        target_dir.mkdir(exist_ok=True)
+
+        pipeline.build(target_dir)
+
+        if self.client is not None:
+            await self.client.request(
+                "notification_send",
+                {
+                    "type": "info",
+                    "title": "Design and positions YAML files saved",
+                    "details": (
+                        f"The design and positions YAML files have been saved to the {target_dir} "
+                        "directory."
+                    ),
+                },
+            )
+
+        flow_b64encoded = b64encode(out_des.content.encode("utf-8")).decode("utf-8")
+        return {
+            "type": MessageType.OK.value,
+            "content": flow_b64encoded,
+            "filename": f"{basename}.yaml",
+        }
 
     async def dataflow_import(
         self, external_application_dataflow: str, mime: str, base64: bool
@@ -143,6 +171,7 @@ class RPCMethods:
         flow = cast(JsonType, ctx.outputs[KpmDataflowOutputStage.name])
         self.design = ctx.top_module.design
         self.specification = spec
+        self.positions.update(pipeline.ctx.positions)
 
         if self.client is not None:
             await self.client.request("specification_change", {"specification": self.specification})
@@ -166,7 +195,7 @@ class RPCMethods:
             # Started topwrap with a design
             self.initial_load = False
 
-            backend = KpmBackend(depth=-1)
+            backend = KpmBackend(depth=-1, positions=self.positions)
             output = backend.represent(self.design.parent)
 
             if self.client is None:

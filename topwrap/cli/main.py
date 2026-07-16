@@ -168,6 +168,7 @@ class KPM:
                         build_dir,
                         ctx.top_module.design if ctx.top_module else None,
                         list(yamlfiles),
+                        ctx.positions,
                     ),
                     client_ready_event,
                 )
