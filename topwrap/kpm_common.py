@@ -383,6 +383,13 @@ def find_dataflow_node_by_interface_name_id(
             if interface["name"] == iface_name and interface["id"] == iface_id:
                 return node
 
+def find_dataflow_node_by_id(
+    dataflow_json: JsonType, node_id: str
+) -> Optional[JsonType]:
+    """Return dataflow node with given id."""
+    for node in get_all_graph_nodes(dataflow_json):
+        if node["id"] == node_id:
+            return node
 
 def find_dataflow_interface_by_id(
     dataflow_json: JsonType, iface_conn: InterfaceFromConnection
