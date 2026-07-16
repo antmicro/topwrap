@@ -124,6 +124,33 @@ class TestCli:
         run_cli("dataflow", *converted, "-d", str(design_build), "-o", str(design_path))
         assert design_path.exists()
 
+    def test_repo_parse_incdir(self, tmp_path: Path):
+        repo_name = "repo"
+        repo_path = tmp_path / repo_name
+        sources_path = Path(self.test_data_path) / "data_parse" / "verilogs"
+        incdir_path = Path(self.test_data_path) / "data_parse" / "hdl"
+        repo_path.mkdir()
+        assert not (repo_path / "cores").exists()
+        run_cli(
+            "--repo",
+            str(repo_path),
+            "repo",
+            "parse",
+            repo_name,
+            str(sources_path),
+            "+incdir+{}".format(str(incdir_path)),
+        )
+        assert (repo_path / "cores").exists()
+
+    def test_repo_parse_filelist(self, tmp_path: Path):
+        repo_name = "repo"
+        repo_path = tmp_path / repo_name
+        filelist_path = Path(self.test_data_path) / "data_parse" / "filelist.f"
+        repo_path.mkdir()
+        assert not (repo_path / "cores").exists()
+        run_cli("--repo", str(repo_path), "repo", "parse", repo_name, "-f", str(filelist_path))
+        assert (repo_path / "cores").exists()
+
 
 class TestCleanCacheCli:
     @pytest.fixture()

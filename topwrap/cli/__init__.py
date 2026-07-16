@@ -5,7 +5,7 @@ import logging
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Annotated, Iterable, Iterator, Optional, Sequence, Tuple
 
 import cyclopts
 import marshmallow

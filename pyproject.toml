@@ -94,7 +94,8 @@ extend-exclude = [
   "examples/caliptra/Caliptra",
   ".pre-commit-config.yaml",
   "uv.lock",
-  "justfile"
+  "justfile",
+  "*.f"
 ]
 
 [tool.ruff.lint]
