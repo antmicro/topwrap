@@ -8,10 +8,14 @@ from typing import Dict, Iterable, Optional, Union
 
 import yaml
 
+from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.ip_core_schema import param_to_ir_param
 from topwrap.frontend.yaml.design_schema import (
     DesignDescription,
     DesignIP,
+    DesignNodePosition,
+    DesignPositionDefinition,
+    DesignPositions,
     DesignSectionInterconnect,
     MemoryMap,
     MemoryMapEntry,
@@ -764,3 +768,67 @@ class DesignDescriptionFrontend:
             inst.resets.update(resets)
 
         design.lower_domains()
+
+
+class DesignPositionsFrontend:
+    def parse_file(self, path: Path) -> dict[Identifier, Positions]:
+        """
+        Parse a design positions YAML file and apply positions to the given module.
+
+        :param path: Path to the design positions YAML
+        :param module: Module to apply positions to
+        """
+
+        desc = DesignPositions.load(path)
+        return self._parse(desc)
+
+    def parse_str(self, source: str) -> dict[Identifier, Positions]:
+        """
+        Parse a string representation of a design positions YAML file and apply positions to
+        the given module.
+
+        :param source: String containing the design positions YAML source
+        :param module: Module to apply positions to
+        """
+
+        desc = DesignPositions.from_yaml(source)
+        return self._parse(desc)
+
+    def _parse(self, positions: DesignPositions) -> dict[Identifier, Positions]:
+        return {pos.id: self._parse_def(pos) for pos in positions.modules}
+
+    def _parse_def(self, positions: DesignPositionDefinition) -> Positions:
+        def _handle_nodes(nodes: list[DesignNodePosition], tgt: dict[str, tuple[float, float]]):
+            for node in nodes:
+                tgt[node.name] = node.position
+
+        out = Positions()
+
+        out.identifier = positions.identifier
+        _handle_nodes(positions.components, out.components)
+        _handle_nodes(positions.externals, out.externals)
+        _handle_nodes(positions.constants, out.constants)
+        _handle_nodes(positions.clock_domains, out.clock_domains)
+        _handle_nodes(positions.reset_domains, out.reset_domains)
+        _handle_nodes(positions.interconnects, out.interconnects)
+
+        for inv in positions.inverters:
+            if isinstance(inv.source, str):
+                sinst = None
+                sio = inv.source
+            else:
+                assert isinstance(inv.source, tuple)
+                sinst = inv.source[0]
+                sio = inv.source[1]
+
+            if isinstance(inv.target, str):
+                tinst = None
+                tio = inv.target
+            else:
+                assert isinstance(inv.target, tuple)
+                tinst = inv.target[0]
+                tio = inv.target[1]
+
+            out.inverters[((sinst, sio), (tinst, tio))] = inv.position
+
+        return out
