@@ -35,7 +35,9 @@ class InterfaceFromConnection:
 @dataclass
 class InterfaceData:
     node_name: str
+    node_id: str
     iface_name: str
+    iface_id: str
     iface_direction: str
 
 
@@ -221,7 +223,13 @@ def _get_interfaces(nodes: List[JsonType]) -> Dict[str, List[InterfaceData]]:
     for node in nodes:
         for interface in node["interfaces"]:
             result[interface["id"]].append(
-                InterfaceData(node["instanceName"], interface["name"], interface["direction"])
+                InterfaceData(
+                    node["instanceName"],
+                    node["id"],
+                    interface["name"],
+                    interface["id"],
+                    interface["direction"],
+                )
             )
     return result
 
@@ -258,7 +266,13 @@ def get_dataflow_exposed_interfaces(dataflow_json: JsonType) -> Dict[str, List[I
         for interface in node["interfaces"]:
             if is_exposed_iface(interface):
                 result[interface["id"]].append(
-                    InterfaceData(node["instanceName"], interface["name"], interface["direction"])
+                    InterfaceData(
+                        node["instanceName"],
+                        node["id"],
+                        interface["name"],
+                        interface["id"],
+                        interface["direction"],
+                    )
                 )
     return result
 
