@@ -90,7 +90,7 @@ class DesignDescriptionFrontend:
     def _parse_memory_maps(self, des: Design, memory_maps: Dict[str, MemoryMap]):
         ir_maps = dict[str, IRMemoryMap]()
         for map_name, memory_map in memory_maps.items():
-            map = dict[int, ReferencedInterface]()
+            map = dict[int, MemoryMapSubordinate]()
             for module_name, entry_or_entries in memory_map.items():
                 try:
                     component = des.components.find_by_name_or_error(module_name)
