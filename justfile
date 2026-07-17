@@ -8,6 +8,7 @@ default:
 [arg("docs",long,value="1")]
 install-debian-deps docs="0":
     #!/usr/bin/env bash
+    set -euo pipefail
     apt-get update -qq
     apt-get install -y --no-install-recommends \
         curl \
@@ -31,6 +32,7 @@ install-debian-deps docs="0":
 # Run all checks intended for execution before committing code.
 pre-commit:
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --extra lint
 	uv run pre-commit install
 	uv run pre-commit run --all-files
@@ -38,12 +40,14 @@ pre-commit:
 # Run all configured linting checks with correction.
 lint:
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --extra lint
 	uv run pre-commit run --all-files
 
 # Run all configured linting checks.
 test-lint:
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --extra lint
 	source .venv/bin/activate
 	uv run pre-commit run check-yaml-extension --all-files
@@ -55,12 +59,14 @@ test-lint:
 [arg("compare",long,value="1")]
 pyright compare="0":
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --extra tests
 	if [[ {{compare}} == "1" ]];then uv run scripts/pyright_check.py --compare; else uv run scripts/pyright_check.py; fi
 
 # Execute tests for a specific Python version.
 test version="3.10":
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --python python{{version}} --extra tests
 	uv run pytest \
 		-rs \
@@ -72,7 +78,7 @@ test version="3.10":
 # Execute tests on every Python version supported in CI.
 test-all-python-versions:
 	#!/usr/bin/env bash
-	set -e
+	set -euo pipefail
 	for version in {{tested_python_versions}}; do
 		just test "$version"
 	done
@@ -82,6 +88,7 @@ test-all-python-versions:
 [arg("specification",long,value="1")]
 update-testdata dataflow="0" specification="0":
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --extra tests
 	if [[ {{dataflow}} == "1" ]];then uv run tests/update_test_data.py --dataflow; fi
 	if [[ {{specification}} == "1" ]];then uv run tests/update_test_data.py --specification; fi
@@ -89,17 +96,20 @@ update-testdata dataflow="0" specification="0":
 # Run tests specific to the KPM server component.
 test-kpm-server:
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv run scripts/kpm_server_check.py
 
 # Build the project.
 build:
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --extra deploy
 	uv run pyproject-build
 
 # Create distributable packages.
 package:
 	#!/usr/bin/env bash
+	set -euo pipefail
 	uv sync --extra deploy
 	source .venv/bin/activate
 	uv run .github/scripts/package_cores.py ./build/export
@@ -107,6 +117,7 @@ package:
 # Run examples
 examples:
     #!/usr/bin/env bash
+    set -euo pipefail
     uv sync
     source .venv/bin/activate
     python3 -m ensurepip
@@ -120,6 +131,7 @@ examples:
 # Build docs
 docs:
 	#!/usr/bin/env bash
+	set -euo pipefail
 	npm install -g @mermaid-js/mermaid-cli
 
 	uv sync --extra docs --extra tests
