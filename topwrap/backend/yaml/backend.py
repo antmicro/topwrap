@@ -3,6 +3,7 @@
 
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable, Iterator, Optional, Set, Union
 
 import yaml
@@ -301,6 +302,17 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
 
 
 class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
+    _positions_file: Optional[Path]
+
+    def __init__(
+        self,
+        existing_interfaces: Optional[Set[Identifier]] = None,
+        *,
+        positions_file: Optional[Path] = None,
+    ):
+        super().__init__(existing_interfaces)
+        self._positions_file = positions_file
+
     @override
     def represent(self, module: Module) -> DesignDescriptionOutput:
         """
@@ -313,10 +325,13 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             )
 
         return DesignDescriptionOutput(
-            base_name=module.id.name, description=self._represent_hier(module.design)
+            base_name=module.id.name,
+            description=self._represent_hier(module.design, self._positions_file),
         )
 
-    def _represent_hier(self, design: Design) -> DesignDescription:
+    def _represent_hier(
+        self, design: Design, positions_file: Optional[Path] = None
+    ) -> DesignDescription:
         ips = {}
         hierarchies = {}
 
@@ -345,6 +360,10 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
         config = self._represent_config(design.config) if design.config is not None else None
 
+        pos = None
+        if positions_file:
+            pos = str(positions_file)
+
         id = design.parent.id
         return DesignDescription(
             name=id.name,
@@ -360,6 +379,7 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             memory_maps=memory_maps,
             extensions=extensions,
             config=config,
+            positions=pos,
         )
 
     def _represent_ip(self, comp: ModuleInstance) -> DesignIP:

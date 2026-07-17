@@ -189,6 +189,7 @@ class DesignDescription(MarshmallowDataclassExtensions):
     memory_maps: Dict[str, MemoryMap] = ext_field(dict)
     extensions: Dict[str, Any] = ext_field(dict)
     config: Optional[ConfigDescription] = ext_field(None)
+    positions: Optional[str] = ext_field(None)
 
     Schema: ClassVar[Type[marshmallow.Schema]] = DesignDescriptionSchema
 

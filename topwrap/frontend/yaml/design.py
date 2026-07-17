@@ -67,7 +67,7 @@ class DesignDescriptionFrontend:
     def __init__(self, modules: Iterable[Module] = ()) -> None:
         self._modules = {f":{str(m.id)}": m for m in modules}
 
-    def parse_file(self, path: Path) -> Design:
+    def parse_file(self, path: Path) -> tuple[Design, dict[Identifier, Positions]]:
         """
         Parse a design description YAML file into the IR ``Design``.
 
@@ -77,7 +77,7 @@ class DesignDescriptionFrontend:
         desc = DesignDescription.load(path)
         return self._parse_hier(path, desc, "top" if desc.name is None else desc.name)
 
-    def parse_str(self, source: str) -> Design:
+    def parse_str(self, source: str) -> tuple[Design, dict[Identifier, Positions]]:
         """
         Parse a string representation of a design description YAML into the IR ``Design``.
 
@@ -133,7 +133,7 @@ class DesignDescriptionFrontend:
 
         # Parse hierarchical design descriptions as more components
         for hname, hdesc in desc.hierarchies.items():
-            parsed = self._parse_hier(source, hdesc, hname)
+            parsed, _ = self._parse_hier(source, hdesc, hname)
             design.add_component(ModuleInstance(name=hname, module=parsed.parent))
 
     def _parse_ports(self, desc: DesignDescription) -> dict[str, tuple[PortDirection, bool]]:
@@ -200,7 +200,7 @@ class DesignDescriptionFrontend:
 
     def _parse_hier(
         self, source: Optional[Path], desc: DesignDescription, name_hint: str
-    ) -> Design:
+    ) -> tuple[Design, dict[Identifier, Positions]]:
         design = Design()
         args = {"name": name_hint}
         if desc.vendor is not None:
@@ -240,7 +240,26 @@ class DesignDescriptionFrontend:
 
         self._parse_config(design, desc)
 
-        return design
+        positions = {}
+        if desc.positions:
+            orig_pos_path = Path(desc.positions)
+            pos_path = orig_pos_path
+
+            # Try the path as-is
+            if not pos_path.exists():
+                # Try the path in the same directory as the design, if possible.
+                if not pos_path.is_absolute() and source is not None:
+                    pos_path = source.absolute().parent / pos_path
+
+            if not pos_path.exists():
+                logger.warning(
+                    f"Positions file {orig_pos_path} referenced in design does not exist, ignoring."
+                )
+            else:
+                frontend = DesignPositionsFrontend()
+                positions = frontend.parse_file(pos_path)
+
+        return design, positions
 
     def _parse_config(self, des: Design, desc: DesignDescription):
         if desc.config is not None:

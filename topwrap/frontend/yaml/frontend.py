@@ -38,11 +38,11 @@ class YamlFrontend(Frontend):
     def parse_design_file(self, source: Path) -> FrontendParseOutput:
         modules = list[Module]()
 
-        ir_des = DesignDescriptionFrontend(self.modules + modules).parse_file(source)
+        ir_des, pos = DesignDescriptionFrontend(self.modules + modules).parse_file(source)
         ir_des.update_interconnects_from_memory_maps()
         modules.append(ir_des.parent)
 
-        return FrontendParseOutput(modules=modules)
+        return FrontendParseOutput(modules=modules, positions=pos)
 
     def parse_module_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         modules = list[Module]()
@@ -65,9 +65,12 @@ class YamlFrontend(Frontend):
                 else:
                     modules.extend(self.parse_module_files([src]).modules)
 
+        positions = {}
         for des in designs:
             logger.info("Analyzing source {}".format(des))
-            modules.extend(self.parse_design_file(des).modules)
+            out = self.parse_design_file(des)
+            modules.extend(out.modules)
+            positions.update(out.positions)
             params = modules[-1].parameters
             ports = modules[-1].ports
             interfaces = modules[-1].interfaces
@@ -78,7 +81,7 @@ class YamlFrontend(Frontend):
             for i in interfaces:
                 logger.info("Found interface {}".format(i.name))
 
-        return FrontendParseOutput(modules=modules)
+        return FrontendParseOutput(modules=modules, positions=positions)
 
     def parse_str(
         self, sources: Iterable[Union[str, FrontendParseStrInput]]
@@ -97,7 +100,10 @@ class YamlFrontend(Frontend):
                     IPCoreDescriptionFrontend.parse_str(IPCoreDescriptionFrontend(), content)
                 )
 
+        positions = {}
         for des in designs:
-            modules.append(DesignDescriptionFrontend(self.modules + modules).parse_str(des).parent)
+            des, pos = DesignDescriptionFrontend(self.modules + modules).parse_str(des)
+            modules.append(des.parent)
+            positions.update(pos)
 
-        return FrontendParseOutput(modules=modules, interfaces=[])
+        return FrontendParseOutput(modules=modules, positions=positions)

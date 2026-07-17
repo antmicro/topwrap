@@ -71,13 +71,15 @@ class TestDesignDescriptionFrontend:
         ],
     )
     def test_ir(self, design: Path, validator: Callable[[Module], None]):
-        design_ir = DesignDescriptionFrontend(ALL_MODULES).parse_file(design)
+        design_ir, _ = DesignDescriptionFrontend(ALL_MODULES).parse_file(design)
         design_ir.update_interconnects_from_memory_maps()
         validator(design_ir.parent)
 
     def test_complex_yaml(self):
         front = DesignDescriptionFrontend()
-        des = front.parse_file(Path("tests/data/data_kpm/conversions/complex/project_complex.yaml"))
+        des, _ = front.parse_file(
+            Path("tests/data/data_kpm/conversions/complex/project_complex.yaml")
+        )
         des.update_interconnects_from_memory_maps()
 
         comps = ("s1_mod_3", "s1_mod_3_2", "s1_mod_3_3", "s2_mod_1", "s2_mod_2", "SUB")
@@ -168,8 +170,8 @@ class TestDesignDescriptionFrontend:
 
     def test_prefers_preloaded(self):
         des = Path("examples/ir_examples/simple/design.yaml")
-        preloaded = DesignDescriptionFrontend([lfsr_gen]).parse_file(des)
-        fresh = DesignDescriptionFrontend().parse_file(des)
+        preloaded, _ = DesignDescriptionFrontend([lfsr_gen]).parse_file(des)
+        fresh, _ = DesignDescriptionFrontend().parse_file(des)
 
         assert preloaded.components.find_by_name("gen1").module is lfsr_gen
         assert fresh.components.find_by_name("gen1").module is not lfsr_gen
@@ -185,7 +187,7 @@ class TestDesignDescriptionFrontend:
                 subkey1: 123
         """
 
-        mod = DesignDescriptionFrontend().parse_str(des)
+        mod, _ = DesignDescriptionFrontend().parse_str(des)
         exts = list(mod.extensions)
 
         assert len(exts) == 4
@@ -231,7 +233,7 @@ class TestDesignDescriptionFrontend:
             front = DesignDescriptionFrontend()
             if fic is None and not rep:
                 source_yaml = no_config
-                out = front.parse_str(source_yaml)
+                out, _ = front.parse_str(source_yaml)
                 assert out.config is None
             else:
                 repo_source = ""
@@ -249,7 +251,7 @@ class TestDesignDescriptionFrontend:
 
                 source_yaml = config_repo_template.format(fic=fic_source, rep=repo_source)
                 print(source_yaml)
-                out = front.parse_str(source_yaml)
+                out, _ = front.parse_str(source_yaml)
 
                 assert out.config is not None
                 assert out.config.force_interface_compliance == (False if fic is None else fic)

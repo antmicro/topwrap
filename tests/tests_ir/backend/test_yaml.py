@@ -436,12 +436,12 @@ class TestDesignDescriptionBackend:
         front = DesignDescriptionFrontend()
         back = DesignDescriptionBackend()
 
-        orig_des = front.parse_file(src)
+        orig_des, _ = front.parse_file(src)
 
         out = back.represent(orig_des.parent)
         [out] = back.serialize(out)
 
-        new_des = front.parse_str(out.content)
+        new_des, _ = front.parse_str(out.content)
 
         _compare_modules(orig_des.parent, new_des.parent)
 
@@ -463,7 +463,7 @@ class TestDesignDescriptionBackend:
         [out] = backend.serialize(out)
 
         frontend = DesignDescriptionFrontend()
-        design_parsed = frontend.parse_str(out.content)
+        design_parsed, _ = frontend.parse_str(out.content)
 
         _compare_designs(design, design_parsed)
 
