@@ -88,6 +88,10 @@ Install the required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+Or using [uv](https://docs.astral.sh/uv/):
+```bash
+uv pip install -r requirements.txt
+```
 
 :::
 
@@ -208,6 +212,10 @@ Install the required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+Or using recommended [uv](https://docs.astral.sh/uv/):
+```bash
+uv pip install -r requirements.txt
+```
 
 :::{note}
 In order to generate a bitstream, install [Vivado](https://www.xilinx.com/support/download.html) and add it to the `PATH`.
@@ -248,6 +256,10 @@ Install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
+Or using recommended [uv](https://docs.astral.sh/uv/):
+```bash
+uv pip install -r requirements.txt
 ```
 
 :::{note}

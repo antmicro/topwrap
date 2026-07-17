@@ -23,12 +23,17 @@ internal API enables repository creation using Python.
 On Debian Bookworm follow these steps to install the required dependencies:
 
 ```bash
-apt install -y python3 python3-pip yosys npm antlr4 libantlr4-runtime-dev pipx
+apt install -y python3 python3-pip yosys npm antlr4 libantlr4-runtime-dev
 ```
+and
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+for `uv`. For more details see [uv installation page](https://docs.astral.sh/uv/getting-started/installation).
 
-Once the dependencies are installed, you can install topwrap with the following command:
+Once the dependencies are installed, you can install Topwrap with the following command:
 ```
-pipx install "topwrap@git+https://github.com/antmicro/topwrap"
+uv tool install "topwrap @ git+https://github.com/antmicro/topwrap"
 ```
 
 More detailed instructions, are available in the
