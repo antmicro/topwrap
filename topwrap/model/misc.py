@@ -303,4 +303,3 @@ class PluginMetadata(ModelBase):
         super().__init__()
         self.name = name
         self.data = data
-

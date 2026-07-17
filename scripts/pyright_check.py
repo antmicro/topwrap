@@ -97,7 +97,9 @@ def pyright_check(*, compare: bool = False):
     if compare:
         regressed = [file for file, num in errorfiles.items() if num - errorfiles_main[file] > 0]
         if regressed:
-            sys.exit(f"pyright found new errors compared to {MAIN_BRANCH} in: {', '.join(regressed)}")
+            sys.exit(
+                f"pyright found new errors compared to {MAIN_BRANCH} in: {', '.join(regressed)}"
+            )
 
 
 if __name__ == "__main__":

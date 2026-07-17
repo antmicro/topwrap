@@ -57,5 +57,6 @@ class PluginManager:
                     method(*args, **kwargs)
                 except Exception as e:
                     raise PluginException(
-                        f"Exception occurred while running hook {hook_name} from plugin {name}: {str(e)}"
+                        f"Exception occurred while running hook {hook_name} from plugin {name}: "
+                        f"{str(e)}"
                     ) from e

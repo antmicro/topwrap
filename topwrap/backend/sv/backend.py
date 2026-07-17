@@ -112,9 +112,9 @@ class SystemVerilogBackend(Backend[SVOutput]):
                         mods_to_repr.append(copy.deepcopy(mod.design))
                     else:
                         # `Design` is deepcopied when there is at least one `Interconnect` present,
-                        # it is because `Interconnect` is converted to `Module` and added to `Design`
-                        # as `ModuleInstance`, it is needed for generating connections and module instance
-                        # in SystemVerilog code.
+                        # it is because `Interconnect` is converted to `Module` and added to
+                        # `Design` as `ModuleInstance`, it is needed for generating connections and
+                        # module instance in SystemVerilog code.
                         mods_to_repr.append(mod.design)
                 elif self.mod_stubs:
                     des = Design()
