@@ -639,5 +639,7 @@ This clones the `main` branch as above, but resolves to the `main|topwrap/builti
 Cloned repositories are cached persistently between runs. To remove all locally cached clones, run:
 
 ```
-topwrap repo clean-git-cache
+topwrap clean-cache --target git
 ```
+
+Omitting `--target` removes every cache topwrap maintains.
