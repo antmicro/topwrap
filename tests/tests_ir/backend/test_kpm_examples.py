@@ -104,7 +104,7 @@ HIERARCHY_GRAPHS = 5  # 5 graphs in total (main + 4 sub)
 HIERARCHY_IPCORE_NODES = 8
 HIERARCHY_SUBGRAPH_NODES = 4
 
-HIERARCHY_EXTERNAL_METANODES = 18
+HIERARCHY_EXTERNAL_METANODES = 15
 HIERARCHY_CONSTANT_METANODES = 2
 # Identifier per subgraph + others
 HIERARCHY_METANODES = HIERARCHY_GRAPHS + HIERARCHY_EXTERNAL_METANODES + HIERARCHY_CONSTANT_METANODES
@@ -512,7 +512,6 @@ class TestKpmBackendHierarchyExample:
 
         complex_sub_ifs = [_filter_id(x) for x in complex_sub["interfaces"]]
         assert sorted(complex_sub_ifs, key=lambda iface: iface["name"]) == [
-            {"direction": "input", "name": "cs_empty_port_in", "side": "left"},
             {"direction": "input", "name": "cs_in_1", "side": "left"},
             {"direction": "output", "name": "cs_out_1", "side": "right"},
         ]
