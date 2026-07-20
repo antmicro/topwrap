@@ -10,7 +10,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, ClassVar, Collection, Type, Union
 
-from topwrap.repo.files import HttpGetFile
+from topwrap.repo.files import GitRepoFile, HttpGetFile
 from topwrap.repo.resource import ResourceType
 from topwrap.util import UnreachableError, get_config, path_relative_to
 
@@ -76,6 +76,16 @@ class UriReferenceHandler(ResourceReferenceHandler):
 
     def to_path(self) -> Path:
         return HttpGetFile(self.value).path
+
+
+class GitReferenceHandler(ResourceReferenceHandler):
+    scheme = "git"
+
+    def to_path(self) -> Path:
+        args = iter(self.args)
+        ref = next(args, None)
+        subdir = next(args, None)
+        return GitRepoFile(self.value, ref, subdir).path
 
 
 class FileReferenceHandler(ResourceReferenceHandler):
@@ -147,4 +157,9 @@ class YamlCommonSchemes(SupportedSchemeGroup):
     """Resource reference schemes supported inside our
     YAML files"""
 
-    handlers = [UriReferenceHandler, FileReferenceHandler, RepoReferenceHandler]
+    handlers = [
+        UriReferenceHandler,
+        FileReferenceHandler,
+        RepoReferenceHandler,
+        GitReferenceHandler,
+    ]

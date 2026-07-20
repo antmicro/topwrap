@@ -24,6 +24,7 @@ from topwrap.repo.files import IncorrectUrlException
 from topwrap.repo.user_repo import Core
 from topwrap.resource_field import (
     FileReferenceHandler,
+    GitReferenceHandler,
     InvalidArgumentException,
     InvalidIdentifierException,
     RepoReferenceHandler,
@@ -473,6 +474,17 @@ this: [a, b, c]
         test_err("get:foo", IncorrectUrlException)
         test_err("repo:cores/axi.txt", ValueError, "not enough values")
         test_err("repo[fake_repo]:cores/core.yaml", ValueError, "Could not find repo")
+
+        git_handler = YamlCommonSchemes.parse("git[main]:https://github.com/account/repo.git")
+        assert isinstance(git_handler, GitReferenceHandler)
+        assert git_handler.value == "https://github.com/account/repo.git"
+        assert list(git_handler.args) == ["main"]
+
+        git_handler_with_subdir = YamlCommonSchemes.parse(
+            "git[main|hw/ip_repo]:https://github.com/account/repo.git"
+        )
+        assert isinstance(git_handler_with_subdir, GitReferenceHandler)
+        assert list(git_handler_with_subdir.args) == ["main", "hw/ip_repo"]
 
         # Test serialization
         assert FileReferenceHandler("path/to/file").to_str() == "file:path/to/file"

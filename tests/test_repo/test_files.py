@@ -3,13 +3,21 @@
 
 import filecmp
 import os
+import subprocess
 import urllib.parse
 from pathlib import Path
 
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from topwrap.repo.files import HttpGetFile, LocalFile, TemporaryFile
+from topwrap.repo.files import (
+    GitCloneException,
+    GitRepoFile,
+    HttpGetFile,
+    IncorrectUrlException,
+    LocalFile,
+    TemporaryFile,
+)
 
 
 class TestFile:
@@ -179,3 +187,129 @@ class TestHttpGetFile(TestFile):
         http_file.download()
         output_path = download_dir / "module.v"
         assert output_path.exists(), "The file hasn't been created"
+
+
+class TestGitRepoFile:
+    @pytest.fixture()
+    def correct_url(self):
+        return "https://github.com/account/repo.git"
+
+    @pytest.fixture()
+    def cache_dir(self, fs):
+        cache_dir = Path("git_cache")
+        fs.create_dir(cache_dir)
+        return cache_dir
+
+    def mock_subprocess_run(self, calls):
+        def _run(cmd, check, capture_output, text):
+            calls.append(cmd)
+            # cmd looks like ["git", "-C", "<clone_dir>", <git subcommand...>]
+            clone_dir = Path(cmd[2])
+            if cmd[3] == "init":
+                os.makedirs(clone_dir / ".git")
+            return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+        return _run
+
+    def test_wrong_url(self, fs):
+        with pytest.raises(IncorrectUrlException, match=r"doesn't seem to have a correct path"):
+            GitRepoFile("wrong url")
+
+    def test_clone(self, fs, monkeypatch, correct_url, cache_dir):
+        calls = []
+        monkeypatch.setattr(subprocess, "run", self.mock_subprocess_run(calls))
+
+        git_file = GitRepoFile(correct_url, cache_dir=cache_dir)
+        path = git_file.path
+
+        assert path.exists()
+        assert (path / ".git").exists()
+
+        subcommands = [cmd[3] for cmd in calls]
+        assert subcommands == ["init", "remote", "fetch", "checkout"]
+        fetch_cmd = calls[subcommands.index("fetch")]
+        assert fetch_cmd[-1] == "HEAD"
+
+    def test_clone_with_ref(self, fs, monkeypatch, correct_url, cache_dir):
+        calls = []
+        monkeypatch.setattr(subprocess, "run", self.mock_subprocess_run(calls))
+
+        git_file = GitRepoFile(correct_url, ref="main", cache_dir=cache_dir)
+        _ = git_file.path
+
+        subcommands = [cmd[3] for cmd in calls]
+        fetch_cmd = calls[subcommands.index("fetch")]
+        assert fetch_cmd[-1] == "main"
+
+    def test_clone_with_sha_ref(self, fs, monkeypatch, correct_url, cache_dir):
+        # A commit SHA can't be shallow-fetched unless it happens to be a branch/tag tip,
+        # so it must go through a full fetch
+        calls = []
+        monkeypatch.setattr(subprocess, "run", self.mock_subprocess_run(calls))
+
+        sha = "a1b2c3d4e5f6"
+        git_file = GitRepoFile(correct_url, ref=sha, cache_dir=cache_dir)
+        _ = git_file.path
+
+        subcommands = [cmd[3] for cmd in calls]
+        assert subcommands == ["init", "remote", "fetch", "checkout"]
+        fetch_cmd = calls[subcommands.index("fetch")]
+        assert "--depth=1" not in fetch_cmd
+        checkout_cmd = calls[subcommands.index("checkout")]
+        assert checkout_cmd[-1] == sha
+
+    def test_subdir(self, fs, monkeypatch, correct_url, cache_dir):
+        def run_with_subdir(cmd, check, capture_output, text):
+            clone_dir = Path(cmd[2])
+            if cmd[3] == "init":
+                os.makedirs(clone_dir / "nested" / "repo_root")
+                os.makedirs(clone_dir / ".git")
+            return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+        monkeypatch.setattr(subprocess, "run", run_with_subdir)
+
+        git_file = GitRepoFile(correct_url, subdir="nested/repo_root", cache_dir=cache_dir)
+        path = git_file.path
+
+        assert path == git_file.clone() / "nested/repo_root"
+        assert path.exists()
+
+    def test_missing_subdir(self, fs, monkeypatch, correct_url, cache_dir):
+        calls = []
+        monkeypatch.setattr(subprocess, "run", self.mock_subprocess_run(calls))
+
+        git_file = GitRepoFile(correct_url, subdir="does_not_exist", cache_dir=cache_dir)
+        with pytest.raises(FileNotFoundError, match="does_not_exist"):
+            _ = git_file.path
+
+    def test_cache_reuse(self, fs, monkeypatch, correct_url, cache_dir):
+        calls = []
+        monkeypatch.setattr(subprocess, "run", self.mock_subprocess_run(calls))
+
+        git_file = GitRepoFile(correct_url, cache_dir=cache_dir)
+        first_path = git_file.path
+        second_path = git_file.path
+
+        assert first_path == second_path
+        assert len(calls) == 4, "Repository should not be cloned again if already cached"
+
+    def test_clone_failure(self, fs, monkeypatch, correct_url, cache_dir):
+        def failing_run(cmd, check, capture_output, text):
+            raise subprocess.CalledProcessError(1, cmd, stderr="fatal: could not clone")
+
+        monkeypatch.setattr(subprocess, "run", failing_run)
+
+        git_file = GitRepoFile(correct_url, cache_dir=cache_dir)
+        with pytest.raises(GitCloneException, match="Unable to clone git repository"):
+            _ = git_file.path
+
+    def test_git_not_installed(self, fs, monkeypatch, correct_url, cache_dir):
+        def missing_git_run(cmd, check, capture_output, text):
+            raise FileNotFoundError(2, "No such file or directory", "git")
+
+        monkeypatch.setattr(subprocess, "run", missing_git_run)
+
+        git_file = GitRepoFile(correct_url, cache_dir=cache_dir)
+        with pytest.raises(GitCloneException, match="'git' executable was not found"):
+            _ = git_file.path
+        assert not git_file._clone_dir.exists()

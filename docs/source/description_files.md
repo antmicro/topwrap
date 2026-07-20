@@ -585,6 +585,11 @@ SCHEME[ARG1|ARG2...]:SCHEME_PATH
 - `get`
   - `SCHEME_ARGS`: None
   - `SCHEME_PATH`: The URL address of the remote resource. Only `http(s)://` URLs are currently supported.
+- `git`
+  - `SCHEME_ARGS`:
+    1. An optional git ref (branch, tag, or commit SHA) to check out. If omitted, the repository's default branch is used.
+    2. An optional subdirectory inside the repository to use as the resolved path.
+  - `SCHEME_PATH`: The URL of a git repository to clone.
 
 
 :::{warning}
@@ -618,3 +623,15 @@ get:https://raw.githubusercontent.com/antmicro/topwrap/refs/heads/main/pyproject
 
 This loads the remote resource.
 When necessary, it's automatically downloaded into a temporary directory.
+
+```
+git[main]:https://github.com/antmicro/topwrap.git
+```
+
+This clones the `main` branch of the given git repository into a persistent cache directory and uses it as the resource location. Omitting the `[main]` argument checks out the repository's default branch instead. A commit SHA can be used in place of a branch or tag name.
+
+```
+git[main|topwrap/builtin]:https://github.com/antmicro/topwrap.git
+```
+
+This clones the `main` branch as above, but resolves to the `main|topwrap/builtin` subdirectory of the repository instead of its root.

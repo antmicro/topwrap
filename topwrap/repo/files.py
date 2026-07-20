@@ -1,9 +1,12 @@
 # Copyright (c) 2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import hashlib
 import logging
 import os
+import re
 import shutil
+import subprocess
 import tempfile
 import urllib.parse
 import urllib.request
@@ -164,3 +167,108 @@ class HttpGetFile(File):
     @override
     def path(self) -> Path:
         return self.download()
+
+
+class GitCloneException(Exception):
+    """Raised when there are problems with cloning a git repository"""
+
+
+DEFAULT_GIT_CACHE_DIR = (
+    Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser() / "topwrap/git_repos"
+)
+
+
+class GitRepoFile(File):
+    """Holds information about a directory obtained by cloning a git repository.
+
+    Clones are cached persistently (keyed by url + ref) under
+    `DEFAULT_GIT_CACHE_DIR`, so a repository is only cloned once across
+    multiple runs.
+    """
+
+    _SHA_REGEX = re.compile(r"^[0-9a-fA-F]{7,40}$")
+
+    def __init__(
+        self,
+        url: str,
+        ref: Optional[str] = None,
+        subdir: Optional[str] = None,
+        cache_dir: Optional[Path] = None,
+    ) -> None:
+        parsed_url = urllib.parse.urlparse(url)
+        if not parsed_url.netloc or not parsed_url.path:
+            raise IncorrectUrlException(
+                f"Url {url} doesn't seem to have a correct path to resource"
+            )
+        self.url = url
+        self.ref = ref
+        self.subdir = subdir
+        self.cache_dir = Path(cache_dir) if cache_dir is not None else DEFAULT_GIT_CACHE_DIR
+
+    @property
+    def _clone_dir(self) -> Path:
+        key = f"{self.url}@{self.ref or 'HEAD'}"
+        digest = hashlib.sha256(key.encode()).hexdigest()
+        return self.cache_dir / digest
+
+    def _run_git(self, clone_dir: Path, *args: str) -> None:
+        subprocess.run(
+            ["git", "-C", str(clone_dir), *args], check=True, capture_output=True, text=True
+        )
+
+    def clone(self) -> Path:
+        """Clones (or fetches+checks out) the repository if it isn't already
+        cached, returning the local directory the repository was cloned
+        into."""
+
+        clone_dir = self._clone_dir
+        if (clone_dir / ".git").exists():
+            logger.debug(f"GitRepoFile.clone: Using cached clone of {self.url} at {clone_dir}")
+            return clone_dir
+
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        tmp_dir = Path(tempfile.mkdtemp(dir=self.cache_dir))
+
+        try:
+            self._run_git(tmp_dir, "init")
+            self._run_git(tmp_dir, "remote", "add", "origin", self.url)
+            if self.ref is not None and self._SHA_REGEX.fullmatch(self.ref):
+                self._run_git(tmp_dir, "fetch", "origin")
+                self._run_git(tmp_dir, "checkout", self.ref)
+            else:
+                self._run_git(tmp_dir, "fetch", "--depth=1", "origin", self.ref or "HEAD")
+                self._run_git(tmp_dir, "checkout", "FETCH_HEAD")
+        except FileNotFoundError as exc:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+            raise GitCloneException(
+                "The 'git' executable was not found. Loading repositories via the 'git:' "
+                "scheme requires git to be installed and available on the PATH."
+            ) from exc
+        except subprocess.CalledProcessError as exc:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+            raise GitCloneException(
+                f"Unable to clone git repository from {self.url}"
+                f"{f' at ref {self.ref}' if self.ref else ''}: {exc.stderr}"
+            ) from exc
+
+        if (clone_dir / ".git").exists():
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+        else:
+            tmp_dir.rename(clone_dir)
+
+        logger.debug(f"GitRepoFile.clone: Cloned {self.url} into {clone_dir}")
+        return clone_dir
+
+    @property
+    @override
+    def path(self) -> Path:
+        repo_dir = self.clone()
+        if self.subdir is None:
+            return repo_dir
+
+        sub_path = repo_dir / self.subdir
+        if not sub_path.is_dir():
+            raise FileNotFoundError(
+                f"Subdirectory '{self.subdir}' does not exist in repository {self.url}"
+            )
+        return sub_path
