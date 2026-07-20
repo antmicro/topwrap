@@ -55,6 +55,7 @@ The configuration file for Topwrap provides the following options:
     repositories:
       name_of_repo: file:path_to_repo
       another_repo: file:/absolute/path/to/repo
+      remote_repo: git[main]:https://github.com/org/some-ip-repo.git
     ```
 
   Repositories are used to package and load multiple IP cores and custom interfaces.
