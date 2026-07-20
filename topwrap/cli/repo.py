@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import shutil
 from pathlib import Path
 from typing import List, Tuple
 
@@ -13,7 +14,7 @@ from topwrap.config import ConfigManager, config
 from topwrap.frontend.automatic import FrontendRegistry
 from topwrap.repo.exceptions import ResourceNotSupportedException
 from topwrap.repo.file_handlers import ModuleFileHandler
-from topwrap.repo.files import File, LocalFile
+from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR, File, LocalFile
 from topwrap.repo.repo import (
     ExistsStrategy,
 )
@@ -141,3 +142,23 @@ def init_repo(
         yaml.safe_dump(repo_cfg, local_cfg.open("w"))
 
     logging.info(f"Created a new repository named '{name}' in '{path}'")
+
+
+@repo_cli.command(name="clean-git-cache")
+def clean_git_cache(*, cache_dir: Path = DEFAULT_GIT_CACHE_DIR):
+    """Remove locally cached clones of repositories loaded via the 'git:' resource scheme.
+
+    Parameters
+    ----------
+    cache_dir
+        Location of the git repository cache to remove. Defaults to where
+        repositories loaded through the 'git:' scheme are cached.
+    """
+
+    if not cache_dir.exists():
+        logger.info(f"No git repository cache found at '{cache_dir}'")
+        return
+
+    num_cached_repos = sum(1 for _ in cache_dir.iterdir())
+    shutil.rmtree(cache_dir)
+    logger.info(f"Removed {num_cached_repos} cached git repo(s) from '{cache_dir}'")

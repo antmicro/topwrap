@@ -126,6 +126,26 @@ class TestCli:
 
 
 class TestRepoCli:
+    def test_clean_git_cache_empty(self, tmpdir: Path, caplog: pytest.LogCaptureFixture):
+        cache_dir = Path(tmpdir) / "git_cache"
+
+        with caplog.at_level(logging.INFO):
+            run_cli("--log-level", "info", "repo", "clean-git-cache", "--cache-dir", str(cache_dir))
+
+        assert "No git repository cache found" in caplog.text
+        assert not cache_dir.exists()
+
+    def test_clean_git_cache_removes_dir(self, tmpdir: Path, caplog: pytest.LogCaptureFixture):
+        cache_dir = Path(tmpdir) / "git_cache"
+        (cache_dir / "repo1").mkdir(parents=True)
+        (cache_dir / "repo2").mkdir(parents=True)
+
+        with caplog.at_level(logging.INFO):
+            run_cli("--log-level", "info", "repo", "clean-git-cache", "--cache-dir", str(cache_dir))
+
+        assert "Removed 2 cached git repo(s)" in caplog.text
+        assert not cache_dir.exists()
+
     def test_repo_init(self, tmpdir: Path):
         tmpdir = Path(tmpdir)
         path = tmpdir / "repos" / "repo_directory"
