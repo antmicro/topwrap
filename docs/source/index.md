@@ -14,6 +14,7 @@ config
 user_repositories
 interconnect_gen
 fusesoc
+frontends
 ```
 
 ```{toctree}

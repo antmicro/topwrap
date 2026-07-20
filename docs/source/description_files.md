@@ -236,6 +236,11 @@ types:
   wb_resp_t:
     members:
       ...
+existing_iface_definitions:
+- library: libdefault
+  name: AXI4Lite
+  vendor: vendor
+  version: '0.1'
 ```
 
 ### File format explanation
@@ -255,7 +260,8 @@ types:
   - `size` \- the optional field that is only used when `mode` is `subordinate`, it is used when there is an instance of this module specified in `address_maps` in the design YAML.
   - `signals` \- a list of signals mapped to ports. Signals from the interface definition need to be mapped to ports in the HDL module.
 - `types` \- structure type definitions used by signals (described below in more detail)
-  - `members` \- member fields of a struct type
+  - `members` \- member fields of a struct type.
+- `existing_iface_definitions` \- a list of interface definitions that exist in parsed HDL code in form of [ID](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)s.
 
 ### Signals
 
