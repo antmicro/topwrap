@@ -40,7 +40,7 @@ from topwrap.model.interface import (
     InterfaceMode,
     InterfaceSignal,
 )
-from topwrap.model.misc import ElaboratableValue, FileReference, Parameter
+from topwrap.model.misc import ElaboratableValue, ExtensionData, FileReference, Parameter
 from topwrap.model.module import Module
 from topwrap.util import get_config
 
@@ -98,6 +98,8 @@ class IPCoreDescriptionFrontend:
         self._parse_clocks_resets(desc, mod)
 
         self._parse_intfs(desc, mod, types)
+
+        self._parse_extensions(desc, mod)
 
         return mod
 
@@ -311,3 +313,8 @@ class IPCoreDescriptionFrontend:
             ]
 
             return BitStruct(fields=fields, name=name)
+
+    def _parse_extensions(self, desc: IPCoreDescription, mod: Module):
+        for plugin_name, metadata in desc.extensions.items():
+            md = ExtensionData(name=plugin_name, data=metadata)
+            mod.add_extensions(md)

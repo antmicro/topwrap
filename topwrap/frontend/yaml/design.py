@@ -39,10 +39,10 @@ from topwrap.model.memory_map import MemoryMap as IRMemoryMap
 from topwrap.model.memory_map import MemoryMapSubordinate
 from topwrap.model.misc import (
     ElaboratableValue,
+    ExtensionData,
     FileReference,
     Identifier,
     ObjectId,
-    PluginMetadata,
 )
 from topwrap.model.module import Module
 from topwrap.resource_field import RepoReferenceHandler
@@ -238,8 +238,8 @@ class DesignDescriptionFrontend:
 
     def _parse_extensions(self, des: Design, desc: DesignDescription):
         for plugin_name, metadata in desc.extensions.items():
-            md = PluginMetadata(name=plugin_name, data=metadata)
-            des.add_metadata(md)
+            md = ExtensionData(name=plugin_name, data=metadata)
+            des.add_extensions(md)
 
     def _parse_parameters(self, desc: DesignDescription, design: Design):
         for cname, ip in desc.ips.items():

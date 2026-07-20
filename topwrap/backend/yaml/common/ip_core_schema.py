@@ -299,6 +299,7 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
     clocks: Dict[str, IPCoreClock] = ext_field(dict)
     resets: Dict[str, IPCoreReset] = ext_field(dict)
     types: Dict[str, IPCoreType] = ext_field(dict)
+    extensions: Dict[str, Any] = ext_field(dict)
 
     Schema: ClassVar[Type[marshmallow.Schema]]
 

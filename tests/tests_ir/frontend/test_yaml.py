@@ -165,6 +165,33 @@ class TestDesignDescriptionFrontend:
         assert preloaded.components.find_by_name("gen1").module is lfsr_gen
         assert fresh.components.find_by_name("gen1").module is not lfsr_gen
 
+    def test_extensions(self):
+        des = """
+        name: design
+        extensions:
+            key0: 123
+            key1: text
+            key2: [1, 2, 3]
+            key3:
+                subkey1: 123
+        """
+
+        mod = DesignDescriptionFrontend().parse_str(des)
+        exts = list(mod.extensions)
+
+        assert len(exts) == 4
+        assert exts[0].name == "key0"
+        assert exts[0].data == 123
+
+        assert exts[1].name == "key1"
+        assert exts[1].data == "text"
+
+        assert exts[2].name == "key2"
+        assert exts[2].data == [1, 2, 3]
+
+        assert exts[3].name == "key3"
+        assert exts[3].data == {"subkey1": 123}
+
 
 class TestIPCoreDescriptionFrontend:
     def test_parse_on_mem_yaml(self):
@@ -190,6 +217,36 @@ class TestIPCoreDescriptionFrontend:
         assert intf.name == "bus"
         assert len(intf.signals) == 9
         assert all(s is not None for s in intf.signals.values())
+
+    def test_extensions(self):
+        des = """
+        id:
+          name: top
+          vendor: vendor
+          library: libdefault
+        extensions:
+            key0: 123
+            key1: text
+            key2: [1, 2, 3]
+            key3:
+                subkey1: 123
+        """
+
+        mod = IPCoreDescriptionFrontend().parse_str(des)
+        exts = list(mod.extensions)
+
+        assert len(exts) == 4
+        assert exts[0].name == "key0"
+        assert exts[0].data == 123
+
+        assert exts[1].name == "key1"
+        assert exts[1].data == "text"
+
+        assert exts[2].name == "key2"
+        assert exts[2].data == [1, 2, 3]
+
+        assert exts[3].name == "key3"
+        assert exts[3].data == {"subkey1": 123}
 
     def test_complex_param(self):
         param = IPCoreComplexParameter(32, 563)

@@ -21,10 +21,10 @@ from topwrap.model.interconnect import Interconnect, InterconnectSubordinatePara
 from topwrap.model.memory_map import MemoryMap
 from topwrap.model.misc import (
     ElaboratableValue,
+    ExtensionData,
     ModelBase,
     ObjectId,
     Parameter,
-    PluginMetadata,
     QuerableView,
     VariableName,
     set_parent,
@@ -156,7 +156,7 @@ class Design(ModelBase):
     _reset_domains: list[ResetDomain]
     memory_maps: dict[str, MemoryMap]
     parent: Module
-    _extensions: list[PluginMetadata]
+    _extensions: list[ExtensionData]
 
     def __init__(
         self,
@@ -167,7 +167,7 @@ class Design(ModelBase):
         clock_domains: Iterable[ClockDomain] = (),
         reset_domains: Iterable[ResetDomain] = (),
         memory_maps: Optional[dict[str, MemoryMap]] = None,
-        extensions: Iterable[PluginMetadata] = (),
+        extensions: Iterable[ExtensionData] = (),
     ) -> None:
         super().__init__()
         self._components = []
@@ -191,7 +191,7 @@ class Design(ModelBase):
         for domain in reset_domains:
             self.add_reset_domain(domain)
         for data in extensions:
-            self.add_metadata(data)
+            self.add_extensions(data)
 
     @property
     def components(self) -> QuerableView[ModuleInstance]:
@@ -214,7 +214,7 @@ class Design(ModelBase):
         return QuerableView(self._reset_domains)
 
     @property
-    def extensions(self) -> QuerableView[PluginMetadata]:
+    def extensions(self) -> QuerableView[ExtensionData]:
         return QuerableView(self._extensions)
 
     def add_component(self, component: ModuleInstance):
@@ -237,9 +237,9 @@ class Design(ModelBase):
         set_parent(domain, self)
         self._reset_domains.append(domain)
 
-    def add_metadata(self, metadata: PluginMetadata):
-        set_parent(metadata, self)
-        self._extensions.append(metadata)
+    def add_extensions(self, extension_data: ExtensionData):
+        set_parent(extension_data, self)
+        self._extensions.append(extension_data)
 
     def add_memory_maps(self, mem_maps: dict[str, MemoryMap]):
         for memory_map in mem_maps.values():

@@ -292,7 +292,7 @@ class Parameter(ModelBase):
         return NotImplemented
 
 
-class PluginMetadata(ModelBase):
+class ExtensionData(ModelBase):
     """Represents generic module data"""
 
     parent: Module

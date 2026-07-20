@@ -10,6 +10,7 @@ from topwrap.model.connections import Clock, Port, Reset
 from topwrap.model.design import Design
 from topwrap.model.interface import Interface
 from topwrap.model.misc import (
+    ExtensionData,
     FileReference,
     Identifier,
     ModelBase,
@@ -36,6 +37,7 @@ class Module(ModelBase):
     _clocks: list[Clock]
     _resets: list[Reset]
     _design: Optional[Design]
+    _extensions: list[ExtensionData]
 
     def __init__(
         self,
@@ -48,6 +50,7 @@ class Module(ModelBase):
         clocks: Iterable[Clock] = (),
         resets: Iterable[Reset] = (),
         design: Optional[Design] = None,
+        extensions: Iterable[ExtensionData] = (),
     ) -> None:
         super().__init__()
         self.id = id
@@ -58,6 +61,7 @@ class Module(ModelBase):
         self._clocks = []
         self._resets = []
         self._design = None
+        self._extensions = []
 
         for port in ports:
             self.add_port(port)
@@ -71,6 +75,8 @@ class Module(ModelBase):
             self.add_clock(clock)
         for reset in resets:
             self.add_reset(reset)
+        for metadata in extensions:
+            self.add_extensions(metadata)
         self.design = design
 
     @property
@@ -119,6 +125,10 @@ class Module(ModelBase):
     def resets(self) -> QuerableView[Reset]:
         return QuerableView(self._resets)
 
+    @property
+    def extensions(self) -> QuerableView[ExtensionData]:
+        return QuerableView(self._extensions)
+
     def add_port(self, port: Port):
         set_parent(port, self)
         self._ports.append(port)
@@ -141,6 +151,10 @@ class Module(ModelBase):
     def add_reset(self, reset: Reset):
         set_parent(reset, self)
         self._resets.append(reset)
+
+    def add_extensions(self, extension_data: ExtensionData):
+        set_parent(extension_data, self)
+        self._extensions.append(extension_data)
 
     def non_intf_ports(self) -> Iterator[Port]:
         """Yield ports that don't realise signals of any interface"""
