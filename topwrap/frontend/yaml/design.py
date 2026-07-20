@@ -56,10 +56,12 @@ class DesignDescriptionFrontendException(Exception):
 
 class DesignDescriptionFrontend:
     #: A list of preparsed modules by name
+    # Can be referenced either by module id (in the format ":vlnv")
+    # or a repo reference (in the format "repo:name")
     _modules: dict[str, Module]
 
     def __init__(self, modules: Iterable[Module] = ()) -> None:
-        self._modules = {m.id.name: m for m in modules}
+        self._modules = {f":{str(m.id)}": m for m in modules}
 
     def parse_file(self, path: Path) -> Design:
         """
@@ -608,21 +610,23 @@ class DesignDescriptionFrontend:
         from topwrap.repo.user_repo import Core
 
         if isinstance(ip.file, RepoReferenceHandler):
-            key = list(ip.file.args)[0] + ip.file.value
+            key = list(ip.file.args)[0] + ":" + ip.file.value
             mod = self._modules.get(key)
             if mod is not None:
                 return mod
             mod = ip.file.to_resource(Core).top
-            if mod.id.name in self._modules:
-                mod = self._modules[mod.id.name]
+            id_key = ":" + str(mod.id)
+            if id_key in self._modules:
+                mod = self._modules[id_key]
             else:
-                self._modules[mod.id.name] = mod
+                self._modules[id_key] = mod
             self._modules[key] = mod
         else:
-            mod = self._modules.get(ip.module.id.name)
+            key = ":" + str(ip.module.id)
+            mod = self._modules.get(key)
             if mod is None:
                 mod = IPCoreDescriptionFrontend().parse_file(ip.path)
-                self._modules[mod.id.name] = mod
+                self._modules[key] = mod
 
         return mod
 
