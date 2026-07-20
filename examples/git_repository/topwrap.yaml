@@ -1,0 +1,3 @@
+force_interface_compliance: false
+repositories:
+  my_repo: git[main|examples/user_repository/repo]:https://github.com/antmicro/topwrap.git
