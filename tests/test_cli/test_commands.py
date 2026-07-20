@@ -125,27 +125,87 @@ class TestCli:
         assert design_path.exists()
 
 
+class TestCleanCacheCli:
+    @pytest.fixture()
+    def git_cache_dir(self, tmpdir: Path, monkeypatch: pytest.MonkeyPatch):
+        cache_dir = Path(tmpdir) / "git_cache"
+        monkeypatch.setattr(topwrap.cli.main, "DEFAULT_GIT_CACHE_DIR", cache_dir)
+        return cache_dir
+
+    @pytest.fixture()
+    def kpm_build_cache_dir(self, tmpdir: Path, monkeypatch: pytest.MonkeyPatch):
+        from topwrap.config import config
+
+        cache_dir = Path(tmpdir) / "kpm_build_cache"
+        monkeypatch.setattr(config, "kpm_build_location", str(cache_dir))
+        return cache_dir
+
+    def test_clean_cache_empty(
+        self,
+        git_cache_dir: Path,
+        kpm_build_cache_dir: Path,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        with caplog.at_level(logging.INFO):
+            run_cli("--log-level", "info", "clean-cache")
+
+        assert "No 'git' cache found" in caplog.text
+        assert "No 'kpm-build' cache found" in caplog.text
+        assert not git_cache_dir.exists()
+        assert not kpm_build_cache_dir.exists()
+
+    def test_clean_cache_removes_all_by_default(
+        self,
+        git_cache_dir: Path,
+        kpm_build_cache_dir: Path,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        (git_cache_dir / "repo1").mkdir(parents=True)
+        kpm_build_cache_dir.mkdir(parents=True)
+
+        with caplog.at_level(logging.INFO):
+            run_cli("--log-level", "info", "clean-cache")
+
+        assert "Removed 'git' cache" in caplog.text
+        assert "Removed 'kpm-build' cache" in caplog.text
+        assert not git_cache_dir.exists()
+        assert not kpm_build_cache_dir.exists()
+
+    def test_clean_cache_removes_only_selected_target(
+        self,
+        git_cache_dir: Path,
+        kpm_build_cache_dir: Path,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        (git_cache_dir / "repo1").mkdir(parents=True)
+        kpm_build_cache_dir.mkdir(parents=True)
+
+        with caplog.at_level(logging.INFO):
+            run_cli("--log-level", "info", "clean-cache", "--target", "git")
+
+        assert "Removed 'git' cache" in caplog.text
+        assert not git_cache_dir.exists()
+        assert kpm_build_cache_dir.exists()
+
+    def test_clean_cache_removes_all_explicitly(
+        self,
+        git_cache_dir: Path,
+        kpm_build_cache_dir: Path,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        (git_cache_dir / "repo1").mkdir(parents=True)
+        kpm_build_cache_dir.mkdir(parents=True)
+
+        with caplog.at_level(logging.INFO):
+            run_cli("--log-level", "info", "clean-cache", "--target", "all")
+
+        assert "Removed 'git' cache" in caplog.text
+        assert "Removed 'kpm-build' cache" in caplog.text
+        assert not git_cache_dir.exists()
+        assert not kpm_build_cache_dir.exists()
+
+
 class TestRepoCli:
-    def test_clean_git_cache_empty(self, tmpdir: Path, caplog: pytest.LogCaptureFixture):
-        cache_dir = Path(tmpdir) / "git_cache"
-
-        with caplog.at_level(logging.INFO):
-            run_cli("--log-level", "info", "repo", "clean-git-cache", "--cache-dir", str(cache_dir))
-
-        assert "No git repository cache found" in caplog.text
-        assert not cache_dir.exists()
-
-    def test_clean_git_cache_removes_dir(self, tmpdir: Path, caplog: pytest.LogCaptureFixture):
-        cache_dir = Path(tmpdir) / "git_cache"
-        (cache_dir / "repo1").mkdir(parents=True)
-        (cache_dir / "repo2").mkdir(parents=True)
-
-        with caplog.at_level(logging.INFO):
-            run_cli("--log-level", "info", "repo", "clean-git-cache", "--cache-dir", str(cache_dir))
-
-        assert "Removed 2 cached git repo(s)" in caplog.text
-        assert not cache_dir.exists()
-
     def test_repo_init(self, tmpdir: Path):
         tmpdir = Path(tmpdir)
         path = tmpdir / "repos" / "repo_directory"

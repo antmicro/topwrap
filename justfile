@@ -99,6 +99,12 @@ test-kpm-server:
 	set -euo pipefail
 	uv run scripts/kpm_server_check.py
 
+# Remove locally cached files created by topwrap. target is one of "git", "kpm-build" or "all".
+clean-cache target="all":
+	#!/usr/bin/env bash
+	uv sync
+	uv run topwrap clean-cache --target {{target}}
+
 # Build the project.
 build:
 	#!/usr/bin/env bash

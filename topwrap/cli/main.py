@@ -4,10 +4,13 @@
 import asyncio
 import logging
 import queue
+import shutil
 import subprocess
 import sys
 import threading
 import webbrowser
+from enum import Enum
+from itertools import chain
 from pathlib import Path
 from typing import Any, Callable, Coroutine, Optional, Tuple, cast
 
@@ -30,6 +33,7 @@ from topwrap.plugin.base import BuildException
 from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.plugin.steps import KpmSpecificationOutputStage
 from topwrap.util import JsonType
+from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -252,6 +256,41 @@ def kpm_run_server(
     except Exception as e:
         logging.error(f"{e}")
     KPM.cleanup()
+
+
+class CacheTarget(str, Enum):
+    GIT = "git"
+    KPM_BUILD = "kpm-build"
+    ALL = "all"
+
+
+def _cache_dirs(target: Optional[CacheTarget]) -> dict[CacheTarget, Path]:
+    dirs = {
+        CacheTarget.GIT: DEFAULT_GIT_CACHE_DIR,
+        CacheTarget.KPM_BUILD: Path(config.kpm_build_location),
+    }
+    if target is None or target is CacheTarget.ALL:
+        return dirs
+    return {target: dirs[target]}
+
+
+@cli.command(name="clean-cache")
+def clean_cache(*, target: Optional[CacheTarget] = None):
+    """Remove locally cached files created by topwrap.
+
+    Parameters
+    ----------
+    target
+        Which cache to remove: 'git' removes cached clones of repositories loaded via the
+        'git:' resource scheme, 'kpm-build' removes the cached Pipeline Manager build,
+        'all' removes every cache. If omitted, all caches are removed.
+    """
+    for name, cache_dir in _cache_dirs(target).items():
+        if not cache_dir.exists():
+            logger.info(f"No '{name.value}' cache found at '{cache_dir}'")
+            continue
+        shutil.rmtree(cache_dir)
+        logger.info(f"Removed '{name.value}' cache at '{cache_dir}'")
 
 
 @cli.command(name="gui")
