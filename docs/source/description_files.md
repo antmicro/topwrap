@@ -635,3 +635,9 @@ git[main|topwrap/builtin]:https://github.com/antmicro/topwrap.git
 ```
 
 This clones the `main` branch as above, but resolves to the `main|topwrap/builtin` subdirectory of the repository instead of its root.
+
+Cloned repositories are cached persistently between runs. To remove all locally cached clones, run:
+
+```
+topwrap repo clean-git-cache
+```
