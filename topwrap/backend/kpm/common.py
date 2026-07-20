@@ -60,7 +60,7 @@ class KpmNodeId:
 
     @classmethod
     def from_ir_id(cls, id: Identifier):
-        return cls(id.name, f"{id.vendor}/{id.library}")
+        return cls(id.to_kpm_name(), f"{id.vendor}/{id.library}")
 
 
 def kpm_dir_from(dir: Union[PortDirection, InterfaceMode, str]) -> KpmDirection:
