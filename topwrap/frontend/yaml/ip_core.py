@@ -221,7 +221,10 @@ class IPCoreDescriptionFrontend:
                         if isinstance(port, Port):
                             port = ReferencedPort.external(port)
 
-                        signals[byname[sname]._id] = port
+                        # we have to update definition, because by default all signals are 1bit wide
+                        ifsg = byname[sname]
+                        ifsg.type = port.io.type
+                        signals[ifsg._id] = port
                     else:
                         signals[byname[sname]._id] = None
 

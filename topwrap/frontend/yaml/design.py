@@ -395,7 +395,7 @@ class DesignDescriptionFrontend:
         ) -> Optional[ReferencedInterface]:
             try:
                 refio, _ = self._resolve_ref(des, name, ref)
-            except:
+            except DesignDescriptionFrontendException:
                 # skip all externals, only ModuleInstances
                 return None
             if not isinstance(refio, ReferencedInterface):

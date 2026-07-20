@@ -2,10 +2,6 @@ name: top
 ips:
   cpu:
     file: file:ips/cpu.yaml
-  wb_pass:
-    file: file:ips/wb_passthrough.yaml
-    parameters:
-      DW: 8
   mem:
     file: file:ips/mem.yaml
     parameters:
@@ -21,9 +17,6 @@ connections:
       rst: rst
     mem: *clkrst
     dsp: *clkrst
-  interfaces:
-    wb_pass:
-      wb_in: ext_manager
 
 interconnects:
   wishbone_bus:
