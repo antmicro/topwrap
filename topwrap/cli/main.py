@@ -10,7 +10,6 @@ import sys
 import threading
 import webbrowser
 from enum import Enum
-from itertools import chain
 from pathlib import Path
 from typing import Any, Callable, Coroutine, Optional, Tuple, cast
 
@@ -32,8 +31,8 @@ from topwrap.kpm_topwrap_client import kpm_run_client
 from topwrap.plugin.base import BuildException
 from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.plugin.steps import KpmSpecificationOutputStage
-from topwrap.util import JsonType
 from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
+from topwrap.util import JsonType
 
 logger = logging.getLogger(__name__)
 
