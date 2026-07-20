@@ -259,20 +259,6 @@ class Identifier:
     def __str__(self) -> str:
         return f"{self.vendor}:{self.library}:{self.name}:{self.version}"
 
-    def to_kpm_name(self) -> str:
-        """
-        Return KPM name from id in the format "{name} v{version} ({vendor}/{library})".
-        """
-        return f"{self.name} v{self.version} ({self.vendor}/{self.library})"
-
-
-def id_from_kpm_name(kpm_name: str) -> Identifier:
-    name, rest = kpm_name.split(" v", 1)
-    version, rest = rest.split(" (", 1)
-    vendor, rest = rest.split("/", 1)
-    library = rest[:-1]
-    return Identifier(name, vendor, library, version)
-
 
 @dataclass
 class FileReference:

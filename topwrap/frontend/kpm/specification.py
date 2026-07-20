@@ -7,7 +7,7 @@ from typing import Iterable, Iterator, Optional, cast
 
 from pipeline_manager.dataflow_builder.entities import Direction
 
-from topwrap.backend.kpm.common import PORT_INTF_TYPE, KpmNodeAdditionalData, LayerType
+from topwrap.backend.kpm.common import PORT_INTF_TYPE, LayerType
 from topwrap.frontend.kpm.common import (
     KpmFrontendParseException,
     kpm_dir_to_ir_intf,
@@ -17,7 +17,12 @@ from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import Port
 from topwrap.model.interface import Interface, InterfaceDefinition
-from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, Parameter
+from topwrap.model.misc import (
+    ElaboratableValue,
+    FileReference,
+    Identifier,
+    Parameter,
+)
 from topwrap.model.module import Module
 from topwrap.util import JsonType
 
@@ -84,13 +89,13 @@ class KpmSpecificationFrontend:
             if node.get("layer", "") != LayerType.IP_CORE.value:
                 continue
 
-            add: KpmNodeAdditionalData = node["additionalData"]
+            add = node.get("additionalData", None)
+            if add is None:
+                raise KpmFrontendParseException(
+                    f"Node {node['name']} lacks additionalData vith VLNV"
+                )
             mod = Module(
-                id=Identifier(
-                    name=add["full_module_id"]["name"],
-                    vendor=add["full_module_id"]["vendor"],
-                    library=add["full_module_id"]["library"],
-                ),
+                id=Identifier(**add["full_module_id"]),
                 refs=[FileReference(source)] if source else (),
             )
 

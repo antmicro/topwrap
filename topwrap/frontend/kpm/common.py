@@ -15,7 +15,9 @@ from topwrap.backend.kpm.common import (
 from topwrap.frontend.frontend import FrontendParseException
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import TranslationError
+from topwrap.model.misc import (
+    TranslationError,
+)
 
 
 class KpmFrontendParseException(FrontendParseException):

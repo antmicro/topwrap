@@ -54,7 +54,13 @@ from topwrap.model.design import ClockDomain, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit, Logic
 from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import Interface, InterfaceDefinition
-from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, ObjectId, QuerableView
+from topwrap.model.misc import (
+    ElaboratableValue,
+    FileReference,
+    Identifier,
+    ObjectId,
+    QuerableView,
+)
 from topwrap.model.module import Design, Module
 from topwrap.util import JsonType, UnreachableError
 
@@ -205,7 +211,7 @@ class KpmDataflowFrontend:
         for mod in modules:
             spec.add_module(mod)
         for node in spec._spec._get_nodes(False):
-            if (add := node.get("additionalData")) is not None:
+            if (add := node.get("additionalData", None)) is not None:
                 self._modmap[node["name"]] = modids[Identifier(**add["full_module_id"])]
         self._spec = spec.build()
 

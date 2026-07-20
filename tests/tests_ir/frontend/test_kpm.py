@@ -9,7 +9,7 @@ import pytest
 from pipeline_manager.dataflow_builder.data_structures import OutOfSpecificationNodeError
 
 from examples.ir_examples.modules import ALL_MODULES
-from topwrap.backend.kpm.common import LayerType
+from topwrap.backend.kpm.common import LayerType, id_to_kpm_name
 from topwrap.frontend.kpm.common import KpmFrontendParseException
 from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.frontend.kpm.frontend import KpmFrontend
@@ -101,7 +101,10 @@ class TestKpmDataflowFrontend:
     def test_non_default_version(self):
         mod = Module(id=Identifier(name="versioned_mod", version="2.0"), ports=[])
         front = KpmDataflowFrontend([mod])
-        assert front._modmap[mod.id.name] is mod
+        assert mod.id == Identifier(
+            name="versioned_mod", version="2.0", library="libdefault", vendor="vendor"
+        )
+        assert front._modmap[id_to_kpm_name(mod.id)] == mod
 
     def test_io_inference(self, files: dict[str, JsonType]):
         front = KpmDataflowFrontend(ALL_MODULES)
