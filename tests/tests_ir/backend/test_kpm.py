@@ -56,7 +56,9 @@ class TestKpmSpecificationBackend:
 
         assert len(out["nodes"]) == len(ALL_MODULES) + len(Metanode.__subclasses__())
 
-        receiver = next(n for n in out["nodes"] if n["name"] == "axis_receiver")
+        receiver = next(
+            n for n in out["nodes"] if n["name"] == "axis_receiver v0.1 (vendor/libdefault)"
+        )
         io = next(i for i in receiver["interfaces"] if i["name"] == "io")
         assert io["direction"] == Direction.INPUT.value
         assert io["type"] == axis_receiver.interfaces[0].definition.id.combined()

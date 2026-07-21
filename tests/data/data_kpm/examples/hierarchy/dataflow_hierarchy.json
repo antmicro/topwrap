@@ -519,7 +519,7 @@
               "side": "right"
             }
           ],
-          "name": "s1_mod_1",
+          "name": "s1_mod_1 v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -542,7 +542,7 @@
               "side": "right"
             }
           ],
-          "name": "s1_mod_2",
+          "name": "s1_mod_2 v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -565,7 +565,7 @@
               "side": "right"
             }
           ],
-          "name": "s1_mod_3",
+          "name": "s1_mod_3 v0.1 (vendor/libdefault)",
           "properties": [
             {
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
@@ -826,7 +826,7 @@
               "side": "right"
             }
           ],
-          "name": "s2_mod_1",
+          "name": "s2_mod_1 v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -855,7 +855,7 @@
               "side": "right"
             }
           ],
-          "name": "s2_mod_2",
+          "name": "s2_mod_2 v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1022,7 +1022,7 @@
               "side": "right"
             }
           ],
-          "name": "c_mod_1",
+          "name": "c_mod_1 v0.1 (vendor/libdefault)",
           "properties": [
             {
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
@@ -1051,7 +1051,7 @@
               "side": "right"
             }
           ],
-          "name": "c_mod_2",
+          "name": "c_mod_2 v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1086,7 +1086,7 @@
               "side": "right"
             }
           ],
-          "name": "c_mod_3",
+          "name": "c_mod_3 v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200

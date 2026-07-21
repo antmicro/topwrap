@@ -112,7 +112,7 @@
           "side": "left"
         }
       ],
-      "name": "cpu",
+      "name": "cpu v0.1 (vendor/libdefault)",
       "properties": [],
       "twoColumn": true,
       "width": 200
@@ -141,7 +141,7 @@
           "side": "left"
         }
       ],
-      "name": "dsp_block",
+      "name": "dsp_block v0.1 (vendor/libdefault)",
       "properties": [
         {
           "id": "d24c03a4-80b7-4ad4-9387-8043b8be8cb5",
@@ -181,7 +181,7 @@
           "side": "left"
         }
       ],
-      "name": "memory_block",
+      "name": "memory_block v0.1 (vendor/libdefault)",
       "properties": [
         {
           "id": "929f5491-20e4-4e22-8b12-f204ca05b1e1",

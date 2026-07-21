@@ -452,7 +452,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 525,
             "y": 105
@@ -866,7 +866,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "adder",
+          "name": "adder v0.1 (vendor/libdefault)",
           "position": {
             "x": 525,
             "y": 107.5
@@ -915,7 +915,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "D-flipflop",
+          "name": "D-flipflop v0.1 (vendor/libdefault)",
           "position": {
             "x": 75,
             "y": 522.5

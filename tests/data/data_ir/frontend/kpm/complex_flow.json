@@ -299,7 +299,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 720,
             "y": 75
@@ -341,7 +341,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 1125,
             "y": 75
@@ -390,7 +390,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "2mux_compressor",
+          "name": "2mux_compressor v0.1 (vendor/libdefault)",
           "position": {
             "x": 930,
             "y": 315
@@ -673,7 +673,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 1005,
             "y": -150
@@ -715,7 +715,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 1545,
             "y": -135
@@ -928,7 +928,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "2mux_compressor",
+          "name": "2mux_compressor v0.1 (vendor/libdefault)",
           "position": {
             "x": 1095,
             "y": 240
@@ -1113,7 +1113,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 1500,
             "y": 60
@@ -1155,7 +1155,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 1485,
             "y": 720
@@ -1197,7 +1197,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 1035,
             "y": 420
@@ -1239,7 +1239,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "debouncer",
+          "name": "debouncer v0.1 (vendor/libdefault)",
           "position": {
             "x": 1575,
             "y": 375
@@ -1298,7 +1298,7 @@
               "sidePosition": 2
             }
           ],
-          "name": "memory_block",
+          "name": "memory_block v0.1 (vendor/libdefault)",
           "position": {
             "x": 1455,
             "y": 210
@@ -1345,7 +1345,7 @@
               "sidePosition": 2
             }
           ],
-          "name": "dsp_block",
+          "name": "dsp_block v0.1 (vendor/libdefault)",
           "position": {
             "x": 1455,
             "y": 630

@@ -99,7 +99,8 @@ class TestKpmDataflowFrontend:
         validator(front.parse(files[file]))
 
     def test_non_default_version(self):
-        mod = Module(id=Identifier(name="versioned_mod", version="2.0"), ports=[])
+        id = Identifier(name="versioned_mod", version="2.0")
+        mod = Module(id=id, ports=[])
         front = KpmDataflowFrontend([mod])
         assert mod.id == Identifier(
             name="versioned_mod", version="2.0", library="libdefault", vendor="vendor"

@@ -375,7 +375,7 @@
               "sidePosition": 2
             }
           ],
-          "name": "memory_block",
+          "name": "memory_block v0.1 (vendor/libdefault)",
           "position": {
             "x": 1155,
             "y": 405
@@ -471,7 +471,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "axis_receiver",
+          "name": "axis_receiver v0.1 (vendor/libdefault)",
           "position": {
             "x": 1305,
             "y": 390

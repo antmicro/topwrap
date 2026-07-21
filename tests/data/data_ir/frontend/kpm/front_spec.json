@@ -137,7 +137,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "2mux_compressor",
+      "name": "2mux_compressor v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "1",
@@ -182,7 +182,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "4-bit counter"
+      "name": "4-bit counter v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -260,7 +260,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "D-flipflop",
+      "name": "D-flipflop v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "4",
@@ -489,7 +489,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "adder",
+      "name": "adder v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "4",
@@ -553,7 +553,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "advanced_top",
+      "name": "advanced_top v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "32",
@@ -619,7 +619,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axis_cdc",
+      "name": "axis_cdc v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "default",
@@ -675,7 +675,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axis_clk_receiver",
+      "name": "axis_clk_receiver v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "default",
@@ -726,7 +726,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axis_clk_streamer",
+      "name": "axis_clk_streamer v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "default",
@@ -784,7 +784,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axis_receiver"
+      "name": "axis_receiver v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -817,7 +817,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axis_streamer"
+      "name": "axis_streamer v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -856,7 +856,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "char_processor"
+      "name": "char_processor v0.1 (top.wrap/scilib)"
     },
     {
       "abstract": false,
@@ -889,7 +889,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "clk_top"
+      "name": "clk_top v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -922,7 +922,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "cpu"
+      "name": "cpu v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -955,7 +955,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "debouncer",
+      "name": "debouncer v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "1000",
@@ -995,7 +995,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "dsp_block",
+      "name": "dsp_block v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "1024",
@@ -1052,7 +1052,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "encoder"
+      "name": "encoder v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1103,7 +1103,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "hier_top"
+      "name": "hier_top v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1137,7 +1137,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "intf_top"
+      "name": "intf_top v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1170,7 +1170,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "intr_top"
+      "name": "intr_top v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1209,7 +1209,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "inv_adder"
+      "name": "inv_adder v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1242,7 +1242,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "inv_crg"
+      "name": "inv_crg v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1275,7 +1275,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "inv_top"
+      "name": "inv_top v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1308,7 +1308,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "lfsr_gen",
+      "name": "lfsr_gen v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "1",
@@ -1353,7 +1353,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "memory_block",
+      "name": "memory_block v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "0",
@@ -1416,7 +1416,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "proc"
+      "name": "proc v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1450,7 +1450,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "seq_to_sci4_bridge"
+      "name": "seq_to_sci4_bridge v0.1 (top.wrap/scilib)"
     },
     {
       "abstract": false,
@@ -1489,7 +1489,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "simp_top"
+      "name": "simp_top v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1523,7 +1523,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "string_sequencer"
+      "name": "string_sequencer v0.1 (top.wrap/advlib)"
     }
   ]
 }

@@ -102,7 +102,7 @@
               "side": "left"
             }
           ],
-          "name": "axi_axil_adapter",
+          "name": "axi_axil_adapter v0.1 (vendor/libdefault)",
           "properties": [
             {
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
@@ -168,7 +168,7 @@
               "side": "right"
             }
           ],
-          "name": "litex_pwm",
+          "name": "litex_pwm v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -209,7 +209,7 @@
               "side": "right"
             }
           ],
-          "name": "ps7",
+          "name": "ps7 v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200

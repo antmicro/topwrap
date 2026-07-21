@@ -378,7 +378,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axi_axil_adapter",
+      "name": "axi_axil_adapter v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "32",
@@ -522,7 +522,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axi_dispctrl"
+      "name": "axi_dispctrl v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -574,7 +574,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axi_interconnect",
+      "name": "axi_interconnect v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "32",
@@ -681,7 +681,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axi_protocol_converter"
+      "name": "axi_protocol_converter v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -763,7 +763,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axis_async_fifo",
+      "name": "axis_async_fifo v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "8",
@@ -840,7 +840,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axis_dwidth_converter",
+      "name": "axis_dwidth_converter v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "64",
@@ -892,7 +892,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "clock_crossing"
+      "name": "clock_crossing v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -962,7 +962,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "dma_axi_in_axis_out"
+      "name": "dma_axi_in_axis_out v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1098,7 +1098,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "hdmi_tx"
+      "name": "hdmi_tx v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1156,7 +1156,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "litex_mmcm"
+      "name": "litex_mmcm v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1232,7 +1232,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "proc_sys_reset"
+      "name": "proc_sys_reset v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1485,7 +1485,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "ps7"
+      "name": "ps7 v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -1696,7 +1696,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "top"
+      "name": "top v0.1 (vendor/libdefault)"
     }
   ]
 }

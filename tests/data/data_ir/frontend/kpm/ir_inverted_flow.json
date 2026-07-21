@@ -121,7 +121,7 @@
               "side": "right"
             }
           ],
-          "name": "inv_crg",
+          "name": "inv_crg v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -156,7 +156,7 @@
               "side": "right"
             }
           ],
-          "name": "inv_adder",
+          "name": "inv_adder v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -191,7 +191,7 @@
               "side": "right"
             }
           ],
-          "name": "inv_adder",
+          "name": "inv_adder v0.1 (vendor/libdefault)",
           "properties": [],
           "twoColumn": true,
           "width": 200

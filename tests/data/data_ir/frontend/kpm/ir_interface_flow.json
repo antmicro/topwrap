@@ -97,7 +97,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "axis_streamer",
+          "name": "axis_streamer v0.1 (vendor/libdefault)",
           "position": {
             "x": 465,
             "y": -45
@@ -147,7 +147,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "axis_receiver",
+          "name": "axis_receiver v0.1 (vendor/libdefault)",
           "position": {
             "x": 975,
             "y": 106.5

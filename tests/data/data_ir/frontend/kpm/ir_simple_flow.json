@@ -109,7 +109,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "2mux_compressor",
+          "name": "2mux_compressor v0.1 (vendor/libdefault)",
           "position": {
             "x": 525,
             "y": 75
@@ -156,7 +156,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "lfsr_gen",
+          "name": "lfsr_gen v0.1 (vendor/libdefault)",
           "position": {
             "x": 975,
             "y": 92
@@ -203,7 +203,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "lfsr_gen",
+          "name": "lfsr_gen v0.1 (vendor/libdefault)",
           "position": {
             "x": 75,
             "y": 560

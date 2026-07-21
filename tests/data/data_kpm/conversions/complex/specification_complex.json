@@ -108,7 +108,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "BETWEEN"
+      "name": "BETWEEN v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -350,7 +350,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "SUB"
+      "name": "SUB v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -364,7 +364,7 @@
       },
       "category": "vendor/libdefault",
       "layer": "IP Cores",
-      "name": "SUBEMPTY"
+      "name": "SUBEMPTY v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -392,7 +392,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "c_mod_2"
+      "name": "c_mod_2 v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -420,7 +420,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "s1_mod_2"
+      "name": "s1_mod_2 v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -448,7 +448,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "s1_mod_3",
+      "name": "s1_mod_3 v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "18",
@@ -495,7 +495,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "s2_mod_1"
+      "name": "s2_mod_1 v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -529,7 +529,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "s2_mod_2"
+      "name": "s2_mod_2 v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -576,7 +576,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "top"
+      "name": "top v0.1 (vendor/libdefault)"
     }
   ]
 }

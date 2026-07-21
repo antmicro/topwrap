@@ -116,7 +116,7 @@
               "side": "left"
             }
           ],
-          "name": "axis_clk_streamer",
+          "name": "axis_clk_streamer v0.1 (vendor/libdefault)",
           "properties": [
             {
               "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
@@ -156,7 +156,7 @@
               "side": "left"
             }
           ],
-          "name": "axis_clk_receiver",
+          "name": "axis_clk_receiver v0.1 (vendor/libdefault)",
           "properties": [
             {
               "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
@@ -208,7 +208,7 @@
               "side": "left"
             }
           ],
-          "name": "axis_cdc",
+          "name": "axis_cdc v0.1 (vendor/libdefault)",
           "properties": [
             {
               "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",

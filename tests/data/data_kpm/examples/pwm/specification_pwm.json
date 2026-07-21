@@ -360,7 +360,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "axi_axil_adapter",
+      "name": "axi_axil_adapter v0.1 (vendor/libdefault)",
       "properties": [
         {
           "default": "32",
@@ -432,7 +432,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "litex_pwm"
+      "name": "litex_pwm v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -478,7 +478,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "ps7"
+      "name": "ps7 v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,
@@ -500,7 +500,7 @@
         }
       ],
       "layer": "IP Cores",
-      "name": "top"
+      "name": "top v0.1 (vendor/libdefault)"
     }
   ]
 }
