@@ -110,9 +110,10 @@ class KpmSpecificationBackend:
             nid.name, KpmNodeAdditionalData(full_module_id=asdict(mod.id), source=source)
         )
 
-        self._spec.add_node_type_context_menu_action(
-            nid.name, "Export IP", "custom_download_ip", "Save", True
-        )
+        if not mod.design:
+            self._spec.add_node_type_context_menu_action(
+                nid.name, "Export IP", "custom_download_ip", "Save", True
+            )
 
         for param in mod.parameters:
             val = param.default_value
@@ -267,5 +268,5 @@ class KpmSpecificationBackend:
 
     def _register_hierarchy_export_action(self):
         self._spec.metadata_add_subgraph_context_menu_action(
-            "Export Hierarchy", "custom_download_hierarchy", "Save", True
+            "Export IP", "custom_download_hierarchy", "Save", True
         )
