@@ -1,0 +1,25 @@
+name: existing_iface_example
+
+ips:
+  subordinator_axi:
+    file: repo[existing_iface_repo]:subordinator
+  manager_axi:
+    file: repo[existing_iface_repo]:manager
+
+connections:
+  ports:
+    subordinator_axi:
+      clk: clk
+      rst: rst
+    manager_axi:
+      clk: clk
+      rst: rst
+  interfaces:
+    manager_axi:
+      axi_iface: [subordinator_axi, axi_iface]
+
+external:
+  ports:
+    in:
+      - clk
+      - rst

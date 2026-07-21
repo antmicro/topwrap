@@ -418,3 +418,24 @@ To generate the HDL top file, use:
 ```bash
 make generate
 ```
+
+### Existing interface definition
+
+[Link to source](https://github.com/antmicro/topwrap/tree/main/examples/existing_iface)
+
+```{kpm_iframe}
+:spec: ../build/kpm_jsons/spec_existing_iface.json
+:dataflow: ../build/kpm_jsons/data_existing_iface.json
+```
+
+This example showcases how Topwrap behaves when there is existing interface definition present in HDL files.
+
+### Usage
+```bash
+cd examples/existing_iface
+```
+
+To generate the HDL top file, use:
+```bash
+make generate
+```
