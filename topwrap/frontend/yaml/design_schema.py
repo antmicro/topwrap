@@ -170,6 +170,14 @@ class DesignDescriptionSchema(marshmallow.Schema):
         raise marshmallow.ValidationError(final)
 
 
+@marshmallow_dataclass.dataclass
+class ConfigDescription(MarshmallowDataclassExtensions):
+    """Global topwrap configuration"""
+
+    repositories: dict[str, ResourcePathT] = ext_field(dict)
+    force_interface_compliance: Optional[bool] = ext_field(False)
+
+
 @marshmallow_dataclass.dataclass(frozen=True, base_schema=DesignDescriptionSchema)
 class DesignDescription(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(
@@ -186,6 +194,7 @@ class DesignDescription(MarshmallowDataclassExtensions):
     reset_domains: Dict[str, DesignSectionResetDomain] = ext_field(dict)
     memory_maps: Dict[str, MemoryMap] = ext_field(dict)
     extensions: Dict[str, Any] = ext_field(dict)
+    config: Optional[ConfigDescription] = ext_field(None)
 
     Schema: ClassVar[Type[marshmallow.Schema]] = DesignDescriptionSchema
 

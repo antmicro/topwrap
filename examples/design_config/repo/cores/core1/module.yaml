@@ -1,0 +1,29 @@
+id:
+  library: libdefault
+  name: core1
+  vendor: vendor
+interfaces:
+  inter_1:
+    mode: manager
+    signals:
+      in:
+        CREADY: {name: c_tready}
+      out:
+        CDATA: {bound: ['31', '0'], name: c_tdata}
+        CKEEP: {bound: ['3', '0'], name: c_tkeep}
+        CVALID: {name: c_tvalid}
+    type:
+      name: coreStream
+      vendor: vendor
+      library: libdefault
+signals:
+  in:
+  - {bound: ['3', '0'], name: c_tkeep}
+  - {name: in_2}
+  - {name: c_tvalid}
+  - {name: in_3}
+  - {bound: ['31', '0'], name: c_tdata}
+  - {name: in_1}
+  out:
+  - {name: c_tready}
+  - {name: out_1}

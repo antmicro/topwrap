@@ -17,14 +17,13 @@ import rich.console
 from cyclopts.types import ExistingDirectory, ExistingFile
 
 from topwrap.cli import cli
-from topwrap.config import (
+from topwrap.config_defaults import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
     DEFAULT_FRONTEND_DIR,
     DEFAULT_SERVER_ADDR,
     DEFAULT_SERVER_PORT,
     DEFAULT_WORKSPACE_DIR,
-    config,
 )
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
@@ -32,7 +31,7 @@ from topwrap.plugin.base import BuildException
 from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.plugin.steps import KpmSpecificationOutputStage
 from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
-from topwrap.util import JsonType
+from topwrap.util import JsonType, get_config
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ def build_main(
     if build_dir is None:
         build_dir = Path("build")
 
-    config.force_interface_compliance = iface_compliance
+    get_config().force_interface_compliance = iface_compliance
 
     try:
         pipeline = BuildPipeline.yaml_sv_pipeline(
@@ -219,10 +218,10 @@ def kpm_build_server(
 ):
     """Build KPM server"""
     if workspace_directory is None:
-        workspace_directory = Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR
+        workspace_directory = Path(get_config().kpm_build_location) / DEFAULT_WORKSPACE_DIR
 
     if output_directory is None:
-        output_directory = Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR
+        output_directory = Path(get_config().kpm_build_location) / DEFAULT_FRONTEND_DIR
 
     KPM.build_server(
         workspace_directory=workspace_directory,
@@ -241,7 +240,7 @@ def kpm_run_server(
 ):
     """Run a KPM server"""
     if frontend_directory is None:
-        frontend_directory = Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR
+        frontend_directory = Path(get_config().kpm_build_location) / DEFAULT_FRONTEND_DIR
 
     try:
         KPM.run_server(
@@ -266,7 +265,7 @@ class CacheTarget(str, Enum):
 def _cache_dirs(target: Optional[CacheTarget]) -> dict[CacheTarget, Path]:
     dirs = {
         CacheTarget.GIT: DEFAULT_GIT_CACHE_DIR,
-        CacheTarget.KPM_BUILD: Path(config.kpm_build_location),
+        CacheTarget.KPM_BUILD: Path(get_config().kpm_build_location),
     }
     if target is None or target is CacheTarget.ALL:
         return dirs
@@ -317,11 +316,12 @@ def topwrap_gui(
     server_port
         Port of the Pipeline Manager TCP server.
     """
+
     if frontend_directory is None:
-        frontend_directory = Path(config.kpm_build_location) / DEFAULT_FRONTEND_DIR
+        frontend_directory = Path(get_config().kpm_build_location) / DEFAULT_FRONTEND_DIR
 
     if workspace_directory is None:
-        workspace_directory = Path(config.kpm_build_location) / DEFAULT_WORKSPACE_DIR
+        workspace_directory = Path(get_config().kpm_build_location) / DEFAULT_WORKSPACE_DIR
 
     logging.info("Checking if server is built")
     if (not frontend_directory.exists() or not workspace_directory.exists()) and use_server:

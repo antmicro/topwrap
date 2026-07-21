@@ -9,7 +9,7 @@ import yaml
 from cyclopts.types import ExistingPath
 
 from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos, repo_cli
-from topwrap.config import ConfigManager, config
+from topwrap.config import ConfigManager
 from topwrap.frontend.automatic import FrontendRegistry
 from topwrap.repo.exceptions import ResourceNotSupportedException
 from topwrap.repo.file_handlers import ModuleFileHandler
@@ -115,7 +115,7 @@ def list_repos():
     """List all repos in current config"""
 
     print("Loaded user repositories:")
-    for name, path in config.repositories.items():
+    for name, path in get_config().repositories.items():
         print(f'"{name}" -> "{path.to_path()}"')
 
 
@@ -134,7 +134,7 @@ def init_repo(
         return
     repo = UserRepo(name)
     repo.save(path)
-    config.repositories[name] = FileReferenceHandler(path)
+    get_config().repositories[name] = FileReferenceHandler(path)
 
     # TODO: Use the config updating mechanism when its added
     # instead of doing this manually

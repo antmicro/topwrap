@@ -10,11 +10,14 @@ topwrap.yaml
 ~/.config/topwrap/config.yaml
 ```
 
+Additionally, *some* configuration options can be specified in the [design YAML](./description_files.md#design-description).
+
 ## Configuration precedence
 
 When multiple configuration files are present, the options are evaluated and overridden based on the location of the configuration file.
 The precedence, from highest to lowest, is as follows:
 
+- Design YAML when evaluating the design
 - `topwrap.yaml` in the current working directory
 - `~/.config/topwrap/topwrap.yaml` (user-specific configuration)
 - `~/.config/topwrap/config.yaml` (fallback configuration)
@@ -28,6 +31,7 @@ Different configuration options use different merging strategies when multiple c
 - **Override** (e.g. `force_interface_compliance`): The value from the higher-precedence file completely replaces the value in lower-precedence files.
 - **Merge** (e.g. `repositories`): Values from all configuration files are merged.
   For example, repositories defined in `~/.config/topwrap/topwrap.yaml` are combined with repositories defined in `topwrap.yaml`.
+  Note however that if a repository name is defined in two places, the higher priority setting still **overrides** the lower.
 
 ## Available config options
 

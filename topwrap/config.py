@@ -1,8 +1,7 @@
-# Copyright (c) 2021-2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 from functools import cached_property
 from pathlib import Path
 from typing import Optional, Sequence
@@ -17,28 +16,10 @@ from topwrap.common_serdes import (
     ResourcePathT,
     ext_field,
 )
+from topwrap.config_defaults import DEFAULT_SERVER_BASE_DIR
 from topwrap.repo.user_repo import UserRepo
-from topwrap.util import get_package_identifier
 
 logger = logging.getLogger(__name__)
-
-kpm_sha = get_package_identifier("pipeline_manager")
-DEFAULT_SERVER_BASE_DIR = (
-    Path(os.environ.get("XDG_CACHE_HOME", "~/.local/cache")).expanduser()
-    / "topwrap/kpm_build"
-    / kpm_sha
-)
-DEFAULT_WORKSPACE_DIR = "workspace"
-DEFAULT_BACKEND_DIR = "backend"
-DEFAULT_FRONTEND_DIR = "frontend"
-DEFAULT_SERVER_ADDR = "127.0.0.1"
-DEFAULT_SERVER_PORT = 9000
-DEFAULT_BACKEND_ADDR = "127.0.0.1"
-DEFAULT_BACKEND_PORT = 5000
-
-
-class InvalidConfigError(Exception):
-    """Raised when the provided configuration is incorrect"""
 
 
 @marshmallow_dataclass.dataclass
@@ -49,18 +30,26 @@ class Config(MarshmallowDataclassExtensions):
     repositories: dict[str, ResourcePathT] = ext_field(dict)
     kpm_build_location: str = ext_field(str(DEFAULT_SERVER_BASE_DIR))
 
+    def update_repo(self, repos: dict[str, ResourcePathT]):
+        self.repositories.update(repos)
+        self._clear_cached_repo()
+
+    def update_interface_compliance(self, force_interface_compliance: Optional[bool]):
+        self.force_interface_compliance = force_interface_compliance
+
     def update(self, config: "Config"):
         if config.force_interface_compliance is not None:
-            self.force_interface_compliance = config.force_interface_compliance
+            self.update_interface_compliance(config.force_interface_compliance)
 
         if config.kpm_build_location is not None:
             self.kpm_build_location = config.kpm_build_location
 
         if config.repositories is not None:
-            if self.repositories is None:
-                self.repositories = config.repositories
-            else:
-                self.repositories.update(config.repositories)
+            self.update_repo(config.repositories)
+
+    def _clear_cached_repo(self):
+        self.__dict__.pop("loaded_repos", None)
+        self.__dict__.pop("builtin_repo", None)
 
     @cached_property
     def loaded_repos(self) -> dict[str, UserRepo]:
@@ -76,6 +65,10 @@ class Config(MarshmallowDataclassExtensions):
         repo = UserRepo(ConfigManager.BUILTIN_REPO_NAME)
         repo.load(self.repositories[ConfigManager.BUILTIN_REPO_NAME].to_path())
         return repo
+
+
+class InvalidConfigError(Exception):
+    """Raised when the provided configuration is incorrect"""
 
 
 class ConfigManager:

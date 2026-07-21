@@ -73,6 +73,11 @@ class BuildPipeline:
     ):
         logger.info("Preparing modules")
 
+        # Pre-parse logic
+        for i in self.inputs:
+            logger.info(f"Pre-parsing design using: {i.name}")
+            i.pre_parse_input(design_source, sources)
+
         repo_interfaces = load_interfaces_from_repos()
         repo_modules, existing_ifaces = load_modules_from_repos()
 

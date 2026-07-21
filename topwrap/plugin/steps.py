@@ -26,7 +26,7 @@ from topwrap.plugin.base import (
     Source,
     StringSource,
 )
-from topwrap.util import JsonType
+from topwrap.util import JsonType, get_config
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +43,12 @@ class InputStage(ABC):
         Process the given input file and add modules to the context.
         """
         ...
+
+    def pre_parse_input(self, design_source: Optional[Source], sources: list[Source]):  # noqa: B027
+        """
+        Pre-Process the given input files. This is done before repo-discovery
+        """
+        pass
 
 
 class Transformation(ABC):
@@ -137,6 +143,22 @@ class YamlInputStage(InputStage):
                 raise BuildException(
                     f"Parsing design source {design_source} did not yield a design."
                 )
+
+    @override
+    def pre_parse_input(self, design_source: Optional[Source], sources: list[Source]):
+        from topwrap.frontend.yaml.design_schema import DesignDescription
+
+        if design_source:
+            if isinstance(design_source, FileSource):
+                design = DesignDescription.load(design_source.path)
+            else:
+                assert isinstance(design_source, StringSource)
+                design = DesignDescription.from_yaml(design_source.content)
+
+            config_options = design.config
+            if config_options:
+                get_config().update_repo(config_options.repositories)
+                get_config().update_interface_compliance(config_options.force_interface_compliance)
 
 
 class KpmInputStage(InputStage):

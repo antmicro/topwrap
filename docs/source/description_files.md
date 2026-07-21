@@ -118,6 +118,11 @@ memory_maps:
     ...
     {instance_name}: # when an instance has only one interface, it is not required to specify the interface name
       address: {address1}
+
+config: # override global configuration settings (optional)
+  force_interface_compliance: {true/false}
+  repositories: 
+    {repo_name}: {repo_source}
 ```
 
 `inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
@@ -139,6 +144,10 @@ If a domain is not assigned explicitly, the clock/reset signal is implicitly ass
 
 For reset connections, Topwrap will automatically invert connections between resets of different polarities.
 For resets that don't have the same synchronicity, an error is raised describing the problem.
+
+The `config` option allows the design to override [configuration settings](./config.md#available-config-options) using the same syntax as in the configuration files.
+This includes the list of repositories to load.
+Topwrap pre-parses the design document before fetching repositories, so the settings placed are picked up before the design is evaluated.
 
 ### Hierarchies
 

@@ -1,0 +1,31 @@
+ips:
+  core1:
+    file: repo[my_repo]:core1
+  core2:
+    file: repo[my_repo]:core2
+connections:
+  interfaces:
+    core2:
+      inter_2: [core1, inter_1]
+  ports:
+    core1:
+      in_1: ex_in_1
+      in_2: ex_in_1
+      in_3: ex_in_2
+    core2:
+      in_1: [core1, out_1]
+      in_2: ex_in_2
+      out_1: ex_out_1
+external:
+  ports:
+    in:
+    - ex_in_1
+    - ex_in_2
+    out:
+    - ex_out_1
+
+# configuration settings inside design
+config:
+  force_interface_compliance: true
+  repositories:
+    my_repo: file:./repo/

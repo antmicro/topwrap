@@ -13,7 +13,6 @@ from cyclopts import Parameter
 from cyclopts.types import ExistingDirectory, ExistingFile
 
 import topwrap.logger
-from topwrap.config import config
 from topwrap.frontend.yaml.design import DesignDescriptionFrontendException
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
@@ -58,7 +57,7 @@ def cmd(
     topwrap.logger.configure(levelname, log_cfg)
 
     for rep in repo:
-        config.repositories[rep.name] = FileReferenceHandler(rep)
+        get_config().repositories[rep.name] = FileReferenceHandler(rep)
 
     try:
         return cli(tokens)
