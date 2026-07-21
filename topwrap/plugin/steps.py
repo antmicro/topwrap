@@ -11,6 +11,7 @@ from typing import Optional, cast
 from typing_extensions import override
 
 from topwrap.backend.backend import BackendOutputInfo
+from topwrap.backend.ipxact.backend import IPXACTBackend
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
@@ -239,6 +240,22 @@ class SystemVerilogOutputStage(OutputStage):
         [out] = backend.serialize(repr, combine=True)
 
         out.save(target_dir)
+
+
+class IPXACTOutputStage(OutputStage):
+    name: str = "IP-XACT 2022 module"
+
+    @override
+    def write_output_to(self, target_dir: Path, ctx: BuildContext):
+        if ctx.top_module is None:
+            raise BuildException("IP-XACT output requires a top module")
+
+        backend = IPXACTBackend(ctx.existing_interfaces)
+        repr = backend.represent(ctx.top_module)
+        out = backend.serialize(repr)
+
+        for file in out:
+            file.save(target_dir)
 
 
 class FuseSocOutputStage(OutputStage):

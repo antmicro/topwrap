@@ -18,6 +18,7 @@ from topwrap.plugin.manager import PluginManager
 from topwrap.plugin.steps import (
     FuseSocOutputStage,
     InputStage,
+    IPXACTOutputStage,
     KpmDataflowOutputStage,
     KpmInputStage,
     KpmSpecificationOutputStage,
@@ -214,6 +215,19 @@ class BuildPipeline:
             ],
             validations=[],
             outputs=outputs,
+        )
+
+    @staticmethod
+    def yaml_ipxact_pipeline():
+        return BuildPipeline(
+            inputs=[
+                YamlInputStage(),
+            ],
+            transformations=[
+                MemoryMapTransformation(),
+            ],
+            validations=[],
+            outputs=[IPXACTOutputStage()],
         )
 
     @staticmethod

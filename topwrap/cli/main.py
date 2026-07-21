@@ -182,6 +182,36 @@ class KPM:
         await KPM.kpm_run_client_task
 
 
+@cli.command(name="ipxact_gen")
+def generate_ipxact(
+    design: ExistingFile,
+    build_dir: Optional[Path] = None,
+    iface_compliance: bool = False,
+):
+    """Generate IP-XACT 2022 files from a top design YAML file.
+
+    Parameters
+    ---------
+    design
+        Top design file.
+    build_dir
+        Output directory for generated files.
+    iface_compliance
+        Force intterfdace compliance checking.
+    """
+    if build_dir is None:
+        build_dir = Path("build")
+
+    get_config().force_interface_compliance = iface_compliance
+
+    try:
+        pipeline = BuildPipeline.yaml_ipxact_pipeline()
+        pipeline.run_files([], design, build_dir)
+    except BuildException as e:
+        logger.error(f"{e}")
+        sys.exit(1)
+
+
 @cli.command(name="kpm_client")
 def kpm_client_main(
     yamlfiles: Tuple[ExistingFile, ...] = (),

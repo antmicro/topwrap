@@ -2,8 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 JSONS = kpm_spec.json kpm_dataflow.json
+REPO_NAME = repo
+
 
 all: $(JSONS)
+
+generate_ipxact: project.yaml $(REPO_NAME)
+	topwrap ipxact_gen -d $<
 
 $(JSONS):
 	topwrap specification -d project.yaml
