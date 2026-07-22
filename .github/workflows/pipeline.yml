@@ -27,6 +27,7 @@ jobs:
           wget https://github.com/casey/just/releases/download/1.55.1/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -P /tmp
           tar -xvf /tmp/just-1.55.1-x86_64-unknown-linux-musl.tar.gz -C /tmp/
           mv /tmp/just /usr/bin/
+          git config --global --add safe.directory '*'
 
       - uses: actions/checkout@v4
 
