@@ -20,8 +20,6 @@ install-debian-deps docs="0":
         npm \
         g++ \
         make \
-        antlr4 \
-        libantlr4-runtime-dev \
         yosys
 
     if [[ {{docs}} == "1" ]];then apt-get install -y texlive-full imagemagick make chromium; fi
