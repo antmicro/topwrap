@@ -221,11 +221,11 @@ class DesignDescriptionFrontend:
         # Parse memory maps, need to be done after interfaces are parsed
         self._parse_memory_maps(design, desc.memory_maps)
 
-        # Parse interconnects
-        self._parse_interconnects(desc, design, declared_exts)
-
         # Realize leftover, internally unconnected, external IO declarations
         self._add_ports(mod, declared_exts)
+
+        # Parse interconnects
+        self._parse_interconnects(desc, design, declared_exts)
 
         # Handle the specific syntax of inout connections
         self._parse_inout(desc, design)
