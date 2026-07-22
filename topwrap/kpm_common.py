@@ -50,6 +50,7 @@ class RPCparams:
     design: Optional[Design]
     extra_yamls: list[Path]
     positions: dict[Identifier, Positions]
+    design_path: Optional[Path] = None
 
 
 def get_all_graph_nodes(dataflow_json: JsonType) -> List[JsonType]:
@@ -94,6 +95,18 @@ def get_entry_graph(dataflow_json: JsonType) -> JsonType:
     if graph is None:
         raise UnreachableError
     return graph
+
+
+def get_toplevel_graph(dataflow_json: JsonType) -> JsonType:
+    """Returns the toplevel graph of the dataflow.
+    This might be different from the entryGraph in KPM dataflow!"""
+
+    subgraph_ids = set([node["subgraph"] for node in get_dataflow_subgraph_nodes(dataflow_json)])
+    for graph in dataflow_json["graphs"]:
+        if graph["id"] not in subgraph_ids:
+            return graph
+    else:
+        raise UnreachableError
 
 
 def graph_to_isolated_dataflow(dataflow: JsonType, graph_id: str) -> JsonType:

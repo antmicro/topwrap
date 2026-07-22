@@ -8,6 +8,7 @@ import threading
 from base64 import b64encode
 from datetime import datetime
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any, Optional, TypedDict, Union, cast
 
 from pipeline_manager_backend_communication.communication_backend import (
@@ -38,6 +39,7 @@ from .kpm_common import (
     find_dataflow_node_by_id,
     get_dataflow_subgraph_nodes,
     get_graph_with_id,
+    get_toplevel_graph,
 )
 from .kpm_dataflow_validator import DataflowValidator
 from .util import read_json_file, save_file_to_json
@@ -66,6 +68,7 @@ class RPCMethods:
         self.extra_yamls = params.extra_yamls
         self.positions = params.positions
         self.client = client
+        self.design_path = params.design_path
         # Use the $XDG_DATA_HOME as a destination for saving the dataflow, which defaults to
         # ~/.local/share
         xdg_data_home_var = Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
@@ -230,6 +233,77 @@ class RPCMethods:
                 self.default_save_file.name,
                 current_graph["result"]["dataflow"],
             )
+
+    def custom_save_design_changes(self, dataflow: JsonType):
+        """
+        This procedure is run when the user wants to modify their
+        design file in-place.
+        """
+        if self.design_path is None:
+            return {
+                "type": MessageType.ERROR.value,
+                "content": "No design file loaded; cannot save changes",
+            }
+        # The KPM Frontend treats the graph defined in `entryGraph`
+        # as the toplevel module. However, if the user goes into
+        # a subgraph, that subgraph is now the entryGraph, but
+        # we want to pass the whole design
+        dataflow["entryGraph"] = get_toplevel_graph(dataflow)["id"]
+
+        try:
+            pipeline = BuildPipeline.kpm_yaml_pipeline()
+            pipeline.prepare_str([json.dumps(self.specification)], json.dumps(dataflow))
+            pipeline.process()
+        except Exception as e:
+            return {
+                "type": MessageType.ERROR.value,
+                "content": str(e),
+            }
+
+        ctx = pipeline.ctx
+        if ctx.top_module is None:
+            return {
+                "type": MessageType.ERROR.value,
+                "content": "Given dataflow seems to not contain a design",
+            }
+
+        out_des, out_pos = cast(
+            tuple[BackendOutputInfo, BackendOutputInfo],
+            ctx.outputs[YamlDesignOutputStage.name],
+        )
+
+        if out_pos is not None:
+            out_pos.save(Path("."))
+
+        def _extract_header(path: Path) -> str:
+            res = ""
+            with open(path, "r") as f:
+                for line in f:
+                    if line.startswith("#"):
+                        res += line
+                    else:
+                        break
+            return res + ("\n" if res else "")
+
+        header = _extract_header(self.design_path)
+        with NamedTemporaryFile("w", dir=".", delete=False) as f:
+            f.write(header)
+            f.write(out_des.content)
+            tmp_path = f.name
+
+        try:
+            os.replace(tmp_path, self.design_path)
+        except Exception:
+            os.unlink(tmp_path)
+            return {
+                "type": MessageType.ERROR.value,
+                "content": "Failed to save to design file",
+            }
+
+        return {
+            "type": MessageType.OK.value,
+            "content": f"Successfully saved changes to file {self.design_path}",
+        }
 
     async def nodes_on_change(self, graph_id: str, nodes: JsonType, **kwargs: Any):
         logging.info("Node change event")

@@ -243,6 +243,13 @@ class KpmSpecificationBackend:
                     "allowToRunInParallelWith": ["dataflow_validate", "custom_lint_files"],
                     "requireResponse": True,
                 },
+                {
+                    "name": "Save changes to design file",
+                    "stopName": "Stop",
+                    "iconName": "Save",
+                    "procedureName": "custom_save_design_changes",
+                    "requireResponse": True,
+                },
             ],
             "styles": {
                 "inverter": {
