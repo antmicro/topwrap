@@ -18,7 +18,7 @@ These mappings describe which module ports (or smaller parts thereof) correspond
 signals, and what the resulting interfaces should be named.
 
 Mapping files are stored within the `mappings` subdirectory within repositories, and are applied
-automatically discovered and applied during `topwrap build`.
+automatically discovered and applied during generation commands such as `topwrap build` and `topwrap ipxact_gen`.
 
 ### Mapping files
 
@@ -108,4 +108,4 @@ would look like this: `--inference-interface AXI4` and `--inference-interface AH
 
 Finally, after the inference is done, a mapping is produced. This mapping is then saved into a
 mapping file in the destination repository, in the `mappings` subdirectory, for use with future
-`topwrap build` invocations.
+generation command invocations (e.g. `topwrap build`, `topwrap ipxact_gen`).

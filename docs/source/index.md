@@ -6,6 +6,7 @@
 introduction
 installation
 getting_started
+backends
 advanced_options
 examples
 description_files

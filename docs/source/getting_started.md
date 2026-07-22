@@ -185,6 +185,18 @@ topwrap build --design {design_name.yaml}
 
 Where `{design_name.yaml}` is the design saved at the end of the previous section. This will generate a `top.v` Verilog top wrapper in the specified build directory (`./build` by default).
 
+### Generating IPXACT 2022 files
+
+To generate IP-XACT 2022 files from a design, use `topwrap ipxact_gen`. The command schema is similar to `topwrap build`:
+
+```bash
+topwrap ipxact_gen --design {design_name.yaml}
+```
+
+By default the generated files are written to the `build/` directory. Change this with the `--build-dir` argument. Use `--iface-compliance` to force interface compliance checking.
+
+See [Backends](backends.md#ipxactbackend) for details on the backend driving this command.
+
 ### Synthesis & FuseSoC
 
 You can additionally generate a [FuseSoC core](#fusesoc) file during `topwrap build` to automate further synthesis and implementation by simply adding the `-f` (`--fuse`) option.

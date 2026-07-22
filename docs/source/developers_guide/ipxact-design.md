@@ -4,6 +4,7 @@ This document is an exploration of the [IP-XACT format](https://www.accellera.or
 
 All IP-XACT elements generated for the IR examples are located under `examples/ir_examples/[example]/ipxact/antmicro.com/[example]` where `antmicro.com/[example]` represents the [`vendor/library`](#vlnv).
 They all conform to the 2022 version.
+These files can be regenerated with the `topwrap ipxact_gen` command (see [Generating IPXACT 2022 files](../getting_started.md#generating-ipxact-2022-files)), which is driven by the [IPXACTBackend](../backends.md#ipxactbackend).
 
 ## General observations
 

@@ -11,8 +11,8 @@ Topwrap uses a custom object hierarchy, further called "internal representation"
 
 ## Frontend & Backend
 
-The `Frontend` based classes converts external formats, such as SystemVerilog, VHDL or KPM into the IR.
-Complementarily, the `Backend` based classes convert our IR into external formats.
+The `Frontend` based classes converts external formats, such as SystemVerilog, VHDL, KPM or IP-XACT into the IR.
+Complementarily, the `Backend` based classes convert our IR into external formats, such as SystemVerilog, YAML, KPM or IP-XACT.
 
 The reason for separating the logic like this is to be able to easily add support for multiple fronteds and backends formats and make them interchangeable.
 

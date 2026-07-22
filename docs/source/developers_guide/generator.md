@@ -35,6 +35,7 @@ To make name generation less prone to errors use `get_name()` in implementation 
 
 ## Lookup maps
 `SystemVerilogBackend` uses {const}`~topwrap.backend.sv.generators.verilog_generators_map` as lookup map.
+`IPXACTBackend` reuses the same {const}`~topwrap.backend.sv.generators.verilog_generators_map`, since different HDL backends may yield different IR modules for interconnects.
 
 ## API Reference
 ```{eval-rst}

@@ -16,7 +16,7 @@ Information about IP cores is stored in [IP description files](../description_fi
 
 ## Ability to produce top-level wrappers in VHDL
 
-Topwrap currently only has a SystemVerilog backend for generating top-level designs. We would also like to add the ability to produce such designs in VHDL.
+Topwrap currently has a SystemVerilog backend and an [IP-XACT backend](../backends.md#ipxactbackend) for generating top-level designs. We would also like to add the ability to produce such designs in VHDL.
 
 ## Bus management
 
