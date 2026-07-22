@@ -4,7 +4,7 @@
 from abc import ABC
 from typing import Any, Generic, TypeVar
 
-import topwrap_axi_core_plugin
+import axi_interconnect_generator_plugin
 from amaranth.back import verilog
 
 import topwrap.backend.sv.wishbone_interconnect as wb_inter
@@ -217,7 +217,7 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
 
         name = f"interconnect_{interconnect.name}"
 
-        out = topwrap_axi_core_plugin.generate_interconnect(config, name)
+        out = axi_interconnect_generator_plugin.generate_interconnect(config, name)
 
         return SVFile(content=out, name=name, type=SVFileType.MODULE)
 
