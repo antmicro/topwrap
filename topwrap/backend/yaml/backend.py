@@ -647,7 +647,7 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
     @override
     def serialize(self, repr: DesignDescriptionOutput) -> Iterator[BackendOutputInfo]:
-        out = repr.description.to_yaml()
+        out = repr.description.to_yaml(pretty_format=True)
         yield BackendOutputInfo(content=out, filename=f"{repr.base_name}.yaml")
 
 

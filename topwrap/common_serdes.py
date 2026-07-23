@@ -8,6 +8,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+from textwrap import indent
 from typing import (
     Any,
     Callable,
@@ -396,6 +397,11 @@ class InlineYamlDumper(yaml.SafeDumper):
             node.flow_style = True
         return node
 
+    def increase_indent(self, flow: bool = False, indentless: bool = False):
+        """Override the increase_indent to never be indentless; this affects mostly lists,
+        which we want to be indented"""
+        return super().increase_indent(flow, False)
+
 
 InlineYamlDumper.add_representer(Inline, InlineYamlDumper.represent_inline)
 
@@ -497,10 +503,77 @@ class MarshmallowDataclassExtensions:
     def from_dict(cls, data: Dict[str, Any], **kwargs: Any) -> Self:
         return cast(Self, cls.Schema().load(data, **kwargs))
 
-    def to_yaml(self, **kwargs: Any) -> str:
+    def to_yaml(self, pretty_format: bool = False, **kwargs: Any) -> str:
         sch = self.Schema()
         sch.context[MetaKeys.SHOULD_INLINE.value] = True
-        return yaml.dump(sch.dump(self), Dumper=InlineYamlDumper, sort_keys=True, **kwargs)
+
+        def _dump_design(des: Any, is_toplevel: bool = True):
+            """Dump a design to YAML in string. This has to be done by so that we can:
+            1. avoid printing VLNV fields if their value is default (e.g. "libdefault")
+            2. avoid printing VLNV name inside hierarchies
+            3. insert newlines between sections, but only on the toplevel"""
+
+            # Dictionary storing the ID sections and their default values
+            id_sections = {
+                "vendor": "vendor",
+                "library": "libdefault",
+                "name": "top",
+                "version": "0.1",
+            }
+
+            id_strs = []
+            section_strs = []
+            for section in des:
+                if section in id_sections:
+                    # Never print names inside hierarchies
+                    if not is_toplevel and section == "name":
+                        continue
+                    if des[section] != id_sections[section]:
+                        id_strs.append(f"{section}: {des[section]}")
+                elif section == "hierarchies":
+                    section_str = f"{section}:\n"
+                    for sname, sec in des["hierarchies"].items():
+                        section_str += f"  {sname}:\n"
+                        if is_toplevel:
+                            section_str += indent(_dump_design(sec, False), "    ")[:-1]
+                        else:
+                            section_str += indent(_dump_design(sec, False), "    ")
+                    if is_toplevel:
+                        section_str += "\n"
+                    section_strs.append(section_str)
+                else:
+                    section_strs.append(f"{section}:")
+                    content = indent(
+                        yaml.dump(
+                            des[section],
+                            Dumper=InlineYamlDumper,
+                            sort_keys=False,
+                            **kwargs,
+                        ),
+                        "  ",
+                    )
+                    # Don't insert newline between sections in hierarchies
+                    if not is_toplevel:
+                        content = content.rstrip()
+                    section_strs.append(content)
+            if len(id_strs) > 0:
+                id_strs.append("")
+                id_strs.append("")
+            if not is_toplevel:
+                section_strs.append("")
+
+            # File cannot be empty - add some field to circumvent that
+            if not id_strs and not section_strs:
+                return "name: top"
+            else:
+                return "\n".join(id_strs) + "\n".join(section_strs)
+
+        # Custom formatting for design YAMLs
+        if pretty_format:
+            return _dump_design(sch.dump(self))
+        # Standrad formatting for IP Cores
+        else:
+            return yaml.dump(sch.dump(self), Dumper=InlineYamlDumper, sort_keys=True, **kwargs)
 
     @classmethod
     def from_yaml(cls, yaml_str: str, **kwargs: Any) -> Self:
