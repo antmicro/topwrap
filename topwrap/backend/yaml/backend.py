@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Iterable, Iterator, Optional, Union
 
 import yaml
-from typing_extensions import override
+from typing_extensions import Any, override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo
 from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
@@ -55,7 +55,7 @@ from topwrap.model.interface import (
     InterfaceMode,
 )
 from topwrap.model.memory_map import MemoryMap
-from topwrap.model.misc import ElaboratableValue, Parameter
+from topwrap.model.misc import ElaboratableValue, ExtensionData, Parameter
 from topwrap.model.module import Module
 from topwrap.resource_field import FileReferenceHandler, RepoReferenceHandler
 from topwrap.util import get_config
@@ -100,9 +100,15 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         intfs = {intf.name: self._represent_intf(intf) for intf in module.interfaces}
         params = self._represent_params(module.parameters)
         types = self._represent_nontrivial_types(module.ports)
+        extensions = self._represent_extensions(module.extensions)
 
         desc = IPCoreDescription(
-            id=module.id, signals=ports, parameters=params, interfaces=intfs, types=types
+            id=module.id,
+            signals=ports,
+            parameters=params,
+            interfaces=intfs,
+            types=types,
+            extensions=extensions,
         )
 
         return IpCoreDescriptionOutput(base_name=module.id.name, description=desc)
@@ -268,6 +274,14 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
 
         return out
 
+    def _represent_extensions(self, extensions: Iterable[ExtensionData]) -> dict[str, Any]:
+        extensions_dict: dict[str, Any] = {}
+
+        for ext_data in extensions:
+            extensions_dict[ext_data.name] = ext_data.data
+
+        return extensions_dict
+
     @override
     def serialize(self, repr: IpCoreDescriptionOutput) -> Iterator[BackendOutputInfo]:
         out = repr.description.to_yaml()
@@ -315,6 +329,8 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             name: self._represent_memory_map(mmap) for name, mmap in design.memory_maps.items()
         }
 
+        extensions = self._represent_extensions(design.extensions)
+
         id = design.parent.id
         return DesignDescription(
             name=id.name,
@@ -328,6 +344,7 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             clock_domains=clock_domains,
             reset_domains=reset_domains,
             memory_maps=memory_maps,
+            extensions=extensions,
         )
 
     def _represent_ip(self, comp: ModuleInstance) -> DesignIP:
@@ -575,6 +592,14 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             out[ref.instance.name][ref.io.name] = params
 
         return out
+
+    def _represent_extensions(self, extensions: Iterable[ExtensionData]) -> dict[str, Any]:
+        extensions_dict: dict[str, Any] = {}
+
+        for ext_data in extensions:
+            extensions_dict[ext_data.name] = ext_data.data
+
+        return extensions_dict
 
     def _represent_ref_io(self, ref: ReferencedIO) -> Union[str, tuple[str, str]]:
         if ref.is_external:
