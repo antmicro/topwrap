@@ -93,7 +93,7 @@ def update_json_ipcore_iface():
         ip_core.save(ip_core_dir)
 
 
-@cli.command
+@cli.default
 def update_test_data(
     *, dataflow: bool = False, specification: bool = False, ipcore_and_iface_json: bool = False
 ):
@@ -108,4 +108,4 @@ def update_test_data(
 
 
 if __name__ == "__main__":
-    update_test_data()
+    cli()
