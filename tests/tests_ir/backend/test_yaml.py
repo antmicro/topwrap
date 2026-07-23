@@ -14,7 +14,7 @@ from examples.ir_examples.modules import (
     intr_top,
     simp_top,
 )
-from tests.tests_ir.test_kpm_non_destructive import _compare_modules
+from tests.tests_ir.test_kpm_non_destructive import _compare_designs, _compare_modules
 from topwrap import util
 from topwrap.backend.yaml.backend import DesignDescriptionBackend, IpCoreDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
@@ -39,7 +39,13 @@ from topwrap.model.hdl_types import (
     StructField,
 )
 from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode
-from topwrap.model.misc import ElaboratableValue, FileReference, Identifier, Parameter
+from topwrap.model.misc import (
+    ElaboratableValue,
+    ExtensionData,
+    FileReference,
+    Identifier,
+    Parameter,
+)
 from topwrap.model.module import Module
 
 
@@ -69,6 +75,27 @@ class TestIpCoreDescriptionBackend:
             golden.design = None
 
             _compare_modules(golden, mod)
+
+    def test_extensions(self):
+        top = Module(
+            id=Identifier("top"),
+            extensions=[
+                ExtensionData(name="key0", data=123),
+                ExtensionData(name="key1", data="text"),
+                ExtensionData(name="key2", data=[1, 2, 3]),
+                ExtensionData(name="key3", data={"subkey1": 123}),
+            ],
+        )
+
+        backend = IpCoreDescriptionBackend()
+
+        out = backend.represent(top)
+        [out] = backend.serialize(out)
+
+        frontend = IPCoreDescriptionFrontend()
+        mod = frontend.parse_str(out.content)
+
+        _compare_modules(top, mod)
 
     def test_independent_signals(self):
         wishbone = get_intf_def_by_id_or_error(Identifier("wishbone"))
@@ -406,6 +433,28 @@ class TestDesignDescriptionBackend:
         new_des = front.parse_str(out.content)
 
         _compare_modules(orig_des.parent, new_des.parent)
+
+    def test_extensions(self):
+        design = Design(
+            extensions=[
+                ExtensionData(name="key0", data=123),
+                ExtensionData(name="key1", data="text"),
+                ExtensionData(name="key2", data=[1, 2, 3]),
+                ExtensionData(name="key3", data={"subkey1": 123}),
+            ]
+        )
+
+        top = Module(id=Identifier("top"), design=design)
+
+        backend = DesignDescriptionBackend()
+
+        out = backend.represent(top)
+        [out] = backend.serialize(out)
+
+        frontend = DesignDescriptionFrontend()
+        design_parsed = frontend.parse_str(out.content)
+
+        _compare_designs(design, design_parsed)
 
     def test_intr_comp_intfs(self):
         wishbone = get_intf_def_by_id_or_error(Identifier("wishbone"))
