@@ -450,16 +450,16 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
     def _represent_interconnect(self, intr: Interconnect, des: Design) -> DesignSectionInterconnect:
         managers = {}
 
-        for mgr in intr.managers:
-            mgr = mgr.resolve()
+        for i_mgr, par in intr.managers.items():
+            i_mgr = i_mgr.resolve()
 
             # if mgr is external, set its name to toplevel's name
-            instance_name = des.parent.id.name if mgr.instance is None else mgr.instance.name
+            instance_name = des.parent.id.name if i_mgr.instance is None else i_mgr.instance.name
 
             if instance_name not in managers:
-                managers[instance_name] = []
+                managers[instance_name] = {}
 
-            managers[instance_name].append(mgr.io.name)
+            managers[instance_name][i_mgr.io.name] = par.to_dict()
 
         subordinates = {}
 
