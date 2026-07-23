@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: simple_soc
+
 ips:
   vexriscv:
     file: repo[my_repo]:VexRiscv
@@ -18,6 +19,7 @@ ips:
     file: repo[my_repo]:crg
   wb_uart:
     file: repo[my_repo]:wb_uart
+
 connections:
   ports:
     wb_ram_data:
@@ -40,6 +42,7 @@ connections:
       sys_rst: [crg, sys_rst]
       serial1_tx: serial_tx
       serial1_rx: serial_rx
+
 interconnects:
   wishbone_interconnect:
     clock: clk100
@@ -50,6 +53,10 @@ interconnects:
       data_width: 32
       granularity: 8
       features: ['CTI', 'BTE', 'ERR']
+    managers:
+      vexriscv:
+        - iBusWishbone_
+        - dBusWishbone_
     subordinates:
       wb_uart:
         csr_wishbone:
@@ -63,10 +70,6 @@ interconnects:
         mem_bus:
           address: 0x0
           size: 0xA000
-    managers:
-      vexriscv:
-        - iBusWishbone_
-        - dBusWishbone_
 
 external:
   ports:

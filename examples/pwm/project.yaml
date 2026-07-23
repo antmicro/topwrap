@@ -12,12 +12,8 @@ ips:
     file: file:ipcores/litex_pwm.yaml
   ps7:
     file: file:ipcores/ps7.yaml
+
 connections:
-  interfaces:
-    axi_bridge:
-      s_axi: [ps7, M_AXI_GP0]
-    litex_pwm_top:
-      s_axi: [axi_bridge, m_axi]
   ports:
     axi_bridge:
       clk: [ps7, FCLK0]
@@ -28,7 +24,13 @@ connections:
       sys_rst: [ps7, FCLK_RESET0_N]
     ps7:
       MAXIGP0ACLK: [ps7, FCLK0]
+  interfaces:
+    axi_bridge:
+      s_axi: [ps7, M_AXI_GP0]
+    litex_pwm_top:
+      s_axi: [axi_bridge, m_axi]
+
 external:
   ports:
     out:
-    - pwm
+      - pwm

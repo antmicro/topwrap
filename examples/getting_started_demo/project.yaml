@@ -17,8 +17,8 @@ connections:
 external:
   ports:
     in:
-    - rst
-    - clk
+      - clk
+      - rst
     out:
-    - Output_y
-    - Output_c
+      - Output_c
+      - Output_y

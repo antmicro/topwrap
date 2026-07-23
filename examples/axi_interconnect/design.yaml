@@ -17,20 +17,20 @@ connections:
 
 interconnects:
   axi_interconnect:
+    type: AXI
     clock: clk
     reset: rst
-    type: AXI
     params:
       atop: False
+    managers:
+      manager_axi:
+        example_iface:
+          id_width: 3
     subordinates:
       subordinator_axi:
         example_iface:
           address: 0x0
           size: 0x1000
-    managers:
-      manager_axi:
-        example_iface:
-          id_width: 3
 
 external:
   ports:

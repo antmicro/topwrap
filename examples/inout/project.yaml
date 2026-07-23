@@ -5,11 +5,11 @@ name: project_top
 
 ips:
   ip_ibuf:
-    file:   repo[my_repo]:ibuf
+    file: repo[my_repo]:ibuf
   ip_obuf:
-    file:   repo[my_repo]:obuf
+    file: repo[my_repo]:obuf
   ip_iobuf:
-    file:   repo[my_repo]:iobuf
+    file: repo[my_repo]:iobuf
 
 connections:
   ports:
