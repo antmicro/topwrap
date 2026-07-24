@@ -6,10 +6,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Generic, Iterator, Optional, Set, TypeVar
 
-from topwrap.model.misc import Identifier
+from topwrap.model.misc import Identifier, TranslationError
 from topwrap.model.module import Module
 
 _MODFORMAT = TypeVar("_MODFORMAT")
+
+
+class BackendParseException(TranslationError):
+    "Exception occurred during dumping internal representation by the backend"
 
 
 @dataclass
