@@ -51,6 +51,7 @@ CLOCK_INTF_TYPE = "intf__clock"
 
 class KpmNodeAdditionalData(TypedDict):
     full_module_id: dict[str, str]
+    source: Optional[str]
 
 
 @dataclass

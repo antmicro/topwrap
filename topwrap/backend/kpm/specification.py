@@ -36,7 +36,8 @@ from topwrap.kpm_common import SPECIFICATION_VERSION
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.module import Module
-from topwrap.util import JsonType
+from topwrap.resource_field import RepoReferenceHandler
+from topwrap.util import JsonType, get_config
 
 logger = logging.getLogger(__name__)
 
@@ -92,8 +93,20 @@ class KpmSpecificationBackend:
         nid = KpmNodeId.from_ir_id(mod.id)
         nid = self._add_node(nid)
         self._modules[key] = mod
+
+        # Importing here to avoid circular import
+        from topwrap.repo.user_repo import Core
+
+        source = None
+        for name, repo in get_config().loaded_repos.items():
+            for core in repo.get_resources(Core):
+                if core.top is mod:
+                    source = RepoReferenceHandler(core.name, [name]).to_str()
+        if source is None:
+            source = str(mod.refs[0].file) if len(mod.refs) > 0 else None
+
         self._spec.add_node_type_additional_data(
-            nid.name, KpmNodeAdditionalData(full_module_id=asdict(mod.id))
+            nid.name, KpmNodeAdditionalData(full_module_id=asdict(mod.id), source=source)
         )
 
         for param in mod.parameters:

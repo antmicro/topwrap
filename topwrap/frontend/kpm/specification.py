@@ -94,10 +94,17 @@ class KpmSpecificationFrontend:
                 raise KpmFrontendParseException(
                     f"Node {node['name']} lacks additionalData vith VLNV"
                 )
-            mod = Module(
-                id=Identifier(**add["full_module_id"]),
-                refs=[FileReference(source)] if source else (),
-            )
+
+            if source is not None:
+                ref = (
+                    FileReference(source)
+                    if add.get("source", None) is None
+                    else FileReference(add.get("source"))
+                )
+                refs = [ref]
+            else:
+                refs = []
+            mod = Module(id=Identifier(**add["full_module_id"]), refs=refs)
 
             prop: JsonType
             for prop in node.get("properties", ()):
