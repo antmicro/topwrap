@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
-	<ipxact:vendor>antmicro.com</ipxact:vendor>
-	<ipxact:library>simple</ipxact:library>
-	<ipxact:name>2mux</ipxact:name>
-	<ipxact:version>1.0</ipxact:version>
+	<ipxact:vendor>vendor</ipxact:vendor>
+	<ipxact:library>libdefault</ipxact:library>
+	<ipxact:name>2mux_compressor</ipxact:name>
+	<ipxact:version>0.1</ipxact:version>
 	<ipxact:model>
 		<ipxact:instantiations>
 			<ipxact:componentInstantiation>
@@ -78,6 +78,15 @@
 			</ipxact:port>
 		</ipxact:ports>
 	</ipxact:model>
+	<ipxact:fileSets>
+		<ipxact:fileSet>
+			<ipxact:name>fileSet</ipxact:name>
+			<ipxact:file>
+				<ipxact:name>../../../../../../../../../../Downloads/kpm_design_20240917_095032.yaml</ipxact:name>
+				<ipxact:fileType>verilogSource</ipxact:fileType>
+			</ipxact:file>
+		</ipxact:fileSet>
+	</ipxact:fileSets>
 	<ipxact:parameters>
 		<ipxact:parameter parameterId="uuid_8aa7308d_4062_497d_b1f7_5af6060277c9" resolve="user" type="longint">
 			<ipxact:name>pWIDTH</ipxact:name>

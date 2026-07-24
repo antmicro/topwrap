@@ -3,12 +3,12 @@
 Copyright (c) 2026 Antmicro <www.antmicro.com>
 SPDX-License-Identifier: Apache-2.0
 -->
-<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022">
   <ipxact:vendor>amba.com</ipxact:vendor>
   <ipxact:library>AMBA4</ipxact:library>
-  <ipxact:name>AXI4Stream_rtl</ipxact:name>
-  <ipxact:version>r0p0_1</ipxact:version>
-  <ipxact:busType vendor="amba.com" library="AMBA4" name="AXI 4 Stream" version="r0p0_1"/>
+  <ipxact:name>AXI 4 Stream.absDef</ipxact:name>
+  <ipxact:version>0.1</ipxact:version>
+  <ipxact:busType vendor="amba.com" library="AMBA4" name="AXI 4 Stream" version="0.1"/>
 
   <ipxact:ports>
     <ipxact:port>

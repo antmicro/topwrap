@@ -34,7 +34,7 @@ two_mux = Module(
             direction=PortDirection.OUT,
             type=Bits(
                 dimensions=[
-                    Dimensions(upper=ElaboratableValue("WIDTH-1"), lower=ElaboratableValue("0"))
+                    Dimensions(upper=ElaboratableValue("OUT_WIDTH-1"), lower=ElaboratableValue("0"))
                 ]
             ),
         ),

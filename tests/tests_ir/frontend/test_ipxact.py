@@ -99,8 +99,8 @@ class TestIpxactIrExamples:
         else:
             wb_manager_iface = connection.target
         assert wb_manager_iface is not None
-        assert wb_manager_iface.instance.name == "wishbone_interconnect1_0"
-        assert wb_manager_iface.io.name == "manager1"
+        assert wb_manager_iface.instance.name == "wishbone_bus"
+        assert wb_manager_iface.io.name == "ext_manager_intr_top"
         assert len(des.components) == 4
 
         wb_iface = ext_manager_iface.definition
@@ -125,7 +125,7 @@ class TestIpxactIrExamples:
         ir = frontend.parse_files(sources)
         top: Optional[Module] = None
         for module in ir.modules:
-            if module.id.name == "top":
+            if module.id.name == "simp_top":
                 top = module
                 break
         assert top is not None
@@ -212,7 +212,7 @@ class TestIpxactIrExamples:
         assert io_iface is not None
         assert io_iface.definition is iface_def
         assert io_iface.definition.id == Identifier(
-            name="AXI 4 Stream", vendor="amba.com", library="AMBA4", version="r0p0_1"
+            name="AXI 4 Stream", vendor="amba.com", library="AMBA4", version="0.1"
         )
 
     def test_ir_interface_only_from_repo(self, ir_examples_path: Path):
@@ -233,9 +233,7 @@ class TestIpxactIrExamples:
             )
 
         iface_def = InterfaceDefinition(
-            id=Identifier(
-                name="AXI 4 Stream", vendor="amba.com", library="AMBA4", version="r0p0_1"
-            ),
+            id=Identifier(name="AXI 4 Stream", vendor="amba.com", library="AMBA4", version="0.1"),
             signals=[_signal(n) for n in ("TDATA", "TVALID", "TKEEP")],
         )
 

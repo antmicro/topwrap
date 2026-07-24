@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ipxact:design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
-	<ipxact:vendor>antmicro.com</ipxact:vendor>
-	<ipxact:library>simple</ipxact:library>
-	<ipxact:name>top.design</ipxact:name>
-	<ipxact:version>1.0</ipxact:version>
+	<ipxact:vendor>vendor</ipxact:vendor>
+	<ipxact:library>libdefault</ipxact:library>
+	<ipxact:name>simp_top.design</ipxact:name>
+	<ipxact:version>0.1</ipxact:version>
 	<ipxact:componentInstances>
 		<ipxact:componentInstance>
-			<ipxact:instanceName>two_mux</ipxact:instanceName>
-			<ipxact:componentRef vendor="antmicro.com" library="simple" name="2mux" version="1.0">
+			<ipxact:instanceName>2mux</ipxact:instanceName>
+			<ipxact:componentRef vendor="vendor" library="libdefault" name="2mux_compressor" version="0.1">
 				<ipxact:configurableElementValues>
 					<ipxact:configurableElementValue referenceId="uuid_8aa7308d_4062_497d_b1f7_5af6060277c9">128</ipxact:configurableElementValue>
 				</ipxact:configurableElementValues>
@@ -16,7 +16,7 @@
 		</ipxact:componentInstance>
 		<ipxact:componentInstance>
 			<ipxact:instanceName>gen1</ipxact:instanceName>
-			<ipxact:componentRef vendor="antmicro.com" library="simple" name="lfsr_gen" version="1.2">
+			<ipxact:componentRef vendor="vendor" library="libdefault" name="lfsr_gen" version="1.2">
 				<ipxact:configurableElementValues>
 					<ipxact:configurableElementValue referenceId="uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e">128</ipxact:configurableElementValue>
 					<ipxact:configurableElementValue referenceId="uuid_38bdfd3a_4a10_498b_9bae_9ac89ab8c716">1337</ipxact:configurableElementValue>
@@ -26,7 +26,7 @@
 		</ipxact:componentInstance>
 		<ipxact:componentInstance>
 			<ipxact:instanceName>gen2</ipxact:instanceName>
-			<ipxact:componentRef vendor="antmicro.com" library="simple" name="lfsr_gen" version="1.2">
+			<ipxact:componentRef vendor="vendor" library="libdefault" name="lfsr_gen" version="1.2">
 				<ipxact:configurableElementValues>
 					<ipxact:configurableElementValue referenceId="uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e">128</ipxact:configurableElementValue>
 				</ipxact:configurableElementValues>
@@ -36,17 +36,17 @@
 	</ipxact:componentInstances>
 	<ipxact:adHocConnections>
 		<ipxact:adHocConnection>
-			<ipxact:name>gen2_gen_out_to_two_mux_gen2</ipxact:name>
+			<ipxact:name>gen2_gen_out_to_2mux_gen2</ipxact:name>
 			<ipxact:portReferences>
 				<ipxact:internalPortReference componentInstanceRef="gen2" portRef="gen_out"/>
-				<ipxact:internalPortReference componentInstanceRef="two_mux" portRef="gen2"/>
+				<ipxact:internalPortReference componentInstanceRef="2mux" portRef="gen2"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 		<ipxact:adHocConnection>
-			<ipxact:name>gen1_gen_out_to_two_mux_gen1</ipxact:name>
+			<ipxact:name>gen1_gen_out_to_2mux_gen1</ipxact:name>
 			<ipxact:portReferences>
 				<ipxact:internalPortReference componentInstanceRef="gen1" portRef="gen_out"/>
-				<ipxact:internalPortReference componentInstanceRef="two_mux" portRef="gen1"/>
+				<ipxact:internalPortReference componentInstanceRef="2mux" portRef="gen1"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 		<ipxact:adHocConnection>
@@ -78,16 +78,16 @@
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 		<ipxact:adHocConnection>
-			<ipxact:name>two_mux_gen_sel_to_sel_gen</ipxact:name>
+			<ipxact:name>2mux_gen_sel_to_sel_gen</ipxact:name>
 			<ipxact:portReferences>
-				<ipxact:internalPortReference componentInstanceRef="two_mux" portRef="gen_sel"/>
+				<ipxact:internalPortReference componentInstanceRef="2mux" portRef="gen_sel"/>
 				<ipxact:externalPortReference portRef="sel_gen"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>
 		<ipxact:adHocConnection>
-			<ipxact:name>two_mux_out_to_rnd_bit</ipxact:name>
+			<ipxact:name>2mux_out_to_rnd_bit</ipxact:name>
 			<ipxact:portReferences>
-				<ipxact:internalPortReference componentInstanceRef="two_mux" portRef="out"/>
+				<ipxact:internalPortReference componentInstanceRef="2mux" portRef="out"/>
 				<ipxact:externalPortReference portRef="rnd_bit"/>
 			</ipxact:portReferences>
 		</ipxact:adHocConnection>

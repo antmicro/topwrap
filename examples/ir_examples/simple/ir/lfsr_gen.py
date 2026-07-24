@@ -4,7 +4,7 @@ from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
 from topwrap.model.module import Module
 
 lfsr_gen = Module(
-    id=Identifier(name="lfsr_gen"),
+    id=Identifier(name="lfsr_gen", version="0.1"),
     parameters=[
         Parameter(name="WIDTH", default_value=ElaboratableValue("64")),
         Parameter(name="SEED", default_value=ElaboratableValue("1")),

@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ipxact:abstractionDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
-	<ipxact:vendor>opencores.org</ipxact:vendor>
-	<ipxact:library>interface</ipxact:library>
+	<ipxact:vendor>vendor</ipxact:vendor>
+	<ipxact:library>libdefault</ipxact:library>
 	<ipxact:name>wishbone.absDef</ipxact:name>
-	<ipxact:version>b4</ipxact:version>
-	<ipxact:busType vendor="opencores.org" library="interface" name="wishbone" version="b4"/>
+	<ipxact:version>0.1</ipxact:version>
+	<ipxact:busType vendor="vendor" library="libdefault" name="wishbone" version="0.1"/>
 	<ipxact:ports>
 		<ipxact:port>
 			<ipxact:logicalName>ack</ipxact:logicalName>
-			<ipxact:description>Slave indicates normal termination of bus cycle</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>required</ipxact:presence>
@@ -24,7 +23,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>adr</ipxact:logicalName>
-			<ipxact:description>Address of slave, accessed by master. Not needed in fifo communication.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:qualifier>
 					<ipxact:isAddress>true</ipxact:isAddress>
@@ -41,7 +39,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>cyc</ipxact:logicalName>
-			<ipxact:description>A valid bus cycle is in progress, when asserted.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>required</ipxact:presence>
@@ -56,8 +53,7 @@
 			</ipxact:wire>
 		</ipxact:port>
 		<ipxact:port>
-			<ipxact:logicalName>dat_sm</ipxact:logicalName>
-			<ipxact:description>Data from slave to master.</ipxact:description>
+			<ipxact:logicalName>dat_r</ipxact:logicalName>
 			<ipxact:wire>
 				<ipxact:qualifier>
 					<ipxact:isData>true</ipxact:isData>
@@ -73,8 +69,7 @@
 			</ipxact:wire>
 		</ipxact:port>
 		<ipxact:port>
-			<ipxact:logicalName>dat_ms</ipxact:logicalName>
-			<ipxact:description>Data from master to slave.</ipxact:description>
+			<ipxact:logicalName>dat_w</ipxact:logicalName>
 			<ipxact:wire>
 				<ipxact:qualifier>
 					<ipxact:isData>true</ipxact:isData>
@@ -91,7 +86,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>err</ipxact:logicalName>
-			<ipxact:description>Slave indicates abnormal cycle termination. Cause for this is defined by IP supplier.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>
@@ -107,7 +101,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>rty</ipxact:logicalName>
-			<ipxact:description>Interface is not ready to send or receive, cycle should be retried.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>
@@ -123,7 +116,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>sel</ipxact:logicalName>
-			<ipxact:description>Used to select where data valid is in dat_sm or dat_ms, in read or write respectively.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>
@@ -137,7 +129,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>stb</ipxact:logicalName>
-			<ipxact:description>Strobe of a slave is asserted when it is indicated that the slave is selected.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>required</ipxact:presence>
@@ -153,7 +144,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>we</ipxact:logicalName>
-			<ipxact:description>Write enable: Negated during READ cycles and asserted during WRITE cycles.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>
@@ -169,7 +159,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>stall</ipxact:logicalName>
-			<ipxact:description>Indicates that slave does not accept additional transactions in its queue. Used in pipelined mode.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>
@@ -185,7 +174,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>lock</ipxact:logicalName>
-			<ipxact:description>Lock the slave for single master</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>
@@ -201,19 +189,16 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>rst</ipxact:logicalName>
-			<ipxact:description>Reset for reset cycle</ipxact:description>
 			<ipxact:wire>
 				<ipxact:qualifier>
 					<ipxact:isReset>true</ipxact:isReset>
 				</ipxact:qualifier>
 				<ipxact:onSystem>
-					<ipxact:group>ClockSink</ipxact:group>
 					<ipxact:presence>required</ipxact:presence>
 					<ipxact:width>1</ipxact:width>
 					<ipxact:direction>in</ipxact:direction>
 				</ipxact:onSystem>
 				<ipxact:onSystem>
-					<ipxact:group>ClockSource</ipxact:group>
 					<ipxact:presence>required</ipxact:presence>
 					<ipxact:width>1</ipxact:width>
 					<ipxact:direction>out</ipxact:direction>
@@ -222,19 +207,16 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>clk</ipxact:logicalName>
-			<ipxact:description>Clock to phase the bus cycles.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:qualifier>
 					<ipxact:isClock>true</ipxact:isClock>
 				</ipxact:qualifier>
 				<ipxact:onSystem>
-					<ipxact:group>ClockSink</ipxact:group>
 					<ipxact:presence>required</ipxact:presence>
 					<ipxact:width>1</ipxact:width>
 					<ipxact:direction>in</ipxact:direction>
 				</ipxact:onSystem>
 				<ipxact:onSystem>
-					<ipxact:group>ClockSource</ipxact:group>
 					<ipxact:presence>required</ipxact:presence>
 					<ipxact:width>1</ipxact:width>
 					<ipxact:direction>out</ipxact:direction>
@@ -243,7 +225,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>tga</ipxact:logicalName>
-			<ipxact:description>Cycle tag type, used to tag bus cycle.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>
@@ -257,7 +238,6 @@
 		</ipxact:port>
 		<ipxact:port>
 			<ipxact:logicalName>tgc</ipxact:logicalName>
-			<ipxact:description>Address tag type, contains information associated with address lines.</ipxact:description>
 			<ipxact:wire>
 				<ipxact:onInitiator>
 					<ipxact:presence>optional</ipxact:presence>

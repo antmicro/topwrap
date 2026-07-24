@@ -1,87 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
-	<ipxact:vendor>antmicro.com</ipxact:vendor>
-	<ipxact:library>interconnect</ipxact:library>
-	<ipxact:name>mem</ipxact:name>
-	<ipxact:version>1.0</ipxact:version>
+	<ipxact:vendor>vendor</ipxact:vendor>
+	<ipxact:library>libdefault</ipxact:library>
+	<ipxact:name>memory_block</ipxact:name>
+	<ipxact:version>0.1</ipxact:version>
 	<ipxact:busInterfaces>
 		<ipxact:busInterface>
 			<ipxact:name>bus</ipxact:name>
-			<ipxact:busType vendor="opencores.org" library="interface" name="wishbone" version="b4"/>
+			<ipxact:busType vendor="vendor" library="libdefault" name="wishbone" version="0.1"/>
 			<ipxact:abstractionTypes>
 				<ipxact:abstractionType>
-					<ipxact:abstractionRef vendor="opencores.org" library="interface" name="wishbone.absDef" version="b4"/>
+					<ipxact:abstractionRef vendor="vendor" library="libdefault" name="wishbone.absDef" version="0.1"/>
 					<ipxact:portMaps>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
 								<ipxact:name>ack</ipxact:name>
-								<ipxact:range>
-									<ipxact:left>0</ipxact:left>
-									<ipxact:right>0</ipxact:right>
-								</ipxact:range>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>i_wb_ack</ipxact:name>
-								<ipxact:partSelect>
-									<ipxact:range>
-										<ipxact:left>0</ipxact:left>
-										<ipxact:right>0</ipxact:right>
-									</ipxact:range>
-								</ipxact:partSelect>
+								<ipxact:name>o_ack</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
 								<ipxact:name>cyc</ipxact:name>
-								<ipxact:range>
-									<ipxact:left>0</ipxact:left>
-									<ipxact:right>0</ipxact:right>
-								</ipxact:range>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>o_wb_cyc</ipxact:name>
-								<ipxact:partSelect>
-									<ipxact:range>
-										<ipxact:left>0</ipxact:left>
-										<ipxact:right>0</ipxact:right>
-									</ipxact:range>
-								</ipxact:partSelect>
+								<ipxact:name>i_cyc</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
 								<ipxact:name>stb</ipxact:name>
-								<ipxact:range>
-									<ipxact:left>0</ipxact:left>
-									<ipxact:right>0</ipxact:right>
-								</ipxact:range>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>o_wb_stb</ipxact:name>
-								<ipxact:partSelect>
-									<ipxact:range>
-										<ipxact:left>0</ipxact:left>
-										<ipxact:right>0</ipxact:right>
-									</ipxact:range>
-								</ipxact:partSelect>
+								<ipxact:name>i_stb</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
 								<ipxact:name>err</ipxact:name>
-								<ipxact:range>
-									<ipxact:left>0</ipxact:left>
-									<ipxact:right>0</ipxact:right>
-								</ipxact:range>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>i_wb_err</ipxact:name>
-								<ipxact:partSelect>
-									<ipxact:range>
-										<ipxact:left>0</ipxact:left>
-										<ipxact:right>0</ipxact:right>
-									</ipxact:range>
-								</ipxact:partSelect>
+								<ipxact:name>o_err</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
@@ -89,59 +49,39 @@
 								<ipxact:name>adr</ipxact:name>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>o_wb_adr</ipxact:name>
+								<ipxact:name>i_adr</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
 								<ipxact:name>stall</ipxact:name>
-								<ipxact:range>
-									<ipxact:left>0</ipxact:left>
-									<ipxact:right>0</ipxact:right>
-								</ipxact:range>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>i_wb_stall</ipxact:name>
-								<ipxact:partSelect>
-									<ipxact:range>
-										<ipxact:left>0</ipxact:left>
-										<ipxact:right>0</ipxact:right>
-									</ipxact:range>
-								</ipxact:partSelect>
+								<ipxact:name>o_stall</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
-								<ipxact:name>dat_sm</ipxact:name>
+								<ipxact:name>dat_r</ipxact:name>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>i_wb_dat</ipxact:name>
+								<ipxact:name>o_dat</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
-								<ipxact:name>dat_ms</ipxact:name>
+								<ipxact:name>dat_w</ipxact:name>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>o_wb_dat</ipxact:name>
+								<ipxact:name>i_dat</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort>
 								<ipxact:name>we</ipxact:name>
-								<ipxact:range>
-									<ipxact:left>0</ipxact:left>
-									<ipxact:right>0</ipxact:right>
-								</ipxact:range>
 							</ipxact:logicalPort>
 							<ipxact:physicalPort>
-								<ipxact:name>o_wb_we</ipxact:name>
-								<ipxact:partSelect>
-									<ipxact:range>
-										<ipxact:left>0</ipxact:left>
-										<ipxact:right>0</ipxact:right>
-									</ipxact:range>
-								</ipxact:partSelect>
+								<ipxact:name>i_we</ipxact:name>
 							</ipxact:physicalPort>
 						</ipxact:portMap>
 					</ipxact:portMaps>
@@ -151,6 +91,24 @@
 		</ipxact:busInterface>
 	</ipxact:busInterfaces>
 	<ipxact:model>
+    <ipxact:instantiations>
+        <ipxact:componentInstantiation>
+            <ipxact:name>rtl</ipxact:name>
+            <ipxact:displayName>rtl</ipxact:displayName>
+            <ipxact:moduleParameters>
+                <ipxact:moduleParameter parameterId="uuid_d01a781b_73ae_4b3a_ba04_6ef14126bb58">
+                    <ipxact:name>WIDTH</ipxact:name>
+                    <ipxact:displayName>WIDTH</ipxact:displayName>
+                    <ipxact:value>uuid_0c230e26_f58d_43bb_86fe_f49521379578</ipxact:value>
+                </ipxact:moduleParameter>
+                <ipxact:moduleParameter parameterId="uuid_f9f00840_7a7c_4e29_acfd_9d69218cd79e">
+                    <ipxact:name>DEPTH</ipxact:name>
+                    <ipxact:displayName>DEPTH</ipxact:displayName>
+                    <ipxact:value>uuid_2ea17bbc_c149_40bc_9568_c3d4b980a34a</ipxact:value>
+                </ipxact:moduleParameter>
+            </ipxact:moduleParameters>
+        </ipxact:componentInstantiation>
+    </ipxact:instantiations>
 		<ipxact:ports>
 			<ipxact:port>
 				<ipxact:name>clk</ipxact:name>
@@ -165,25 +123,25 @@
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>i_wb_ack</ipxact:name>
+				<ipxact:name>o_ack</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>o_wb_cyc</ipxact:name>
+				<ipxact:name>i_cyc</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>o_wb_stb</ipxact:name>
+				<ipxact:name>i_stb</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>o_wb_adr</ipxact:name>
+				<ipxact:name>i_adr</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 					<ipxact:vectors>
@@ -195,48 +153,57 @@
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>o_wb_dat</ipxact:name>
+				<ipxact:name>i_dat</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 					<ipxact:vectors>
 						<ipxact:vector>
-							<ipxact:left>7</ipxact:left>
+							<ipxact:left>32-1</ipxact:left>
 							<ipxact:right>0</ipxact:right>
 						</ipxact:vector>
 					</ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>o_wb_we</ipxact:name>
+				<ipxact:name>i_we</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>i_wb_dat</ipxact:name>
+				<ipxact:name>o_dat</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 					<ipxact:vectors>
 						<ipxact:vector>
-							<ipxact:left>7</ipxact:left>
+							<ipxact:left>32-1</ipxact:left>
 							<ipxact:right>0</ipxact:right>
 						</ipxact:vector>
 					</ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>i_wb_stall</ipxact:name>
+				<ipxact:name>o_stall</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>i_wb_err</ipxact:name>
+				<ipxact:name>o_err</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 				</ipxact:wire>
 			</ipxact:port>
 		</ipxact:ports>
 	</ipxact:model>
-
+  <ipxact:parameters>
+      <ipxact:parameter parameterId="uuid_0c230e26_f58d_43bb_86fe_f49521379578" type="longint">
+          <ipxact:name>WIDTH</ipxact:name>
+          <ipxact:value>32</ipxact:value>
+      </ipxact:parameter>
+      <ipxact:parameter parameterId="uuid_2ea17bbc_c149_40bc_9568_c3d4b980a34a" type="longint">
+          <ipxact:name>DEPTH</ipxact:name>
+          <ipxact:value>0</ipxact:value>
+      </ipxact:parameter>
+  </ipxact:parameters>
 </ipxact:component>

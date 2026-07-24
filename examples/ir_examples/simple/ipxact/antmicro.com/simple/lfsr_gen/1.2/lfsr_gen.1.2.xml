@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ipxact:component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2022" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2022 http://www.accellera.org/XMLSchema/IPXACT/1685-2022/index.xsd">
-	<ipxact:vendor>antmicro.com</ipxact:vendor>
-	<ipxact:library>simple</ipxact:library>
+	<ipxact:vendor>vendor</ipxact:vendor>
+	<ipxact:library>libdefault</ipxact:library>
 	<ipxact:name>lfsr_gen</ipxact:name>
 	<ipxact:version>1.2</ipxact:version>
 	<ipxact:model>

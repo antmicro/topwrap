@@ -11,7 +11,7 @@ from topwrap.model.interface import (
 from topwrap.model.misc import Identifier
 
 axi_stream = InterfaceDefinition(
-    id=Identifier(name="AXI 4 Stream", vendor="amba.com", library="AMBA4"),
+    id=Identifier(name="AXI 4 Stream", vendor="amba.com", library="AMBA4", version="0.1"),
     signals=[
         InterfaceSignal(
             name="TVALID",

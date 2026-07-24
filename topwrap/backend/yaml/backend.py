@@ -9,9 +9,8 @@ from typing import Iterable, Iterator, Optional, Set, Union
 import yaml
 from typing_extensions import Any, override
 
-from topwrap.backend.backend import Backend, BackendOutputInfo
-from topwrap.backend.kpm.common import Positions
 from topwrap.backend.backend import Backend, BackendOutputInfo, BackendParseException
+from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexParameter,
