@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Optional, Union
 
+from topwrap.backend.kpm.common import Positions
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
@@ -49,6 +50,9 @@ class BuildContext:
 
     #: Map of generated outputs, keyed on the output stage name.
     outputs: dict[str, Any] = field(default_factory=dict)
+
+    #: Map of module identifiers to the KPM position definitions.
+    positions: dict[Identifier, Positions] = field(default_factory=dict)
 
     @property
     def all_modules(self) -> Iterable[Module]:

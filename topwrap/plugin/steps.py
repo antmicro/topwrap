@@ -124,10 +124,12 @@ class YamlInputStage(InputStage):
                 if isinstance(src, FileSource):
                     frontend_output = frontend.parse_files([src.path])
                     ctx.loaded_modules += frontend_output.modules
+                    ctx.positions.update(frontend_output.positions)
                 else:
                     assert isinstance(src, StringSource)
                     frontend_output = frontend.parse_str([src.content])
                     ctx.loaded_modules += frontend_output.modules
+                    ctx.positions.update(frontend_output.positions)
 
         if design_source:
             if isinstance(design_source, FileSource):
@@ -138,6 +140,7 @@ class YamlInputStage(InputStage):
 
             ctx.top_module = frontend_output.modules[0]
             ctx.loaded_modules += [ctx.top_module]
+            ctx.positions.update(frontend_output.positions)
 
             if ctx.top_module.design is None:
                 raise BuildException(
@@ -202,6 +205,7 @@ class KpmInputStage(InputStage):
         ctx.loaded_modules += output.modules
         if design_source:
             ctx.top_module = frontend.get_top_design(output.modules).parent
+        ctx.positions.update(output.positions)
 
 
 class MemoryMapTransformation(Transformation):
