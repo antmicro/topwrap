@@ -1,0 +1,582 @@
+{
+  "version": "20250623.14",
+  "metadata": {
+    "allowLoopbacks": true,
+    "backgroundSize": 15,
+    "connectionStyle": "orthogonal",
+    "interfaces": {
+      "intf__clock": {
+        "interfaceColor": "#00ca7c"
+      },
+      "intf__ext": {
+        "interfaceColor": "#ffffff"
+      },
+      "intf__port": {
+        "interfaceColor": "#00ca7c"
+      }
+    },
+    "layers": [
+      {
+        "name": "Clock and reset ports",
+        "nodeInterfaces": [
+          "intf__clock"
+        ],
+        "nodeLayers": []
+      },
+      {
+        "name": "Constants",
+        "nodeLayers": [
+          "Constants"
+        ]
+      },
+      {
+        "name": "Externals",
+        "nodeLayers": [
+          "Externals"
+        ]
+      },
+      {
+        "name": "IP Cores",
+        "nodeLayers": [
+          "IP Cores"
+        ]
+      },
+      {
+        "name": "Identifiers",
+        "nodeLayers": [
+          "Identifiers"
+        ]
+      }
+    ],
+    "layout": "CytoscapeEngine - grid",
+    "movementStep": 15,
+    "navbarItems": [
+      {
+        "allowToRunInParallelWith": [
+          "dataflow_run",
+          "custom_lint_files"
+        ],
+        "iconName": "Validate",
+        "name": "Validate",
+        "procedureName": "dataflow_validate",
+        "requireResponse": true,
+        "stopName": "Stop"
+      },
+      {
+        "allowToRunInParallelWith": [
+          "dataflow_validate",
+          "custom_lint_files"
+        ],
+        "iconName": "Run",
+        "name": "Run",
+        "procedureName": "dataflow_run",
+        "requireResponse": true,
+        "stopName": "Stop"
+      }
+    ],
+    "notifyWhenChanged": true,
+    "styles": {
+      "inverter": {
+        "minimal": true,
+        "pill": {
+          "color": "#cccccc",
+          "text": "Inverter"
+        }
+      }
+    },
+    "twoColumn": true,
+    "welcome": false
+  },
+  "nodes": [
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "BETWEEN",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "exposed",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "BETWEEN v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "clock",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Clock domain",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "output",
+          "name": "constant",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "Constants",
+      "name": "Constant",
+      "properties": [
+        {
+          "default": "0",
+          "name": "Constant Value",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "in",
+          "type": [
+            "intf__ext",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "inout",
+          "type": [
+            "intf__ext",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "out",
+          "type": [
+            "intf__ext",
+            "intf__port"
+          ]
+        }
+      ],
+      "layer": "Externals",
+      "name": "External I/O"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "layer": "Identifiers",
+      "name": "Identifier",
+      "properties": [
+        {
+          "default": "libdefault",
+          "name": "Library",
+          "type": "text"
+        },
+        {
+          "default": "",
+          "name": "Name",
+          "type": "text"
+        },
+        {
+          "default": "vendor",
+          "name": "Vendor",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "clk",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "dynamic": true,
+          "maxConnectionsCount": 1,
+          "name": "manager",
+          "type": []
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 1,
+          "name": "rst",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "dynamic": true,
+          "maxConnectionsCount": 1,
+          "name": "subordinate",
+          "type": []
+        }
+      ],
+      "name": "Interconnect",
+      "properties": [
+        {
+          "default": false,
+          "group": [
+            {
+              "default": "",
+              "name": "Interconnect configuration",
+              "type": "text"
+            },
+            {
+              "default": "",
+              "name": "Managers configuration",
+              "type": "text"
+            },
+            {
+              "default": "",
+              "name": "Subordinates configuration",
+              "type": "text"
+            }
+          ],
+          "name": "Advanced configuration",
+          "type": "bool"
+        },
+        {
+          "default": "Wishbone Round-Robin",
+          "name": "Type",
+          "type": "select",
+          "values": [
+            "AXI",
+            "Wishbone Round-Robin"
+          ]
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "in",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "name": "out",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Inverter",
+      "style": "inverter"
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "interfaces": [
+        {
+          "direction": "input",
+          "name": "reset",
+          "type": "intf__port"
+        }
+      ],
+      "name": "Reset domain",
+      "properties": [
+        {
+          "default": "default",
+          "name": "Domain",
+          "type": "text"
+        },
+        {
+          "default": "active high",
+          "name": "Polarity",
+          "type": "select",
+          "values": [
+            "active high",
+            "active low"
+          ]
+        },
+        {
+          "default": "default",
+          "name": "Synchronous to",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "SUB",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "customized_ext_name_port",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "legacy_external_type",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "SUB v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "SUBEMPTY",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "layer": "IP Cores",
+      "name": "SUBEMPTY v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "c_mod_2",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "c_int_out_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_mod_in_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "c_mod_2 v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "s1_mod_2",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_mint_in_1",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s1_mod_2 v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "s1_mod_3",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_mint_in_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s1_mod_3 v0.1 (vendor/libdefault)",
+      "properties": [
+        {
+          "default": "18",
+          "name": "SUB_VALUE",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "s2_mod_1",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_int_in_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_out_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s2_mod_1 v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "s2_mod_2",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_f_mod_out_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_in_1",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cs_s2_mint_in_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "s2_mod_2 v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "top",
+          "vendor": "vendor"
+        }
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "c_unt_in",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "cin",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cout",
+          "type": "intf__port"
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "cs_s1_f_int_out_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "inout",
+          "maxConnectionsCount": -1,
+          "name": "legacy_external_type",
+          "side": "right",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "top v0.1 (vendor/libdefault)"
+    }
+  ]
+}
