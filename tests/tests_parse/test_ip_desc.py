@@ -19,7 +19,10 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreIntfPorts,
     IPCorePorts,
 )
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend
+from topwrap.frontend.yaml.design_schema import DesignIP
 from topwrap.model.misc import Identifier
+from topwrap.resource_field import RepoReferenceHandler
 from topwrap.util import get_config
 
 
@@ -147,7 +150,10 @@ interfaces:
             "axis_async_fifo",
             "axis_dwidth_converter",
         ):
-            core = get_config().builtin_repo.get_core_by_name(ip)
+            module_file = RepoReferenceHandler(ip, "builtin")
+            module_ip = DesignIP(module_file, {}, {}, {})
+            front = DesignDescriptionFrontend([])
+            core = front._get_module(module_ip)
             assert core is not None, f"Builtin IP {ip} is missing"
 
     def test_save(self, expected_output: IPCoreDescription):

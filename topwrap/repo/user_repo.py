@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Optional, Union
+from typing import Iterator, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -169,6 +169,3 @@ class UserRepo(Repo):
             InterfaceDescriptionHandler(),
         ]
         super().__init__(resource_handlers, name)
-
-    def get_core_by_name(self, name: str) -> Optional[Core]:
-        return next((c for c in self.get_resources(Core) if c.name == name), None)
