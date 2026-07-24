@@ -136,7 +136,7 @@ def read_json_file(json_file_path: Path) -> JsonType:
 def save_file_to_json(file_path: Path, file_name: str, file_content: JsonType):
     file_path.mkdir(parents=True, exist_ok=True)
     with open(Path(file_path / file_name), "w") as json_file:
-        json.dump(file_content, json_file)
+        json.dump(file_content, json_file, indent=2)
 
 
 def path_relative_to(org_path: Path, rel_to: Path) -> Path:
