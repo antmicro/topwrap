@@ -19,10 +19,8 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreIntfPorts,
     IPCorePorts,
 )
-from topwrap.frontend.yaml.design import DesignDescriptionFrontend
-from topwrap.frontend.yaml.design_schema import DesignIP
 from topwrap.model.misc import Identifier
-from topwrap.resource_field import RepoReferenceHandler
+from topwrap.repo.user_repo import Core
 from topwrap.util import get_config
 
 
@@ -150,10 +148,11 @@ interfaces:
             "axis_async_fifo",
             "axis_dwidth_converter",
         ):
-            module_file = RepoReferenceHandler(ip, "builtin")
-            module_ip = DesignIP(module_file, {}, {}, {})
-            front = DesignDescriptionFrontend([])
-            core = front._get_module(module_ip)
+            core = None
+            for repo_core in get_config().builtin_repo.get_resources(Core):
+                if ip == repo_core.name:
+                    assert core is None, f"Builtin IP {ip} is duplicated"
+                    core = repo_core
             assert core is not None, f"Builtin IP {ip} is missing"
 
     def test_save(self, expected_output: IPCoreDescription):
