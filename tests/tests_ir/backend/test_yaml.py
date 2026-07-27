@@ -18,7 +18,12 @@ from examples.ir_examples.modules import (
 )
 from tests.tests_ir.test_kpm_non_destructive import _compare_designs, _compare_modules
 from topwrap import util
-from topwrap.backend.yaml.backend import DesignDescriptionBackend, IpCoreDescriptionBackend
+from topwrap.backend.kpm.common import Positions
+from topwrap.backend.yaml.backend import (
+    DesignDescriptionBackend,
+    DesignPositionsBackend,
+    IpCoreDescriptionBackend,
+)
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
@@ -606,3 +611,76 @@ class TestDesignDescriptionBackend:
 
                         expected_obj: dict[str, str] = {name: h.to_str() for name, h in rep.items()}
                         assert repo_dict == expected_obj
+
+
+class TestDesignPositionsBackend:
+    def test_positions(self):
+        pos = {
+            Identifier("foo"): Positions(
+                components={"comp1": (123, 456), "comp2": (21, 54)},
+                inverters={((None, "inp"), ("comp1", "outp")): (22, 33)},
+            ),
+            Identifier("bar"): Positions(
+                externals={"a": (1, 2)},
+                constants={"0": (5, 4)},
+                clock_domains={"default": (9, 3)},
+                reset_domains={"default": (9, 5)},
+                interconnects={"intercon1": (10, 7)},
+                identifier=(-1, -1),
+            ),
+        }
+
+        backend = DesignPositionsBackend()
+        out = backend.represent("name", pos)
+        [out] = backend.serialize(out)
+
+        assert out.filename == "name.kpm_positions.yaml"
+
+        tree = yaml.safe_load(out.content)
+        assert tree == {
+            "modules": [
+                {
+                    "id": {
+                        "library": "libdefault",
+                        "vendor": "vendor",
+                        "version": "0.1",
+                        "name": "foo",
+                    },
+                    "components": [
+                        {"name": "comp1", "position": [123.0, 456.0]},
+                        {"name": "comp2", "position": [21.0, 54.0]},
+                    ],
+                    "inverters": [
+                        {
+                            "source": "inp",
+                            "target": ["comp1", "outp"],
+                            "position": [22.0, 33.0],
+                        },
+                    ],
+                },
+                {
+                    "id": {
+                        "library": "libdefault",
+                        "vendor": "vendor",
+                        "version": "0.1",
+                        "name": "bar",
+                    },
+                    "externals": [
+                        {"name": "a", "position": [1.0, 2.0]},
+                    ],
+                    "constants": [
+                        {"name": "0", "position": [5.0, 4.0]},
+                    ],
+                    "clock_domains": [
+                        {"name": "default", "position": [9.0, 3.0]},
+                    ],
+                    "reset_domains": [
+                        {"name": "default", "position": [9.0, 5.0]},
+                    ],
+                    "interconnects": [
+                        {"name": "intercon1", "position": [10.0, 7.0]},
+                    ],
+                    "identifier": [-1.0, -1.0],
+                },
+            ],
+        }
