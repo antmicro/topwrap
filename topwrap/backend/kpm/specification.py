@@ -30,6 +30,7 @@ from topwrap.backend.kpm.common import (
     LayerType,
     Metanode,
     ResetDomainMetanode,
+    elab_val_to_kpm_val,
     kpm_dir_from,
 )
 from topwrap.kpm_common import SPECIFICATION_VERSION
@@ -116,9 +117,11 @@ class KpmSpecificationBackend:
             )
 
         for param in mod.parameters:
-            val = param.default_value
             self._spec.add_node_type_property(
-                nid.name, param.name, KpmPropertyType.TEXT.value, "" if val is None else val.value
+                nid.name,
+                param.name,
+                KpmPropertyType.TEXT.value,
+                elab_val_to_kpm_val(param.default_value),
             )
 
         for intf in mod.interfaces:

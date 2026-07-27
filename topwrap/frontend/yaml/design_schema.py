@@ -8,8 +8,14 @@ from typing import Any, ClassVar, Dict, Iterator, List, Literal, Optional, Tuple
 import marshmallow
 import marshmallow_dataclass
 
-from topwrap.backend.yaml.common.ip_core_schema import IPCoreDescription, IPCoreParameter
+from topwrap.backend.yaml.common.ip_core_schema import (
+    IPCoreDescription,
+    IPCoreParameter,
+    IPCoreParameterField,
+)
 from topwrap.common_serdes import (
+    HexInt,
+    HexIntField,
     MarshmallowDataclassExtensions,
     ResourcePathT,
     ext_field,
@@ -23,7 +29,15 @@ from topwrap.model.misc import Identifier
 @marshmallow_dataclass.dataclass(frozen=True)
 class DesignIP(MarshmallowDataclassExtensions):
     file: ResourcePathT
-    parameters: Dict[str, IPCoreParameter] = ext_field(dict, deep_cleanup=True)
+    parameters: Dict[str, IPCoreParameter] = ext_field(
+        dict,
+        self_cleanup=True,
+        deep_cleanup=True,
+        marshmallow_field=marshmallow.fields.Dict(
+            keys=marshmallow.fields.Str(),
+            values=IPCoreParameterField(),
+        ),
+    )
     clocks: dict[str, str] = ext_field(dict)
     resets: dict[str, str] = ext_field(dict)
 
@@ -79,8 +93,8 @@ class DesignExternalSection(MarshmallowDataclassExtensions):
 class DesignSectionInterconnect(MarshmallowDataclassExtensions):
     @marshmallow_dataclass.dataclass(frozen=True)
     class Subordinate:
-        address: int
-        size: int
+        address: HexInt = field(metadata={"marshmallow_field": HexIntField()})
+        size: HexInt = field(metadata={"marshmallow_field": HexIntField()})
 
     @marshmallow.validates("type")
     def _validate_type(self, type: str) -> bool:

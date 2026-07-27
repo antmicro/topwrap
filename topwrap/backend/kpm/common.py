@@ -9,10 +9,11 @@ from typing import Any, Optional, TypedDict, Union
 
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
+from topwrap.backend.yaml.common.ip_core_schema import IPCoreComplexParameter
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import Identifier, TranslationError
+from topwrap.model.misc import ElaboratableValue, Identifier, TranslationError
 
 
 class LayerType(Enum):
@@ -98,6 +99,14 @@ def id_to_kpm_name(id: Identifier) -> str:
     Return KPM name from id in the format '{name} v{version} ({vendor}/{library})'.
     """
     return f"{id.name} v{id.version} ({id.vendor}/{id.library})"
+
+
+def elab_val_to_kpm_val(ev: Optional[ElaboratableValue]):
+    if ev is None:
+        return ""
+    if isinstance(ev.raw, IPCoreComplexParameter):
+        return str(IPCoreComplexParameter.Schema().dump(ev.raw))
+    return ev.value
 
 
 def kpm_dir_from(dir: Union[PortDirection, InterfaceMode, str]) -> KpmDirection:

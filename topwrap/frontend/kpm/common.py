@@ -1,5 +1,6 @@
 # Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from ast import literal_eval
 
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
@@ -12,12 +13,11 @@ from topwrap.backend.kpm.common import (
     IoMetanode,
     ResetDomainMetanode,
 )
+from topwrap.backend.yaml.common.ip_core_schema import IPCoreComplexParameter
 from topwrap.frontend.frontend import FrontendParseException
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import (
-    TranslationError,
-)
+from topwrap.model.misc import ElaboratableValue, TranslationError
 
 
 class KpmFrontendParseException(FrontendParseException):
@@ -55,3 +55,19 @@ def kpm_dir_to_ir_intf(dir: KpmDirection) -> InterfaceMode:
         raise TranslationError(f"Cannot translate '{dir}' into {InterfaceMode}")
 
     return res
+
+
+def kpm_val_to_elab_val(kpm_val: str) -> ElaboratableValue:
+    try:
+        return ElaboratableValue(int(kpm_val))
+    except ValueError:  # thrown when string cannot be converted to integer
+        pass
+
+    try:
+        d = literal_eval(kpm_val)
+        if isinstance(d, dict):
+            return ElaboratableValue(IPCoreComplexParameter(width=d["width"], value=d["value"]))
+    except (ValueError, SyntaxError):
+        pass
+
+    return ElaboratableValue(kpm_val)

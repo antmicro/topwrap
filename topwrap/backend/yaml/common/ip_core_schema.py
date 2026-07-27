@@ -251,11 +251,40 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreComplexParameter(MarshmallowDataclassExtensions):
-    width: int
     value: Union[int, str]
+    width: int
 
 
-IPCoreParameter = Optional[Union[int, str, IPCoreComplexParameter]]
+IPCoreParameter = Optional[Union[IPCoreComplexParameter, int, str]]
+
+
+class IPCoreParameterField(marshmallow.fields.Field):
+    def _serialize(self, value: IPCoreParameter, attr: Optional[str], obj: Any, **kwargs: Any):
+        if value is None:
+            return value
+        if isinstance(value, IPCoreComplexParameter):
+            return IPCoreComplexParameter.Schema().dump(value)
+        try:
+            return int(value)
+        except ValueError:
+            return value
+
+    def _deserialize(
+        self, value: Any, attr: Optional[str], data: Optional[Mapping[str, Any]], **kwargs: Any
+    ):
+        if value is None:
+            return None
+
+        if isinstance(value, dict):
+            return IPCoreComplexParameter.Schema().load(value)
+
+        if isinstance(value, int):
+            return value
+
+        if isinstance(value, str):
+            return value
+
+        raise ValueError(f"Unsupported IPCoreParameter value: {value!r}")
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -313,6 +342,4 @@ class IPCoreDescriptionFrontendException(Exception):
 
 
 def param_to_ir_param(par: IPCoreParameter) -> Optional[ElaboratableValue]:
-    if isinstance(par, IPCoreComplexParameter):
-        par = f"{par.width}'d{par.value}"
     return ElaboratableValue(par) if par is not None else None

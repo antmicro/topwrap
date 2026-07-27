@@ -35,6 +35,7 @@ from topwrap.frontend.kpm.common import (
     is_metanode,
     kpm_dir_to_ir_intf,
     kpm_dir_to_ir_port,
+    kpm_val_to_elab_val,
 )
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.kpm_common import SPECIFICATION_VERSION
@@ -541,7 +542,7 @@ class KpmDataflowFrontend:
 
         for prop in node.properties:
             if (param := module.parameters.find_by_name(prop.name)) is not None:
-                inst.parameters[param._id] = ElaboratableValue(prop.value)
+                inst.parameters[param._id] = kpm_val_to_elab_val(prop.value)
 
         twints = {itf.name: itf for itf in module.interfaces}
         twports = {p.name: p for p in module.non_intf_ports()}

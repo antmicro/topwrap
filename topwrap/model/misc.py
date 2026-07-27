@@ -29,6 +29,7 @@ import marshmallow
 from typing_extensions import Self
 
 if TYPE_CHECKING:
+    from topwrap.backend.yaml.common.ip_core_schema import IPCoreComplexParameter
     from topwrap.model.module import Module
 
 
@@ -181,8 +182,10 @@ class ElaboratableValue:
     """
 
     value: str
+    raw: Union[int, str, IPCoreComplexParameter]
 
-    def __init__(self, expr: Union[int, str]) -> None:
+    def __init__(self, expr: Union[int, str, IPCoreComplexParameter]) -> None:
+        self.raw = expr
         self.value = str(expr)
 
     def __eq__(self, value: object) -> bool:
@@ -236,7 +239,11 @@ class ElaboratableValue:
         def _serialize(
             self, value: ElaboratableValue, attr: str | None, obj: Any, **kwargs: Any
         ) -> Any:
-            return value.value
+            elab = value.elaborate()
+            if elab:
+                return elab
+            else:
+                return value.value
 
         def _deserialize(
             self, value: Any, attr: str | None, data: Mapping[str, Any] | None, **kwargs: Any

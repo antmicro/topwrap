@@ -13,6 +13,7 @@ from topwrap.backend.backend import Backend, BackendOutputInfo
 from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
+    IPCoreComplexParameter,
     IPCoreComplexSignal,
     IPCoreDescription,
     IPCoreInterface,
@@ -405,9 +406,15 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
             source = FileReferenceHandler(comp.module.refs[0].file)
 
+        params = {}
+        for p, v in comp.parameters.items():
+            params[p.resolve().name] = v.value
+            if isinstance(v.raw, IPCoreComplexParameter):
+                params[p.resolve().name] = v.raw
+
         return DesignIP(
             file=source,
-            parameters={p.resolve().name: v.value for p, v in comp.parameters.items()},
+            parameters=params,
             clocks={c.resolve().name: d.name for c, d in comp.clocks.items()},
             resets={r.resolve().name: d.name for r, d in comp.resets.items()},
         )

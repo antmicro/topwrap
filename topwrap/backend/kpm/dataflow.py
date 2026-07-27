@@ -27,6 +27,7 @@ from topwrap.backend.kpm.common import (
     KpmNodeAdditionalData,
     Positions,
     ResetDomainMetanode,
+    elab_val_to_kpm_val,
     kpm_dir_from,
 )
 from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
@@ -256,7 +257,7 @@ class KpmDataflowBackend:
             node.move(Vector2(node_pos[0], node_pos[1]))
 
         for param, val in comp.parameters.items():
-            node.set_property(param.resolve().name, val.value)
+            node.set_property(param.resolve().name, elab_val_to_kpm_val(val))
 
         ir_io = {
             io.name: io

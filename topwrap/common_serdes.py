@@ -368,6 +368,9 @@ def ext_field(
     kwargs["metadata"][MetaKeys.DEEP_CLEANUP.value] = deep_cleanup
     kwargs["metadata"][MetaKeys.INLINE_DEPTH.value] = inline_depth
 
+    if "marshmallow_field" in kwargs:
+        kwargs["marshmallow_field"].metadata.update(kwargs["metadata"])
+
     if default is MISSING:
         return field(metadata=kwargs, **dcls_field_kws)
 
@@ -402,8 +405,37 @@ class InlineYamlDumper(yaml.SafeDumper):
         which we want to be indented"""
         return super().increase_indent(flow, False)
 
+    @staticmethod
+    def format_bool(dumper: yaml.SafeDumper, data: bool):
+        return dumper.represent_scalar("tag:yaml.org,2002:bool", "True" if data else "False")
+
 
 InlineYamlDumper.add_representer(Inline, InlineYamlDumper.represent_inline)
+InlineYamlDumper.add_representer(bool, InlineYamlDumper.format_bool)
+
+
+class HexInt(int):
+    pass
+
+
+class HexIntField(marshmallow.fields.Integer):
+    def _serialize(self, value: int, attr: Optional[str], obj: Any, **kwargs: Any):
+        return HexInt(value)
+
+    def _deserialize(
+        self, value: Any, attr: Optional[str], data: Optional[Mapping[str, Any]], **kwargs: Any
+    ):
+        super_val = super()._deserialize(value, attr, data, **kwargs)
+        if super_val or super_val == 0:
+            return HexInt(super_val)
+        raise ValueError("Expecting value convertible to integer")
+
+
+def represent_hex_int(dumper: InlineYamlDumper, data: HexInt) -> yaml.Node:
+    return dumper.represent_scalar("tag:yaml.org,2002:int", hex(data))
+
+
+InlineYamlDumper.add_representer(HexInt, represent_hex_int)
 
 
 class MarshmallowDataclassExtensions:
