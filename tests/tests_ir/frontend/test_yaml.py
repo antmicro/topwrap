@@ -8,19 +8,20 @@ from typing import Callable, Optional, Union
 import pytest
 
 from examples.ir_examples.modules import ALL_MODULES, lfsr_gen
+from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexParameter,
     IPCoreDescriptionFrontendException,
     param_to_ir_param,
 )
-from topwrap.frontend.yaml.design import DesignDescriptionFrontend
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend, DesignPositionsFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import Bit, Bits, BitStruct, Dimensions, LogicArray
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import ElaboratableValue
+from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 from topwrap.repo.user_repo import InterfaceDefinitionResource
 from topwrap.resource_field import (
@@ -606,3 +607,63 @@ class TestCombinedYamlFrontend:
 
         mods = YamlFrontend().parse_files([unrelated_ip, des, related_ip]).modules
         assert len(mods) == 3
+
+
+class TestDesignPositionsFrontend:
+    def test_positions(self):
+        src = """
+modules:
+- id:
+    library: libdefault
+    name: foo
+    vendor: vendor
+    version: '0.1'
+  components:
+  - name: comp1
+    position: [123.0, 456.0]
+  - name: comp2
+    position: [21.0, 54.0]
+  inverters:
+  - position: [22.0, 33.0]
+    source: inp
+    target: [comp1, outp]
+- id:
+    library: libdefault
+    name: bar
+    vendor: vendor
+    version: '0.1'
+  clock_domains:
+  - name: default
+    position: [9.0, 3.0]
+  constants:
+  - name: '0'
+    position: [5.0, 4.0]
+  externals:
+  - name: a
+    position: [1.0, 2.0]
+  identifier: [-1.0, -1.0]
+  interconnects:
+  - name: intercon1
+    position: [10.0, 7.0]
+  reset_domains:
+  - name: default
+    position: [9.0, 5.0]
+"""
+
+        frontend = DesignPositionsFrontend()
+        pos = frontend.parse_str(src)
+
+        assert pos == {
+            Identifier("foo"): Positions(
+                components={"comp1": (123, 456), "comp2": (21, 54)},
+                inverters={((None, "inp"), ("comp1", "outp")): (22, 33)},
+            ),
+            Identifier("bar"): Positions(
+                externals={"a": (1, 2)},
+                constants={"0": (5, 4)},
+                clock_domains={"default": (9, 3)},
+                reset_domains={"default": (9, 5)},
+                interconnects={"intercon1": (10, 7)},
+                identifier=(-1, -1),
+            ),
+        }
