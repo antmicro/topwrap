@@ -113,9 +113,25 @@ DS_PortsT = Dict[str, Dict[str, Union[int, str, Tuple[str, str]]]]
 DS_InterfacesT = Dict[str, Dict[str, Union[str, Tuple[str, str]]]]
 
 
+class PortsField(marshmallow.fields.Dict):
+    def _serialize(self, value: DS_PortsT, attr: Optional[str], obj: Any, **kwargs: Any):
+        for _, mod_data in value.items():
+            for port, tgt in mod_data.items():
+                if isinstance(tgt, tuple):
+                    continue
+                try:
+                    tgt = int(tgt)
+                except ValueError:
+                    pass
+                mod_data[port] = tgt
+        return super()._serialize(value, attr, obj, **kwargs)
+
+
 @marshmallow_dataclass.dataclass(frozen=True)
 class ConnectionsSection(MarshmallowDataclassExtensions):
-    ports: DS_PortsT = ext_field(dict, deep_cleanup=True, inline_depth=2)
+    ports: DS_PortsT = ext_field(
+        dict, deep_cleanup=True, inline_depth=2, marshmallow_field=PortsField()
+    )
     interfaces: DS_InterfacesT = ext_field(dict, deep_cleanup=True, inline_depth=2)
 
 

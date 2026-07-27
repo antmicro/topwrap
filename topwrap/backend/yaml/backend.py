@@ -436,6 +436,18 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
                 if lhs.instance.name not in out:
                     out[lhs.instance.name] = {}
 
+                # The inout port of a module has to be exposed as an external port
+                # of the design/hierarchy in which it is placed. These two ports
+                # are treated as connected in the IR, but the YAML format doesn't need
+                # these connections written out explicitly
+                if (
+                    lhs.io.direction.value == "inout"
+                    and rhs.io.direction.value == "inout"
+                    and lhs.io.name == rhs.io.name
+                ):
+                    logger.info("Skipping inout IO representation")
+                    continue
+
                 if not conn.invert:
                     out[lhs.instance.name][lhs.io.name] = self._represent_ref_io(rhs)
                 else:
