@@ -75,6 +75,11 @@ You can save the design using the `Save graph file` option from the menu.
 This will create a [graph JSON format](https://antmicro.github.io/kenning-pipeline-manager/dataflow-format.html) file used by the GUI.
 This is essentially a snapshot of everything that you created in the editor and can be loaded back later.
 
+Alternatively, you can save the design into a [design description](description_files.md#design-description) YAML file by using the `Save file` option from the menu.
+When using this option, in addition to downloading the design YAML file, Topwrap will also create an additional [positions YAML](description_files.md#positions-yaml) file describing the node positions.
+This file, along with a copy of the design YAML, will be saved in a new subdirectory in the directory `topwrap gui` was run from.
+The positions YAML file will be referenced from the saved design YAML file (via the `positions` property), and Topwrap will automatically attempt to load it next time you open the design.
+
 ### Generating Verilog in the GUI
 
 You can generate Verilog from the design created in the previous section if you have the example running as described in the previous section. On the top bar, these four buttons are visible:

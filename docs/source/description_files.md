@@ -121,8 +121,10 @@ memory_maps:
 
 config: # override global configuration settings (optional)
   force_interface_compliance: {true/false}
-  repositories: 
+  repositories:
     {repo_name}: {repo_source}
+
+positions: path/to/positions.yaml
 ```
 
 `inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
@@ -148,6 +150,10 @@ For resets that don't have the same synchronicity, an error is raised describing
 The `config` option allows the design to override [configuration settings](./config.md#available-config-options) using the same syntax as in the configuration files.
 This includes the list of repositories to load.
 Topwrap pre-parses the design document before fetching repositories, so the settings placed are picked up before the design is evaluated.
+
+The optional `positions` property allows specifying a path to the positions YAML file for this design (see below).
+The specified path, if relative, will be checked both in the directory Topwrap was launched from, and in the directory the design YAML is in.
+If the positions YAML file is present, it will automatically be loaded alongside the design YAML file.
 
 ### Hierarchies
 
@@ -658,3 +664,66 @@ topwrap clean-cache --target git
 ```
 
 Omitting `--target` removes every cache topwrap maintains.
+
+## Positions YAML
+
+Positions YAML files are auxiliary files that save the positions of elements set in the GUI when saving the design to the YAML format.
+These files are not meant to be edited or inspected by hand, and ought to be treated as ephemeral.
+
+The structure of the positions file is shown below:
+
+```yaml
+modules:
+- id:
+    vendor: vendor
+    library: libdefault
+    name: my_module
+	version: 0.1
+  identifier: [-1000.0, -1000.0]
+  components:
+  - name: foo
+    position: [-100.0, 200.0]
+  - ...
+  externals:
+  - name: clk
+    position: [-200.0, 200.0]
+  - ...
+  constants:
+  - name: 32
+    position: [-200.0, 200.0]
+  - ...
+  clock_domains:
+  - ...
+  reset_domains:
+  - ...
+  interconnects:
+  - ...
+  inverters:
+  - source: clk
+    target: [foo, clk]
+	position: [-150.0, 200.0]
+  - ...
+```
+
+### File format explanation
+
+ - `modules` - list of objects describing positions of elements within modules
+   - `id` - the identifier of the module this description is for
+   - `identifier` - the position of the identifier node
+   - `components` - list of objects describing positions of components
+     - `name` - the name of the component
+	 - `position` the component's position
+   - `externals` - list of objects describing positions of external I/O nodes
+     - entries use the same format as `components`
+   - `constants` - list of objects describing positions of constant value nodes
+     - entries use the same format as `components`
+   - `clock_domains` - list of objects describing positions of clock domain nodes
+     - entries use the same format as `components`
+   - `reset_domains` - list of objects describing positions of reset domain nodes
+     - entries use the same format as `components`
+   - `interconnects` - list of objects describing positions of interconnect nodes
+     - entries use the same format as `components`
+   - `inverters` - list of objects describing positions of inverter nodes
+     - `source` - the source signal of the connection with an inverter
+	 - `target` - the target signal of the connection with an inverter
+	 - `position` - the inverter's position
