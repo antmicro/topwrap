@@ -168,12 +168,28 @@ class MemoryMapEntry(MarshmallowDataclassExtensions):
 
     @marshmallow.post_load()
     def collect_params(self, data: dict[str, Any], **kwargs: Dict[Any, Any]):
-        known_fiels = {f.name for f in fields(MemoryMapEntry)}
-        extra = {k: v for k, v in data.items() if k not in known_fiels}
+        known_fields = {f.name for f in fields(MemoryMapEntry)}
+        extra = {k: v for k, v in data.items() if k not in known_fields}
 
         for k in extra:
             data.pop(k)
-        data["params"] = extra
+
+        if "params" in data:
+            params = data["params"]
+            if not isinstance(params, dict):
+                raise marshmallow.ValidationError(
+                    f"Invalid memory map entry: 'params' must be a dictionary, got {params}"
+                )
+
+            duplicate_keys = set(params.keys()).intersection(set(extra.keys()))
+            if duplicate_keys:
+                raise marshmallow.ValidationError(
+                    f"Invalid memory map entry: duplicate keys "
+                    f"{', '.join(map(str, duplicate_keys))}"
+                )
+            params.update(extra)
+        else:
+            data["params"] = extra
 
         return data
 

@@ -44,6 +44,7 @@ from topwrap.frontend.yaml.design_schema import (
     DesignSectionResetDomain,
     DS_InterfacesT,
     DS_PortsT,
+    MemoryMapEntry,
     MemoryMapSubordinate,
 )
 from topwrap.interconnects.types import INTERCONNECT_NAMES
@@ -683,9 +684,9 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             if ref.instance.name not in out:
                 out[ref.instance.name] = {}
 
-            params = dict[str, Union[str, int]]()
-            params["address"] = addr
-            params.update({name: value.value for name, value in sub.parameters.items()})
+            params = MemoryMapEntry(
+                address=addr, params={name: str(value) for name, value in sub.parameters.items()}
+            )
             out[ref.instance.name][ref.io.name] = params
 
         return out
