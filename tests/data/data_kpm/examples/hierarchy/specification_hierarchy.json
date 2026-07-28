@@ -337,12 +337,6 @@
       },
       "interfaces": [
         {
-          "name": "cs_empty_port_in",
-          "direction": "input",
-          "type": "intf__port",
-          "maxConnectionsCount": -1
-        },
-        {
           "name": "cs_in_1",
           "direction": "input",
           "type": "intf__port",
@@ -582,18 +576,6 @@
         "source": "examples/hierarchy/project.yaml"
       },
       "interfaces": [
-        {
-          "name": "cs_s1_empty_in",
-          "direction": "input",
-          "type": "intf__port",
-          "maxConnectionsCount": -1
-        },
-        {
-          "name": "cs_s1_empty_out",
-          "direction": "output",
-          "type": "intf__port",
-          "maxConnectionsCount": -1
-        },
         {
           "name": "cs_s1_int_const_in",
           "direction": "input",

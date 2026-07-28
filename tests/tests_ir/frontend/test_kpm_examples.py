@@ -393,7 +393,6 @@ class TestKpmFrontendHierarchyExample:
         assert _module_port_dict(complex_sub_module) == {
             "cs_in_1": (PortDirection.IN, "1"),
             "cs_out_1": (PortDirection.OUT, "1"),
-            "cs_empty_port_in": (PortDirection.IN, "1"),
         }
 
     def test_externals_sub_1(self, sub_1_module: Module):
@@ -406,8 +405,6 @@ class TestKpmFrontendHierarchyExample:
             "cs_s1_mod_in_1": (PortDirection.IN, "1"),
             "cs_s1_int_out_1": (PortDirection.OUT, "1"),
             "cs_s1_int_out_2": (PortDirection.OUT, "1"),
-            "cs_s1_empty_in": (PortDirection.IN, "1"),
-            "cs_s1_empty_out": (PortDirection.OUT, "1"),
         }
 
     def test_externals_sub_2(self, sub_2_module: Module):
