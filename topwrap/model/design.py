@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional, Union
 
+from topwrap.model.config import ConfigDescription
 from topwrap.model.connections import (
     Clock,
     Connection,
@@ -157,6 +158,7 @@ class Design(ModelBase):
     memory_maps: dict[str, MemoryMap]
     parent: Module
     _extensions: list[ExtensionData]
+    config: Optional[ConfigDescription]
 
     def __init__(
         self,
@@ -168,6 +170,7 @@ class Design(ModelBase):
         reset_domains: Iterable[ResetDomain] = (),
         memory_maps: Optional[dict[str, MemoryMap]] = None,
         extensions: Iterable[ExtensionData] = (),
+        config: Optional[ConfigDescription] = None,
     ) -> None:
         super().__init__()
         self._components = []
@@ -177,6 +180,7 @@ class Design(ModelBase):
         self._reset_domains = []
         self.memory_maps = {}
         self._extensions = []
+        self.config = None
 
         if memory_maps is not None:
             self.add_memory_maps(memory_maps)
@@ -192,6 +196,8 @@ class Design(ModelBase):
             self.add_reset_domain(domain)
         for data in extensions:
             self.add_extensions(data)
+        if config is not None:
+            self.add_config(config)
 
     @property
     def components(self) -> QuerableView[ModuleInstance]:
@@ -245,6 +251,9 @@ class Design(ModelBase):
         for memory_map in mem_maps.values():
             memory_map.parent = self
         self.memory_maps.update(mem_maps)
+
+    def add_config(self, config: ConfigDescription):
+        self.config = config
 
     def connections_with(
         self, io: ReferencedIO

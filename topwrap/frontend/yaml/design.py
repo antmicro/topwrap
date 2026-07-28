@@ -234,7 +234,13 @@ class DesignDescriptionFrontend:
 
         self._parse_extensions(design, desc)
 
+        self._parse_config(design, desc)
+
         return design
+
+    def _parse_config(self, des: Design, desc: DesignDescription):
+        if desc.config is not None:
+            des.add_config(desc.config)
 
     def _parse_extensions(self, des: Design, desc: DesignDescription):
         for plugin_name, metadata in desc.extensions.items():

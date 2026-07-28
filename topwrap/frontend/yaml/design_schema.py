@@ -16,6 +16,7 @@ from topwrap.common_serdes import (
 )
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.interconnects.types import INTERCONNECT_TYPES
+from topwrap.model.config import ConfigDescription
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -168,14 +169,6 @@ class DesignDescriptionSchema(marshmallow.Schema):
                     final.append((last_str, err))
 
         raise marshmallow.ValidationError(final)
-
-
-@marshmallow_dataclass.dataclass
-class ConfigDescription(MarshmallowDataclassExtensions):
-    """Global topwrap configuration"""
-
-    repositories: dict[str, ResourcePathT] = ext_field(dict)
-    force_interface_compliance: Optional[bool] = ext_field(False)
 
 
 @marshmallow_dataclass.dataclass(frozen=True, base_schema=DesignDescriptionSchema)

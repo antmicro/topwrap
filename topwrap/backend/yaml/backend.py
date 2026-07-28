@@ -37,6 +37,7 @@ from topwrap.frontend.yaml.design_schema import (
     MemoryMapSubordinate,
 )
 from topwrap.interconnects.types import INTERCONNECT_NAMES
+from topwrap.model.config import ConfigDescription
 from topwrap.model.connections import (
     ConstantConnection,
     InterfaceConnection,
@@ -331,6 +332,8 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
         extensions = self._represent_extensions(design.extensions)
 
+        config = self._represent_config(design.config) if design.config is not None else None
+
         id = design.parent.id
         return DesignDescription(
             name=id.name,
@@ -345,6 +348,7 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             reset_domains=reset_domains,
             memory_maps=memory_maps,
             extensions=extensions,
+            config=config,
         )
 
     def _represent_ip(self, comp: ModuleInstance) -> DesignIP:
@@ -606,6 +610,9 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             return ref.io.name
         assert ref.instance is not None
         return (ref.instance.name, ref.io.name)
+
+    def _represent_config(self, config: ConfigDescription) -> ConfigDescription:
+        return config
 
     @override
     def serialize(self, repr: DesignDescriptionOutput) -> Iterator[BackendOutputInfo]:
