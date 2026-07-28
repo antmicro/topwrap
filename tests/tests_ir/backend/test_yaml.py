@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import copy
+from itertools import product
 from pathlib import Path
 
 import pytest
 import yaml
+from typing_extensions import Optional
 
 from examples.ir_examples.modules import (
     adv_top,
@@ -26,6 +28,7 @@ from topwrap.interconnects.wishbone_rr import (
     WishboneRRParams,
     WishboneRRSubordinateParams,
 )
+from topwrap.model.config import ConfigDescription
 from topwrap.model.connections import Port, PortDirection, ReferencedInterface, ReferencedPort
 from topwrap.model.design import Design, ModuleInstance
 from topwrap.model.hdl_types import (
@@ -47,6 +50,14 @@ from topwrap.model.misc import (
     Parameter,
 )
 from topwrap.model.module import Module
+from topwrap.resource_field import (
+    FileReferenceHandler,
+    GitReferenceHandler,
+    RepoReferenceHandler,
+    ResourceReferenceHandler,
+    UriReferenceHandler,
+    YamlCommonSchemes,
+)
 
 
 def get_intf_def_by_id_or_error(id: Identifier) -> InterfaceDefinition:
@@ -521,3 +532,77 @@ class TestDesignDescriptionBackend:
 
         out = back.represent(top)
         [out] = back.serialize(out)
+
+    def test_config_output(self):
+        # Combinations of configuration options
+        missing = [True, False]
+        force_interface_compliance: list[Optional[bool]] = [None, False, True]
+        repositories: list[dict[str, ResourceReferenceHandler]] = [
+            {},
+            {"a": RepoReferenceHandler("abc", ["def"])},
+            {"a": UriReferenceHandler("abc", ["def"])},
+            {"a": GitReferenceHandler("abc", ["def"])},
+            {"a": FileReferenceHandler("abc", ["def"])},
+        ]
+
+        # Check for full coverage
+        required_handlers = YamlCommonSchemes.handlers
+        assert all(
+            any(isinstance(h, req_h) for r in repositories for h in r.values())
+            for req_h in required_handlers
+        ), "test_config_output does not cover all reference handlers"
+
+        for is_missing, fic, rep in product(missing, force_interface_compliance, repositories):
+            cnf = ConfigDescription(rep, fic)
+
+            des = Design(config=cnf if not is_missing else None)
+            mod = Module(
+                id=Identifier("top"),
+                design=des,
+            )
+
+            back = DesignDescriptionBackend()
+            out = back.represent(mod)
+
+            out_cnf = out.description.config
+
+            if is_missing:
+                assert out_cnf is None
+
+                [out] = back.serialize(out)
+
+                design_yaml = yaml.safe_load(out.content)
+                assert isinstance(design_yaml, dict)
+                assert "config" not in design_yaml
+            else:
+                assert out_cnf is not None
+                assert out_cnf.force_interface_compliance == fic
+                assert out_cnf.repositories == rep
+
+                [out] = back.serialize(out)
+
+                design_yaml = yaml.safe_load(out.content)
+                assert isinstance(design_yaml, dict)
+
+                if fic is None and not rep:
+                    assert "config" not in design_yaml
+                else:
+                    assert "config" in design_yaml
+                    config_dict = design_yaml["config"]
+                    assert isinstance(config_dict, dict)
+
+                    if fic is None:
+                        assert "force_interface_compliance" not in config_dict
+                    else:
+                        assert "force_interface_compliance" in config_dict
+                        assert config_dict["force_interface_compliance"] == fic
+
+                    if not rep:
+                        assert "repositories" not in config_dict
+                    else:
+                        assert "repositories" in config_dict
+                        repo_dict = config_dict["repositories"]
+                        assert isinstance(repo_dict, dict)
+
+                        expected_obj: dict[str, str] = {name: h.to_str() for name, h in rep.items()}
+                        assert repo_dict == expected_obj

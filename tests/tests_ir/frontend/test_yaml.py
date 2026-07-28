@@ -1,6 +1,7 @@
 # Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from itertools import product
 from pathlib import Path
 from typing import Callable, Optional, Union
 
@@ -22,6 +23,14 @@ from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import ElaboratableValue
 from topwrap.model.module import Module
 from topwrap.repo.user_repo import InterfaceDefinitionResource
+from topwrap.resource_field import (
+    FileReferenceHandler,
+    GitReferenceHandler,
+    RepoReferenceHandler,
+    ResourceReferenceHandler,
+    UriReferenceHandler,
+    YamlCommonSchemes,
+)
 from topwrap.util import get_config
 
 from .test_ir_examples import TestIrExamples
@@ -191,6 +200,64 @@ class TestDesignDescriptionFrontend:
 
         assert exts[3].name == "key3"
         assert exts[3].data == {"subkey1": 123}
+
+    def test_config_field(self):
+        no_config = """
+            name: top
+        """
+        sep = "\n                    "
+        config_repo_template = """
+            name: top
+            config:
+                {rep}
+                {fic}
+        """
+        force_interface_compliance = [None, True, False]
+
+        repositories: list[dict[str, ResourceReferenceHandler]] = [
+            {},
+            {"a": RepoReferenceHandler("abc", ["def"])},
+            {"a": UriReferenceHandler("abc", ["def"])},
+            {"a": GitReferenceHandler("abc", ["def"])},
+            {"a": FileReferenceHandler("abc", ["def"])},
+        ]
+        required_handlers = YamlCommonSchemes.handlers
+        assert all(
+            any(isinstance(h, req_h) for r in repositories for h in r.values())
+            for req_h in required_handlers
+        ), "test_config_output does not cover all reference handlers"
+
+        for fic, rep in product(force_interface_compliance, repositories):
+            front = DesignDescriptionFrontend()
+            if fic is None and not rep:
+                source_yaml = no_config
+                out = front.parse_str(source_yaml)
+                assert out.config is None
+            else:
+                repo_source = ""
+                if rep:
+                    repo_source = (
+                        "repositories:"
+                        + sep
+                        + "   "
+                        + (sep + "    ").join(f"{name}: {h.to_str()}" for name, h in rep.items())
+                    )
+
+                fic_source = ""
+                if fic is not None:
+                    fic_source = f"force_interface_compliance: {fic}"
+
+                source_yaml = config_repo_template.format(fic=fic_source, rep=repo_source)
+                print(source_yaml)
+                out = front.parse_str(source_yaml)
+
+                assert out.config is not None
+                assert out.config.force_interface_compliance == (False if fic is None else fic)
+
+                assert set(out.config.repositories) == set(rep.keys())
+                keys = rep.keys()
+                assert all(type(out.config.repositories[k]) is type(rep[k]) for k in keys)
+                assert all(out.config.repositories[k].to_str() == rep[k].to_str() for k in keys)
 
 
 class TestIPCoreDescriptionFrontend:
