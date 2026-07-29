@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Iterable, Optional, Union
 
 from topwrap.model.interface import InterfaceDefinition
+from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 
 
@@ -43,8 +44,8 @@ class BuildContext:
     #: All loaded modules.
     loaded_modules: list[Module]
 
-    #: All loaded interfaces.
-    loaded_interfaces: list[InterfaceDefinition]
+    #: List of identifiers of existing definitions in HDL code
+    existing_interfaces: set[Identifier]
 
     #: Map of generated outputs, keyed on the output stage name.
     outputs: dict[str, Any] = field(default_factory=dict)
@@ -52,10 +53,6 @@ class BuildContext:
     @property
     def all_modules(self) -> Iterable[Module]:
         return itertools.chain(self.repo_modules, self.loaded_modules)
-
-    @property
-    def all_interfaces(self) -> Iterable[InterfaceDefinition]:
-        return itertools.chain(self.repo_interfaces, self.loaded_interfaces)
 
 
 class BuildException(Exception):

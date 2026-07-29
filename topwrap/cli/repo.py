@@ -83,13 +83,14 @@ def parse_repo(
 
     file_srcs: List[File] = [LocalFile(s) for s in srcs if not s.is_dir()]
 
-    repo_modules, repo_ifaces = load_modules_from_repos()
-    repo_ifaces.extend(load_interfaces_from_repos())
+    repo_modules, _ = load_modules_from_repos()
 
     try:
         resources = ModuleFileHandler(
             file_srcs,
-            FrontendRegistry.BY_NAME[frontend](modules=repo_modules, interfaces=repo_ifaces),
+            FrontendRegistry.BY_NAME[frontend](
+                modules=repo_modules, interfaces=load_interfaces_from_repos()
+            ),
             module,
             all_sources,
             inference,

@@ -117,7 +117,7 @@ class YamlInputStage(InputStage):
     def process_input(
         self, design_source: Optional[Source], sources: list[Source], ctx: BuildContext
     ):
-        frontend = YamlFrontend(ctx.all_modules, ctx.all_interfaces)
+        frontend = YamlFrontend(ctx.all_modules, ctx.repo_interfaces)
 
         if sources:
             for src in sources:
@@ -168,7 +168,7 @@ class KpmInputStage(InputStage):
     def process_input(
         self, design_source: Optional[Source], sources: list[Source], ctx: BuildContext
     ):
-        frontend = KpmFrontend(ctx.all_modules, ctx.all_interfaces)
+        frontend = KpmFrontend(ctx.all_modules, ctx.repo_interfaces)
 
         all_strings = all(isinstance(f, StringSource) for f in sources) and (
             design_source is None or isinstance(design_source, StringSource)
@@ -223,7 +223,7 @@ class SystemVerilogOutputStage(OutputStage):
         if ctx.top_module is None:
             raise BuildException("SystemVerilog output requires a top module")
 
-        backend = SystemVerilogBackend(ctx.repo_interfaces)
+        backend = SystemVerilogBackend(ctx.existing_interfaces)
         repr = backend.represent(ctx.top_module)
         [out] = backend.serialize(repr, combine=True)
 
@@ -369,7 +369,7 @@ class YamlDesignOutputStage(OutputStage):
 
         assert ctx.top_module.design
 
-        backend = DesignDescriptionBackend(ctx.all_interfaces)
+        backend = DesignDescriptionBackend(ctx.existing_interfaces)
         repr = backend.represent(ctx.top_module)
 
         assert self.name not in ctx.outputs

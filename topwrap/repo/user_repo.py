@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Union
+from typing import Iterator, Optional, Set, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -15,6 +15,7 @@ from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.backend.yaml.common.interface_schema import (
     InterfaceDefinitionDescription,
 )
+from topwrap.backend.yaml.common.ip_core_schema import IPCoreDescription
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.common_serdes import (
     ResourcePathT,
@@ -23,9 +24,12 @@ from topwrap.frontend.automatic import FrontendRegistry
 from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.interface import InterfaceDefinition
+from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
+from topwrap.repo.exceptions import ResourceNotFoundException
 from topwrap.repo.repo import Repo
 from topwrap.repo.resource import Resource, ResourceHandler
+from topwrap.util import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +48,14 @@ class Core(Resource):
     """Represents a hardware core resource"""
 
     top_or_source_yaml: Union[Module, Path]
+    existing_ifaces_ids: Set[Identifier]
 
-    def __init__(self, name: str, top_or_source_yaml: Union[Module, Path]):
+    def __init__(
+        self,
+        name: str,
+        top_or_source_yaml: Union[Module, Path],
+        existing_ifaces: Optional[Set[Identifier]] = None,
+    ):
         # YAML can't be parsed during the loading of the resource. The interface in the module
         # needs to load InterfaceDefinition to check if the YAML doesn't have errors. While
         # loading InterfaceDefinition, all repos are loaded, which triggers the loading of
@@ -54,6 +64,10 @@ class Core(Resource):
         # supply the IR Module.
         super().__init__(name)
         self.top_or_source_yaml = top_or_source_yaml
+        if existing_ifaces is None:
+            self.existing_ifaces_ids = set()
+        else:
+            self.existing_ifaces_ids = existing_ifaces
 
     @property
     def top(self) -> Module:
@@ -63,15 +77,24 @@ class Core(Resource):
         if isinstance(self.top_or_source_yaml, Module):
             return self.top_or_source_yaml
         else:
-            self.top_or_source_yaml = IPCoreDescriptionFrontend().parse_file(
-                self.top_or_source_yaml
+            ip_core_desc = IPCoreDescription.load(self.top_or_source_yaml)
+            self.top_or_source_yaml = IPCoreDescriptionFrontend().parse(
+                self.top_or_source_yaml, ip_core_desc
             )
+            self.existing_ifaces_ids = ip_core_desc.existing_iface_definitions
+
         return self.top_or_source_yaml
 
     @property
     def existing_ifaces(self) -> Iterator[InterfaceDefinition]:
-        for iface in self.top.interfaces:
-            yield iface.definition
+        for repo in get_config().loaded_repos.values():
+            for id in self.existing_ifaces_ids:
+                try:
+                    yield repo.get_resource(InterfaceDefinitionResource, id.combined()).definition
+                except ResourceNotFoundException:
+                    # If there is no InterfaceDefinition for that interface then it can't be
+                    # represented in HDL, so we can skip it
+                    pass
 
 
 class CoreHandler(ResourceHandler[Core]):
@@ -87,7 +110,7 @@ class CoreHandler(ResourceHandler[Core]):
         core_dir = repo_path / self._cores_rel_dir / res.name
         core_dir.mkdir(parents=True, exist_ok=True)
 
-        backend = IpCoreDescriptionBackend()
+        backend = IpCoreDescriptionBackend(res.existing_ifaces_ids)
         representation = backend.represent(res.top)
         output_info = next(backend.serialize(representation))
 

@@ -56,7 +56,7 @@ class IPCoreDescriptionFrontend:
         """
 
         desc = IPCoreDescription.load(path)
-        return self._parse(path, desc)
+        return self.parse(path, desc)
 
     def parse_str(self, source: str) -> Module:
         """
@@ -66,9 +66,9 @@ class IPCoreDescriptionFrontend:
         """
 
         desc = IPCoreDescription.from_yaml(source)
-        return self._parse(None, desc)
+        return self.parse(None, desc)
 
-    def _parse(self, source: Optional[Path], desc: IPCoreDescription) -> Module:
+    def parse(self, source: Optional[Path], desc: IPCoreDescription) -> Module:
         mod = Module(id=desc.id, refs=[FileReference(source)] if source else ())
 
         types = {}

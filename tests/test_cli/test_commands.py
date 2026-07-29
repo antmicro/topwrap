@@ -319,6 +319,7 @@ class TestRepoCli:
             repo_path,
             *chain(*(("-m", m) for m in only_mods)),
             *(str(p) for p in sources),
+            *("-e", "skip"),
         )
 
         assert set(cores) == only_mods
@@ -342,6 +343,7 @@ class TestRepoCli:
             "--frontend",
             "systemverilog",
             *(str(p) for p in sources),
+            *("-e", "skip"),
         )
 
         assert cores != []

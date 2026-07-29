@@ -4,9 +4,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Generic, Iterable, Iterator, TypeVar
+from typing import Generic, Iterator, Optional, Set, TypeVar
 
-from topwrap.model.interface import InterfaceDefinition
+from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 
 _MODFORMAT = TypeVar("_MODFORMAT")
@@ -45,10 +45,13 @@ class Backend(ABC, Generic[_MODFORMAT]):
 
     #: List of InterfaceDefinition's that already exists in source files or has been serialized, it
     #: is a hint for backend implementations
-    existing_interfaces: list[InterfaceDefinition]
+    existing_interfaces: Set[Identifier]
 
-    def __init__(self, existing_interfaces: Iterable[InterfaceDefinition] = ()):
-        self.existing_interfaces = list(existing_interfaces)
+    def __init__(self, existing_interfaces: Optional[Set[Identifier]] = None):
+        if existing_interfaces is not None:
+            self.existing_interfaces = existing_interfaces
+        else:
+            self.existing_interfaces = set()
         super().__init__()
 
     @abstractmethod

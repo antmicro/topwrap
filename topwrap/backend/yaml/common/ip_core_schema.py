@@ -300,6 +300,7 @@ class IPCoreDescription(MarshmallowDataclassExtensions):
     resets: Dict[str, IPCoreReset] = ext_field(dict)
     types: Dict[str, IPCoreType] = ext_field(dict)
     extensions: Dict[str, Any] = ext_field(dict)
+    existing_iface_definitions: Set[Identifier] = ext_field(set)
 
     Schema: ClassVar[Type[marshmallow.Schema]]
 

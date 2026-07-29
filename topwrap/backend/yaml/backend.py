@@ -3,7 +3,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Iterable, Iterator, Optional, Union
+from typing import Iterable, Iterator, Optional, Set, Union
 
 import yaml
 from typing_extensions import Any, override
@@ -51,11 +51,10 @@ from topwrap.model.inference.port import PortSelector
 from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import (
     Interface,
-    InterfaceDefinition,
     InterfaceMode,
 )
 from topwrap.model.memory_map import MemoryMap
-from topwrap.model.misc import ElaboratableValue, ExtensionData, Parameter
+from topwrap.model.misc import ElaboratableValue, ExtensionData, Identifier, Parameter
 from topwrap.model.module import Module
 from topwrap.resource_field import FileReferenceHandler, RepoReferenceHandler
 from topwrap.util import get_config
@@ -82,7 +81,7 @@ class DesignDescriptionBackendException(Exception):
 class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
     def __init__(
         self,
-        existing_interfaces: Iterable[InterfaceDefinition] = (),
+        existing_interfaces: Optional[Set[Identifier]] = None,
     ) -> None:
         super().__init__(existing_interfaces)
 
@@ -109,6 +108,7 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
             interfaces=intfs,
             types=types,
             extensions=extensions,
+            existing_iface_definitions=self.existing_interfaces,
         )
 
         return IpCoreDescriptionOutput(base_name=module.id.name, description=desc)

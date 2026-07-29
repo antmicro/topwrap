@@ -79,7 +79,13 @@ class ModuleFileHandler(FileHandler):
             )  # mapping to interface port mapping definition
             map_interfaces_to_module([mapping], cand_intf_defs, mod)
 
-            resources.append(Core(mod.id.name, top_or_source_yaml=mod))
+            resources.append(
+                Core(
+                    mod.id.name,
+                    top_or_source_yaml=mod,
+                    existing_ifaces=set([iface.id for iface in frontend_output.interfaces]),
+                )
+            )
 
         for iface in frontend_output.interfaces:
             resources.append(InterfaceDefinitionResource(iface))

@@ -3223,6 +3223,7 @@ class SystemVerilogSlangParser:
         body: ps.InstanceBodySymbol = node.body
         if node.isInterface:
             if body.name in self._interfaces and body.name not in self._placeholder_interfaces:
+                self._parsed_intf.append(self._interfaces[body.name])
                 return
             prev = self._interfaces.get(body.name)
             ir_new_iface = self._parse_interface_ast(body)

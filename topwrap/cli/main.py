@@ -1,6 +1,7 @@
 # Copyright (c) 2021-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+
 import asyncio
 import logging
 import queue
@@ -167,7 +168,7 @@ class KPM:
                         build_dir,
                         ctx.top_module.design if ctx.top_module else None,
                         [*ctx.all_modules],
-                        [*ctx.all_interfaces],
+                        [*ctx.repo_interfaces],
                     ),
                     client_ready_event,
                 )

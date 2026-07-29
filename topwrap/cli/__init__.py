@@ -15,6 +15,7 @@ from cyclopts.types import ExistingDirectory, ExistingFile
 import topwrap.logger
 from topwrap.frontend.yaml.design import DesignDescriptionFrontendException
 from topwrap.model.interface import InterfaceDefinition
+from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 from topwrap.repo.user_repo import Core, InterfaceDefinitionResource
 from topwrap.resource_field import FileReferenceHandler
@@ -75,16 +76,16 @@ def cmd(
         sys.exit(1)
 
 
-def load_modules_from_repos() -> tuple[Iterable[Module], list[InterfaceDefinition]]:
+def load_modules_from_repos() -> tuple[Iterable[Module], set[Identifier]]:
     """Load all IR Modules from repositories in the config"""
 
     modules = list[Module]()
-    existing_ifaces = list[InterfaceDefinition]()
+    existing_ifaces = set[Identifier]()
     for repo in get_config().loaded_repos.values():
         for core in repo.get_resources(Core):
             try:
                 modules.append(core.top)
-                existing_ifaces.extend(core.existing_ifaces)
+                existing_ifaces.update(core.existing_ifaces_ids)
             except Exception as e:
                 logger.error(f"Could not load core '{core.name}' from repo '{repo.name}': {e}")
     return (modules, existing_ifaces)

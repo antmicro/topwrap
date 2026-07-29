@@ -83,12 +83,12 @@ class BuildPipeline:
 
         self._ctx = BuildContext(
             repo_modules=[*repo_modules],
-            repo_interfaces=existing_ifaces + [*repo_interfaces],
+            repo_interfaces=list(repo_interfaces),
             design_source=design_source,
             extra_sources=sources,
             top_module=None,
             loaded_modules=[],
-            loaded_interfaces=[],
+            existing_interfaces=existing_ifaces,
         )
 
         self.plugin_manager.trigger(BasePlugin.pre_ir_generation, self.ctx)

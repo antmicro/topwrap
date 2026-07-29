@@ -5,7 +5,7 @@ import copy
 import logging
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import ClassVar, Iterable, Iterator, Optional
+from typing import ClassVar, Iterable, Iterator, Optional, Set
 
 from jinja2 import Template
 from typing_extensions import override
@@ -25,7 +25,7 @@ from topwrap.model.interface import (
     InterfaceMode,
     InterfaceSignal,
 )
-from topwrap.model.misc import ObjectId
+from topwrap.model.misc import Identifier, ObjectId
 from topwrap.model.module import Module
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
 
     def __init__(
         self,
-        existing_interfaces: Iterable[InterfaceDefinition] = (),
+        existing_interfaces: Optional[Set[Identifier]] = None,
         modules: Iterable[Module] = (),
         all_pins: bool = False,
         desc_comms: bool = True,
@@ -88,7 +88,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
         intfs = set[ObjectId[InterfaceDefinition]]()
         mods_to_repr = list[Design]()
 
-        existing_ifaces_ids = set([iface.id for iface in self.existing_interfaces])
+        existing_ifaces_ids = set(self.existing_interfaces)
 
         def _try_append(log: Logic):
             if log.name is not None and log.name not in pkg_items:
