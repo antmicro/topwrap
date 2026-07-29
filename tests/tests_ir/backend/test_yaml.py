@@ -55,6 +55,7 @@ from topwrap.model.hdl_types import (
     StructField,
 )
 from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode
+from topwrap.model.memory_map import MemoryMap, MemoryMapSubordinate
 from topwrap.model.misc import (
     ElaboratableValue,
     ExtensionData,
@@ -767,6 +768,36 @@ class TestDesignDescriptionBackend:
         assert out_vec.type.dimensions == [
             Dimensions(upper=ElaboratableValue(15), lower=ElaboratableValue(0))
         ]
+
+    def test_memory_map_output(self):
+        wishbone = get_intf_def_by_id_or_error(Identifier("wishbone"))
+        interface = Interface(
+            name="interface",
+            mode=InterfaceMode.MANAGER,
+            definition=wishbone,
+            signals={},
+        )
+        sub = Module(
+            id=Identifier(name="sub"),
+            ports=[],
+            interfaces=[interface],
+            refs=[FileReference(Path("/this/does/not/exist"))],
+        )
+        comp = ModuleInstance(name="sub", module=sub)
+        rif = ReferencedInterface(io=interface, instance=comp)
+        mm = MemoryMap(
+            name="mm",
+            map={0x1000000: MemoryMapSubordinate(rif, {"size": ElaboratableValue(0x1000)})},
+        )
+        des = Design(
+            components=[comp],
+            memory_maps={"mm": mm},
+        )
+        top = Module(id=Identifier("top"), design=des)
+
+        back = DesignDescriptionBackend()
+        out = back.represent(top)
+        [out] = back.serialize(out)
 
 
 class TestDesignPositionsBackend:
