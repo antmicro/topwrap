@@ -292,9 +292,12 @@ class TestKpmBackendHDMIExample:
 
         axi_props = [_filter_id(x) for x in axi_node["properties"]]
         want_axi_props = [
-            {"name": "M_ADDR_WIDTH", "value": "96'd295147905248072302608"},
+            {"name": "M_ADDR_WIDTH", "value": "{'value': 295147905248072302608, 'width': 96}"},
             {"name": "STRB_WIDTH", "value": "DATA_WIDTH/8"},
-            {"name": "M_BASE_ADDR", "value": "118'd20970027271917541136636313600"},
+            {
+                "name": "M_BASE_ADDR",
+                "value": "{'value': 20970027271917541136636313600, 'width': 118}",
+            },
         ]
         assert all(x in axi_props for x in want_axi_props)
         assert conv_node["properties"] == []

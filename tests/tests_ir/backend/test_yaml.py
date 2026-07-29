@@ -1,6 +1,5 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-
 import copy
 from itertools import product
 from pathlib import Path
@@ -558,7 +557,7 @@ class TestDesignDescriptionBackend:
         ), "test_config_output does not cover all reference handlers"
 
         for is_missing, fic, rep in product(missing, force_interface_compliance, repositories):
-            cnf = ConfigDescription(rep, fic)
+            cnf = ConfigDescription(fic, rep)
 
             des = Design(config=cnf if not is_missing else None)
             mod = Module(

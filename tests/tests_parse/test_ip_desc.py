@@ -197,25 +197,23 @@ interfaces:
             "parameters": {
                 "param": {
                     "value": [
-                        {"_schema": ["Not a valid integer."]},
-                        {"_schema": ["Not a valid string."]},
                         {
                             "width": ["Missing data for required field."],
                             "value": ["Missing data for required field."],
                         },
+                        {"_schema": ["Not a valid integer."]},
+                        {"_schema": ["Not a valid string."]},
                     ]
                 },
                 "param2": {
                     "value": [
+                        {"_schema": ["Invalid input type."]},
                         {"_schema": ["Not a valid integer."]},
                         {"_schema": ["Not a valid string."]},
-                        {"_schema": ["Invalid input type."]},
                     ]
                 },
                 "param5": {
                     "value": [
-                        {"_schema": ["Not a valid integer."]},
-                        {"_schema": ["Not a valid string."]},
                         {
                             "width": ["Not a valid integer."],
                             "value": [
@@ -223,6 +221,8 @@ interfaces:
                                 {"_schema": ["Not a valid string."]},
                             ],
                         },
+                        {"_schema": ["Not a valid integer."]},
+                        {"_schema": ["Not a valid string."]},
                     ]
                 },
             },

@@ -13,7 +13,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml"
+        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml",
+        "config": null
       },
       "interfaces": [
         {
@@ -250,7 +251,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml"
+        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml",
+        "config": null
       },
       "interfaces": [
         {
@@ -279,7 +281,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml"
+        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml",
+        "config": null
       }
     },
     {
@@ -294,7 +297,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hierarchy/my_repo/cores/c_mod_2/module.yaml"
+        "source": "examples/hierarchy/my_repo/cores/c_mod_2/module.yaml",
+        "config": null
       },
       "contextMenuActions": [
                 {
@@ -331,7 +335,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hierarchy/my_repo/cores/s1_mod_2/module.yaml"
+        "source": "examples/hierarchy/my_repo/cores/s1_mod_2/module.yaml",
+        "config": null
       },
       "contextMenuActions": [
                 {
@@ -368,7 +373,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml"
+        "source": "examples/hierarchy/my_repo/cores/s1_mod_3/module.yaml",
+        "config": null
       },
       "contextMenuActions": [
                 {
@@ -412,7 +418,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hierarchy/my_repo/cores/s2_mod_1/module.yaml"
+        "source": "examples/hierarchy/my_repo/cores/s2_mod_1/module.yaml",
+        "config": null
       },
       "contextMenuActions": [
                 {
@@ -461,7 +468,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hierarchy/my_repo/cores/s2_mod_2/module.yaml"
+        "source": "examples/hierarchy/my_repo/cores/s2_mod_2/module.yaml",
+        "config": null
       },
       "contextMenuActions": [
                 {
@@ -504,7 +512,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml"
+        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml",
+        "config": null
       },
       "interfaces": [
         {

@@ -249,7 +249,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "repo[builtin]:axi_axil_adapter"
+        "source": "repo[builtin]:axi_axil_adapter",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -330,7 +331,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/ipcores/axi_dispctrl.yaml"
+        "source": "examples/hdmi/ipcores/axi_dispctrl.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -451,7 +453,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "repo[builtin]:axi_interconnect"
+        "source": "repo[builtin]:axi_interconnect",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -495,7 +498,7 @@
         {
           "name": "M_ADDR_WIDTH",
           "type": "text",
-          "default": "96'd295147905248072302608"
+          "default": "{'value': 295147905248072302608, 'width': 96}"
         },
         {
           "name": "M_BASE_ADDR",
@@ -579,7 +582,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "repo[builtin]:axi_protocol_converter"
+        "source": "repo[builtin]:axi_protocol_converter",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -628,7 +632,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "repo[builtin]:axis_async_fifo"
+        "source": "repo[builtin]:axis_async_fifo",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -756,7 +761,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "repo[builtin]:axis_dwidth_converter"
+        "source": "repo[builtin]:axis_dwidth_converter",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -817,7 +823,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/ipcores/clock_crossing.yaml"
+        "source": "examples/hdmi/ipcores/clock_crossing.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -866,7 +873,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/ipcores/dma_axi_in_axis_out.yaml"
+        "source": "examples/hdmi/ipcores/dma_axi_in_axis_out.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -945,7 +953,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/ipcores/hdmi_tx.yaml"
+        "source": "examples/hdmi/ipcores/hdmi_tx.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -1090,7 +1099,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/ipcores/litex_mmcm.yaml"
+        "source": "examples/hdmi/ipcores/litex_mmcm.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -1157,7 +1167,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/ipcores/proc_sys_reset.yaml"
+        "source": "examples/hdmi/ipcores/proc_sys_reset.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -1242,7 +1253,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/ipcores/ps7.yaml"
+        "source": "examples/hdmi/ipcores/ps7.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -1504,7 +1516,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/hdmi/project.yaml"
+        "source": "examples/hdmi/project.yaml",
+        "config": null
       },
       "interfaces": [
         {

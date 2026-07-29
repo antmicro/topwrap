@@ -239,7 +239,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "repo[builtin]:axi_axil_adapter"
+        "source": "repo[builtin]:axi_axil_adapter",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -320,7 +321,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/pwm/ipcores/litex_pwm.yaml"
+        "source": "examples/pwm/ipcores/litex_pwm.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -369,7 +371,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/pwm/ipcores/ps7.yaml"
+        "source": "examples/pwm/ipcores/ps7.yaml",
+        "config": null
       },
       "contextMenuActions": [
           {
@@ -424,7 +427,8 @@
           "library": "libdefault",
           "version": "0.1"
         },
-        "source": "examples/pwm/project.yaml"
+        "source": "examples/pwm/project.yaml",
+        "config": null
       },
       "interfaces": [
         {

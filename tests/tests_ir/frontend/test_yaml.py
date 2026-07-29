@@ -320,7 +320,7 @@ class TestIPCoreDescriptionFrontend:
 
     def test_complex_param(self):
         param = IPCoreComplexParameter(32, 563)
-        assert param_to_ir_param(param) == ElaboratableValue("32'd563")
+        assert param_to_ir_param(param) == ElaboratableValue(IPCoreComplexParameter(32, 563))
 
     def test_complex_signal(self):
         ip = """
