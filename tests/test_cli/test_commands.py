@@ -272,6 +272,22 @@ class TestRepoCli:
         else:
             raise AssertionError("Repo created in a nonempty directory")
 
+    def test_repo_parse_handle_traceback(self, tmpdir: Path, caplog: pytest.LogCaptureFixture):
+        caplog.set_level(logging.ERROR)
+
+        invalid_yaml_path = Path("tests/data/data_parse/ip_core_invalid.yaml")
+        tmpdir = Path(tmpdir)
+        repo_name = "repo"
+        repo_path = tmpdir / repo_name
+        repo_path.mkdir()
+
+        try:
+            run_cli("--repo", str(repo_path), repo_name, "parse", repo_name, str(invalid_yaml_path))
+        except SystemExit:
+            pass
+
+        assert len(caplog.records) > 0
+
     @pytest.fixture
     def all_sources(
         self,
