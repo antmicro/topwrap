@@ -284,3 +284,19 @@ class BuildPipeline:
                 KpmDataflowOutputStage(output_path, specification=specification),
             ],
         )
+
+    @staticmethod
+    def yaml_kpm_pipeline(output_path: Optional[Path] = None):
+        return BuildPipeline(
+            inputs=[
+                YamlInputStage(),
+            ],
+            transformations=[
+                MemoryMapTransformation(),
+            ],
+            validations=[],
+            outputs=[
+                KpmSpecificationOutputStage(output_path),
+                KpmDataflowOutputStage(output_path),
+            ],
+        )
