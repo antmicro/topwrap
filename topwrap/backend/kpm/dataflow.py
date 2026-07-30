@@ -20,11 +20,13 @@ from topwrap.backend.kpm.common import (
     ConstMetanode,
     DomainMetanodeStrings,
     IdentifierMetanode,
+    InMetanode,
+    InoutMetanode,
     InterconnectMetanode,
     InterconnectMetanodeStrings,
     InverterMetanode,
-    IoMetanode,
     KpmNodeAdditionalData,
+    OutMetanode,
     Positions,
     ResetDomainMetanode,
     elab_val_to_kpm_val,
@@ -293,23 +295,22 @@ class KpmDataflowBackend:
     def add_external(
         self, graph: DataflowGraph, io: Union[Port, Interface], refs: _REFTYPE, pos: Positions
     ) -> Node:
-        interfaces = [
-            KpmInterface(i.interfacename, kpm_dir_from(i.direction))
-            for i in IoMetanode().interfaces
-        ]
-
-        intf_in, intf_out, intf_inout = interfaces
         dir = kpm_dir_from(io.direction if isinstance(io, Port) else io.mode)
         if dir == Direction.INPUT:
-            exposed, target = intf_in, intf_out
+            node = InMetanode()
         elif dir == Direction.OUTPUT:
-            exposed, target = intf_out, intf_in
+            node = OutMetanode()
         else:
-            exposed, target = intf_inout, intf_inout
+            node = InoutMetanode()
 
+        ifaces = [
+            KpmInterface(name=intf.interfacename, direction=kpm_dir_from(intf.direction))
+            for intf in node.interfaces
+        ]
+        target, exposed = ifaces
         exposed.external_name = io.name
 
-        node = graph.create_node(name=IoMetanode.name, instance_name=io.name, interfaces=interfaces)
+        node = graph.create_node(name=node.name, instance_name=io.name, interfaces=ifaces)
 
         node_pos = pos.externals.get(io.name)
         if node_pos:

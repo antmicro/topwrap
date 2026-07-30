@@ -3,7 +3,8 @@
 
 import logging
 from dataclasses import asdict
-from typing import cast
+from itertools import chain
+from typing import Iterable, cast
 
 from pipeline_manager.dataflow_builder.entities import Side
 from pipeline_manager.specification_builder import (
@@ -24,7 +25,7 @@ from topwrap.backend.kpm.common import (
     IdentifierMetanode,
     InterconnectMetanode,
     InverterMetanode,
-    IoMetanode,
+    IoMetanodes,
     KpmNodeAdditionalData,
     KpmNodeId,
     KpmPropertyType,
@@ -47,7 +48,7 @@ logger = logging.getLogger(__name__)
 
 class KpmSpecificationBackend:
     _spec: SpecificationBuilder
-    _io: IoMetanode
+    _ios: Iterable[Metanode]
     _intr: InterconnectMetanode
     _interfaces: set[str]
     _modules: dict[str, Module]
@@ -56,7 +57,7 @@ class KpmSpecificationBackend:
         self._spec = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
         self._interfaces = set()
         self._modules = dict()
-        self._io = IoMetanode()
+        self._ios = [mnode.value for mnode in IoMetanodes]
         self._intr = InterconnectMetanode()
 
     @classmethod
@@ -185,16 +186,18 @@ class KpmSpecificationBackend:
             raise
 
     def _update_metanodes(self):
-        for n in (self._io, self._intr):
+        for n in chain(self._ios, [self._intr]):
             if n.name in self._spec._nodes:
                 del self._spec._nodes[n.name]
         intfs = [*sorted(self._interfaces)]
-        for intf in self._io.interfaces:
-            intf.interfacetype = [EXT_INTF_TYPE, PORT_INTF_TYPE] + intfs
+        for io_mnode in self._ios:
+            for intf in io_mnode.interfaces:
+                intf.interfacetype = [EXT_INTF_TYPE, PORT_INTF_TYPE] + intfs
         for intf in self._intr.interfaces:
             if intf.dynamic:
                 intf.interfacetype = intfs[:]
-        self._add_metanode(self._io)
+        for mnode in self._ios:
+            self._add_metanode(mnode)
         self._add_metanode(self._intr)
 
     def _add_metanode(self, meta: Metanode):
