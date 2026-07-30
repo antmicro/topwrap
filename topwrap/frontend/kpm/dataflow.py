@@ -24,7 +24,7 @@ from topwrap.backend.kpm.common import (
     IdentifierMetanode,
     InterconnectMetanode,
     InverterMetanode,
-    IoMetanode,
+    IoMetanodes,
     Positions,
     ResetDomainMetanode,
     id_to_kpm_name,
@@ -319,12 +319,8 @@ class KpmDataflowFrontend:
                     mod.id = Identifier(name=name, vendor=vendor, library=library, version=version)
                     if node.position:
                         data.positions_of(mod).identifier = (node.position.x, node.position.y)
-                elif node.name == IoMetanode.name:
-                    if not any(itf.external_name is not None for itf in node.interfaces):
-                        raise KpmFrontendParseException(
-                            f"External IO metanode '{node.instance_name}'"
-                            f"({node.id}) doesn't have an exposed interface"
-                        )
+                elif node.name in [mnode.value.name for mnode in IoMetanodes]:
+                    self._check_io_metanode(node)
                 elif node.name == InverterMetanode.name:
                     data.inverters.append(node)
                     data.inverter_intfs[KpmUniqueInterface(graph, node.interfaces[0])] = node
@@ -359,6 +355,19 @@ class KpmDataflowFrontend:
 
         self._add_config(mod.id, mod.design)
         return mod
+
+    def _check_io_metanode(self, node: Node):
+        exposed = next((itf for itf in node.interfaces if itf.external_name is not None), None)
+        if not exposed:
+            raise KpmFrontendParseException(
+                f"External IO metanode '{node.instance_name}'"
+                f"({node.id}) doesn't have an exposed interface"
+            )
+        if not exposed.name == "external":
+            raise KpmFrontendParseException(
+                f"External IO metanode '{node.instance_name}'"
+                f"({node.id}) exposes the wrong interface"
+            )
 
     def _add_config(self, id: Identifier, des: Design):
         if (config := self._confmap.get(id_to_kpm_name(id), None)) is not None:
@@ -804,6 +813,7 @@ class KpmDataflowFrontend:
             ref = ReferencedPort.external(port)
             des.parent.add_port(port)
 
+<<<<<<< HEAD
         if node.position:
             data.positions_of(des.parent).externals[kpm_intf.interface.external_name] = (
                 node.position.x,
@@ -811,13 +821,16 @@ class KpmDataflowFrontend:
             )
 
         if node.name == IoMetanode.name:
+=======
+        if node.name in [mnode.value.name for mnode in IoMetanodes]:
+>>>>>>> d28e0c4 (Separate External I/O types in KPM frontend)
             ext_intf = next(s for s in node.interfaces if s.external_name is not None)
             if ext_intf.direction == KpmDirection.INPUT:
                 cont = node.get(NodeAttributeType.INTERFACE, direction=KpmDirection.OUTPUT)
             elif ext_intf.direction == KpmDirection.OUTPUT:
                 cont = node.get(NodeAttributeType.INTERFACE, direction=KpmDirection.INPUT)
             else:
-                cont = node.get(NodeAttributeType.INTERFACE, direction=KpmDirection.INOUT)
+                cont = node.get(NodeAttributeType.INTERFACE, name="external")
             data.refmap[KpmUniqueInterface(kpm_intf.graph, cast(KpmInterface, cont[0]))] = ref
         else:
             if (src := data.refmap.get(kpm_intf)) is not None:
@@ -888,7 +901,7 @@ class KpmDataflowFrontend:
         node = data.intfnodemap[key]
         intf = cast(KpmInterface, graph.get_by_id(AttributeType.INTERFACE, intf.id))
 
-        if node.name == IoMetanode.name:
+        if node.name in [mnode.value.name for mnode in IoMetanodes]:
             for intf in node.interfaces:
                 for uintf in data.intfconnmap.get(intf.id, ()):
                     yield from self._infer_io_type(data, uintf.graph, uintf.interface, visited)

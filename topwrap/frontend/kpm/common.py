@@ -1,6 +1,7 @@
 # Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from ast import literal_eval
+from itertools import chain
 
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
@@ -10,7 +11,7 @@ from topwrap.backend.kpm.common import (
     IdentifierMetanode,
     InterconnectMetanode,
     InverterMetanode,
-    IoMetanode,
+    IoMetanodes,
     ResetDomainMetanode,
 )
 from topwrap.backend.yaml.common.types import ComplexParameter
@@ -25,15 +26,17 @@ class KpmFrontendParseException(FrontendParseException):
 
 
 def is_metanode(node_name: str) -> bool:
-    return node_name in [
-        ConstMetanode.name,
-        IoMetanode.name,
-        InterconnectMetanode.name,
-        IdentifierMetanode.name,
-        InverterMetanode.name,
-        ClockDomainMetanode.name,
-        ResetDomainMetanode.name,
-    ]
+    return node_name in chain(
+        [
+            ConstMetanode.name,
+            InterconnectMetanode.name,
+            IdentifierMetanode.name,
+            InverterMetanode.name,
+            ClockDomainMetanode.name,
+            ResetDomainMetanode.name,
+        ],
+        [mnode.value.name for mnode in IoMetanodes],
+    )
 
 
 def kpm_dir_to_ir_port(dir: KpmDirection) -> PortDirection:
