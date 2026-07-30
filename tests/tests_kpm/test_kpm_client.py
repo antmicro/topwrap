@@ -23,7 +23,6 @@ class TestClient:
             Path("build"),
             None,
             [],
-            [],
         )
 
     def test_specification(

@@ -44,8 +44,7 @@ class RPCMethods:
         self.specification = params.specification
         self.build_dir = params.build_dir
         self.design = params.design
-        self.modules = params.modules
-        self.interfaces = params.interfaces
+        self.extra_yamls = params.extra_yamls
         self.client = client
         # Use the $XDG_DATA_HOME as a destination for saving the dataflow, which defaults to
         # ~/.local/share

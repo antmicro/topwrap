@@ -167,8 +167,7 @@ class KPM:
                         spec,
                         build_dir,
                         ctx.top_module.design if ctx.top_module else None,
-                        [*ctx.all_modules],
-                        [*ctx.repo_interfaces],
+                        list(yamlfiles),
                     ),
                     client_ready_event,
                 )
