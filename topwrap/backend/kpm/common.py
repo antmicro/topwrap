@@ -168,16 +168,57 @@ class Metanode:
 
 
 @dataclass
-class IoMetanode(Metanode):
-    name: str = "External I/O"
+class InMetanode(Metanode):
+    name: str = "External Input"
     layer: Optional[LayerType] = LayerType.EXTERNAL
     interfaces: list[KpmInterface] = field(
         default_factory=lambda: [
-            KpmInterface("in", KpmDirection.INPUT.value, maxcount=-1),
-            KpmInterface("out", KpmDirection.OUTPUT.value, maxcount=-1),
-            KpmInterface("inout", KpmDirection.INOUT.value, maxcount=-1),
+            KpmInterface("internal", KpmDirection.OUTPUT.value, maxcount=-1),
+            KpmInterface(
+                "external",
+                KpmDirection.INPUT.value,
+                maxcount=-1,
+            ),
         ]
     )
+
+
+@dataclass
+class OutMetanode(Metanode):
+    name: str = "External Output"
+    layer: Optional[LayerType] = LayerType.EXTERNAL
+    interfaces: list[KpmInterface] = field(
+        default_factory=lambda: [
+            KpmInterface("internal", KpmDirection.INPUT.value, maxcount=-1),
+            KpmInterface(
+                "external",
+                KpmDirection.OUTPUT.value,
+                maxcount=-1,
+            ),
+        ]
+    )
+
+
+@dataclass
+class InoutMetanode(Metanode):
+    name: str = "External Inout"
+    layer: Optional[LayerType] = LayerType.EXTERNAL
+    interfaces: list[KpmInterface] = field(
+        default_factory=lambda: [
+            KpmInterface("internal", KpmDirection.INOUT.value, maxcount=-1),
+            KpmInterface(
+                "external",
+                KpmDirection.INOUT.value,
+                maxcount=-1,
+            ),
+        ]
+    )
+
+
+class IoMetanodes(Enum):
+    IN = InMetanode()
+    OUT = OutMetanode()
+    INOUT = InoutMetanode()
 
 
 @dataclass
