@@ -20,7 +20,11 @@ from typing_extensions import NotRequired
 from topwrap.backend.backend import BackendOutputInfo
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.plugin.pipeline import BuildPipeline
-from topwrap.plugin.steps import KpmDataflowOutputStage, YamlDesignOutputStage
+from topwrap.plugin.steps import (
+    KpmDataflowOutputStage,
+    KpmSpecificationOutputStage,
+    YamlDesignOutputStage,
+)
 from topwrap.util import JsonType
 
 from .kpm_common import RPCparams
@@ -119,8 +123,8 @@ class RPCMethods:
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
 
         try:
-            pipeline = BuildPipeline.yaml_kpm_flow_pipeline(None, specification=self.specification)
-            pipeline.prepare_str([], yaml_str)
+            pipeline = BuildPipeline.yaml_kpm_pipeline(None)
+            pipeline.prepare_str([open(f).read() for f in self.extra_yamls], yaml_str)
             pipeline.process()
         except Exception as e:
             return {
@@ -128,7 +132,17 @@ class RPCMethods:
                 "content": str(e),
             }
 
-        flow = cast(JsonType, pipeline.ctx.outputs[KpmDataflowOutputStage.name])
+        ctx = pipeline.ctx
+        if ctx.top_module is None:
+            return {
+                "type": MessageType.ERROR.value,
+                "content": "Given YAML file does not contain a design",
+            }
+
+        spec = cast(JsonType, ctx.outputs[KpmSpecificationOutputStage.name])
+        flow = cast(JsonType, ctx.outputs[KpmDataflowOutputStage.name])
+        self.design = ctx.top_module.design
+        self.specification = spec
 
         if self.client is not None:
             await self.client.request("specification_change", {"specification": self.specification})
