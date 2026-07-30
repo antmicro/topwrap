@@ -7,6 +7,7 @@ import pytest
 from pipeline_manager_backend_communication.misc_structures import MessageType
 from pytest_lazy_fixtures import lf
 
+from topwrap.kpm_common import get_entry_graph, get_toplevel_graph
 from topwrap.kpm_dataflow_validator import DataflowValidator
 from topwrap.util import JsonType, read_json_file
 
@@ -104,6 +105,12 @@ def dataflow_complex_hierarchy():
 def dataflow_hier_duplicate_names():
     """Dataflow containing subgraph node inside which are duplicate IP's."""
     return get_dataflow_test("dataflow_hierarchical_duplicate_names")
+
+
+@pytest.fixture
+def dataflow_different_entry_toplevel():
+    """Dataflow containing entry graph different from the toplevel graph"""
+    return get_dataflow_test("dataflow_different_entry_toplevel")
 
 
 @pytest.fixture
@@ -283,3 +290,25 @@ def test_invalid_hierarchy_dataflow_validation(
     check_result = check_function(DataflowValidator(dataflow))
     assert check_result.status == expected_result
     assert check_result.error_count == error_count
+
+
+@pytest.mark.parametrize(
+    "dataflow, eql",
+    [
+        (lf("dataflow_duplicate_ip_names"), True),
+        (lf("dataflow_invalid_parameters_values"), True),
+        (lf("dataflow_ext_in_to_ext_out_connections"), True),
+        (lf("dataflow_different_entry_toplevel"), False),
+    ],
+)
+def test_toplevel_entry_graph(dataflow, eql):
+    entry_graph = get_toplevel_graph(dataflow)
+    toplevel_graph = get_entry_graph(dataflow)
+    if eql:
+        assert entry_graph["id"] == toplevel_graph["id"], (
+            "Entry graph should be the same as toplevel"
+        )
+    else:
+        assert entry_graph["id"] != toplevel_graph["id"], (
+            "Entry graph should not be the same as toplevel"
+        )
