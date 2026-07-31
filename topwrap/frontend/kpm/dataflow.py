@@ -813,24 +813,20 @@ class KpmDataflowFrontend:
             ref = ReferencedPort.external(port)
             des.parent.add_port(port)
 
-<<<<<<< HEAD
         if node.position:
             data.positions_of(des.parent).externals[kpm_intf.interface.external_name] = (
                 node.position.x,
                 node.position.y,
             )
 
-        if node.name == IoMetanode.name:
-=======
         if node.name in [mnode.value.name for mnode in IoMetanodes]:
->>>>>>> d28e0c4 (Separate External I/O types in KPM frontend)
             ext_intf = next(s for s in node.interfaces if s.external_name is not None)
             if ext_intf.direction == KpmDirection.INPUT:
                 cont = node.get(NodeAttributeType.INTERFACE, direction=KpmDirection.OUTPUT)
             elif ext_intf.direction == KpmDirection.OUTPUT:
                 cont = node.get(NodeAttributeType.INTERFACE, direction=KpmDirection.INPUT)
             else:
-                cont = node.get(NodeAttributeType.INTERFACE, name="external")
+                cont = node.get(NodeAttributeType.INTERFACE, name="internal")
             data.refmap[KpmUniqueInterface(kpm_intf.graph, cast(KpmInterface, cont[0]))] = ref
         else:
             if (src := data.refmap.get(kpm_intf)) is not None:

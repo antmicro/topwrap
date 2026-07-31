@@ -20,7 +20,6 @@ from typing_extensions import NotRequired
 
 from topwrap.backend.backend import BackendOutputInfo
 from topwrap.backend.kpm.backend import KpmBackend
-from topwrap.backend.kpm.common import IoMetanode
 from topwrap.backend.yaml.backend import (
     IpCoreDescriptionBackend,
 )
@@ -39,6 +38,7 @@ from .kpm_common import (
     find_dataflow_node_by_id,
     get_graph_with_id,
     get_toplevel_graph,
+    is_external_metanode,
 )
 from .kpm_dataflow_validator import DataflowValidator
 from .util import read_json_file, save_file_to_json
@@ -441,69 +441,48 @@ async def _kpm_handle_graph_change(
     )
 
 
-# Expose the unconnected interfaces of an "External I/O node"
+# Expose the unconnected interface of an "External I/O"
 # This function assumes it gets only external I/O metanodes
 async def _expose_nodes(
     nodes: list[JsonType], new_dataflow: JsonType, graph_id: str, rpc_object: RPCMethods
 ) -> None:
-    # If in is connected, expose out (and vice versa), if inout is connected expose inout
-    opposite = {"in": "out", "out": "in", "inout": "inout"}
     if rpc_object.client is None:
         logging.debug("No client to expose nodes")
         return
 
     for node in nodes:
-        connected = [
-            iface
-            for iface in node["interfaces"]
-            if check_for_iface_in_conn_graph(new_dataflow, iface["id"], graph_id)
-        ]
         interfaces = []
-        if len(connected) == 0:
-            for iface in node["interfaces"]:
-                interfaces.append({"id": iface["id"]})
-        elif len(connected) > 1:
-            await rpc_object.client.request(
-                "notification_send",
-                {
-                    "type": "warning",
-                    "title": f"{node['instanceName']}: Too many connected interfaces",
-                    "details": (
-                        f"External I/O metanode {node['name']} should only have "
-                        "one connected interface\n"
-                        f"Node id is {node['id']}"
-                    ),
-                },
-            )
-            continue
+        internal, exposed = node["interfaces"]
+        if internal["name"].startswith("exposed"):
+            exposed, internal = internal, exposed
+        # If the internal interface is not connected, don't expose anything
+        elif not check_for_iface_in_conn_graph(new_dataflow, internal["id"], graph_id):
+            interfaces = [exposed["id"], internal["id"]]
+        # This is the case where exposed is unconnected and internal is connected; only
         else:
-            connected_iface = connected[0]  # This is OK: we check for list length earlier
-            for iface in node["interfaces"]:
-                if iface["name"] == opposite[connected_iface["name"]]:
-                    external_name = node.get("instanceName", None)
-                    if external_name is None or external_name == IoMetanode.name:
-                        await rpc_object.client.request(
-                            "notification_send",
-                            {
-                                "type": "warning",
-                                "title": f"{node['name']}: Exposed interface cannot be named",
-                                "details": (
-                                    f"interface {iface['name']}(id {iface['id']}) "
-                                    "cannot be named\n"
-                                    f"Please give {node['name']}(id {node['id']}) "
-                                    "a unique name\n"
-                                    "Assigning temp name for now"
-                                ),
-                            },
-                        )
-                        external_name = f"{iface['name']}_{iface['id'][:6]}"
-                    interfaces.append({"id": iface["id"], "externalName": external_name})
-                else:
-                    interfaces.append({"id": iface["id"]})
-        await rpc_object.client.request(
-            "interfaces_change",
-            {"node_id": node["id"], "graph_id": graph_id, "interfaces": interfaces},
-        )
+            external_name = node.get("instanceName", None)
+            if external_name is None or external_name == node["name"]:
+                await rpc_object.client.request(
+                    "notification_send",
+                    {
+                        "type": "warning",
+                        "title": f"{node['name']}: Exposed interface cannot be named",
+                        "details": (
+                            f"interface {exposed['name']}(id {exposed['id']})"
+                            "cannot be named\n"
+                            f"Please give {node['name']}(id {node['id']})"
+                            "a unique name\n"
+                            "Assigning temp name for now"
+                        ),
+                    },
+                )
+                external_name = f"{internal['name']}_{exposed['id'][:6]}"
+            interfaces.append({"id": exposed["id"], "externalName": external_name})
+        if interfaces:
+            await rpc_object.client.request(
+                "interfaces_change",
+                {"node_id": node["id"], "graph_id": graph_id, "interfaces": interfaces},
+            )
 
 
 async def _kpm_handle_node_rename(
@@ -544,7 +523,7 @@ async def _kpm_handle_connections_change(
         return
 
     # Rerender exposed interfaces
-    external_nodes = [node for node in graph["nodes"] if node["name"] == IoMetanode.name]
+    external_nodes = [node for node in graph["nodes"] if is_external_metanode(node)]
     await _expose_nodes(external_nodes, new_dataflow, graph_id, rpc_object)
 
 
@@ -562,9 +541,7 @@ async def _kpm_handle_nodes_change(
     # When an `External I/O` node is added, expose its unconnected interfaces
     # This is always safe, even if the node was already there, as we check for
     # connection
-    added_external = [
-        node for node in nodes_diff["nodes"]["added"] if node["name"] == IoMetanode.name
-    ]
+    added_external = [node for node in nodes_diff["nodes"]["added"] if is_external_metanode(node)]
     if len(added_external) > 0:
         await _expose_nodes(added_external, new_dataflow, graph_id, rpc_object)
 
