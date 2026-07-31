@@ -2,11 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from pipeline_manager_backend_communication.misc_structures import MessageType
 
-from topwrap.backend.kpm.common import IoMetanode
+from topwrap.backend.kpm.common import (
+    InMetanode,
+    InoutMetanode,
+    OutMetanode,
+)
 from topwrap.hdl_parsers_utils import (
     ParameterToEval,
     evaluate_parameter_list,
@@ -29,12 +33,14 @@ from .kpm_common import (
     get_dataflow_subgraph_node_interfaces,
     get_dataflow_subgraph_nodes,
     get_exposed_subgraph_meta_iface,
+    get_graph_external_metanodes,
     get_graph_id_from_node,
     get_graph_id_name,
+    get_graph_internal_ifaces,
     get_interfaces_from_connection,
     get_metanode_interface_id,
-    get_metanode_property_value,
     is_exposed_iface,
+    is_external_metanode,
     is_metanode,
     is_subgraph_metanode,
     is_subgraph_node,
@@ -197,7 +203,7 @@ class DataflowValidator:
                 # External I/O's unused directions are placeholders, not design ports.
                 if not is_subgraph_node(node)
                 and not is_subgraph_metanode(node)
-                and node["name"] != IoMetanode.name
+                and not is_external_metanode(node)
             ]
         )
 
@@ -267,21 +273,25 @@ class DataflowValidator:
         this format and are invalid by design.
         """
 
-        ext_ifaces_ids = get_dataflow_external_interfaces(self.dataflow).keys()
         check_name = "Connections between external sources"
 
-        for conn in get_all_graph_connections(self.dataflow):
-            if conn["from"] in ext_ifaces_ids and conn["to"] in ext_ifaces_ids:
-                metanode_from, metanode_to = get_interfaces_from_connection(self.dataflow, conn)
-                meta_from_name = getattr(metanode_from, "node_name", "metanode")
-                meta_to_name = getattr(metanode_to, "node_name", "metanode")
-                return CheckResult(
-                    check_name,
-                    MessageType.ERROR,
-                    1,
-                    f"Existing connection between external metanodes {meta_from_name} ->"
-                    f" {meta_to_name}",
-                )
+        for graph in self.dataflow["graphs"]:
+            ext_ifaces_ids = set(get_graph_internal_ifaces(graph))
+            for conn in graph["connections"]:
+                if conn["from"] in ext_ifaces_ids and conn["to"] in ext_ifaces_ids:
+                    metanode_from, metanode_to = get_interfaces_from_connection(self.dataflow, conn)
+                    meta_from_name = getattr(metanode_from, "node_name", "metanode")
+                    meta_to_name = getattr(metanode_to, "node_name", "metanode")
+                    return CheckResult(
+                        check_name,
+                        MessageType.ERROR,
+                        1,
+                        f"Existing connection between external metanodes {meta_from_name} ->"
+                        f" {meta_to_name}\n"
+                        f"Connection id is {conn['id']}\n"
+                        f"Iface ids are: {getattr(metanode_from, 'iface_id', 'no id')}"
+                        f"{getattr(metanode_to, 'iface_id', 'no id')}",
+                    )
 
         return CheckResult(check_name, MessageType.OK)
 
@@ -310,7 +320,7 @@ class DataflowValidator:
         for sub_metanode in subgraph_metanodes:
             exposed = get_exposed_subgraph_meta_iface(sub_metanode)
             # Bidirectional External I/O uses the same interface for exposure and connections.
-            if sub_metanode["name"] == IoMetanode.name and exposed["direction"] == "inout":
+            if is_external_metanode(sub_metanode) and exposed["direction"] == "inout":
                 continue
             sub_metanode_iface_id = exposed["id"]
             graph_id = get_graph_id_from_node(self.dataflow, sub_metanode["id"])
@@ -333,35 +343,49 @@ class DataflowValidator:
 
     def check_duplicate_metanode_names(self) -> CheckResult:
         """
-        Check for duplicate names of external metanodes.
-        The name of metanode is in "External Name" property.
+        Check for duplicate names of external metanodes in each (sub)graph.
+        The name of metanode is its `instanceName`.
         In design, these external metanodes are referenced by this name so if there are multiple
         metanodes with the same name it will not be possible to represent them, hence the error.
         """
 
         check_name = "Duplicate names of external metanodes"
-        ext_names_set = set()
-        duplicates = set()
 
-        for metanode in get_dataflow_external_metanodes(self.dataflow):
-            external_name = get_metanode_property_value(metanode)
-            # skip unnamed metanode case
-            if not external_name:
-                continue
+        duplicate_errs = []
+        for graph in self.dataflow["graphs"]:
+            ext_names_set = set()
+            duplicates = set()
 
-            scoped_name = (get_graph_id_from_node(self.dataflow, metanode["id"]), external_name)
-            if scoped_name in ext_names_set:
-                duplicates.add(external_name)
-            else:
-                ext_names_set.add(scoped_name)
+            for metanode in get_graph_external_metanodes(graph):
+                external_name = None
+                for iface in metanode["interfaces"]:
+                    if "externalName" in iface:
+                        external_name = iface["externalName"]
+                if external_name is None:
+                    duplicate_errs.append(
+                        f"Node {metanode['name']}({metanode['id']} "
+                        f"in graph {graph['id']} has not exposed interface"
+                    )
+                    continue
+                if external_name in ext_names_set:
+                    duplicates.add(external_name)
+                else:
+                    ext_names_set.add(external_name)
 
-        if duplicates:
+            if duplicates:
+                duplicate_errs.append(
+                    f"Graph {graph['id']} has duplicate external metanodes: "
+                    f"{str(list(duplicates))}\n"
+                )
+
+        if duplicate_errs:
             return CheckResult(
                 check_name,
                 MessageType.ERROR,
-                len(duplicates),
-                f"Duplicate external metanodes names: {str(list(duplicates))}",
+                len(duplicate_errs),
+                str(duplicate_errs),
             )
+
         return CheckResult(check_name, MessageType.OK)
 
     def check_unnamed_external_metanodes_with_multiple_conn(self) -> CheckResult:
@@ -377,8 +401,9 @@ class DataflowValidator:
         check_name = "Unnamed metanodes with multiple connections"
 
         for metanode in get_dataflow_external_metanodes(self.dataflow):
-            if get_metanode_property_value(metanode):
-                continue
+            if iname := metanode.get("instanceName", None):
+                if iname not in [InMetanode().name, OutMetanode().name, InoutMetanode().name]:
+                    continue
 
             conn_ifaces_ids = find_connected_interfaces(
                 self.dataflow, get_metanode_interface_id(metanode)
@@ -478,46 +503,27 @@ class DataflowValidator:
 
         check_name = "Exposure of External I/O interfaces in subgraphs"
 
-        opposite = {"in": "out", "out": "in", "inout": "inout"}
-
         for graph in self.dataflow["graphs"]:
-            all_exposed = []
+            # Check if all unconnected External I/O interfaces are exposed
+            exposed_ids: Set[str] = set()
             msg = []
 
-            # Check if all unconnected External I/O interfaces are exposed
-            for node in graph["nodes"]:
-                if node["name"] == IoMetanode.name:
-                    connected = None
-                    exposed = None
-                    for iface in node["interfaces"]:
-                        if check_for_iface_in_conn_graph(self.dataflow, iface["id"], graph["id"]):
-                            if connected is not None:
-                                msg.append(
-                                    f"Too many connected interfaces {graph['id']}:{node['id']}"
-                                )
-                            else:
-                                connected = iface
-                        if is_exposed_iface(iface):
-                            if exposed is not None:
-                                msg.append(
-                                    f"Too many exposed interfaces {graph['id']}:{node['id']}"
-                                )
-                            else:
-                                exposed = iface
-                    if connected is None:
-                        msg.append(f"No connected interface {graph['id']}:{node['id']}")
-                    if exposed is None:
-                        msg.append(f"No exposed interface {graph['id']}:{node['id']}")
-                    if (
-                        connected is not None
-                        and exposed is not None
-                        and connected["name"] != opposite[exposed["name"]]
-                    ):
-                        msg.append(
-                            "Exposed and connected interfaces"
-                            f"do not match {graph['id']}:{node['id']}"
-                        )
-                    all_exposed.append(exposed)
+            # Check if all exposure interfaces in IO metanodes are exposed
+            for node in filter(is_external_metanode, graph["nodes"]):
+                internal, exposed = node["interfaces"]
+                if internal["name"].startswith("external"):
+                    exposed, internal = internal, exposed
+                if check_for_iface_in_conn_graph(self.dataflow, exposed["id"], graph["id"]):
+                    msg.append(
+                        f"Exposed interface should not be connected {graph['id']}:{node['id']}"
+                    )
+                if is_exposed_iface(internal):
+                    msg.append(
+                        f"Internal interface should not be exposed {graph['id']}:{node['id']}"
+                    )
+                if not is_exposed_iface(exposed):
+                    msg.append(f"Exposed interface should be exposed {graph['id']}:{node['id']}")
+                exposed_ids.add(exposed["id"])
 
             if len(msg) > 0:
                 return CheckResult(
@@ -539,7 +545,6 @@ class DataflowValidator:
             )
 
             if sub_node is not None:
-                exposed_ids = [iface["id"] for iface in all_exposed]
                 for iface in sub_node["interfaces"]:
                     if iface["id"] not in exposed_ids:
                         msg.append(

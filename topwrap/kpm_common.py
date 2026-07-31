@@ -373,12 +373,17 @@ def get_dataflow_constant_connections(dataflow_json: JsonType) -> List[JsonType]
 
 
 def get_metanode_interface_id(metanode: JsonType) -> str:
-    """Return given metanode's interface id. Metanodes always have exactly 1
-    interface, so it suffices to take 0th element of the "interfaces" array.
+    """Return given metanode's internal interface id.
+    This interface can be identified by its name - 'internal'.
     """
-    if metanode["name"] == IoMetanode.name:
-        return get_unexposed_subgraph_meta_iface(metanode)["id"]
-    return metanode["interfaces"][0]["id"]
+    for iface in metanode["interfaces"]:
+        if iface["name"] == "internal":
+            return iface["id"]
+    else:
+        raise ValueError(
+            f"Metanode {metanode['instanceName']} (type {metanode['name']}, id {metanode['id']}) "
+            "has no internal interface"
+        )
 
 
 def get_external_metanode_direction(metanode: JsonType) -> PortDirection:
@@ -488,6 +493,24 @@ def get_graph_id_name(dataflow_data: JsonType, graph_id: str) -> Optional[str]:
     for node in get_all_graph_nodes(dataflow_data):
         if node.get("subgraph") == graph_id:
             return node["instanceName"]
+
+
+def get_graph_external_metanodes(graph: JsonType) -> List[JsonType]:
+    res = []
+    for node in graph["nodes"]:
+        if is_external_metanode(node):
+            res.append(node)
+    return res
+
+
+def get_graph_internal_ifaces(graph: JsonType) -> List[str]:
+    res = []
+    for node in graph["nodes"]:
+        if is_external_metanode(node):
+            for iface in node["interfaces"]:
+                if iface["name"] == "internal":
+                    res.append(iface["id"])
+    return res
 
 
 def check_for_iface_in_conn_graph(dataflow_json: JsonType, iface_id: str, graph_id: str) -> bool:
