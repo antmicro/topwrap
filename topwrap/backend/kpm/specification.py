@@ -3,6 +3,7 @@
 
 import logging
 from dataclasses import asdict
+from typing import cast
 
 from pipeline_manager.dataflow_builder.entities import Side
 from pipeline_manager.specification_builder import (
@@ -107,8 +108,14 @@ class KpmSpecificationBackend:
         if source is None:
             source = str(mod.refs[0].file) if len(mod.refs) > 0 else None
 
+        config = mod.design.config if mod.design is not None else None
+        if config is not None:
+            sch = config.Schema()
+            config = cast(JsonType, sch.dump(config))
+
         self._spec.add_node_type_additional_data(
-            nid.name, KpmNodeAdditionalData(full_module_id=asdict(mod.id), source=source)
+            nid.name,
+            KpmNodeAdditionalData(full_module_id=asdict(mod.id), source=source, config=config),
         )
 
         if not mod.design:

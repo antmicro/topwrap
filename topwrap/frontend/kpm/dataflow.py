@@ -27,6 +27,7 @@ from topwrap.backend.kpm.common import (
     IoMetanode,
     Positions,
     ResetDomainMetanode,
+    id_to_kpm_name,
 )
 from topwrap.backend.kpm.common import InterconnectMetanodeStrings as IMS
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
@@ -39,6 +40,7 @@ from topwrap.frontend.kpm.common import (
 )
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.kpm_common import SPECIFICATION_VERSION
+from topwrap.model.config import ConfigDescription
 from topwrap.model.connections import (
     Clock,
     Connection,
@@ -202,6 +204,8 @@ class KpmDataflowFrontend:
     #: Holds a mapping between KPM node names and IR modules
     _modmap: dict[str, Module]
 
+    #: Holds a mapping between KPM node names and config data
+    _confmap: dict[str, ConfigDescription]
     _subgraph_cache: dict[str, Module]
 
     def __init__(self, modules: Iterable[Module]) -> None:
@@ -212,6 +216,7 @@ class KpmDataflowFrontend:
 
         super().__init__()
         self._modmap = {}
+        self._confmap = {}
         self._subgraph_cache = {}
         modids = {m.id: m for m in modules}
 
@@ -221,6 +226,8 @@ class KpmDataflowFrontend:
         for node in spec._spec._get_nodes(False):
             if (add := node.get("additionalData", None)) is not None:
                 self._modmap[node["name"]] = modids[Identifier(**add["full_module_id"])]
+                if (conf := add.get("config", None)) is not None:
+                    self._confmap[node["name"]] = ConfigDescription.from_dict(conf)
         self._spec = spec.build()
 
     def parse(
@@ -324,7 +331,12 @@ class KpmDataflowFrontend:
         self._create_reset_domains(mod, data)
         self._realize_clock_reset_assignments(mod, data)
 
+        self._add_config(mod.id, mod.design)
         return mod
+
+    def _add_config(self, id: Identifier, des: Design):
+        if (config := self._confmap.get(id_to_kpm_name(id), None)) is not None:
+            des.add_config(config)
 
     def _process_connections(
         self,

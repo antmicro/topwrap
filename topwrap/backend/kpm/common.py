@@ -14,6 +14,7 @@ from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import ElaboratableValue, Identifier, TranslationError
+from topwrap.util import JsonType
 
 
 class LayerType(Enum):
@@ -82,6 +83,7 @@ class Positions:
 class KpmNodeAdditionalData(TypedDict):
     full_module_id: dict[str, str]
     source: Optional[str]
+    config: Optional[JsonType]
 
 
 @dataclass

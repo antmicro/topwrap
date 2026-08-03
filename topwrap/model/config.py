@@ -11,5 +11,5 @@ from topwrap.common_serdes import MarshmallowDataclassExtensions, ResourcePathT,
 class ConfigDescription(MarshmallowDataclassExtensions):
     """Global topwrap configuration"""
 
-    repositories: dict[str, ResourcePathT] = ext_field(dict)
     force_interface_compliance: Optional[bool] = ext_field(False)
+    repositories: dict[str, ResourcePathT] = ext_field(dict)

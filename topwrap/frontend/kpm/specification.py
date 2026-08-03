@@ -15,7 +15,9 @@ from topwrap.frontend.kpm.common import (
 )
 from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.kpm_common import SPECIFICATION_VERSION
+from topwrap.model.config import ConfigDescription
 from topwrap.model.connections import Port
+from topwrap.model.design import Design
 from topwrap.model.interface import Interface, InterfaceDefinition
 from topwrap.model.misc import (
     ElaboratableValue,
@@ -105,6 +107,10 @@ class KpmSpecificationFrontend:
             else:
                 refs = []
             mod = Module(id=Identifier(**add["full_module_id"]), refs=refs)
+
+            if (config := add.get("config", None)) is not None:
+                mod.design = Design()
+                mod.design.add_config(ConfigDescription.from_dict(config))
 
             prop: JsonType
             for prop in node.get("properties", ()):
