@@ -207,6 +207,8 @@ class DesignDescriptionFrontend:
             args["vendor"] = desc.vendor
         if desc.library is not None:
             args["library"] = desc.library
+        if desc.version is not None:
+            args["version"] = desc.version
         mod = Module(
             id=Identifier(**args),
             design=design,
