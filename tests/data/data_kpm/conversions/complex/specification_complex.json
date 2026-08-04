@@ -119,6 +119,11 @@
           "name": "Vendor",
           "type": "text",
           "default": "vendor"
+        },
+        {
+          "name": "Version",
+          "type": "text",
+          "default": "0.1"
         }
       ]
     },

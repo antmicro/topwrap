@@ -1,0 +1,36 @@
+{
+    "graphs": [
+        {
+            "id": "3ecc574a-4535-40b9-ad8c-789459c58ff5",
+            "name": "New Graph Node",
+            "nodes": [],
+            "groups": [],
+            "connections": []
+        },
+        {
+            "id": "ce1290ad-e646-4196-9ff3-96fbbea834e8",
+            "nodes": [
+                {
+                    "id": "e912b30a-07a6-4f81-9ec8-4f7a3c264d5c",
+                    "position": {
+                        "x": 1305,
+                        "y": 150
+                    },
+                    "width": 300,
+                    "twoColumn": true,
+                    "interfaces": [],
+                    "properties": [],
+                    "enabledInterfaceGroups": [],
+                    "name": "New Graph Node",
+                    "instanceName": "New Graph Node",
+                    "subgraph": "3ecc574a-4535-40b9-ad8c-789459c58ff5"
+                }
+            ],
+            "groups": [],
+            "connections": []
+        }
+    ],
+    "entryGraph": "3ecc574a-4535-40b9-ad8c-789459c58ff5",
+    "version": "20250623.14",
+    "metadata": {}
+}

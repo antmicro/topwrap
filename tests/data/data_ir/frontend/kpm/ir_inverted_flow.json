@@ -92,6 +92,11 @@
               "id": "454ce747-9fbc-4e7e-908d-e54880a5f660",
               "name": "Vendor",
               "value": "vendor"
+            },
+            {
+              "id": "99ec713c-959b-4dac-87e9-d758a170bdfe",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,

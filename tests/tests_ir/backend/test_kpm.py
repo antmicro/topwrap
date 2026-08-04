@@ -84,7 +84,7 @@ class TestKpmSpecificationBackend:
         assert len(out["nodes"]) == 2
 
     def test_duplicate_versions(self, caplog: pytest.LogCaptureFixture):
-        # Version-only diff must be a deduped skip, not a raised exception.
+        # Version-only diff must not raise exceptions or complain
         back = KpmSpecificationBackend()
         back.add_module(simp_top)
 
@@ -95,8 +95,9 @@ class TestKpmSpecificationBackend:
             back.add_module(newer)
         out = back.build()
 
-        assert len(out["nodes"]) == 1
-        assert "already added" in caplog.text
+        assert len(out["nodes"]) == 2
+        # We expect one WARNING about validation being omitten in SpecificationBuilder()
+        assert caplog.text.startswith("WARNING") and len(caplog.text.splitlines()) == 1
 
 
 class TestKpmDataflowBackend:

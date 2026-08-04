@@ -87,6 +87,11 @@
               "id": "a4e1b201-ddf0-45be-b0cd-5caba9794051",
               "name": "Vendor",
               "value": "vendor"
+            },
+            {
+              "id": "c60c4378-1367-4841-8589-7134ccc13292",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,

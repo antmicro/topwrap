@@ -52,8 +52,8 @@
           "type": [
             "intf__ext",
             "intf__port",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite"
+            "vendor_libdefault_AXI4_0.1",
+            "vendor_libdefault_AXI4Lite_0.1"
           ],
           "maxConnectionsCount": -1
         },
@@ -63,8 +63,8 @@
           "type": [
             "intf__ext",
             "intf__port",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite"
+            "vendor_libdefault_AXI4_0.1",
+            "vendor_libdefault_AXI4Lite_0.1"
           ],
           "maxConnectionsCount": -1
         },
@@ -74,8 +74,8 @@
           "type": [
             "intf__ext",
             "intf__port",
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite"
+            "vendor_libdefault_AXI4_0.1",
+            "vendor_libdefault_AXI4Lite_0.1"
           ],
           "maxConnectionsCount": -1
         }
@@ -101,6 +101,11 @@
           "name": "Vendor",
           "type": "text",
           "default": "vendor"
+        },
+        {
+          "name": "Version",
+          "type": "text",
+          "default": "0.1"
         }
       ]
     },
@@ -119,8 +124,8 @@
           "name": "manager",
           "direction": "input",
           "type": [
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite"
+            "vendor_libdefault_AXI4_0.1",
+            "vendor_libdefault_AXI4Lite_0.1"
           ],
           "maxConnectionsCount": 1,
           "dynamic": true
@@ -135,8 +140,8 @@
           "name": "subordinate",
           "direction": "output",
           "type": [
-            "vendor_libdefault_AXI4",
-            "vendor_libdefault_AXI4Lite"
+            "vendor_libdefault_AXI4_0.1",
+            "vendor_libdefault_AXI4Lite_0.1"
           ],
           "maxConnectionsCount": 1,
           "dynamic": true
@@ -292,7 +297,7 @@
         {
           "name": "m_axi",
           "direction": "output",
-          "type": "vendor_libdefault_AXI4Lite",
+          "type": "vendor_libdefault_AXI4Lite_0.1",
           "maxConnectionsCount": 1
         },
         {
@@ -304,7 +309,7 @@
         {
           "name": "s_axi",
           "direction": "input",
-          "type": "vendor_libdefault_AXI4",
+          "type": "vendor_libdefault_AXI4_0.1",
           "maxConnectionsCount": 1
         }
       ]
@@ -342,7 +347,7 @@
         {
           "name": "s_axi",
           "direction": "input",
-          "type": "vendor_libdefault_AXI4Lite",
+          "type": "vendor_libdefault_AXI4Lite_0.1",
           "maxConnectionsCount": 1
         },
         {
@@ -410,7 +415,7 @@
         {
           "name": "M_AXI_GP0",
           "direction": "output",
-          "type": "vendor_libdefault_AXI4",
+          "type": "vendor_libdefault_AXI4_0.1",
           "maxConnectionsCount": 1
         }
       ]
@@ -533,11 +538,11 @@
       "intf__ext": {
         "interfaceColor": "#ffffff"
       },
-      "vendor_libdefault_AXI4": {
+      "vendor_libdefault_AXI4_0.1": {
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       },
-      "vendor_libdefault_AXI4Lite": {
+      "vendor_libdefault_AXI4Lite_0.1": {
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       }

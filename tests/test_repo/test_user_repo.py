@@ -163,8 +163,8 @@ class TestInterfaceDescriptionHandler:
             InterfaceDescriptionHandler().save(InterfaceDefinitionResource(iface), repo_path)
 
         files = [
-            "interfaces/top.wrap_scilib_Simply Complex Interface 4.yaml",
-            "interfaces/vendor_libdefault_wishbone.yaml",
+            "interfaces/top.wrap_scilib_Simply Complex Interface 4_0.1.yaml",
+            "interfaces/vendor_libdefault_wishbone_0.1.yaml",
         ]
         repo_files = [str(f.absolute())[6:] for f in repo_path.glob("**/*.yaml")]
         repo_files.sort()
@@ -176,10 +176,10 @@ class TestInterfaceDescriptionHandler:
         fs.add_real_directory(repo_path)
         iface = list(InterfaceDescriptionHandler().load(repo_path))
         iface_names = [i.name for i in iface]
-        expetced_names = ["vendor_libdefault_coreStream"]
+        expected_names = ["vendor_libdefault_coreStream_0.1"]
         iface_names.sort()
-        expetced_names.sort()
-        assert iface_names == expetced_names
+        expected_names.sort()
+        assert iface_names == expected_names
 
 
 class TestUserRepo:
@@ -191,6 +191,6 @@ class TestUserRepo:
         assert repo.get_resource(Core, "core1") is not None
         assert repo.get_resource(Core, "core2") is not None
         assert (
-            repo.get_resource(InterfaceDefinitionResource, "vendor_libdefault_coreStream")
+            repo.get_resource(InterfaceDefinitionResource, "vendor_libdefault_coreStream_0.1")
             is not None
         )

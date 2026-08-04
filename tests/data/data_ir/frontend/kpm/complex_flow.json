@@ -435,6 +435,11 @@
               "id": "ce5a5410-efc3-423a-819d-ff7fd9179713",
               "name": "Library",
               "value": "tests"
+            },
+            {
+              "id": "3f8da178-ece0-4bf3-bae0-9e3fe8e4957d",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -755,6 +760,11 @@
               "id": "1c55e293-7d68-44ee-8857-30175e94f75a",
               "name": "Library",
               "value": "tests"
+            },
+            {
+              "id": "373cbbcb-b407-495e-b1fc-71c7389b6928",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,

@@ -236,6 +236,7 @@ class TestKpmBackendPWMExample:
             {"name": "Library", "value": "libdefault"},
             {"name": "Name", "value": "top"},
             {"name": "Vendor", "value": "vendor"},
+            {"name": "Version", "value": "0.1"},
         ]
 
         pwm_ifs = [_filter_id(x) for x in metanodes["pwm"]["interfaces"]]
@@ -347,6 +348,7 @@ class TestKpmBackendHDMIExample:
             {"name": "Library", "value": "libdefault"},
             {"name": "Name", "value": "top"},
             {"name": "Vendor", "value": "vendor"},
+            {"name": "Version", "value": "0.1"},
         ]
 
         d0_p_ifs = [_filter_id(x) for x in metanodes["HDMI_D0_P"]["interfaces"]]

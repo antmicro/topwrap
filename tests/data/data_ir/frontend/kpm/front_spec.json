@@ -5,7 +5,7 @@
     "backgroundSize": 15,
     "connectionStyle": "orthogonal",
     "interfaces": {
-      "amba.com_AMBA4_AXI 4 Stream": {
+      "amba.com_AMBA4_AXI 4 Stream_0.1": {
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       },
@@ -18,11 +18,11 @@
       "intf__port": {
         "interfaceColor": "#00ca7c"
       },
-      "top.wrap_scilib_Simply Complex Interface 4": {
+      "top.wrap_scilib_Simply Complex Interface 4_0.1": {
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       },
-      "vendor_libdefault_wishbone": {
+      "vendor_libdefault_wishbone_0.1": {
         "interfaceColor": "#5ad1cd",
         "interfaceConnectionPattern": "dashed"
       }
@@ -277,33 +277,33 @@
           "direction": "input",
           "name": "in",
           "type": [
-            "amba.com_AMBA4_AXI 4 Stream",
+            "amba.com_AMBA4_AXI 4 Stream_0.1",
             "intf__ext",
             "intf__port",
-            "top.wrap_scilib_Simply Complex Interface 4",
-            "vendor_libdefault_wishbone"
+            "top.wrap_scilib_Simply Complex Interface 4_0.1",
+            "vendor_libdefault_wishbone_0.1"
           ]
         },
         {
           "direction": "inout",
           "name": "inout",
           "type": [
-            "amba.com_AMBA4_AXI 4 Stream",
+            "amba.com_AMBA4_AXI 4 Stream_0.1",
             "intf__ext",
             "intf__port",
-            "top.wrap_scilib_Simply Complex Interface 4",
-            "vendor_libdefault_wishbone"
+            "top.wrap_scilib_Simply Complex Interface 4_0.1",
+            "vendor_libdefault_wishbone_0.1"
           ]
         },
         {
           "direction": "output",
           "name": "out",
           "type": [
-            "amba.com_AMBA4_AXI 4 Stream",
+            "amba.com_AMBA4_AXI 4 Stream_0.1",
             "intf__ext",
             "intf__port",
-            "top.wrap_scilib_Simply Complex Interface 4",
-            "vendor_libdefault_wishbone"
+            "top.wrap_scilib_Simply Complex Interface 4_0.1",
+            "vendor_libdefault_wishbone_0.1"
           ]
         }
       ],
@@ -349,9 +349,9 @@
           "maxConnectionsCount": 1,
           "name": "manager",
           "type": [
-            "amba.com_AMBA4_AXI 4 Stream",
-            "top.wrap_scilib_Simply Complex Interface 4",
-            "vendor_libdefault_wishbone"
+            "amba.com_AMBA4_AXI 4 Stream_0.1",
+            "top.wrap_scilib_Simply Complex Interface 4_0.1",
+            "vendor_libdefault_wishbone_0.1"
           ]
         },
         {
@@ -366,9 +366,9 @@
           "maxConnectionsCount": 1,
           "name": "subordinate",
           "type": [
-            "amba.com_AMBA4_AXI 4 Stream",
-            "top.wrap_scilib_Simply Complex Interface 4",
-            "vendor_libdefault_wishbone"
+            "amba.com_AMBA4_AXI 4 Stream_0.1",
+            "top.wrap_scilib_Simply Complex Interface 4_0.1",
+            "vendor_libdefault_wishbone_0.1"
           ]
         }
       ],
@@ -513,19 +513,19 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "SCI_ctrl",
-          "type": "top.wrap_scilib_Simply Complex Interface 4"
+          "type": "top.wrap_scilib_Simply Complex Interface 4_0.1"
         },
         {
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "SCI_ext_man",
-          "type": "top.wrap_scilib_Simply Complex Interface 4"
+          "type": "top.wrap_scilib_Simply Complex Interface 4_0.1"
         },
         {
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "SCI_ext_sub",
-          "type": "top.wrap_scilib_Simply Complex Interface 4"
+          "type": "top.wrap_scilib_Simply Complex Interface 4_0.1"
         },
         {
           "direction": "input",
@@ -600,13 +600,13 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "io_a",
-          "type": "amba.com_AMBA4_AXI 4 Stream"
+          "type": "amba.com_AMBA4_AXI 4 Stream_0.1"
         },
         {
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "io_b",
-          "type": "amba.com_AMBA4_AXI 4 Stream"
+          "type": "amba.com_AMBA4_AXI 4 Stream_0.1"
         },
         {
           "direction": "input",
@@ -662,7 +662,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "io",
-          "type": "amba.com_AMBA4_AXI 4 Stream"
+          "type": "amba.com_AMBA4_AXI 4 Stream_0.1"
         },
         {
           "direction": "input",
@@ -713,7 +713,7 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "io",
-          "type": "amba.com_AMBA4_AXI 4 Stream"
+          "type": "amba.com_AMBA4_AXI 4 Stream_0.1"
         },
         {
           "direction": "input",
@@ -768,7 +768,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "io",
-          "type": "amba.com_AMBA4_AXI 4 Stream"
+          "type": "amba.com_AMBA4_AXI 4 Stream_0.1"
         },
         {
           "direction": "input",
@@ -807,7 +807,7 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "io",
-          "type": "amba.com_AMBA4_AXI 4 Stream"
+          "type": "amba.com_AMBA4_AXI 4 Stream_0.1"
         },
         {
           "direction": "input",
@@ -834,7 +834,7 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "SCI",
-          "type": "top.wrap_scilib_Simply Complex Interface 4"
+          "type": "top.wrap_scilib_Simply Complex Interface 4_0.1"
         },
         {
           "direction": "input",
@@ -852,7 +852,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "externally_controlled_SCI",
-          "type": "top.wrap_scilib_Simply Complex Interface 4"
+          "type": "top.wrap_scilib_Simply Complex Interface 4_0.1"
         }
       ],
       "layer": "IP Cores",
@@ -906,7 +906,7 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "bus_manager",
-          "type": "vendor_libdefault_wishbone"
+          "type": "vendor_libdefault_wishbone_0.1"
         },
         {
           "direction": "input",
@@ -979,7 +979,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "bus",
-          "type": "vendor_libdefault_wishbone"
+          "type": "vendor_libdefault_wishbone_0.1"
         },
         {
           "direction": "input",
@@ -1160,7 +1160,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "ext_manager",
-          "type": "vendor_libdefault_wishbone"
+          "type": "vendor_libdefault_wishbone_0.1"
         },
         {
           "direction": "input",
@@ -1337,7 +1337,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "bus",
-          "type": "vendor_libdefault_wishbone"
+          "type": "vendor_libdefault_wishbone_0.1"
         },
         {
           "direction": "input",
@@ -1433,7 +1433,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "SCI",
-          "type": "top.wrap_scilib_Simply Complex Interface 4"
+          "type": "top.wrap_scilib_Simply Complex Interface 4_0.1"
         },
         {
           "direction": "input",

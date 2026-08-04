@@ -128,7 +128,7 @@ interfaces:
         ) and pytest.raises(
             ValidationError,
             match='Unknown out port "TBUBU", not present in interface '
-            '"vendor_libdefault_AXI4Stream"',
+            '"vendor_libdefault_AXI4Stream_0.1"',
         ):
             IPCoreDescription.from_dict(invalid_interface_compliance_core)
 

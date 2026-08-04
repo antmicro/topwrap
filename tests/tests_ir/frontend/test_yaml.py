@@ -570,7 +570,7 @@ class TestInterfaceDescriptionFrontend:
     def test_parse_wishbone(self):
         old = None
         for resource in get_config().builtin_repo.get_resources(InterfaceDefinitionResource):
-            if resource.name == "vendor_libdefault_wishbone":
+            if resource.name == "vendor_libdefault_wishbone_0.1":
                 old = resource
         assert old is not None
         idef = old.definition

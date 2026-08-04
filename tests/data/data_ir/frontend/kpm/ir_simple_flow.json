@@ -70,6 +70,11 @@
               "id": "6685429d-fd96-4362-a677-a3aea7920493",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "670e3e01-3571-48bb-96f2-5a3b3dad5042",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,

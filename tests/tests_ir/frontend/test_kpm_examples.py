@@ -54,10 +54,10 @@ def all_design_modules(
     all_dataflow_files: Dict[str, JsonType], all_specification_files: Dict[str, JsonType]
 ) -> Dict[str, Module]:
     if_names = [
-        "vendor_libdefault_AXI4",
-        "vendor_libdefault_AXI3",
-        "vendor_libdefault_AXI4Lite",
-        "vendor_libdefault_AXI4Stream",
+        "vendor_libdefault_AXI4_0.1",
+        "vendor_libdefault_AXI3_0.1",
+        "vendor_libdefault_AXI4Lite_0.1",
+        "vendor_libdefault_AXI4Stream_0.1",
     ]
     ifs = []
     for repo in get_config().loaded_repos.values():

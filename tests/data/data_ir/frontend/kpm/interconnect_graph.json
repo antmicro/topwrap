@@ -83,6 +83,11 @@
           "id": "7cc14937-b6e0-4ad3-8713-2175cc870dad",
           "name": "Library",
           "value": "libdefault"
+        },
+        {
+          "id": "a0d8b48c-208e-49a7-8677-b408c874d25f",
+          "name": "Version",
+          "value": "0.1"
         }
       ],
       "twoColumn": true,

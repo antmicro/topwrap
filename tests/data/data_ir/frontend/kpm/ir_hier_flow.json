@@ -61,6 +61,11 @@
               "id": "6f5376c6-11d8-4b55-a383-ea0d6f024069",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "c0612bc7-a39a-46ce-9e93-bc9b54532123",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -420,6 +425,11 @@
               "id": "57dfd3ba-8f05-417c-97b9-6c94a965c6d5",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "d88cf6ba-1f3b-40d6-b922-c2f271947b5f",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -834,6 +844,11 @@
               "id": "0c37ad25-5aca-49af-8c9c-655612b159b3",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "38c51ecb-e164-40b4-b41d-cd63605609ba",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -1071,6 +1086,11 @@
               "id": "95c7a15f-59ba-43a0-8450-136cf1ca2d32",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "9a4390a4-32b0-4275-83d5-ae5ed5ce6e4a",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,

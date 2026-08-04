@@ -47,6 +47,11 @@
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -240,6 +245,11 @@
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -445,6 +455,11 @@
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -692,6 +707,11 @@
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
@@ -900,6 +920,11 @@
               "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,

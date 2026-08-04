@@ -90,6 +90,11 @@
               "id": "82299358-55ca-4370-95a2-8e812bcb1fe8",
               "name": "Library",
               "value": "libdefault"
+            },
+            {
+              "id": "166d57e6-3297-4f1d-af51-a8731c5b53ed",
+              "name": "Version",
+              "value": "0.1"
             }
           ],
           "twoColumn": true,
