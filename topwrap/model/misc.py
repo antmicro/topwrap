@@ -283,7 +283,7 @@ class Identifier:
         return Identifier(vendor=m[1], library=m[2], name=m[3], version=m[4])
 
     def combined(self) -> str:
-        return "_".join([self.vendor, self.library, self.name])
+        return "_".join([self.vendor, self.library, self.name, self.version])
 
     def __str__(self) -> str:
         return f"{self.vendor}:{self.library}:{self.name}:{self.version}"

@@ -212,6 +212,7 @@ class KpmDataflowBackend:
         node.set_property(IdentifierMetanode().properties[0].propname, id.name)
         node.set_property(IdentifierMetanode().properties[1].propname, id.vendor)
         node.set_property(IdentifierMetanode().properties[2].propname, id.library)
+        node.set_property(IdentifierMetanode().properties[3].propname, id.version)
 
         if pos.identifier:
             node.move(Vector2(pos.identifier[0], pos.identifier[1]))

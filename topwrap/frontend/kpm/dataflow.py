@@ -292,8 +292,9 @@ class KpmDataflowFrontend:
                     name = self._parse_property(node, "Name").value
                     vendor = self._parse_property(node, "Vendor").value
                     library = self._parse_property(node, "Library").value
+                    version = self._parse_property(node, "Version").value
 
-                    mod.id = Identifier(name=name, vendor=vendor, library=library)
+                    mod.id = Identifier(name=name, vendor=vendor, library=library, version=version)
                     if node.position:
                         data.positions_of(mod).identifier = (node.position.x, node.position.y)
                 elif node.name == IoMetanode.name:

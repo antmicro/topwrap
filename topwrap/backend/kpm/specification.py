@@ -84,13 +84,8 @@ class KpmSpecificationBackend:
         # Adding a duplicate module can happen when a module is both added explicitly, and is
         # brought in via recursive=True. E.g. when using `topwrap specification` like so:
         # `topwrap specification -d some/design.yaml some/ip/core.yaml`
-        key = mod.id.combined()  # no version: matches KpmNodeId's node identity
+        key = mod.id.combined()
         if key in self._modules:
-            if self._modules[key].id != mod.id:
-                logger.warning(
-                    f"Module '{key}' version '{self._modules[key].id.version}' already added; "
-                    f"skipping version '{mod.id.version}' (KPM node identity ignores version)."
-                )
             return
 
         nid = KpmNodeId.from_ir_id(mod.id)

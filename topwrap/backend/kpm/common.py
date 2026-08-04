@@ -272,6 +272,7 @@ class IdentifierMetanode(Metanode):
             KpmProperty("Name", KpmPropertyType.TEXT.value, ""),
             KpmProperty("Vendor", KpmPropertyType.TEXT.value, Identifier(name="").vendor),
             KpmProperty("Library", KpmPropertyType.TEXT.value, Identifier(name="").library),
+            KpmProperty("Version", KpmPropertyType.TEXT.value, Identifier(name="").version),
         ]
     )
 
