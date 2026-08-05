@@ -11,10 +11,6 @@ from topwrap.cli import load_interfaces_from_repos
 from topwrap.frontend.automatic import AutomaticFrontend
 from topwrap.frontend.frontend import Frontend
 from topwrap.model.inference.inference import infer_interfaces_from_module, parse_grouping_hints
-from topwrap.model.inference.mapping import (
-    InterfacePortMapping,
-    map_interfaces_to_module,
-)
 from topwrap.repo.files import File
 from topwrap.repo.resource import FileHandler, Resource
 from topwrap.repo.user_repo import (
@@ -77,12 +73,11 @@ class ModuleFileHandler(FileHandler):
                     or (x.id.combined() in self.inference_interfaces)
                 ]
 
-            mapping: InterfacePortMapping = infer_interfaces_from_module(
+            infer_interfaces_from_module(
                 mod,
                 cand_intf_defs,
                 grouping_hints=parse_grouping_hints(self.grouping_hints),
-            )  # mapping to interface port mapping definition
-            map_interfaces_to_module([mapping], cand_intf_defs, mod)
+            )
 
             resources.append(
                 Core(

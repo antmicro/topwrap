@@ -19,7 +19,6 @@ from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import Bit, BitStruct, StructField
 from topwrap.model.inference.inference import infer_interfaces_from_module
-from topwrap.model.inference.mapping import InterfaceMappingError, map_interfaces_to_module
 from topwrap.model.interface import (
     Interface,
     InterfaceMode,
@@ -70,8 +69,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        infer_interfaces_from_module(bbox, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(bbox)
 
@@ -94,8 +92,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        infer_interfaces_from_module(bbox, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(bbox)
 
@@ -118,8 +115,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        infer_interfaces_from_module(bbox, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(bbox)
 
@@ -160,8 +156,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        infer_interfaces_from_module(bbox, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(bbox)
 
@@ -182,8 +177,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        infer_interfaces_from_module(bbox, all_intf_defs)
 
         assert len(bbox.interfaces) == 0
 
@@ -198,8 +192,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        infer_interfaces_from_module(bbox, all_intf_defs)
 
         assert len(bbox.interfaces) == 0
 
@@ -216,9 +209,8 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        with pytest.raises(InterfaceMappingError, match="has wrong direction"):
-            map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        with pytest.raises(ValueError, match="has wrong direction"):
+            infer_interfaces_from_module(bbox, all_intf_defs)
 
         assert len(bbox.interfaces) == 0
 
@@ -234,9 +226,8 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        with pytest.raises(InterfaceMappingError, match="has wrong direction"):
-            map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        with pytest.raises(ValueError, match="has wrong direction"):
+            infer_interfaces_from_module(bbox, all_intf_defs)
 
         assert len(bbox.interfaces) == 0
 
@@ -259,8 +250,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(bbox, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
+        infer_interfaces_from_module(bbox, all_intf_defs)
 
         assert len(bbox.interfaces) == 2
 
@@ -305,7 +295,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        mapping = infer_interfaces_from_module(
+        infer_interfaces_from_module(
             bbox,
             all_intf_defs,
             grouping_hints={
@@ -313,7 +303,6 @@ class TestInterfaceInference:
                 "bbox_out": "bbox",
             },
         )
-        map_interfaces_to_module([mapping], all_intf_defs, bbox)
 
         assert len(bbox.interfaces) == 1
 
@@ -337,7 +326,7 @@ class TestInterfaceInference:
             intf_def = InterfaceDefinitionDescription.from_yaml(f.read())
             intf = InterfaceDefinitionDescriptionFrontend().parse(intf_def)
 
-        mapping = infer_interfaces_from_module(
+        infer_interfaces_from_module(
             sv_mod,
             [intf],
             grouping_hints={
@@ -345,7 +334,6 @@ class TestInterfaceInference:
                 "axi_resp": "axi",
             },
         )
-        map_interfaces_to_module([mapping], [intf], sv_mod)
 
         backend = IpCoreDescriptionBackend()
 

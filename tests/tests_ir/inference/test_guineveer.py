@@ -14,7 +14,6 @@ from tests.data.data_ir.inference.pulp_axi_cdc import axi_cdc
 from tests.data.data_ir.inference.pulp_axi_demux import axi_demux
 from tests.tests_ir.inference.test_inference import _all_interfaces, all_intf_defs
 from topwrap.model.inference.inference import infer_interfaces_from_module
-from topwrap.model.inference.mapping import map_interfaces_to_module
 
 
 class TestGuineveerInterfaceInference:
@@ -28,8 +27,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(mod.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(mod, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
+        infer_interfaces_from_module(mod, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 
@@ -48,8 +46,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(axi_to_ahb.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(mod, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
+        infer_interfaces_from_module(mod, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 
@@ -65,8 +62,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(uart.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(mod, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
+        infer_interfaces_from_module(mod, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 
@@ -80,8 +76,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(mod.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(mod, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
+        infer_interfaces_from_module(mod, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 
@@ -95,8 +90,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(mod.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(mod, all_intf_defs)
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
+        infer_interfaces_from_module(mod, all_intf_defs)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 
@@ -114,7 +108,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(mod.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(
+        infer_interfaces_from_module(
             mod,
             all_intf_defs,
             grouping_hints={
@@ -124,7 +118,6 @@ class TestGuineveerInterfaceInference:
                 "dst_resp_i": "dst",
             },
         )
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 
@@ -140,7 +133,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(mod.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(
+        infer_interfaces_from_module(
             mod,
             all_intf_defs,
             grouping_hints={
@@ -148,7 +141,6 @@ class TestGuineveerInterfaceInference:
                 "axi_resp_o": "axi",
             },
         )
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 
@@ -162,7 +154,7 @@ class TestGuineveerInterfaceInference:
 
         assert len(mod.interfaces) == 0
 
-        mapping = infer_interfaces_from_module(
+        infer_interfaces_from_module(
             mod,
             all_intf_defs,
             grouping_hints={
@@ -172,7 +164,6 @@ class TestGuineveerInterfaceInference:
                 "mst_resps_i": "mst",
             },
         )
-        map_interfaces_to_module([mapping], all_intf_defs, mod)
 
         m_intfs, s_intfs = _all_interfaces(mod)
 

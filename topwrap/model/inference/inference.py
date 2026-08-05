@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Antmicro <www.antmicro.com>
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 import itertools
@@ -15,9 +15,8 @@ from topwrap.model.hdl_types import (
     BitStruct,
     LogicArray,
 )
-from topwrap.model.inference.mapping import InterfacePortGrouping, InterfacePortMapping
 from topwrap.model.inference.port import PortSelector, PortSelectorOp
-from topwrap.model.interface import InterfaceDefinition, InterfaceMode, InterfaceSignal
+from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode, InterfaceSignal
 from topwrap.model.misc import QuerableView
 from topwrap.model.module import Module
 
@@ -450,10 +449,10 @@ def infer_interfaces_from_module(
     intf_defs: Iterable[InterfaceDefinition],
     grouping_hints: Optional[dict[str, str]] = None,
     options: Optional[InterfaceInferenceOptions] = None,
-) -> InterfacePortMapping:
+):
     """
-    Perform interface inference. Yields a mapping that can be applied using
-    :func:`map_interfaces_to_module`.
+    Perform interface inference. Attempts to infer interfaces that the given module contains, and
+    adds them to the module.
 
     :param module: Module to perform inference on.
     :param intf_defs: Interface definitions to consider.
@@ -500,7 +499,6 @@ def infer_interfaces_from_module(
             candidates.append((group_prefix, matched_ports, mode, intf, score))
 
     used_signals = set()
-    out_groups = dict()
     used_names = Counter([x.name for x in module.interfaces])
     for prefix, matched, mode, intf_def, score in sorted(
         candidates, key=lambda v: v[-1], reverse=True
@@ -531,7 +529,7 @@ def infer_interfaces_from_module(
         if any_used_signals:
             continue
 
-        name = prefix or grouping_hints.get(intf_def.id.name, intf_def.id.name)
+        name = prefix or grouping_hints.get(intf_def.id.name) or intf_def.id.name
 
         times_used = used_names[name]
         if times_used > 0:
@@ -539,21 +537,18 @@ def infer_interfaces_from_module(
 
         used_names.update([name])
 
-        group = InterfacePortGrouping(
-            interface=intf_def.id,
-            mode=mode.name,
-            signals={sig.name: groups[prefix][name] for name, sig in matched.items()},
-        )
+        signals = {}
+        for port_name, sig in matched.items():
+            sel = groups[prefix][port_name]
+            ref_port = sel.make_referenced_port(module, mode, sig)
+            signals.update({sig._id: ref_port})
+
+        intf = Interface(name=name, mode=mode, definition=intf_def, signals=signals)
+        module.add_interface(intf)
 
         logging.info(
             f"Inferred interface {name} (definition {intf_def.id.name}) in module {module.id.name}"
         )
-        out_groups[name] = group
 
         for port in groups[prefix].values():
             used_signals.add(str(port))
-
-    return InterfacePortMapping(
-        id=module.id,
-        interfaces=out_groups,
-    )
