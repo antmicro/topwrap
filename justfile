@@ -175,6 +175,7 @@ docs:
 		if [[ $p == *"/library/"* ]]; then continue; fi
 		DIR="$(dirname $p)"
 		NAME=$(echo "$DIR" | sed 's/.\/examples\///' | sed 's/\//_/')
+		if [[ $NAME == "caliptra" ]]; then continue; fi
 		cd $DIR
 		make kpm_spec.json kpm_dataflow.json
 		cd -
