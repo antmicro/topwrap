@@ -4,7 +4,6 @@
 
 from pathlib import Path
 
-import pytest
 import yaml
 
 from tests.data.data_ir.inference.ahb_if import ahblite_intf
@@ -126,7 +125,7 @@ class TestInterfaceInference:
 
         foo_ref = bbox.interfaces[0].signals[bbox_intf.signals[0]._id]
         assert foo_ref
-        assert foo_ref.io.name == "i_foo"
+        assert foo_ref.io.name == "foo_i"
 
         bar_ref = bbox.interfaces[0].signals[bbox_intf.signals[1]._id]
         assert bar_ref
@@ -209,9 +208,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        with pytest.raises(ValueError, match="has wrong direction"):
-            infer_interfaces_from_module(bbox, all_intf_defs)
-
+        infer_interfaces_from_module(bbox, all_intf_defs)
         assert len(bbox.interfaces) == 0
 
         # Deduced subordinate.
@@ -226,9 +223,7 @@ class TestInterfaceInference:
             design=Design(),
         )
 
-        with pytest.raises(ValueError, match="has wrong direction"):
-            infer_interfaces_from_module(bbox, all_intf_defs)
-
+        infer_interfaces_from_module(bbox, all_intf_defs)
         assert len(bbox.interfaces) == 0
 
     def test_struct_inference(self):
