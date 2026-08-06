@@ -631,7 +631,7 @@
     "subgraphContextMenuActions": [
             {
                 "iconName": "Save",
-                "name": "Export Hierarchy",
+                "name": "Export IP",
                 "procedureName": "custom_download_hierarchy",
                 "requireResponse": true
             }
