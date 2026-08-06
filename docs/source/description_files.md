@@ -93,7 +93,8 @@ reset_domains:
 external: # specify the names of external ports and interfaces of the top module
 ports:
   out:
-    - {ext_port_name}
+    - name: {ext_port_name}
+      bound: [[dim0_high, dim1_low], ..., [dimN_high, dimN, low]]
   inout:
     - [{ip_name/hierarchy_name, port_name}]
 interfaces:
@@ -278,7 +279,7 @@ Each signal (for both port and interface definitions) can be specified in one of
 The signal is defined by a YAML object, with the following properties:
 
  - `name` (optional) - the name of the signal.
- - `bound` (optional) - the bounds of the bit range, determining the width.
+ - `bound` (optional) - the bounds of the signal. The signal can be multidimensional.
  - `slice` (optional) - the bounds of the slice bit range (only applicable to interface definitions).
  - `default` (optional) - default value to assign to this port if nothing is connected to it, applicable only to input ports.
  - `type` (optional) - the name of the type (defined in the `types` section) used for this signal
