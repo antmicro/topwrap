@@ -274,6 +274,7 @@ class Parameter(ModelBase):
 
     parent: Module
     name: VariableName
+    visible: bool = True
 
     #: If a value for this parameter was not provided
     #: during elaboration, this default will be used.

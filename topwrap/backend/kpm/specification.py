@@ -111,8 +111,17 @@ class KpmSpecificationBackend:
 
         for param in mod.parameters:
             val = param.default_value
+
+            # 1. Determine if this specific parameter should be invisible
+            is_hidden = hasattr(param, "visible") and not param.visible
+
+            # 2. Pass the 'hidden' attribute directly inside the builder method
             self._spec.add_node_type_property(
-                nid.name, param.name, KpmPropertyType.TEXT.value, "" if val is None else val.value
+                nid.name,
+                param.name,
+                KpmPropertyType.TEXT.value,
+                "" if val is None else val.value,
+                hidden=is_hidden
             )
 
         for intf in mod.interfaces:
