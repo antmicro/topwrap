@@ -31,6 +31,7 @@ from topwrap.plugin.steps import (
     Validation,
     YamlDesignOutputStage,
     YamlInputStage,
+    YamlIpOutputStage,
 )
 from topwrap.util import JsonType, get_config
 
@@ -339,4 +340,17 @@ class BuildPipeline:
                 KpmSpecificationOutputStage(output_path),
                 KpmDataflowOutputStage(output_path),
             ],
+        )
+
+    @staticmethod
+    def yaml_design_ip_pipeline(filename: Optional[Path] = None):
+        return BuildPipeline(
+            inputs=[
+                YamlInputStage(),
+            ],
+            transformations=[
+                MemoryMapTransformation(),
+            ],
+            validations=[],
+            outputs=[YamlIpOutputStage(filename)],
         )

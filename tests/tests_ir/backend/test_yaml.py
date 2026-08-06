@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import copy
 import re
+import subprocess
 from itertools import product
 from pathlib import Path
 
@@ -26,6 +27,7 @@ from topwrap.backend.yaml.backend import (
     IpCoreDescriptionBackend,
 )
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
+from topwrap.config import ConfigManager
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
@@ -73,6 +75,7 @@ from topwrap.model.misc import (
     Parameter,
 )
 from topwrap.model.module import Module
+from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.resource_field import (
     FileReferenceHandler,
     GitReferenceHandler,
@@ -1127,3 +1130,53 @@ class TestInterfaceDescriptionBackend:
                 },
             },
         }
+
+
+class TestDesignIpPipeline:
+    @pytest.mark.parametrize(
+        ["src", "run_make"],
+        [
+            (Path("examples/axi_interconnect/design.yaml"), True),
+            (Path("examples/constant/project.yaml"), False),
+            (Path("examples/design_config/project.yaml"), False),
+            (Path("examples/existing_iface/design.yaml"), True),
+            (Path("examples/getting_started_demo/project.yaml"), True),
+            (Path("examples/hdmi/project.yaml"), False),
+            (Path("examples/hierarchy/project.yaml"), False),
+            (Path("examples/inout/project.yaml"), True),
+            (Path("examples/ipxact/design.yaml"), True),
+            (Path("examples/pwm/project.yaml"), False),
+            (Path("examples/user_repository/project.yaml"), False),
+        ],
+    )
+    def test_design_ip_equivalence(
+        self, src: Path, run_make: bool, monkeypatch: pytest.MonkeyPatch
+    ):
+        assert src.exists()
+        monkeypatch.chdir(src.parent)
+
+        if run_make:
+            subprocess.run("make")
+
+        # Reload config for the duration of this test
+        monkeypatch.setattr("topwrap.config.config", ConfigManager().load())
+
+        # Need to use pipeline to load config from design file for examples/design_config
+        pipeline = BuildPipeline.yaml_design_ip_pipeline()
+        pipeline.prepare_files([], design_source=Path(src.name))
+        pipeline.process()
+        ctx = pipeline.ctx
+
+        ip_front = IPCoreDescriptionFrontend()
+        back = IpCoreDescriptionBackend()
+
+        assert ctx.top_module is not None
+        orig_mod = ctx.top_module
+
+        out = back.represent(orig_mod)
+        [out] = back.serialize(out)
+
+        new_mod = ip_front.parse_str(out.content)
+        assert new_mod is not None
+
+        _compare_modules(orig_mod, new_mod, compare_designs=False)

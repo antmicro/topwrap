@@ -15,7 +15,11 @@ from topwrap.backend.ipxact.backend import IPXACTBackend
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
-from topwrap.backend.yaml.backend import DesignDescriptionBackend, DesignPositionsBackend
+from topwrap.backend.yaml.backend import (
+    DesignDescriptionBackend,
+    DesignPositionsBackend,
+    IpCoreDescriptionBackend,
+)
 from topwrap.config import _resolve_library_uris
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.yaml.design_schema import DesignDescription
@@ -451,3 +455,36 @@ class YamlDesignOutputStage(OutputStage):
         if self.save_positions:
             assert out_pos is not None
             out_pos.save(target_dir)
+
+
+class YamlIpOutputStage(OutputStage):
+    name: str = "Design YAML"
+
+    filename: Optional[Path] = None
+
+    def __init__(self, filename: Optional[Path] = None):
+        self.filename = filename
+        super().__init__()
+
+    @override
+    def generate_output(self, ctx: BuildContext):
+        if ctx.top_module is None:
+            raise BuildException("Design YAML output requires a top module")
+
+        assert ctx.top_module.design
+        if self.filename is None:
+            self.filename = Path(f"{ctx.top_module.id}.yaml")
+
+        ip_backend = IpCoreDescriptionBackend(ctx.existing_interfaces)
+        repr_ip = ip_backend.represent(ctx.top_module)
+        out_ip = next(ip_backend.serialize(repr_ip))
+
+        assert self.name not in ctx.outputs
+        ctx.outputs[self.name] = out_ip
+
+    @override
+    def write_output_to(self, target_dir: Path, ctx: BuildContext):
+        assert self.name in ctx.outputs
+        assert self.filename is not None
+        out_ip = cast(BackendOutputInfo, ctx.outputs[self.name])
+        out_ip.save(target_dir / self.filename)

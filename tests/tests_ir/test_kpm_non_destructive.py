@@ -149,16 +149,18 @@ def _compare_interfaces(left: Module, right: Module):
         _compare_interface(l_intfs[name], r_intfs[name])
 
 
-def _compare_modules(left: Module, right: Module):
+def _compare_modules(left: Module, right: Module, compare_designs: bool = True):
     assert left.id == right.id
-    assert (left.design is None) == (right.design is None)
+    if compare_designs:
+        assert (left.design is None) == (right.design is None)
 
     _compare_interfaces(left, right)
 
     assert _module_non_intf_port_dict(left) == _module_non_intf_port_dict(right)
 
-    if left.design and right.design:
-        _compare_designs(left.design, right.design)
+    if compare_designs:
+        if left.design and right.design:
+            _compare_designs(left.design, right.design)
 
 
 class TestKpmNonDestructivity:
