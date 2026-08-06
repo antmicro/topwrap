@@ -45,7 +45,7 @@ class TestClient:
                 all_specification_files[test_name],
                 ignore_order=True,
                 ignore_type_in_groups=[(list, tuple)],
-                exclude_paths=["root['version']", "root['metadata']"],
+                exclude_paths=["root['version']"],
             )
             assert spec_differences == {}, (
                 f"Test {test_name} differs from original specification. Diff: {spec_differences}"
