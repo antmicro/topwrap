@@ -1714,6 +1714,7 @@
     "twoColumn": true,
     "notifyWhenChanged": true,
     "welcome": false,
+    "disableInterfaceExpose": true,
     "navbarItems": [
       {
         "name": "Validate",
