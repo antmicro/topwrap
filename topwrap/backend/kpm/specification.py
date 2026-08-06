@@ -225,6 +225,7 @@ class KpmSpecificationBackend:
             "twoColumn": True,
             "notifyWhenChanged": True,
             "welcome": False,
+            "disableInterfaceExpose": True,
             "navbarItems": [
                 {
                     "name": "Validate",
