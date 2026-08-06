@@ -12,6 +12,7 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexSignal,
     IPCoreDescription,
     IPCoreDescriptionFrontendException,
+    IPCorePortDefinition,
     IPCoreStruct,
     IPCoreType,
     Signal,
@@ -117,6 +118,27 @@ class IPCoreDescriptionFrontend:
                 upper=ElaboratableValue(lst[0]),
                 lower=ElaboratableValue(lst[1]),
             )
+
+        if isinstance(signal, IPCorePortDefinition):
+            type = Bits(dimensions=[to_dims(dim) for dim in signal.dimensions])
+            default = ElaboratableValue(signal.default) if signal.default is not None else None
+
+            if default is not None and direction is not PortDirection.IN:
+                raise IPCoreDescriptionFrontendException(
+                    f"Default value '{default}' assigned to non-input port '{signal.name}'"
+                )
+
+            if not (port := mod.ports.find_by_name(signal.name)):
+                mod.add_port(
+                    port := Port(
+                        name=signal.name,
+                        type=type,
+                        direction=direction,
+                        default_value=default,
+                    )
+                )
+
+            return port
 
         if isinstance(signal, IPCoreComplexSignal):
             if signal.name is not None:

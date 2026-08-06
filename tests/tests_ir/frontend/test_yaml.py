@@ -262,8 +262,64 @@ class TestDesignDescriptionFrontend:
                 assert all(type(out.config.repositories[k]) is type(rep[k]) for k in keys)
                 assert all(out.config.repositories[k].to_str() == rep[k].to_str() for k in keys)
 
+        def test_multidimensional_top_level_ports(self):
+                des = """
+                name: top
+                external:
+                    ports:
+                        in:
+                            - name: in_arr
+                                dimensions:
+                                    - [1, 0]
+                                    - [7, 0]
+                        out:
+                            - name: out_vec
+                                dimensions:
+                                    - [15, 0]
+                """
+
+                mod = DesignDescriptionFrontend().parse_str(des)
+
+                in_arr = mod.parent.ports.find_by_name_or_error("in_arr")
+                out_vec = mod.parent.ports.find_by_name_or_error("out_vec")
+
+                assert isinstance(in_arr.type, LogicArray)
+                assert in_arr.type.dimensions == [
+                        Dimensions(upper=ElaboratableValue(1), lower=ElaboratableValue(0)),
+                        Dimensions(upper=ElaboratableValue(7), lower=ElaboratableValue(0)),
+                ]
+                assert isinstance(out_vec.type, LogicArray)
+                assert out_vec.type.dimensions == [
+                        Dimensions(upper=ElaboratableValue(15), lower=ElaboratableValue(0))
+                ]
+
 
 class TestIPCoreDescriptionFrontend:
+    def test_multidimensional_signal(self):
+        ip = """
+        id:
+          name: top
+          vendor: vendor
+          library: libdefault
+        signals:
+          in:
+            - name: in_arr
+              dimensions:
+                - [1, 0]
+                - [7, 0]
+              default: 4
+        """
+
+        mod = IPCoreDescriptionFrontend().parse_str(ip)
+        in_arr = mod.ports.find_by_name_or_error("in_arr")
+
+        assert isinstance(in_arr.type, LogicArray)
+        assert in_arr.type.dimensions == [
+            Dimensions(upper=ElaboratableValue(1), lower=ElaboratableValue(0)),
+            Dimensions(upper=ElaboratableValue(7), lower=ElaboratableValue(0)),
+        ]
+        assert in_arr.default_value == ElaboratableValue("4")
+
     def test_parse_on_mem_yaml(self):
         ip = Path("examples/ir_examples/interconnect/ips/mem.yaml")
         mod = IPCoreDescriptionFrontend().parse_file(ip)

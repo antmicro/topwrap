@@ -33,6 +33,7 @@ from topwrap.repo.exceptions import ResourceNotFoundException
 from topwrap.util import get_config, get_interface_by_id
 
 _StrOrInt = Union[str, int]
+IPCoreDimension = Tuple[_StrOrInt, _StrOrInt]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -55,11 +56,26 @@ class IPCoreComplexSignal(MarshmallowDataclassExtensions):
         return True
 
 
+@marshmallow_dataclass.dataclass(frozen=True)
+class IPCorePortDefinition(MarshmallowDataclassExtensions):
+    name: str
+    dimensions: Tuple[IPCoreDimension, ...] = ext_field(tuple, inline_depth=1)
+    default: Optional[_StrOrInt] = ext_field(None)
+
+    @marshmallow.validates_schema
+    def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
+        if len(self_obj["dimensions"]) == 0:
+            raise marshmallow.ValidationError("Signal dimensions cannot be empty")
+
+        return True
+
+
 Signal = Union[
     str,
     Tuple[str, _StrOrInt, _StrOrInt],
     Tuple[str, _StrOrInt, _StrOrInt, _StrOrInt, _StrOrInt],
     IPCoreComplexSignal,
+    IPCorePortDefinition,
 ]
 
 
@@ -89,6 +105,17 @@ class IPCorePort:
 
     @staticmethod
     def from_sig_and_dir(sig: Signal, dir: LegacyPortDirection) -> "IPCorePort":
+        if isinstance(sig, IPCorePortDefinition):
+            upper_bound, lower_bound = sig.dimensions[0]
+            return IPCorePort(
+                name=sig.name,
+                direction=dir,
+                upper_bound=upper_bound,
+                lower_bound=lower_bound,
+                upper_slice=upper_bound,
+                lower_slice=lower_bound,
+            )
+
         if isinstance(sig, IPCoreComplexSignal):
             name = sig.name if sig.name is not None else str(sig.path)
             assert name is not None

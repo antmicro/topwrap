@@ -18,6 +18,7 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreInterface,
     IPCoreIntfPorts,
     IPCoreParameter,
+    IPCorePortDefinition,
     IPCorePorts,
     IPCoreStruct,
     IPCoreStructField,
@@ -28,6 +29,7 @@ from topwrap.frontend.yaml.design_schema import (
     ConnectionsSection,
     DesignDescription,
     DesignExternalIntfs,
+    DesignExternalPortDefinition,
     DesignExternalPorts,
     DesignExternalSection,
     DesignInverterPosition,
@@ -149,7 +151,11 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
                 raise ValueError("Trying to slice a single bit")
         elif isinstance(type, Bits):
             if len(type.dimensions) > 1:
-                raise ValueError("IP core YAML format only supports one-dimensional bit vectors")
+                return IPCorePortDefinition(
+                    name=name,
+                    dimensions=tuple((d.upper.value, d.lower.value) for d in type.dimensions),
+                    default=default.value if default else None,
+                )
 
             bound = (type.dimensions[0].upper.value, type.dimensions[0].lower.value)
         else:
@@ -536,11 +542,19 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
         outputs = []
         inouts = []
 
+        def represent_port(port: Port):
+            if isinstance(port.type, LogicArray) and isinstance(port.type.item, Bit):
+                return DesignExternalPortDefinition(
+                    name=port.name,
+                    dimensions=[(dim.upper.value, dim.lower.value) for dim in port.type.dimensions],
+                )
+            return port.name
+
         for port in mod.non_intf_ports():
             if port.direction is PortDirection.IN:
-                inputs.append(port.name)
+                inputs.append(represent_port(port))
             elif port.direction is PortDirection.OUT:
-                outputs.append(port.name)
+                outputs.append(represent_port(port))
             elif port.direction is PortDirection.INOUT:
                 # Look for connection that this port is a part of, then from that
                 # find the module port it's connected to.
