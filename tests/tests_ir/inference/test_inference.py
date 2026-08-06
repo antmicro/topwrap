@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import copy
 from pathlib import Path
 
 import yaml
@@ -10,6 +11,7 @@ from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.data.data_ir.inference.axi_if import axi4_intf
 from tests.data.data_ir.inference.axilite_if import axi4lite_intf
 from tests.data.data_ir.inference.bbox_if import bbox_full_intf, bbox_in_only_intf, bbox_intf
+from tests.data.data_ir.inference.dupl_prefix import dupl_prefix
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
@@ -505,4 +507,24 @@ class TestInterfaceInference:
                     ]
                 },
             },
+        }
+
+
+class TestInferenceRegression:
+    """
+    Regression tests for issues found with interface inference.
+    """
+
+    def test_duplicated_prefixes(self):
+        mod = copy.deepcopy(dupl_prefix)
+
+        assert len(mod.interfaces) == 0
+
+        infer_interfaces_from_module(mod, all_intf_defs)
+
+        m_intfs, s_intfs = _all_interfaces(mod)
+
+        assert m_intfs == {}
+        assert s_intfs == {
+            "memory_axi": "AXI4",
         }
