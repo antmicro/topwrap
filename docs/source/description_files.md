@@ -98,7 +98,8 @@ ports:
     - [{ip_name/hierarchy_name, port_name}]
 interfaces:
   in:
-    - {ext_interface_name}
+    - name: {ext_interface_name}
+      bound: [[dim0_high, dim1_low], ..., [dimN_high, dimN, low]]
   # note that `inout:` is invalid in the interfaces section
 
 hierarchies:
@@ -278,7 +279,7 @@ Each signal (for both port and interface definitions) can be specified in one of
 The signal is defined by a YAML object, with the following properties:
 
  - `name` (optional) - the name of the signal.
- - `bound` (optional) - the bounds of the bit range, determining the width.
+ - `bound` (optional) - the bounds of the signal. The signal can be multidimensional.
  - `slice` (optional) - the bounds of the slice bit range (only applicable to interface definitions).
  - `default` (optional) - default value to assign to this port if nothing is connected to it, applicable only to input ports.
  - `type` (optional) - the name of the type (defined in the `types` section) used for this signal

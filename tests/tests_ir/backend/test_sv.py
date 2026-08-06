@@ -18,6 +18,7 @@ from examples.soc.ir.design import top as soc_top
 from topwrap.backend.sv.backend import GeneratorNotImplementedError, SystemVerilogBackend
 from topwrap.backend.sv.common import serialize_select, serialize_type, sv_varname
 from topwrap.backend.sv.design import Design, _SystemVerilogDesignData
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.interconnects.wishbone_rr import WishboneInterconnect, WishboneRRParams
 from topwrap.model.connections import (
     ConstantConnection,
@@ -374,6 +375,25 @@ class TestSystemVerilogDesignBackend:
 
 
 class TestSystemVerilogBackend:
+    def test_multidimensional_port_from_yaml(self):
+        design_yaml = """
+            name: top
+            external:
+              ports:
+                in:
+                  - name: in_arr
+                    bound: [[1, 0], [7, 0], [3, 0]]
+        """
+
+        design, _ = DesignDescriptionFrontend().parse_str(design_yaml)
+        backend = SystemVerilogBackend(desc_comms=False)
+        [output] = backend.serialize(backend.represent(design.parent), combine=True)
+
+        assert (
+            "module top (\n    input logic [1:0][7:0][3:0] in_arr\n);\n\nendmodule"
+            == output.content
+        )
+
     def test_repr_empty_package(self):
         back = SystemVerilogBackend(desc_comms=False)
 
