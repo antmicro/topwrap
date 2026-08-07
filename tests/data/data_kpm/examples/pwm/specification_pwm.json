@@ -472,6 +472,13 @@
           "custom_lint_files"
         ],
         "requireResponse": true
+      },
+      {
+         "iconName": "Save",
+         "name": "Save changes to design file",
+         "procedureName": "custom_save_design_changes",
+         "requireResponse": true,
+         "stopName": "Stop"
       }
     ],
     "styles": {
