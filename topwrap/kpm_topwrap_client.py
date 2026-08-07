@@ -1,6 +1,7 @@
 # Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import json
 import logging
 import os
@@ -56,6 +57,10 @@ class NonexistentNodeException(Exception):
     pass
 
 
+class KpmDialogResponseException(Exception):
+    pass
+
+
 class RPCMethods:
     def __init__(self, params: RPCparams, client: Optional[CommunicationBackend] = None):
         self.host = params.host
@@ -72,6 +77,8 @@ class RPCMethods:
         xdg_data_home_var = Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
         self.default_save_file = xdg_data_home_var / "topwrap/dataflow_latest_save.json"
         self.initial_load = True
+        # Used to schedule the async response to a dialog_open request
+        self.dialog_future = None
 
     def app_capabilities_get(self) -> list[None]:
         return []
@@ -236,16 +243,55 @@ class RPCMethods:
                     result["dataflow"],
                 )
 
-    def custom_save_design_changes(self, dataflow: JsonType):
-        """
-        This procedure is run when the user wants to modify their
-        design file in-place.
-        """
-        if self.design_path is None:
+    def dialog_boxes_get(self) -> JsonType:
+        logging.info("dialog_boxes_get request")
+        return {
+            "DesignSaveDialog": {
+                "title": "Choose save location",
+                "confirmText": "Save",
+                "template": {
+                    "designSavePath": {"name": "file", "type": "text", "default": "design.yaml"}
+                },
+            }
+        }
+
+    def dialog_on_submit(self, name: str, data: JsonType):
+        if name == "DesignSaveDialog":
+            if self.dialog_future and not self.dialog_future.done():
+                self.dialog_future.set_result(data)
+
+    async def _prompt_for_path(self):
+        if self.client is None:
+            logging.debug("Nonexistent RPC client; cannot save design changes")
+            return
+
+        # Ask the user for path; wait for async return
+        try:
+            await self.client.request("dialog_open", {"name": "DesignSaveDialog"})
+            future = asyncio.get_running_loop().create_future()
+            self.dialog_future = future
+            res = await future
+        finally:
+            self.dialog_future = None
+
+        if res.get("designSavePath", None):
+            self.design_path = Path(res["designSavePath"])
+            if self.design_path.suffix != ".yaml":
+                self.design_path = self.design_path.with_suffix(".yaml")
+        else:
+            raise KpmDialogResponseException(
+                "DesignSaveDialog request returned withoutdesignSavePath"
+            )
+
+    # This function assumes that self.design_path is not None
+    def _save_design_from_dataflow(self, dataflow: JsonType) -> JsonType:
+        if not self.design_path:
+            logging.error("_save_design_from_dataflow called without self.design_path")
             return {
                 "type": MessageType.ERROR.value,
-                "content": "No design file loaded; cannot save changes",
+                "content": "Internal error: topwrap has no save location",
             }
+
         # The KPM Frontend treats the graph defined in `entryGraph`
         # as the toplevel module. However, if the user goes into
         # a subgraph, that subgraph is now the entryGraph, but
@@ -253,7 +299,7 @@ class RPCMethods:
         dataflow["entryGraph"] = get_toplevel_graph(dataflow)["id"]
 
         try:
-            pipeline = BuildPipeline.kpm_yaml_pipeline()
+            pipeline = BuildPipeline.kpm_yaml_pipeline(positions_filename=self.design_path.stem)
             pipeline.prepare_str([json.dumps(self.specification)], json.dumps(dataflow))
             pipeline.process()
         except Exception as e:
@@ -279,13 +325,17 @@ class RPCMethods:
 
         def _extract_header(path: Path) -> str:
             res = ""
-            with open(path, "r") as f:
-                for line in f:
-                    if line.startswith("#"):
-                        res += line
-                    else:
-                        break
-            return res + ("\n" if res else "")
+            # The file may not exists if no design file was loaded
+            # In that case there is no header
+            if path.exists():
+                with open(path, "r") as f:
+                    for line in f:
+                        if line.startswith("#"):
+                            res += line
+                        else:
+                            break
+                return res + ("\n" if res else "")
+            return ""
 
         header = _extract_header(self.design_path)
         with NamedTemporaryFile("w", dir=".", delete=False) as f:
@@ -306,6 +356,22 @@ class RPCMethods:
             "type": MessageType.OK.value,
             "content": f"Successfully saved changes to file {self.design_path}",
         }
+
+    async def custom_save_design_changes(self, dataflow: JsonType):
+        """
+        This procedure is run when the user wants to modify their
+        design file in-place.
+        """
+        if self.design_path is None:
+            try:
+                await self._prompt_for_path()
+            except KpmDialogResponseException:
+                return {
+                    "type": MessageType.ERROR.value,
+                    "content": "No save location provided",
+                }
+
+        return self._save_design_from_dataflow(dataflow)
 
     async def nodes_on_change(self, graph_id: str, nodes: JsonType, **kwargs: Any):
         logging.debug("Reacting to node change event")
