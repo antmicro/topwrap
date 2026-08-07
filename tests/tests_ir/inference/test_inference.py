@@ -12,6 +12,7 @@ from tests.data.data_ir.inference.axi_if import axi4_intf
 from tests.data.data_ir.inference.axilite_if import axi4lite_intf
 from tests.data.data_ir.inference.bbox_if import bbox_full_intf, bbox_in_only_intf, bbox_intf
 from tests.data.data_ir.inference.dupl_prefix import dupl_prefix
+from tests.data.data_ir.inference.subprefix import subprefix
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
@@ -527,4 +528,21 @@ class TestInferenceRegression:
         assert m_intfs == {}
         assert s_intfs == {
             "memory_axi": "AXI4",
+        }
+
+    def test_subprefix(self):
+        mod = copy.deepcopy(subprefix)
+
+        assert len(mod.interfaces) == 0
+
+        infer_interfaces_from_module(mod, all_intf_defs)
+
+        m_intfs, s_intfs = _all_interfaces(mod)
+
+        assert m_intfs == {
+            "main_dest": "AXI4",
+        }
+        assert s_intfs == {
+            "main_prefix": "AXI4",
+            "main_prefixlonger": "AXI4",
         }
