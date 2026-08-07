@@ -10,6 +10,7 @@ axi4lite_intf = InterfaceDefinition(
     id=Identifier(name="AXI4Lite"),
     signals=[
         # AW channel.
+        sig("awid", "aw[._]?id", 3, OUT, mreq=False, sreq=True, default="0"),
         sig("awaddr", "aw[._]?addr", 32, OUT),
         sig("awprot", "aw[._]?prot", 3, OUT, sreq=False),
         sig("awvalid", "aw[._]?valid", 1, OUT),
@@ -20,17 +21,20 @@ axi4lite_intf = InterfaceDefinition(
         sig("wvalid", "w[._]?valid", 1, OUT),
         sig("wready", "w[._]?ready", 1, IN),
         # B channel.
+        sig("bid", "b[._]?id", 3, IN, mreq=False, sreq=True),
         sig("bresp", "b[._]?resp", 2, IN, mreq=False, sreq=True, default="0"),
         sig("bvalid", "b[._]?valid", 1, IN),
         sig("bready", "b[._]?ready", 1, OUT),
         # AR channel.
+        sig("arid", "ar[._]?id", 3, OUT, mreq=False, sreq=True, default="0"),
         sig("araddr", "ar[._]?addr", 32, OUT),
         sig("arprot", "ar[._]?prot", 3, OUT, sreq=False),
         sig("arvalid", "ar[._]?valid", 1, OUT),
         sig("arready", "ar[._]?ready", 1, IN),
         # R channel.
+        sig("rid", "r[._]?id", 3, IN, mreq=False, sreq=True),
         sig("rdata", "r[._]?data", 64, IN),
-        sig("rlast", "r[._]?last", 1, IN, mreq=False, sreq=True),
+        sig("rlast", "r[._]?last", 1, IN, mreq=False, sreq=False, default="1"),
         sig("rvalid", "r[._]?valid", 1, IN),
         sig("rready", "r[._]?ready", 1, OUT),
     ],

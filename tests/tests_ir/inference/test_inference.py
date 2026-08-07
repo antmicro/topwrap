@@ -9,10 +9,12 @@ import yaml
 
 from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.data.data_ir.inference.axi_if import axi4_intf
+from tests.data.data_ir.inference.axi_wb_root import axi_wb_root
 from tests.data.data_ir.inference.axilite_if import axi4lite_intf
 from tests.data.data_ir.inference.bbox_if import bbox_full_intf, bbox_in_only_intf, bbox_intf
 from tests.data.data_ir.inference.dupl_prefix import dupl_prefix
 from tests.data.data_ir.inference.subprefix import subprefix
+from tests.data.data_ir.inference.wb_if import wb_intf
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
@@ -35,6 +37,7 @@ all_intf_defs = [
     bbox_full_intf,
     bbox_in_only_intf,
     ahblite_intf,
+    wb_intf,
 ]
 
 
@@ -545,4 +548,20 @@ class TestInferenceRegression:
         assert s_intfs == {
             "main_prefix": "AXI4",
             "main_prefixlonger": "AXI4",
+        }
+
+    def test_axi_wb_root(self):
+        mod = copy.deepcopy(axi_wb_root)
+
+        assert len(mod.interfaces) == 0
+
+        infer_interfaces_from_module(mod, all_intf_defs)
+
+        m_intfs, s_intfs = _all_interfaces(mod)
+
+        assert m_intfs == {
+            "Wishbone": "Wishbone",
+        }
+        assert s_intfs == {
+            "AXI4Lite": "AXI4Lite",
         }
