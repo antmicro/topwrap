@@ -40,6 +40,7 @@ from topwrap.model.hdl_types import (
     Bits,
     BitStruct,
     Dimensions,
+    LogicArray,
     LogicBitSelect,
     LogicFieldSelect,
     LogicSelect,
@@ -257,6 +258,49 @@ class TestIpCoreDescriptionBackend:
                 ],
             },
         }
+
+    def test_multidimensional_port(self):
+        ty = Bits(
+            dimensions=[
+                Dimensions(upper=ElaboratableValue(1), lower=ElaboratableValue(0)),
+                Dimensions(upper=ElaboratableValue(7), lower=ElaboratableValue(0)),
+            ]
+        )
+
+        top = Module(
+            id=Identifier(name="top"),
+            ports=[
+                Port(
+                    name="foo",
+                    direction=PortDirection.IN,
+                    type=ty,
+                    default_value=ElaboratableValue(4),
+                ),
+            ],
+        )
+
+        backend = IpCoreDescriptionBackend()
+
+        out = backend.represent(top)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree == {
+            "id": {"name": "top", "library": "libdefault", "vendor": "vendor", "version": "0.1"},
+            "signals": {
+                "in": [
+                    {
+                        "name": "foo",
+                        "dimensions": [["1", "0"], ["7", "0"]],
+                        "default": "4",
+                    },
+                ],
+            },
+        }
+
+        frontend = IPCoreDescriptionFrontend()
+        mod = frontend.parse_str(out.content)
+        _compare_modules(top, mod)
 
     def test_parameters(self):
         mod = Module(
@@ -611,6 +655,43 @@ class TestDesignDescriptionBackend:
                         expected_obj: dict[str, str] = {name: h.to_str() for name, h in rep.items()}
                         assert repo_dict == expected_obj
 
+        def test_multidimensional_top_level_ports_roundtrip(self):
+                design_yaml = """
+                name: top
+                external:
+                    ports:
+                        in:
+                            - name: in_arr
+                                dimensions:
+                                    - [1, 0]
+                                    - [7, 0]
+                        out:
+                            - name: out_vec
+                                dimensions:
+                                    - [15, 0]
+                """
+
+                front = DesignDescriptionFrontend()
+                orig_des = front.parse_str(design_yaml)
+
+                back = DesignDescriptionBackend()
+                out = back.represent(orig_des.parent)
+                [out] = back.serialize(out)
+
+                new_des = front.parse_str(out.content)
+
+                in_arr = new_des.parent.ports.find_by_name_or_error("in_arr")
+                out_vec = new_des.parent.ports.find_by_name_or_error("out_vec")
+
+                assert isinstance(in_arr.type, LogicArray)
+                assert in_arr.type.dimensions == [
+                        Dimensions(upper=ElaboratableValue(1), lower=ElaboratableValue(0)),
+                        Dimensions(upper=ElaboratableValue(7), lower=ElaboratableValue(0)),
+                ]
+                assert isinstance(out_vec.type, LogicArray)
+                assert out_vec.type.dimensions == [
+                        Dimensions(upper=ElaboratableValue(15), lower=ElaboratableValue(0))
+                ]
 
 class TestDesignPositionsBackend:
     def test_positions(self):

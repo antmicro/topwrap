@@ -12,6 +12,7 @@ from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.ip_core_schema import param_to_ir_param
 from topwrap.frontend.yaml.design_schema import (
     DesignDescription,
+    DesignExternalPortDefinition,
     DesignIP,
     DesignNodePosition,
     DesignPositionDefinition,
@@ -36,7 +37,7 @@ from topwrap.model.connections import (
     ResetPolarity,
 )
 from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
-from topwrap.model.hdl_types import Bit
+from topwrap.model.hdl_types import Bit, Bits, Dimensions
 from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode, InterfaceSignal
 from topwrap.model.memory_map import MemoryMap as IRMemoryMap
@@ -136,15 +137,36 @@ class DesignDescriptionFrontend:
             parsed, _ = self._parse_hier(source, hdesc, hname)
             design.add_component(ModuleInstance(name=hname, module=parsed.parent))
 
-    def _parse_ports(self, desc: DesignDescription) -> dict[str, tuple[PortDirection, bool]]:
+    # Parse external port names and determine if they are multidimensional
+    def _external_decl_name(self, decl: str | DesignExternalPortDefinition) -> str:
+        return decl if isinstance(decl, str) else decl.name
+
+    def _external_decl_type(self, decl: DesignExternalPortDefinition):
+        if len(decl.dimensions) == 0:
+            return Bit()
+        return Bits(
+            dimensions=[
+                Dimensions(ElaboratableValue(upper), ElaboratableValue(lower))
+                for upper, lower in decl.dimensions
+            ]
+        )
+
+    def _parse_ports(self, desc: DesignDescription, mod: Module) -> dict[str, tuple[PortDirection, bool]]:
         declared_exts = dict[str, tuple[PortDirection, bool]]()
         for port, group in ((True, desc.external.ports), (False, desc.external.interfaces)):
             for dir, decls in ((PortDirection.IN, group.input), (PortDirection.OUT, group.output)):
                 for d in decls:
-                    if d in declared_exts:
-                        logger.warning(f"Skipping duplicated external IO: '{d}'")
+                    name = self._external_decl_name(d) if port else d
+                    if name in declared_exts:
+                        logger.warning(f"Skipping duplicated external IO: '{name}'")
                         continue
-                    declared_exts[d] = (dir, port)
+
+                    if port and isinstance(d, DesignExternalPortDefinition):
+                        mod.add_port(
+                            Port(name=name, direction=dir, type=self._external_decl_type(d))
+                        )
+
+                    declared_exts[name] = (dir, port)
         return declared_exts
 
     def _parse_connections(
@@ -163,6 +185,8 @@ class DesignDescriptionFrontend:
 
     def _add_ports(self, mod: Module, declared_exts: dict[str, tuple[PortDirection, bool]]):
         for name, (dir, port) in declared_exts.items():
+            if mod.ios.find_by_name(name) is not None:
+                continue
             if port:
                 mod.add_port(Port(name=name, direction=dir, type=Bit()))
             else:
@@ -218,7 +242,7 @@ class DesignDescriptionFrontend:
 
         # Gather declarations of external ports and interfaces so that
         # they can be instantiated with the inferred type later on
-        declared_exts = self._parse_ports(desc)
+        declared_exts = self._parse_ports(desc, mod)
         # Parse regular connections between ports, interfaces and externals
         self._parse_connections(desc, design, declared_exts)
 
