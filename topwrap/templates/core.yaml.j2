@@ -1,5 +1,5 @@
 CAPI=2:
-name : ::{{top_name}}
+name : ::{{ top_name }}
 description : project
 filesets:
 {%- for fileset in filesets %}
@@ -8,6 +8,12 @@ filesets:
   {%- for file in fileset.sources %}
       - {{ file.filename }} : {file_type : {{ file.type }}}
   {%- endfor %}
+  {%- if fileset.depends %}
+    depend:
+    {%- for dep in fileset.depends %}
+      - {{ dep.vendor }}:{{ dep.library }}:{{ dep.name }}{% if dep.version %}:{{dep.version}}{% endif %}
+    {%- endfor %}
+  {%- endif %}
 {%- endfor %}
 
 targets:
@@ -24,21 +30,28 @@ targets:
       {%- endfor %}
     {%- endfor %}
   {%- endif %}
+    toplevel: {{ target.toplevel }}
   {%- if target.tools %}
     tools:
     {%- for tool in target.tools %}
       {%- if tool.type == "vivado" %}
       vivado:
-        part : {{ tool.part }}
-    toplevel : {{ tool.toplevel }}
+        part: {{ tool.part }}
+      {%- elif tool.type == "verilator" %}
+      verilator:
+        mode: cc
+        verilator_options : [-Wno-fatal, --main, --timing]
       {%- endif %}
     {%- endfor %}
   {%- endif %}
 {%- endfor %}
 {%- if scripts %}
+
 scripts:
   {%- for script in scripts %}
   {{ script.label }}:
     cmd : [{% for arg in script.args %}{{ arg }}{{ ", " if not loop.last }}{% endfor %}]
   {%- endfor %}
 {%- endif %}
+
+

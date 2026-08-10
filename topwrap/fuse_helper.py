@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass
 from os import cpu_count, path
 from pathlib import Path
+from re import compile
 from typing import Collection, Optional
 
 from jinja2 import Environment, FileSystemLoader
@@ -21,8 +22,33 @@ class SourceFile:
         self.type = type
 
 
+# FIXME: this should probably be more centralized
+# FIXME: this is **very** permissive
+VLNV_RE = compile(r"^([^:]*):([^:]*):([^:]*)(?::([^:]*))?$")
+
+
+@dataclass
+class FileSetDependency:
+    vendor: str
+    library: str
+    name: str
+    version: str
+
+    @staticmethod
+    def parse_vlnv(src: str) -> "FileSetDependency":
+        m = VLNV_RE.fullmatch(src)
+
+        if not m:
+            _s = f"Failed to parse VLNV: {src}"
+            logger.error(_s)
+            # FIXME: a proper error type here
+            raise AssertionError(_s)
+
+        return FileSetDependency(m[1], m[2], m[3], m[4])
+
+
 class IP:
-    def __init__(self, name, vlnv):
+    def __init__(self, name: str, vlnv: str):
         """Create a new IP instance representation
 
         :param name: name of the instance
@@ -54,9 +80,8 @@ class FuseSocTool:
 class FuseSocToolVivado(FuseSocTool):
     type = "vivado"
 
-    def __init__(self, part: str, toplevel: str):
+    def __init__(self, part: str):
         self.part = part
-        self.toplevel = toplevel
 
 
 class FuseSocToolVerilator(FuseSocTool):
@@ -68,6 +93,7 @@ class FuseSocTarget:
         self,
         name: str,
         default_tool: str,
+        toplevel: str,
         /,
         filesets: Optional[list[str]] = None,
         hooks: Optional[list[FuseSoCHook]] = None,
@@ -75,6 +101,7 @@ class FuseSocTarget:
     ):
         self.name = name
         self.default_tool = default_tool
+        self.toplevel = toplevel
         self.filesets = filesets or []
         self.hooks = hooks or []
         self.tools = tools or []
@@ -89,6 +116,7 @@ class FuseSocTarget:
 class FuseSocFileSet:
     label: str
     sources: list[SourceFile]
+    depends: list[FileSetDependency]
 
 
 @dataclass
@@ -116,10 +144,29 @@ class FuseSocBuilder:
         self.dependencies = []
         self.external_ips = []
         self.part = part
+        self.targets: list[FuseSocTarget] = []
+        self.scripts: list[FuseSoCScript] = []
+        self.filesets: list[FuseSocFileSet] = []
+        self._generate_default_vivado = True
+
+    def set_generate_vivado(self, generate_vivado: bool):
+        self._generate_default_vivado = generate_vivado
 
     def add_source(self, filename, type):
         """Adds an HDL source to the list of sources in the core file"""
         self.sources.append(SourceFile(filename, type))
+
+    def add_target(self, target: FuseSocTarget):
+        """Add a named fusesoc target"""
+        self.targets.append(target)
+
+    def add_script(self, script: FuseSoCScript):
+        """Add a named fusesoc script"""
+        self.scripts.append(script)
+
+    def add_fileset(self, fileset: FuseSocFileSet):
+        """Add a complete fileset to the core file"""
+        self.filesets.append(fileset)
 
     def add_sources_dir(self, sources_dir: Collection[Path], core_path: Path):
         """Given a name of a directory, add all files found inside it.
@@ -141,9 +188,13 @@ class FuseSocBuilder:
 
                 self.add_source(path_relative_to(f, core_path.parent), f_type)
 
-    def add_dependency(self, dependency: str):
+    def add_dependency(self, dependency: str | FileSetDependency):
         """Adds a dependency to the list of dependencies in the core file"""
-        self.dependencies.append(dependency)
+        if isinstance(dependency, FileSetDependency):
+            self.dependencies.append(dependency)
+        else:
+            vlnv_parsed = FileSetDependency.parse_vlnv(dependency)
+            self.dependencies.append(vlnv_parsed)
 
     def add_external_ip(self, vlnv: str, name: str):
         """Store information about IP Cores from Vivado library
@@ -175,40 +226,44 @@ class FuseSocBuilder:
         template = env.get_template(template_name)
         jobs = cpu_count() or 4
 
-        filesets = [
+        # Generate the default rtl set
+        self.filesets.append(
             FuseSocFileSet(
                 label="rtl",
                 sources=self.sources,
+                depends=self.dependencies,
             )
-        ]
+        )
 
-        targets = [
-            FuseSocTarget(
-                "default",
-                "vivado",
-                filesets=["rtl"],
-                hooks=[FuseSoCHook("pre_build", ["set_jobs"])],
-                tools=[FuseSocToolVivado(self.part, top_name)],
+        if self._generate_default_vivado:
+            self.targets.append(
+                FuseSocTarget(
+                    "default",
+                    "vivado",
+                    "top_name",
+                    filesets=["rtl"],
+                    hooks=[FuseSoCHook("pre_build", ["set_jobs"])],
+                    tools=[FuseSocToolVivado(self.part)],
+                )
             )
-        ]
 
-        scripts = [
-            FuseSoCScript(
-                "set_jobs",
-                [
-                    "sed",
-                    "-i",
-                    f"s/launch_runs synth_1/launch_runs synth_1 -jobs {jobs}/g",
-                    f"{top_name}_0_synth.tcl",
-                ],
+            self.scripts.append(
+                FuseSoCScript(
+                    "set_jobs",
+                    [
+                        "sed",
+                        "-i",
+                        f"s/launch_runs synth_1/launch_runs synth_1 -jobs {jobs}/g",
+                        f"{top_name}_0_synth.tcl",
+                    ],
+                )
             )
-        ]
 
         text = template.render(
             top_name=top_name,
-            filesets=filesets,
-            targets=targets,
-            scripts=scripts,
+            filesets=self.filesets,
+            targets=self.targets,
+            scripts=self.scripts,
         )
         with open(core_path, "w") as f:
             f.write(text)
