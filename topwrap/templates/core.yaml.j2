@@ -2,20 +2,43 @@ CAPI=2:
 name : ::{{top_name}}
 description : project
 filesets:
-  rtl:
-    files:{% for file in sources %}
-      - {{file.filename}} : {file_type : {{file.type}}}{% endfor %}
+{%- for fileset in filesets %}
+  {{ fileset.label }}:
+    files:
+  {%- for file in fileset.sources %}
+      - {{ file.filename }} : {file_type : {{ file.type }}}
+  {%- endfor %}
+{%- endfor %}
+
 targets:
-  default:
-    default_tool : vivado
-    filesets : [rtl]
+{%- for target in targets %}
+  {{ target.name }}:
+    default_tool : {{ target.default_tool }}
+    filesets : [{% for file in target.filesets %}{{ file }}{{ "," if not loop.last }}{% endfor %}]
+  {%- if target.hooks %}
     hooks:
-      pre_build :
-        - set_jobs
+    {%- for hook in target.hooks %}
+      {{ hook.type }} :
+      {%- for script in hook.scripts %}
+        - {{ script }}
+      {%- endfor %}
+    {%- endfor %}
+  {%- endif %}
+  {%- if target.tools %}
     tools:
+    {%- for tool in target.tools %}
+      {%- if tool.type == "vivado" %}
       vivado:
-        part : {{part}}
-    toplevel : {{top_name}}
+        part : {{ tool.part }}
+    toplevel : {{ tool.toplevel }}
+      {%- endif %}
+    {%- endfor %}
+  {%- endif %}
+{%- endfor %}
+{%- if scripts %}
 scripts:
-  set_jobs:
-    cmd : [sed, -i, '"s/launch_runs synth_1/launch_runs synth_1 -jobs {{jobs}}/g"', {{top_name}}_0_synth.tcl]
+  {%- for script in scripts %}
+  {{ script.label }}:
+    cmd : [{% for arg in script.args %}{{ arg }}{{ ", " if not loop.last }}{% endfor %}]
+  {%- endfor %}
+{%- endif %}

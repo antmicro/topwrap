@@ -1,5 +1,7 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+import logging
+from dataclasses import dataclass
 from os import cpu_count, path
 from pathlib import Path
 from typing import Collection, Optional
@@ -9,6 +11,8 @@ from jinja2 import Environment, FileSystemLoader
 from topwrap.util import path_relative_to
 
 TEMPLATES_DIR = path.join(path.dirname(__file__), "templates")
+
+logger = logging.getLogger(__name__)
 
 
 class SourceFile:
@@ -27,6 +31,81 @@ class IP:
         """
         self.name = name
         self.vlnv = vlnv
+
+
+@dataclass
+class FuseSoCHook:
+    type: str
+    scripts: list[str]
+
+
+SUPPORTED_FUSESOC_TOOLS = frozenset(["vivado", "verilator"])
+
+
+class FuseSocTool:
+    """Base class for tool settings in fusesoc target"""
+
+    type = "unknown"
+
+    def is_valid(self) -> bool:
+        return self.type in SUPPORTED_FUSESOC_TOOLS
+
+
+class FuseSocToolVivado(FuseSocTool):
+    type = "vivado"
+
+    def __init__(self, part: str, toplevel: str):
+        self.part = part
+        self.toplevel = toplevel
+
+
+class FuseSocToolVerilator(FuseSocTool):
+    type = "verilator"
+
+
+class FuseSocTarget:
+    def __init__(
+        self,
+        name: str,
+        default_tool: str,
+        /,
+        filesets: Optional[list[str]] = None,
+        hooks: Optional[list[FuseSoCHook]] = None,
+        tools: Optional[list[FuseSocTool]] = None,
+    ):
+        self.name = name
+        self.default_tool = default_tool
+        self.filesets = filesets or []
+        self.hooks = hooks or []
+        self.tools = tools or []
+
+        if not any(default_tool == tool.type for tool in self.tools):
+            _s = "The default tool does not exist in the list of tools"
+            logger.error(_s)
+            raise AssertionError(_s)  # FIXME: what's the proper error?
+
+
+@dataclass
+class FuseSocFileSet:
+    label: str
+    sources: list[SourceFile]
+
+
+@dataclass
+class FuseSoCScript:
+    label: str
+    args: list[str]
+
+    def __post_init__(self):
+        # Add necessary string
+        for i in range(len(self.args)):
+            arg = self.args[i]
+
+            if arg.startswith("'"):
+                continue
+
+            if " " in arg:
+                self.args[i] = f"'\"{arg}\"'"
 
 
 class FuseSocBuilder:
@@ -95,12 +174,41 @@ class FuseSocBuilder:
         )
         template = env.get_template(template_name)
         jobs = cpu_count() or 4
+
+        filesets = [
+            FuseSocFileSet(
+                label="rtl",
+                sources=self.sources,
+            )
+        ]
+
+        targets = [
+            FuseSocTarget(
+                "default",
+                "vivado",
+                filesets=["rtl"],
+                hooks=[FuseSoCHook("pre_build", ["set_jobs"])],
+                tools=[FuseSocToolVivado(self.part, top_name)],
+            )
+        ]
+
+        scripts = [
+            FuseSoCScript(
+                "set_jobs",
+                [
+                    "sed",
+                    "-i",
+                    f"s/launch_runs synth_1/launch_runs synth_1 -jobs {jobs}/g",
+                    f"{top_name}_0_synth.tcl",
+                ],
+            )
+        ]
+
         text = template.render(
-            sources=self.sources,
-            external_ips=self.external_ips,
-            jobs=jobs,
-            part=self.part,
             top_name=top_name,
+            filesets=filesets,
+            targets=targets,
+            scripts=scripts,
         )
         with open(core_path, "w") as f:
             f.write(text)
