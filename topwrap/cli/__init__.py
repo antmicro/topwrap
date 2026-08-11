@@ -13,6 +13,7 @@ from cyclopts import Parameter
 from cyclopts.types import ExistingDirectory, ExistingFile
 
 import topwrap.logger
+from topwrap import __version__
 from topwrap.frontend.yaml.design import DesignDescriptionFrontendException
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.misc import Identifier
@@ -23,7 +24,7 @@ from topwrap.util import MarshmallowErrorRewriter, get_config, parse_incdirs
 
 logger = logging.getLogger(__name__)
 
-cli = cyclopts.App(default_parameter=cyclopts.Parameter(short_alias=True))
+cli = cyclopts.App(default_parameter=cyclopts.Parameter(short_alias=True), version=__version__)
 repo_cli = cyclopts.App(name="repo", help="Commands related to user repositories")
 cli.command(repo_cli)
 

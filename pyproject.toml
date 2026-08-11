@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "topwrap"
-version = "0.0.1"
+dynamic = ["version"]
 requires-python = ">=3.10"
 authors = [{name = "Antmicro"}]
 description = "Package for generating HDL wrappers and top modules for your HDL sources"
@@ -73,6 +73,9 @@ topwrap = "topwrap.cli.main:main"
 
 [tool.setuptools.packages.find]
 include = ["topwrap*","tests/update_test_data.py"]
+
+[tool.setuptools_scm]
+version_file = "topwrap/_version.py"
 
 [tool.setuptools.package-data]
 topwrap = [
