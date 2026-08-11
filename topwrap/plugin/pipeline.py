@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -12,6 +11,7 @@ from topwrap.plugin.base import (
     BuildContext,
     BuildException,
     FileSource,
+    OutputDir,
     Source,
     StringSource,
 )
@@ -34,12 +34,6 @@ from topwrap.plugin.steps import (
 from topwrap.util import JsonType
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class OutputDir:
-    target_dir: Path
-    gensrc_dir: Path
 
 
 class BuildPipeline:
@@ -155,7 +149,7 @@ class BuildPipeline:
 
     def build(
         self,
-        outdir: OutputDir | Path,
+        outdir: OutputDir,
     ):
         if not self.ctx:
             raise BuildException("prepare must be called before build")
@@ -176,7 +170,7 @@ class BuildPipeline:
         self,
         sources: list[Source],
         design_source: Optional[Source],
-        outdir: OutputDir | Path,
+        outdir: OutputDir,
     ):
         self.prepare(sources, design_source)
         self.process()
@@ -191,7 +185,7 @@ class BuildPipeline:
         self.run(
             [FileSource(f) for f in sources],
             design_source and FileSource(design_source),
-            outdir,
+            outdir if isinstance(outdir, OutputDir) else OutputDir(outdir, outdir),
         )
 
     def run_str(
@@ -203,7 +197,7 @@ class BuildPipeline:
         self.run(
             [StringSource(f) for f in sources],
             StringSource(design_source) if design_source is not None else None,
-            outdir,
+            outdir if isinstance(outdir, OutputDir) else OutputDir(outdir, outdir),
         )
 
     @staticmethod

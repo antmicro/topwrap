@@ -32,8 +32,8 @@ from topwrap.config_defaults import (
 )
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
-from topwrap.plugin.base import BuildException
-from topwrap.plugin.pipeline import BuildPipeline, OutputDir
+from topwrap.plugin.base import BuildException, OutputDir
+from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.plugin.steps import KpmSpecificationOutputStage
 from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
 from topwrap.util import JsonType, get_config

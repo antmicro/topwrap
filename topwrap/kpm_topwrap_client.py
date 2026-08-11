@@ -25,7 +25,7 @@ from topwrap.backend.yaml.backend import (
     IpCoreDescriptionBackend,
 )
 from topwrap.model.misc import Identifier, QuerableView
-from topwrap.plugin.pipeline import BuildPipeline
+from topwrap.plugin.pipeline import BuildPipeline, OutputDir
 from topwrap.plugin.steps import (
     KpmDataflowOutputStage,
     KpmSpecificationOutputStage,
@@ -140,7 +140,7 @@ class RPCMethods:
         target_dir = Path(basename)
         target_dir.mkdir(exist_ok=True)
 
-        pipeline.build(target_dir)
+        pipeline.build(OutputDir(target_dir, target_dir))
 
         if self.client is not None:
             await self.client.request(

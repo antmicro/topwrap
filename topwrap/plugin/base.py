@@ -13,6 +13,12 @@ from topwrap.model.module import Module
 
 
 @dataclass
+class OutputDir:
+    target_dir: Path
+    gensrc_dir: Path
+
+
+@dataclass
 class FileSource:
     path: Path
 
@@ -103,10 +109,10 @@ class BasePlugin:
         """Hook invoked after generating outputs (but before writing outputs to files)."""
         pass
 
-    def pre_output_writing(self, ctx: BuildContext, target_dir: Path):
+    def pre_output_writing(self, ctx: BuildContext, target_dir: OutputDir):
         """Hook invoked before writing outputs to files."""
         pass
 
-    def post_output_writing(self, ctx: BuildContext, target_dir: Path):
+    def post_output_writing(self, ctx: BuildContext, target_dir: OutputDir):
         """Hook invoked after writing outputs to files."""
         pass
