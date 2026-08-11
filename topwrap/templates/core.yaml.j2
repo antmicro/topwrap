@@ -19,7 +19,6 @@ filesets:
 targets:
 {%- for target in targets %}
   {{ target.name }}:
-    default_tool : {{ target.default_tool }}
     filesets : [{% for file in target.filesets %}{{ file }}{{ "," if not loop.last }}{% endfor %}]
   {%- if target.hooks %}
     hooks:
@@ -31,18 +30,30 @@ targets:
     {%- endfor %}
   {%- endif %}
     toplevel: {{ target.toplevel }}
-  {%- if target.tools %}
+  {%- if target.is_flow %}
+    flow: {{ target.flow.type }}
+    flow_options:
+      tool: {{ target.flow.tool }}
+    {%- if target.flow.tool == "verilator" %}
+      mode: cc
+      verilator_options: [-Wno-fatal, --main, --timing]
+    {%- endif %}
+      flow_make_options: [{% for opt in target.flow.make_options %}{{ opt }}{{ ", " if not loop.last }}{% endfor %}]
+  {%- else %}
+    default_tool : {{ target.tool.default_tool }}
+    {%- if target.tool.tools %}
     tools:
-    {%- for tool in target.tools %}
-      {%- if tool.type == "vivado" %}
+      {%- for tool in target.tool.tools %}
+        {%- if tool.type == "vivado" %}
       vivado:
         part: {{ tool.part }}
-      {%- elif tool.type == "verilator" %}
+        {%- elif tool.type == "verilator" %}
       verilator:
         mode: cc
         verilator_options : [-Wno-fatal, --main, --timing]
-      {%- endif %}
-    {%- endfor %}
+        {%- endif %}
+      {%- endfor %}
+    {%- endif %}
   {%- endif %}
 {%- endfor %}
 {%- if scripts %}

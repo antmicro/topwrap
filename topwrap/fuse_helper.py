@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from os import cpu_count, path
 from pathlib import Path
 from re import compile
-from typing import Collection, Optional
+from typing import Collection, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -60,12 +60,30 @@ class IP:
 
 
 @dataclass
-class FuseSoCHook:
+class FuseSocHook:
     type: str
     scripts: list[str]
 
 
 SUPPORTED_FUSESOC_TOOLS = frozenset(["vivado", "verilator"])
+SUPPORTED_FUSESOC_FLOWS = frozenset(["sim"])
+SUPPORTED_FUSESOC_FLOW_TOOLS = frozenset(["verilator"])
+
+
+class FuseSocFlow:
+    type = "unknown"
+    tool = "unknown"
+
+    def __init__(self, make_options: Optional[list[str]] = None):
+        self.make_options = [] if make_options is None else make_options
+
+    def is_valid(self) -> bool:
+        return self.type in SUPPORTED_FUSESOC_FLOWS and self.tool in SUPPORTED_FUSESOC_FLOW_TOOLS
+
+
+class FuseSocFlowVerilator(FuseSocFlow):
+    type = "sim"
+    tool = "verilator"
 
 
 class FuseSocTool:
@@ -88,28 +106,34 @@ class FuseSocToolVerilator(FuseSocTool):
     type = "verilator"
 
 
-class FuseSocTarget:
-    def __init__(
-        self,
-        name: str,
-        default_tool: str,
-        toplevel: str,
-        /,
-        filesets: Optional[list[str]] = None,
-        hooks: Optional[list[FuseSoCHook]] = None,
-        tools: Optional[list[FuseSocTool]] = None,
-    ):
-        self.name = name
-        self.default_tool = default_tool
-        self.toplevel = toplevel
-        self.filesets = filesets or []
-        self.hooks = hooks or []
-        self.tools = tools or []
+class FuseSocToolAPI:
+    def __init__(self, default_tool: str, tools: Optional[list[FuseSocTool]]):
+        self.default_tool = str
+        self.tools = [] if tools is None else tools
 
         if not any(default_tool == tool.type for tool in self.tools):
             _s = "The default tool does not exist in the list of tools"
             logger.error(_s)
             raise AssertionError(_s)  # FIXME: what's the proper error?
+
+
+class FuseSocTarget:
+    def __init__(
+        self,
+        name: str,
+        toplevel: str,
+        api: Union[FuseSocToolAPI, FuseSocFlow],
+        /,
+        filesets: Optional[list[str]] = None,
+        hooks: Optional[list[FuseSocHook]] = None,
+    ):
+        self.name = name
+        self.toplevel = toplevel
+        self.filesets = filesets or []
+        self.hooks = hooks or []
+        self.flow = api if isinstance(api, FuseSocFlow) else None
+        self.tool = api if isinstance(api, FuseSocToolAPI) else None
+        self.is_flow = isinstance(api, FuseSocFlow)
 
 
 @dataclass
@@ -120,7 +144,7 @@ class FuseSocFileSet:
 
 
 @dataclass
-class FuseSoCScript:
+class FuseSocScript:
     label: str
     args: list[str]
 
@@ -137,7 +161,7 @@ class FuseSoCScript:
 
 
 class FuseSocBuilder:
-    """Use this class to generate a FuseSoC .core file"""
+    """Use this class to generate a FuseSoc .core file"""
 
     def __init__(self, part: Optional[str]):
         self.sources = []
@@ -145,7 +169,7 @@ class FuseSocBuilder:
         self.external_ips = []
         self.part = part
         self.targets: list[FuseSocTarget] = []
-        self.scripts: list[FuseSoCScript] = []
+        self.scripts: list[FuseSocScript] = []
         self.filesets: list[FuseSocFileSet] = []
         self._generate_default_vivado = True
 
@@ -160,7 +184,7 @@ class FuseSocBuilder:
         """Add a named fusesoc target"""
         self.targets.append(target)
 
-    def add_script(self, script: FuseSoCScript):
+    def add_script(self, script: FuseSocScript):
         """Add a named fusesoc script"""
         self.scripts.append(script)
 
@@ -239,16 +263,15 @@ class FuseSocBuilder:
             self.targets.append(
                 FuseSocTarget(
                     "default",
-                    "vivado",
                     "top_name",
+                    FuseSocToolAPI(default_tool="vivado", tools=[FuseSocToolVivado(self.part)]),
                     filesets=["rtl"],
-                    hooks=[FuseSoCHook("pre_build", ["set_jobs"])],
-                    tools=[FuseSocToolVivado(self.part)],
+                    hooks=[FuseSocHook("pre_build", ["set_jobs"])],
                 )
             )
 
             self.scripts.append(
-                FuseSoCScript(
+                FuseSocScript(
                     "set_jobs",
                     [
                         "sed",
