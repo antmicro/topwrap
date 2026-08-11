@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -33,6 +34,12 @@ from topwrap.plugin.steps import (
 from topwrap.util import JsonType
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class OutputDir:
+    target_dir: Path
+    gensrc_dir: Path
 
 
 class BuildPipeline:
@@ -148,51 +155,55 @@ class BuildPipeline:
 
     def build(
         self,
-        target_dir: Path,
+        outdir: OutputDir | Path,
     ):
         if not self.ctx:
             raise BuildException("prepare must be called before build")
 
-        target_dir.mkdir(exist_ok=True)
+        if isinstance(outdir, Path):
+            outdir = OutputDir(outdir, outdir)
 
-        self.plugin_manager.trigger(BasePlugin.pre_output_writing, self.ctx, target_dir)
+        outdir.target_dir.mkdir(exist_ok=True)
+        outdir.gensrc_dir.mkdir(exist_ok=True)
+
+        self.plugin_manager.trigger(BasePlugin.pre_output_writing, self.ctx, outdir)
         for o in self.outputs:
             logger.info(f"Writing output: {o.name}")
-            o.write_output_to(target_dir, self.ctx)
-        self.plugin_manager.trigger(BasePlugin.post_output_writing, self.ctx, target_dir)
+            o.write_output_to(outdir.gensrc_dir, self.ctx)
+        self.plugin_manager.trigger(BasePlugin.post_output_writing, self.ctx, outdir)
 
     def run(
         self,
         sources: list[Source],
         design_source: Optional[Source],
-        target_dir: Path,
+        outdir: OutputDir | Path,
     ):
         self.prepare(sources, design_source)
         self.process()
-        self.build(target_dir)
+        self.build(outdir)
 
     def run_files(
         self,
         sources: list[Path],
         design_source: Optional[Path],
-        target_dir: Path,
+        outdir: OutputDir | Path,
     ):
         self.run(
             [FileSource(f) for f in sources],
             design_source and FileSource(design_source),
-            target_dir,
+            outdir,
         )
 
     def run_str(
         self,
         sources: list[str],
         design_source: Optional[str],
-        target_dir: Path,
+        outdir: OutputDir | Path,
     ):
         self.run(
             [StringSource(f) for f in sources],
             StringSource(design_source) if design_source is not None else None,
-            target_dir,
+            outdir,
         )
 
     @staticmethod

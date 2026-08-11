@@ -33,7 +33,7 @@ from topwrap.config_defaults import (
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
 from topwrap.plugin.base import BuildException
-from topwrap.plugin.pipeline import BuildPipeline
+from topwrap.plugin.pipeline import BuildPipeline, OutputDir
 from topwrap.plugin.steps import KpmSpecificationOutputStage
 from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
 from topwrap.util import JsonType, get_config
@@ -51,6 +51,7 @@ def build_main(
     sources: Tuple[ExistingDirectory, ...] = (),
     design: ExistingFile,
     build_dir: Optional[Path] = None,
+    gensrc_dir: Optional[Path] = None,
     fuse: bool = False,
     part: Optional[str] = None,
     iface_compliance: bool = False,
@@ -75,13 +76,18 @@ def build_main(
     if build_dir is None:
         build_dir = Path("build")
 
+    if gensrc_dir is None:
+        gensrc_dir = Path(build_dir)
+
     get_config().force_interface_compliance = iface_compliance
+
+    outdir = OutputDir(build_dir, gensrc_dir)
 
     try:
         pipeline = BuildPipeline.yaml_sv_pipeline(
             fuse=fuse, fuse_part=part, fuse_src_dirs=list(sources)
         )
-        pipeline.run_files([], design, build_dir)
+        pipeline.run_files([], design, outdir)
     except BuildException as e:
         logger.error(f"{e}")
         sys.exit(1)
@@ -312,6 +318,7 @@ def kpm_client_main(
     port: int = DEFAULT_SERVER_PORT,
     design: Optional[ExistingFile] = None,
     build_dir: Optional[Path] = None,
+    gensrc_dir: Optional[Path] = None,
 ):
     """Run a client app that connects to a running KPM server.
 

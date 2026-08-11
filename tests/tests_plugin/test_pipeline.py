@@ -125,7 +125,7 @@ class MockPlugin(BasePlugin):
         self.steps += [f"post_output_generation {self.__class__.__name__}"]
 
     def pre_output_writing(self, ctx: BuildContext, target_dir: Path):
-        self.steps += [f"post_output_writing {self.__class__.__name__} {target_dir}"]
+        self.steps += [f"pre_output_writing {self.__class__.__name__} {target_dir}"]
 
     def post_output_writing(self, ctx: BuildContext, target_dir: Path):
         self.steps += [f"post_output_writing {self.__class__.__name__} {target_dir}"]
@@ -188,12 +188,16 @@ class TestBuildPipeline:
             "generate_output B",
             "post_output_generation MockPluginHiPrio",
             "post_output_generation MockPlugin",
-            "post_output_writing MockPluginHiPrio /output",
-            "post_output_writing MockPlugin /output",
+            "pre_output_writing MockPluginHiPrio "
+            "OutputDir(target_dir=PosixPath('/output'), gensrc_dir=PosixPath('/output'))",
+            "pre_output_writing MockPlugin "
+            "OutputDir(target_dir=PosixPath('/output'), gensrc_dir=PosixPath('/output'))",
             "write_output_to /output/mock.A.output A",
             "write_output_to /output/mock.B.output B",
-            "post_output_writing MockPluginHiPrio /output",
-            "post_output_writing MockPlugin /output",
+            "post_output_writing MockPluginHiPrio "
+            "OutputDir(target_dir=PosixPath('/output'), gensrc_dir=PosixPath('/output'))",
+            "post_output_writing MockPlugin "
+            "OutputDir(target_dir=PosixPath('/output'), gensrc_dir=PosixPath('/output'))",
         ]
 
         assert set(fs.listdir(outdir.path)) == {
