@@ -10,6 +10,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, Template
 
+from topwrap import __version__
 from topwrap.model.hdl_types import (
     Bit,
     BitStruct,
@@ -85,6 +86,7 @@ def get_template(name: str) -> Template:
         name,
         globals={
             "gen_date": datetime.now,
+            "topwrap_version": __version__,
             sv_varname.__name__: sv_varname,
             serialize_type.__name__: serialize_type,
         },
