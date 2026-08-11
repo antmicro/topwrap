@@ -279,7 +279,7 @@ class FuseSocOutputStage(OutputStage):
 
         fuse_builder = FuseSocBuilder(self.part)
 
-        fuse_builder.add_source(f"{ctx.top_module.id.name}.sv", "systemVerilogSource")
+        fuse_builder.add_source(Path(f"{ctx.top_module.id.name}.sv"), "systemVerilogSource")
         fuse_builder.build(
             ctx.top_module.id.name,
             target_dir / f"{ctx.top_module.id.name}.core",

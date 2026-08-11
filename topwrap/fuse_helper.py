@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class SourceFile:
-    def __init__(self, filename, type):
+    def __init__(self, filename: Path, type: str):
         self.filename = filename
         self.type = type
 
@@ -80,7 +80,7 @@ class FuseSocTool:
 class FuseSocToolVivado(FuseSocTool):
     type = "vivado"
 
-    def __init__(self, part: str):
+    def __init__(self, part: str | None):
         self.part = part
 
 
@@ -139,7 +139,7 @@ class FuseSoCScript:
 class FuseSocBuilder:
     """Use this class to generate a FuseSoC .core file"""
 
-    def __init__(self, part):
+    def __init__(self, part: Optional[str]):
         self.sources = []
         self.dependencies = []
         self.external_ips = []
@@ -152,7 +152,7 @@ class FuseSocBuilder:
     def set_generate_vivado(self, generate_vivado: bool):
         self._generate_default_vivado = generate_vivado
 
-    def add_source(self, filename, type):
+    def add_source(self, filename: Path, type: str):
         """Adds an HDL source to the list of sources in the core file"""
         self.sources.append(SourceFile(filename, type))
 
