@@ -22,7 +22,7 @@ fuse.build('build/top.core', 'sources')
 ```
 
 :::{warning}
-Default template in `topwrap/templates/core.yaml.j2` does not make use of resources added with {meth}`~topwrap.fuse_helper.FuseSocBuilder.add_dependency` or {meth}`~topwrap.fuse_helper.FuseSocBuilder.add_external_ip`, i.e. they won't be present in the generated core file.
+Default template in `topwrap/templates/core.yaml.j2` does not make use of resources added with {meth}`~topwrap.fuse_helper.FuseSocBuilder.add_external_ip`, i.e. they won't be present in the generated core file.
 :::
 
 ```{eval-rst}
@@ -30,3 +30,88 @@ Default template in `topwrap/templates/core.yaml.j2` does not make use of resour
    :members:
 
 ```
+
+## Customizations
+
+By default, Topwrap will generate a core file with a default target of running Vivado on the top-level defined by the Topwrap project.  
+This can be overridden in several ways.
+To disable the generation of a default Vivado target, you would call
+
+```python
+from topwrap.fuse_helper import FuseSocBuilder
+fuse = FuseSocBuilder(None)
+
+fuse.set_generate_vivado(False) # disables the default vivado target
+```
+
+You can add custom targets by constructing {class}`~topwrap.fuse_helper.FuseSocTarget`.
+Here's an example to create a Verilator flow-target that builds and runs a testbench:
+
+```python
+from pathlib import Path
+
+from topwrap.fuse_helper import (
+    FuseSocBuilder,
+    FuseSocFileSet,
+    FuseSocFlowVerilator,
+    FuseSocTarget,
+    SourceFile,
+)
+
+fuse = FuseSocBuilder(None)
+
+fuse.set_generate_vivado(False)
+
+# Add a source to the default `rtl` fileset
+fuse.add_source(Path("top.v"), "verilogSource")
+toplevel = "top"  # toplevel, as defined in top.v
+
+# Add a second fileset, `verilator_tb`, with testbench
+fuse.add_fileset(
+    FuseSocFileSet(
+        "verilator_tb",
+        sources=[SourceFile(Path("top_tb.sv"), "systemVerilogSource")],
+        depends=[],
+    )
+)
+
+# Add a testbench target `tb`, that references both the default fileset and the custom
+fuse.add_target(
+    FuseSocTarget(
+        "tb",
+        toplevel,
+        FuseSocFlowVerilator(),
+        filesets=["rtl", "verilator_tb"],
+        hooks=[],
+    )
+)
+
+fuse.build(toplevel, Path("top.core"))
+```
+
+This will generate the following:
+
+```
+CAPI=2:
+name : ::top
+description : project
+filesets:
+  verilator_tb:
+    files:
+      - top_tb.sv : {file_type : systemVerilogSource}
+  rtl:
+    files:
+      - top.v : {file_type : verilogSource}
+
+targets:
+  tb:
+    filesets : [rtl,verilator_tb]
+    toplevel: top
+    flow: sim
+    flow_options:
+      tool: verilator
+      mode: cc
+      verilator_options: [-Wno-fatal, --main, --timing]
+      flow_make_options: []
+```
+
