@@ -65,7 +65,9 @@ def build_main(
     design
         Top design file.
     build_dir
-        Output directory for generated files.
+        Output build directory.
+    gensrc_dir
+        Output directory for generated files (defaults to --build-dir).
     fuse
         Generate a FuseSoC .core file for further synthesis.
     part
@@ -284,6 +286,7 @@ class KPM:
 def generate_ipxact(
     design: ExistingFile,
     build_dir: Optional[Path] = None,
+    gensrc_dir: Optional[Path] = None,
     iface_compliance: bool = False,
 ):
     """Generate IP-XACT 2022 files from a top design YAML file.
@@ -293,18 +296,24 @@ def generate_ipxact(
     design
         Top design file.
     build_dir
-        Output directory for generated files.
+        Output build directory.
+    gensrc_dir
+        Output directory for generated files (defaults to --build-dir).
     iface_compliance
         Force intterfdace compliance checking.
     """
     if build_dir is None:
         build_dir = Path("build")
+    if gensrc_dir is None:
+        gensrc_dir = Path(build_dir)
+
+    outdir = OutputDir(build_dir, gensrc_dir)
 
     get_config().force_interface_compliance = iface_compliance
 
     try:
         pipeline = BuildPipeline.yaml_ipxact_pipeline()
-        pipeline.run_files([], design, build_dir)
+        pipeline.run_files([], design, outdir)
     except BuildException as e:
         logger.error(f"{e}")
         sys.exit(1)
@@ -318,7 +327,6 @@ def kpm_client_main(
     port: int = DEFAULT_SERVER_PORT,
     design: Optional[ExistingFile] = None,
     build_dir: Optional[Path] = None,
-    gensrc_dir: Optional[Path] = None,
 ):
     """Run a client app that connects to a running KPM server.
 
@@ -569,7 +577,7 @@ def generate_kpm_spec(
 
     try:
         pipeline = BuildPipeline.yaml_kpm_spec_pipeline(output)
-        pipeline.run_files(list(files), design, Path())
+        pipeline.run_files(list(files), design, OutputDir(Path(), Path()))
     except BuildException as e:
         logger.error(f"{e}")
         sys.exit(1)
@@ -589,7 +597,7 @@ def generate_kpm_design(
 
     try:
         pipeline = BuildPipeline.yaml_kpm_flow_pipeline(output)
-        pipeline.run_files(list(files), design, Path())
+        pipeline.run_files(list(files), design, OutputDir(Path(), Path()))
     except BuildException as e:
         logger.error(f"{e}")
         sys.exit(1)

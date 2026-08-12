@@ -571,7 +571,7 @@ def _kpm_dataflow_run_handler(
         # TODO: No part or source dir specified here, because the user can't specify it when doing
         # the "run" action from KPM currently.
         pipeline = BuildPipeline.kpm_sv_pipeline(fuse=True, fuse_part=None, fuse_src_dirs=[])
-        pipeline.run_str([json.dumps(spec)], json.dumps(data), build_dir)
+        pipeline.run_str([json.dumps(spec)], json.dumps(data), OutputDir(build_dir, build_dir))
 
     return messages["errors"]
 

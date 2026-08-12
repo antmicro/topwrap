@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import functools
 import logging
+import re
 from abc import ABC
 from dataclasses import dataclass, field
 from itertools import chain
@@ -253,6 +254,10 @@ class ElaboratableValue:
     Field = Annotated["ElaboratableValue", DataclassRepr]
 
 
+# FIXME: this is **very** permissive
+VLNV_RE = re.compile(r"^([^:]*):([^:]*):([^:]*)(?::([^:]*))?$")
+
+
 @dataclass(frozen=True)
 class Identifier:
     """
@@ -265,6 +270,17 @@ class Identifier:
     vendor: str = field(default="vendor")
     library: str = field(default="libdefault")
     version: str = field(default="0.1")
+
+    @staticmethod
+    def parse_vlnv(src: str) -> "Identifier":
+        m = VLNV_RE.fullmatch(src)
+
+        if not m:
+            _s = f"Failed to parse VLNV: {src}"
+            logger.error(_s)
+            raise ValueError(_s)
+
+        return Identifier(vendor=m[1], library=m[2], name=m[3], version=m[4])
 
     def combined(self) -> str:
         return "_".join([self.vendor, self.library, self.name])

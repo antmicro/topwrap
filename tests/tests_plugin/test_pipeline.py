@@ -13,6 +13,7 @@ from topwrap.model.module import Module
 from topwrap.plugin.base import (
     BasePlugin,
     BuildContext,
+    OutputDir,
     Source,
     StringSource,
 )
@@ -157,7 +158,8 @@ class TestBuildPipeline:
         )
 
         outdir = fs.create_dir("output")
-        pipeline.run_str(["a", "b", "c"], "d", Path(outdir.path))
+        outdir_path = Path(outdir.path)
+        pipeline.run_str(["a", "b", "c"], "d", OutputDir(outdir_path, outdir_path))
 
         assert steps == [
             "pre_ir_generation MockPluginHiPrio",

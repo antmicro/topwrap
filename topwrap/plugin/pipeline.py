@@ -154,9 +154,6 @@ class BuildPipeline:
         if not self.ctx:
             raise BuildException("prepare must be called before build")
 
-        if isinstance(outdir, Path):
-            outdir = OutputDir(outdir, outdir)
-
         outdir.target_dir.mkdir(exist_ok=True)
         outdir.gensrc_dir.mkdir(exist_ok=True)
 
@@ -180,24 +177,24 @@ class BuildPipeline:
         self,
         sources: list[Path],
         design_source: Optional[Path],
-        outdir: OutputDir | Path,
+        outdir: OutputDir,
     ):
         self.run(
             [FileSource(f) for f in sources],
             design_source and FileSource(design_source),
-            outdir if isinstance(outdir, OutputDir) else OutputDir(outdir, outdir),
+            outdir,
         )
 
     def run_str(
         self,
         sources: list[str],
         design_source: Optional[str],
-        outdir: OutputDir | Path,
+        outdir: OutputDir,
     ):
         self.run(
             [StringSource(f) for f in sources],
             StringSource(design_source) if design_source is not None else None,
-            outdir if isinstance(outdir, OutputDir) else OutputDir(outdir, outdir),
+            outdir,
         )
 
     @staticmethod
