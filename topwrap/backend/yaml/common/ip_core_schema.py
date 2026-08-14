@@ -21,7 +21,6 @@ from typing import (
 import marshmallow
 import marshmallow_dataclass
 
-from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.hdl_parsers_utils import PortDefinition as LegacyPortDefinition
 from topwrap.hdl_parsers_utils import PortDirection as LegacyPortDirection
@@ -222,7 +221,7 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
     """Interface specified in IP Core YAML file. `Type` field has name of InterfaceDefinition"""
 
     type: Identifier
-    mode: InterfaceModeDescription = ext_field(by_value=True)
+    mode: InterfaceMode = ext_field(by_value=True)
     signals: IPCoreIntfPorts = ext_field(IPCoreIntfPorts)
     clock: Optional[str] = ext_field(None)
     reset: Optional[str] = ext_field(None)

@@ -11,7 +11,6 @@ from typing import (
 
 import marshmallow
 
-from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexSignal,
     IPCoreDescription,
@@ -215,12 +214,6 @@ class IPCoreDescriptionFrontend:
                 )
             ird = res.definition
 
-            if iface.mode is InterfaceModeDescription.MANAGER:
-                mode = InterfaceMode.MANAGER
-            elif iface.mode is InterfaceModeDescription.SUBORDINATE:
-                mode = InterfaceMode.SUBORDINATE
-            else:
-                mode = InterfaceMode.UNSPECIFIED
             byname = {s.name: s for s in ird.signals}
             signals = {}
             for dir, sigs in (
@@ -230,7 +223,7 @@ class IPCoreDescriptionFrontend:
             ):
                 for sname, sig in sigs.items():
                     if sig:
-                        port = self._parse_signal(mod, dir, sig, types, byname[sname], mode)
+                        port = self._parse_signal(mod, dir, sig, types, byname[sname], iface.mode)
 
                         if isinstance(port, Port):
                             port = ReferencedPort.external(port)
@@ -259,7 +252,7 @@ class IPCoreDescriptionFrontend:
             mod.add_interface(
                 Interface(
                     name=iname,
-                    mode=mode,
+                    mode=iface.mode,
                     definition=ird,
                     signals=signals,
                     clock=clock,

@@ -11,7 +11,6 @@ from typing_extensions import Any, override
 
 from topwrap.backend.backend import Backend, BackendOutputInfo, BackendParseException
 from topwrap.backend.kpm.common import Positions
-from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreClock,
     IPCoreComplexParameter,
@@ -192,12 +191,6 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         return IPCorePorts(input, output, inout)
 
     def _represent_intf(self, intf: Interface) -> IPCoreInterface:
-        mode = InterfaceModeDescription.UNSPECIFIED
-        if intf.mode == InterfaceMode.MANAGER:
-            mode = InterfaceModeDescription.MANAGER
-        elif intf.mode == InterfaceMode.SUBORDINATE:
-            mode = InterfaceModeDescription.SUBORDINATE
-
         input, output, inout = (
             dict[str, Optional[Signal]](),
             dict[str, Optional[Signal]](),
@@ -242,7 +235,7 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
 
         return IPCoreInterface(
             type=intf.definition.id,
-            mode=mode,
+            mode=intf.mode,
             signals=IPCoreIntfPorts(input, output, inout),
         )
 

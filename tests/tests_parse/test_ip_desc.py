@@ -11,7 +11,6 @@ import yaml
 from deepdiff import DeepDiff
 from marshmallow import ValidationError
 
-from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexParameter,
     IPCoreDescription,
@@ -19,6 +18,7 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreIntfPorts,
     IPCorePorts,
 )
+from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import Identifier
 from topwrap.util import get_config
 
@@ -301,7 +301,7 @@ interfaces:
             interfaces={
                 "intf1": IPCoreInterface(
                     type=Identifier(name="wishbone"),
-                    mode=InterfaceModeDescription.MANAGER,
+                    mode=InterfaceMode.MANAGER,
                     signals=IPCoreIntfPorts(
                         input={"ack": ("ack", 2, 0)},
                         output={"cyc": "cyc", "stb": ("cyc", 3, 0, 1, 0)},

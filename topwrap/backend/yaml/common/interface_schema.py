@@ -1,6 +1,5 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from enum import Enum
 from typing import Dict
 
 import marshmallow_dataclass
@@ -11,17 +10,6 @@ from topwrap.common_serdes import (
     ext_field,
 )
 from topwrap.model.misc import Identifier
-
-
-class InterfaceModeDescription(Enum):
-    MANAGER = "manager"
-    SUBORDINATE = "subordinate"
-    UNSPECIFIED = "unspecified"
-
-
-class InterfaceSignalTypeDescription(Enum):
-    REQUIRED = "required"
-    OPTIONAL = "optional"
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
