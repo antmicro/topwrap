@@ -2,14 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from typing import Optional
+
 from topwrap.backend.yaml.common.interface_schema import (
     InterfaceDefinitionDescription,
-    InterfaceDefinitionSignalsDescription,
+    InterfaceDefinitionSignalDescription,
+    InterfaceDefinitionSignalMode,
 )
-from topwrap.model.connections import PortDirection
 from topwrap.model.interface import (
     InterfaceDefinition,
     InterfaceMode,
+    InterfaceSignalConfiguration,
 )
 
 
@@ -26,36 +29,43 @@ class InterfaceDefinitionDescriptionBackend:
         :param definition: InterfaceDefinition IR class that will be represented as
             InterfaceDefinitionDescription YAML file
         """
-        required_signals = InterfaceDefinitionSignalsDescription.Inner()
-        optional_signals = InterfaceDefinitionSignalsDescription.Inner()
-        for signal in definition.signals:
-            if InterfaceMode.MANAGER in signal.modes:
-                configuration = signal.modes[InterfaceMode.MANAGER]
-            else:
-                configuration = signal.modes[InterfaceMode.UNSPECIFIED]
-            if configuration.required:
-                if configuration.direction == PortDirection.IN:
-                    required_signals.input[signal.name] = signal.regexp
-                elif configuration.direction == PortDirection.OUT:
-                    required_signals.output[signal.name] = signal.regexp
-                elif configuration.direction == PortDirection.INOUT:
-                    required_signals.inout[signal.name] = signal.regexp
-                else:
-                    raise AssertionError("Not implemented, should not be possible")
-            else:
-                if configuration.direction == PortDirection.IN:
-                    optional_signals.input[signal.name] = signal.regexp
-                elif configuration.direction == PortDirection.OUT:
-                    optional_signals.output[signal.name] = signal.regexp
-                elif configuration.direction == PortDirection.INOUT:
-                    optional_signals.inout[signal.name] = signal.regexp
-                else:
-                    raise AssertionError("Not implemented, should not be possible")
-        iface_def = InterfaceDefinitionDescription(
+
+        def _repr_mode(
+            conf: Optional[InterfaceSignalConfiguration],
+        ) -> Optional[InterfaceDefinitionSignalMode]:
+            if not conf:
+                return None
+            return (conf.direction.value, "required" if conf.required else "optional")
+
+        signals = {}
+        for sig in definition.signals:
+            mmode = sig.modes.get(InterfaceMode.MANAGER)
+            smode = sig.modes.get(InterfaceMode.SUBORDINATE)
+            umode = sig.modes.get(InterfaceMode.UNSPECIFIED)
+
+            # Skip representing subordinate mode if it can be inferred from manager mode.
+            if mmode is not None and mmode.reverse() == smode:
+                smode = None
+
+            # Skip representing unspecified mode if it can be inferred from manager mode.
+            if mmode is not None and mmode == umode:
+                umode = None
+
+            modes = {}
+            if mmode is not None:
+                modes["manager"] = _repr_mode(mmode)
+            if smode is not None:
+                modes["subordinate"] = _repr_mode(smode)
+            if umode is not None:
+                modes["unspecified"] = _repr_mode(umode)
+
+            signals[sig.name] = InterfaceDefinitionSignalDescription(
+                pattern=sig.regexp,
+                modes=modes,
+                default=sig.default and sig.default.value,
+            )
+
+        return InterfaceDefinitionDescription(
             id=definition.id,
-            signals=InterfaceDefinitionSignalsDescription(
-                required=required_signals,
-                optional=optional_signals,
-            ),
+            signals=signals,
         )
-        return iface_def
