@@ -40,6 +40,10 @@ class InterfaceSignalConfiguration:
     #: Whether this signal is required or optional
     required: bool
 
+    def reverse(self) -> InterfaceSignalConfiguration:
+        """Returns a configuration with the opposite direction."""
+        return InterfaceSignalConfiguration(self.direction.reverse(), self.required)
+
 
 class InterfaceSignal(ModelBase):
     """
