@@ -33,7 +33,15 @@ from topwrap.interconnects.wishbone_rr import (
     WishboneRRSubordinateParams,
 )
 from topwrap.model.config import ConfigDescription
-from topwrap.model.connections import Port, PortDirection, ReferencedInterface, ReferencedPort
+from topwrap.model.connections import (
+    Clock,
+    Port,
+    PortDirection,
+    ReferencedInterface,
+    ReferencedPort,
+    Reset,
+    ResetPolarity,
+)
 from topwrap.model.design import Design, ModuleInstance
 from topwrap.model.hdl_types import (
     Bit,
@@ -278,6 +286,75 @@ class TestIpCoreDescriptionBackend:
             "parameters": {
                 "foo": "32",
                 "bar": None,
+            },
+        }
+
+    def test_clocks(self):
+        port1 = Port(name="clk_in_1", direction=PortDirection.IN)
+        port2 = Port(name="clk_2", direction=PortDirection.IN)
+        mod = Module(
+            id=Identifier(name="clock_test"),
+            clocks=[Clock(name="clk_1", clock=port1), Clock(name="second_clk", clock=port2)],
+        )
+
+        backend = IpCoreDescriptionBackend()
+        out = backend.represent(mod)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree == {
+            "id": {
+                "name": "clock_test",
+                "library": "libdefault",
+                "vendor": "vendor",
+                "version": "0.1",
+            },
+            "clocks": {"clk_1": {"signal": "clk_in_1"}, "second_clk": {"signal": "clk_2"}},
+        }
+
+    def test_resets(self):
+        port1 = Port(name="clk_in_1", direction=PortDirection.IN)
+        port2 = Port(name="clk_2", direction=PortDirection.IN)
+        port3 = Port(name="my_rst_in", direction=PortDirection.IN)
+        port4 = Port(name="act_high", direction=PortDirection.IN)
+        mod = Module(
+            id=Identifier(name="clock_test"),
+            clocks=[Clock(name="clk_1", clock=port1), Clock(name="second_clk", clock=port2)],
+        )
+
+        rst1 = Reset(name="low_rst", reset=port3, polarity=ResetPolarity.ACTIVE_LOW)
+        rst2 = Reset(
+            name="high_rst",
+            reset=port4,
+            polarity=ResetPolarity.ACTIVE_HIGH,
+            synchronous_to=mod.clocks[0],
+        )
+        mod.add_reset(rst1)
+        mod.add_reset(rst2)
+
+        backend = IpCoreDescriptionBackend()
+        out = backend.represent(mod)
+        [out] = backend.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree == {
+            "id": {
+                "name": "clock_test",
+                "library": "libdefault",
+                "vendor": "vendor",
+                "version": "0.1",
+            },
+            "clocks": {"clk_1": {"signal": "clk_in_1"}, "second_clk": {"signal": "clk_2"}},
+            "resets": {
+                "low_rst": {
+                    "signal": "my_rst_in",
+                    "polarity": "active low",
+                },
+                "high_rst": {
+                    "signal": "act_high",
+                    "polarity": "active high",
+                    "synchronous_to": "clk_1",
+                },
             },
         }
 
