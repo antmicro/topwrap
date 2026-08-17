@@ -313,6 +313,11 @@ class RPCMethods:
         diff = {"graph_id": graph_id, "nodes": nodes}
         await _kpm_handle_graph_change(self, None, diff)
 
+    async def name_on_change(self, graph_id: str, node_id: str, name: str):
+        logging.info("Node name change event")
+        diff = {"graph_id": graph_id, "node_id": node_id, "name": name}
+        await _kpm_handle_graph_change(self, None, diff)
+
     async def properties_on_change(self, **kwargs: Any):
         await _kpm_handle_graph_change(self)
 
@@ -420,7 +425,9 @@ async def _kpm_handle_graph_change(
         response = await rpc_object.client.request("graph_get")
         current_graph = cast(JsonType, response["result"]["dataflow"])
         if diff is not None:
-            if diff.get("nodes", None) is None:
+            if diff.get("name", None):
+                await _kpm_handle_node_rename(current_graph, diff, rpc_object)
+            elif diff.get("nodes", None) is None:
                 await _kpm_handle_connections_change(current_graph, diff, rpc_object)
             else:
                 await _kpm_handle_nodes_change(current_graph, diff, rpc_object)
@@ -496,6 +503,29 @@ async def _expose_nodes(
             "interfaces_change",
             {"node_id": node["id"], "graph_id": graph_id, "interfaces": interfaces},
         )
+
+
+async def _kpm_handle_node_rename(
+    new_dataflow: JsonType, name_diff: JsonType, rpc_object: RPCMethods
+) -> None:
+    """
+    This function reacts to the `name_on_change` event from `KPM`.
+    When a node's name is changed and it is an External I/O node,
+    expose the interface opposite to a connected interface.
+    The external name will be the same as the node's name.
+    """
+    graph_id = name_diff["graph_id"]
+    graph = get_graph_with_id(new_dataflow, graph_id)
+    if graph is None:
+        return
+
+    external_nodes = [
+        node
+        for node in graph["nodes"]
+        if node["id"] == name_diff["node_id"] and node["name"] == IoMetanode.name
+    ]
+    if external_nodes:
+        await _expose_nodes(external_nodes, new_dataflow, graph_id, rpc_object)
 
 
 async def _kpm_handle_connections_change(
