@@ -13,6 +13,7 @@ from topwrap.backend.backend import Backend, BackendOutputInfo, BackendParseExce
 from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
+    IPCoreClock,
     IPCoreComplexParameter,
     IPCoreComplexSignal,
     IPCoreDescription,
@@ -20,6 +21,7 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreIntfPorts,
     IPCoreParameter,
     IPCorePorts,
+    IPCoreReset,
     IPCoreStruct,
     IPCoreStructField,
     IPCoreType,
@@ -46,12 +48,14 @@ from topwrap.frontend.yaml.design_schema import (
 from topwrap.interconnects.types import INTERCONNECT_NAMES
 from topwrap.model.config import ConfigDescription
 from topwrap.model.connections import (
+    Clock,
     ConstantConnection,
     InterfaceConnection,
     Port,
     PortConnection,
     PortDirection,
     ReferencedIO,
+    Reset,
 )
 from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit, Bits, BitStruct, Logic, LogicArray, LogicBitSelect
@@ -112,6 +116,8 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         ports = self._represent_ports(needed_ports)
         intfs = {intf.name: self._represent_intf(intf) for intf in module.interfaces}
         params = self._represent_params(module.parameters)
+        clocks = self._represent_clocks(module.clocks)
+        resets = self._represent_resets(module.resets)
         types = self._represent_nontrivial_types(module.ports)
         extensions = self._represent_extensions(module.extensions)
 
@@ -120,6 +126,8 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
             signals=ports,
             parameters=params,
             interfaces=intfs,
+            clocks=clocks,
+            resets=resets,
             types=types,
             extensions=extensions,
             existing_iface_definitions=self.existing_interfaces,
@@ -295,6 +303,29 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
             extensions_dict[ext_data.name] = ext_data.data
 
         return extensions_dict
+
+    @staticmethod
+    def _represent_clocks(clocks: Iterable[Clock]) -> dict[str, IPCoreClock]:
+        clock_data: dict[str, IPCoreClock] = {}
+
+        for clk in clocks:
+            clock_data[clk.name] = IPCoreClock(signal=clk.clock.name)
+
+        return clock_data
+
+    @staticmethod
+    def _represent_resets(resets: Iterable[Reset]) -> dict[str, IPCoreReset]:
+        reset_data: dict[str, IPCoreReset] = {}
+
+        for rst in resets:
+            syn_clk = None
+            if rst.synchronous_to:
+                syn_clk = rst.synchronous_to.name
+            reset_data[rst.name] = IPCoreReset(
+                signal=rst.reset.name, polarity=rst.polarity.value, synchronous_to=syn_clk
+            )
+
+        return reset_data
 
     @override
     def serialize(self, repr: IpCoreDescriptionOutput) -> Iterator[BackendOutputInfo]:
