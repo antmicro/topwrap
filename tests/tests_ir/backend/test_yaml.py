@@ -18,7 +18,7 @@ from examples.ir_examples.modules import (
     simp_top,
 )
 from tests.data.data_ir.inference.ahb_if import ahblite_intf
-from tests.tests_ir.test_kpm_non_destructive import _compare_designs, _compare_modules
+from tests.tests_ir.kpm_helpers import _compare_designs, _compare_modules
 from topwrap import util
 from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.backend import (

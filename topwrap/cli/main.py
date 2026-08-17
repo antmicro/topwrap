@@ -171,6 +171,58 @@ def generate_main(
         sys.exit(1)
 
 
+@cli.command(name="pack")
+def pack_main(
+    *,
+    sources: Tuple[ExistingDirectory, ...] = (),
+    design: ExistingFile,
+    build_dir: Optional[Path] = None,
+    gensrc_dir: Optional[Path] = None,
+    output: Optional[Path] = None,
+    iface_compliance: bool = False,
+):
+    """Generate YAML IP description from a design file.
+
+    Parameters
+    ----------
+    sources
+        Directories to scan for additional sources.
+    design
+        Top design file.
+    build_dir
+        Output build directory.
+    gensrc_dir
+        Output directory for generated files (defaults to --build-dir).
+    output
+        Optional name of the output YAML file.
+        By default extracted IP will be called by the VNLV of the design.
+    iface_compliance
+        Force interface compliance checking.
+    """
+    if build_dir is None:
+        build_dir = Path("build")
+    if gensrc_dir is None:
+        gensrc_dir = Path(build_dir)
+
+    get_config().force_interface_compliance = iface_compliance
+
+    outdir = OutputDir(build_dir, gensrc_dir)
+
+    try:
+        pipeline = BuildPipeline.yaml_design_ip_pipeline(output)
+        pipeline.run_files([], design, outdir)
+        if output is None:
+            if pipeline.ctx.top_module is not None and pipeline.ctx.top_module.id is not None:
+                output = Path(str(pipeline.ctx.top_module.id))
+            else:
+                logging.error("Parse failed: no toplevel module")
+                sys.exit(1)
+        print(f"Saved IP file to {gensrc_dir / output}")
+    except Exception as e:
+        logging.error(f"Encountered error:\n {e}")
+        sys.exit(1)
+
+
 def _run_pipeline_manager_main(argv: list[str], write_conn: Optional[Connection] = None) -> None:
     if write_conn is not None:
         os.dup2(write_conn.fileno(), sys.stdout.fileno())

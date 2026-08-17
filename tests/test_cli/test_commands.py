@@ -15,9 +15,13 @@ import pytest
 import yaml
 
 import topwrap.cli.main  # noqa: F401
+from tests.tests_ir.kpm_helpers import _compare_modules
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.cli import cli
+from topwrap.config import ConfigManager
 from topwrap.frontend.ipxact.frontend import IpXactFrontend
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.library import clear_index_cache
 from topwrap.plugin.base import BuildException
 from topwrap.util import get_config
@@ -686,3 +690,60 @@ class TestLibraryCli:
             with pytest.raises(SystemExit) as exc:
                 run_cli("library", "update", "nope")
             assert exc.value.code == 1
+
+
+class TestPackageCli:
+    test_data_path = "tests/data/"
+
+    @pytest.fixture
+    def build_design_yaml(self):
+        return Path(self.test_data_path + "data_build/design.yaml")
+
+    def test_pack(self, build_design_yaml: Path, tmp_path: Path):
+        run_cli("pack", "-d", str(build_design_yaml), "-b", str(tmp_path), "--output", "topwrapIP")
+        assert Path(tmp_path / "topwrapIP").exists()
+
+    @pytest.mark.parametrize(
+        ["example_dir", "example_file", "run_make"],
+        [
+            (Path("examples/axi_interconnect"), "design.yaml", True),
+            (Path("examples/constant"), "project.yaml", False),
+            (Path("examples/design_config"), "project.yaml", False),
+            (Path("examples/existing_iface"), "design.yaml", True),
+            (Path("examples/getting_started_demo"), "project.yaml", True),
+            (Path("examples/hdmi"), "project.yaml", False),
+            (Path("examples/hierarchy"), "project.yaml", False),
+            (Path("examples/inout"), "project.yaml", True),
+            (Path("examples/ipxact"), "design.yaml", True),
+            (Path("examples/pwm"), "project.yaml", False),
+            (Path("examples/user_repository"), "project.yaml", False),
+        ],
+    )
+    def test_examples(
+        self,
+        example_dir: Path,
+        example_file: str,
+        run_make: bool,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        monkeypatch.chdir(example_dir)
+        assert Path(example_file).exists()
+
+        if run_make:
+            subprocess.run("make")
+
+        # Reload config for the duration of this test
+        monkeypatch.setattr("topwrap.config.config", ConfigManager().load())
+
+        run_cli("pack", "-d", str(example_file), "-b", str(tmp_path), "--output", "topwrapIP")
+        des_front = DesignDescriptionFrontend()
+        ip_front = IPCoreDescriptionFrontend()
+
+        orig_des, _ = des_front.parse_file(Path(example_file))
+        assert orig_des is not None
+
+        new_mod = ip_front.parse_file(tmp_path / "topwrapIP")
+        assert new_mod is not None
+
+        _compare_modules(orig_des.parent, new_mod, compare_designs=False)
