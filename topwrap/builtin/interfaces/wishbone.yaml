@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Antmicro <www.antmicro.com>
+# Copyright (c) 2023-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
 # Signals specification:
@@ -8,39 +8,59 @@ id:
   library: topwrap-interfaces
   name: wishbone
   vendor: antmicro.com
-signals:
-    required:
-        out:
-            cyc: cyc
-            stb: stb
-        in:
-            ack: ack
-    optional:
-        out:
-            # mosi/miso is a naming convention that is currently unsupported
-            # in Topwrap since it's semantically the same signal but it has
-            # a different name depending on the peripheral being a manager or
-            # a subordinate, so if the RTL source uses this convention grouping ports
-            # under interfaces might not be performed correctly.
-            #
-            # Many implementations use saner dat_w/dat_r convention that does
-            # not depend on whether the peripheral is a manager or a subordinate. This
-            # is reflected in an additional regex pattern below and in dat_r.
-            dat_w: dat_(w|mosi)|mosi
-            adr: adr
-            tgd_w: tgd_w
-            lock: lock
-            sel: sel
-            tga: tga
-            tgc: tgc
-            we: we
-            # Wishbone Registered Feedback extension signals
-            cti: cti
-            bte: bte
-        in:
-            dat_r: dat_(r|miso)|miso
-            tgd_r: tgd_r
-            stall: stall
 
-            err: err
-            rty: rty
+signals:
+  adr:
+    pattern: adr
+    modes: {manager: [out, required]}
+  dat_w:
+    pattern: mosi|dat_(w|mosi)
+    modes: {manager: [out, required]}
+  dat_r:
+    pattern: miso|dat_(r|miso)
+    modes: {manager: [in, required]}
+  sel:
+    pattern: sel
+    modes: {manager: [out, required]}
+  cyc:
+    pattern: cyc
+    modes: {manager: [out, required]}
+  stb:
+    pattern: stb
+    modes: {manager: [out, required]}
+  we:
+    pattern: we
+    modes: {manager: [out, required]}
+  ack:
+    pattern: ack
+    modes: {manager: [in, required]}
+  err:
+    pattern: err
+    modes: {manager: [in, optional]}
+  rty:
+    pattern: rty
+    modes: {manager: [in, optional]}
+  stall:
+    pattern: stall
+    modes: {manager: [in, optional]}
+  lock:
+    pattern: lock
+    modes: {manager: [out, optional]}
+  cti:
+    pattern: cti
+    modes: {manager: [out, optional]}
+  bte:
+    pattern: bte
+    modes: {manager: [out, optional]}
+  tgd_w:
+    pattern: tgd_(w|mosi)
+    modes: {manager: [out, optional]}
+  tgd_r:
+    pattern: tgd_(r|miso)
+    modes: {manager: [in, optional]}
+  tga:
+    pattern: tga
+    modes: {manager: [out, optional]}
+  tgc:
+    pattern: tgc
+    modes: {manager: [out, optional]}

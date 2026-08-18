@@ -303,8 +303,15 @@ interfaces:
                     type=Identifier(name="wishbone"),
                     mode=InterfaceMode.MANAGER,
                     signals=IPCoreIntfPorts(
-                        input={"ack": ("ack", 2, 0)},
-                        output={"cyc": "cyc", "stb": ("cyc", 3, 0, 1, 0)},
+                        input={"ack": ("ack", 2, 0), "dat_r": ("dat_r", 31, 0)},
+                        output={
+                            "cyc": "cyc",
+                            "stb": ("cyc", 3, 0, 1, 0),
+                            "adr": ("adr", 29, 0),
+                            "dat_w": ("dat_w", 31, 0),
+                            "we": "we",
+                            "sel": ("sel", 3, 0),
+                        },
                         inout={},
                     ),
                     size=0x2F,

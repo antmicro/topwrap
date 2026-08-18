@@ -744,7 +744,7 @@ class TestInterfaceDescriptionFrontend:
         combs = [
             (cyc, True, PortDirection.OUT),
             (ack, True, PortDirection.IN),
-            (sel, False, PortDirection.OUT),
+            (sel, True, PortDirection.OUT),
             (err, False, PortDirection.IN),
         ]
 

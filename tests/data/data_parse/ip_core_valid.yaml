@@ -25,11 +25,16 @@ interfaces:
       out:
         cyc: cyc
         stb: [cyc, 3, 0, 1, 0]
+        adr: [adr, 29, 0]
+        dat_w: [dat_w, 31, 0]
+        we: we
+        sel: [sel, 3, 0]
       in:
         ack:
           - ack
           - 2
           - 0
+        dat_r: [dat_r, 31, 0]
 
 signals:
   in:
