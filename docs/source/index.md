@@ -16,6 +16,7 @@ user_repositories
 interconnect_gen
 fusesoc
 frontends
+plugins
 ```
 
 ```{toctree}
@@ -40,6 +41,7 @@ developers_guide/generator.md
 developers_guide/interconnect.md
 developers_guide/repo
 developers_guide/logging
+developers_guide/plugins
 ```
 
 ```{toctree}

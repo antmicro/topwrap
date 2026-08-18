@@ -126,6 +126,9 @@ config: # override global configuration settings (optional)
     {repo_name}: {repo_source}
 
 positions: path/to/positions.yaml
+
+extensions: # plugin-specific settings
+    {plugin_setting_scope}: ...
 ```
 
 `inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
@@ -155,6 +158,20 @@ Topwrap pre-parses the design document before fetching repositories, so the sett
 The optional `positions` property allows specifying a path to the positions YAML file for this design (see below).
 The specified path, if relative, will be checked both in the directory Topwrap was launched from, and in the directory the design YAML is in.
 If the positions YAML file is present, it will automatically be loaded alongside the design YAML file.
+
+The `extensions` property allows the design to optionally configure settings for any [plugins](./plugins.md) that are loaded.
+These settings are scoped by a label `{plugin_setting_scope}`.
+Every plugin supports zero or more of these setting-scopes.
+How these settings are intrepreted depends on the plugin and should be specified as part of the plugin's own documentation.
+For example, an _imaginary_ plugin that checks the spelling of port names could possibly require these settings:
+
+```yaml
+extensions:
+  spelling:
+    dictionary: "./path/to/dict.txt"
+```
+
+Here, `spelling` is the setting-scope and the key-value pair `{ dictionary: ... }` is the setting-scope's value.
 
 ### Hierarchies
 
@@ -248,6 +265,8 @@ existing_iface_definitions:
   name: AXI4Lite
   vendor: vendor
   version: '0.1'
+
+extensions: ...
 ```
 
 ### File format explanation
@@ -269,6 +288,7 @@ existing_iface_definitions:
 - `types` \- structure type definitions used by signals (described below in more detail)
   - `members` \- member fields of a struct type.
 - `existing_iface_definitions` \- a list of interface definitions that exist in parsed HDL code in form of [ID](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)s.
+- `extensions` \- plugin specific settings, has the same meaning as the `extensions`-property in [design files](#design-description).
 
 ### Signals
 
