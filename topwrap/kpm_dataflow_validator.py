@@ -31,7 +31,6 @@ from .kpm_common import (
     get_exposed_subgraph_meta_iface,
     get_graph_id_from_node,
     get_graph_id_name,
-    get_graph_with_id,
     get_interfaces_from_connection,
     get_metanode_interface_id,
     get_metanode_property_value,
@@ -473,40 +472,34 @@ class DataflowValidator:
 
         opposite = {"in": "out", "out": "in", "inout": "inout"}
 
-        for sub_node in get_dataflow_subgraph_nodes(self.dataflow):
-            subgraph = get_graph_with_id(self.dataflow, sub_node["subgraph"])
-            if subgraph is None:
-                raise ValueError("Encountered subgraph node with no attached subgraph")
-
+        for graph in self.dataflow["graphs"]:
             all_exposed = []
             msg = []
 
             # Check if all unconnected External I/O interfaces are exposed
-            for node in subgraph["nodes"]:
+            for node in graph["nodes"]:
                 if node["name"] == IoMetanode.name:
                     connected = None
                     exposed = None
                     for iface in node["interfaces"]:
-                        if check_for_iface_in_conn_graph(
-                            self.dataflow, iface["id"], subgraph["id"]
-                        ):
+                        if check_for_iface_in_conn_graph(self.dataflow, iface["id"], graph["id"]):
                             if connected is not None:
                                 msg.append(
-                                    f"Too many connected interfaces {subgraph['id']}:{node['id']}"
+                                    f"Too many connected interfaces {graph['id']}:{node['id']}"
                                 )
                             else:
                                 connected = iface
                         elif is_exposed_iface(iface):
                             if exposed is not None:
                                 msg.append(
-                                    f"Too many exposed interfaces {subgraph['id']}:{node['id']}"
+                                    f"Too many exposed interfaces {graph['id']}:{node['id']}"
                                 )
                             else:
                                 exposed = iface
                     if connected is None:
-                        msg.append(f"No connected interface {subgraph['id']}:{node['id']}")
+                        msg.append(f"No connected interface {graph['id']}:{node['id']}")
                     if exposed is None:
-                        msg.append(f"No exposed interface {subgraph['id']}:{node['id']}")
+                        msg.append(f"No exposed interface {graph['id']}:{node['id']}")
                     if (
                         connected is not None
                         and exposed is not None
@@ -514,7 +507,7 @@ class DataflowValidator:
                     ):
                         msg.append(
                             "Exposed and connected interfaces"
-                            f"do not match {subgraph['id']}:{node['id']}"
+                            f"do not match {graph['id']}:{node['id']}"
                         )
                     all_exposed.append(exposed)
 
@@ -527,13 +520,24 @@ class DataflowValidator:
                 )
 
             # Check if exposed ifaces are actually unconnected External I/O ifaces in subgraph
-            exposed_ids = [iface["id"] for iface in all_exposed]
-            for iface in sub_node["interfaces"]:
-                if iface["id"] not in exposed_ids:
-                    msg.append(
-                        "Subgraph has exposed interface which is not exposed internally"
-                        f"from External I/O: {subgraph['id']}:{iface['id']}"
-                    )
+            # This check is omitted for the toplevel graph
+            sub_node = next(
+                (
+                    node
+                    for node in get_dataflow_subgraph_nodes(self.dataflow)
+                    if node.get("graph", None) == graph["id"]
+                ),
+                None,
+            )
+
+            if sub_node is not None:
+                exposed_ids = [iface["id"] for iface in all_exposed]
+                for iface in sub_node["interfaces"]:
+                    if iface["id"] not in exposed_ids:
+                        msg.append(
+                            "Subgraph has exposed interface which is not exposed internally"
+                            f"from External I/O: {graph['id']}:{iface['id']}"
+                        )
 
             if len(msg) > 0:
                 return CheckResult(
