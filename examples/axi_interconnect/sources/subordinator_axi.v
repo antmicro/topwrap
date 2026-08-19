@@ -11,9 +11,11 @@ module subordinator_axi (
 
     output reg example_ifaceWREADY,
     input wire [31:0] example_ifaceWDATA,
+    input wire [4:0] example_ifaceWSTRB,
     input wire example_ifaceWVALID,
 
     input  wire example_ifaceBREADY,
+    output reg [1:0] example_ifaceBRESP,
     output reg  example_ifaceBVALID,
 
     output reg example_ifaceARREADY,
@@ -22,6 +24,7 @@ module subordinator_axi (
 
     input wire example_ifaceRREADY,
     output reg [31:0] example_ifaceRDATA,
+    output reg [1:0] example_ifaceRRESP,
     output reg example_ifaceRVALID
 );
 

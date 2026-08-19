@@ -7,6 +7,7 @@ module manager_axi (
 
     input wire example_ifaceAWREADY,
     output reg [31:0] example_ifaceAWADDR,
+    output reg [2:0] example_ifaceAWPROT,
     output reg example_ifaceAWVALID,
 
     input wire example_ifaceWREADY,
@@ -18,6 +19,7 @@ module manager_axi (
 
     input wire example_ifaceARREADY,
     output reg [31:0] example_ifaceARADDR,
+    output reg [2:0] example_ifaceARPROT,
     output reg example_ifaceARVALID,
 
     output reg example_ifaceRREADY,
