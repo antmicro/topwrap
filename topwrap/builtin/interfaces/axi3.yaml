@@ -1,67 +1,155 @@
 # Copyright (c) 2021-2024 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: apache-2.0
 
-# AXI signal optionality can be different for the manager interface
-# and the subordinate interface. This definition marks as required only
-# signals that are required for both sides of the transaction.
-
 # Signal description
 # - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 31,101,113
 id:
   library: topwrap-interfaces
   name: axi3
   vendor: antmicro.com
+
 signals:
-    required:
-        out:
-            AWADDR: awaddr
-            AWVALID: awvalid
-
-            WDATA: wdata
-            WVALID: wvalid
-
-            BREADY: bready
-
-            ARADDR: araddr
-            ARVALID: arvalid
-
-            RREADY: rready
-        in:
-            AWREADY: awready
-
-            WREADY: wready
-
-            BVALID: bvalid
-
-            ARREADY: arready
-
-            RDATA: rdata
-            RVALID: rvalid
-    optional:
-        out:
-            AWID: awid
-            AWLEN: awlen
-            AWSIZE: awsize
-            AWBURST: awburst
-            AWLOCK: awlock
-            AWCACHE: awcache
-            AWPROT: awprot
-            WLAST: wlast
-
-            WID: wid
-            WSTRB: wstrb
-
-            ARID: arid
-            ARLEN: arlen
-            ARSIZE: arsize
-            ARBURST: arburst
-            ARLOCK: arlock
-            ARCACHE: arcache
-            ARPROT: arprot
-        in:
-            BID: bid
-            BRESP: bresp
-
-            RID: rid
-            RRESP: rresp
-            RLAST: rlast
+  # AW channel.
+  AWID:
+    pattern: aw[._]?id
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '0'
+  AWADDR:
+    pattern: aw[._]?addr
+    modes: {manager: [out, required]}
+  AWLEN:
+    pattern: aw[._]?len
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '0'
+  AWSIZE:
+    pattern: aw[._]?size
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '3'
+  AWBURST:
+    pattern: aw[._]?burst
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '1'
+  AWLOCK:
+    pattern: aw[._]?lock
+    modes: {manager: [out, optional]}
+    default: '0'
+  AWCACHE:
+    pattern: aw[._]?cache
+    modes: {manager: [out, optional]}
+    default: '0'
+  AWPROT:
+    pattern: aw[._]?prot
+    modes: {manager: [out, required], subordinate: [in, optional]}
+  AWUSER:
+    pattern: aw[._]?user
+    modes: {manager: [out, optional]}
+  AWVALID:
+    pattern: aw[._]?valid
+    modes: {manager: [out, required]}
+  AWREADY:
+    pattern: aw[._]?ready
+    modes: {manager: [in, required]}
+  # W channel.
+  WID:
+    pattern: w[._]?id
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '0'
+  WDATA:
+    pattern: w[._]?data
+    modes: {manager: [out, required]}
+  WSTRB:
+    pattern: w[._]?strb
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '255'
+  WLAST:
+    pattern: w[._]?last
+    modes: {manager: [out, required], subordinate: [in, optional]}
+  WUSER:
+    pattern: w[._]?user
+    modes: {manager: [out, optional]}
+  WVALID:
+    pattern: w[._]?valid
+    modes: {manager: [out, required]}
+  WREADY:
+    pattern: w[._]?ready
+    modes: {manager: [in, required]}
+  # B channel.
+  BID:
+    pattern: b[._]?id
+    modes: {manager: [in, optional], subordinate: [out, required]}
+  BRESP:
+    pattern: b[._]?resp
+    modes: {manager: [in, optional], subordinate: [out, required]}
+    default: '0'
+  BUSER:
+    pattern: b[._]?user
+    modes: {manager: [in, optional]}
+  BVALID:
+    pattern: b[._]?valid
+    modes: {manager: [in, required]}
+  BREADY:
+    pattern: b[._]?ready
+    modes: {manager: [out, required]}
+  # AR channel.
+  ARID:
+    pattern: ar[._]?id
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '0'
+  ARADDR:
+    pattern: ar[._]?addr
+    modes: {manager: [out, required]}
+  ARLEN:
+    pattern: ar[._]?len
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '0'
+  ARSIZE:
+    pattern: ar[._]?size
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '3'
+  ARBURST:
+    pattern: ar[._]?burst
+    modes: {manager: [out, optional], subordinate: [in, required]}
+    default: '1'
+  ARLOCK:
+    pattern: ar[._]?lock
+    modes: {manager: [out, optional]}
+    default: '0'
+  ARCACHE:
+    pattern: ar[._]?cache
+    modes: {manager: [out, optional]}
+    default: '0'
+  ARPROT:
+    pattern: ar[._]?prot
+    modes: {manager: [out, required], subordinate: [in, optional]}
+  ARUSER:
+    pattern: ar[._]?user
+    modes: {manager: [out, optional]}
+  ARVALID:
+    pattern: ar[._]?valid
+    modes: {manager: [out, required]}
+  ARREADY:
+    pattern: ar[._]?ready
+    modes: {manager: [in, required]}
+  # R channel.
+  RID:
+    pattern: r[._]?id
+    modes: {manager: [in, optional], subordinate: [out, required]}
+  RDATA:
+    pattern: r[._]?data
+    modes: {manager: [in, required]}
+  RRESP:
+    pattern: r[._]?resp
+    modes: {manager: [in, optional], subordinate: [out, required]}
+    default: '0'
+  RLAST:
+    pattern: r[._]?last
+    modes: {manager: [in, optional], subordinate: [out, required]}
+  RUSER:
+    pattern: r[._]?user
+    modes: {manager: [in, optional]}
+  RVALID:
+    pattern: r[._]?valid
+    modes: {manager: [in, required]}
+  RREADY:
+    pattern: r[._]?ready
+    modes: {manager: [out, required]}
