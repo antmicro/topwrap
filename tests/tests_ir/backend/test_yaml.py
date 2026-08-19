@@ -1,6 +1,7 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 import copy
+import re
 from itertools import product
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from examples.ir_examples.modules import (
     intr_top,
     simp_top,
 )
+from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.tests_ir.test_kpm_non_destructive import _compare_designs, _compare_modules
 from topwrap import util
 from topwrap.backend.kpm.common import Positions
@@ -23,6 +25,7 @@ from topwrap.backend.yaml.backend import (
     DesignPositionsBackend,
     IpCoreDescriptionBackend,
 )
+from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
@@ -54,7 +57,13 @@ from topwrap.model.hdl_types import (
     LogicSelect,
     StructField,
 )
-from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode
+from topwrap.model.interface import (
+    Interface,
+    InterfaceDefinition,
+    InterfaceMode,
+    InterfaceSignal,
+    InterfaceSignalConfiguration,
+)
 from topwrap.model.memory_map import MemoryMap, MemoryMapSubordinate
 from topwrap.model.misc import (
     ElaboratableValue,
@@ -882,4 +891,239 @@ class TestDesignPositionsBackend:
                     "identifier": [-1.0, -1.0],
                 },
             ],
+        }
+
+
+class TestInterfaceDescriptionBackend:
+    def test_skip_redundant(self):
+        intf = InterfaceDefinition(
+            id=Identifier(name="basic"),
+            signals=[
+                InterfaceSignal(
+                    name="msu_ok",
+                    regexp=re.compile("a"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            direction=PortDirection.OUT, required=False
+                        ),
+                        InterfaceMode.UNSPECIFIED: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="ms_same_dir",
+                    regexp=re.compile("a"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="ms_diff_req",
+                    regexp=re.compile("a"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=True
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            direction=PortDirection.OUT, required=False
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="mu_diff_dir",
+                    regexp=re.compile("a"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            direction=PortDirection.OUT, required=False
+                        ),
+                        InterfaceMode.UNSPECIFIED: InterfaceSignalConfiguration(
+                            direction=PortDirection.OUT, required=False
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="mu_diff_req",
+                    regexp=re.compile("a"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=True
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            direction=PortDirection.OUT, required=True
+                        ),
+                        InterfaceMode.UNSPECIFIED: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="msu_dirs",
+                    regexp=re.compile("a"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            direction=PortDirection.IN, required=False
+                        ),
+                        InterfaceMode.UNSPECIFIED: InterfaceSignalConfiguration(
+                            direction=PortDirection.OUT, required=False
+                        ),
+                    },
+                ),
+            ],
+        )
+
+        backend = InterfaceDefinitionDescriptionBackend()
+
+        repr = backend.represent(intf).to_dict()
+
+        assert repr == {
+            "id": {
+                "library": "libdefault",
+                "name": "basic",
+                "vendor": "vendor",
+                "version": "0.1",
+            },
+            "signals": {
+                "msu_ok": {
+                    "pattern": "a",
+                    "modes": {
+                        "manager": ("in", "optional"),
+                    },
+                },
+                "ms_same_dir": {
+                    "pattern": "a",
+                    "modes": {
+                        "manager": ("in", "optional"),
+                        "subordinate": ("in", "optional"),
+                    },
+                },
+                "ms_diff_req": {
+                    "pattern": "a",
+                    "modes": {
+                        "manager": ("in", "required"),
+                        "subordinate": ("out", "optional"),
+                    },
+                },
+                "mu_diff_dir": {
+                    "pattern": "a",
+                    "modes": {
+                        "manager": ("in", "optional"),
+                        "unspecified": ("out", "optional"),
+                    },
+                },
+                "mu_diff_req": {
+                    "pattern": "a",
+                    "modes": {
+                        "manager": ("in", "required"),
+                        "unspecified": ("in", "optional"),
+                    },
+                },
+                "msu_dirs": {
+                    "pattern": "a",
+                    "modes": {
+                        "manager": ("in", "optional"),
+                        "subordinate": ("in", "optional"),
+                        "unspecified": ("out", "optional"),
+                    },
+                },
+            },
+        }
+
+    def test_ahblite(self):
+        backend = InterfaceDefinitionDescriptionBackend()
+
+        repr = backend.represent(ahblite_intf).to_dict()
+
+        assert repr == {
+            "id": {
+                "name": "AHBLite",
+                "library": "libdefault",
+                "vendor": "vendor",
+                "version": "0.1",
+            },
+            "signals": {
+                "haddr": {
+                    "pattern": "haddr",
+                    "modes": {
+                        "manager": ("out", "required"),
+                    },
+                },
+                "hwdata": {
+                    "pattern": "hwdata",
+                    "modes": {
+                        "manager": ("out", "required"),
+                    },
+                },
+                "hrdata": {
+                    "pattern": "hrdata",
+                    "modes": {
+                        "manager": ("in", "required"),
+                    },
+                },
+                "hsel": {
+                    "pattern": "hsel",
+                    "modes": {
+                        "manager": ("out", "optional"),
+                    },
+                    "default": "1",
+                },
+                "hwrite": {
+                    "pattern": "hwrite",
+                    "modes": {
+                        "manager": ("out", "required"),
+                    },
+                },
+                "htrans": {
+                    "pattern": "htrans",
+                    "modes": {
+                        "manager": ("out", "required"),
+                    },
+                },
+                "hsize": {
+                    "pattern": "hsize",
+                    "modes": {
+                        "manager": ("out", "required"),
+                    },
+                },
+                "hresp": {
+                    "pattern": "hresp",
+                    "modes": {
+                        "manager": ("in", "required"),
+                    },
+                },
+                "hready": {
+                    "pattern": "hready",
+                    "modes": {
+                        "manager": ("in", "optional"),
+                        "subordinate": ("in", "optional"),
+                    },
+                },
+                "hreadyout": {
+                    "pattern": "hreadyout",
+                    "modes": {
+                        "manager": ("in", "optional"),
+                        "subordinate": ("out", "required"),
+                    },
+                },
+            },
         }
