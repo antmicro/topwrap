@@ -37,7 +37,6 @@ from .kpm_common import (
     RPCparams,
     check_for_iface_in_conn_graph,
     find_dataflow_node_by_id,
-    get_dataflow_subgraph_nodes,
     get_graph_with_id,
     get_toplevel_graph,
 )
@@ -430,19 +429,6 @@ async def _kpm_handle_graph_change(
     )
 
 
-def _subgraph_from_diff(dataflow: JsonType, graph_id: str) -> tuple[JsonType, Optional[JsonType]]:
-    subgraph = get_graph_with_id(dataflow, graph_id)
-    if subgraph is None:
-        return ({}, None)
-    sub_nodes = get_dataflow_subgraph_nodes(dataflow)
-    sub_node = None
-    for node in sub_nodes:
-        if node["subgraph"] == graph_id:
-            sub_node = node
-            break
-    return (subgraph, sub_node)
-
-
 # Expose the unconnected interfaces of an "External I/O node"
 # This function assumes it gets only external I/O metanodes
 async def _expose_nodes(
@@ -518,12 +504,12 @@ async def _kpm_handle_connections_change(
     """
     # Data for interfaces_change API call to KPM
     graph_id = conns_diff["graph_id"]
-    subgraph, sub_node = _subgraph_from_diff(new_dataflow, graph_id)
-    if sub_node is None:
+    graph = get_graph_with_id(new_dataflow, graph_id)
+    if graph is None:
         return
 
     # Rerender exposed interfaces
-    external_nodes = [node for node in subgraph["nodes"] if node["name"] == IoMetanode.name]
+    external_nodes = [node for node in graph["nodes"] if node["name"] == IoMetanode.name]
     await _expose_nodes(external_nodes, new_dataflow, graph_id, rpc_object)
 
 
@@ -537,10 +523,6 @@ async def _kpm_handle_nodes_change(
     """
     logging.info("Handling node change event")
     graph_id = nodes_diff["graph_id"]
-
-    subgraph, sub_node = _subgraph_from_diff(new_dataflow, graph_id)
-    if sub_node is None:
-        return
 
     # When an `External I/O` node is added, expose its unconnected interfaces
     # This is always safe, even if the node was already there, as we check for
