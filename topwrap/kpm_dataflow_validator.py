@@ -489,7 +489,7 @@ class DataflowValidator:
                                 )
                             else:
                                 connected = iface
-                        elif is_exposed_iface(iface):
+                        if is_exposed_iface(iface):
                             if exposed is not None:
                                 msg.append(
                                     f"Too many exposed interfaces {graph['id']}:{node['id']}"
