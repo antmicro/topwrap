@@ -10,6 +10,7 @@ import pytest
 
 from examples.ir_examples.modules import ALL_MODULES, lfsr_gen
 from topwrap.backend.kpm.common import Positions
+from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreComplexParameter,
     IPCoreDescriptionFrontendException,
@@ -17,11 +18,12 @@ from topwrap.backend.yaml.common.ip_core_schema import (
 )
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend, DesignPositionsFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
+from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import Bit, Bits, BitStruct, Dimensions, LogicArray
-from topwrap.model.interface import InterfaceMode
+from topwrap.model.interface import InterfaceMode, InterfaceSignalConfiguration
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
 from topwrap.repo.user_repo import InterfaceDefinitionResource
@@ -723,6 +725,78 @@ class TestIPCoreDescriptionFrontend:
 
 
 class TestInterfaceDescriptionFrontend:
+    def test_infer_other_from_manager(self):
+        frontend = InterfaceDefinitionDescriptionFrontend()
+        m_only = """
+        id:
+          name: foo
+        signals:
+          test:
+            pattern: test
+            modes: {manager: [out, required]}
+        """
+        m_only = frontend.parse(InterfaceDefinitionDescription.from_yaml(m_only))
+
+        sig = m_only.signals.find_by_name_or_error("test")
+        assert InterfaceMode.MANAGER in sig.modes
+        assert InterfaceMode.SUBORDINATE in sig.modes
+        assert InterfaceMode.UNSPECIFIED in sig.modes
+        assert sig.modes[InterfaceMode.MANAGER] == InterfaceSignalConfiguration(
+            PortDirection.OUT, True
+        )
+        assert sig.modes[InterfaceMode.SUBORDINATE] == InterfaceSignalConfiguration(
+            PortDirection.IN, True
+        )
+        assert sig.modes[InterfaceMode.UNSPECIFIED] == InterfaceSignalConfiguration(
+            PortDirection.OUT, True
+        )
+
+    def test_infer_other_from_subordinate(self):
+        frontend = InterfaceDefinitionDescriptionFrontend()
+        s_only = """
+        id:
+          name: foo
+        signals:
+          test:
+            pattern: test
+            modes: {subordinate: [in, optional]}
+        """
+        s_only = frontend.parse(InterfaceDefinitionDescription.from_yaml(s_only))
+
+        sig = s_only.signals.find_by_name_or_error("test")
+        assert InterfaceMode.MANAGER in sig.modes
+        assert InterfaceMode.SUBORDINATE in sig.modes
+        assert InterfaceMode.UNSPECIFIED in sig.modes
+        assert sig.modes[InterfaceMode.MANAGER] == InterfaceSignalConfiguration(
+            PortDirection.OUT, False
+        )
+        assert sig.modes[InterfaceMode.SUBORDINATE] == InterfaceSignalConfiguration(
+            PortDirection.IN, False
+        )
+        assert sig.modes[InterfaceMode.UNSPECIFIED] == InterfaceSignalConfiguration(
+            PortDirection.OUT, False
+        )
+
+    def test_dont_infer_other_from_unspecified(self):
+        frontend = InterfaceDefinitionDescriptionFrontend()
+        u_only = """
+        id:
+          name: foo
+        signals:
+          test:
+            pattern: test
+            modes: {unspecified: [in, optional]}
+        """
+        u_only = frontend.parse(InterfaceDefinitionDescription.from_yaml(u_only))
+
+        sig = u_only.signals.find_by_name_or_error("test")
+        assert InterfaceMode.MANAGER not in sig.modes
+        assert InterfaceMode.SUBORDINATE not in sig.modes
+        assert InterfaceMode.UNSPECIFIED in sig.modes
+        assert sig.modes[InterfaceMode.UNSPECIFIED] == InterfaceSignalConfiguration(
+            PortDirection.IN, False
+        )
+
     def test_parse_wishbone(self):
         old = None
         for resource in get_config().builtin_repo.get_resources(InterfaceDefinitionResource):
