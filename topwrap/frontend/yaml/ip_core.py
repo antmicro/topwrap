@@ -5,6 +5,7 @@ from typing import (
     Optional,
     Sequence,
     Union,
+    cast,
 )
 
 from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
@@ -122,10 +123,17 @@ class IPCoreDescriptionFrontend:
             if signal.name is not None:
                 slice = None if signal.slice is None else to_dims(signal.slice)
                 if signal.type is None:
-                    if signal.bound is None:
+                    bounds = signal.bound
+                    if bounds is None:
                         type = Bit()
                     else:
-                        type = Bits(dimensions=[to_dims(signal.bound)])
+                        if not isinstance(bounds[0], tuple):
+                            bounds = (cast(tuple[str | int, str | int], bounds),)
+                        type = Bits(
+                            dimensions=[
+                                to_dims(dim) for dim in cast(Sequence[Sequence[str | int]], bounds)
+                            ]
+                        )
                 else:
                     if signal.type not in types:
                         raise IPCoreDescriptionFrontendException(
