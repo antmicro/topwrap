@@ -102,22 +102,15 @@
               "direction": "input",
               "externalName": "",
               "id": "cebab009-256b-49b0-8556-c74cb147ee3a",
-              "name": "in"
+              "name": "external"
             },
             {
               "direction": "output",
               "id": "e64a2247-edc0-449f-aaaa-6e8bd0ab2b78",
-              "name": "out",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "f438d44a-6696-4cc0-80e8-8cf4f69777a3",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": -1485,
             "y": 1125

@@ -237,26 +237,19 @@
               "direction": "input",
               "externalName": "clk",
               "id": "97edc19f-e5b1-4c86-9765-16749a50c972",
-              "name": "in",
+              "name": "external",
               "side": "left",
               "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "092515a1-15dc-45d0-b2e8-fe1018492544",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 1
             },
             {
               "direction": "output",
               "id": "4f6db4eb-07dd-4569-83da-1cb5efabad15",
-              "name": "out",
+              "name": "internal",
               "side": "right",
               "sidePosition": 0
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": 525,
             "y": 626.5
@@ -274,26 +267,19 @@
               "direction": "input",
               "externalName": "rst",
               "id": "b225254c-a4fa-4bb4-bdf0-a47b33e6f14a",
-              "name": "in",
+              "name": "external",
               "side": "left",
               "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "03a03c3b-96b2-49aa-a6fb-3881135fefbf",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 1
             },
             {
               "direction": "output",
               "id": "2b08560a-89c7-43bf-9273-32d8feb523da",
-              "name": "out",
+              "name": "internal",
               "side": "right",
               "sidePosition": 0
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": 975,
             "y": 626.5
@@ -311,26 +297,19 @@
               "direction": "input",
               "externalName": "sel_gen",
               "id": "955b8ab5-feaf-4f8d-ab6c-5bb556f83dff",
-              "name": "in",
+              "name": "external",
               "side": "left",
               "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "77b7aca7-5c99-43a8-8ccd-67cfa56db2a0",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 1
             },
             {
               "direction": "output",
               "id": "d489b630-5d65-4448-aa31-b01df001073f",
-              "name": "out",
+              "name": "internal",
               "side": "right",
               "sidePosition": 0
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": 75,
             "y": 1094.5
@@ -347,27 +326,20 @@
             {
               "direction": "input",
               "id": "ee9674dc-5ffb-4228-b9ca-59d094d47b70",
-              "name": "in",
+              "name": "internal",
               "side": "left",
               "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "cf889c24-df56-435f-874b-877c2dcba172",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 1
             },
             {
               "direction": "output",
               "externalName": "rnd_bit",
               "id": "31c53c1b-4f3b-45be-a0af-c18db95a42dd",
-              "name": "out",
+              "name": "external",
               "side": "right",
               "sidePosition": 0
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "position": {
             "x": 525,
             "y": 1094.5

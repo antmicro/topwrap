@@ -211,20 +211,15 @@
           "direction": "input",
           "externalName": "ext_manager",
           "id": "047b63bc-aa91-40e7-91e8-226c68cfa70c",
-          "name": "in"
+          "name": "external"
         },
         {
           "direction": "output",
           "id": "590fb4c2-3e53-47e6-83bb-96bed0e97763",
-          "name": "out"
-        },
-        {
-          "direction": "inout",
-          "id": "626370dc-54fb-46cf-80ae-37ee4b53ee1b",
-          "name": "inout"
+          "name": "internal"
         }
       ],
-      "name": "External I/O",
+      "name": "External Input",
       "properties": [],
       "twoColumn": true,
       "width": 200
@@ -238,20 +233,15 @@
           "direction": "input",
           "externalName": "clk",
           "id": "3b06835e-17ef-4401-b165-301a7a6a88e9",
-          "name": "in"
+          "name": "external"
         },
         {
           "direction": "output",
           "id": "90ee366f-a921-4f7f-8862-42c78a3ced18",
-          "name": "out"
-        },
-        {
-          "direction": "inout",
-          "id": "c3677128-02a2-434c-a91f-353931ba7027",
-          "name": "inout"
+          "name": "internal"
         }
       ],
-      "name": "External I/O",
+      "name": "External Input",
       "properties": [],
       "twoColumn": true,
       "width": 200
@@ -265,20 +255,15 @@
           "direction": "input",
           "externalName": "rst",
           "id": "10a69c11-1ab5-4bfa-adad-4ebacb54796c",
-          "name": "in"
+          "name": "external"
         },
         {
           "direction": "output",
           "id": "a36c37e3-898b-40a6-b9c2-04aace6a7fda",
-          "name": "out"
-        },
-        {
-          "direction": "inout",
-          "id": "ef43c3ef-2c7a-446b-b71b-70891099cc3b",
-          "name": "inout"
+          "name": "internal"
         }
       ],
-      "name": "External I/O",
+      "name": "External Input",
       "properties": [],
       "twoColumn": true,
       "width": 200

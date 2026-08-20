@@ -114,6 +114,12 @@ def dataflow_different_entry_toplevel():
 
 
 @pytest.fixture
+def dataflow_two_duplicate_ios():
+    """Dataflow containing two graphs which both have duplicate External I/Os"""
+    return get_dataflow_test("dataflow_two_duplicates")
+
+
+@pytest.fixture
 def pwm_dataflow(all_dataflow_files: dict[str, JsonType]) -> JsonType:
     return all_dataflow_files["pwm"]
 
@@ -261,6 +267,12 @@ def test_invalid_dataflow_validation(dataflow, check_function, expected_result):
             lf("dataflow_hier_duplicate_names"),
             MessageType.WARNING,
             1,
+        ),
+        (
+            DataflowValidator.check_duplicate_metanode_names,
+            lf("dataflow_two_duplicate_ios"),
+            MessageType.ERROR,
+            2,
         ),
         (
             DataflowValidator.check_unconnected_ports_interfaces,

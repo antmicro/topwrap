@@ -1790,21 +1790,16 @@
             {
               "direction": "input",
               "id": "f5f1e8e6-ed4d-4e52-baad-e9152302f62c",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_CLK_N",
               "id": "3ac231c6-642d-4f7b-a06c-92d379e2eb85",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "ab33232b-0d61-4228-9523-045ed69eb2ca",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1817,21 +1812,16 @@
             {
               "direction": "input",
               "id": "3637cd16-ff8b-432c-83b8-fc4c483f1702",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_CLK_P",
               "id": "a98facef-8567-447d-8619-5e36f0f5be67",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "68520f1b-d32b-4feb-9505-afdb4acc3d2c",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1844,21 +1834,16 @@
             {
               "direction": "input",
               "id": "07619912-a763-4bc4-9e24-2ad54503b9df",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_D0_N",
               "id": "9b510775-d23f-432d-a997-7e2f9f8a4714",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "95f5d30f-307d-42d8-b89f-5c14e95f671c",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1871,21 +1856,16 @@
             {
               "direction": "input",
               "id": "1cf34531-4239-4e80-badb-1d127e13848d",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_D0_P",
               "id": "6370f6d1-b0e7-4c81-a6f8-80fc1a2fedba",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "de4e1aca-85e8-4e5f-88f8-033f33bb8caa",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1898,21 +1878,16 @@
             {
               "direction": "input",
               "id": "58e13953-3d6a-4ad2-bed9-cfa306a11e22",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_D1_N",
               "id": "ba021999-725d-4840-a730-65b00428a376",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "5a68adda-3726-463d-b239-2f06d41f9bfe",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1925,21 +1900,16 @@
             {
               "direction": "input",
               "id": "6e42e4ab-c708-42d3-a291-86cda60dae35",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_D1_P",
               "id": "80fe59b1-6ade-4b7d-a141-ac438e47ae14",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "5a5ab61a-1f0d-4a37-9985-795c9e69e5ee",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1952,21 +1922,16 @@
             {
               "direction": "input",
               "id": "5709e184-4fba-4d62-876c-fb202c931bb6",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_D2_N",
               "id": "9febc199-7bd9-4e4a-86f2-521e8cedb67f",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "6b33405d-2fbd-470b-bf5a-b44e85217804",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -1979,21 +1944,16 @@
             {
               "direction": "input",
               "id": "dc5958e5-082d-4afc-813c-1c5f1373daa3",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "HDMI_D2_P",
               "id": "d409effb-b2e4-46d8-8afd-9e74959075f8",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "818bbb4a-b072-480f-a1e1-3255867a0893",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2004,23 +1964,18 @@
           "instanceName": "ddr_addr",
           "interfaces": [
             {
-              "direction": "input",
+              "direction": "inout",
+              "externalName": "ddr_addr",
               "id": "bbd01c6b-0faf-4f6d-9b0d-34470751ed7c",
-              "name": "in"
-            },
-            {
-              "direction": "output",
-              "id": "ab6a3e8f-e8fb-422f-bce7-1b9d9d053ea2",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_addr",
               "id": "d9ea89df-3a39-4b1d-b40b-a76ff9c9b719",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2031,23 +1986,18 @@
           "instanceName": "ddr_bankaddr",
           "interfaces": [
             {
-              "direction": "input",
+              "direction": "inout",
+              "externalName": "ddr_bankaddr",
               "id": "3d15a1b0-d82c-4629-9c75-0a5fbc6de18b",
-              "name": "in"
-            },
-            {
-              "direction": "output",
-              "id": "704a35ab-707b-4c01-8e43-9082f8fd0418",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_bankaddr",
               "id": "d2258125-62cb-4584-9370-e8cf3261bd9d",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2058,23 +2008,18 @@
           "instanceName": "ddr_cas_n",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "49523cb2-b3db-47c3-8c1d-13f86137fe90",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_cas_n",
               "id": "f2da280a-925c-4028-bebb-c6806ba226fd",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_cas_n",
               "id": "10c2f212-9f5c-4c26-ad0c-9e9336207cc4",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2085,23 +2030,18 @@
           "instanceName": "ddr_cke",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "b081ca27-f397-48bf-90cd-a1d7593cf60b",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_cke",
               "id": "f578e34a-a139-4428-aec6-ad9b6257c4a8",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_cke",
               "id": "e80f7e37-ccc3-4916-bb37-66c8fc253399",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2112,23 +2052,18 @@
           "instanceName": "ddr_clk",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "38b9aa90-8867-441d-a8c0-b36695938f6d",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_clk",
               "id": "a15bb688-bd17-48a8-acca-6a803f4a0097",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_clk",
               "id": "af15f3f4-23a8-400f-aa8b-5c5d1badc556",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2139,23 +2074,18 @@
           "instanceName": "ddr_clk_n",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "8e4ae878-206e-41ed-9e2a-e01fc1a37f3a",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_clk_n",
               "id": "cff97b32-e2cc-4301-8360-8005fa478709",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_clk_n",
               "id": "9f7f6dfc-9cce-460d-9db2-ae9e291e4bea",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2166,23 +2096,18 @@
           "instanceName": "ddr_cs_n",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "3d82db13-470a-4c51-aa64-f520366409ed",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_cs_n",
               "id": "c72c01d0-341a-4a1b-8f7a-203bd268377c",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_cs_n",
               "id": "3096e188-1728-4d01-a8de-4f6f538a7125",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2193,23 +2118,18 @@
           "instanceName": "ddr_dm",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "c3688104-2067-4b56-ae43-eacb27623afa",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_dm",
               "id": "d21669e1-3964-4325-935a-c462589a913d",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_dm",
               "id": "b759f425-2832-46c2-9899-1856f3d44f53",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2220,23 +2140,18 @@
           "instanceName": "ddr_dq",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "4901c6e9-e3b1-43a9-8043-4366bc64d8a6",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_dq",
               "id": "b8440448-2071-48d2-8247-d7b701a02751",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_dq",
               "id": "1a52529e-9a4d-4b4c-b81c-d318678a3976",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2247,23 +2162,18 @@
           "instanceName": "ddr_dqs",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "e01b95c1-f078-48e6-af6a-36a9c7335e84",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_dqs",
               "id": "7b50ec24-5b18-42fd-a542-604b3b669056",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_dqs",
               "id": "b98a8890-c8cc-442c-9968-1d0bc3d82219",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2274,23 +2184,18 @@
           "instanceName": "ddr_dqs_n",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "530e1db4-6464-42f0-8505-0ad97f7d6382",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_dqs_n",
               "id": "cd6fbd26-c250-4009-818a-b2dace2f8ef9",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_dqs_n",
               "id": "7d502d6e-c1c8-4f58-912e-a6a36642294d",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2301,23 +2206,18 @@
           "instanceName": "ddr_drstb",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "14272edd-f1c3-44cb-b1be-55e310a67e0f",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_drstb",
               "id": "a728342f-ebc7-412f-8a5c-7a8dd1f013e5",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_drstb",
               "id": "88b48d55-94f8-4489-9319-e27f6feeebc5",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2328,23 +2228,18 @@
           "instanceName": "ddr_odt",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "c58dca4f-971b-41db-b43e-11dfcbb6b355",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_odt",
               "id": "f5ec087b-2b8f-4f3d-b70b-99895475ac4e",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_odt",
               "id": "51fddc78-474f-4b05-b8f4-f0625e35628a",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2355,23 +2250,18 @@
           "instanceName": "ddr_ras_n",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "f1207f5b-489a-4fd1-b92e-d83fdf9c8e89",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_ras_n",
               "id": "dbfc2603-f61a-4dfd-bf55-d0722da1f4bc",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_ras_n",
               "id": "40a3243e-9884-4716-9155-505b6638c27d",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2382,23 +2272,18 @@
           "instanceName": "ddr_vr_n",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "01b6f923-18e8-456e-9af4-2944ee514ee9",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_vr_n",
               "id": "c01269e3-36a5-446c-acb1-7466940c8569",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_vr_n",
               "id": "ef3856a7-5ee2-45f7-a0bc-a120f9c71028",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2409,23 +2294,18 @@
           "instanceName": "ddr_vr",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "9c2d1a8d-ce24-47a9-98c0-9d1d2225fb5b",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_vr",
               "id": "d60a6f6a-11a9-4be8-be49-4d1f0e49cf24",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_vr",
               "id": "1bc87835-ee83-4403-91ba-98110433d2b5",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2436,23 +2316,18 @@
           "instanceName": "ddr_web",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "909b11f6-c73e-4bd5-b643-122f8e355a75",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ddr_web",
               "id": "78a72c8f-2c7a-4b55-bef8-577e0c873fb3",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ddr_web",
               "id": "221602a8-842f-4ec1-b422-52be90e5a4d4",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2463,23 +2338,18 @@
           "instanceName": "ps_mio",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "a43ad4f0-757c-4641-9393-1aaeb81f4dce",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ps_mio",
               "id": "f1505091-e65b-440f-a98a-cca7a097867c",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ps_mio",
               "id": "6ee5f61a-3a37-46b5-a70f-a7bde6988be9",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2490,23 +2360,18 @@
           "instanceName": "ps_clk",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "eabf5c85-78d6-437e-a8fe-2cd8b197fdfc",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ps_clk",
               "id": "be565349-e166-4017-a451-e5fd075ab048",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ps_clk",
               "id": "56c6142f-b79b-4354-a97d-7c82510fe769",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2517,23 +2382,18 @@
           "instanceName": "ps_porb",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "58f5aba0-b97d-4c68-bced-b71fca39e977",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ps_porb",
               "id": "9e378680-0943-4e8c-aaaf-ce23ccba0a0b",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ps_porb",
               "id": "f836dbf4-e3b9-4b53-8441-dad50e81e7a4",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -2544,23 +2404,18 @@
           "instanceName": "ps_srstb",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "6967d2bc-9ca6-45f6-ac98-880d2f5cd835",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "ps_srstb",
               "id": "15cc5ed6-6ec5-4876-b9c0-06498e5678b9",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "ps_srstb",
               "id": "73a72ebd-f833-45bf-a804-e451464431f5",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "properties": [],
           "twoColumn": true,
           "width": 200

@@ -20,25 +20,18 @@
           "instanceName": "",
           "interfaces": [
             {
-              "direction": "input",
-              "id": "6d6ff037-3417-452a-a8a5-61125af8c9a5",
-              "name": "in"
-            },
-            {
-              "direction": "output",
+              "direction": "inout",
+              "externalName": "",
               "id": "1eed5434-bf1f-4907-b533-ba25575f119c",
-              "name": "out"
+              "name": "external"
             },
             {
               "direction": "inout",
-              "externalName": "",
               "id": "403ab4e6-e1e2-4843-9980-5f4b3ac4de7c",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 0
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Inout",
           "position": {
             "x": -855,
             "y": 300
@@ -61,17 +54,10 @@
             {
               "direction": "output",
               "id": "1af020b3-626b-4fe6-a3da-fad06f3f612c",
-              "name": "out",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "944ea140-d310-476c-a7ac-9c9869a3dfeb",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": -1320,
             "y": 300

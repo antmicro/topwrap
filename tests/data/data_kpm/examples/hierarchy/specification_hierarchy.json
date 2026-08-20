@@ -37,6 +37,13 @@
         ]
       },
       {
+        "name": "Exposed ports",
+        "nodeInterfaces": [
+          "intf__exposed"
+        ],
+        "nodeLayers": []
+      },
+      {
         "name": "Externals",
         "nodeLayers": [
           "Externals"
@@ -90,11 +97,62 @@
     ],
     "notifyWhenChanged": true,
     "styles": {
+      "inout": {
+        "minimal": true,
+        "positions": {
+          "internal": {
+            "x": 90,
+            "y": 50
+          }
+        },
+        "shape": "assets/inout.svg",
+        "title": {
+          "hideSubTitle": true,
+          "position": {
+            "x": 15,
+            "y": 0
+          }
+        }
+      },
+      "input": {
+        "minimal": true,
+        "positions": {
+          "internal": {
+            "x": 90,
+            "y": 50
+          }
+        },
+        "shape": "assets/input.svg",
+        "title": {
+          "hideSubTitle": true,
+          "position": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      },
       "inverter": {
         "minimal": true,
         "pill": {
           "color": "#cccccc",
           "text": "Inverter"
+        }
+      },
+      "output": {
+        "minimal": true,
+        "positions": {
+          "internal": {
+            "x": 0,
+            "y": 50
+          }
+        },
+        "shape": "assets/output.svg",
+        "title": {
+          "hideSubTitle": true,
+          "position": {
+            "x": 20,
+            "y": 0
+          }
         }
       }
     },
@@ -153,29 +211,21 @@
     {
       "abstract": false,
       "category": "Metanode",
+      "height": 60,
       "interfaces": [
         {
-          "direction": "input",
+          "direction": "inout",
           "maxConnectionsCount": -1,
-          "name": "in",
+          "name": "external",
           "type": [
-            "intf__ext",
+            "intf__exposed",
             "intf__port"
           ]
         },
         {
           "direction": "inout",
           "maxConnectionsCount": -1,
-          "name": "inout",
-          "type": [
-            "intf__ext",
-            "intf__port"
-          ]
-        },
-        {
-          "direction": "output",
-          "maxConnectionsCount": -1,
-          "name": "out",
+          "name": "internal",
           "type": [
             "intf__ext",
             "intf__port"
@@ -183,7 +233,67 @@
         }
       ],
       "layer": "Externals",
-      "name": "External I/O"
+      "name": "External Inout",
+      "style": "inout",
+      "width": 40
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "height": 60,
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "external",
+          "type": [
+            "intf__exposed",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "internal",
+          "type": [
+            "intf__ext",
+            "intf__port"
+          ]
+        }
+      ],
+      "layer": "Externals",
+      "name": "External Input",
+      "style": "input",
+      "width": 40
+    },
+    {
+      "abstract": false,
+      "category": "Metanode",
+      "height": 60,
+      "interfaces": [
+        {
+          "direction": "output",
+          "maxConnectionsCount": -1,
+          "name": "external",
+          "type": [
+            "intf__exposed",
+            "intf__port"
+          ]
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": -1,
+          "name": "internal",
+          "type": [
+            "intf__ext",
+            "intf__port"
+          ]
+        }
+      ],
+      "layer": "Externals",
+      "name": "External Output",
+      "style": "output",
+      "width": 40
     },
     {
       "abstract": false,

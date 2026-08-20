@@ -56,22 +56,15 @@
               "direction": "input",
               "externalName": "Some_input",
               "id": "00185dba-5c68-448a-91de-d882736413c0",
-              "name": "in"
+              "name": "external"
             },
             {
               "direction": "output",
               "id": "ni_172709238443123",
-              "name": "out",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "4b81e929-175d-4300-a577-247a6f0cea1d",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": -450,
             "y": 150
@@ -147,24 +140,15 @@
               "direction": "input",
               "externalName": "cs_s1_f_mod_in_1",
               "id": "ni_172709238443125",
-              "name": "in",
-              "side": "left",
-              "sidePosition": 0
+              "name": "external"
             },
             {
               "direction": "output",
               "id": "ni_172709238443136",
-              "name": "out",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "c09a38d8-c1a1-4bf6-a278-3fa37e475ea4",
-              "name": "inout"
+              "name": "interna"
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": -105,
             "y": 30
@@ -182,24 +166,15 @@
               "direction": "input",
               "externalName": "cs_s1_f_ext_const_in",
               "id": "ni_172709238443126",
-              "name": "in",
-              "side": "left",
-              "sidePosition": 0
+              "name": "external"
             },
             {
               "direction": "output",
               "id": "ni_172709238443139",
-              "name": "out",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "d737a986-144f-43c2-934c-9cfce81468ab",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": -45,
             "y": -150
@@ -216,25 +191,16 @@
             {
               "direction": "input",
               "id": "ni_172709238443143",
-              "name": "in",
-              "side": "left",
-              "sidePosition": 0
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "cs_s1_f_int_out_1",
               "id": "ni_172709238443127",
-              "name": "out",
-              "side": "right",
-              "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "26067ded-c407-4fd0-b461-1b473c8076c4",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "position": {
             "x": 915,
             "y": -15

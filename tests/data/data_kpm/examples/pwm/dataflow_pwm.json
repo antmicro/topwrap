@@ -227,21 +227,16 @@
             {
               "direction": "input",
               "id": "261cab4b-fc98-45f1-ad2b-4ddda63d3bf6",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "pwm",
               "id": "142e0327-ae4e-417e-9da9-ad34504dd13d",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "c8ecfb5f-8989-4948-8460-7f4608263d28",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200

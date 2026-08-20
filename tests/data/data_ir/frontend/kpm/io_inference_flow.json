@@ -30,32 +30,25 @@
         {
           "enabledInterfaceGroups": [],
           "id": "11634695-b69f-41b2-95ea-ec771eb01087",
-          "instanceName": "External I/O",
+          "instanceName": "External Input",
           "interfaces": [
             {
               "direction": "input",
               "externalName": "test_intf",
               "id": "f6bdc5aa-9ffa-41b0-8cac-9800b9c589f9",
-              "name": "in",
+              "name": "external",
               "side": "left",
               "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "59379732-162f-4edd-9f17-7b6551931706",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 1
             },
             {
               "direction": "output",
               "id": "76af9b15-7499-478b-a7d6-9a5cae926b0f",
-              "name": "out",
+              "name": "internal",
               "side": "right",
               "sidePosition": 0
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": 615,
             "y": 315
@@ -102,32 +95,25 @@
         {
           "enabledInterfaceGroups": [],
           "id": "3898f1f6-3baf-4569-aae2-a7a3933b73f0",
-          "instanceName": "External I/O",
+          "instanceName": "External Input",
           "interfaces": [
             {
               "direction": "input",
               "externalName": "test_port",
               "id": "c798c6ca-1cf2-42cb-804b-24079c3758bb",
-              "name": "in",
+              "name": "external",
               "side": "left",
               "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "d6a0f1b2-5293-477e-b30e-18a33c39702b",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 1
             },
             {
               "direction": "output",
               "id": "82bd80d7-ed26-4485-898c-d9098210559b",
-              "name": "out",
+              "name": "internal",
               "side": "right",
               "sidePosition": 0
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": 615,
             "y": 585
@@ -286,32 +272,25 @@
         {
           "enabledInterfaceGroups": [],
           "id": "9425642a-ff30-4e54-a84d-003ffffdf813",
-          "instanceName": "External I/O",
+          "instanceName": "External Input",
           "interfaces": [
             {
               "direction": "input",
               "externalName": "ext_man",
               "id": "e7f88e5c-0c8c-40bc-89d0-0bf2ece2c31b",
-              "name": "in",
+              "name": "external",
               "side": "left",
               "sidePosition": 0
-            },
-            {
-              "direction": "inout",
-              "id": "fe40c335-c60f-4e55-8d7c-9dd71d400144",
-              "name": "inout",
-              "side": "left",
-              "sidePosition": 1
             },
             {
               "direction": "output",
               "id": "9f2e064f-e317-4624-9fdb-a84e6c18f564",
-              "name": "out",
+              "name": "internal",
               "side": "right",
               "sidePosition": 0
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "position": {
             "x": 570,
             "y": 480

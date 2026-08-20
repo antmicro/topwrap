@@ -210,20 +210,15 @@
               "direction": "input",
               "externalName": "clkin",
               "id": "c7543f8a-f739-499d-a430-5e653f77fe36",
-              "name": "in"
+              "name": "external"
             },
             {
               "direction": "output",
               "id": "0953f8e3-7f4e-46bf-85d0-438217a62371",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "b3caf4a8-a015-4692-b84e-0246f675cb8c",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -237,20 +232,15 @@
               "direction": "input",
               "externalName": "val",
               "id": "afa1efeb-06b0-45e9-84b0-565a722c0914",
-              "name": "in"
+              "name": "external"
             },
             {
               "direction": "output",
               "id": "6dcf5bf7-313a-4a12-97d3-1a595d9cc8a7",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "eebb66fb-4add-4aca-a28c-71bbc242afa6",
-              "name": "inout"
+              "name": "internal"
             }
           ],
-          "name": "External I/O",
+          "name": "External Input",
           "properties": [],
           "twoColumn": true,
           "width": 200
@@ -263,21 +253,16 @@
             {
               "direction": "input",
               "id": "65484cb1-b946-4bb2-8091-3082912da20b",
-              "name": "in"
+              "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "sum",
               "id": "dd36d24d-fc4e-4fb6-b055-7ad9b92497d4",
-              "name": "out"
-            },
-            {
-              "direction": "inout",
-              "id": "bac5fff1-5ece-4519-9738-b7020c63e098",
-              "name": "inout"
+              "name": "external"
             }
           ],
-          "name": "External I/O",
+          "name": "External Output",
           "properties": [],
           "twoColumn": true,
           "width": 200

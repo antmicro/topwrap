@@ -229,7 +229,7 @@ class TestKpmBackendPWMExample:
 
         assert len(metanodes) == PWM_METANODES
         assert metanodes["Identifier"]["name"] == "Identifier"
-        assert metanodes["pwm"]["name"] == "External I/O"
+        assert metanodes["pwm"]["name"] == "External Output"
 
         id_props = [_filter_id(x) for x in metanodes["Identifier"]["properties"]]
         assert sorted(id_props, key=lambda prop: prop["name"]) == [
@@ -241,9 +241,8 @@ class TestKpmBackendPWMExample:
 
         pwm_ifs = [_filter_id(x) for x in metanodes["pwm"]["interfaces"]]
         assert sorted(pwm_ifs, key=lambda iface: iface["name"]) == [
-            {"name": "in", "direction": "input"},
-            {"name": "inout", "direction": "inout"},
-            {"name": "out", "direction": "output", "externalName": "pwm"},
+            {"name": "external", "direction": "output", "externalName": "pwm"},
+            {"name": "internal", "direction": "input"},
         ]
 
 
@@ -340,8 +339,8 @@ class TestKpmBackendHDMIExample:
             == HDMI_METANODES
         )
         assert metanodes["Identifier"]["name"] == "Identifier"
-        assert metanodes["HDMI_D0_P"]["name"] == "External I/O"
-        assert metanodes["HDMI_D0_N"]["name"] == "External I/O"
+        assert metanodes["HDMI_D0_P"]["name"] == "External Output"
+        assert metanodes["HDMI_D0_N"]["name"] == "External Output"
 
         id_props = [_filter_id(x) for x in metanodes["Identifier"]["properties"]]
         assert sorted(id_props, key=lambda prop: prop["name"]) == [
@@ -353,9 +352,8 @@ class TestKpmBackendHDMIExample:
 
         d0_p_ifs = [_filter_id(x) for x in metanodes["HDMI_D0_P"]["interfaces"]]
         assert sorted(d0_p_ifs, key=lambda iface: iface["name"]) == [
-            {"name": "in", "direction": "input"},
-            {"name": "inout", "direction": "inout"},
-            {"name": "out", "direction": "output", "externalName": "HDMI_D0_P"},
+            {"name": "external", "direction": "output", "externalName": "HDMI_D0_P"},
+            {"name": "internal", "direction": "input"},
         ]
 
 
