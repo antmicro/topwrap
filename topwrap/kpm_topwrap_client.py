@@ -226,12 +226,16 @@ class RPCMethods:
             # Started topwrap without any design
             self.initial_load = False
             current_graph = await self.client.request("graph_get")
-            # Save the current dataflow to save_file to ensure that the newest dataflow is there
-            save_file_to_json(
-                self.default_save_file.parent,
-                self.default_save_file.name,
-                current_graph["result"]["dataflow"],
-            )
+            # On a fresh frontend connection there may be no dataflow yet, in
+            # which case the response carries no "result" to save.
+            result = current_graph.get("result")
+            if result is not None:
+                # Save the current dataflow to save_file to ensure that the newest dataflow is there
+                save_file_to_json(
+                    self.default_save_file.parent,
+                    self.default_save_file.name,
+                    result["dataflow"],
+                )
 
     def custom_save_design_changes(self, dataflow: JsonType):
         """
