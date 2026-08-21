@@ -85,7 +85,8 @@ topwrap = [
   "templates/*",
   "builtin/**/*",
   "builtin/**/.*",
-  "**/*.j2"
+  "**/*.j2",
+  "assets/*"
 ]
 
 [tool.ruff]

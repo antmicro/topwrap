@@ -358,7 +358,8 @@ class KPM:
         shutdown_server: bool = False,
         **params_dict: Any,
     ):
-        args = ["pipeline_manager", "run"]
+        assets_path = Path(__file__).parent.parent / "assets"
+        args = ["pipeline_manager", "run", "--assets-directory", str(assets_path)]
         for k, v in params_dict.items():
             flag = f"--{k}".replace("_", "-")
             if isinstance(v, bool):
