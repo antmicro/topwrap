@@ -63,21 +63,22 @@ class ModuleFileHandler(FileHandler):
             ):
                 continue
 
-            [*intf_defs] = load_interfaces_from_repos()
-            cand_intf_defs = intf_defs
-            if self.inference_interfaces:
-                cand_intf_defs = [
-                    x
-                    for x in intf_defs
-                    if (x.id.name in self.inference_interfaces)
-                    or (x.id.combined() in self.inference_interfaces)
-                ]
+            if self.inference:
+                [*intf_defs] = load_interfaces_from_repos()
+                cand_intf_defs = intf_defs
+                if self.inference_interfaces:
+                    cand_intf_defs = [
+                        x
+                        for x in intf_defs
+                        if (x.id.name in self.inference_interfaces)
+                        or (x.id.combined() in self.inference_interfaces)
+                    ]
 
-            infer_interfaces_from_module(
-                mod,
-                cand_intf_defs,
-                grouping_hints=parse_grouping_hints(self.grouping_hints),
-            )
+                infer_interfaces_from_module(
+                    mod,
+                    cand_intf_defs,
+                    grouping_hints=parse_grouping_hints(self.grouping_hints),
+                )
 
             resources.append(
                 Core(
