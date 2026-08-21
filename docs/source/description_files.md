@@ -287,10 +287,17 @@ extensions: ...
   - `mode` \- `manager`, `subordinate` or `unspecified`. When generating ports, the mode is used to determine the direction of the port. `unspecified` behaves the same as `manager`. When doing inference, all newly created interfaces have their `type` set to `unspecified`.
   - `size` \- the optional field that is only used when `mode` is `subordinate`, it is used when there is an instance of this module specified in `address_maps` in the design YAML.
   - `signals` \- a list of signals mapped to ports. Signals from the interface definition need to be mapped to ports in the HDL module.
+  - `clock` \- (optional) name of the clock input this interface is synchronous to.
+  - `reset` \- (optional) name of the reset input for this interface.
 - `types` \- structure type definitions used by signals (described below in more detail)
   - `members` \- member fields of a struct type.
 - `existing_iface_definitions` \- a list of interface definitions that exist in parsed HDL code in form of [ID](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)s.
 - `extensions` \- plugin specific settings, has the same meaning as the `extensions`-property in [design files](#design-description).
+
+Interfaces can also specify which clock and reset input of the IP core they use.
+This is done via the optional `clock` and `reset` keys, which specify the name of the input (see below).
+
+When connecting interfaces that have clock inputs assigned on both sides of the connection, Topwrap will automatically perform sanity checks, and report errors for connections between interfaces that belong to different clock domains.
 
 ### Signals
 
@@ -434,62 +441,6 @@ types:
       ...
 ```
 
-### Interface definitions
-
-The purpose of the interface YAML file is to store information about interface definitions. These definitions are used for inferring ports to interface instances. It contains the id of the interface, which is used to reference the definition from the IP core YAML file.
-The YAML file separates `signals` into those that are required for a list of ports to be interpreted as this interface and optional signals that, if present, are inferred into a single interface instance.
-
-Regular expressions are used to find ports in the HDL module that correspond to the signals in the interface definition.
-
-```yaml
-id:
-  library: libdefault
-  name: wishbone
-  vendor: vendor
-signals:
-    required:
-        out:
-            cyc: cyc
-            stb: stb
-        in:
-            ack: ack
-    optional:
-        out:
-            dat_w: dat_(w|mosi)|mosi
-            adr: adr
-            tgd_w: tgd_w
-            lock: lock
-            sel: sel
-            tga: tga
-            tgc: tgc
-            we: we
-            cti: cti
-            bte: bte
-        in:
-            dat_r: dat_(r|miso)|miso
-            tgd_r: tgd_r
-            stall: stall
-            err: err
-            rty: rty
-```
-File format explanation:
-
-- `id` \- identification of the interface. An instance of [Identifier IR class](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)
-  - `library` \- by default `libdefault`
-  - `vendor` \- by default `vendor`
-  - `name` \- same as the name in the HDL file
-- `signals` \- contains the names of signals with regular expressions that are used in the ports of Modules.
-  - `required` \- contains signals that must be present in the list of ports in the module
-  - `optional` \- contains signals that are connected to the interface instance when present in the list of ports in the module
-    - `out` \- a list of signals that are in the output direction
-    - `in` \- a list of signals that are in the input direction
-    - `inout` \- a list of signals that can be both the input and the output, similar to an `inout` port in Verilog
-
-Interfaces can also specify which clock and reset input of the IP core they use.
-This is done via the optional `clock` and `reset` keys, which specify the name of the input (see below).
-
-When connecting interfaces that have clock inputs assigned on both sides of the connection, Topwrap will automatically perform sanity checks, and report errors for connections between interfaces that belong to different clock domains.
-
 ### Parameterization
 
 Port widths don't have to be hardcoded, as parameters can describe an IP core in a generic way, and values specified in IP core YAMLs can be overridden in a design description file (see [Design description](description_files.md#design-description)).
@@ -551,38 +502,54 @@ The `polarity` and `synchronous_to` keys are the same as the ones in the design 
 
 ## Interface definition files
 
-Topwrap can use predefined interfaces, as illustrated in YAML files that come packaged with the tool.
-The currently supported interfaces are AXI3, AXI4, AXI Lite, AXI Stream and Wishbone.
+The purpose of the interface definition YAML file is to store information about interface definitions. These definitions are used for inferring ports to interface instances. It contains the id of the interface, which is used to reference the definition from the IP core YAML file.
+The YAML file separates `signals` into those that are required for a list of ports to be interpreted as this interface and optional signals that, if present, are inferred into a single interface instance.
 
-An example file looks as follows:
+Regular expressions are used to find ports in the HDL module that correspond to the signals in the interface definition.
 
 ```yaml
-name: AXI4Stream
-port_prefix: AXIS
+id:
+  library: libdefault
+  name: wishbone
+  vendor: vendor
 signals:
-    # The convention assumes the AXI Stream transmitter (manager) perspective
     required:
         out:
-            TVALID: tvalid
-            TDATA: tdata
-            TLAST: tlast
+            cyc: cyc
+            stb: stb
         in:
-            TREADY: tready
+            ack: ack
     optional:
         out:
-            TID: tid
-            TDEST: tdest
-            TKEEP: tkeep
-            TSTRB: tstrb
-            TUSER: tuser
-            TWAKEUP: twakeup
+            dat_w: dat_(w|mosi)|mosi
+            adr: adr
+            tgd_w: tgd_w
+            lock: lock
+            sel: sel
+            tga: tga
+            tgc: tgc
+            we: we
+            cti: cti
+            bte: bte
+        in:
+            dat_r: dat_(r|miso)|miso
+            tgd_r: tgd_r
+            stall: stall
+            err: err
+            rty: rty
 ```
+File format explanation:
 
-The `name` of an interface must be unique.
-
-Signals are either required or optional, and their direction is described from the perspective of the manager (i.e. the direction of signals in the subordinate are flipped).
-Note that `clock` and `reset` are not included as these are usually inputs to both the manager and subordinate, so they are not supported in the interface specification.
-Every signal is a key-value pair, where the key is a generic signal name (normally taken from the interface specification) and used to identify it in other parts of Topwrap (i.e. IP core description files), and the value is a regex used to deduce which port defined in the HDL sources represents this signal.
+- `id` \- identification of the interface. An instance of [Identifier IR class](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)
+  - `library` \- by default `libdefault`
+  - `vendor` \- by default `vendor`
+  - `name` \- same as the name in the HDL file
+- `signals` \- contains the names of signals with regular expressions that are used in the ports of Modules.
+  - `required` \- contains signals that must be present in the list of ports in the module
+  - `optional` \- contains signals that are connected to the interface instance when present in the list of ports in the module
+    - `out` \- a list of signals that are in the output direction
+    - `in` \- a list of signals that are in the input direction
+    - `inout` \- a list of signals that can be both the input and the output, similar to an `inout` port in Verilog
 
 ### Interface compliance
 
