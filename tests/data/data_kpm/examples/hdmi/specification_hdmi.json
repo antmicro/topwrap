@@ -515,7 +515,7 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clk",
           "type": "intf__port"
         },
@@ -527,7 +527,7 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "rst",
           "type": "intf__port"
         },
@@ -597,55 +597,55 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "CTL_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DATA_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DE_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DGUARD_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DIEN_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DIH_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "FSYNC_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HSYNC_O",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "LOCKED_I",
           "type": "intf__port"
         },
@@ -663,31 +663,31 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "S_AXIS_ACLK",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "VGUARD_O",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "VSYNC_O",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "s00_axi_aclk",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "s00_axi_aresetn",
           "type": "intf__port"
         }
@@ -719,7 +719,7 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clk",
           "type": "intf__port"
         },
@@ -743,7 +743,7 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "rst",
           "type": "intf__port"
         },
@@ -860,13 +860,13 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "aclk",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "aresetn",
           "type": "intf__port"
         }
@@ -898,7 +898,7 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "async_rst",
           "type": "intf__port"
         },
@@ -910,25 +910,25 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "m_clk",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "m_status_bad_frame",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "m_status_good_frame",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "m_status_overflow",
           "type": "intf__port"
         },
@@ -940,25 +940,25 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "s_clk",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "s_status_bad_frame",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "s_status_good_frame",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "s_status_overflow",
           "type": "intf__port"
         }
@@ -1027,13 +1027,13 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "aclk",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "aresetn",
           "type": "intf__port"
         },
@@ -1089,25 +1089,25 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "A",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "B",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clkA",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clkB",
           "type": "intf__port"
         }
@@ -1139,31 +1139,31 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clock",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "io_irq_readerDone",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "io_irq_writerDone",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "io_sync_readerSync",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "io_sync_writerSync",
           "type": "intf__port"
         },
@@ -1181,7 +1181,7 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "reset",
           "type": "intf__port"
         },
@@ -1219,121 +1219,121 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "CTL",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DATA_I",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DGUARD",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DIEN",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "DIH",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_CLK_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_CLK_P",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D0_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D0_P",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D1_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D1_P",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D2_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D2_P",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "LOCKED_I",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "PXLCLK_5X_I",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "PXLCLK_I",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "VGA_DE",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "VGA_HS",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "VGA_VS",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "VGUARD",
           "type": "intf__port"
         }
@@ -1371,37 +1371,37 @@
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clkgen_locked",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clkgen_out0",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clkgen_out1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clkgen_ref",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "sys_clk",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "sys_rst",
           "type": "intf__port"
         }
@@ -1433,61 +1433,61 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "aux_reset_in",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "bus_struct_reset",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "dcm_locked",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ext_reset_in",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "interconnect_aresetn",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "mb_debug_sys_rst",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "mb_reset",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "peripheral_aresetn",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "peripheral_reset",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "slowest_sync_clk",
           "type": "intf__port"
         }
@@ -1519,43 +1519,43 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "FCLK0",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "FCLK1",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "FCLK_RESET0_N",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "IRQ_F2P_0",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "IRQ_F2P_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "MAXIGP0ACLK",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "MAXIGP0ARESETN",
           "type": "intf__port"
         },
@@ -1567,37 +1567,37 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "SAXIHP0ACLK",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "SAXIHP0ARESETN",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "SAXIHP0RACOUNT",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "SAXIHP0RCOUNT",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "SAXIHP0WACOUNT",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "SAXIHP0WCOUNT",
           "type": "intf__port"
         },
@@ -1609,147 +1609,147 @@
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_addr",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_bankaddr",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_cas_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_cke",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_clk",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_clk_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_cs_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dm",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dq",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dqs",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dqs_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_drstb",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_odt",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_ras_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_vr",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_vr_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_web",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_clk",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_mio",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_porb",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_srstb",
           "side": "right",
           "type": "intf__port"
@@ -1774,195 +1774,195 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_CLK_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_CLK_P",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D0_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D0_P",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D1_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D1_P",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D2_N",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "HDMI_D2_P",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_addr",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_bankaddr",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_cas_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_cke",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_clk",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_clk_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_cs_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dm",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dq",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dqs",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_dqs_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_drstb",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_odt",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_ras_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_vr",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_vr_n",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ddr_web",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_clk",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_mio",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_porb",
           "side": "right",
           "type": "intf__port"
         },
         {
           "direction": "inout",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ps_srstb",
           "side": "right",
           "type": "intf__port"

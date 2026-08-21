@@ -491,7 +491,7 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "clk",
           "type": "intf__port"
         },
@@ -503,7 +503,7 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "rst",
           "type": "intf__port"
         },
@@ -573,7 +573,7 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "pwm",
           "type": "intf__port"
         },
@@ -585,13 +585,13 @@
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "sys_clk",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "sys_rst",
           "type": "intf__port"
         }
@@ -623,25 +623,25 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "FCLK0",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "FCLK_RESET0_N",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "MAXIGP0ACLK",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "MAXIGP0ARESETN",
           "type": "intf__port"
         },
@@ -671,7 +671,7 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "pwm",
           "type": "intf__port"
         }

@@ -166,7 +166,7 @@ class KpmSpecificationBackend:
                 if port._id in clock_reset_ports
                 else PORT_INTF_TYPE,
                 kpm_dir_from(port.direction).value,
-                maxcount=-1,
+                maxcount=0,
                 side=Side.RIGHT.value if port.direction == PortDirection.INOUT else None,
             )
 

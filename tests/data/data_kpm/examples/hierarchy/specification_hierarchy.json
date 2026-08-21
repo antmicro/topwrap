@@ -465,13 +465,13 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_int_out_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_mod_in_1",
           "type": "intf__port"
         }
@@ -510,13 +510,13 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_int_out_2",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_mod_in_2",
           "type": "intf__port"
         }
@@ -548,25 +548,25 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_int_const_in",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_int_in_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_int_in_2",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_mod_out_1",
           "type": "intf__port"
         }
@@ -590,13 +590,13 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_in_1",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_out_1",
           "type": "intf__port"
         }
@@ -620,19 +620,19 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_in_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_in_2",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "c_out_1",
           "type": "intf__port"
         }
@@ -664,19 +664,19 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_f_ext_const_in",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_f_mod_in_1",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_mint_out_1",
           "type": "intf__port"
         }
@@ -708,13 +708,13 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_f_int_out_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_mint_in_1",
           "type": "intf__port"
         }
@@ -746,13 +746,13 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_f_int_out_2",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_mint_in_2",
           "type": "intf__port"
         }
@@ -791,25 +791,25 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_f_int_in_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_f_int_in_2",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_mint_out_1",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_mint_out_2",
           "type": "intf__port"
         }
@@ -841,19 +841,19 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_f_mod_out_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_mint_in_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_mint_in_2",
           "type": "intf__port"
         }
@@ -877,25 +877,25 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_int_const_in",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_int_out_1",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_int_out_2",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s1_mod_in_1",
           "type": "intf__port"
         }
@@ -919,19 +919,19 @@
       "interfaces": [
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_int_in_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_int_in_2",
           "type": "intf__port"
         },
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "cs_s2_mod_out_1",
           "type": "intf__port"
         }
@@ -955,19 +955,19 @@
       "interfaces": [
         {
           "direction": "output",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ex_in_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ex_out_1",
           "type": "intf__port"
         },
         {
           "direction": "input",
-          "maxConnectionsCount": -1,
+          "maxConnectionsCount": 0,
           "name": "ex_out_2",
           "type": "intf__port"
         }
