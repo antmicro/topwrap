@@ -2,6 +2,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import Dict
+from unittest.mock import AsyncMock
 
 import pytest
 from deepdiff import DeepDiff
@@ -107,3 +108,16 @@ class TestClient:
                 assert response_message["type"] == MessageType.OK.value, (
                     f"Dataflow import returned {response_message['type']} for test {test_name}"
                 )
+
+    def test_frontend_connect_without_design_handles_empty_graph(
+        self, default_rpc_params: RPCparams, tmp_path: Path
+    ):
+        client = AsyncMock()
+        client.request.return_value = {}
+        rpc_methods = RPCMethods(default_rpc_params, client)
+        rpc_methods.default_save_file = tmp_path / "dataflow.json"
+
+        asyncio.run(rpc_methods.frontend_on_connect())
+
+        client.request.assert_awaited_once_with("graph_get")
+        assert not rpc_methods.default_save_file.exists()
