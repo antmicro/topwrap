@@ -339,7 +339,10 @@ class TestRepoCli:
         _, sources = all_sources
 
         repo_path = Path(tmpdir) / "repo_parse_norm"
-        self.invoke_parse(repo_path, *(str(p) for p in sources))
+        try:
+            self.invoke_parse(repo_path, *(str(p) for p in sources))
+        except SystemExit:
+            pass
 
         for _, level, message in caplog.record_tuples:
             if level == logging.ERROR and '"top" already exists' in message:

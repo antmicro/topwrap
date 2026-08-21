@@ -124,6 +124,7 @@ def parse_repo(
         ResourceNotSupportedException,
     ) as e:
         logging.error(e)
+        exit(1)
     except OSError as e:
         logger.warning(
             "Path {} exceeding the limit. Contents of the file won't be used.".format(e.filename)
