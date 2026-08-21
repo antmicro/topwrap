@@ -502,54 +502,69 @@ The `polarity` and `synchronous_to` keys are the same as the ones in the design 
 
 ## Interface definition files
 
-The purpose of the interface definition YAML file is to store information about interface definitions. These definitions are used for inferring ports to interface instances. It contains the id of the interface, which is used to reference the definition from the IP core YAML file.
-The YAML file separates `signals` into those that are required for a list of ports to be interpreted as this interface and optional signals that, if present, are inferred into a single interface instance.
+The purpose of the interface definition YAML file is to store information about an interface: it's signals and their directions, whether they're optional, default values, etc.
+The signals also contain regex patterns used for matching them up to module ports during interface inference.
 
-Regular expressions are used to find ports in the HDL module that correspond to the signals in the interface definition.
+Example of a (simplified) definition of the Wishbone interface:
 
 ```yaml
+
 id:
-  library: libdefault
   name: wishbone
+  library: libdefault
   vendor: vendor
+
 signals:
-    required:
-        out:
-            cyc: cyc
-            stb: stb
-        in:
-            ack: ack
-    optional:
-        out:
-            dat_w: dat_(w|mosi)|mosi
-            adr: adr
-            tgd_w: tgd_w
-            lock: lock
-            sel: sel
-            tga: tga
-            tgc: tgc
-            we: we
-            cti: cti
-            bte: bte
-        in:
-            dat_r: dat_(r|miso)|miso
-            tgd_r: tgd_r
-            stall: stall
-            err: err
-            rty: rty
+  adr:
+    pattern: adr
+    manager: [out, required]
+  dat_w:
+    pattern: mosi|dat_(w|mosi)
+    manager: [out, required]
+  dat_r:
+    pattern: miso|dat_(r|miso)
+    manager: [in, required]
+  sel:
+    pattern: sel
+    manager: [out, required]
+  cyc:
+    pattern: cyc
+    manager: [out, required]
+  stb:
+    pattern: stb
+    manager: [out, required]
+  we:
+    pattern: we
+    manager: [out, required]
+  ack:
+    pattern: ack
+    manager: [in, required]
+  ...
+  tga:
+    pattern: tga
+    manager: [out, optional]
+  tgc:
+    pattern: tgc
+    manager: [out, optional]
 ```
+
 File format explanation:
 
-- `id` \- identification of the interface. An instance of [Identifier IR class](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)
-  - `library` \- by default `libdefault`
-  - `vendor` \- by default `vendor`
-  - `name` \- same as the name in the HDL file
-- `signals` \- contains the names of signals with regular expressions that are used in the ports of Modules.
-  - `required` \- contains signals that must be present in the list of ports in the module
-  - `optional` \- contains signals that are connected to the interface instance when present in the list of ports in the module
-    - `out` \- a list of signals that are in the output direction
-    - `in` \- a list of signals that are in the input direction
-    - `inout` \- a list of signals that can be both the input and the output, similar to an `inout` port in Verilog
+- `id` - identifier of the interface
+- `signals` - dictionary of signals that this interface is comprised of; each item's key is the signal name, and the value is an object with the following keys:
+  - `pattern` - the regex pattern used for matching signals to ports during interface inference
+  - `manager` - (optional) the signal direction and whether it's optional or required in the manager mode of the interface
+  - `subordinate` - (optional) the signal direction and whether it's optional or required in the subordinate mode of the interface
+  - `unspecified` - (optional) the signal direction and whether it's optional or required in the unspecified mode of the interface
+  - `default` - (optional) the value assigned to the signal if the other side does not contain the signal
+
+For each mode specification, the first value is one of `in`, `out` or `inout`, and the second value is one of `required`, `optional`.
+
+At least one of `manager`, `subordinate` or `unspecified` must be specified for each signal.
+
+If only one of `manager` or `subordinate` is specified, the other is inferred as having an opposite direction and the same optionality.
+Explicitly specifying both `manager` and `subordinate` allows for specifying the same direction and/or different optionality.
+If not defined, `unspecified` is inferred to be the same as `manager`.
 
 ### Interface compliance
 
@@ -676,7 +691,7 @@ modules:
     vendor: vendor
     library: libdefault
     name: my_module
-	version: 0.1
+    version: 0.1
   identifier: [-1000.0, -1000.0]
   components:
   - name: foo
@@ -699,7 +714,7 @@ modules:
   inverters:
   - source: clk
     target: [foo, clk]
-	position: [-150.0, 200.0]
+    position: [-150.0, 200.0]
   - ...
 ```
 
