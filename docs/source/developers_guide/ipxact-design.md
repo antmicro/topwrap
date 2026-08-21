@@ -547,7 +547,7 @@ In most aspects IP-XACT is a superset of what's possible to describe in Topwrap,
 
 Syntax impossible to represent natively in IP-XACT such as:
 - Abstract interconnects without concrete implementation
-- Interface signal name regexes and port prefixes (see [Interface mapping and inference](../inference.md))
+- Interface signal name regexes and port prefixes (see [Interface inference](../inference.md))
 
 can even if not implemented, be at least preserved using [Vendor extensions](#vendor-extensions).
 
