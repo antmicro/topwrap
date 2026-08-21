@@ -171,6 +171,7 @@ class Metanode:
 class InMetanode(Metanode):
     name: str = "External Input"
     layer: Optional[LayerType] = LayerType.EXTERNAL
+    style: Optional[str] = "input"
     interfaces: list[KpmInterface] = field(
         default_factory=lambda: [
             KpmInterface("internal", KpmDirection.OUTPUT.value, maxcount=-1),
@@ -187,6 +188,7 @@ class InMetanode(Metanode):
 class OutMetanode(Metanode):
     name: str = "External Output"
     layer: Optional[LayerType] = LayerType.EXTERNAL
+    style: Optional[str] = "output"
     interfaces: list[KpmInterface] = field(
         default_factory=lambda: [
             KpmInterface("internal", KpmDirection.INPUT.value, maxcount=-1),
@@ -203,6 +205,7 @@ class OutMetanode(Metanode):
 class InoutMetanode(Metanode):
     name: str = "External Inout"
     layer: Optional[LayerType] = LayerType.EXTERNAL
+    style: Optional[str] = "inout"
     interfaces: list[KpmInterface] = field(
         default_factory=lambda: [
             KpmInterface("internal", KpmDirection.INOUT.value, maxcount=-1),

@@ -23,6 +23,8 @@ from topwrap.backend.kpm.common import (
     ClockDomainMetanode,
     ConstMetanode,
     IdentifierMetanode,
+    InMetanode,
+    InoutMetanode,
     InterconnectMetanode,
     InverterMetanode,
     IoMetanodes,
@@ -31,6 +33,7 @@ from topwrap.backend.kpm.common import (
     KpmPropertyType,
     LayerType,
     Metanode,
+    OutMetanode,
     ResetDomainMetanode,
     elab_val_to_kpm_val,
     kpm_dir_from,
@@ -218,12 +221,41 @@ class KpmSpecificationBackend:
                 self._spec.add_node_type_property_group(
                     meta.name, prop.propname, p.propname, **args
                 )
+        if meta.name in [e.value.name for e in IoMetanodes]:
+            self._spec.add_node_type_size(meta.name, width=40, height=60)
 
     def _add_interface(self, intf: str):
         if intf not in self._interfaces:
             self._interfaces.add(intf)
             self._update_metanodes()
             self._spec.metadata_add_interface_styling(intf, INTF_COLOR, INTF_CONN_STYLE.value)
+
+    def _make_external_io_style(self, shape_path: str) -> JsonType:
+        # right for input/inout, left for output
+        if shape_path == "input.svg":
+            title_x = 2
+        elif shape_path == "output.svg":
+            title_x = 20
+        else:  # inout
+            title_x = 15
+        internal_x = 90 if shape_path.startswith("in") else 0
+        return {
+            "shape": f"assets/{shape_path}",
+            "minimal": True,
+            "title": {
+                "hideSubTitle": True,
+                "position": {
+                    "x": title_x,
+                    "y": 0,
+                },
+            },
+            "positions": {
+                "internal": {
+                    "x": internal_x,
+                    "y": 50,
+                },
+            },
+        }
 
     def _add_metadata(self):
         metadata = {
@@ -268,7 +300,10 @@ class KpmSpecificationBackend:
                         "text": "Inverter",
                         "color": "#cccccc",
                     },
-                }
+                },
+                InMetanode().style: self._make_external_io_style("input.svg"),
+                OutMetanode().style: self._make_external_io_style("output.svg"),
+                InoutMetanode().style: self._make_external_io_style("inout.svg"),
             },
         }
 
