@@ -467,22 +467,15 @@ def topwrap_gui(
         where a bare subprocess doesn't inherit sys.path. POSIX-only.
     """
 
-    if frontend_directory is None:
-        frontend_directory = Path(get_config().kpm_build_location) / DEFAULT_FRONTEND_DIR
-
-    if workspace_directory is None:
-        workspace_directory = Path(get_config().kpm_build_location) / DEFAULT_WORKSPACE_DIR
-
-    logging.info("Checking if server is built")
-    if (not frontend_directory.exists() or not workspace_directory.exists()) and use_server:
+    if frontend_directory is not None and not frontend_directory.exists() and use_server:
+        if workspace_directory is None:
+            workspace_directory = Path(get_config().kpm_build_location) / DEFAULT_WORKSPACE_DIR
         logging.info("Server build is incomplete, building now")
         KPM.build_server(
             workspace_directory=workspace_directory,
             output_directory=frontend_directory,
             preserve_parent_state=preserve_parent_state,
         )
-    else:
-        logging.info("Server build found")
 
     logging.info("Starting server")
     server_ready_event = threading.Event()
@@ -513,8 +506,8 @@ def topwrap_gui(
                 "server_port": server_port,
                 "backend_host": backend_host,
                 "backend_port": backend_port,
-                "frontend_directory": frontend_directory,
                 "preserve_parent_state": preserve_parent_state,
+                **({"frontend_directory": frontend_directory} if frontend_directory else {}),
             },
         )
         if use_server:
