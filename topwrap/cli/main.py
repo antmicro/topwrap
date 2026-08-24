@@ -501,7 +501,7 @@ def topwrap_gui(
             daemon=True,
             kwargs={
                 "server_ready_event": server_ready_event,
-                "show_kpm_logs": False,
+                "show_kpm_logs": True,
                 "server_host": server_host,
                 "server_port": server_port,
                 "backend_host": backend_host,
