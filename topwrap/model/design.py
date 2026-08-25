@@ -93,12 +93,13 @@ class ClockDomain(ModelBase):
     name: VariableName
 
     #: Reference to a port acting as the source for this clock domain.
-    clock: ReferencedPort
+    # in a WIP the domain may be undriven
+    clock: Optional[ReferencedPort] = None
 
     #: Reference to the design that contains this clock domain.
     parent: Design
 
-    def __init__(self, *, name: str, clock: ReferencedPort):
+    def __init__(self, *, name: str, clock: Optional[ReferencedPort] = None):
         super().__init__()
         self.name = name
         self.clock = clock
@@ -110,7 +111,8 @@ class ResetDomain(ModelBase):
     name: VariableName
 
     #: Reference to a port acting as the source for this reset domain.
-    reset: ReferencedPort
+    # in a WIP the domain may be undriven
+    reset: Optional[ReferencedPort] = None
 
     #: Polarity of the reset signal.
     polarity: ResetPolarity
@@ -126,7 +128,7 @@ class ResetDomain(ModelBase):
         self,
         *,
         name: str,
-        reset: ReferencedPort,
+        reset: Optional[ReferencedPort],
         polarity: ResetPolarity,
         synchronous_to: Optional[ClockDomain] = None,
     ):
@@ -284,6 +286,7 @@ class Design(ModelBase):
             if ref.external:
                 return f"external port {ref.io.name}"
             else:
+                logger.debug("Here for some reason")
                 assert ref.instance is not None
                 return f"port {ref.instance.name}.{ref.io.name}"
 
@@ -291,6 +294,13 @@ class Design(ModelBase):
             # Create clock connections
             for clock in comp.module.clocks:
                 clock_dom = comp.clocks[clock._id]
+
+                if clock_dom.clock is None:
+                    logger.warning(
+                        f"Clock {clock.name} of module {comp.name} is not driven\n"
+                        "This will make the design unsynthesizable"
+                    )
+                    continue
 
                 logger.debug(
                     f"Connecting clock '{clock.name}' of module '{comp.name}' to "
@@ -311,6 +321,13 @@ class Design(ModelBase):
             for reset in comp.module.resets:
                 reset_dom = comp.resets[reset._id]
 
+                if reset_dom.reset is None:
+                    logger.warning(
+                        f"Clock {reset.name} of module {comp.name} is not driven\n"
+                        "This will make the design unsynthesizable"
+                    )
+                    continue
+
                 invert = reset_dom.polarity is not reset.polarity
 
                 # TODO: Insert synchronizer
@@ -321,8 +338,10 @@ class Design(ModelBase):
                         f"asynchronous reset domain '{reset_dom.name}'"
                     )
 
-                if reset.synchronous_to is not None and (
-                    comp.clocks[reset.synchronous_to._id] != reset_dom.synchronous_to
+                if (
+                    reset.synchronous_to is not None
+                    and reset_dom.synchronous_to is not None
+                    and (comp.clocks[reset.synchronous_to._id] != reset_dom.synchronous_to)
                 ):
                     assert reset_dom.synchronous_to
 

@@ -668,13 +668,13 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
         return DesignExternalIntfs(input=inputs, output=outputs)
 
     def _represent_clock_domain(self, clock_dom: ClockDomain) -> DesignSectionClockDomain:
-        return DesignSectionClockDomain(
-            signal=self._represent_ref_io(clock_dom.clock),
-        )
+        ref_port = self._represent_ref_io(clock_dom.clock) if clock_dom.clock else None
+        return DesignSectionClockDomain(signal=ref_port)
 
     def _represent_reset_domain(self, reset_dom: ResetDomain) -> DesignSectionResetDomain:
+        ref_port = self._represent_ref_io(reset_dom.reset) if reset_dom.reset else None
         return DesignSectionResetDomain(
-            signal=self._represent_ref_io(reset_dom.reset),
+            signal=ref_port,
             polarity=reset_dom.polarity.value,
             synchronous_to=reset_dom.synchronous_to and reset_dom.synchronous_to.name,
         )

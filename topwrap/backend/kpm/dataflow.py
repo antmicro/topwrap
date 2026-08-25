@@ -487,11 +487,12 @@ class KpmDataflowBackend:
 
         node.set_property(DomainMetanodeStrings.DOMAIN_PROP.value, domain.name)
 
-        self._connect(
-            graph,
-            ref[(domain.clock.instance, id(domain.clock.io))],
-            node.interfaces[0],
-        )
+        if domain.clock is not None:
+            self._connect(
+                graph,
+                ref[(domain.clock.instance, id(domain.clock.io))],
+                node.interfaces[0],
+            )
 
     def add_reset_domain(
         self, graph: DataflowGraph, domain: ResetDomain, ref: _REFTYPE, pos: Positions
@@ -521,11 +522,12 @@ class KpmDataflowBackend:
             domain.synchronous_to.name if domain.synchronous_to is not None else "",
         )
 
-        self._connect(
-            graph,
-            ref[(domain.reset.instance, id(domain.reset.io))],
-            node.interfaces[0],
-        )
+        if domain.reset is not None:
+            self._connect(
+                graph,
+                ref[(domain.reset.instance, id(domain.reset.io))],
+                node.interfaces[0],
+            )
 
     def _connect(self, graph: DataflowGraph, i1: KpmInterface, i2: KpmInterface):
         if i1.direction == Direction.INOUT and i2.direction == Direction.OUTPUT:

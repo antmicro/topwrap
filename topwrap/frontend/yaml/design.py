@@ -767,10 +767,14 @@ class DesignDescriptionFrontend:
             if isinstance(domain.signal, str):
                 comp = None
                 sig = domain.signal
+                refio, _ = self._resolve_ref(design, comp, sig)
+            elif domain.signal is None:
+                comp = None
+                sig = None
+                refio = None
             else:
                 comp, sig = domain.signal
-
-            refio, _ = self._resolve_ref(design, comp, sig)
+                refio, _ = self._resolve_ref(design, comp, sig)
 
             if isinstance(refio, ReferencedInterface):
                 raise DesignDescriptionFrontendException(
@@ -788,10 +792,14 @@ class DesignDescriptionFrontend:
             if isinstance(domain.signal, str):
                 comp = None
                 sig = domain.signal
+                refio, _ = self._resolve_ref(design, comp, sig)
+            elif domain.signal is None:
+                comp = None
+                sig = None
+                refio = None
             else:
                 comp, sig = domain.signal
-
-            refio, _ = self._resolve_ref(design, comp, sig)
+                refio, _ = self._resolve_ref(design, comp, sig)
 
             if isinstance(refio, ReferencedInterface):
                 raise DesignDescriptionFrontendException(

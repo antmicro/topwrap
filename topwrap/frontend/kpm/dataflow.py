@@ -489,10 +489,11 @@ class KpmDataflowFrontend:
             props = QuerableView(dom.properties)
 
             name = props.find_by_name_or_error(DomainMetanodeStrings.DOMAIN_PROP.value).value
-            intf = data.to_clock_dom_conns[dom.id]
-            port = data.refmap.get(intf)
-
-            assert isinstance(port, ReferencedPort)
+            if intf := data.to_clock_dom_conns.get(dom.id, None):
+                port = data.refmap.get(intf)
+                assert isinstance(port, ReferencedPort)
+            else:
+                port = None
 
             mod.design.add_clock_domain(
                 ClockDomain(
@@ -514,8 +515,11 @@ class KpmDataflowFrontend:
             props = QuerableView(dom.properties)
 
             name = props.find_by_name_or_error(DomainMetanodeStrings.DOMAIN_PROP.value).value
-            intf = data.to_reset_dom_conns[dom.id]
-            port = data.refmap.get(intf)
+            if intf := data.to_reset_dom_conns.get(dom.id, None):
+                port = data.refmap.get(intf)
+                assert isinstance(port, ReferencedPort)
+            else:
+                port = None
 
             polarity = ResetPolarity(
                 props.find_by_name_or_error(DomainMetanodeStrings.POLARITY_PROP.value).value
@@ -529,8 +533,6 @@ class KpmDataflowFrontend:
                     raise KpmFrontendParseException(
                         f"Reset domain '{name}' synchronous to non-existent clock '{clock_name}'"
                     )
-
-            assert isinstance(port, ReferencedPort)
 
             mod.design.add_reset_domain(
                 ResetDomain(

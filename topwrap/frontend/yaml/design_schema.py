@@ -148,12 +148,12 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class DesignSectionClockDomain(MarshmallowDataclassExtensions):
-    signal: Union[str, Tuple[str, str]]
+    signal: Optional[Union[str, Tuple[str, str]]]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class DesignSectionResetDomain(MarshmallowDataclassExtensions):
-    signal: Union[str, Tuple[str, str]]
+    signal: Optional[Union[str, Tuple[str, str]]]
     polarity: Union[Literal["active low"], Literal["active high"]]
     synchronous_to: Optional[str] = ext_field(None)
 
