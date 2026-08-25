@@ -126,15 +126,12 @@ class KpmDataflowBackend:
         return str(uuid.uuid5(namespace, module_key))
 
     def build(self) -> JsonType:
+        self.flow.disable_layers(self._disabled_layers)
         dataflow = cast(JsonType, self.flow.to_json(False))
         for graph in dataflow.get("graphs", []):
             for node in graph.get("nodes", []):
                 if node.get("graphState") is None:
                     node.pop("graphState", None)
-            # TODO: Use the appropriate GraphBuilder API once it's available instead of poking
-            # at the JSON objects.
-            if self._disabled_layers:
-                graph["disabledLayers"] = self._disabled_layers
 
         return dataflow
 

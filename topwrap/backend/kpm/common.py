@@ -47,6 +47,7 @@ PORT_INTF_TYPE = "intf__port"
 PORT_COLOR = "#00ca7c"
 EXT_COLOR = "#ffffff"
 EXT_INTF_TYPE = "intf__ext"
+EXP_INTF_TYPE = "intf__exposed"
 INTF_COLOR = "#5ad1cd"
 INTF_CONN_STYLE = KpmConnPattern.DASHED
 CLOCK_INTF_TYPE = "intf__clock"

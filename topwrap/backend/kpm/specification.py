@@ -14,6 +14,7 @@ from pipeline_manager.specification_builder import (
 
 from topwrap.backend.kpm.common import (
     CLOCK_INTF_TYPE,
+    EXP_INTF_TYPE,
     EXT_COLOR,
     EXT_INTF_TYPE,
     INTF_COLOR,
@@ -195,7 +196,10 @@ class KpmSpecificationBackend:
         intfs = [*sorted(self._interfaces)]
         for io_mnode in self._ios:
             for intf in io_mnode.interfaces:
-                intf.interfacetype = [EXT_INTF_TYPE, PORT_INTF_TYPE] + intfs
+                if intf.interfacename == "external":
+                    intf.interfacetype = [EXP_INTF_TYPE, PORT_INTF_TYPE] + intfs
+                else:
+                    intf.interfacetype = [EXT_INTF_TYPE, PORT_INTF_TYPE] + intfs
         for intf in self._intr.interfaces:
             if intf.dynamic:
                 intf.interfacetype = intfs[:]
@@ -314,6 +318,7 @@ class KpmSpecificationBackend:
             self._spec.metadata_add_layer(layer.value, [layer.value])
 
         self._spec.metadata_add_layer("Clock and reset ports", [], [CLOCK_INTF_TYPE])
+        self._spec.metadata_add_layer("Exposed ports", [], [EXP_INTF_TYPE])
 
         self._spec.metadata_add_interface_styling(PORT_INTF_TYPE, PORT_COLOR)
         self._spec.metadata_add_interface_styling(CLOCK_INTF_TYPE, PORT_COLOR)
