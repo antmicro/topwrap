@@ -6,6 +6,16 @@ Frontend is a class that transforms a specific format into IR. There are multipl
  - YamlFrontend class supports YAML files
  - IpXactFrontend class supports IP-XACT 2022 files
 
+Frontends may be initialized with predefined modules and interfaces, which are
+used to resolve references while parsing. Parsed modules are returned in
+`FrontendParseOutput`, including modules whose identifiers match predefined
+modules. The handling of interfaces in `FrontendParseOutput` differs between
+frontends: `SystemVerilogFrontend` returns parsed or reused interface
+definitions, `IpXactFrontend` returns interface definitions parsed from
+`abstractionDefinition` files, while `YamlFrontend` and `KpmFrontend` only use
+predefined interfaces during parsing and do not return them. `AutomaticFrontend`
+preserves the behavior of the frontend it delegates to.
+
 ## SystemVerilogFrontend
 
 SystemVerilogFrontend class is used to parse System Verilog and Verilog files.

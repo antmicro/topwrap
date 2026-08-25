@@ -25,6 +25,8 @@ developers_guide/setup
 developers_guide/style
 developers_guide/tests
 developers_guide/internal_representation
+developers_guide/frontends
+developers_guide/backends
 developers_guide/fusesocbuilder
 developers_guide/interface
 developers_guide/config
