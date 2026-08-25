@@ -7,21 +7,35 @@ id:
   library: topwrap-interfaces
   name: axi4stream
   vendor: antmicro.com
+
 signals:
-    # assuming transmitter = manager
-    required:
-        out:
-            TVALID: tvalid
-
-    optional:
-        out:
-            TDATA: tdata
-            TSTRB: tstrb
-            TKEEP: tkeep
-            TLAST: tlast
-            TID: tid
-            TDEST: tdest
-            TUSER: tuser
-
-        in:
-            TREADY: tready
+  # assuming transmitter = manager
+  TVALID:
+    pattern: tvalid
+    modes: {manager: [out, required]}
+  TREADY:
+    pattern: tready
+    modes: {manager: [in, optional]}
+    default: '1'
+  TDATA:
+    pattern: tdata
+    modes: {manager: [out, optional]}
+    default: '0'
+  TSTRB:
+    pattern: tstrb
+    modes: {manager: [out, optional]}
+  TKEEP:
+    pattern: tkeep
+    modes: {manager: [out, optional]}
+  TLAST:
+    pattern: tlast
+    modes: {manager: [out, optional]}
+  TID:
+    pattern: tid
+    modes: {manager: [out, optional]}
+  TDEST:
+    pattern: tdest
+    modes: {manager: [out, optional]}
+  TUSER:
+    pattern: tuser
+    modes: {manager: [out, optional]}
