@@ -608,6 +608,16 @@ class TestCombinedYamlFrontend:
         mods = YamlFrontend().parse_files([unrelated_ip, des, related_ip]).modules
         assert len(mods) == 3
 
+    def test_existing_name_conflict(self):
+        existing_mod = Module(id=Identifier(name="memory_block"))
+        front = YamlFrontend(modules=[existing_mod])
+
+        path_to_yaml = Path("examples/ir_examples/interconnect/ips/mem.yaml")
+
+        out = front.parse_files([path_to_yaml])
+        assert len(out.modules) == 1
+        assert out.modules[0].id.name == "memory_block"
+
 
 class TestDesignPositionsFrontend:
     def test_positions(self):

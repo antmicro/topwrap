@@ -33,6 +33,15 @@ class FrontendMetadata:
 
 @dataclass
 class FrontendParseOutput:
+    """
+    :ivar modules: Modules parsed from the input sources. A parsed module is
+          included even if its identifier matches a module provided to the
+          frontend during initialization.
+    :ivar interfaces: Interface definitions parsed from the input sources.
+    :ivar positions: Mapping from module identifiers to the positions of
+          elements in their corresponding KPM graphs.
+    """
+
     modules: list[Module] = field(default_factory=list)
     interfaces: list[InterfaceDefinition] = field(default_factory=list)
     positions: dict[Identifier, Positions] = field(default_factory=dict)

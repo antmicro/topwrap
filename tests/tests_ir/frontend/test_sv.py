@@ -15,7 +15,7 @@ from topwrap.frontend.sv.module import SystemVerilogSlangParser
 from topwrap.model.connections import Port, PortDirection
 from topwrap.model.hdl_types import Bit, Dimensions, Enum, LogicArray
 from topwrap.model.interface import InterfaceMode
-from topwrap.model.misc import ElaboratableValue, Parameter
+from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
 from topwrap.model.module import Module
 
 from .test_ir_examples import TestIrExamples
@@ -73,6 +73,8 @@ class TestSystemVerilogSlangParser:
         assert port.type.variants["B"] == ElaboratableValue(3) + ElaboratableValue(1)
         assert port.type.variants["C"] == ElaboratableValue(8)
 
+
+class TestSVFrontend:
     @pytest.mark.parametrize(
         ["mod", "validator"],
         [
@@ -153,3 +155,45 @@ endinterface"""
         out = front.parse_str([mod_str])
         assert len(out.interfaces) == 1
         assert out.interfaces[0].id.name == "AXI4Lite"
+
+    def test_existing_name_conflict(self):
+        existing_mod = Module(id=Identifier(name="name1"))
+        front = SystemVerilogFrontend(modules=[existing_mod])
+
+        out = front.parse_str(["module name1(); endmodule"])
+        assert len(out.modules) == 1
+        assert out.modules[0].id.name == "name1"
+
+    def test_multiple_module_different_parameter(self):
+        source = """
+        module leaf(input logic i);
+        endmodule
+
+        module child #(parameter bit USE = 0)(input logic i);
+            generate
+                if (USE) begin : g
+                    leaf l(.i(i));
+                end
+            endgenerate
+        endmodule
+
+        module top(input logic i);
+            child #(.USE(0)) a(.i(i));
+            child #(.USE(1)) b(.i(i));
+        endmodule
+        """
+
+        out = SystemVerilogFrontend().parse_str([source])
+        modules = {module.id.name: module for module in out.modules}
+
+        assert set(modules) == {"top", "child"}
+
+        top = modules["top"]
+        child = modules["child"]
+
+        assert top.design is not None
+        assert len(top.design.components) == 2
+        assert list(top.design.components)[0].module is child
+        assert list(top.design.components)[1].module is child
+
+        assert child.design is None

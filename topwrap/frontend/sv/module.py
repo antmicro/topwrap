@@ -3235,15 +3235,19 @@ class SystemVerilogSlangParser:
             self._parsed_intf.append(ir_new_iface)
         elif node.isModule:
             if addToModules:
-                if body.name in self._modules:
+                if body.name in self._parsed_mods:
                     return
-                self._parsed_mods[body.name] = self._modules[body.name] = self._parse_module_ast(
-                    node, comp
-                )
+                module = self._submodules.get(body.name)
+                if module is None:
+                    module = self._parse_module_ast(node, comp)
+                self._parsed_mods[body.name] = self._modules[body.name] = module
             else:
                 if body.name in self._submodules:
                     return
-                self._submodules[body.name] = self._parse_module_ast(node, comp)
+                module = self._parsed_mods.get(body.name)
+                if module is None:
+                    module = self._parse_module_ast(node, comp)
+                self._submodules[body.name] = module
 
     def _handle_typealias_ast(self, node: ps.TypeAliasType):
         if node.targetType.typeSyntax is None:

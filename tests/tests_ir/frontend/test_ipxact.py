@@ -525,3 +525,14 @@ class TestIpxactIrExamples:
         with pytest.raises(FrontendParseException) as exc_info:
             IpXactFrontend().parse_files([absdef, component])
         assert "missing in a VLNV reference" in str(exc_info.value.__cause__)
+
+    def test_existing_name_conflict(self, ir_examples_path: Path):
+        existing_mod = Module(id=Identifier(name="lfsr_gen"))
+        front = IpXactFrontend(modules=[existing_mod])
+
+        p = Path(
+            f"{ir_examples_path}/simple/ipxact/antmicro.com/simple/lfsr_gen/1.2/lfsr_gen.1.2.xml"
+        )
+        out = front.parse_files([p])
+        assert len(out.modules) == 1
+        assert out.modules[0].id.name == "lfsr_gen"
