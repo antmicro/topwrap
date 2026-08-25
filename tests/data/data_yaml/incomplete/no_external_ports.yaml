@@ -1,0 +1,17 @@
+name: no_external_ports
+vendor: antmicro.com
+library: examples
+version: '1.0'
+
+ips:
+  src:
+    file: repo[repo]:src
+  clock_sink:
+    file: repo[repo]:clock_sink
+    clocks:
+      clk_fst: default
+      clk_snd: default
+
+clock_domains:
+  default:
+    signal: [src, src]

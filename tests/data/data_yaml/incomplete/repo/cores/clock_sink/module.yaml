@@ -1,0 +1,14 @@
+clocks:
+  clk_fst:
+    signal: fst
+  clk_snd:
+    signal: snd
+id:
+  library: examples
+  name: clock_sink
+  vendor: antmicro.com
+  version: '1.2'
+signals:
+  in:
+    - {name: fst}
+    - {name: snd}

@@ -1,0 +1,8 @@
+id:
+  library: examples
+  name: src
+  vendor: antmicro.com
+  version: '1.7'
+signals:
+  out:
+    - {name: src}

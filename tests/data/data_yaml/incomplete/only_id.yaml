@@ -1,0 +1,4 @@
+name: small_example
+version: '3.3'
+library: examples
+vendor: antmicro.com

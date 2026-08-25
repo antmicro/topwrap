@@ -1,0 +1,9 @@
+name: only_module_in_subgraph
+vendor: antmicro.com
+library: wip_examples
+
+hierarchies:
+  sub:
+    ips:
+      src v1.7 (antmicro.com/examples):
+        file: repo[repo]:src

@@ -1,0 +1,10 @@
+name: no_reset_domain
+vendor: antmicro.com
+library: examples
+
+ips:
+  sink:
+    file: repo[repo]:reset_sink
+    resets:
+      rst_fst: default
+      rst_snd: default

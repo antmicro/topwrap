@@ -1,0 +1,19 @@
+vendor: antmicro.com
+library: examples
+name: subgraph_not_driven_clock
+version: '1.0'
+
+hierarchies:
+  subdesign:
+    hierarchies:
+      internal_subdesign:
+        ips:
+          sink:
+            file: repo[repo]:clock_sink
+            clocks:
+              clk_fst: default
+              clk_snd: default
+
+        clock_domains:
+          default:
+            signal: null

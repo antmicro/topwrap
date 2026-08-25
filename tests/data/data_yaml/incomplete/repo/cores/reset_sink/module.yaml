@@ -1,0 +1,16 @@
+id:
+  library: examples
+  name: reset_sink
+  vendor: antmicro.com
+  version: '1.2'
+resets:
+  rst_fst:
+    polarity: active high
+    signal: fst
+  rst_snd:
+    polarity: active low
+    signal: snd
+signals:
+  in:
+    - {name: fst}
+    - {name: snd}

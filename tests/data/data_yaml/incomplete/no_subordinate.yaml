@@ -1,0 +1,29 @@
+name: axi_interconnect_example
+
+connections:
+  ports:
+    manager_axi:
+      clk: clk
+      rst: rst
+
+ips:
+  manager_axi:
+    file: repo[axi]:manager_axi
+
+interconnects:
+  axi_interconnect:
+    type: AXI
+    clock: clk
+    reset: rst
+    params:
+      atop: False
+    managers:
+      manager_axi:
+        example_iface:
+          id_width: 3
+
+external:
+  ports:
+    in:
+      - clk
+      - rst

@@ -1,0 +1,15 @@
+vendor: antmicro.com
+library: examples
+name: not_driven_clock
+version: '1.0'
+
+ips:
+  clock_sink v1.2 (antmicro.com/examples):
+    file: repo[repo]:clock_sink
+    clocks:
+      clk_fst: default
+      clk_snd: default
+
+clock_domains:
+  default:
+    signal: null

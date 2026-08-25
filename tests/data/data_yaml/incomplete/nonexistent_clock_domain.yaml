@@ -1,0 +1,10 @@
+name: no_clock_domain
+vendor: antmicro.com
+library: examples
+
+ips:
+  sink:
+    file: repo[repo]:clock_sink
+    clocks:
+      clk_fst: default
+      clk_snd: default

@@ -1,0 +1,3 @@
+repositories:
+  repo: "repo"
+  axi: "../../../../examples/axi_interconnect/axi_example_repo/"

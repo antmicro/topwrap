@@ -1,0 +1,16 @@
+vendor: antmicro.com
+library: examples
+name: not_driven_reset
+version: '1.0'
+
+ips:
+  sink:
+    file: repo[repo]:reset_sink
+    resets:
+      rst_fst: default
+      rst_snd: default
+
+reset_domains:
+  default:
+    signal: null
+    polarity: active high
