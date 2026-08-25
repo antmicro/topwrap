@@ -16,9 +16,10 @@ from enum import Enum
 from multiprocessing.connection import Connection
 from multiprocessing.process import BaseProcess
 from pathlib import Path
-from typing import IO, Any, Callable, Coroutine, Optional, Tuple, Union, cast
+from typing import IO, Annotated, Any, Callable, Coroutine, Optional, Tuple, Union, cast
 
 import rich.console
+from cyclopts import Parameter
 from cyclopts.types import ExistingDirectory, ExistingFile
 
 from topwrap.cli import cli
@@ -40,21 +41,27 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    cli.meta(console=rich.console.Console(no_color=True))
+    cli.meta(console=rich.console.Console())
 
 
-@cli.command(name="build")
+@cli.command(name="build", show=False)
 def build_main(
     *,
-    sources: Tuple[ExistingDirectory, ...] = (),
-    design: ExistingFile,
-    build_dir: Optional[Path] = None,
-    gensrc_dir: Optional[Path] = None,
-    fuse: bool = False,
-    part: Optional[str] = None,
-    iface_compliance: bool = False,
+    sources: Annotated[
+        Tuple[ExistingDirectory, ...], Parameter(alias="-s", negative="--empty-sources")
+    ] = (),
+    design: Annotated[ExistingFile, Parameter(alias="-d")],
+    build_dir: Annotated[Optional[Path], Parameter(alias="-b")] = None,
+    gensrc_dir: Annotated[Optional[Path], Parameter(alias="-g")] = None,
+    fuse: Annotated[bool, Parameter(alias="-f", negative="--no-fuse")] = False,
+    part: Annotated[Optional[str], Parameter(alias="-p")] = None,
+    iface_compliance: Annotated[
+        bool, Parameter(alias="-i", negative="--no-iface-compliance")
+    ] = False,
 ):
     """Generate SystemVerilog from a top design YAML file.
+
+    .. deprecated:: 1.0.0
 
     Parameters
     ----------
@@ -73,6 +80,8 @@ def build_main(
     iface_compliance
         Force interface compliance checking.
     """
+    logger.warning("The 'build' command will be deprecated in 1.0.0.")
+
     if build_dir is None:
         build_dir = Path("build")
 
@@ -88,6 +97,73 @@ def build_main(
             fuse=fuse, fuse_part=part, fuse_src_dirs=list(sources)
         )
         pipeline.run_files([], design, outdir)
+    except BuildException as e:
+        logger.error(f"{e}")
+        sys.exit(1)
+
+
+@cli.command(name="generate")
+def generate_main(
+    design: ExistingFile,
+    /,
+    *,
+    target_dir: Annotated[Path, Parameter(alias="-t")] = Path("build"),
+    sources: Annotated[
+        Tuple[ExistingDirectory, ...], Parameter(alias="-s", negative="--empty-sources")
+    ] = (),
+    fusesoc: bool = False,
+    part: Annotated[Optional[str], Parameter(alias="-p")] = None,
+    ipxact: bool = False,
+    diagram: bool = False,
+    specification: bool = False,
+    iface_compliance: bool = False,
+):
+    """Generate SystemVerilog from a top design YAML file.
+
+    Parameters
+    ----------
+    design
+        Top design file.
+    target_dir
+        Target directory.
+    sources
+        Directories containing additional HDL or constraint sources for the
+        generated FuseSoC core.
+    fusesoc
+        Generate a FuseSoC .core file for further synthesis.
+    part
+        FPGA part number used by the generated FuseSoC target.
+    ipxact
+        Generate IP-XACT 2022 files.
+    diagram
+        Generate a KPM dataflow diagram.
+    specification
+        Generate a KPM specification file.
+    iface_compliance
+        Force interface compliance checking.
+    """
+    gensrc_dir = Path(target_dir) / Path("src")
+
+    get_config().force_interface_compliance = iface_compliance
+
+    outdir = OutputDir(target_dir, gensrc_dir)
+
+    try:
+        pipeline = BuildPipeline.yaml_sv_pipeline(
+            fuse=fusesoc,
+            fuse_part=part,
+            fuse_src_dirs=list(sources),
+        )
+        pipeline.run_files([], design, outdir)
+        if ipxact:
+            pipeline = BuildPipeline.yaml_ipxact_pipeline()
+            pipeline.run_files([], design, outdir)
+        if diagram:
+            pipeline = BuildPipeline.yaml_kpm_flow_pipeline(Path("kpm_dataflow.json"))
+            pipeline.run_files([], design, outdir)
+        if specification:
+            pipeline = BuildPipeline.yaml_kpm_spec_pipeline(Path("kpm_spec.json"))
+            pipeline.run_files([], design, outdir)
     except BuildException as e:
         logger.error(f"{e}")
         sys.exit(1)
@@ -273,12 +349,14 @@ class KPM:
         await KPM.kpm_run_client_task
 
 
-@cli.command(name="ipxact_gen")
+@cli.command(name="ipxact_gen", show=False)
 def generate_ipxact(
-    design: ExistingFile,
-    build_dir: Optional[Path] = None,
-    gensrc_dir: Optional[Path] = None,
-    iface_compliance: bool = False,
+    design: Annotated[ExistingFile, Parameter(alias="-d")],
+    build_dir: Annotated[Optional[Path], Parameter(alias="-b")] = None,
+    gensrc_dir: Annotated[Optional[Path], Parameter(alias="-g")] = None,
+    iface_compliance: Annotated[
+        bool, Parameter(alias="-i", negative="--no-iface-compliance")
+    ] = False,
 ):
     """Generate IP-XACT 2022 files from a top design YAML file.
 
@@ -310,16 +388,20 @@ def generate_ipxact(
         sys.exit(1)
 
 
-@cli.command(name="kpm_client")
+@cli.command(name="kpm_client", show=False)
 def kpm_client_main(
-    yamlfiles: Tuple[ExistingFile, ...] = (),
+    yamlfiles: Annotated[
+        Tuple[ExistingFile, ...], Parameter(alias="-y", negative="--empty-yamlfiles")
+    ] = (),
     *,
-    host: str = DEFAULT_SERVER_ADDR,
-    port: int = DEFAULT_SERVER_PORT,
-    design: Optional[ExistingFile] = None,
-    build_dir: Optional[Path] = None,
+    host: Annotated[str, Parameter(alias="-H")] = DEFAULT_SERVER_ADDR,
+    port: Annotated[int, Parameter(alias="-p")] = DEFAULT_SERVER_PORT,
+    design: Annotated[Optional[ExistingFile], Parameter(alias="-d")] = None,
+    build_dir: Annotated[Optional[Path], Parameter(alias="-b")] = None,
 ):
     """Run a client app that connects to a running KPM server.
+
+    .. deprecated:: 1.0.0
 
     Parameters
     ----------
@@ -341,17 +423,22 @@ def kpm_client_main(
     KPM.cleanup()
 
 
-@cli.command(name="kpm_run_server")
+@cli.command(name="kpm_run_server", show=False)
 def kpm_run_server(
-    server_host: str = DEFAULT_SERVER_ADDR,
-    server_port: int = DEFAULT_SERVER_PORT,
-    backend_host: str = DEFAULT_BACKEND_ADDR,
-    backend_port: int = DEFAULT_BACKEND_PORT,
-    verbosity: str = "INFO",
-    preserve_parent_state: bool = False,
-    follow_symlink: bool = False,
+    server_host: Annotated[str, Parameter(alias="-s")] = DEFAULT_SERVER_ADDR,
+    server_port: Annotated[int, Parameter(alias="-S")] = DEFAULT_SERVER_PORT,
+    backend_host: Annotated[str, Parameter(alias="-b")] = DEFAULT_BACKEND_ADDR,
+    backend_port: Annotated[int, Parameter(alias="-B")] = DEFAULT_BACKEND_PORT,
+    verbosity: Annotated[str, Parameter(alias="-v")] = "INFO",
+    preserve_parent_state: Annotated[
+        bool, Parameter(alias="-p", negative="--no-preserve-parent-state")
+    ] = False,
+    follow_symlink: Annotated[bool, Parameter(alias="-f", negative="--no-follow-symlink")] = False,
 ):
-    """Run a KPM server using Pipeline Manager's bundled frontend."""
+    """Run a KPM server using Pipeline Manager's bundled frontend.
+
+    .. deprecated:: 1.0.0
+    """
     try:
         KPM.run_server(
             preserve_parent_state=preserve_parent_state,
@@ -384,7 +471,7 @@ def _cache_dirs(target: Optional[CacheTarget]) -> dict[CacheTarget, Path]:
 
 
 @cli.command(name="clean-cache")
-def clean_cache(*, target: Optional[CacheTarget] = None):
+def clean_cache(*, target: Annotated[Optional[CacheTarget], Parameter(alias="-t")] = None):
     """Remove locally cached files created by topwrap.
 
     Parameters
@@ -403,17 +490,23 @@ def clean_cache(*, target: Optional[CacheTarget] = None):
 
 @cli.command(name="gui")
 def topwrap_gui(
-    yamlfiles: Tuple[ExistingFile, ...] = (),
+    yamlfiles: Annotated[
+        Tuple[ExistingFile, ...], Parameter(alias="-y", negative="--empty-yamlfiles")
+    ] = (),
     *,
-    design: Optional[ExistingFile] = None,
-    server_host: str = DEFAULT_SERVER_ADDR,
-    server_port: int = DEFAULT_SERVER_PORT,
-    backend_host: str = DEFAULT_BACKEND_ADDR,
-    backend_port: int = DEFAULT_BACKEND_PORT,
-    use_server: bool = True,
-    raise_exception: bool = False,
-    preserve_parent_state: bool = False,
-    follow_symlink: bool = False,
+    design: Annotated[Optional[ExistingFile], Parameter(alias="-d")] = None,
+    server_host: Annotated[str, Parameter(alias="-s")] = DEFAULT_SERVER_ADDR,
+    server_port: Annotated[int, Parameter(alias="-S")] = DEFAULT_SERVER_PORT,
+    backend_host: Annotated[str, Parameter(alias="-b")] = DEFAULT_BACKEND_ADDR,
+    backend_port: Annotated[int, Parameter(alias="-B")] = DEFAULT_BACKEND_PORT,
+    use_server: Annotated[bool, Parameter(negative="--no-use-server")] = True,
+    raise_exception: Annotated[
+        bool, Parameter(alias="-r", negative="--no-raise-exception")
+    ] = False,
+    preserve_parent_state: Annotated[
+        bool, Parameter(alias="-p", negative="--no-preserve-parent-state")
+    ] = False,
+    follow_symlink: Annotated[bool, Parameter(alias="-f", negative="--no-follow-symlink")] = False,
 ):
     """Start GUI
 
@@ -516,12 +609,14 @@ def topwrap_gui(
         KPM.cleanup()
 
 
-@cli.command(name="specification")
+@cli.command(name="specification", show=False)
 def generate_kpm_spec(
-    files: Tuple[ExistingFile, ...] = (),
+    files: Annotated[
+        Tuple[ExistingFile, ...], Parameter(alias="-f", negative="--empty-files")
+    ] = (),
     *,
-    design: Optional[ExistingFile] = None,
-    output: Optional[Path] = None,
+    design: Annotated[Optional[ExistingFile], Parameter(alias="-d")] = None,
+    output: Annotated[Optional[Path], Parameter(alias="-o")] = None,
     hidden_layers: Tuple[str, ...] = (),
 ):
     """Generate KPM specification from IP core YAMLs"""
@@ -537,12 +632,14 @@ def generate_kpm_spec(
         sys.exit(1)
 
 
-@cli.command(name="dataflow")
+@cli.command(name="dataflow", show=False)
 def generate_kpm_design(
-    files: Tuple[ExistingFile, ...] = (),
+    files: Annotated[
+        Tuple[ExistingFile, ...], Parameter(alias="-f", negative="--empty-files")
+    ] = (),
     *,
-    design: ExistingFile,
-    output: Optional[Path] = None,
+    design: Annotated[ExistingFile, Parameter(alias="-d")],
+    output: Annotated[Optional[Path], Parameter(alias="-o")] = None,
     hidden_layers: Tuple[str, ...] = (),
 ):
     """Generate KPM dataflow from IP core YAMLs and a design YAML"""

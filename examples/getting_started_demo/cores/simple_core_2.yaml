@@ -1,0 +1,11 @@
+id:
+  library: libdefault
+  name: simple_core_2
+  vendor: vendor
+  version: '0.1'
+signals:
+  in:
+    - {name: a}
+  out:
+    - {name: y}
+    - {name: c}

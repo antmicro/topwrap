@@ -7,13 +7,14 @@ REPO_NAME := my_repo
 
 all: $(JSONS)
 
-$(JSONS): parse
+$(JSONS): package
 	topwrap specification -d project.yaml
 	topwrap dataflow -d project.yaml
 
-parse:
-	topwrap repo init ${REPO_NAME} ${REPO_NAME}
-	topwrap repo parse ${REPO_NAME} ${SOURCE_DIR}
+package: cores/simple_core_1.yaml cores/simple_core_2.yaml
+
+cores/%.yaml: cores/%.v
+	topwrap package $< -o $@
 
 clean:
 	rm -f $(JSONS)

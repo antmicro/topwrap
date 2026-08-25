@@ -163,11 +163,10 @@ class FuseSocBuilder:
 
     def add_dependency(self, dependency: str | Identifier):
         """Adds a dependency to the list of dependencies in the core file"""
-        if isinstance(dependency, Identifier):
+        if isinstance(dependency, str):
+            dependency = Identifier.parse_vlnv(dependency)
+        if dependency not in self.dependencies:
             self.dependencies.append(dependency)
-        else:
-            vlnv_parsed = Identifier.parse_vlnv(dependency)
-            self.dependencies.append(vlnv_parsed)
 
     def add_external_ip(self, vlnv: str, name: str):
         """Store information about IP Cores from Vivado library

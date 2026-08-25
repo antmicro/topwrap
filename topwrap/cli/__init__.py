@@ -24,8 +24,13 @@ from topwrap.util import MarshmallowErrorRewriter, get_config, parse_incdirs
 
 logger = logging.getLogger(__name__)
 
-cli = cyclopts.App(default_parameter=cyclopts.Parameter(short_alias=True), version=__version__)
-repo_cli = cyclopts.App(name="repo", help="Commands related to user repositories")
+cli = cyclopts.App(
+    default_parameter=cyclopts.Parameter(negative=()),
+    help_format="restructuredtext",
+    version=__version__,
+)
+
+repo_cli = cyclopts.App(name="repo", help="Commands related to user repositories", show=False)
 cli.command(repo_cli)
 
 
@@ -51,10 +56,22 @@ RepoDirectory = Annotated[ExistingDirectory, Parameter(converter=_resolve_repo_d
 @cli.meta.default
 def cmd(
     *tokens: Annotated[str, cyclopts.Parameter(show=False, allow_leading_hyphen=True)],
-    log_level: Optional[LOG_LEVEL] = None,
-    log_cfg: Optional[ExistingFile] = None,
-    repo: Tuple[RepoDirectory, ...] = (),
+    log_level: Annotated[Optional[LOG_LEVEL], Parameter(alias="-l")] = None,
+    log_cfg: Annotated[Optional[ExistingFile], Parameter(alias="-L")] = None,
+    repo: Annotated[Tuple[RepoDirectory, ...], Parameter(alias="-r", negative="--empty-repo")] = (),
 ):
+    """Topwrap helps designers to manage and integrate IP cores into their SoC designs.
+
+    Parameters
+    ----------
+    log_level : Optional[LOG_LEVEL]
+        The logging level to set for the application.
+    log_cfg : Optional[ExistingFile]
+        Path to a logging configuration file.
+    repo : Tuple[RepoDirectory, ...]
+        A tuple of repository directories to include in the configuration.
+        .. deprecated:: 1.0.0
+    """
     err_rewriter = MarshmallowErrorRewriter()
     levelname = None if log_level is None else log_level.name
     topwrap.logger.configure(levelname, log_cfg)

@@ -3,9 +3,10 @@
 
 import logging
 from pathlib import Path
-from typing import List, Tuple
+from typing import Annotated, List, Tuple
 
 import yaml
+from cyclopts import Parameter
 from cyclopts.types import ExistingDirectory, ExistingFile, ExistingPath
 
 from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos, repo_cli
@@ -27,18 +28,28 @@ logger = logging.getLogger(__name__)
 
 @repo_cli.command(name="parse")
 def parse_repo(
-    repository: str,
-    sources: Tuple[ExistingPath, ...] = (),
+    repository: Annotated[str, Parameter(alias="-r")],
+    sources: Annotated[
+        Tuple[ExistingPath, ...], Parameter(alias="-s", negative="--empty-sources")
+    ] = (),
     *,
-    exists_strategy: ExistsStrategy = ExistsStrategy.RAISE,
-    all_sources: bool = False,
-    module: Tuple[str, ...] = (),
-    file: Tuple[ExistingFile, ...] = (),
-    include: Tuple[ExistingDirectory, ...] = (),
-    frontend: FrontendRegistry.FrontendType = FrontendRegistry.FrontendType.Automatic,
-    inference: bool = False,
-    inference_interface: Tuple[str, ...] = (),
-    grouping_hint: Tuple[str, ...] = (),
+    exists_strategy: Annotated[ExistsStrategy, Parameter(alias="-e")] = ExistsStrategy.RAISE,
+    all_sources: Annotated[bool, Parameter(alias="-a", negative="--no-all-sources")] = False,
+    module: Annotated[Tuple[str, ...], Parameter(alias="-m", negative="--empty-module")] = (),
+    file: Annotated[Tuple[ExistingFile, ...], Parameter(alias="-f", negative="--empty-file")] = (),
+    include: Annotated[
+        Tuple[ExistingDirectory, ...], Parameter(alias="-i", negative="--empty-include")
+    ] = (),
+    frontend: Annotated[
+        FrontendRegistry.FrontendType, Parameter(alias="-F")
+    ] = FrontendRegistry.FrontendType.Automatic,
+    inference: Annotated[bool, Parameter(alias="-I", negative="--no-inference")] = False,
+    inference_interface: Annotated[
+        Tuple[str, ...], Parameter(negative="--empty-inference-interface")
+    ] = (),
+    grouping_hint: Annotated[
+        Tuple[str, ...], Parameter(alias="-g", negative="--empty-grouping-hint")
+    ] = (),
 ):
     """Parse Modules from all provided files using available frontends and store
     them in a given user repository.
@@ -170,10 +181,10 @@ def list_repos():
 
 @repo_cli.command(name="init")
 def init_repo(
-    name: str,
-    path: Path,
+    name: Annotated[str, Parameter(alias="-n")],
+    path: Annotated[Path, Parameter(alias="-p")],
     *,
-    config_update: bool = True,
+    config_update: Annotated[bool, Parameter(negative="--no-config-update")] = True,
 ):
     """Create new repo"""
 

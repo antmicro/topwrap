@@ -1,8 +1,8 @@
 ips:
   simple_core_1:
-    file: repo[my_repo]:simple_core_1
+    file: cores/simple_core_1.yaml
   simple_core_2:
-    file: repo[my_repo]:simple_core_2
+    file: cores/simple_core_2.yaml
 
 connections:
   ports:
