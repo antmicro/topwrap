@@ -308,6 +308,8 @@ class MarshmallowErrorRewriter:
                 for err_idx in range(len(last_el)):
                     new_str = "{}.{}".format(last_str, err_idx)
                     self.final.append((last_str, last_el[err_idx]))
+            elif type(last_el) is tuple:
+                self.final.append(last_el)
 
     def _rewrite(self) -> None:
         """Formats pair of str and exception into a str"""
