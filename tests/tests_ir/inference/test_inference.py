@@ -15,10 +15,9 @@ from tests.data.data_ir.inference.bbox_if import bbox_full_intf, bbox_in_only_in
 from tests.data.data_ir.inference.dupl_prefix import dupl_prefix
 from tests.data.data_ir.inference.subprefix import subprefix
 from tests.data.data_ir.inference.wb_if import wb_intf
+from tests.tests_ir.backend.test_yaml import get_intf_def_by_id_or_error
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
-from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
-from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import Bit, BitStruct, StructField
@@ -321,11 +320,7 @@ class TestInterfaceInference:
             [Path("tests/data/data_ir/inference/structs/sram_wrapper.sv")]
         ).modules[0]
 
-        with open(
-            "tests/data/data_ir/inference/structs/vendor_libdefault_AXIstructs.yaml", "r"
-        ) as f:
-            intf_def = InterfaceDefinitionDescription.from_yaml(f.read())
-            intf = InterfaceDefinitionDescriptionFrontend().parse(intf_def)
+        intf = get_intf_def_by_id_or_error(Identifier("AXI4"))
 
         infer_interfaces_from_module(
             sv_mod,
@@ -360,6 +355,7 @@ class TestInterfaceInference:
                             "ARADDR": {"path": "axi_req.ar.addr"},
                             "ARBURST": {"path": "axi_req.ar.burst"},
                             "ARCACHE": {"path": "axi_req.ar.cache"},
+                            "ARID": {"path": "axi_req.ar.id"},
                             "ARLEN": {"path": "axi_req.ar.len"},
                             "ARLOCK": {"path": "axi_req.ar.lock"},
                             "ARPROT": {"path": "axi_req.ar.prot"},
@@ -369,7 +365,6 @@ class TestInterfaceInference:
                             "ARUSER": {"path": "axi_req.ar.user"},
                             "ARVALID": {"path": "axi_req.ar_valid"},
                             "AWADDR": {"path": "axi_req.aw.addr"},
-                            "AWATOP": {"path": "axi_req.aw.atop"},
                             "AWBURST": {"path": "axi_req.aw.burst"},
                             "AWCACHE": {"path": "axi_req.aw.cache"},
                             "AWID": {"path": "axi_req.aw.id"},
@@ -406,9 +401,9 @@ class TestInterfaceInference:
                         },
                     },
                     "type": {
-                        "vendor": "vendor",
-                        "library": "libdefault",
-                        "name": "AXIstructs",
+                        "vendor": "antmicro.com",
+                        "library": "topwrap-interfaces",
+                        "name": "axi4",
                         "version": "0.1",
                     },
                 }
