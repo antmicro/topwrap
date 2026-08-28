@@ -455,7 +455,8 @@ class KpmDataflowBackend:
             self._connect(graph, node.interfaces[i], ref[(pin.instance, id(pin.io))])
 
         for prop, cons in ((mprop, intr.managers), (sprop, intr.subordinates)):
-            node.set_number_of_dynamic_interfaces(prop.interfacename, len(cons))
+            if len(cons) > 0:
+                node.set_number_of_dynamic_interfaces(prop.interfacename, len(cons))
             for i, intf in enumerate(cons):
                 refi = intf.resolve()
                 intf = node.get_interfaces_by_regex(rf"{prop.interfacename}\[{i}\]")[0]
