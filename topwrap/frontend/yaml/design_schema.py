@@ -261,7 +261,6 @@ class DesignDescription(MarshmallowDataclassExtensions):
     vendor: Optional[str] = ext_field(None)
     library: Optional[str] = ext_field(None)
     version: Optional[str] = ext_field(None)
-    connections: ConnectionsSection = ext_field(ConnectionsSection)
     ips: Dict[str, DesignIP] = ext_field(dict)
     connections: ConnectionsSection = ext_field(ConnectionsSection)
     interconnects: Dict[str, DesignSectionInterconnect] = ext_field(dict)

@@ -42,9 +42,35 @@ class YamlFrontend(Frontend):
 
     def detect_description_type(self, src: str, filename: str) -> str:
         loaded = yaml.safe_load(src)
-        if any(k in loaded for k in ("signals", "parameters", "ports", "interfaces")):
+        if any(
+            k in loaded
+            for k in (
+                "signals",
+                "parameters",
+                "ports",
+                "interfaces",
+                "clocks",
+                "resets",
+                "types",
+                "existing_iface_definitions",
+            )
+        ):
             return "ip_core"
-        elif any(k in loaded for k in ("external", "connections", "ips")):
+        elif any(
+            k in loaded
+            for k in (
+                "external",
+                "connections",
+                "ips",
+                "hierarchies",
+                "interconnects",
+                "clock_domains",
+                "reset_domains",
+                "memory_maps",
+                "config",
+                "positions",
+            )
+        ):
             return "design_description"
         else:
             raise FrontendParseException(f"{src} is neither an IP Core, nor a Design Description")
