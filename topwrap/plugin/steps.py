@@ -33,6 +33,7 @@ from topwrap.plugin.base import (
     FileSource,
     Source,
     StringSource,
+    ValidationException,
 )
 from topwrap.util import JsonType, get_config
 
@@ -507,3 +508,46 @@ class YamlIpOutputStage(OutputStage):
         out_ip = cast(BackendOutputInfo, ctx.outputs[self.name])
         self.written_path = target_dir / (self.filename or out_ip.filename)
         out_ip.save(self.written_path)
+
+class DomainDrivenValidationStage(Validation):
+    name: str = "Check whether clock and reset domains are driven"
+    priority: int = 10
+    design_only: bool = True
+
+    def validate(self, mod: Module, ctx: BuildContext):
+        if mod.design is None:
+            raise BuildException("DomainDrivenValidation: design is None")
+
+        msgs = []
+
+        for dom in mod.design.clock_domains:
+            if dom.clock is None:
+                msgs.append(f"Clock domain {dom.name} in module {mod.id} is not driven")
+
+        for dom in mod.design.reset_domains:
+            if dom.reset is None:
+                msgs.append(f"Reset domain {dom.name} in module {mod.id} is not driven")
+
+        if msgs:
+            raise ValidationException(msgs)
+
+
+class InterconnectHasManagerSubordinateValidation(Validation):
+    name: str = "Check whether each interconnect has at least one subordinate and one manager"
+    priority: int = 10
+    design_only: bool = True
+
+    def validate(self, mod: Module, ctx: BuildContext):
+        if mod.design is None:
+            raise BuildException("InterconnectHasManagerSubordinateValidation: design is None")
+
+        msgs = []
+
+        for intr in mod.design.interconnects:
+            if len(intr.managers) == 0:
+                msgs.append(f"Interconnect {intr.name} in module {mod.id} has no manager")
+            if len(intr.subordinates) == 0:
+                msgs.append(f"Interconnect {intr.name} in module {mod.id} has no subordinate")
+
+        if msgs:
+            raise ValidationException(msgs)

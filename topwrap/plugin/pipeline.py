@@ -20,8 +20,10 @@ from topwrap.plugin.base import (
 )
 from topwrap.plugin.manager import PluginManager
 from topwrap.plugin.steps import (
+    DomainDrivenValidationStage,
     FuseSocOutputStage,
     InputStage,
+    InterconnectHasManagerSubordinateValidation,
     IPXACTOutputStage,
     KpmDataflowOutputStage,
     KpmInputStage,
@@ -257,7 +259,10 @@ class BuildPipeline:
             transformations=[
                 MemoryMapTransformation(),
             ],
-            validations=[],
+            validations=[
+                DomainDrivenValidationStage(),
+                InterconnectHasManagerSubordinateValidation(),
+            ],
             outputs=outputs,
         )
 
@@ -270,7 +275,10 @@ class BuildPipeline:
             transformations=[
                 MemoryMapTransformation(),
             ],
-            validations=[],
+            validations=[
+                DomainDrivenValidationStage(),
+                InterconnectHasManagerSubordinateValidation(),
+            ],
             outputs=[IPXACTOutputStage()],
         )
 
@@ -305,7 +313,10 @@ class BuildPipeline:
             transformations=[
                 MemoryMapTransformation(),
             ],
-            validations=[],
+            validations=[
+                DomainDrivenValidationStage(),
+                InterconnectHasManagerSubordinateValidation(),
+            ],
             outputs=[
                 YamlDesignOutputStage(save_positions=True),
             ],

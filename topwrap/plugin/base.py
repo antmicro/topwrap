@@ -79,6 +79,12 @@ class BuildException(Exception):
     pass
 
 
+class ValidationException(BuildException):
+    """The exception to be raised when a validation check fails."""
+
+    pass
+
+
 class PluginException(Exception):
     pass
 
