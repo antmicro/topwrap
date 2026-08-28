@@ -2,16 +2,17 @@ id:
   library: libdefault
   name: coreStream
   vendor: vendor
+
 signals:
-  optional:
-    in: {}
-    inout: {}
-    out: {}
-  required:
-    in:
-      CREADY: cready
-    inout: {}
-    out:
-      CDATA: cdata
-      CKEEP: ckeep
-      CVALID: cvalid
+  CREADY:
+    pattern: cready
+    modes: {manager: [in, required]}
+  CDATA:
+    pattern: cdata
+    modes: {manager: [out, required]}
+  CKEEP:
+    pattern: ckeep
+    modes: {manager: [out, required]}
+  CVALID:
+    pattern: cvalid
+    modes: {manager: [out, required]}
