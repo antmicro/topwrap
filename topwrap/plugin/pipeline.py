@@ -16,6 +16,7 @@ from topwrap.plugin.base import (
     OutputDir,
     Source,
     StringSource,
+    ValidationException,
 )
 from topwrap.plugin.manager import PluginManager
 from topwrap.plugin.steps import (
@@ -155,12 +156,21 @@ class BuildPipeline:
         self.plugin_manager.trigger(BasePlugin.post_transform, self.ctx)
 
         self.plugin_manager.trigger(BasePlugin.pre_validate, self.ctx)
+        exceptions = []
         for v in self.validations:
             for mod in self.ctx.loaded_modules:
                 if v.design_only and mod.design is None:
                     continue
                 logger.info(f"Running validation: {v.name}")
-                v.validate(mod, self.ctx)
+                try:
+                    v.validate(mod, self.ctx)
+                except ValidationException as e:
+                    exceptions.append((v.name, e))
+        if exceptions:
+            for vname, e in exceptions:
+                logger.error(f"Validation {vname} return error {e}")
+            raise BuildException("Validation failed")
+
         self.plugin_manager.trigger(BasePlugin.post_validate, self.ctx)
 
         self.plugin_manager.trigger(BasePlugin.pre_output_generation, self.ctx)
