@@ -75,18 +75,29 @@ class TestDesignDescriptionFrontend:
         assert design.parent.ports.find_by_name_or_error("bus_data").type.size.elaborate() == 32
 
     @pytest.mark.parametrize(
-        ["design", "validator"],
+        ["design", "validator", "pass_all_modules"],
         [
-            (Path("examples/ir_examples/simple/design.yaml"), TestIrExamples.ir_simple),
-            (Path("examples/ir_examples/interface/design.yaml"), TestIrExamples.ir_interface),
-            (Path("examples/ir_examples/hierarchical/design.yaml"), TestIrExamples.ir_hierarchy),
-            (Path("examples/ir_examples/interconnect/design.yaml"), TestIrExamples.ir_interconnect),
-            (Path("examples/ir_examples/inverted/design.yaml"), TestIrExamples.ir_inverted),
-            (Path("examples/ir_examples/clocks/design.yaml"), TestIrExamples.ir_clocks),
+            (Path("examples/ir_examples/simple/design.yaml"), TestIrExamples.ir_simple, True),
+            (Path("examples/ir_examples/interface/design.yaml"), TestIrExamples.ir_interface, True),
+            (
+                Path("examples/ir_examples/hierarchical/design.yaml"),
+                TestIrExamples.ir_hierarchy,
+                False,
+            ),
+            (
+                Path("examples/ir_examples/interconnect/design.yaml"),
+                TestIrExamples.ir_interconnect,
+                True,
+            ),
+            (Path("examples/ir_examples/inverted/design.yaml"), TestIrExamples.ir_inverted, True),
+            (Path("examples/ir_examples/clocks/design.yaml"), TestIrExamples.ir_clocks, True),
         ],
     )
-    def test_ir(self, design: Path, validator: Callable[[Module], None]):
-        design_ir, _ = DesignDescriptionFrontend(ALL_MODULES).parse_file(design)
+    def test_ir(self, design: Path, validator: Callable[[Module], None], pass_all_modules: bool):
+        if pass_all_modules:
+            design_ir, _ = DesignDescriptionFrontend(ALL_MODULES).parse_file(design)
+        else:
+            design_ir, _ = DesignDescriptionFrontend().parse_file(design)
         design_ir.update_interconnects_from_memory_maps()
         validator(design_ir.parent)
 
@@ -423,6 +434,64 @@ class TestDesignDescriptionFrontend:
         assert mod.ports[2].name == "gpio$2"
         assert mod.ports[3].name == "gpio$3"
         assert mod.ports[4].name == "gpio$4"
+
+    def test_hierarchical_name_collision(self):
+        des = """
+        hierarchies:
+            SUB:
+                hierarchies:
+                    SUB:
+                        external:
+                            ports:
+                                in:
+                                - dummy1
+                external:
+                    ports:
+                        in:
+                        - dummy
+        external:
+            ports:
+                in:
+                - top_dummy
+        """
+
+        mod, _ = DesignDescriptionFrontend().parse_str(des)
+        assert len(mod.components) == 1
+        sub_comp = mod.components[0]
+        sub_des = sub_comp.module.design
+        assert sub_des is not None
+        assert len(sub_des.components) == 1
+        assert sub_comp.name == "SUB"
+        assert sub_comp.module.id.name == "SUB"
+        assert sub_comp.module.ports.find_by_name("dummy") is not None
+        sub0_comp = sub_des.components[0]
+        assert sub0_comp.name == "SUB"
+        assert sub0_comp.module.id.name == "SUB0"
+        assert sub0_comp.module.ports.find_by_name("dummy1") is not None
+
+    def test_hierarchy_names_are_stable_when_reusing_frontend(self):
+        source = "hierarchies: {SUB: {hierarchies: {SUB: {}}}}"
+        frontend = DesignDescriptionFrontend()
+        for _ in range(2):
+            design, _ = frontend.parse_str(source)
+            sub = design.components[0].module
+            assert sub.id.name == "SUB"
+            assert sub.design.components[0].module.id.name == "SUB0"
+
+    def test_hierarchy_preserves_child_identifier(self):
+        design, _ = DesignDescriptionFrontend().parse_str("""
+            vendor: parent_vendor
+            library: parent_library
+            version: '1.0'
+            hierarchies:
+              SUB:
+                vendor: child_vendor
+                library: child_library
+                version: '2.0'
+        """)
+        assert design.components[0].module.id == Identifier(
+            name="SUB", vendor="child_vendor", library="child_library", version="2.0"
+        )
 
 
 class TestIPCoreDescriptionFrontend:

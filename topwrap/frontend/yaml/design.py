@@ -70,6 +70,9 @@ class DesignDescriptionFrontend:
     # Can be referenced either by module id (in the format ":vlnv")
     # or a repo reference (in the format "repo:name")
     _modules: dict[str, Module]
+    #: Set containing Identifiers of existing and parsed modules.
+    #: Used to manage name conflicts when creating new modules in case of hierarchies
+    existing_modules: set[Identifier]
 
     def __init__(
         self,
@@ -78,6 +81,7 @@ class DesignDescriptionFrontend:
     ) -> None:
         self._modules = {f":{str(m.id)}": m for m in modules}
         self._ip_generators = ip_generators
+        self.existing_modules = set(m.id for m in modules)
 
     def parse_file(self, path: Path) -> tuple[Design, dict[Identifier, Positions]]:
         """
@@ -86,9 +90,12 @@ class DesignDescriptionFrontend:
         :param path: Path to the design description YAML
         """
 
+        self.existing_modules = {module.id for module in self._modules.values()}
         desc = DesignDescription.load(path)
         with self._library_scope(desc, path.parent):
-            return self._parse_hier(path, desc, "top" if desc.name is None else desc.name)
+            return self._parse_hier(
+                path, desc, self._get_id(desc, "top" if desc.name is None else desc.name)
+            )
 
     def parse_str(self, source: str) -> tuple[Design, dict[Identifier, Positions]]:
         """
@@ -97,9 +104,12 @@ class DesignDescriptionFrontend:
         :param source: Design description YAML source
         """
 
+        self.existing_modules = {module.id for module in self._modules.values()}
         desc = DesignDescription.from_yaml(source)
         with self._library_scope(desc, Path()):
-            return self._parse_hier(None, desc, "top" if desc.name is None else desc.name)
+            return self._parse_hier(
+                None, desc, self._get_id(desc, "top" if desc.name is None else desc.name)
+            )
 
     def _library_scope(self, desc: DesignDescription, base: Path):
         """Make the design's libraries available only during this parse.
@@ -112,6 +122,16 @@ class DesignDescriptionFrontend:
 
         libraries = desc.config.libraries if desc.config is not None else {}
         return library_scope(_resolve_library_uris(libraries, base))
+
+    def _get_id(self, desc: DesignDescription, name: str):
+        args = {"name": name}
+        if desc.vendor is not None:
+            args["vendor"] = desc.vendor
+        if desc.library is not None:
+            args["library"] = desc.library
+        if desc.version is not None:
+            args["version"] = desc.version
+        return Identifier(**args)
 
     def _parse_memory_maps(self, des: Design, memory_maps: Dict[str, MemoryMap]):
         ir_maps = dict[str, IRMemoryMap]()
@@ -169,11 +189,17 @@ class DesignDescriptionFrontend:
                     f"IP '{cname}' uses generator '{ip.generate.provider}', "
                     "which is not provided by any installed plugin"
                 )
+            self.existing_modules.add(cmod.id)
             design.add_component(ModuleInstance(name=cname, module=cmod))
 
         # Parse hierarchical design descriptions as more components
         for hname, hdesc in desc.hierarchies.items():
-            parsed, _ = self._parse_hier(source, hdesc, hname)
+            id = self._get_id(hdesc, hname)
+            i = 0
+            while id in self.existing_modules:
+                id = self._get_id(hdesc, hname + str(i))
+                i += 1
+            parsed, _ = self._parse_hier(source, hdesc, id)
             design.add_component(ModuleInstance(name=hname, module=parsed.parent))
 
     # Parse external port names and determine if they are multidimensional
@@ -271,21 +297,16 @@ class DesignDescriptionFrontend:
             )
 
     def _parse_hier(
-        self, source: Optional[Path], desc: DesignDescription, name_hint: str
+        self, source: Optional[Path], desc: DesignDescription, id: Identifier
     ) -> tuple[Design, dict[Identifier, Positions]]:
         design = Design()
-        args = {"name": name_hint}
-        if desc.vendor is not None:
-            args["vendor"] = desc.vendor
-        if desc.library is not None:
-            args["library"] = desc.library
-        if desc.version is not None:
-            args["version"] = desc.version
+
         mod = Module(
-            id=Identifier(**args),
+            id=id,
             design=design,
             refs=[FileReference(source)] if source else (),
         )
+        self.existing_modules.add(mod.id)
 
         self._parse_components(desc, design, source)
         self._parse_parameters(desc, design)

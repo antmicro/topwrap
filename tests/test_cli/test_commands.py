@@ -545,7 +545,7 @@ class TestRepoCli:
         mods_in_srcs = {
             "advanced_top", "axi_dispctrl_v1_0", "BETWEEN", "char_processor", "c_mod_2",
             "DMATop", "s1_mod_2", "s1_mod_3", "s2_mod_1", "s2_mod_2", "seq_to_sci4_bridge",
-            "string_sequencer", "SUB", "SUBEMPTY", "top"
+            "string_sequencer", "SUB", "SUBEMPTY", "top", "SUB0", "SUBEMPTY0"
         }  # fmt: skip
 
         return (mods_in_srcs, sv_sources + kpm_sources + yaml_sources)
