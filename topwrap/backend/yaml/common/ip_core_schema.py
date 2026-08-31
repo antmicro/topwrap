@@ -15,6 +15,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 import marshmallow
@@ -33,12 +34,14 @@ from topwrap.repo.exceptions import ResourceNotFoundException
 from topwrap.util import get_config, get_interface_by_id
 
 _StrOrInt = Union[str, int]
+IPCoreDimension = Tuple[_StrOrInt, _StrOrInt]
+IPCoreBounds = Union[IPCoreDimension, Tuple[IPCoreDimension, ...]]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreComplexSignal(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(None)
-    bound: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
+    bound: Optional[IPCoreBounds] = ext_field(None)
     slice: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
     default: Optional[_StrOrInt] = ext_field(None)
     path: Optional[PortSelectorT] = ext_field(None)
@@ -51,6 +54,9 @@ class IPCoreComplexSignal(MarshmallowDataclassExtensions):
 
         if self_obj["bound"] is not None and self_obj["type"] is not None:
             raise marshmallow.ValidationError("Signal requires either a bound or a type, not both")
+
+        if isinstance(self_obj["bound"], tuple) and len(self_obj["bound"]) == 0:
+            raise marshmallow.ValidationError("Signal dimensions cannot be empty")
 
         return True
 
@@ -93,11 +99,17 @@ class IPCorePort:
             name = sig.name if sig.name is not None else str(sig.path)
             assert name is not None
 
+            bounds = sig.bound
+            if bounds is not None and isinstance(bounds[0], tuple):
+                bounds = cast(IPCoreDimension, bounds[0])
+            elif bounds is not None:
+                bounds = cast(IPCoreDimension, bounds)
+
             return IPCorePort(
                 name=name,
                 direction=dir,
-                upper_bound=sig.bound[0] if sig.bound else 0,
-                lower_bound=sig.bound[1] if sig.bound else 0,
+                upper_bound=bounds[0] if bounds else 0,
+                lower_bound=bounds[1] if bounds else 0,
                 upper_slice=sig.slice[0] if sig.slice else 0,
                 lower_slice=sig.slice[1] if sig.slice else 0,
             )

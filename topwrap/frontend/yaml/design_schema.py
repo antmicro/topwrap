@@ -51,9 +51,18 @@ class DesignIP(MarshmallowDataclassExtensions):
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
+class DesignExternalPortDefinition(MarshmallowDataclassExtensions):
+    name: str
+    bound: List[Tuple[Union[str, int], Union[str, int]]] = ext_field(list, inline_depth=1)
+
+
+DesignExternalPort = Union[str, DesignExternalPortDefinition]
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
 class DesignExternalPorts(MarshmallowDataclassExtensions):
-    input: List[str] = ext_field(list, data_key="in")
-    output: List[str] = ext_field(list, data_key="out")
+    input: List[DesignExternalPort] = ext_field(list, data_key="in")
+    output: List[DesignExternalPort] = ext_field(list, data_key="out")
     inout: List[Tuple[str, str]] = ext_field(list, inline_depth=1)
 
     @cached_property
