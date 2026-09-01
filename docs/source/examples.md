@@ -53,6 +53,12 @@ Generate the HDL source:
 make generate
 ```
 
+Extract an [IP description file](description_files.md#ip-description-files) describing the design's top module:
+
+```bash
+make extract
+```
+
 ## Inout
 
 [Link to source](https://github.com/antmicro/topwrap/tree/main/examples/inout)

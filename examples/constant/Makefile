@@ -19,6 +19,9 @@ JSONS = kpm_spec.json kpm_dataflow.json
 generate: copy_sources
 	topwrap build --design ${DESIGN} --sources ${SOURCE_DIR}
 
+extract:
+	topwrap extract --design ${DESIGN} --build-dir ${BUILD_DIR}
+
 $(JSONS):
 	topwrap specification -d project.yaml
 	topwrap dataflow -d project.yaml
@@ -34,6 +37,6 @@ clean:
 	rm -f sources/*.json
 	rm -rf ${BUILD_DIR}/*
 
-ci: generate
+ci: generate extract
 
-.PHONY: setup clean generate copy_sources ci all
+.PHONY: setup clean generate extract copy_sources ci all

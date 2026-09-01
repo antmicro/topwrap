@@ -200,6 +200,20 @@ The primary purpose of the IP core YAML is to provide the tool with essential me
 It contains information about signals, clock domains, parameterization and interfaces.
 Interfaces are defined as a list of signals and parameters such as `mode` and `type`.
 
+Such a file can be handwritten, or generated from an existing [design description](#design-description) using the `topwrap extract` command, which describes the design's top module as a reusable IP core:
+
+```bash
+topwrap extract --design design.yaml
+```
+
+See the [Constant example](examples.md#constant) for a runnable usage of this command.
+
+:::{warning}
+`topwrap extract` only captures the top module's external signals, interfaces, clocks, resets and parameters - it does not preserve internal hierarchy.
+If the design's top module is itself composed of sub-instances (via `hierarchies`/`ips`), that internal composition (instances, sub-hierarchies, internal connections) is not included in the generated IP description; the design is reduced to a single black-box IP core described only by what's externally visible.
+If you need to preserve the internal structure, use the [design description](#design-description) format instead (the output of `topwrap build`), which does capture instances and connections.
+:::
+
 The example below presents an example IP YAML core description file.
 
 ```yaml
