@@ -798,6 +798,18 @@ class TestDesignDescriptionBackend:
         back = DesignDescriptionBackend()
         out = back.represent(top)
         [out] = back.serialize(out)
+        tree = yaml.safe_load(out.content)
+
+        assert tree["memory_maps"] == {
+            "mm": {
+                "sub": {
+                    "interface": {
+                        "address": 0x1000000,
+                        "params": {"size": "4096"},
+                    },
+                },
+            },
+        }
 
 
 class TestDesignPositionsBackend:

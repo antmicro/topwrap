@@ -5,6 +5,7 @@ from itertools import product
 from pathlib import Path
 from typing import Callable, Optional, Union
 
+import marshmallow
 import pytest
 
 from examples.ir_examples.modules import ALL_MODULES, lfsr_gen
@@ -294,6 +295,67 @@ class TestDesignDescriptionFrontend:
         assert out_vec.type.dimensions == [
             Dimensions(upper=ElaboratableValue(15), lower=ElaboratableValue(0))
         ]
+
+    def test_memory_map_params(self):
+        des = """
+        name: top
+        ips:
+            mem:
+                file: file:examples/ir_examples/interconnect/ips/mem.yaml
+
+        memory_maps:
+            mm:
+                mem:
+                    address: 0x1000
+                    size: 4096
+        """
+
+        design, _ = DesignDescriptionFrontend().parse_str(des)
+        sub = design.memory_maps["mm"].map[0x1000]
+
+        assert sub.ref_iface.instance.name == "mem"
+        assert sub.ref_iface.io.name == "bus"
+        assert sub.parameters == {"size": 4096}
+
+    def test_memory_map_explicit_params(self):
+        des = """
+        name: top
+        ips:
+            mem:
+                file: file:examples/ir_examples/interconnect/ips/mem.yaml
+
+        memory_maps:
+            mm:
+                mem:
+                    address: 0x1000
+                    params:
+                        foo: bar
+                    size: 4096
+        """
+
+        design, _ = DesignDescriptionFrontend().parse_str(des)
+        sub = design.memory_maps["mm"].map[0x1000]
+
+        assert sub.parameters == {"foo": "bar", "size": 4096}
+
+    def test_bad_memory_map_duplicate_params(self):
+        des = """
+        name: top
+        ips:
+            mem:
+                file: file:examples/ir_examples/interconnect/ips/mem.yaml
+
+        memory_maps:
+            mm:
+                mem:
+                    address: 0x1000
+                    params:
+                        size: 1
+                    size: 4096
+        """
+
+        with pytest.raises(marshmallow.ValidationError, match="duplicate keys"):
+            DesignDescriptionFrontend().parse_str(des)
 
 
 class TestIPCoreDescriptionFrontend:
