@@ -692,15 +692,17 @@ class TestLibraryCli:
             assert exc.value.code == 1
 
 
-class TestPackageCli:
+class TestExtractCli:
     test_data_path = "tests/data/"
 
     @pytest.fixture
     def build_design_yaml(self):
         return Path(self.test_data_path + "data_build/design.yaml")
 
-    def test_pack(self, build_design_yaml: Path, tmp_path: Path):
-        run_cli("pack", "-d", str(build_design_yaml), "-b", str(tmp_path), "--output", "topwrapIP")
+    def test_extract(self, build_design_yaml: Path, tmp_path: Path):
+        run_cli(
+            "extract", "-d", str(build_design_yaml), "-b", str(tmp_path), "--output", "topwrapIP"
+        )
         assert Path(tmp_path / "topwrapIP").exists()
 
     @pytest.mark.parametrize(
@@ -736,7 +738,7 @@ class TestPackageCli:
         # Reload config for the duration of this test
         monkeypatch.setattr("topwrap.config.config", ConfigManager().load())
 
-        run_cli("pack", "-d", str(example_file), "-b", str(tmp_path), "--output", "topwrapIP")
+        run_cli("extract", "-d", str(example_file), "-b", str(tmp_path), "--output", "topwrapIP")
         des_front = DesignDescriptionFrontend()
         ip_front = IPCoreDescriptionFrontend()
 

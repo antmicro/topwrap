@@ -135,7 +135,7 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
             existing_iface_definitions=self.existing_interfaces,
         )
 
-        return IpCoreDescriptionOutput(base_name=module.id.name, description=desc)
+        return IpCoreDescriptionOutput(base_name=module.id.combined(), description=desc)
 
     def _represent_signal(
         self,

@@ -458,9 +458,12 @@ class YamlDesignOutputStage(OutputStage):
 
 
 class YamlIpOutputStage(OutputStage):
-    name: str = "Design YAML"
+    name: str = "IP Description YAML"
 
     filename: Optional[Path] = None
+
+    #: The path this stage actually wrote its output to, set by write_output_to.
+    written_path: Optional[Path] = None
 
     def __init__(self, filename: Optional[Path] = None):
         self.filename = filename
@@ -469,11 +472,9 @@ class YamlIpOutputStage(OutputStage):
     @override
     def generate_output(self, ctx: BuildContext):
         if ctx.top_module is None:
-            raise BuildException("Design YAML output requires a top module")
+            raise BuildException("IP description output requires a top module")
 
         assert ctx.top_module.design
-        if self.filename is None:
-            self.filename = Path(f"{ctx.top_module.id}.yaml")
 
         ip_backend = IpCoreDescriptionBackend(ctx.existing_interfaces)
         repr_ip = ip_backend.represent(ctx.top_module)
@@ -485,6 +486,6 @@ class YamlIpOutputStage(OutputStage):
     @override
     def write_output_to(self, target_dir: Path, ctx: BuildContext):
         assert self.name in ctx.outputs
-        assert self.filename is not None
         out_ip = cast(BackendOutputInfo, ctx.outputs[self.name])
-        out_ip.save(target_dir / self.filename)
+        self.written_path = target_dir / (self.filename or out_ip.filename)
+        out_ip.save(self.written_path)

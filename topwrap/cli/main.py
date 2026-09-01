@@ -33,7 +33,7 @@ from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
 from topwrap.plugin.base import BuildException, OutputDir
 from topwrap.plugin.pipeline import BuildPipeline
-from topwrap.plugin.steps import KpmSpecificationOutputStage
+from topwrap.plugin.steps import KpmSpecificationOutputStage, YamlIpOutputStage
 from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
 from topwrap.util import JsonType, get_config, warn_deprecated
 
@@ -171,10 +171,9 @@ def generate_main(
         sys.exit(1)
 
 
-@cli.command(name="pack")
-def pack_main(
+@cli.command(name="extract")
+def extract_main(
     *,
-    sources: Tuple[ExistingDirectory, ...] = (),
     design: ExistingFile,
     build_dir: Optional[Path] = None,
     gensrc_dir: Optional[Path] = None,
@@ -185,8 +184,6 @@ def pack_main(
 
     Parameters
     ----------
-    sources
-        Directories to scan for additional sources.
     design
         Top design file.
     build_dir
@@ -195,7 +192,8 @@ def pack_main(
         Output directory for generated files (defaults to --build-dir).
     output
         Optional name of the output YAML file.
-        By default extracted IP will be called by the VNLV of the design.
+        By default extracted IP will be named after the combined vendor,
+        library, name and version of the design's top module.
     iface_compliance
         Force interface compliance checking.
     """
@@ -211,15 +209,10 @@ def pack_main(
     try:
         pipeline = BuildPipeline.yaml_design_ip_pipeline(output)
         pipeline.run_files([], design, outdir)
-        if output is None:
-            if pipeline.ctx.top_module is not None and pipeline.ctx.top_module.id is not None:
-                output = Path(str(pipeline.ctx.top_module.id))
-            else:
-                logging.error("Parse failed: no toplevel module")
-                sys.exit(1)
-        print(f"Saved IP file to {gensrc_dir / output}")
-    except Exception as e:
-        logging.error(f"Encountered error:\n {e}")
+        [ip_stage] = pipeline.outputs
+        print(f"Saved IP file to {cast(YamlIpOutputStage, ip_stage).written_path}")
+    except BuildException as e:
+        logger.error(f"{e}")
         sys.exit(1)
 
 
