@@ -1,0 +1,1469 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>Plugins - Topwrap</title>
+      
+    
+    
+      
+        
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.c5589c0bd87d933a4.min.css?v=eeeb54bc" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="Topwrap" class="md-header__button md-logo" aria-label="Topwrap" data-md-component="logo">
+      <img src="../_static/white.svg" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Topwrap
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Plugins
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <div class="md-header__button">
+        <a href="../topwrap.pdf" title="PDF - topwrap.pdf">
+          <div class="md-icon">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M64 0C28.7 0 0 28.7 0 64v384c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zm192 0v128h128L256 0zM64 224h24c30.9 0 56 25.1 56 56s-25.1 56-56 56h-8v32c0 8.8-7.2 16-16 16s-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm24 80c13.3 0 24-10.7 24-24s-10.7-24-24-24h-8v48h8zm72-64c0-8.8 7.2-16 16-16h24c26.5 0 48 21.5 48 48v64c0 26.5-21.5 48-48 48h-24c-8.8 0-16-7.2-16-16V240zm32 112h8c8.8 0 16-7.2 16-16v-64c0-8.8-7.2-16-16-16h-8v96zm96-128h48c8.8 0 16 7.2 16 16s-7.2 16-16 16h-32v32h32c8.8 0 16 7.2 16 16s-7.2 16-16 16h-32v48c0 8.8-7.2 16-16 16s-16-7.2-16-16V240c0-8.8 7.2-16 16-16z"/></svg>
+          </div>
+        </a>
+      </div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/antmicro/topwrap" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    antmicro/topwrap
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Topwrap" class="md-nav__button md-logo" aria-label="Topwrap" data-md-component="logo">
+      <img src="../_static/white.svg" alt="logo">
+    </a>
+    Topwrap
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/antmicro/topwrap" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    antmicro/topwrap
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_1">
+          <span class="md-ellipsis">Documentation</span>
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          <span class="md-ellipsis">Documentation</span>
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction.html" class="md-nav__link">
+        <span class="md-ellipsis">Introduction to Topwrap</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation.html" class="md-nav__link">
+        <span class="md-ellipsis">Installing Topwrap</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started.html" class="md-nav__link">
+        <span class="md-ellipsis">Getting started</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced_options.html" class="md-nav__link">
+        <span class="md-ellipsis">Advanced options</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples.html" class="md-nav__link">
+        <span class="md-ellipsis">Sample projects</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../description_files.html" class="md-nav__link">
+        <span class="md-ellipsis">Creating a design</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inference.html" class="md-nav__link">
+        <span class="md-ellipsis">Interface inference</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config.html" class="md-nav__link">
+        <span class="md-ellipsis">Configuration</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user_repositories.html" class="md-nav__link">
+        <span class="md-ellipsis">Constructing, configuring and loading repositories</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../interconnect_gen.html" class="md-nav__link">
+        <span class="md-ellipsis">Interconnect generation</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fusesoc.html" class="md-nav__link">
+        <span class="md-ellipsis">Using Fuse<wbr>So<wbr>C for automation</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plugins.html" class="md-nav__link">
+        <span class="md-ellipsis">Plugin Support</span>
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          <span class="md-ellipsis">Developer&#39;s Guide</span>
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Developer&#39;s Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          <span class="md-ellipsis">Developer&#39;s Guide</span>
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="setup.html" class="md-nav__link">
+        <span class="md-ellipsis">Setup</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="style.html" class="md-nav__link">
+        <span class="md-ellipsis">Code style</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tests.html" class="md-nav__link">
+        <span class="md-ellipsis">Tests</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="internal_representation.html" class="md-nav__link">
+        <span class="md-ellipsis">Internal Representation</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="frontends.html" class="md-nav__link">
+        <span class="md-ellipsis">Frontend</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="backends.html" class="md-nav__link">
+        <span class="md-ellipsis">Backend</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="fusesocbuilder.html" class="md-nav__link">
+        <span class="md-ellipsis">Fuse<wbr>Soc<wbr>Builder</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="interface.html" class="md-nav__link">
+        <span class="md-ellipsis">Interface Definition</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="config.html" class="md-nav__link">
+        <span class="md-ellipsis">Config</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks.html" class="md-nav__link">
+        <span class="md-ellipsis">Validation of design</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="future_enhancements.html" class="md-nav__link">
+        <span class="md-ellipsis">Future planned enhancements in Topwrap</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="future_enhancements.html#other-possible-improvements" class="md-nav__link">
+        <span class="md-ellipsis">Other possible improvements</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="inline_kpm_howto.html" class="md-nav__link">
+        <span class="md-ellipsis">Using KPM iframes inside docs</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ir-examples.html" class="md-nav__link">
+        <span class="md-ellipsis">Examples for Internal Representation</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ipxact-design.html" class="md-nav__link">
+        <span class="md-ellipsis">IP-<wbr>XACT format</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="generator.html" class="md-nav__link">
+        <span class="md-ellipsis">Generator</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="interconnect.html" class="md-nav__link">
+        <span class="md-ellipsis">Interconnect</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="repo.html" class="md-nav__link">
+        <span class="md-ellipsis">Repository</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        <span class="md-ellipsis">Logging</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          <span class="md-ellipsis">Plugins</span>
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        <span class="md-ellipsis">Plugins</span>
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">Examples</span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin-base" class="md-nav__link">
+    <span class="md-ellipsis">Plugin Base</span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plugin Base">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin" class="md-nav__link">
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="topwrap.plugin.base.BasePlugin (Python class) — Bases: object" class="md-ellipsis">Base<wbr>Plugin</span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BasePlugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.priority" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BasePlugin.priority (Python attribute) — Priority of the plugin. Hooks are invoked in order of decreasing priority." class="md-ellipsis">priority</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.pre_ir_generation" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.pre_ir_generation (Python method) — Hook invoked before parsing sources." class="md-ellipsis">pre_<wbr>ir_<wbr>generation</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.post_ir_generation" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.post_ir_generation (Python method) — Hook invoked after parsing sources." class="md-ellipsis">post_<wbr>ir_<wbr>generation</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.pre_transform" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.pre_transform (Python method) — Hook invoked before applying transformations." class="md-ellipsis">pre_<wbr>transform</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.post_transform" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.post_transform (Python method) — Hook invoked after applying transformations." class="md-ellipsis">post_<wbr>transform</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.pre_validate" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.pre_validate (Python method) — Hook invoked before performing validation." class="md-ellipsis">pre_<wbr>validate</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.post_validate" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.post_validate (Python method) — Hook invoked after performing validation." class="md-ellipsis">post_<wbr>validate</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.pre_output_generation" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.pre_output_generation (Python method) — Hook invoked before generating outputs." class="md-ellipsis">pre_<wbr>output_<wbr>generation</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.post_output_generation" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.post_output_generation (Python method) — Hook invoked after generating outputs (but before writing outputs to files)." class="md-ellipsis">post_<wbr>output_<wbr>generation</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.pre_output_writing" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.pre_output_writing (Python method) — Hook invoked before writing outputs to files." class="md-ellipsis">pre_<wbr>output_<wbr>writing</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BasePlugin.post_output_writing" class="md-nav__link">
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="topwrap.plugin.base.BasePlugin.post_output_writing (Python method) — Hook invoked after writing outputs to files." class="md-ellipsis">post_<wbr>output_<wbr>writing</span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-context" class="md-nav__link">
+    <span class="md-ellipsis">Build Context</span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Build Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext" class="md-nav__link">
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="topwrap.plugin.base.BuildContext (Python class) — Bases: object" class="md-ellipsis">Build<wbr>Context</span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuildContext">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.repo_modules" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.repo_modules (Python attribute) — Modules loaded from repositories." class="md-ellipsis">repo_<wbr>modules</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.repo_interfaces" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.repo_interfaces (Python attribute) — Interface definitions loaded from repositories." class="md-ellipsis">repo_<wbr>interfaces</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.design_source" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.design_source (Python attribute) — Path to the source file containing the design." class="md-ellipsis">design_<wbr>source</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.extra_sources" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.extra_sources (Python attribute) — Paths to additional source files to be parsed." class="md-ellipsis">extra_<wbr>sources</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.top_module" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.top_module (Python attribute) — Top-level module containing the design." class="md-ellipsis">top_<wbr>module</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.loaded_modules" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.loaded_modules (Python attribute) — All loaded modules." class="md-ellipsis">loaded_<wbr>modules</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.existing_interfaces" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.existing_interfaces (Python attribute) — List of identifiers of existing definitions in HDL code" class="md-ellipsis">existing_<wbr>interfaces</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.outputs" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.outputs (Python attribute) — Map of generated outputs, keyed on the output stage name." class="md-ellipsis">outputs</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.positions" class="md-nav__link">
+    <span aria-label="Python attribute" class="objinfo-icon objinfo-icon__alias" title="Python attribute">A</span><span title="topwrap.plugin.base.BuildContext.positions (Python attribute) — Map of module identifiers to the KPM position definitions." class="md-ellipsis">positions</span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topwrap.plugin.base.BuildContext.all_modules" class="md-nav__link">
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="topwrap.plugin.base.BuildContext.all_modules (Python property)" class="md-ellipsis">all_<wbr>modules</span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          <span class="md-ellipsis">Parsed design examples</span>
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Parsed design examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          <span class="md-ellipsis">Parsed design examples</span>
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsed_examples/caliptra_uart.html" class="md-nav__link">
+        <span class="md-ellipsis">Caliptra UART</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsed_examples/veer_el2.html" class="md-nav__link">
+        <span class="md-ellipsis">Vee<wbr>R EL2</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsed_examples/hmac.html" class="md-nav__link">
+        <span class="md-ellipsis">HMAC</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsed_examples/sha256.html" class="md-nav__link">
+        <span class="md-ellipsis">SHA256</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsed_examples/sha512.html" class="md-nav__link">
+        <span class="md-ellipsis">SHA512</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsed_examples/sha3.html" class="md-nav__link">
+        <span class="md-ellipsis">SHA3</span>
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                  
+
+
+  <a href="https://github.com/antmicro/topwrap/blob/main/docs/source/developers_guide/plugins.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+<h1 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Link to this heading">¶</a></h1>
+<p>Plugins are Python modules that are installed in the same environment as Topwrap.
+They must define an entry point in the <code class="docutils literal notranslate"><span class="pre">topwrap.plugins</span></code> group.
+The entry point is a class that inherits from <a class="reference internal" href="#topwrap.plugin.base.BasePlugin" title="topwrap.plugin.base.BasePlugin (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlugin</span></code></a>.
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> must contain the following:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><code><span class="k">[project.entry-points.</span><span class="s2">&quot;topwrap.plugins&quot;</span><span class="k">]</span>
+<span class="err">&lt;</span><span class="n">plugin-name</span><span class="err">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;plugin-name&gt;.&lt;module-path&gt;:&lt;PluginBase-subclass&gt;&quot;</span>
+</code></pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Plugin support is experimental and both the mechanism and API may change partially or completely between Topwrap versions.</p>
+</div>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<p>Use an existing plugin as a base for developing your own: <a class="reference external" href="https://github.com/antmicro/topwrap-utils/tree/main/topwrap-renode-plugin">github.com/antmicro/topwrap-utils</a>.</p>
+<h2 id="plugin-base">Plugin Base<a class="headerlink" href="#plugin-base" title="Link to this heading">¶</a></h2>
+<p>By defining implementations for the various hooks defined by <a class="reference internal" href="#topwrap.plugin.base.BasePlugin" title="topwrap.plugin.base.BasePlugin (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlugin</span></code></a>, the plugin can modify or extend Topwrap’s capabilities.
+All methods are passed the current <a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildContext</span></code></a> which contains the <a class="reference internal" href="internal_representation.html"><span class="std std-doc">internal representation</span></a> of the design and other metadata.</p>
+<dl class="py class objdesc" id="module-topwrap.plugin.base">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BasePlugin</span></span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.priority">
+<span class="sig-name descname"><span class="pre">priority</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">int</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="mi">0</span></code><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.priority" title="Link to this definition">¶</a></dt>
+<dd><p>Priority of the plugin. Hooks are invoked in order of decreasing priority.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.pre_ir_generation">
+<span class="sig-name descname"><span class="pre">pre_ir_generation</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.pre_ir_generation" title="topwrap.plugin.base.BasePlugin.pre_ir_generation.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.pre_ir_generation" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked before parsing sources.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.post_ir_generation">
+<span class="sig-name descname"><span class="pre">post_ir_generation</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.post_ir_generation" title="topwrap.plugin.base.BasePlugin.post_ir_generation.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.post_ir_generation" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked after parsing sources.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.pre_transform">
+<span class="sig-name descname"><span class="pre">pre_transform</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.pre_transform" title="topwrap.plugin.base.BasePlugin.pre_transform.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.pre_transform" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked before applying transformations.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.post_transform">
+<span class="sig-name descname"><span class="pre">post_transform</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.post_transform" title="topwrap.plugin.base.BasePlugin.post_transform.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.post_transform" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked after applying transformations.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.pre_validate">
+<span class="sig-name descname"><span class="pre">pre_validate</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.pre_validate" title="topwrap.plugin.base.BasePlugin.pre_validate.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.pre_validate" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked before performing validation.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.post_validate">
+<span class="sig-name descname"><span class="pre">post_validate</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.post_validate" title="topwrap.plugin.base.BasePlugin.post_validate.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.post_validate" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked after performing validation.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.pre_output_generation">
+<span class="sig-name descname"><span class="pre">pre_output_generation</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.pre_output_generation" title="topwrap.plugin.base.BasePlugin.pre_output_generation.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.pre_output_generation" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked before generating outputs.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.post_output_generation">
+<span class="sig-name descname"><span class="pre">post_output_generation</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.post_output_generation" title="topwrap.plugin.base.BasePlugin.post_output_generation.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.post_output_generation" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked after generating outputs (but before writing outputs to files).</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.pre_output_writing">
+<span class="sig-name descname"><span class="pre">pre_output_writing</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.pre_output_writing" title="topwrap.plugin.base.BasePlugin.pre_output_writing.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.pre_output_writing" title="topwrap.plugin.base.BasePlugin.pre_output_writing.target_dir (Python parameter)"><span class="n"><span class="pre">target_dir</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><span class="pre">OutputDir</span></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.pre_output_writing" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked before writing outputs to files.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BasePlugin.post_output_writing">
+<span class="sig-name descname"><span class="pre">post_output_writing</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.post_output_writing" title="topwrap.plugin.base.BasePlugin.post_output_writing.ctx (Python parameter)"><span class="n"><span class="pre">ctx</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><span class="pre">BuildContext</span></a></span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#topwrap.plugin.base.BasePlugin.post_output_writing" title="topwrap.plugin.base.BasePlugin.post_output_writing.target_dir (Python parameter)"><span class="n"><span class="pre">target_dir</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><span class="pre">OutputDir</span></span></span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BasePlugin.post_output_writing" title="Link to this definition">¶</a></dt>
+<dd><p>Hook invoked after writing outputs to files.</p>
+</dd></dl>
+
+</dd></dl>
+
+<h2 id="build-context">Build Context<a class="headerlink" href="#build-context" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="#topwrap.plugin.base.BuildContext" title="topwrap.plugin.base.BuildContext (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildContext</span></code></a> exposes runtime metadata including the internal representation of the design.
+It is <strong>shared</strong> between Topwrap and any loaded plugins.
+Use the documentation on the <a class="reference internal" href="internal_representation.html"><span class="std std-doc">internal representation</span></a> for insight into what the metadata represents.</p>
+<dl class="py class objdesc" id="module-topwrap.plugin.base">
+<dt class="sig sig-object highlight sig-wrap py" id="topwrap.plugin.base.BuildContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BuildContext</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="pre">repo_modules:</span> <span class="pre">list[topwrap.model.module.Module],</span> <span class="pre">repo_interfaces:</span> <span class="pre">list[topwrap.model.interface.InterfaceDefinition],</span> <span class="pre">design_source:</span> <span class="pre">Union[topwrap.plugin.base.FileSource,</span> <span class="pre">topwrap.plugin.base.StringSource,</span> <span class="pre">NoneType],</span> <span class="pre">extra_sources:</span> <span class="pre">list[typing.Union[topwrap.plugin.base.FileSource,</span> <span class="pre">topwrap.plugin.base.StringSource]],</span> <span class="pre">top_module:</span> <span class="pre">Optional[topwrap.model.module.Module],</span> <span class="pre">loaded_modules:</span> <span class="pre">list[topwrap.model.module.Module],</span> <span class="pre">existing_interfaces:</span> <span class="pre">set[topwrap.model.misc.Identifier],</span> <span class="pre">outputs:</span> <span class="pre">dict[str,</span> <span class="pre">typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">positions:</span> <span class="pre">dict[topwrap.model.misc.Identifier,</span> <span class="pre">topwrap.backend.kpm.common.Positions]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em></span><span class="sig-paren">)</span><a class="headerlink" href="#topwrap.plugin.base.BuildContext" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.repo_modules">
+<span class="sig-name descname"><span class="pre">repo_modules</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="internal_representation.html#topwrap.model.module.Module" title="topwrap.model.module.Module (Python class) — Bases: ModelBase"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.repo_modules" title="Link to this definition">¶</a></dt>
+<dd><p>Modules loaded from repositories.</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.repo_interfaces">
+<span class="sig-name descname"><span class="pre">repo_interfaces</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="internal_representation.html#topwrap.model.interface.InterfaceDefinition" title="topwrap.model.interface.InterfaceDefinition (Python class) — Bases: ModelBase"><span class="pre">InterfaceDefinition</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.repo_interfaces" title="Link to this definition">¶</a></dt>
+<dd><p>Interface definitions loaded from repositories.</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.design_source">
+<span class="sig-name descname"><span class="pre">design_source</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">FileSource</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">StringSource</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.design_source" title="Link to this definition">¶</a></dt>
+<dd><p>Path to the source file containing the design.</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.extra_sources">
+<span class="sig-name descname"><span class="pre">extra_sources</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">FileSource</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">StringSource</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.extra_sources" title="Link to this definition">¶</a></dt>
+<dd><p>Paths to additional source files to be parsed.</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.top_module">
+<span class="sig-name descname"><span class="pre">top_module</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference internal" href="internal_representation.html#topwrap.model.module.Module" title="topwrap.model.module.Module (Python class) — Bases: ModelBase"><span class="pre">Module</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.top_module" title="Link to this definition">¶</a></dt>
+<dd><p>Top-level module containing the design.</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.loaded_modules">
+<span class="sig-name descname"><span class="pre">loaded_modules</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="internal_representation.html#topwrap.model.module.Module" title="topwrap.model.module.Module (Python class) — Bases: ModelBase"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.loaded_modules" title="Link to this definition">¶</a></dt>
+<dd><p>All loaded modules.</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.existing_interfaces">
+<span class="sig-name descname"><span class="pre">existing_interfaces</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="internal_representation.html#topwrap.model.misc.Identifier" title="topwrap.model.misc.Identifier (Python class) — Bases: object"><span class="pre">Identifier</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.existing_interfaces" title="Link to this definition">¶</a></dt>
+<dd><p>List of identifiers of existing definitions in HDL code</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.outputs" title="Link to this definition">¶</a></dt>
+<dd><p>Map of generated outputs, keyed on the output stage name.</p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.positions">
+<span class="sig-name descname"><span class="pre">positions</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="internal_representation.html#topwrap.model.misc.Identifier" title="topwrap.model.misc.Identifier (Python class) — Bases: object"><span class="pre">Identifier</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Positions</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.positions" title="Link to this definition">¶</a></dt>
+<dd><p>Map of module identifiers to the KPM position definitions.</p>
+</dd></dl>
+
+<dl class="py property objdesc">
+<dt class="sig sig-object highlight py" id="topwrap.plugin.base.BuildContext.all_modules">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_modules</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="internal_representation.html#topwrap.model.module.Module" title="topwrap.model.module.Module (Python class) — Bases: ModelBase"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#topwrap.plugin.base.BuildContext.all_modules" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      2026-09-01
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="logging.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Logging" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Logging
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../parsed_examples/caliptra_uart.html" class="md-footer__link md-footer__link--next" aria-label="Next: Caliptra UART" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Caliptra UART
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        Copyright &#169; Antmicro, 2026.
+        
+    </div>
+  
+      <a href="https://github.com/antmicro/topwrap/tree/ad82f13daebf19003ff6c133ef8cee6cf4833118">ad82f13d</a>
+        @ <a href="https://github.com/antmicro/topwrap/tree/main">main</a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/antmicro" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/antmicro" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.f9d9eeeb247ace16c.min.js?v=8ec58cb5"></script>
+        <script type="module">
+const load = async () => {{
+    await mermaid.run();
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_to_add_zoom = typeof d3 === 'undefined' ? 0 : all_mermaids.length;
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+    if(mermaids_to_add_zoom > 0) {{
+        var svgs = d3.selectAll(".mermaid svg");
+        if(all_mermaids.length !== mermaids_processed.length) {{
+            // try again in a sec, wait for mermaids to load
+            setTimeout(load, 200);
+            return;
+        }} else if(svgs.size() !== mermaids_to_add_zoom) {{
+            // try again in a sec, wait for mermaids to load
+            setTimeout(load, 200);
+            return;
+        }} else {{
+            svgs.each(function() {{
+                var svg = d3.select(this);
+                svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                var inner = svg.select("g");
+                var zoom = d3.zoom().on("zoom", function(event) {{
+                    inner.attr("transform", event.transform);
+                }});
+                svg.call(zoom);
+            }});
+        }}
+    }}
+}};
+
+import elkLayouts from 'https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs';
+if (typeof mermaid !== 'undefined') {
+    mermaid.registerLayoutLoaders(elkLayouts);
+    mermaid.initialize({startOnLoad:false});
+    window.addEventListener("load", load);
+}
+</script>
+    
+  </body>
+</html>
