@@ -204,7 +204,7 @@ def test_hierarchy_dataflow_validation(check_function, expected_result, hierarch
 @pytest.mark.parametrize(
     "check_function, expected_result",
     [
-        (DataflowValidator.check_duplicate_node_names, MessageType.WARNING),
+        (DataflowValidator.check_duplicate_node_names, MessageType.OK),
         (DataflowValidator.check_parameters_values, MessageType.OK),
         (DataflowValidator.check_external_in_to_external_out_connections, MessageType.OK),
         (DataflowValidator.check_port_to_multiple_external_metanodes, MessageType.OK),
@@ -213,6 +213,7 @@ def test_hierarchy_dataflow_validation(check_function, expected_result, hierarch
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
         (DataflowValidator.check_multiple_connections_into_one_port, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
+        (DataflowValidator.check_external_io_exposed_ifaces, MessageType.OK),
     ],
 )
 def test_complex_hierarchy_dataflow_validation(

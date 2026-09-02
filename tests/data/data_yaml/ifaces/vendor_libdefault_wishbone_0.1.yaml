@@ -1,0 +1,33 @@
+id:
+  library: libdefault
+  name: wishbone
+  vendor: vendor
+  version: '0.1'
+signals:
+  ack:
+    modes: {manager: [in, required]}
+    pattern: ack
+  adr:
+    modes: {manager: [out, optional]}
+    pattern: adr
+  cyc:
+    modes: {manager: [out, required]}
+    pattern: cyc
+  dat_r:
+    modes: {manager: [in, optional]}
+    pattern: dat_r|miso
+  dat_w:
+    modes: {manager: [out, optional]}
+    pattern: dat_w|mosi
+  err:
+    modes: {manager: [in, optional]}
+    pattern: err
+  stall:
+    modes: {manager: [in, optional]}
+    pattern: stall
+  stb:
+    modes: {manager: [out, required]}
+    pattern: stb
+  we:
+    modes: {manager: [out, optional]}
+    pattern: we

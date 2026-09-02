@@ -510,6 +510,36 @@
         "full_module_id": {
           "version": "0.1",
           "library": "libdefault",
+          "name": "SUB0",
+          "vendor": "vendor"
+        },
+        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml"
+      },
+      "category": "vendor/libdefault",
+      "interfaces": [
+        {
+          "direction": "input",
+          "maxConnectionsCount": 0,
+          "name": "cs_s1_mint_in_2",
+          "type": "intf__port"
+        },
+        {
+          "direction": "input",
+          "maxConnectionsCount": 0,
+          "name": "cs_s2_f_int_in_2",
+          "type": "intf__port"
+        }
+      ],
+      "layer": "IP Cores",
+      "name": "SUB0 v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "config": null,
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
           "name": "SUBEMPTY",
           "vendor": "vendor"
         },
@@ -518,6 +548,22 @@
       "category": "vendor/libdefault",
       "layer": "IP Cores",
       "name": "SUBEMPTY v0.1 (vendor/libdefault)"
+    },
+    {
+      "abstract": false,
+      "additionalData": {
+        "config": null,
+        "full_module_id": {
+          "version": "0.1",
+          "library": "libdefault",
+          "name": "SUBEMPTY0",
+          "vendor": "vendor"
+        },
+        "source": "tests/data/data_kpm/conversions/complex/project_complex.yaml"
+      },
+      "category": "vendor/libdefault",
+      "layer": "IP Cores",
+      "name": "SUBEMPTY0 v0.1 (vendor/libdefault)"
     },
     {
       "abstract": false,

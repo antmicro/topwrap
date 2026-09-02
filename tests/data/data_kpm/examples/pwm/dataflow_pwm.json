@@ -1,75 +1,75 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "graphs": [
     {
       "connections": [
         {
-          "from": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
-          "id": "6095d9f2-4c93-426c-b1d2-b8ad76a392c9",
-          "to": "e82d4fcd-ecf2-4147-a25a-f76f1d613161"
+          "from": "cb89aedb-6ca7-4788-b764-a381ab649782",
+          "id": "0600f84c-b086-47f8-be32-3a847154a891",
+          "to": "51d42e7a-f152-4201-ad29-8bf1040a63ce"
         },
         {
-          "from": "ce59e5fc-1873-45c0-9bb8-a138b2a5fb19",
-          "id": "fc08533a-df8a-4db4-9bbf-152a2fc97fa9",
-          "to": "4819998a-083d-4cca-a88e-544292084fff"
+          "from": "b49e8e2e-1d80-4edb-8ef7-efbd3f0a5160",
+          "id": "38282591-9185-4e0b-8e40-0ade222253c6",
+          "to": "992ec293-e8fb-4d8e-878d-f339ef9a190e"
         },
         {
-          "from": "78a65ef0-e80f-4d49-9bfd-a185e101cb15",
-          "id": "d3ba7bdd-ea04-413b-b615-de9a5cc214fa",
-          "to": "261cab4b-fc98-45f1-ad2b-4ddda63d3bf6"
+          "from": "d7ce8f0a-e9fb-418a-8a2d-080257b0424c",
+          "id": "4241ec96-7152-472b-ab81-411e18b2ea97",
+          "to": "84e1511e-de89-4e96-ac6c-208c1e1f033a"
         },
         {
-          "from": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
-          "id": "9653223b-4ea5-47f4-ba15-58f37b6b244f",
-          "to": "22b9b779-8042-4caa-ac13-ac5b8004d730"
+          "from": "cb89aedb-6ca7-4788-b764-a381ab649782",
+          "id": "03bed1a6-9e98-46cb-a1a8-e178dced6e0b",
+          "to": "4e57993a-b651-4779-bb35-80f5fe708171"
         },
         {
-          "from": "ce59e5fc-1873-45c0-9bb8-a138b2a5fb19",
-          "id": "890add47-bfab-43f1-b0ea-ee1093c1b523",
-          "to": "95e42ecc-6f81-4ce9-8b06-1506ff40e32b"
+          "from": "b49e8e2e-1d80-4edb-8ef7-efbd3f0a5160",
+          "id": "293e40da-9126-4cbd-88bd-b8ef1906974a",
+          "to": "33ecd555-d211-475a-8fa6-410f3ac2c48c"
         },
         {
-          "from": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
-          "id": "71dc6f26-b42e-48a6-8412-82a6d2c67ac9",
-          "to": "6f2525ab-8a1f-437d-bb78-6cc7a761451e"
+          "from": "cb89aedb-6ca7-4788-b764-a381ab649782",
+          "id": "d960e31d-27e4-4e62-89b5-34e7b4007651",
+          "to": "bbc864ce-3a1c-45b4-9696-708740468b4d"
         },
         {
-          "from": "e7d0bdc3-51b1-47a2-afcc-d645df601ed7",
-          "id": "f78be1b7-ec54-4118-9c77-689a492a6966",
-          "to": "e31e7233-d5d3-4c23-ac42-a3267d778174"
+          "from": "032bc379-7f7e-43f1-9a82-4970532beec6",
+          "id": "2801a2e6-d4b0-4471-a477-76b34294f9e7",
+          "to": "570fb849-9ff4-4da7-84df-728177396633"
         },
         {
-          "from": "c915d7e6-6186-45e3-8269-245db1e2aafd",
-          "id": "bb3293e4-a3fd-4b3a-80c1-a2dc23cffc5b",
-          "to": "670ceff4-e409-400b-babf-8747be5429be"
+          "from": "cb456373-c707-4992-9218-b7a713c91b33",
+          "id": "336bd215-d41e-49d4-acf0-c01cd5040f63",
+          "to": "7e16a71e-e8fd-4bcd-bd08-824947a3104b"
         }
       ],
-      "id": "3a9d05bc-a181-4477-9060-27725a8488bd",
+      "id": "5423107c-e264-4514-b419-cb4ae59d196b",
       "nodes": [
         {
           "enabledInterfaceGroups": [],
-          "id": "e22eae82-46f4-462d-a5f9-d5d73f57b011",
+          "id": "f0dbeb27-0dc4-4dc9-8430-a22cf7c44dc8",
           "instanceName": "Identifier",
           "interfaces": [],
           "name": "Identifier",
           "properties": [
             {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
-              "name": "Name",
-              "value": "top"
-            },
-            {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
-              "name": "Vendor",
-              "value": "vendor"
-            },
-            {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
               "name": "Library",
               "value": "libdefault"
             },
             {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
+              "name": "Name",
+              "value": "top"
+            },
+            {
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
+              "name": "Vendor",
+              "value": "vendor"
+            },
+            {
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
               "name": "Version",
               "value": "0.1"
             }
@@ -79,65 +79,65 @@
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "b35137e9-163e-4bc8-ac3e-2e794ccaf731",
+          "id": "d050c8c8-c407-463a-a07e-f74bb8e0a7f7",
           "instanceName": "axi_bridge",
           "interfaces": [
             {
               "direction": "input",
-              "id": "e31e7233-d5d3-4c23-ac42-a3267d778174",
+              "id": "570fb849-9ff4-4da7-84df-728177396633",
               "name": "s_axi",
               "side": "left"
             },
             {
               "direction": "output",
-              "id": "c915d7e6-6186-45e3-8269-245db1e2aafd",
+              "id": "cb456373-c707-4992-9218-b7a713c91b33",
               "name": "m_axi",
               "side": "right"
             },
             {
               "direction": "input",
-              "id": "e82d4fcd-ecf2-4147-a25a-f76f1d613161",
-              "name": "clk",
+              "id": "992ec293-e8fb-4d8e-878d-f339ef9a190e",
+              "name": "rst",
               "side": "left"
             },
             {
               "direction": "input",
-              "id": "4819998a-083d-4cca-a88e-544292084fff",
-              "name": "rst",
+              "id": "51d42e7a-f152-4201-ad29-8bf1040a63ce",
+              "name": "clk",
               "side": "left"
             }
           ],
           "name": "axi_axil_adapter v0.1 (vendor/libdefault)",
           "properties": [
             {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
               "name": "ADDR_WIDTH",
               "value": "32"
             },
             {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
-              "name": "AXI_DATA_WIDTH",
-              "value": "32"
-            },
-            {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
-              "name": "AXI_ID_WIDTH",
-              "value": "12"
-            },
-            {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
-              "name": "AXI_STRB_WIDTH",
-              "value": "AXI_DATA_WIDTH/8"
-            },
-            {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
               "name": "AXIL_DATA_WIDTH",
               "value": "32"
             },
             {
-              "id": "faf320f8-3bf2-4528-abe3-aae044f9b7a8",
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
               "name": "AXIL_STRB_WIDTH",
               "value": "AXIL_DATA_WIDTH/8"
+            },
+            {
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
+              "name": "AXI_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
+              "name": "AXI_ID_WIDTH",
+              "value": "12"
+            },
+            {
+              "id": "4496624d-204d-4a94-94af-4db1d37e0620",
+              "name": "AXI_STRB_WIDTH",
+              "value": "AXI_DATA_WIDTH/8"
             }
           ],
           "twoColumn": true,
@@ -145,30 +145,30 @@
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "95926f22-516d-4dfb-ac3a-aa6e9422f4aa",
+          "id": "30d1bf13-9730-4024-9922-5be0660ccbc9",
           "instanceName": "litex_pwm_top",
           "interfaces": [
             {
               "direction": "input",
-              "id": "670ceff4-e409-400b-babf-8747be5429be",
+              "id": "7e16a71e-e8fd-4bcd-bd08-824947a3104b",
               "name": "s_axi",
               "side": "left"
             },
             {
               "direction": "input",
-              "id": "95e42ecc-6f81-4ce9-8b06-1506ff40e32b",
+              "id": "33ecd555-d211-475a-8fa6-410f3ac2c48c",
               "name": "sys_rst",
               "side": "left"
             },
             {
               "direction": "input",
-              "id": "22b9b779-8042-4caa-ac13-ac5b8004d730",
+              "id": "4e57993a-b651-4779-bb35-80f5fe708171",
               "name": "sys_clk",
               "side": "left"
             },
             {
               "direction": "output",
-              "id": "78a65ef0-e80f-4d49-9bfd-a185e101cb15",
+              "id": "d7ce8f0a-e9fb-418a-8a2d-080257b0424c",
               "name": "pwm",
               "side": "right"
             }
@@ -180,37 +180,37 @@
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "cf8f8188-eaa7-446b-acad-e5016bd1ea14",
+          "id": "a44f6d74-9f91-4a95-89ae-b664352fe08c",
           "instanceName": "ps7",
           "interfaces": [
             {
               "direction": "output",
-              "id": "e7d0bdc3-51b1-47a2-afcc-d645df601ed7",
+              "id": "032bc379-7f7e-43f1-9a82-4970532beec6",
               "name": "M_AXI_GP0",
               "side": "right"
             },
             {
               "direction": "input",
-              "id": "6f2525ab-8a1f-437d-bb78-6cc7a761451e",
+              "id": "bbc864ce-3a1c-45b4-9696-708740468b4d",
               "name": "MAXIGP0ACLK",
               "side": "left"
             },
             {
               "direction": "output",
-              "id": "8d94fad7-5077-4306-8d4c-2c1b5595d6b8",
-              "name": "MAXIGP0ARESETN",
+              "id": "cb89aedb-6ca7-4788-b764-a381ab649782",
+              "name": "FCLK0",
               "side": "right"
             },
             {
               "direction": "output",
-              "id": "ce59e5fc-1873-45c0-9bb8-a138b2a5fb19",
+              "id": "b49e8e2e-1d80-4edb-8ef7-efbd3f0a5160",
               "name": "FCLK_RESET0_N",
               "side": "right"
             },
             {
               "direction": "output",
-              "id": "44f1ad1b-ec84-4d40-b56b-468dbc854652",
-              "name": "FCLK0",
+              "id": "32cf1141-c22d-4d71-90b8-6b9ecbbecd92",
+              "name": "MAXIGP0ARESETN",
               "side": "right"
             }
           ],
@@ -221,25 +221,26 @@
         },
         {
           "enabledInterfaceGroups": [],
-          "id": "7c91beab-2b39-4d84-b213-338834310ef2",
+          "height": 60,
+          "id": "6b56a357-0f50-41de-bd52-4472f63bdc09",
           "instanceName": "pwm",
           "interfaces": [
             {
               "direction": "input",
-              "id": "261cab4b-fc98-45f1-ad2b-4ddda63d3bf6",
+              "id": "84e1511e-de89-4e96-ac6c-208c1e1f033a",
               "name": "internal"
             },
             {
               "direction": "output",
               "externalName": "pwm",
-              "id": "142e0327-ae4e-417e-9da9-ad34504dd13d",
+              "id": "02f5c0fd-a89e-4b2c-b70a-4d109028c98d",
               "name": "external"
             }
           ],
           "name": "External Output",
           "properties": [],
           "twoColumn": true,
-          "width": 200
+          "width": 40
         }
       ]
     }

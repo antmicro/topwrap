@@ -2,6 +2,7 @@ id:
   library: libdefault
   name: advanced_top
   vendor: vendor
+  version: '0.1'
 interfaces:
   SCI_ctrl:
     mode: subordinate
@@ -9,54 +10,78 @@ interfaces:
       in:
         ack: null
         addr: null
+        dbg_out: {name: sci_ctrl_dbg_out}
         strb: null
         write: null
       out:
+        dbg_in: {name: sci_ctrl_dbg_in}
         rdata: null
         sack: null
     type:
+      library: scilib
       name: Simply Complex Interface 4
-      vendor: vendor
-      library: libdefault
+      vendor: top.wrap
+      version: '0.1'
   SCI_ext_man:
     mode: manager
     signals:
       in:
+        dbg_in: null
         rdata: null
         sack: null
       out:
         ack: null
         addr: null
+        dbg_out: null
         strb: null
         wdata: null
         write: null
     type:
+      library: scilib
       name: Simply Complex Interface 4
-      vendor: vendor
-      library: libdefault
+      vendor: top.wrap
+      version: '0.1'
   SCI_ext_sub:
     mode: subordinate
     signals:
       in:
         ack: null
         addr: null
+        dbg_out: null
         strb: null
         wdata: null
         write: null
       out:
+        dbg_in: null
         rdata: null
         sack: null
     type:
+      library: scilib
       name: Simply Complex Interface 4
-      vendor: vendor
-      library: libdefault
+      vendor: top.wrap
+      version: '0.1'
 parameters:
   CIF_ADDR_WIDTH: '32'
   CIF_DATA_WIDTH: '64'
 signals:
   in:
-  - {name: clk}
-  - {name: char_streams}
+    - {name: clk}
+    - {name: char_streams, type: stream_struct}
   out:
-  - {bound: ['31', '0'], name: hw_id}
-  - {bound: ['7', '0'], name: cow_out}
+    - {bound: ['7', '0'], name: cow_out}
+    - {bound: ['31', '0'], name: hw_id}
+types:
+  stream_struct:
+    members:
+      - name: a_stream
+        type:
+          - '63'
+          - '0'
+      - name: b_stream
+        type:
+          - '63'
+          - '0'
+      - name: transfer_mode
+        type:
+          - '7'
+          - '0'

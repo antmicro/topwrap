@@ -1,0 +1,40 @@
+id:
+  library: scilib
+  name: Simply Complex Interface 4
+  vendor: top.wrap
+  version: '0.1'
+signals:
+  ack:
+    modes: {manager: [out, required]}
+    pattern: ack
+  addr:
+    bound: [[32-1, '0']]
+    modes: {manager: [out, required]}
+    pattern: addr
+  dbg_in:
+    modes: {manager: [in, required]}
+    pattern: dbg_in
+  dbg_out:
+    modes: {manager: [out, required]}
+    pattern: dbg_out
+  rdata:
+    bound: [[64-1, '0']]
+    default: '0'
+    modes: {manager: [in, required], subordinate: [out, optional]}
+    pattern: (rdata)|(idata)
+  sack:
+    bound: [['1', '0']]
+    modes: {manager: [in, required]}
+    pattern: (sack|s_ack)
+  strb:
+    bound: [[64/8-1, '0']]
+    modes: {manager: [out, required]}
+    pattern: strb
+  wdata:
+    bound: [[64-1, '0']]
+    default: '0'
+    modes: {manager: [out, optional]}
+    pattern: (wdata)|(odata)
+  write:
+    modes: {manager: [out, required]}
+    pattern: write

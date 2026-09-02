@@ -2,9 +2,10 @@ id:
   library: libdefault
   name: inv_top
   vendor: vendor
+  version: '0.1'
 signals:
   in:
-  - {name: clkin}
-  - {bound: ['7', '0'], name: val}
+    - {name: clkin}
+    - {bound: ['7', '0'], name: val}
   out:
-  - {bound: ['8', '0'], name: sum}
+    - {bound: ['8', '0'], name: sum}

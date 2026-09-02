@@ -796,7 +796,7 @@
           "type": "text"
         },
         {
-          "default": "{'value': 295147905248072302608, 'width': 96}",
+          "default": "96'd295147905248072302608",
           "name": "M_ADDR_WIDTH",
           "type": "text"
         },

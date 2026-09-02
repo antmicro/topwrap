@@ -71,6 +71,12 @@ lint-check:
 	uv sync --extra lint
 	uv run pre-commit run --all-files
 
+check-update-testfiles:
+	#!/usr/bin/env bash
+	uv sync --extra tests
+	source .venv/bin/activate
+	uv run tests/update_test_data.py --check-up-to-date
+
 # Run static type checking using Pyright.
 [arg("compare",long,value="1")]
 pyright compare="0":

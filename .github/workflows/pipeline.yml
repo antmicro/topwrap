@@ -55,6 +55,22 @@ jobs:
           git push -u origin +HEAD:gh-pages
           rm -rf .git
 
+  check_update_testfiles:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+
+    steps:
+      - name: Install just
+        run: *install_deps
+
+      - uses: actions/checkout@v4
+
+      - name: Check KPM testfiles
+        run: |
+          just install-debian-deps
+          just check-update-testfiles
+
   examples:
     runs-on: ubuntu-latest
     container:

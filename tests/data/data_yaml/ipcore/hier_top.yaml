@@ -2,12 +2,13 @@ id:
   library: libdefault
   name: hier_top
   vendor: vendor
+  version: '0.1'
 signals:
   in:
-  - {name: clk}
-  - {name: btn}
-  - {name: rst}
+    - {name: clk}
+    - {name: rst}
+    - {name: btn}
   out:
-  - {name: disp2}
-  - {name: disp1}
-  - {name: disp0}
+    - {name: disp2}
+    - {name: disp1}
+    - {name: disp0}
