@@ -34,9 +34,9 @@ class PluginManager:
                     raise TypeError("Must inherit from plugin")
                 priority = getattr(plugin_cls, "priority", 0)
                 unsorted.append((priority, entry.name, plugin_cls()))
-                print(f"Loaded plugin {entry.name}")
+                logger.info(f"Loaded plugin {entry.name}")
             except Exception as e:
-                print(f"Error loading {entry.name}: {e}")
+                logger.error(f"Error loading {entry.name}: {e}")
 
         self.plugins = sorted(unsorted, key=lambda x: x[0], reverse=True)
         self.loaded = True

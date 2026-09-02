@@ -73,11 +73,11 @@ class BuildPipeline:
         sources: list[Source],
         design_source: Optional[Source],
     ):
-        logger.info("Preparing modules")
+        logger.debug("Preparing modules")
 
         # Pre-parse logic
         for i in self.inputs:
-            logger.info(f"Pre-parsing design using: {i.name}")
+            logger.debug(f"Pre-parsing design using: {i.name}")
             i.pre_parse_input(design_source, sources)
 
         repo_interfaces = load_interfaces_from_repos()
@@ -95,7 +95,7 @@ class BuildPipeline:
 
         self.plugin_manager.trigger(BasePlugin.pre_ir_generation, self.ctx)
         for i in self.inputs:
-            logger.info(f"Processing inputs using: {i.name}")
+            logger.debug(f"Processing inputs using: {i.name}")
             i.process_input(design_source, sources, self.ctx)
         self.plugin_manager.trigger(BasePlugin.post_ir_generation, self.ctx)
 

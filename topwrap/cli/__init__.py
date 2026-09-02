@@ -73,7 +73,7 @@ def cmd(
         .. deprecated:: 1.0.0
     """
     err_rewriter = MarshmallowErrorRewriter()
-    levelname = None if log_level is None else log_level.name
+    levelname = log_level.name if log_level else LOG_LEVEL.INFO.name
     topwrap.logger.configure(levelname, log_cfg)
 
     processed_tokens = []

@@ -109,7 +109,7 @@ class ConfigManager:
                 new_config = Config.load(path)
                 config.update(new_config)
             except (marshmallow.ValidationError, yaml.YAMLError) as e:
-                logger.warning(f"{path} configuration file is not valid ({e})")
+                logger.warning(f"{path} configuration file is not valid ({e}), skipping")
                 continue
 
         if overrides is not None:

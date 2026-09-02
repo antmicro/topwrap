@@ -292,7 +292,7 @@ class Design(ModelBase):
             for clock in comp.module.clocks:
                 clock_dom = comp.clocks[clock._id]
 
-                logger.info(
+                logger.debug(
                     f"Connecting clock '{clock.name}' of module '{comp.name}' to "
                     f"clock domain '{clock_dom.name}' "
                     f"({_ref_port_str(clock_dom.clock)} to "
@@ -333,7 +333,7 @@ class Design(ModelBase):
                     )
 
                 invert_msg = "(inverted due to polarity)" if invert else ""
-                logger.info(
+                logger.debug(
                     f"Connecting reset '{reset.name}' of module '{comp.name}' to "
                     f"reset domain '{reset_dom.name}' "
                     f"({_ref_port_str(reset_dom.reset)} to "

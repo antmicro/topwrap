@@ -75,11 +75,11 @@ class YamlFrontend(Frontend):
             ports = modules[-1].ports
             interfaces = modules[-1].interfaces
             for p in params:
-                logger.info("Found parameter {}".format(p.name))
+                logger.debug("Found parameter {}".format(p.name))
             for p in ports:
-                logger.info("Found port {} {}".format(p.name, p.direction.name))
+                logger.debug("Found port {} {}".format(p.name, p.direction.name))
             for i in interfaces:
-                logger.info("Found interface {}".format(i.name))
+                logger.debug("Found interface {}".format(i.name))
 
         return FrontendParseOutput(modules=modules, positions=positions)
 

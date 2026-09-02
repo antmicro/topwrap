@@ -488,7 +488,7 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
                     and rhs.io.direction.value == "inout"
                     and lhs.io.name == rhs.io.name
                 ):
-                    logger.info("Skipping inout IO representation")
+                    logger.debug("Skipping inout IO representation")
                     continue
 
                 if not conn.invert:

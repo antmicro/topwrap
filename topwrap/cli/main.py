@@ -482,7 +482,7 @@ def clean_cache(*, target: Annotated[Optional[CacheTarget], Parameter(alias="-t"
     """
     for name, cache_dir in _cache_dirs(target).items():
         if not cache_dir.exists():
-            logger.info(f"No '{name.value}' cache found at '{cache_dir}'")
+            logger.info(f"No '{name.value}' cache found at '{cache_dir}', skipping")
             continue
         shutil.rmtree(cache_dir)
         logger.info(f"Removed '{name.value}' cache at '{cache_dir}'")
