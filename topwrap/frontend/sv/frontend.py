@@ -28,15 +28,19 @@ class SystemVerilogFrontend(Frontend):
         modules: Iterable[Module] = (),
         interfaces: Iterable[InterfaceDefinition] = (),
         approach: FrontendApproach = FrontendApproach.STRICT,
+        skip_selects: bool = False,
     ) -> None:
         super().__init__(modules, interfaces, approach)
+        self._skip_selects = skip_selects
 
     @property
     def metadata(self):
         return FrontendMetadata(name="systemverilog", file_association=[".sv", ".svh", ".v", ".vh"])
 
     def _parser_instance(self) -> SystemVerilogSlangParser:
-        return SystemVerilogSlangParser(modules=self.modules, interfaces=self.interfaces)
+        return SystemVerilogSlangParser(
+            modules=self.modules, interfaces=self.interfaces, skip_selects=self._skip_selects
+        )
 
     def _parse_tree(self, inst: SystemVerilogSlangParser, tree: SyntaxTree) -> FrontendParseOutput:
         modules, interfaces, warnings, errors = inst.parse_tree(tree)

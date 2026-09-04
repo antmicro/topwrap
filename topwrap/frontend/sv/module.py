@@ -1070,6 +1070,8 @@ class _ModuleAstParserState:
         value_sources: list[Union[ReferencedPort, ElaboratableValue]],
         through_logic: bool,
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
+        if self.parser._skip_selects:
+            return value_sources, through_logic
         select_out = self._create_select(select_name, value_sources, through_logic)
         return ([select_out], False) if select_out is not None else ([], False)
 
@@ -1451,7 +1453,7 @@ class _ModuleAstParserState:
         through_logic: bool,
         selects_txt: str,
     ) -> Optional[tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]]:
-        if selects_txt.strip() == "":
+        if self.parser._skip_selects or selects_txt.strip() == "":
             return (sources, through_logic)
         cur_sources: list[Union[ReferencedPort, ElaboratableValue]] = [*sources]
         cur_logic = through_logic
@@ -3105,11 +3107,16 @@ class SystemVerilogSlangParser:
     #: Interface names that currently use placeholder definitions.
     _placeholder_interfaces: set[str]
 
+    #: Connect whole signals in place of their selects, without select nodes.
+    #: Lossy (widths no longer match), so meant only for visualisation.
+    _skip_selects: bool
+
     def __init__(
         self,
         modules: Iterable[Module] = (),
         interfaces: Iterable[InterfaceDefinition] = (),
         src_man: Optional[ps.SourceManager] = None,
+        skip_selects: bool = False,
     ) -> None:
         self.src_man = ps.SourceManager() if src_man is None else src_man
         self._modules = {_ir_id_to_sv_str(m.id): m for m in modules}
@@ -3131,6 +3138,7 @@ class SystemVerilogSlangParser:
         self._modport_names = {
             (iname, mode.value): mode for iname in self._interfaces for mode in InterfaceMode
         }
+        self._skip_selects = skip_selects
 
     def parse_tree(
         self, tree: ps.SyntaxTree
