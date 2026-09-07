@@ -32,19 +32,24 @@ class KpmBackend(Backend[KpmOutput]):
         *,
         disabled_layers: Optional[list[str]] = None,
         positions: Optional[dict[Identifier, Positions]] = None,
+        merge_ports_into_intfs: bool = False,
     ) -> None:
         super().__init__()
         self.depth = depth
         self.disabled_layers = disabled_layers
         self.positions = positions
+        self.merge_ports_into_intfs = merge_ports_into_intfs
 
     @override
     def represent(self, module: Module) -> KpmOutput:
-        spec = KpmSpecificationBackend.default()
+        spec = KpmSpecificationBackend.default(self.merge_ports_into_intfs)
         spec.add_module(module, recursive=True)
         spec = spec.build()
         flow = KpmDataflowBackend(
-            spec, disabled_layers=self.disabled_layers, positions=self.positions
+            spec,
+            disabled_layers=self.disabled_layers,
+            positions=self.positions,
+            merge_ports_into_intfs=self.merge_ports_into_intfs,
         )
         if module.design is not None:
             flow.represent_design(module.design, depth=self.depth)

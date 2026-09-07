@@ -98,6 +98,7 @@ class KpmDataflowBackend:
         *,
         disabled_layers: Optional[list[str]] = None,
         positions: Optional[dict[Identifier, Positions]] = None,
+        merge_ports_into_intfs: bool = False,
     ) -> None:
         """
         :param specification: The specification to base this dataflow on
@@ -113,6 +114,7 @@ class KpmDataflowBackend:
         self._subgraph_counts = {}
         self._disabled_layers = disabled_layers or []
         self._positions = positions or {}
+        self._merge_ports_into_intfs = merge_ports_into_intfs
 
         for node in self._spec["nodes"]:
             add: Optional[KpmNodeAdditionalData] = node.get("additionalData")
@@ -280,7 +282,7 @@ class KpmDataflowBackend:
             )
         }
         for intf in chain(comp.module.interfaces, comp.module.non_intf_ports()):
-            dir = kpm_dir_from(intf.direction if isinstance(intf, Port) else intf.mode)
+            dir = self._kpm_dir(intf)
             kpm_intf = KpmInterface(
                 name=intf.name,
                 direction=dir,
@@ -289,10 +291,26 @@ class KpmDataflowBackend:
             node.interfaces.append(kpm_intf)
             refs[(comp, id(ir_io[intf.name]))] = kpm_intf
 
+    def _kpm_dir(self, io: Union[Port, Interface]) -> Direction:
+        if isinstance(io, Port):
+            return kpm_dir_from(io.direction)
+        # A merged interface carries signals of both directions.
+        return Direction.INOUT if self._merge_ports_into_intfs else kpm_dir_from(io.mode)
+
+    def _resolve_io(
+        self, inst: Optional[ModuleInstance], port: Port
+    ) -> tuple[Union[Port, Interface], tuple[Optional[ModuleInstance], int]]:
+        """Return the IO a connection end is drawn on, and its key in the refs."""
+        if self._merge_ports_into_intfs:
+            for intf in port.parent.interfaces:
+                if any(sig and sig.io == port for sig in intf.signals.values()):
+                    return intf, (inst, id(intf))
+        return port, (inst, id(port))
+
     def add_external(
         self, graph: DataflowGraph, io: Union[Port, Interface], refs: _REFTYPE, pos: Positions
     ) -> Node:
-        dir = kpm_dir_from(io.direction if isinstance(io, Port) else io.mode)
+        dir = self._kpm_dir(io)
         if dir == Direction.INPUT:
             node = InMetanode()
         elif dir == Direction.OUTPUT:
@@ -335,7 +353,7 @@ class KpmDataflowBackend:
         port = conn.target.io
         if port is None:
             raise TranslationError("Connection to Logic with an unreferenced port")
-        tgt_key = (conn.target.instance, id(port))
+        port, tgt_key = self._resolve_io(conn.target.instance, port)
         if tgt_key not in ref and conn.target.instance is None:
             self.add_external(graph, port, ref, pos)
         self._connect(graph, node.interfaces[0], ref[tgt_key])
@@ -348,14 +366,17 @@ class KpmDataflowBackend:
         if port1 is None or port2 is None:
             raise TranslationError("Connection to Logic with an unreferenced port")
 
-        src_key = (conn.source.instance, id(port1))
-        tgt_key = (conn.target.instance, id(port2))
-        if src_key not in ref and conn.source.instance is None:
-            self.add_external(graph, port1, ref, pos)
-        if tgt_key not in ref and conn.target.instance is None:
-            self.add_external(graph, port2, ref, pos)
+        io1, src_key = self._resolve_io(conn.source.instance, port1)
+        io2, tgt_key = self._resolve_io(conn.target.instance, port2)
+        # An interface edge can bundle several signals, so it has no single polarity.
+        skip_inverter = isinstance(io1, Interface) and isinstance(io2, Interface)
 
-        if conn.invert:
+        if src_key not in ref and conn.source.instance is None:
+            self.add_external(graph, io1, ref, pos)
+        if tgt_key not in ref and conn.target.instance is None:
+            self.add_external(graph, io2, ref, pos)
+
+        if conn.invert and not skip_inverter:
             node = graph.create_node(
                 name=InverterMetanode.name,
                 instance_name=InverterMetanode.name,
@@ -376,7 +397,7 @@ class KpmDataflowBackend:
             ref1 = ref[src_key]
             ref2 = ref[tgt_key]
 
-            if ref1.direction is Direction.INPUT:
+            if ref1.direction is Direction.INPUT or ref2.direction is Direction.OUTPUT:
                 ref1, ref2 = ref2, ref1
 
             self._connect(
@@ -507,7 +528,12 @@ class KpmDataflowBackend:
         )
 
     def _connect(self, graph: DataflowGraph, i1: KpmInterface, i2: KpmInterface):
-        if i1.direction == Direction.INPUT:
+        if i1.direction == Direction.INOUT and i2.direction == Direction.OUTPUT:
+            i1, i2 = i2, i1
+        elif i1.direction == Direction.INPUT:
+            i1, i2 = i2, i1
+        elif i1.direction == i2.direction == Direction.INOUT and i1.id > i2.id:
+            # Fixed order, so a reversed duplicate raises ConnectionExistsError.
             i1, i2 = i2, i1
 
         try:

@@ -8,6 +8,7 @@ from typing import Iterable, cast
 
 from pipeline_manager.dataflow_builder.entities import Side
 from pipeline_manager.specification_builder import (
+    Direction,
     SpecificationBuilder,
     SpecificationBuilderException,
 )
@@ -56,20 +57,22 @@ class KpmSpecificationBackend:
     _intr: InterconnectMetanode
     _interfaces: set[str]
     _modules: dict[str, Module]
+    _merge_ports_into_intfs: bool
 
-    def __init__(self) -> None:
+    def __init__(self, merge_ports_into_intfs: bool = False) -> None:
         self._spec = SpecificationBuilder(spec_version=SPECIFICATION_VERSION)
         self._interfaces = set()
         self._modules = dict()
         self._ios = [mnode.value for mnode in IoMetanodes]
         self._intr = InterconnectMetanode()
+        self._merge_ports_into_intfs = merge_ports_into_intfs
 
     @classmethod
-    def default(cls):
+    def default(cls, merge_ports_into_intfs: bool = False):
         """Instantiate an empty specification with all Topwrap-specific
         metadata and metanodes included."""
 
-        self = cls()
+        self = cls(merge_ports_into_intfs)
         self._add_metadata()
         self._add_metanode(ConstMetanode())
         self._add_metanode(IdentifierMetanode())
@@ -139,8 +142,10 @@ class KpmSpecificationBackend:
                 nid.name,
                 intf.name,
                 itype,
-                kpm_dir_from(intf.mode).value,
-                maxcount=1,
+                Direction.INOUT.value
+                if self._merge_ports_into_intfs
+                else kpm_dir_from(intf.mode).value,
+                maxcount=-1 if self._merge_ports_into_intfs else 1,
                 side=Side.RIGHT.value if intf.mode == InterfaceMode.UNSPECIFIED else None,
             )
 
