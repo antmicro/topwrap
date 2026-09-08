@@ -1,0 +1,39 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: apache-2.0
+
+id:
+  name: veer_dccm
+  library: libdefault
+  vendor: vendor
+
+signals:
+  wren:
+    pattern: wren
+    modes: {manager: [out, required]}
+  rden:
+    pattern: rden
+    modes: {manager: [out, required]}
+  wr_addr_lo:
+    pattern: wr_addr_lo
+    modes: {manager: [out, required]}
+  wr_addr_hi:
+    pattern: wr_addr_hi
+    modes: {manager: [out, required]}
+  rd_addr_lo:
+    pattern: rd_addr_lo
+    modes: {manager: [out, required]}
+  rd_addr_hi:
+    pattern: rd_addr_hi
+    modes: {manager: [out, required]}
+  wr_data_lo:
+    pattern: wr_data_lo
+    modes: {manager: [out, required]}
+  wr_data_hi:
+    pattern: wr_data_hi
+    modes: {manager: [out, required]}
+  rd_data_lo:
+    pattern: rd_data_lo
+    modes: {manager: [in, required]}
+  rd_data_hi:
+    pattern: rd_data_hi
+    modes: {manager: [in, required]}

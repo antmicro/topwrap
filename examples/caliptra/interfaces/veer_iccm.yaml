@@ -1,0 +1,36 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: apache-2.0
+
+id:
+  name: veer_iccm
+  library: libdefault
+  vendor: vendor
+
+signals:
+  rw_addr:
+    pattern: rw_addr
+    modes: {manager: [out, required]}
+  wren:
+    pattern: wren
+    modes: {manager: [out, required]}
+  rden:
+    pattern: rden
+    modes: {manager: [out, required]}
+  wr_size:
+    pattern: wr_size
+    modes: {manager: [out, required]}
+  wr_data:
+    pattern: wr_data
+    modes: {manager: [out, required]}
+  buf_correct_ecc:
+    pattern: buf_correct_ecc
+    modes: {manager: [out, required]}
+  correction_state:
+    pattern: correction_state
+    modes: {manager: [out, required]}
+  rd_data:
+    pattern: rd_data
+    modes: {manager: [in, required]}
+  rd_data_ecc:
+    pattern: rd_data_ecc
+    modes: {manager: [in, required]}

@@ -1,0 +1,75 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: apache-2.0
+
+id:
+  name: AHB
+  library: libdefault
+  vendor: vendor
+
+signals:
+  HADDR:
+    pattern: haddr
+    modes: {manager: [out, required]}
+  HBURST:
+    pattern: hburst
+    modes: {manager: [out, optional]}
+  HMASTLOCK:
+    pattern: hmastlock
+    modes: {manager: [out, optional]}
+  HPROT:
+    pattern: hprot
+    modes: {manager: [out, optional]}
+  HSIZE:
+    pattern: hsize
+    modes: {manager: [out, required]}
+  HNONSEC:
+    pattern: hnonsec
+    modes: {manager: [out, optional]}
+  HEXCL:
+    pattern: hexcl
+    modes: {manager: [out, optional]}
+  HMASTER:
+    pattern: hmaster
+    modes: {manager: [out, optional]}
+  HTRANS:
+    pattern: htrans
+    modes: {manager: [out, required]}
+  HWDATA:
+    pattern: hwdata
+    modes: {manager: [out, required]}
+  HWSTRB:
+    pattern: hwstrb
+    modes: {manager: [out, optional]}
+  HWRITE:
+    pattern: hwrite
+    modes: {manager: [out, required]}
+  HRDATA:
+    pattern: hrdata
+    modes: {manager: [in, required]}
+  HREADY:
+    pattern: hready(in)?
+    modes: {manager: [in, optional], subordinate: [in, optional]}
+  HREADYOUT:
+    pattern: hreadyout
+    modes: {manager: [in, optional], subordinate: [out, required]}
+  HRESP:
+    pattern: hresp
+    modes: {manager: [in, required]}
+  HEXOKAY:
+    pattern: hexokay
+    modes: {manager: [in, optional]}
+  HSEL:
+    pattern: hsel
+    modes: {manager: [out, optional], subordinate: [in, required]}
+  HAUSER:
+    pattern: hauser
+    modes: {manager: [out, optional]}
+  HWUSER:
+    pattern: hwuser
+    modes: {manager: [out, optional]}
+  HRUSER:
+    pattern: hruser
+    modes: {manager: [in, optional]}
+  HBUSER:
+    pattern: hbuser
+    modes: {manager: [in, optional]}

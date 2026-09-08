@@ -1,0 +1,24 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: apache-2.0
+
+id:
+  name: veer_dmi
+  library: libdefault
+  vendor: vendor
+
+signals:
+  reg_en:
+    pattern: reg_en
+    modes: {subordinate: [in, required]}
+  reg_addr:
+    pattern: reg_addr
+    modes: {subordinate: [in, required]}
+  reg_wr_en:
+    pattern: reg_wr_en
+    modes: {subordinate: [in, required]}
+  reg_wdata:
+    pattern: reg_wdata
+    modes: {subordinate: [in, required]}
+  reg_rdata:
+    pattern: reg_rdata
+    modes: {subordinate: [out, required]}

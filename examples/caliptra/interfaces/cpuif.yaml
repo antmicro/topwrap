@@ -1,0 +1,24 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: apache-2.0
+
+id:
+  name: cpuif
+  library: libdefault
+  vendor: vendor
+
+signals:
+  address:
+    pattern: address
+    modes: {manager: [out, required]}
+  cs:
+    pattern: cs
+    modes: {manager: [out, required]}
+  we:
+    pattern: we
+    modes: {manager: [out, required]}
+  write_data:
+    pattern: write_data
+    modes: {manager: [out, required]}
+  read_data:
+    pattern: read_data
+    modes: {manager: [in, required]}

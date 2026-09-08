@@ -8,9 +8,11 @@ from pathlib import Path
 
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.common import LayerType
+from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.cli import load_interfaces_from_repos
 from topwrap.frontend.frontend import FrontendApproach
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
+from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.model.inference.inference import infer_interfaces_from_module
 from topwrap.util import collect_filelist_sources
 
@@ -37,7 +39,10 @@ modules = {
     .modules
 }
 
-[*intf_defs] = load_interfaces_from_repos()
+intf_defs = list(load_interfaces_from_repos())
+for path in sorted((HERE / "interfaces").glob("*.yaml")):
+    iface_def = InterfaceDefinitionDescription.from_yaml(path.read_text())
+    intf_defs.append(InterfaceDefinitionDescriptionFrontend().parse(iface_def))
 
 for mod in modules[top].hierarchy():
     infer_interfaces_from_module(
@@ -50,6 +55,7 @@ for mod in modules[top].hierarchy():
 kpm = KpmBackend(
     depth=-1,
     disabled_layers=[
+        LayerType.CONSTANT.value,
         LayerType.IDENT.value,
     ],
     merge_ports_into_intfs=True,

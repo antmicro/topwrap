@@ -1,0 +1,69 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: apache-2.0
+
+id:
+  name: veer_icache
+  library: libdefault
+  vendor: vendor
+
+signals:
+  ic_rw_addr:
+    pattern: ic_rw_addr
+    modes: {manager: [out, required]}
+  ic_tag_valid:
+    pattern: ic_tag_valid
+    modes: {manager: [out, required]}
+  ic_wr_en:
+    pattern: ic_wr_en
+    modes: {manager: [out, required]}
+  ic_rd_en:
+    pattern: ic_rd_en
+    modes: {manager: [out, required]}
+  ic_wr_data:
+    pattern: ic_wr_data
+    modes: {manager: [out, required]}
+  ic_rd_data:
+    pattern: ic_rd_data
+    modes: {manager: [in, required]}
+  ic_debug_rd_data:
+    pattern: ic_debug_rd_data
+    modes: {manager: [in, required]}
+  ictag_debug_rd_data:
+    pattern: ictag_debug_rd_data
+    modes: {manager: [in, required]}
+  ic_debug_wr_data:
+    pattern: ic_debug_wr_data
+    modes: {manager: [out, required]}
+  ic_eccerr:
+    pattern: ic_eccerr
+    modes: {manager: [in, required]}
+  ic_parerr:
+    pattern: ic_parerr
+    modes: {manager: [in, required]}
+  ic_premux_data:
+    pattern: ic_premux_data
+    modes: {manager: [out, required]}
+  ic_sel_premux_data:
+    pattern: ic_sel_premux_data
+    modes: {manager: [out, required]}
+  ic_debug_addr:
+    pattern: ic_debug_addr
+    modes: {manager: [out, required]}
+  ic_debug_rd_en:
+    pattern: ic_debug_rd_en
+    modes: {manager: [out, required]}
+  ic_debug_wr_en:
+    pattern: ic_debug_wr_en
+    modes: {manager: [out, required]}
+  ic_debug_tag_array:
+    pattern: ic_debug_tag_array
+    modes: {manager: [out, required]}
+  ic_debug_way:
+    pattern: ic_debug_way
+    modes: {manager: [out, required]}
+  ic_rd_hit:
+    pattern: ic_rd_hit
+    modes: {manager: [in, required]}
+  ic_tag_perr:
+    pattern: ic_tag_perr
+    modes: {manager: [in, required]}

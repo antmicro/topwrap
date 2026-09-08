@@ -1,0 +1,30 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: apache-2.0
+
+id:
+  name: veer_trace
+  library: libdefault
+  vendor: vendor
+
+signals:
+  insn_ip:
+    pattern: insn_ip
+    modes: {manager: [out, required]}
+  address_ip:
+    pattern: address_ip
+    modes: {manager: [out, required]}
+  valid_ip:
+    pattern: valid_ip
+    modes: {manager: [out, required]}
+  exception_ip:
+    pattern: exception_ip
+    modes: {manager: [out, required]}
+  ecause_ip:
+    pattern: ecause_ip
+    modes: {manager: [out, required]}
+  interrupt_ip:
+    pattern: interrupt_ip
+    modes: {manager: [out, required]}
+  tval_ip:
+    pattern: tval_ip
+    modes: {manager: [out, required]}
