@@ -299,7 +299,7 @@ def _match_intf_signals_to_ports(
 def _deduce_intf_mode_from_ports(
     module: Module,
     matched_ports: dict[str, InterfaceSignal],
-    name: str,
+    cand_name: str,
     ports: dict[str, PortSelector],
     intf: InterfaceDefinition,
 ) -> Optional[InterfaceMode]:
@@ -348,8 +348,8 @@ def _deduce_intf_mode_from_ports(
 
     if manager_count == subordinate_count:
         logger.warning(
-            f"Unable to infer mode for candidate interface {name} (definition {intf.id.name}). "
-            "There is an equal amount of manager and subordinate ports."
+            f"Unable to infer mode for candidate interface {cand_name} (definition {intf.id.name})."
+            " There is an equal amount of manager and subordinate ports."
         )
         logger.warning("Manager ports:")
         _log_set(manager_set, None)
@@ -359,8 +359,8 @@ def _deduce_intf_mode_from_ports(
     elif manager_count > subordinate_count:
         if subordinate_count > 0:
             logger.warning(
-                f"Interface {name} (definition {intf.id.name}) was deduced to likely be a manager"
-                " interface, but the following signals have the wrong direction:"
+                f"Interface {cand_name} (definition {intf.id.name}) was deduced to likely be a "
+                "manager interface, but the following signals have the wrong direction:"
             )
             _log_set(subordinate_set, InterfaceMode.MANAGER)
             return None
@@ -368,7 +368,7 @@ def _deduce_intf_mode_from_ports(
     else:
         if manager_count > 0:
             logger.warning(
-                f"Interface {name} (definition {intf.id.name}) was deduced to likely be a "
+                f"Interface {cand_name} (definition {intf.id.name}) was deduced to likely be a "
                 "subordinate interface, but the following signals have the wrong direction:"
             )
             _log_set(manager_set, InterfaceMode.SUBORDINATE)
