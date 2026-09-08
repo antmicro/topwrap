@@ -20,6 +20,8 @@ from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMod
 from topwrap.model.misc import QuerableView
 from topwrap.model.module import Module
 
+logger = logging.getLogger(__name__)
+
 
 def parse_grouping_hints(grouping_hints: Iterable[str]) -> dict[str, str]:
     """
@@ -139,16 +141,14 @@ def _generate_struct_groups(
     for port in module.non_intf_ports():
         if isinstance(port.type, LogicArray) and isinstance(port.type.item, BitStruct):
             if len(port.type.dimensions) != 1:
-                logging.debug(
-                    f"Port {port.name} is a multi-dimensional array of structs, ignoring."
-                )
+                logger.debug(f"Port {port.name} is a multi-dimensional array of structs, ignoring.")
                 continue
 
             try:
                 lbound = int(port.type.dimensions[0].lower.value)
                 ubound = int(port.type.dimensions[0].upper.value)
             except ValueError:
-                logging.debug(
+                logger.debug(
                     f"Port {port.name} has non-integer bounds ["
                     f"{port.type.dimensions[0].upper.value}:"
                     f"{port.type.dimensions[0].lower.value}], ignoring."
@@ -326,7 +326,7 @@ def _deduce_intf_mode_from_ports(
         elif p_dir == s_dir:
             subordinate_set.add(name)
         else:
-            logging.warning(
+            logger.warning(
                 f"Port {str(port)} does not match any mode of signal {sig.name} of "
                 f"interface {intf.id.name}"
             )
@@ -344,21 +344,21 @@ def _deduce_intf_mode_from_ports(
                 sig_mode = sig.modes[deduced_mode]
                 p_dir = module.ports.find_by_name_or_error(port.port).direction
                 dir_comparison = f" ({sig_mode.direction.value} != {p_dir.value})"
-            logging.warning(f" - {sig.name} (port {str(port)}){dir_comparison}")
+            logger.warning(f" - {sig.name} (port {str(port)}){dir_comparison}")
 
     if manager_count == subordinate_count:
-        logging.warning(
+        logger.warning(
             f"Unable to infer mode for candidate interface {name} (definition {intf.id.name}). "
             "There is an equal amount of manager and subordinate ports."
         )
-        logging.warning("Manager ports:")
+        logger.warning("Manager ports:")
         _log_set(manager_set, None)
-        logging.warning("Subordinate ports:")
+        logger.warning("Subordinate ports:")
         _log_set(subordinate_set, None)
         return None
     elif manager_count > subordinate_count:
         if subordinate_count > 0:
-            logging.warning(
+            logger.warning(
                 f"Interface {name} (definition {intf.id.name}) was deduced to likely be a manager"
                 " interface, but the following signals have the wrong direction:"
             )
@@ -367,7 +367,7 @@ def _deduce_intf_mode_from_ports(
         return InterfaceMode.MANAGER
     else:
         if manager_count > 0:
-            logging.warning(
+            logger.warning(
                 f"Interface {name} (definition {intf.id.name}) was deduced to likely be a "
                 "subordinate interface, but the following signals have the wrong direction:"
             )
@@ -515,7 +515,7 @@ def infer_interfaces_from_module(
         # If the set of ports used by the candidate interface overlaps the set of used ports,
         # ignore this candidate.
         if cand_ports.intersection(used_ports):
-            logging.info(
+            logger.info(
                 f"Candidate interface {candidate.name} (definition {cand_def.id}) "
                 "ignored: set of ports overlaps ports used by other interface(s)"
             )
@@ -531,4 +531,4 @@ def infer_interfaces_from_module(
 
         module.add_interface(candidate)
 
-        logging.info(f"Inferred interface {name} (definition {cand_def.id}) in module {module.id}")
+        logger.info(f"Inferred interface {name} (definition {cand_def.id}) in module {module.id}")
