@@ -68,7 +68,7 @@ def cmd(
             processed_tokens.append(tokens[i])
 
     for rep in repo:
-        get_config().repositories[rep.name] = FileReferenceHandler(rep)
+        get_config().update_repo({rep.name: FileReferenceHandler(rep)})
 
     try:
         PARSE_COMMAND = ["repo", "parse"]
