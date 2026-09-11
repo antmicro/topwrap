@@ -396,6 +396,7 @@ def kpm_run_server(
         )
     except Exception as e:
         logging.error(f"{e}")
+        sys.exit(1)
     finally:
         KPM.cleanup()
 
@@ -559,6 +560,7 @@ def topwrap_gui(
         logging.error(f"{e}")
         if raise_exception:
             raise e
+        sys.exit(1)
     finally:
         KPM.cleanup()
 

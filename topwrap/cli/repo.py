@@ -124,6 +124,7 @@ def parse_repo(
         ResourceNotSupportedException,
     ) as e:
         logging.error(e)
+        exit(1)
     except OSError as e:
         logger.warning(
             "Path {} exceeding the limit. Contents of the file won't be used.".format(e.filename)
@@ -179,7 +180,7 @@ def init_repo(
     path.mkdir(exist_ok=True, parents=True)
     if next(path.iterdir(), None) is not None:
         logging.error(f"The directory selected for the new repository ('{path}') is not empty")
-        return
+        exit(1)
     repo = UserRepo(name)
     repo.save(path)
     get_config().repositories[name] = FileReferenceHandler(path)

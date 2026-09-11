@@ -15,6 +15,7 @@ import topwrap.cli.main  # noqa: F401
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.cli import cli
 from topwrap.frontend.ipxact.frontend import IpXactFrontend
+from topwrap.plugin.base import BuildException
 from topwrap.util import get_config
 
 pytest_plugins = "tests.tests_ir.frontend.test_automatic"
@@ -22,6 +23,10 @@ pytest_plugins = "tests.tests_ir.frontend.test_automatic"
 
 def run_cli(*tokens: str, exit_on_error: bool = True):
     return cli.meta(list(tokens), result_action="return_value", exit_on_error=exit_on_error)
+
+
+def fail_to_run_server(**_kwargs):
+    raise RuntimeError("server startup failed")
 
 
 class TestCli:
@@ -65,6 +70,54 @@ class TestCli:
             run_cli("build", "-d", "./tests/test_cli/sample_design.yaml")
         assert exc_info.value.code == 1
 
+    @pytest.mark.parametrize(
+        ("command", "pipeline_factory"),
+        [
+            (("build", "-d", "tests/test_cli/sample_design.yaml"), "yaml_sv_pipeline"),
+            (("ipxact_gen", "tests/test_cli/sample_design.yaml"), "yaml_ipxact_pipeline"),
+            (("specification",), "yaml_kpm_spec_pipeline"),
+            (("dataflow", "-d", "tests/test_cli/sample_design.yaml"), "yaml_kpm_flow_pipeline"),
+        ],
+    )
+    def test_pipeline_commands_return_error_status(
+        self, monkeypatch: pytest.MonkeyPatch, command: tuple[str, ...], pipeline_factory: str
+    ):
+        class FailingPipeline:
+            def run_files(self, *_args, **_kwargs):
+                raise BuildException("pipeline failed")
+
+        def create_failing_pipeline(*_args, **_kwargs):
+            return FailingPipeline()
+
+        monkeypatch.setattr(
+            topwrap.cli.main.BuildPipeline,
+            pipeline_factory,
+            staticmethod(create_failing_pipeline),
+        )
+
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli(*command)
+
+        assert exc_info.value.code == 1
+
+    def test_kpm_client_returns_error_status_when_pipeline_preparation_fails(
+        self, monkeypatch: pytest.MonkeyPatch
+    ):
+        class FailingPipeline:
+            def prepare_files(self, *_args, **_kwargs):
+                raise BuildException("pipeline preparation failed")
+
+        monkeypatch.setattr(
+            topwrap.cli.main.BuildPipeline,
+            "yaml_kpm_spec_pipeline",
+            staticmethod(lambda *_args, **_kwargs: FailingPipeline()),
+        )
+
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli("kpm_client")
+
+        assert exc_info.value.code == 1
+
     def create_socket_client(self, sock: socket.socket, exit: threading.Event):
         sock.listen(1)
         sock.settimeout(0.5)
@@ -106,6 +159,30 @@ class TestCli:
                 socket_exit.set()
                 raise e
             assert future.result()
+
+    def test_kpm_run_server_returns_error_status(self, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.setattr(topwrap.cli.main.KPM, "run_server", staticmethod(fail_to_run_server))
+
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli("kpm_run_server")
+
+        assert exc_info.value.code == 1
+
+    def test_gui_returns_error_status_when_server_startup_fails(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ):
+        monkeypatch.setattr(topwrap.cli.main.KPM, "run_server", staticmethod(fail_to_run_server))
+
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli(
+                "gui",
+                "--frontend-directory",
+                str(tmp_path),
+                "--workspace-directory",
+                str(tmp_path),
+            )
+
+        assert exc_info.value.code == 1
 
     def test_generate_kpm_spec(self, build_yaml_files: List[Path], tmp_path: Path):
         converted = tuple(map(lambda p: str(p), build_yaml_files))
@@ -233,6 +310,26 @@ class TestCleanCacheCli:
 
 
 class TestRepoCli:
+    def test_repo_parse_without_sources_returns_error_status(self, tmp_path: Path):
+        repo_path = tmp_path / "repo_without_sources"
+        repo_path.mkdir()
+
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli("--repo", str(repo_path), "repo", "parse", repo_path.name)
+
+        assert exc_info.value.code == 1
+
+    def test_repo_parse_with_unknown_repository_returns_error_status(self):
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli(
+                "repo",
+                "parse",
+                "unknown_repository",
+                "tests/test_cli/sample_design.yaml",
+            )
+
+        assert exc_info.value.code == 1
+
     def test_repo_init(self, tmpdir: Path):
         tmpdir = Path(tmpdir)
         path = tmpdir / "repos" / "repo_directory"
@@ -264,7 +361,10 @@ class TestRepoCli:
         tmpdir = Path(tmpdir)
         (tmpdir / "hello.file").write_text("I am a file")
 
-        run_cli("repo", "init", "name", str(tmpdir))
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli("repo", "init", "name", str(tmpdir))
+
+        assert exc_info.value.code == 1
 
         for _, level, message in caplog.record_tuples:
             if level == logging.ERROR and "not empty" in message:
@@ -339,7 +439,10 @@ class TestRepoCli:
         _, sources = all_sources
 
         repo_path = Path(tmpdir) / "repo_parse_norm"
-        self.invoke_parse(repo_path, *(str(p) for p in sources))
+        with pytest.raises(SystemExit) as exc_info:
+            self.invoke_parse(repo_path, *(str(p) for p in sources))
+
+        assert exc_info.value.code == 1
 
         for _, level, message in caplog.record_tuples:
             if level == logging.ERROR and '"top" already exists' in message:
