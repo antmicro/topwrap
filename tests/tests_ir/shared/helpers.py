@@ -326,14 +326,5 @@ def get_caliptra_sources() -> tuple[list[Path], set[Path]]:
     here = Path(__file__).resolve().parent
     caliptra_path = (here / "../../../examples/caliptra/Caliptra").resolve()
     if not caliptra_path.is_dir():
-        subprocess.run(
-            [
-                "git",
-                "clone",
-                "https://github.com/chipsalliance/caliptra-rtl.git",
-                caliptra_path.name,
-            ],
-            cwd=caliptra_path.parent,
-            check=True,
-        )
+        subprocess.run(["make", "Caliptra"], cwd=caliptra_path.parent, check=True)
     return collect_filelist_sources(caliptra_path)
