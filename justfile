@@ -20,7 +20,8 @@ install-debian-deps docs="0":
         npm \
         g++ \
         make \
-        yosys
+        yosys \
+        verilator
 
     if [[ {{docs}} == "1" ]];then apt-get install -y texlive-full imagemagick make chromium; fi
 

@@ -35,7 +35,6 @@ module tb;
         $fatal("timeout, bvalid never arrived");
       end
     join_any
-    disable fork;
   end
 
   initial begin
@@ -57,7 +56,6 @@ module tb;
   initial begin
     wait (dut.axi_interconnect.i_subordinator_axi_example_iface_rvalid == 1);
     rdata_value = dut.axi_interconnect.i_subordinator_axi_example_iface_rdata;
-    #(CLK_PEROID * 0);
     assert (dut.axi_interconnect.o_manager_axi_example_iface_rvalid == 1);
     assert (rdata_value == dut.axi_interconnect.o_manager_axi_example_iface_rdata);
   end

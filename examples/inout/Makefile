@@ -15,14 +15,13 @@ JSONS = kpm_spec.json kpm_dataflow.json
 # -------------------------------------
 PART	:=	xc7z010clg400-1
 
-TOOL	:=	symbiflow
-# TOOL	:=	vivado
+TOOL	:=	vivado
 
-TARGET  := 	zynq
+TARGET  := 	default
 # -------------------------------------
 # Topwrap
 # -------------------------------------
-all: bit
+all: generate
 
 parse: clean setup
 	topwrap repo init ${REPO_NAME} ${REPO_NAME}
@@ -35,7 +34,7 @@ generate: parse copy_sources
 # Bitstream generation
 # -------------------------------------
 bit: generate fusesoc_init
-	fusesoc --cores-root build run --tool=${TOOL} --build --target ${TARGET} project_1
+	fusesoc --cores-root build run --tool=${TOOL} --build --target ${TARGET} project_top
 
 # -------------------------------------
 # Utilities

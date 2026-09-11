@@ -140,7 +140,7 @@ def _compare_clocks_resets(left: Module, right: Module):
     l_clock_names = [clk.name for clk in left.clocks]
     r_clock_names = [clk.name for clk in right.clocks]
 
-    assert len(l_clock_names) == len(set(r_clock_names))
+    assert len(l_clock_names) == len(set(l_clock_names))
     assert len(r_clock_names) == len(set(r_clock_names))
 
     # Check that clocks have the same ports
@@ -165,8 +165,12 @@ def _compare_parameters(left: Module, right: Module):
     assert len(l_param_names) == len(set(l_param_names))
     assert len(r_param_names) == len(set(r_param_names))
 
-    # Check that parameters are the same
-    assert set(left.parameters) == set(right.parameters)
+    # Check that parameters are the same. Parameter is unhashable, so compare by name.
+    l_params = {param.name: param for param in left.parameters}
+    r_params = {param.name: param for param in right.parameters}
+    assert l_params.keys() == r_params.keys()
+    for name in l_params:
+        assert l_params[name] == r_params[name]
 
 
 def _compare_modules(left: Module, right: Module, compare_designs: bool = True):
@@ -178,6 +182,7 @@ def _compare_modules(left: Module, right: Module, compare_designs: bool = True):
 
     assert _module_non_intf_port_dict(left) == _module_non_intf_port_dict(right)
     _compare_clocks_resets(left, right)
+    _compare_parameters(left, right)
 
     if compare_designs:
         if left.design and right.design:

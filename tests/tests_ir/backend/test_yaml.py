@@ -1156,7 +1156,7 @@ class TestDesignIpPipeline:
         monkeypatch.chdir(src.parent)
 
         if run_make:
-            subprocess.run("make")
+            subprocess.run("make", check=True)
 
         # Reload config for the duration of this test
         monkeypatch.setattr("topwrap.config.config", ConfigManager().load())
