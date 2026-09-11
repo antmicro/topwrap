@@ -310,6 +310,29 @@ class TestCleanCacheCli:
 
 
 class TestRepoCli:
+    def test_repo_with_unloadable_core_returns_error_status(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ):
+        repo_path = tmp_path / "broken_repo"
+        (repo_path / "cores" / "broken").mkdir(parents=True)
+        (repo_path / "cores" / "broken" / "module.yaml").write_text("this: is: not: a: module\n")
+
+        try:
+            with pytest.raises(SystemExit) as exc_info:
+                run_cli(
+                    "--repo",
+                    str(repo_path),
+                    "specification",
+                    "-o",
+                    str(tmp_path / "spec.json"),
+                )
+
+            assert exc_info.value.code == 1
+            assert "Could not load core 'broken'" in caplog.text
+        finally:
+            del get_config().repositories[repo_path.name]
+            get_config().__dict__.pop("loaded_repos", None)
+
     def test_repo_parse_without_sources_returns_error_status(self, tmp_path: Path):
         repo_path = tmp_path / "repo_without_sources"
         repo_path.mkdir()

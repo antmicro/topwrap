@@ -101,6 +101,7 @@ def load_modules_from_repos() -> tuple[Iterable[Module], set[Identifier]]:
 
     modules = list[Module]()
     existing_ifaces = set[Identifier]()
+    failed = False
     for repo in get_config().loaded_repos.values():
         for core in repo.get_resources(Core):
             try:
@@ -108,6 +109,13 @@ def load_modules_from_repos() -> tuple[Iterable[Module], set[Identifier]]:
                 existing_ifaces.update(core.existing_ifaces_ids)
             except Exception as e:
                 logger.error(f"Could not load core '{core.name}' from repo '{repo.name}': {e}")
+                failed = True
+
+    # Report every unloadable core before quitting, so that a single broken
+    # core doesn't hide the remaining ones
+    if failed:
+        sys.exit(1)
+
     return (modules, existing_ifaces)
 
 
