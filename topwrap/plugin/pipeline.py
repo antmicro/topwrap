@@ -167,11 +167,15 @@ class BuildPipeline:
                 try:
                     v.validate(mod, self.ctx)
                 except ValidationException as e:
-                    exceptions.append((v.name, e))
+                    exceptions.append((v.name, e, v.log_level))
         if exceptions:
-            for vname, e in exceptions:
-                logger.error(f"Validation {vname} return error {e}")
-            raise BuildException("Validation failed")
+            fail = False
+            for vname, e, lvl in exceptions:
+                logger.log(lvl, f"Validation {vname} return error {e}")
+                if lvl >= logging.ERROR:
+                    fail = True
+            if fail:
+                raise BuildException("Validation failed; see log for list of errors")
 
         self.plugin_manager.trigger(BasePlugin.post_validate, self.ctx)
 
@@ -260,8 +264,8 @@ class BuildPipeline:
                 MemoryMapTransformation(),
             ],
             validations=[
-                DomainDrivenValidationStage(),
-                InterconnectHasManagerSubordinateValidation(),
+                DomainDrivenValidationStage(logging.ERROR),
+                InterconnectHasManagerSubordinateValidation(logging.ERROR),
             ],
             outputs=outputs,
         )
@@ -276,8 +280,8 @@ class BuildPipeline:
                 MemoryMapTransformation(),
             ],
             validations=[
-                DomainDrivenValidationStage(),
-                InterconnectHasManagerSubordinateValidation(),
+                DomainDrivenValidationStage(logging.ERROR),
+                InterconnectHasManagerSubordinateValidation(logging.ERROR),
             ],
             outputs=[IPXACTOutputStage()],
         )
@@ -314,8 +318,8 @@ class BuildPipeline:
                 MemoryMapTransformation(),
             ],
             validations=[
-                DomainDrivenValidationStage(),
-                InterconnectHasManagerSubordinateValidation(),
+                DomainDrivenValidationStage(logging.WARNING),
+                InterconnectHasManagerSubordinateValidation(logging.WARNING),
             ],
             outputs=[
                 YamlDesignOutputStage(save_positions=True),

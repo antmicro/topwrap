@@ -92,6 +92,9 @@ class Validation(ABC):
     #: a design.
     design_only: bool
 
+    # The number corresponding to the log level of a validation check
+    log_level: int
+
     @abstractmethod
     def validate(self, mod: Module, ctx: BuildContext):
         """
@@ -514,6 +517,10 @@ class DomainDrivenValidationStage(Validation):
     priority: int = 10
     design_only: bool = True
 
+    def __init__(self, log_level: int):
+        self.log_level = log_level
+        super().__init__()
+
     def validate(self, mod: Module, ctx: BuildContext):
         if mod.design is None:
             raise BuildException("DomainDrivenValidation: design is None")
@@ -536,6 +543,10 @@ class InterconnectHasManagerSubordinateValidation(Validation):
     name: str = "Check whether each interconnect has at least one subordinate and one manager"
     priority: int = 10
     design_only: bool = True
+
+    def __init__(self, log_level: int):
+        self.log_level = log_level
+        super().__init__()
 
     def validate(self, mod: Module, ctx: BuildContext):
         if mod.design is None:
