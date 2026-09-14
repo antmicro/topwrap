@@ -9,11 +9,10 @@ set_msg_config -id {Common 17-55} -new_severity {Warning}
 # Add Sources
 
 read_verilog {sources/crg.v}
-read_verilog {sources/mem.v}
+read_verilog -sv {sources/mem.v}
 read_verilog {sources/VexRiscv.v}
-read_verilog {sources/wb_interconnect.v}
-read_verilog {sources/wb_uart.v}
-read_verilog {build/simple_soc.v}
+read_verilog -sv {sources/wb_uart.v}
+read_verilog -sv {build/simple_soc.sv}
 
 # Add constraints
 
