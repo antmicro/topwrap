@@ -150,7 +150,7 @@ def _generate_struct_groups(
             except ValueError:
                 logging.debug(
                     f"Port {port.name} has non-integer bounds ["
-                    f"{int(port.type.dimensions[0].upper.value)}:"
+                    f"{port.type.dimensions[0].upper.value}:"
                     f"{port.type.dimensions[0].lower.value}], ignoring."
                 )
                 continue
