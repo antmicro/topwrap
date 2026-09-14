@@ -74,6 +74,14 @@ pyright compare="0":
 	uv sync --extra tests
 	if [[ {{compare}} == "1" ]];then uv run scripts/pyright_check.py --compare; else uv run scripts/pyright_check.py; fi
 
+coverage_check:
+	uv sync --extra tests
+	uv run scripts/coverage_check.py
+
+print_coverage:
+	uv sync --extra tests
+	uv run scripts/coverage_check.py --print_coverage
+
 # Execute tests for a specific Python version.
 test version="3.10":
 	#!/usr/bin/env bash
