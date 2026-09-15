@@ -57,7 +57,7 @@ filesets:
 
 A single `.core` may contribute any number of modules and interfaces. Files without one of these types are ignored by Topwrap.
 
-The identifier a module or interface is known by comes from the `id:` field of the YAML file itself, not from the `name:` of the `.core` that lists it. Keep the two in agreement, or the core will advertise a name that nothing resolves by.
+The identifier a module or interface is known by comes from the `id:` field of its YAML file. The `.core` name identifies the owning FuseSoC package and may differ, for example when one package provides several Topwrap modules. Generated FuseSoC dependencies use that owning `.core` name.
 
 ## Referencing a library module
 
@@ -116,7 +116,7 @@ This creates `widget.yaml` and `widget.core` in `cores/widget`.
 
 Interface definitions declared by the input HDL are written as separate YAML files and, with `--lib`, listed in the generated core as `topwrapInterface`. Topwrap saves each full interface VLNV once. Definitions already supplied by a built-in, registered library, or user repository are referenced rather than duplicated in the new package.
 
-Filelists supplied with `-f` may contain source paths, `+incdir+`, `+define+`, and nested `-f` or `-F` entries. Relative paths inside a filelist are resolved from that filelist's directory.
+Filelists supplied with `--flist` may contain source paths, `+incdir+`, `+define+`, and nested `-f` or `-F` entries. Relative paths inside a filelist are resolved from that filelist's directory.
 
 The generated core records source files in its RTL fileset. Files found under `+incdir+` directories are marked as include files with their include path, while `+define+NAME` and `+define+NAME=VALUE` entries become FuseSoC `vlogdefine` parameters enabled on the default target.
 

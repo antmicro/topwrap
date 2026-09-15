@@ -150,7 +150,7 @@ The type and purpose of every such file is marked, e.g: `verilogSource`.
 </ipxact:fileSets>
 ```
 
-This concept currently only exists as a `--sources` CLI flag for `topwrap build` where all HDL sources are plainly forwarded to the FuseSoC .core.
+This concept currently only exists as a `--sources` CLI option for `topwrap generate --fusesoc`, where all recognized HDL and constraint sources are forwarded to the FuseSoC `.core`.
 There is no notion of other file dependencies inside IP Core description YAMLs.
 
 ### Vendor extensions

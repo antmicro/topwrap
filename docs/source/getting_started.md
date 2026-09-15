@@ -24,9 +24,9 @@ Metanodes are always utilized in designs to represent external input/output port
 They can be found in the "Metanode" section.
 :::
 
-## Adding Verilog sources to repository
+## Packaging Verilog sources
 
-The `verilogs` directory contains two Verilog files, `simple_core_1.v` and `simple_core_2.v`. Topwrap can automatically sparsecan them and create the necessary topwrap files using `topwrap package`:
+The `cores` directory contains two Verilog files, `simple_core_1.v` and `simple_core_2.v`. Topwrap can automatically scan them and create the necessary IP description files using `topwrap package`:
 
 ```bash
 topwrap package cores/simple_core_1.v --output cores
@@ -170,7 +170,7 @@ To generate the top file, use `topwrap generate` and provide the design. To do t
 topwrap generate {design_name.yaml}
 ```
 
-Where `{design_name.yaml}` is the design saved at the end of the previous section. This will generate a `top.v` Verilog top wrapper in the specified build directory (`./build/src` by default).
+Where `{design_name.yaml}` is the design saved at the end of the previous section. This generates a `top.sv` SystemVerilog top wrapper in the target directory (`./build/src` by default).
 
 ### Generating IPXACT 2022 files
 
@@ -180,17 +180,17 @@ To generate IP-XACT 2022 files from a design, use `topwrap generate --ipxact`:
 topwrap generate --ipxact {design_name.yaml}
 ```
 
-By default the generated files are written to the `build/src` directory. Change this with the `--build-dir` argument. Use `--iface-compliance` to force interface compliance checking.
+By default the generated files are written to the `build/src` directory. Change the parent directory with the `--target-dir` argument. Use `--iface-compliance` to force interface compliance checking.
 
 See [Backends](backends.md#ipxactbackend) for details on the backend driving this command.
 
 ### Synthesis & FuseSoC
 
-You can additionally generate a [FuseSoC core](#fusesoc) file during `topwrap generate` to automate further synthesis and implementation by simply adding the `-f` (`--fuse`) option.
+You can additionally generate a [FuseSoC core](fusesoc.md) file during `topwrap generate` to automate further synthesis and implementation by adding `--fusesoc`. The command also accepts `--part` for the FPGA part and repeatable `--sources` directories containing additional HDL or constraint sources.
 
 ### Logging
 
-Topwrap uses Python’s built-in `logging` module. By default, logging is configured with the `WARNING` level.
+Topwrap uses Python’s built-in `logging` module. By default, logging is configured with the `INFO` level.
 The default can be changed using the `--log-level` option:
 
 ```bash

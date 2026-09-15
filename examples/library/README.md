@@ -3,7 +3,7 @@ Copyright (c) 2026 [Antmicro](https://antmicro.com)
 # Example of a project using a FuseSoC library
 
 This example demonstrates the `libraries:` mechanism,
-successor to [user repositories](../user_repository). A library is a
+successor to [user repositories](../user_repository/README.md). A library is a
 directory (local, here, or a git repository) of
 [CAPI2](https://fusesoc.readthedocs.io/en/stable/ref/capi2.html) `.core`
 files, each marking which of its files Topwrap should treat as an IP core

@@ -9,7 +9,7 @@ Backend is a class that transforms IR into a specific output format. There are m
 ## SystemVerilogBackend
 
 SystemVerilogBackend class is used to generate a SystemVerilog top wrapper from a design.
-It is the backend used by `topwrap build`, see [Generating Verilog top files](getting_started.md#generating-verilog-top-files).
+It is the backend used by `topwrap generate`, see [Generating Verilog top files](../getting_started.md#generating-verilog-top-files).
 
 ## KpmBackend
 
@@ -27,8 +27,8 @@ IPXACTBackend class is used to generate IP-XACT 2022 files from a design.
 It produces `component`, `design` and `abstractionDefinition`/`busDefinition` files and relies on the `topwrap-ipxact-parser` library.
 For interconnects it reuses the SystemVerilog generators, as different HDL backends may yield different IR modules.
 
-This is the backend used by the `topwrap ipxact_gen` command, see [Generating IPXACT 2022 files](getting_started.md#generating-ipxact-2022-files).
-For details on the IP-XACT format and the Topwrap to IP-XACT conversion, see the [IP-XACT format](developers_guide/ipxact-design.md) document.
+This is the backend used by `topwrap generate --ipxact`, see [Generating IPXACT 2022 files](../getting_started.md#generating-ipxact-2022-files).
+For details on the IP-XACT format and the Topwrap to IP-XACT conversion, see the [IP-XACT format](ipxact-design.md) document.
 
 ### UNSPECIFIED interface type
 
