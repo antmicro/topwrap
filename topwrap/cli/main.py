@@ -25,10 +25,8 @@ from topwrap.cli import cli
 from topwrap.config_defaults import (
     DEFAULT_BACKEND_ADDR,
     DEFAULT_BACKEND_PORT,
-    DEFAULT_FRONTEND_DIR,
     DEFAULT_SERVER_ADDR,
     DEFAULT_SERVER_PORT,
-    DEFAULT_WORKSPACE_DIR,
 )
 from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
@@ -188,18 +186,6 @@ class KPM:
             raise error
 
     @staticmethod
-    def build_server(preserve_parent_state: bool, **params_dict: Any):
-        args = ["pipeline_manager", "build", "server-app"]
-        for k, v in params_dict.items():
-            Path(v).mkdir(exist_ok=True, parents=True)
-            args += [f"--{k}".replace("_", "-"), f"{v}"]
-
-        proc = _PipelineManagerProcess(args, preserve_parent_state)
-        proc.wait()
-        if proc.returncode:
-            raise RuntimeError(f"pipeline_manager build failed with exit code {proc.returncode}")
-
-    @staticmethod
     def run_server(
         preserve_parent_state: bool,
         server_ready_event: Optional[threading.Event] = None,
@@ -350,29 +336,8 @@ def kpm_client_main(
     KPM.cleanup()
 
 
-@cli.command(name="kpm_build_server")
-def kpm_build_server(
-    workspace_directory: Optional[Path] = None,
-    output_directory: Optional[Path] = None,
-    preserve_parent_state: bool = False,
-):
-    """Build KPM server"""
-    if workspace_directory is None:
-        workspace_directory = Path(get_config().kpm_build_location) / DEFAULT_WORKSPACE_DIR
-
-    if output_directory is None:
-        output_directory = Path(get_config().kpm_build_location) / DEFAULT_FRONTEND_DIR
-
-    KPM.build_server(
-        workspace_directory=workspace_directory,
-        output_directory=output_directory,
-        preserve_parent_state=preserve_parent_state,
-    )
-
-
 @cli.command(name="kpm_run_server")
 def kpm_run_server(
-    frontend_directory: Optional[ExistingDirectory] = None,
     server_host: str = DEFAULT_SERVER_ADDR,
     server_port: int = DEFAULT_SERVER_PORT,
     backend_host: str = DEFAULT_BACKEND_ADDR,
@@ -380,13 +345,9 @@ def kpm_run_server(
     verbosity: str = "INFO",
     preserve_parent_state: bool = False,
 ):
-    """Run a KPM server"""
-    if frontend_directory is None:
-        frontend_directory = Path(get_config().kpm_build_location) / DEFAULT_FRONTEND_DIR
-
+    """Run a KPM server using Pipeline Manager's bundled frontend."""
     try:
         KPM.run_server(
-            frontend_directory=frontend_directory,
             preserve_parent_state=preserve_parent_state,
             server_host=server_host,
             server_port=server_port,
@@ -403,14 +364,12 @@ def kpm_run_server(
 
 class CacheTarget(str, Enum):
     GIT = "git"
-    KPM_BUILD = "kpm-build"
     ALL = "all"
 
 
 def _cache_dirs(target: Optional[CacheTarget]) -> dict[CacheTarget, Path]:
     dirs = {
         CacheTarget.GIT: DEFAULT_GIT_CACHE_DIR,
-        CacheTarget.KPM_BUILD: Path(get_config().kpm_build_location),
     }
     if target is None or target is CacheTarget.ALL:
         return dirs
@@ -425,8 +384,7 @@ def clean_cache(*, target: Optional[CacheTarget] = None):
     ----------
     target
         Which cache to remove: 'git' removes cached clones of repositories loaded via the
-        'git:' resource scheme, 'kpm-build' removes the cached Pipeline Manager build,
-        'all' removes every cache. If omitted, all caches are removed.
+        'git:' resource scheme; 'all' removes every cache. If omitted, all caches are removed.
     """
     for name, cache_dir in _cache_dirs(target).items():
         if not cache_dir.exists():
@@ -441,8 +399,6 @@ def topwrap_gui(
     yamlfiles: Tuple[ExistingFile, ...] = (),
     *,
     design: Optional[ExistingFile] = None,
-    frontend_directory: Optional[Path] = None,
-    workspace_directory: Optional[Path] = None,
     server_host: str = DEFAULT_SERVER_ADDR,
     server_port: int = DEFAULT_SERVER_PORT,
     backend_host: str = DEFAULT_BACKEND_ADDR,
@@ -466,23 +422,6 @@ def topwrap_gui(
         to run pipeline_manager. Needed under packaging setups
         where a bare subprocess doesn't inherit sys.path. POSIX-only.
     """
-
-    if frontend_directory is None:
-        frontend_directory = Path(get_config().kpm_build_location) / DEFAULT_FRONTEND_DIR
-
-    if workspace_directory is None:
-        workspace_directory = Path(get_config().kpm_build_location) / DEFAULT_WORKSPACE_DIR
-
-    logging.info("Checking if server is built")
-    if (not frontend_directory.exists() or not workspace_directory.exists()) and use_server:
-        logging.info("Server build is incomplete, building now")
-        KPM.build_server(
-            workspace_directory=workspace_directory,
-            output_directory=frontend_directory,
-            preserve_parent_state=preserve_parent_state,
-        )
-    else:
-        logging.info("Server build found")
 
     logging.info("Starting server")
     server_ready_event = threading.Event()
@@ -513,7 +452,6 @@ def topwrap_gui(
                 "server_port": server_port,
                 "backend_host": backend_host,
                 "backend_port": backend_port,
-                "frontend_directory": frontend_directory,
                 "preserve_parent_state": preserve_parent_state,
             },
         )

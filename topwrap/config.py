@@ -16,7 +16,6 @@ from topwrap.common_serdes import (
     ResourcePathT,
     ext_field,
 )
-from topwrap.config_defaults import DEFAULT_SERVER_BASE_DIR
 from topwrap.repo.user_repo import UserRepo
 
 logger = logging.getLogger(__name__)
@@ -28,7 +27,6 @@ class Config(MarshmallowDataclassExtensions):
 
     force_interface_compliance: Optional[bool] = ext_field(False)
     repositories: dict[str, ResourcePathT] = ext_field(dict)
-    kpm_build_location: str = ext_field(str(DEFAULT_SERVER_BASE_DIR))
 
     def update_repo(self, repos: dict[str, ResourcePathT]):
         self.repositories.update(repos)
@@ -40,9 +38,6 @@ class Config(MarshmallowDataclassExtensions):
     def update(self, config: "Config"):
         if config.force_interface_compliance is not None:
             self.update_interface_compliance(config.force_interface_compliance)
-
-        if config.kpm_build_location is not None:
-            self.kpm_build_location = config.kpm_build_location
 
         if config.repositories is not None:
             self.update_repo(config.repositories)

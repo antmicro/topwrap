@@ -97,7 +97,7 @@ test-kpm-server:
 	set -euo pipefail
 	uv run scripts/kpm_server_check.py
 
-# Remove locally cached files created by topwrap. target is one of "git", "kpm-build" or "all".
+# Remove locally cached files created by topwrap. target is "git" or "all".
 clean-cache target="all":
 	#!/usr/bin/env bash
 	uv sync
