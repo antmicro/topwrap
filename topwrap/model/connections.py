@@ -179,7 +179,14 @@ class PortConnection(_Connection[ReferencedPort, ReferencedPort]):
 
 
 class InterfaceConnection(_Connection[ReferencedInterface, ReferencedInterface]):
-    "Represents a connection between two interfaces of some components"
+    """
+    Represents a connection between two interface references.
+
+    The ``source`` and ``target`` fields identify the endpoints of the
+    connection, but do not determine signal direction. The direction of each
+    interface signal is defined by the interface's mode and its
+    ``InterfaceSignalConfiguration``.
+    """
 
 
 Connection = Union[ConstantConnection, PortConnection, InterfaceConnection]
