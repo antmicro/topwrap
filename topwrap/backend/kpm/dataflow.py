@@ -316,90 +316,105 @@ class KpmDataflowBackend:
         refs[(None, id(io))] = target
         return node
 
+    def _add_constant_connection(
+        self, graph: DataflowGraph, conn: ConstantConnection, ref: _REFTYPE, pos: Positions
+    ):
+        if (graph.id, conn.source.value) in self._consts:
+            node = self._consts[(graph.id, conn.source.value)]
+        else:
+            node = graph.create_node(
+                name=ConstMetanode.name,
+                instance_name=ConstMetanode.name,
+            )
+            node.set_property(ConstMetanode().properties[0].propname, conn.source.value)
+            self._consts[(graph.id, conn.source.value)] = node
+
+            node_pos = pos.constants.get(conn.source.value)
+            if node_pos:
+                node.move(Vector2(node_pos[0], node_pos[1]))
+        port = conn.target.io
+        if port is None:
+            raise TranslationError("Connection to Logic with an unreferenced port")
+        tgt_key = (conn.target.instance, id(port))
+        if tgt_key not in ref and conn.target.instance is None:
+            self.add_external(graph, port, ref, pos)
+        self._connect(graph, node.interfaces[0], ref[tgt_key])
+
+    def _add_port_connection(
+        self, graph: DataflowGraph, conn: PortConnection, ref: _REFTYPE, pos: Positions
+    ):
+        port1 = conn.source.io
+        port2 = conn.target.io
+        if port1 is None or port2 is None:
+            raise TranslationError("Connection to Logic with an unreferenced port")
+
+        src_key = (conn.source.instance, id(port1))
+        tgt_key = (conn.target.instance, id(port2))
+        if src_key not in ref and conn.source.instance is None:
+            self.add_external(graph, port1, ref, pos)
+        if tgt_key not in ref and conn.target.instance is None:
+            self.add_external(graph, port2, ref, pos)
+
+        if conn.invert:
+            node = graph.create_node(
+                name=InverterMetanode.name,
+                instance_name=InverterMetanode.name,
+            )
+
+            sinst = conn.source.instance and conn.source.instance.name
+            sio = conn.source.io.name
+            tinst = conn.target.instance and conn.target.instance.name
+            tio = conn.target.io.name
+
+            node_pos = pos.inverters.get(((sinst, sio), (tinst, tio)))
+            if not node_pos:
+                node_pos = pos.inverters.get(((tinst, tio), (sinst, sio)))
+
+            if node_pos:
+                node.move(Vector2(node_pos[0], node_pos[1]))
+
+            ref1 = ref[src_key]
+            ref2 = ref[tgt_key]
+
+            if ref1.direction is Direction.INPUT:
+                ref1, ref2 = ref2, ref1
+
+            self._connect(
+                graph,
+                ref1,
+                node.interfaces[0],
+            )
+
+            self._connect(
+                graph,
+                node.interfaces[1],
+                ref2,
+            )
+        else:
+            self._connect(
+                graph,
+                ref[src_key],
+                ref[tgt_key],
+            )
+
+    def _add_interface_connection(
+        self, graph: DataflowGraph, conn: InterfaceConnection, ref: _REFTYPE, pos: Positions
+    ):
+        src_key = (conn.source.instance, id(conn.source.io))
+        tgt_key = (conn.target.instance, id(conn.target.io))
+        if src_key not in ref and conn.source.instance is None:
+            self.add_external(graph, conn.source.io, ref, pos)
+        if tgt_key not in ref and conn.target.instance is None:
+            self.add_external(graph, conn.target.io, ref, pos)
+        self._connect(graph, ref[src_key], ref[tgt_key])
+
     def add_connection(self, graph: DataflowGraph, conn: Connection, ref: _REFTYPE, pos: Positions):
         if isinstance(conn, ConstantConnection):
-            if (graph.id, conn.source.value) in self._consts:
-                node = self._consts[(graph.id, conn.source.value)]
-            else:
-                node = graph.create_node(
-                    name=ConstMetanode.name,
-                    instance_name=ConstMetanode.name,
-                )
-                node.set_property(ConstMetanode().properties[0].propname, conn.source.value)
-                self._consts[(graph.id, conn.source.value)] = node
-
-                node_pos = pos.constants.get(conn.source.value)
-                if node_pos:
-                    node.move(Vector2(node_pos[0], node_pos[1]))
-            port = conn.target.io
-            if port is None:
-                raise TranslationError("Connection to Logic with an unreferenced port")
-            tgt_key = (conn.target.instance, id(port))
-            if tgt_key not in ref and conn.target.instance is None:
-                self.add_external(graph, port, ref, pos)
-            self._connect(graph, node.interfaces[0], ref[tgt_key])
+            self._add_constant_connection(graph, conn, ref, pos)
         elif isinstance(conn, PortConnection):
-            port1 = conn.source.io
-            port2 = conn.target.io
-            if port1 is None or port2 is None:
-                raise TranslationError("Connection to Logic with an unreferenced port")
-
-            src_key = (conn.source.instance, id(port1))
-            tgt_key = (conn.target.instance, id(port2))
-            if src_key not in ref and conn.source.instance is None:
-                self.add_external(graph, port1, ref, pos)
-            if tgt_key not in ref and conn.target.instance is None:
-                self.add_external(graph, port2, ref, pos)
-
-            if conn.invert:
-                node = graph.create_node(
-                    name=InverterMetanode.name,
-                    instance_name=InverterMetanode.name,
-                )
-
-                sinst = conn.source.instance and conn.source.instance.name
-                sio = conn.source.io.name
-                tinst = conn.target.instance and conn.target.instance.name
-                tio = conn.target.io.name
-
-                node_pos = pos.inverters.get(((sinst, sio), (tinst, tio)))
-                if not node_pos:
-                    node_pos = pos.inverters.get(((tinst, tio), (sinst, sio)))
-
-                if node_pos:
-                    node.move(Vector2(node_pos[0], node_pos[1]))
-
-                ref1 = ref[src_key]
-                ref2 = ref[tgt_key]
-
-                if ref1.direction is Direction.INPUT:
-                    ref1, ref2 = ref2, ref1
-
-                self._connect(
-                    graph,
-                    ref1,
-                    node.interfaces[0],
-                )
-
-                self._connect(
-                    graph,
-                    node.interfaces[1],
-                    ref2,
-                )
-            else:
-                self._connect(
-                    graph,
-                    ref[src_key],
-                    ref[tgt_key],
-                )
+            self._add_port_connection(graph, conn, ref, pos)
         elif isinstance(conn, InterfaceConnection):
-            src_key = (conn.source.instance, id(conn.source.io))
-            tgt_key = (conn.target.instance, id(conn.target.io))
-            if src_key not in ref and conn.source.instance is None:
-                self.add_external(graph, conn.source.io, ref, pos)
-            if tgt_key not in ref and conn.target.instance is None:
-                self.add_external(graph, conn.target.io, ref, pos)
-            self._connect(graph, ref[src_key], ref[tgt_key])
+            self._add_interface_connection(graph, conn, ref, pos)
 
     def add_interconnect(
         self, graph: DataflowGraph, intr: Interconnect, ref: _REFTYPE, pos: Positions
