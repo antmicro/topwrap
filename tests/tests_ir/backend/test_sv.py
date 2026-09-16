@@ -390,7 +390,7 @@ class TestSystemVerilogBackend:
         [output] = backend.serialize(backend.represent(design.parent), combine=True)
 
         assert (
-            "module top (\n    input logic [1:0][7:0][3:0] in_arr\n);\n\nendmodule"
+            "module top (\n    input logic [1:0][7:0][3:0] in_arr\n);\n\nendmodule\n"
             == output.content
         )
 
@@ -630,7 +630,8 @@ module inner (
     input logic [3:0] qux
 );
 
-endmodule"""
+endmodule
+"""
         )
 
     def test_hierarchical_interconnect(self):
@@ -684,5 +685,6 @@ endmodule"""
   interconnect_my_wb_interconnect_name my_wb_interconnect_name (
   );
 
-endmodule"""
+endmodule
+"""
         )

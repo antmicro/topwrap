@@ -41,6 +41,7 @@ TEMPLATE = Environment(
     loader=FileSystemLoader(Path(__file__).parent / "templates"),
     trim_blocks=True,
     lstrip_blocks=False,
+    keep_trailing_newline=True,
 )
 
 SV_KEYWORDS = {

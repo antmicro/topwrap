@@ -159,7 +159,7 @@ class SystemVerilogBackend(Backend[SVOutput]):
 
         if combine:
             pkg = [] if repr.package is None else [repr.package]
-            out = "\n\n".join(e.content for e in pkg + repr.interfaces + repr.modules)
+            out = "\n".join(e.content for e in pkg + repr.interfaces + repr.modules)
             yield BackendOutputInfo(content=out, filename=f"{repr.base_name}.sv")
         else:
             for file in [repr.package] + repr.interfaces + repr.modules:
