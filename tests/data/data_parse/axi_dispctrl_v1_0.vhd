@@ -269,7 +269,7 @@ axi_dispctrl_v1_0_S00_AXI_inst : axi_dispctrl_v1_0_S00_AXI
 				case clk_state is
 					when RESET =>
 						clk_state <= WAIT_LOCKED;
-					when WAIT_LOCKED =>  --This state ensures that the initial SRDY pulse doesnt interfere with the WAIT_SRDY state
+					when WAIT_LOCKED =>  --This state ensures that the initial SRDY pulse doesn't interfere with the WAIT_SRDY state
 						if (locked = '1') then
 							clk_state <= WAIT_EN;
 						end if;

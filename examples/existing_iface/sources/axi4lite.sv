@@ -39,4 +39,3 @@ interface AXI4Lite;
   );
 
 endinterface
-

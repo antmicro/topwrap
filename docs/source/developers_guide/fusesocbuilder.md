@@ -33,7 +33,7 @@ Default template in `topwrap/templates/core.yaml.j2` does not make use of resour
 
 ## Customizations
 
-By default, Topwrap will generate a core file with a default target of running Vivado on the top-level defined by the Topwrap project.  
+By default, Topwrap will generate a core file with a default target of running Vivado on the top-level defined by the Topwrap project.
 This can be overridden in several ways.
 To disable the generation of a default Vivado target, you would call
 
@@ -126,4 +126,3 @@ targets:
             flow_make_options:
             - -s
 ```
-

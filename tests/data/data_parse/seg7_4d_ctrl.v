@@ -15,7 +15,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 //
-// Display controllers for KW4-281 4-digit 7-segment display devices tipically
+// Display controllers for KW4-281 4-digit 7-segment display devices typically
 // found in FPGA and microcontroller boards.
 //
 // Some modules here depend on bin_to_bcd_8 and bin_to_bcd_14 binary to BCD
@@ -44,7 +44,7 @@ module seg7_4d_ctrl_raw #(
     input wire [15:0] d,        // display digits, from left to right
     input wire [3:0] on_mask,   // on-digits mask (active high)
     input wire [3:0] dp_in,     // decimal point vector (active high)
-    input wire [3:0] sign_mask, // sign simbol vector (active high)
+    input wire [3:0] sign_mask, // sign symbol vector (active high)
     output wire [0:6] seg,      // 7-segment output
     output wire [3:0] select,   // select output (controls common anode/cathode)
     output wire dp              // decimal point output
@@ -133,7 +133,7 @@ module seg7_4d_ctrl_raw_test (
     input wire clk,             // system clock
     input wire [3:0] on_mask,   // on-digits mask (active high)
     input wire [3:0] dp_in,     // decimal point vector (active high)
-    input wire [3:0] sign_mask, // sign simbol vector (active high)
+    input wire [3:0] sign_mask, // sign symbol vector (active high)
     output wire [0:6] seg,      // 7-segment output
     output wire [3:0] select,   // select output (controls common anode/cathode)
     output wire dp              // decimal point output
@@ -160,7 +160,7 @@ endmodule // seg7_4d_ctrl_raw_test
 //
 // Digit padding
 //
-// Turn-off left-most cero digits and ajust sign if necessary
+// Turn-off left-most cero digits and adjust sign if necessary
 //
 // Input:
 //      [15:0] x : Input digits
@@ -273,7 +273,7 @@ module seg7_4d_ctrl_hex_test (
     input wire clk,             // system clock
     input wire reset,           // reset signal
     input wire [3:0] dp_in,     // decimal point input vector
-    input wire sign,            // sign simbol vector (active high)
+    input wire sign,            // sign symbol vector (active high)
     output wire [0:6] seg,      // 7-segment output
     output wire [3:0] select,   // select output (controls common anode/cathode)
     output wire dp              // decimal point output

@@ -62,15 +62,6 @@ hierarchies:
             out:
               - cs_s1_int_out_1
               - cs_s1_int_out_2
-        ips:
-          s1_mod_1:
-            file: file:my_repo/cores/s1_mod_1/module.yaml
-          s1_mod_2:
-            file: file:my_repo/cores/s1_mod_2/module.yaml
-          s1_mod_3:
-            file: file:my_repo/cores/s1_mod_3/module.yaml
-            parameters:
-              SUB_VALUE: 18
       sub_2:
         ips:
           s2_mod_1:
