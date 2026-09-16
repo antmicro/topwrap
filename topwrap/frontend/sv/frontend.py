@@ -52,16 +52,22 @@ class SystemVerilogFrontend(Frontend):
         return FrontendParseOutput(modules=modules, interfaces=interfaces)
 
     def parse_files(
-        self, sources: Iterable[Path], *, include_dirs: Iterable[Path] = ()
+        self,
+        sources: Iterable[Path],
+        *,
+        include_dirs: Iterable[Path] = (),
+        defines: Iterable[str] = (),
     ) -> FrontendParseOutput:
         s_sources = [str(p) for p in sources]
         inst = self._parser_instance()
         options = None
         inc_dirs = [str(p) for p in include_dirs]
-        if inc_dirs:
+        macros = list(defines)
+        if inc_dirs or macros:
             options = Bag()
             preproc = PreprocessorOptions()
             preproc.additionalIncludePaths = inc_dirs
+            preproc.predefines = macros
             options.preprocessorOptions = preproc
         if len(s_sources) > 0:
             tree = (

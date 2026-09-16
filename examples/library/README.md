@@ -28,6 +28,28 @@ targets:
     filesets: [rtl]
 ```
 
+`cores/producer/module.yaml` and `producer.core` started out as the output
+of `topwrap package`, which parses HDL sources into a Topwrap IP
+description and, with `--lib`, a matching `.core` file - `+incdir+`,
+`+define+`, and `-f <filelist>` work the same way they do for other EDA
+tools. `p_data`/`p_valid` are just plain ports as far as the SystemVerilog
+source goes, so recovering the `demo_stream` interface grouping below needs
+`--inference` matched against a registered library, plus `--grouping-hint`
+to name the result (inference can tell the ports belong together, not what
+a human would call the group):
+
+```bash
+topwrap library add demo_cores ./cores   # writes topwrap.yaml, see below
+topwrap package cores/producer/producer.sv --vlnv example.com:demo:producer:0.1 \
+  --inference --grouping-hint p=stream_out --lib -o cores/producer/module.yaml
+```
+
+or, to recreate both cores at once:
+
+```bash
+make cores
+```
+
 The library also provides a custom interface, `demo_stream`, the same way
 a module is provided — a `.core` file marking a YAML description as
 `topwrapInterface` (see `cores/stream_if/`). `producer` drives it as a

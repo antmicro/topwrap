@@ -165,7 +165,7 @@ def load_srcs_from_file(srcs: list[Path], incdirs: list[Path], file: Path) -> No
                 if len(line) == 0 or is_comment(line):
                     continue
                 if line.startswith("+incdir+"):
-                    inc_strs: list[str] = parse_params("+incdir+", "+", line)
+                    inc_strs: list[str] = parse_params("+incdir+", line)
                     for inc in inc_strs:
                         incdirs.append(Path(inc))
                     continue

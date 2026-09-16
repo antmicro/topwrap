@@ -1,21 +1,20 @@
 id:
-  vendor: example.com
   library: demo
   name: producer
+  vendor: example.com
+  version: '0.1'
 interfaces:
   stream_out:
     mode: manager
-    type:
-      vendor: example.com
-      library: demo
-      name: demo_stream
     signals:
       out:
         data: {bound: ['3', '0'], name: p_data}
         valid: {name: p_valid}
+    type:
+      library: demo
+      name: demo_stream
+      vendor: example.com
+      version: '0.1'
 signals:
   in:
     - {bound: ['3', '0'], name: in_1}
-  out:
-    - {bound: ['3', '0'], name: p_data}
-    - {name: p_valid}

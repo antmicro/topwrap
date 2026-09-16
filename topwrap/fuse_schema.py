@@ -27,12 +27,36 @@ def remove_empty(data: Any, *_: Any, **__: Any) -> object:
 
     data = cast(dict[str, Any], data)
     for key in list(data.keys()):
-        if data[key] is None or (
-            (isinstance(data[key], list) or isinstance(data[key], dict)) and not data[key]
+        if (
+            data[key] is None
+            or data[key] == ""
+            or ((isinstance(data[key], list) or isinstance(data[key], dict)) and not data[key])
         ):
             del data[key]
 
     return data
+
+
+class FlowMap(dict[str, Any]):
+    """A ``dict`` that renders in YAML flow style (``{...}``), e.g.
+    ``{ file_type : topwrapModule }``, instead of block style."""
+
+
+class FlowList(list[Any]):
+    """A ``list`` that renders in YAML flow style (``[...]``), e.g.
+    ``filesets: [rtl]``, instead of block style."""
+
+
+def _represent_flow_map(dumper: yaml.Dumper, data: "FlowMap") -> yaml.Node:
+    return dumper.represent_mapping("tag:yaml.org,2002:map", data, flow_style=True)
+
+
+def _represent_flow_list(dumper: yaml.Dumper, data: "FlowList") -> yaml.Node:
+    return dumper.represent_sequence("tag:yaml.org,2002:seq", data, flow_style=True)
+
+
+yaml.add_representer(FlowMap, _represent_flow_map)
+yaml.add_representer(FlowList, _represent_flow_list)
 
 
 def wrap_by(key: str, data: Any, *_: Any, **__: Any) -> object:
@@ -142,6 +166,20 @@ class Script:
     cmd: list[str]
 
 
+def _use_flow_style(core: dict[str, Any]) -> None:
+    """Render each fileset file's attrs, and each target's fileset list, in
+    YAML flow style - the common hand-written CAPI2 convention
+    (``- file.sv : { file_type : ... }``, ``filesets: [rtl]``).
+    """
+    for fileset in core.get("filesets", {}).values():
+        for entry in fileset.get("files", []):
+            for fname, attrs in entry.items():
+                entry[fname] = FlowMap(attrs)
+    for target in core.get("targets", {}).values():
+        if "filesets" in target:
+            target["filesets"] = FlowList(target["filesets"])
+
+
 @dataclass
 class Core:
     name: VLNV_S
@@ -156,8 +194,9 @@ class Core:
         return remove_empty(*args, **kwargs)
 
     def _to_yaml_section(self) -> str:
-        obj = self.__class__.Schema().dump(self)
-        src = yaml.dump(obj, indent=4, default_flow_style=False, sort_keys=False)
+        obj = cast("dict[str, Any]", self.__class__.Schema().dump(self))
+        _use_flow_style(obj)
+        src = yaml.dump(obj, indent=2, default_flow_style=False, sort_keys=False)
         return src
 
     def to_yaml(self) -> str:

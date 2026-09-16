@@ -81,13 +81,7 @@ def cmd(
     levelname = log_level.name if log_level else LOG_LEVEL.INFO.name
     topwrap.logger.configure(levelname, log_cfg)
 
-    processed_tokens = []
-    include_dirs = parse_incdirs(tokens)
-
-    for i, _ in enumerate(tokens):
-        curr = tokens[i]
-        if not curr.startswith("+incdir+"):
-            processed_tokens.append(tokens[i])
+    processed_tokens = list(tokens)
 
     if repo:
         warn_deprecated(
@@ -102,10 +96,14 @@ def cmd(
             cli.help_print(processed_tokens)
             sys.exit(1)
 
+        # 'repo parse' is deprecated and only understands '+incdir+' via this
+        # special-cased rewrite into '--include'. Every other command (e.g.
+        # 'package') receives its raw tokens untouched and is responsible for
+        # parsing any '+incdir+'/'+define+'-style arguments itself.
         PARSE_COMMAND = ["repo", "parse"]
         if processed_tokens[:2] == PARSE_COMMAND:
-            cli_args = []
-            cli_args.extend(processed_tokens)
+            include_dirs = parse_incdirs(tokens)
+            cli_args = [t for t in processed_tokens if not t.startswith("+incdir+")]
             for inc in include_dirs:
                 cli_args.extend(["--include", inc])
             return cli(cli_args)
@@ -173,4 +171,5 @@ def load_interfaces_from_repos() -> Iterator[InterfaceDefinition]:
 
 
 import topwrap.cli.library  # noqa: E402, F401
+import topwrap.cli.package  # noqa: E402, F401
 import topwrap.cli.repo  # noqa: E402, F401

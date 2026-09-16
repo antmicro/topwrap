@@ -303,16 +303,15 @@ def get_package_identifier(package_name: str) -> str:
 
 
 def parse_params(prefix: str, input: str, delimiter: str = "+") -> list[str]:
-    input = input.split(prefix)[-1]
-    input = input.rstrip(delimiter)
-    return input.split(delimiter)
+    input = removeprefix(input, prefix)
+    return [param for param in input.split(delimiter) if param]
 
 
-def parse_incdirs(tokens: tuple[str, ...]) -> list[str]:
+def parse_incdirs(tokens: Iterable[str]) -> list[str]:
     incdirs = []
     for t in tokens:
         if t.startswith("+incdir+"):
-            incdirs.extend(parse_params("+incdir+", "+", t))
+            incdirs.extend(parse_params("+incdir+", t))
     return incdirs
 
 
