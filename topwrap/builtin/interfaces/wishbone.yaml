@@ -5,9 +5,9 @@
 # - https://cdn.opencores.org/downloads/wbspec_b4.pdf#page=27
 # - https://cdn.opencores.org/downloads/wbspec_b4.pdf#page=69
 id:
-  library: libdefault
+  library: topwrap-interfaces
   name: wishbone
-  vendor: vendor
+  vendor: antmicro.com
 signals:
     required:
         out:

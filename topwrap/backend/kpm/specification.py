@@ -35,6 +35,7 @@ from topwrap.backend.kpm.common import (
     kpm_dir_from,
 )
 from topwrap.kpm_common import SPECIFICATION_VERSION
+from topwrap.library import library_core_of
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.module import Module
@@ -100,8 +101,9 @@ class KpmSpecificationBackend:
             for core in repo.get_resources(Core):
                 if core.top is mod:
                     source = RepoReferenceHandler(core.name, [name]).to_str()
-        if source is None:
-            source = str(mod.refs[0].file) if len(mod.refs) > 0 else None
+        if source is None and len(mod.refs) > 0:
+            vlnv = library_core_of(mod.refs[0].file)
+            source = f"core:{vlnv}" if vlnv is not None else str(mod.refs[0].file)
 
         config = mod.design.config if mod.design is not None else None
         if config is not None:

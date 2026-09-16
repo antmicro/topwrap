@@ -49,7 +49,7 @@ signals:
 interfaces:
     M_AXI_GP0:
         type:
-            name: AXI4
+            name: axi4
             vendor: vendor
             library: libdefault
         mode: manager
@@ -97,7 +97,7 @@ interfaces:
 
     S_AXI_HP0:
         type:
-            name: AXI3
+            name: axi3
             vendor: vendor
             library: libdefault
         mode: subordinate

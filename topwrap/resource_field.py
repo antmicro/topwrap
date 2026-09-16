@@ -8,11 +8,11 @@ import re
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Any, ClassVar, Collection, Type, Union
+from typing import Any, ClassVar, Collection, Mapping, Optional, Type, Union
 
 from topwrap.repo.files import GitRepoFile, HttpGetFile
 from topwrap.repo.resource import ResourceType
-from topwrap.util import UnreachableError, get_config, path_relative_to
+from topwrap.util import UnreachableError, get_config, path_relative_to, warn_deprecated
 
 
 class InvalidIdentifierException(Exception):
@@ -105,7 +105,11 @@ class FileReferenceHandler(ResourceReferenceHandler):
         if not isinstance(save_path, Path):
             raise UnreachableError
         rel_path = str(path_relative_to(self.to_path().resolve(), save_path.parent.resolve()))
-        return f"{self.scheme}:{rel_path}"
+        # A bare path is the non-deprecated spelling, unless it would then
+        # read back as some other scheme.
+        if SupportedSchemeGroup._IDENT_REGEX.match(rel_path):
+            return f"{self.scheme}:{rel_path}"
+        return rel_path
 
 
 class RepoReferenceHandler(ResourceReferenceHandler):
@@ -133,10 +137,19 @@ class SupportedSchemeGroup:
     _IDENT_REGEX = re.compile(r"^([^[]+?)(?:\[(.*?)\])?:(.*)$")
     handlers: Collection[Type[ResourceReferenceHandler]]
 
+    #: Handler used for a bare string that carries no ``scheme:`` prefix, i.e. a
+    #: plain filesystem path. ``None`` keeps the strict "scheme required" behavior.
+    bare_path_handler: ClassVar[Optional[Type[ResourceReferenceHandler]]] = None
+
+    #: ``scheme -> guidance`` for schemes that still work but are on the way out.
+    deprecated_schemes: ClassVar[Mapping[str, str]] = {}
+
     @classmethod
     def parse(cls, ident: str) -> ResourceReferenceHandler:
         match = re.match(cls._IDENT_REGEX, ident)
         if match is None:
+            if cls.bare_path_handler is not None:
+                return cls.bare_path_handler(ident)
             raise InvalidIdentifierException(
                 f"Invalid resource identifier: '{ident}'. It has to match regex"
                 f" {cls._IDENT_REGEX.pattern}"
@@ -147,6 +160,12 @@ class SupportedSchemeGroup:
         args = [] if args is None else args.split("|")
         for handler in cls.handlers:
             if handler.scheme == scheme:
+                if scheme in cls.deprecated_schemes:
+                    warn_deprecated(
+                        f"resource reference '{ident}' uses the deprecated '{scheme}:' "
+                        f"scheme; {cls.deprecated_schemes[scheme]}",
+                        key=f"resource-scheme:{scheme}",
+                    )
                 return handler(path, args)
         raise InvalidIdentifierException(
             f"Unsupported resource scheme: '{scheme}' in identifier: '{ident}'"
@@ -163,3 +182,15 @@ class YamlCommonSchemes(SupportedSchemeGroup):
         RepoReferenceHandler,
         GitReferenceHandler,
     ]
+
+    #: A value with no ``scheme:`` prefix is taken as a filesystem path,
+    #: resolved relative to the YAML file it appears in (same as ``file:``).
+    bare_path_handler = FileReferenceHandler
+
+    deprecated_schemes = {
+        "file": "write the path directly, without the 'file:' prefix",
+        "repo": (
+            "the repository mechanism is being removed - register the sources as a "
+            "topwrap library ('topwrap library add') and reference them with 'core:'"
+        ),
+    }

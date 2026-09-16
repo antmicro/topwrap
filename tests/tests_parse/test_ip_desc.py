@@ -20,7 +20,6 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCorePorts,
 )
 from topwrap.model.misc import Identifier
-from topwrap.repo.user_repo import Core
 from topwrap.util import get_config
 
 
@@ -52,9 +51,9 @@ interfaces:
     i1:
         mode: subordinate
         type:
-            name: AXI4Stream
-            vendor: vendor
-            library: libdefault
+            name: axi4stream
+            vendor: antmicro.com
+            library: topwrap-interfaces
         signals:
             out:
                 TDATA: p1
@@ -76,9 +75,9 @@ interfaces:
     i1:
         mode: subordinate
         type:
-            name: AXI4Stream
-            vendor: vendor
-            library: libdefault
+            name: axi4stream
+            vendor: antmicro.com
+            library: topwrap-interfaces
         signals:
             out:
                 TDATA: p1
@@ -123,12 +122,12 @@ interfaces:
     ):
         with pytest.raises(
             ValidationError,
-            match='Required out port "TLAST" of interface "vendor_libdefault_AXI4Stream" '
-            "not present",
+            match='Required out port "TLAST" of interface '
+            '"antmicro.com_topwrap-interfaces_axi4stream" not present',
         ) and pytest.raises(
             ValidationError,
             match='Unknown out port "TBUBU", not present in interface '
-            '"vendor_libdefault_AXI4Stream_0.1"',
+            '"antmicro.com_topwrap-interfaces_axi4stream_0.1"',
         ):
             IPCoreDescription.from_dict(invalid_interface_compliance_core)
 
@@ -140,20 +139,19 @@ interfaces:
     def test_interface_compliance_off(self, invalid_interface_compliance_core):
         IPCoreDescription.from_dict(invalid_interface_compliance_core)
 
-    def test_builtins_presence_and_compliance(self, force_compliance):
-        for ip in (
-            "axi_axil_adapter",
-            "axi_interconnect",
-            "axi_protocol_converter",
-            "axis_async_fifo",
-            "axis_dwidth_converter",
+    def test_example_ip_cores_are_interface_compliant(self, force_compliance):
+        """The real, non-synthetic IP cores shipped with the examples must
+        still load under strict interface compliance. axi_axil_adapter is
+        checked at both of its independent copies, since they can drift."""
+        for path in (
+            "examples/hdmi/cores/axi_axil_adapter.yaml",
+            "examples/pwm/cores/axi_axil_adapter.yaml",
+            "examples/hdmi/cores/axi_interconnect.yaml",
+            "examples/hdmi/cores/axi_protocol_converter.yaml",
+            "examples/hdmi/cores/axis_async_fifo.yaml",
+            "examples/hdmi/cores/axis_dwidth_converter.yaml",
         ):
-            core = None
-            for repo_core in get_config().builtin_repo.get_resources(Core):
-                if ip == repo_core.name:
-                    assert core is None, f"Builtin IP {ip} is duplicated"
-                    core = repo_core
-            assert core is not None, f"Builtin IP {ip} is missing"
+            IPCoreDescription.load(Path(path))
 
     def test_save(self, expected_output: IPCoreDescription):
         with tempfile.NamedTemporaryFile(suffix=".yaml") as f:

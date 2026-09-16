@@ -48,6 +48,7 @@ from topwrap.frontend.yaml.design_schema import (
     MemoryMapSubordinate,
 )
 from topwrap.interconnects.types import INTERCONNECT_NAMES
+from topwrap.library import library_core_of
 from topwrap.model.config import ConfigDescription
 from topwrap.model.connections import (
     Clock,
@@ -421,18 +422,18 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
     def _represent_ip(self, comp: ModuleInstance) -> DesignIP:
         source = None
+        core = None
 
         # Check repos for the module
         # Imported here due to circular import
         from topwrap.repo.user_repo import Core
 
         for name, repo in get_config().loaded_repos.items():
-            for core in repo.get_resources(Core):
-                if core.top is comp.module:
-                    source = RepoReferenceHandler(core.name, [name])
+            for core_res in repo.get_resources(Core):
+                if core_res.top is comp.module:
+                    source = RepoReferenceHandler(core_res.name, [name])
                     break
 
-        # Fall back to file path
         if source is None:
             if not comp.module.refs:
                 raise DesignDescriptionBackendException(
@@ -440,7 +441,11 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
                     "It does not belong to any repository, and has no file references."
                 )
 
-            source = FileReferenceHandler(comp.module.refs[0].file)
+            file = comp.module.refs[0].file
+            # Name it by VLNV if a library provides it, not by where it's checked out.
+            core = library_core_of(file)
+            if core is None:
+                source = FileReferenceHandler(file)
 
         params = {}
         for p, v in comp.parameters.items():
@@ -450,6 +455,7 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
         return DesignIP(
             file=source,
+            core=core,  # pyright: ignore[reportCallIssue]
             parameters=params,
             clocks={c.resolve().name: d.name for c, d in comp.clocks.items()},
             resets={r.resolve().name: d.name for r, d in comp.resets.items()},

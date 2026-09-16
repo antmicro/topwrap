@@ -8,6 +8,7 @@ from typing import Dict, Iterable, Optional, Union
 
 import yaml
 
+from topwrap import library
 from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.ip_core_schema import param_to_ir_param
 from topwrap.frontend.yaml.design_schema import (
@@ -76,7 +77,8 @@ class DesignDescriptionFrontend:
         """
 
         desc = DesignDescription.load(path)
-        return self._parse_hier(path, desc, "top" if desc.name is None else desc.name)
+        with self._library_scope(desc, path.parent):
+            return self._parse_hier(path, desc, "top" if desc.name is None else desc.name)
 
     def parse_str(self, source: str) -> tuple[Design, dict[Identifier, Positions]]:
         """
@@ -86,7 +88,20 @@ class DesignDescriptionFrontend:
         """
 
         desc = DesignDescription.from_yaml(source)
-        return self._parse_hier(None, desc, "top" if desc.name is None else desc.name)
+        with self._library_scope(desc, Path()):
+            return self._parse_hier(None, desc, "top" if desc.name is None else desc.name)
+
+    def _library_scope(self, desc: DesignDescription, base: Path):
+        """Make the design's libraries available only during this parse.
+
+        ``base`` is the directory relative library paths are resolved against -
+        the design file's own directory, so that a design stays valid wherever
+        it is built from.
+        """
+        from topwrap.config import _resolve_library_uris, library_scope
+
+        libraries = desc.config.libraries if desc.config is not None else {}
+        return library_scope(_resolve_library_uris(libraries, base))
 
     def _parse_memory_maps(self, des: Design, memory_maps: Dict[str, MemoryMap]):
         ir_maps = dict[str, IRMemoryMap]()
@@ -672,6 +687,19 @@ class DesignDescriptionFrontend:
 
     def _get_module(self, ip: DesignIP) -> Module:
         from topwrap.repo.user_repo import Core
+
+        if ip.core is not None:
+            mod = self._modules.get(":" + ip.core)
+            if mod is not None:
+                return mod
+            try:
+                path = library.resolve_module(ip.core)
+            except library.LibraryError as e:
+                raise DesignDescriptionFrontendException(str(e)) from e
+            mod = IPCoreDescriptionFrontend().parse_file(path)
+            mod = self._modules.setdefault(":" + str(mod.id), mod)
+            self._modules[":" + ip.core] = mod
+            return mod
 
         if isinstance(ip.file, RepoReferenceHandler):
             key = list(ip.file.args)[0] + ":" + ip.file.value

@@ -24,7 +24,7 @@ interfaces:
         WSTRB: [m_axil_wstrb, (AXIL_STRB_WIDTH-1), 0]
         WVALID: m_axil_wvalid
     type:
-      name: AXI4Lite
+      name: axi4lite
       vendor: vendor
       library: libdefault
   s_axi:
@@ -68,7 +68,7 @@ interfaces:
         RVALID: s_axi_rvalid
         WREADY: s_axi_wready
     type:
-      name: AXI3
+      name: axi3
       vendor: vendor
       library: libdefault
 id:

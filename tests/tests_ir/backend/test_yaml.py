@@ -525,8 +525,8 @@ class TestIpCoreDescriptionBackend:
             "interfaces": {
                 "ext_manager": {
                     "type": {
-                        "vendor": "vendor",
-                        "library": "libdefault",
+                        "vendor": "antmicro.com",
+                        "library": "topwrap-interfaces",
                         "name": "wishbone",
                         "version": "0.1",
                     },

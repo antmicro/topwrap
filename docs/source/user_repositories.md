@@ -1,5 +1,9 @@
 # Constructing, configuring and loading repositories
 
+:::{deprecated} 1.0.0
+User repositories and the `topwrap repo` commands are being removed. Use [libraries](libraries.md) instead, and reference their cores with `core:` in a design.
+:::
+
 By using Topwrap repositories, you can package and load different resources and use them in your designs.
 
 You can specify the repositories to be loaded each time Topwrap runs, by listing them in a [configuration file](config.md#configuration-file-location) or by supplying a path to one or more repository directories using the `--repo` CLI argument.

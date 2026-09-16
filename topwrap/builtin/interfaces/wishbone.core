@@ -1,0 +1,8 @@
+CAPI=2:
+
+name : antmicro.com:topwrap-interfaces:wishbone
+
+filesets:
+  topwrap:
+    files:
+        - wishbone.yaml : { file_type : topwrapInterface }

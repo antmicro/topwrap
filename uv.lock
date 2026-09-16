@@ -920,19 +920,20 @@ wheels = [
 
 [[package]]
 name = "fusesoc"
-version = "2.4.6"
+version = "2.4.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argcomplete" },
     { name = "edalize" },
     { name = "fastjsonschema" },
+    { name = "pydantic" },
     { name = "pyparsing" },
     { name = "pyyaml" },
     { name = "simplesat" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/80/7d/80bd86ba4d4fb5f387f36ea701335930e541a88df9329ac19559880d2938/fusesoc-2.4.6.tar.gz", hash = "sha256:774e0316d57bd4292bbd7e75c75f5c9742929f6c8e08c99858646fdc0103f17c", size = 191053, upload-time = "2026-05-10T21:33:46.51Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/58/639a43653bbd97d1fa75255b57a224755c775df54b568fb714651530e104/fusesoc-2.4.7.tar.gz", hash = "sha256:f1023de57524660b5926fec6807af0edecb04418918e39a15224c83855546894", size = 200198, upload-time = "2026-09-08T13:18:20.803Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c3/34/9fac8ca00e59cac6e00a0adf13a9942b69f6c77676ff5ff617943bbb917b/fusesoc-2.4.6-py3-none-any.whl", hash = "sha256:68228c4e935d274ffcb126a8d3cb42cf644fbb829be67fd1178f218f7ebd4c2e", size = 67585, upload-time = "2026-05-10T21:33:45.039Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/0a/39c3be2a3395e7e77f19b77331fab4004e73c57f07e604a3d292e79f2c5f/fusesoc-2.4.7-py3-none-any.whl", hash = "sha256:b279fc93fb476cdf034965f5723cd0ae282c9d185aadeeb2cf254d47ea4b8b50", size = 74269, upload-time = "2026-09-08T13:18:19.061Z" },
 ]
 
 [[package]]
@@ -2964,6 +2965,7 @@ dependencies = [
     { name = "amaranth-yosys" },
     { name = "axi-interconnect-generator-plugin" },
     { name = "cyclopts" },
+    { name = "fusesoc" },
     { name = "lxml" },
     { name = "marshmallow" },
     { name = "marshmallow-dataclass" },
@@ -2983,7 +2985,6 @@ all = [
     { name = "build" },
     { name = "codespell" },
     { name = "deepdiff" },
-    { name = "fusesoc" },
     { name = "html2image" },
     { name = "myst-parser" },
     { name = "pre-commit" },
@@ -3003,7 +3004,6 @@ all = [
 ]
 deploy = [
     { name = "build" },
-    { name = "fusesoc" },
 ]
 docs = [
     { name = "antmicro-sphinx-utils" },
@@ -3042,7 +3042,7 @@ requires-dist = [
     { name = "codespell", marker = "extra == 'lint'", specifier = "==2.3.0" },
     { name = "cyclopts" },
     { name = "deepdiff", marker = "extra == 'tests'", specifier = "==8.0.1" },
-    { name = "fusesoc", marker = "extra == 'deploy'", specifier = "==2.4.6" },
+    { name = "fusesoc", specifier = "==2.4.7" },
     { name = "html2image", marker = "extra == 'docs'", specifier = "==2.0.7" },
     { name = "lxml", specifier = "==6.1.1" },
     { name = "marshmallow", specifier = ">=3.20,<4.0" },

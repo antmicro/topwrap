@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 from typing import (
+    Any,
     Optional,
     Sequence,
     Union,
     cast,
 )
+
+import marshmallow
 
 from topwrap.backend.yaml.common.interface_schema import InterfaceModeDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
@@ -43,9 +46,18 @@ from topwrap.model.interface import (
 )
 from topwrap.model.misc import ElaboratableValue, ExtensionData, FileReference, Parameter
 from topwrap.model.module import Module
-from topwrap.util import get_config
+from topwrap.util import get_interface_by_id
 
 IPDFE = IPCoreDescriptionFrontendException
+
+
+def _annotate_error_messages(messages: Any, suffix: str) -> Any:
+    """Append ``suffix`` to every leaf string in a marshmallow error structure."""
+    if isinstance(messages, dict):
+        return {k: _annotate_error_messages(v, suffix) for k, v in messages.items()}
+    if isinstance(messages, list):
+        return [_annotate_error_messages(v, suffix) for v in messages]
+    return f"{messages}{suffix}"
 
 
 class IPCoreDescriptionFrontend:
@@ -56,7 +68,14 @@ class IPCoreDescriptionFrontend:
         :param desc: Path to the IP Core description YAML.
         """
 
-        desc = IPCoreDescription.load(path)
+        try:
+            desc = IPCoreDescription.load(path)
+        except marshmallow.ValidationError as e:
+            ident = e.valid_data.get("id") if isinstance(e.valid_data, dict) else None
+            where = str(ident) if ident is not None else str(path)
+            raise marshmallow.ValidationError(
+                _annotate_error_messages(e.messages, f" (in {where})")
+            ) from e
         return self.parse(path, desc)
 
     def parse_str(self, source: str) -> Module:
@@ -188,28 +207,13 @@ class IPCoreDescriptionFrontend:
             return port
 
     def _parse_intfs(self, desc: IPCoreDescription, mod: Module, types: dict[str, Logic]):
-        # TODO: Is this best way to get existing_interfaces?
-        # `_parse` method can have different effects when loaded_repos changes
-        existing_interfaces = []
-        from topwrap.repo.user_repo import InterfaceDefinitionResource
-
-        for repo in get_config().loaded_repos.values():
-            for res in repo.get_resources(InterfaceDefinitionResource):
-                existing_interfaces.append(res.definition)
-
         for iname, iface in desc.interfaces.items():
-            for existing_iface in existing_interfaces:
-                if (
-                    iface.type.name == existing_iface.id.name
-                    and iface.type.library == existing_iface.id.library
-                    and iface.type.vendor == existing_iface.id.vendor
-                ):
-                    ird = existing_iface
-                    break
-            else:
+            res = get_interface_by_id(iface.type)
+            if res is None:
                 raise IPCoreDescriptionFrontendException(
                     f"Could not find interface {iface.type} among loaded interfaces"
                 )
+            ird = res.definition
 
             if iface.mode is InterfaceModeDescription.MANAGER:
                 mode = InterfaceMode.MANAGER

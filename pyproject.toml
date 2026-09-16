@@ -34,6 +34,7 @@ dependencies = [
   "cyclopts",
   "topwrap-ipxact-parser @ git+https://github.com/antmicro/topwrap-utils@2a8c52443ab416155342f7cadeb06746f4f75e59#subdirectory=topwrap-ipxact-parser",
   "lxml==6.1.1",
+  "fusesoc==2.4.7",
 ]
 
 [project.optional-dependencies]
@@ -54,7 +55,6 @@ tests = [
 ]
 deploy = [
   "build==1.2.1",
-  "fusesoc==2.4.6"
 ]
 docs = [
   'myst-parser==4.0.0',

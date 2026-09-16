@@ -5,7 +5,7 @@ id:
   version: '0.1'
 signals:
   in:
-    - {name: clk}
     - {name: rst}
+    - {name: clk}
   out:
     - {name: z}

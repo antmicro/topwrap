@@ -12,7 +12,7 @@ signals:
 interfaces:
   io_a:
     type:
-      name: AXI4Stream
+      name: axi4stream
     mode: subordinate
     clock: clk_a
     reset: rst
@@ -24,7 +24,7 @@ interfaces:
 
   io_b:
     type:
-      name: AXI4Stream
+      name: axi4stream
     mode: manager
     clock: clk_b
     reset: rst

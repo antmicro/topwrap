@@ -14,7 +14,7 @@ from typing import Any, ClassVar, Type, Union, cast
 import yaml
 from marshmallow import Schema as MarshmallowSchema
 from marshmallow import post_dump
-from marshmallow_dataclass import dataclass
+from marshmallow_dataclass import class_schema
 
 
 def remove_empty(data: Any, *_: Any, **__: Any) -> object:
@@ -163,3 +163,6 @@ class Core:
     def to_yaml(self) -> str:
         header = "CAPI=2:"
         return f"{header}\n{self._to_yaml_section()}"
+
+
+Core.Schema = class_schema(Core)

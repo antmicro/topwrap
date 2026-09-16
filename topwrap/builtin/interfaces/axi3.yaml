@@ -8,9 +8,9 @@
 # Signal description
 # - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 31,101,113
 id:
-  library: libdefault
-  name: AXI3
-  vendor: vendor
+  library: topwrap-interfaces
+  name: axi3
+  vendor: antmicro.com
 signals:
     required:
         out:

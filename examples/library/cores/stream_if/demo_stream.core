@@ -1,0 +1,8 @@
+CAPI=2:
+
+name : example.com:demo:demo_stream
+
+filesets:
+  topwrap:
+    files:
+        - demo_stream.yaml : { file_type : topwrapInterface }

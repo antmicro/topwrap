@@ -527,3 +527,23 @@ class TestKpmBackendHierarchyExample:
             {"direction": "input", "name": "cs_s2_int_in_2", "side": "left"},
             {"direction": "output", "name": "cs_s2_mod_out_1", "side": "right"},
         ]
+
+
+class TestNestedHierarchySubgraphs:
+    """A design may nest two distinct hierarchies that share an identifier."""
+
+    def test_no_subgraph_contains_itself(
+        self, all_design_modules: Dict[str, Module], all_specification_files: Dict[str, JsonType]
+    ):
+        for name, module in all_design_modules.items():
+            assert module.design
+            flow = KpmDataflowBackend(all_specification_files[name])
+            flow.represent_design(module.design, depth=-1)
+            dataflow = flow.build()
+
+            for graph in dataflow.get("graphs", []):
+                for node in graph.get("nodes", []):
+                    assert node.get("subgraph") != graph["id"], (
+                        f"in '{name}', subgraph {graph['id']} contains itself, "
+                        "which makes it unparsable"
+                    )

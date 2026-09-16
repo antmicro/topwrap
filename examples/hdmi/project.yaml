@@ -1,6 +1,6 @@
 ips:
   axi_bridge_disp:
-    file: &axil repo[builtin]:axi_axil_adapter
+    file: &axil cores/axi_axil_adapter.yaml
     parameters:
       ADDR_WIDTH: 32
       AXIL_DATA_WIDTH: 32
@@ -27,7 +27,7 @@ ips:
       AXI_ID_WIDTH: 12
       AXI_STRB_WIDTH: AXI_DATA_WIDTH/8
   axi_interconnect0:
-    file: repo[builtin]:axi_interconnect
+    file: cores/axi_interconnect.yaml
     parameters:
       ADDR_WIDTH: 32
       ARUSER_WIDTH: 1
@@ -47,9 +47,9 @@ ips:
       S_COUNT: 1
       WUSER_WIDTH: 1
   axi_protocol_converter0:
-    file: repo[builtin]:axi_protocol_converter
+    file: cores/axi_protocol_converter.yaml
   axis_clock_converter:
-    file: repo[builtin]:axis_async_fifo
+    file: cores/axis_async_fifo.yaml
     parameters:
       DATA_WIDTH: 64
       DEST_WIDTH: 8
@@ -59,26 +59,26 @@ ips:
       USER_ENABLE: 0
       USER_WIDTH: 1
   axis_dwidth_converter:
-    file: repo[builtin]:axis_dwidth_converter
+    file: cores/axis_dwidth_converter.yaml
     parameters:
       IN_DATA_WIDTH: 64
       OUT_DATA_WIDTH: 32
   clock_crossing:
-    file: file:ipcores/clock_crossing.yaml
+    file: file:cores/clock_crossing.yaml
   disp:
-    file: file:ipcores/axi_dispctrl.yaml
+    file: file:cores/axi_dispctrl.yaml
   dma:
-    file: file:ipcores/dma_axi_in_axis_out.yaml
+    file: file:cores/dma_axi_in_axis_out.yaml
   hdmi:
-    file: file:ipcores/hdmi_tx.yaml
+    file: file:cores/hdmi_tx.yaml
   mmcm:
-    file: file:ipcores/litex_mmcm.yaml
+    file: file:cores/litex_mmcm.yaml
   ps7:
-    file: file:ipcores/ps7.yaml
+    file: file:cores/ps7.yaml
   reset0:
-    file: file:ipcores/proc_sys_reset.yaml
+    file: file:cores/proc_sys_reset.yaml
   reset1:
-    file: file:ipcores/proc_sys_reset.yaml
+    file: file:cores/proc_sys_reset.yaml
 
 connections:
   ports:

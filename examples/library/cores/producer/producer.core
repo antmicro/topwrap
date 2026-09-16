@@ -1,0 +1,15 @@
+CAPI=2:
+
+name : example.com:demo:producer
+
+filesets:
+  topwrap:
+    files:
+        - module.yaml : { file_type : topwrapModule }
+  rtl:
+    files:
+        - producer.sv : { file_type : systemVerilogSource }
+
+targets:
+  default:
+    filesets: [rtl]

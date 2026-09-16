@@ -13,3 +13,6 @@ class ConfigDescription(MarshmallowDataclassExtensions):
 
     force_interface_compliance: Optional[bool] = ext_field(False)
     repositories: dict[str, ResourcePathT] = ext_field(dict)
+    #: ``name -> uri`` FuseSoC libraries, same form as the ``libraries:`` section
+    #: of ``topwrap.yaml``. Relative URIs are resolved from the declaring file.
+    libraries: dict[str, str] = ext_field(dict)

@@ -1,0 +1,30 @@
+name: library_example
+
+config:
+  libraries:
+    demo_cores: ./cores
+
+ips:
+  producer:
+    # a fully qualified VLNV reference
+    core: example.com:demo:producer:0.1
+  consumer:
+    # a partial reference: matched against every registered library by name
+    core: consumer
+
+connections:
+  ports:
+    producer:
+      in_1: ex_in
+    consumer:
+      out_1: ex_out
+  interfaces:
+    consumer:
+      stream_in: [producer, stream_out]
+
+external:
+  ports:
+    in:
+      - ex_in
+    out:
+      - ex_out

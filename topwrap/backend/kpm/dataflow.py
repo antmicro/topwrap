@@ -45,7 +45,7 @@ from topwrap.model.design import ClockDomain, ModuleInstance, ResetDomain
 from topwrap.model.interconnect import Interconnect, InterconnectParams
 from topwrap.model.interface import Interface
 from topwrap.model.misc import Identifier, TranslationError
-from topwrap.model.module import Design
+from topwrap.model.module import Design, Module
 from topwrap.util import JsonType
 
 
@@ -82,8 +82,13 @@ class KpmDataflowBackend:
 
     # Constant node cache: (graph ID, value) -> node
     _consts: dict[tuple[str, str], Node]
-    # Subgraph cache: module identifier -> graph
-    _subgraphs: dict[str, DataflowGraph]
+    # Keyed by module, not identifier: two hierarchies sharing a name would
+    # otherwise collapse into one subgraph.
+    _subgraphs: dict[Module, DataflowGraph]
+    # First subgraph id seen for a given module identifier, for spec nodes.
+    _subgraph_ids: dict[str, str]
+    # How many distinct modules share an identifier, for deterministic UUIDs.
+    _subgraph_counts: dict[str, int]
 
     def __init__(
         self,
@@ -102,6 +107,8 @@ class KpmDataflowBackend:
         self._refx = {}
         self._consts = {}
         self._subgraphs = {}
+        self._subgraph_ids = {}
+        self._subgraph_counts = {}
         self._disabled_layers = disabled_layers or []
         self._positions = positions or {}
 
@@ -142,7 +149,7 @@ class KpmDataflowBackend:
         if subgraphs:
             spec["graphs"] = subgraphs
 
-        subgraph_ids = {key: graph.id for key, graph in self._subgraphs.items()}
+        subgraph_ids = self._subgraph_ids
         for node in spec.get("nodes", []):
             add: Optional[KpmNodeAdditionalData] = node.get("additionalData")
             if add is None:
@@ -166,6 +173,8 @@ class KpmDataflowBackend:
         """
         self.flow.graphs.clear()
         self._subgraphs.clear()
+        self._subgraph_ids.clear()
+        self._subgraph_counts.clear()
         graph = self.flow.create_graph()
 
         return self._represent_design(design, graph, depth=depth)
@@ -226,12 +235,17 @@ class KpmDataflowBackend:
         use_subgraph = (depth != 0 and comp.module.design is not None) or node_name is None
 
         if use_subgraph:
-            subg = self._subgraphs.get(module_key)
+            subg = self._subgraphs.get(comp.module)
             if subg is None:
+                seen = self._subgraph_counts.get(module_key, 0)
+                self._subgraph_counts[module_key] = seen + 1
+                unique_key = module_key if seen == 0 else f"{module_key}#{seen}"
+
                 subg = self.flow.create_graph()
-                subg._id = self._subgraph_uuid(module_key)
+                subg._id = self._subgraph_uuid(unique_key)
                 subg.name = comp.module.id.name
-                self._subgraphs[module_key] = subg
+                self._subgraphs[comp.module] = subg
+                self._subgraph_ids.setdefault(module_key, subg.id)
                 des = Design()
                 des.parent = comp.module
                 self._represent_design(comp.module.design or des, subg, depth - 1)

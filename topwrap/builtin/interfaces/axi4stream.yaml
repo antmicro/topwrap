@@ -4,9 +4,9 @@
 # Signals specification
 # - https://developer.arm.com/documentation/ihi0051/latest (version B), page 52
 id:
-  library: libdefault
-  name: AXI4Stream
-  vendor: vendor
+  library: topwrap-interfaces
+  name: axi4stream
+  vendor: antmicro.com
 signals:
     # assuming transmitter = manager
     required:

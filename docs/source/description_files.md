@@ -21,7 +21,9 @@ ips:
   # specify relations between IPs instance names in the
   # design yaml and IP cores description YAMLs
   {ip1_instance_name}:
+    # exactly one of `file` or `core` identifies the IP core description
     file: {resource_path} # see "Resource path syntax" section for more information
+    core: {vlnv}          # a module from a registered library, see "Libraries"
     parameters:  # specify IP parameter values to be overridden
       {parameters_name} : {parameters_value}
       ...
@@ -605,7 +607,15 @@ ips:
 ...
 ```
 
-The syntax is as follows:
+A value with no scheme is a filesystem path, resolved relative to the YAML file it appears in:
+
+```yaml
+ips:
+  ip_inst_name:
+    file: ./my_directory/core.yaml
+```
+
+To reach anything else, prefix the value with a scheme:
 
 ```
 SCHEME[ARG1|ARG2...]:SCHEME_PATH
@@ -621,9 +631,15 @@ SCHEME[ARG1|ARG2...]:SCHEME_PATH
 - `file`
   - `SCHEME_ARGS`: None
   - `SCHEME_PATH`: A filesystem path relative from the currently edited YAML file to the resource
+  - :::{deprecated} 1.0.0
+    Write the path directly, without the `file:` prefix.
+    :::
 - `repo`
   - `SCHEME_ARGS`: Repository name
   - `SCHEME_PATH`: A name of resource
+  - :::{deprecated} 1.0.0
+    The user repository mechanism is being removed. Register the sources as a [library](libraries.md) and reference them with `core:` instead.
+    :::
 - `get`
   - `SCHEME_ARGS`: None
   - `SCHEME_PATH`: The URL address of the remote resource. Only `http(s)://` URLs are currently supported.
@@ -642,16 +658,10 @@ If a repository was injected to the config with the `--repo` CLI option, the nam
 
 
 ```
-file:./my_directory/file.txt
+./my_directory/file.txt
 ```
 
-A path to the file on the filesystem.
-
-```
-repo[builtin]:axi_protocol_converter
-```
-
-This loads the `axi_protocol_converter` core located in the builtin user repository.
+A path to the file on the filesystem, relative to the YAML file it is written in.
 
 ```
 repo[my_repo]:res.txt
@@ -676,7 +686,7 @@ This clones the `main` branch of the given git repository into a persistent cach
 git[main|topwrap/builtin]:https://github.com/antmicro/topwrap.git
 ```
 
-This clones the `main` branch as above, but resolves to the `main|topwrap/builtin` subdirectory of the repository instead of its root.
+This clones the `main` branch as above, but resolves to the `topwrap/builtin` subdirectory of the repository instead of its root.
 
 Cloned repositories are cached persistently between runs. To remove all locally cached clones, run:
 

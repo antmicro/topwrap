@@ -1,6 +1,6 @@
 ips:
   axi_bridge:
-    file: repo[builtin]:axi_axil_adapter
+    file: cores/axi_axil_adapter.yaml
     parameters:
       ADDR_WIDTH: 32
       AXIL_DATA_WIDTH: 32
@@ -9,9 +9,9 @@ ips:
       AXI_ID_WIDTH: 12
       AXI_STRB_WIDTH: AXI_DATA_WIDTH/8
   litex_pwm_top:
-    file: file:ipcores/litex_pwm.yaml
+    file: file:cores/litex_pwm.yaml
   ps7:
-    file: file:ipcores/ps7.yaml
+    file: file:cores/ps7.yaml
 
 connections:
   ports:

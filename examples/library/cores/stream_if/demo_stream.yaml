@@ -1,0 +1,15 @@
+id:
+  vendor: example.com
+  library: demo
+  name: demo_stream
+signals:
+  required:
+    in: {}
+    inout: {}
+    out:
+      data: data
+      valid: valid
+  optional:
+    in: {}
+    inout: {}
+    out: {}

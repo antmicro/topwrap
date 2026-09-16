@@ -10,11 +10,13 @@ from pathlib import Path
 from typing import List
 
 import pytest
+import yaml
 
 import topwrap.cli.main  # noqa: F401
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.cli import cli
 from topwrap.frontend.ipxact.frontend import IpXactFrontend
+from topwrap.library import clear_index_cache
 from topwrap.plugin.base import BuildException
 from topwrap.util import get_config
 
@@ -64,6 +66,29 @@ class TestCli:
     def test_build_main(self, build_design_yaml: Path, tmp_path: Path):
         run_cli("build", "-d", str(build_design_yaml), "-b", str(tmp_path))
         assert Path(tmp_path / "top.sv").exists()
+
+    def test_generate_fusesoc_includes_library_dependencies_and_options(self, tmp_path: Path):
+        sources = tmp_path / "additional_sources"
+        sources.mkdir()
+        (sources / "constraints.xdc").write_text("# constraints\n")
+
+        run_cli(
+            "generate",
+            "examples/library/project.yaml",
+            "--fusesoc",
+            "--part",
+            "xc7z020clg400-3",
+            "--sources",
+            str(sources),
+            "--target-dir",
+            str(tmp_path / "build"),
+        )
+
+        core = (tmp_path / "build" / "src" / "library_example.core").read_text()
+        assert "example.com:demo:producer:0.1" in core
+        assert "example.com:demo:consumer:0.1" in core
+        assert "constraints.xdc" in core
+        assert "part: xc7z020clg400-3" in core
 
     def test_main_handle_validation_exception(self):
         with pytest.raises(SystemExit) as exc_info:
@@ -196,6 +221,29 @@ class TestCli:
 
         run_cli("dataflow", *converted, "-d", str(design_build), "-o", str(design_path))
         assert design_path.exists()
+
+    def test_generate_writes_kpm_output_into_target_dir(
+        self, build_design_yaml: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        design = build_design_yaml.resolve()
+        # Run from elsewhere so that a stray relative path is visible as such.
+        cwd = tmp_path / "cwd"
+        cwd.mkdir()
+        target = tmp_path / "out"
+        monkeypatch.chdir(cwd)
+
+        run_cli(
+            "generate",
+            str(design),
+            "--target-dir",
+            str(target),
+            "--specification",
+            "--diagram",
+        )
+
+        assert (target / "kpm_spec.json").exists()
+        assert (target / "kpm_dataflow.json").exists()
+        assert not list(cwd.glob("*.json")), "KPM output leaked into the working directory"
 
     def test_repo_parse_incdir(self, tmp_path: Path):
         repo_name = "repo"
@@ -344,14 +392,14 @@ class TestRepoCli:
             path = tmpdir / "repos" / "repo_directory"
             assert not Path("topwrap.yaml").exists()
             run_cli("repo", "init", "name_repo", str(path))
-            content: str = f"repositories:\n  name_repo: file:{str(path.relative_to(tmpdir))}\n"
+            content: str = f"repositories:\n  name_repo: {str(path.relative_to(tmpdir))}\n"
             assert Path("topwrap.yaml").read_text() == content
 
             path = tmpdir / "repos" / "another_repo"
             run_cli("repo", "init", "repo2", str(path))
             assert (
                 Path("topwrap.yaml").read_text()
-                == content + f"  repo2: file:{str(path.relative_to(tmpdir))}\n"
+                == content + f"  repo2: {str(path.relative_to(tmpdir))}\n"
             )
 
     def test_repo_init_existing_dir(self, tmpdir: Path, caplog: pytest.LogCaptureFixture):
@@ -528,3 +576,108 @@ class TestRepoCli:
         finally:
             del get_config().repositories[repo_path.name]
             get_config().__dict__.pop("loaded_repos", None)
+
+
+class TestLibraryCli:
+    @pytest.fixture
+    def isolated_libraries(self):
+        """Keep registered libraries and the VLNV index out of other tests."""
+        original = dict(get_config().libraries)
+        yield
+        get_config().libraries.clear()
+        get_config().libraries.update(original)
+        clear_index_cache()
+
+    @pytest.fixture
+    def a_library(self, tmpdir: Path) -> Path:
+        """A minimal on-disk library providing one module."""
+        cores = Path(tmpdir) / "a_library"
+        cores.mkdir(parents=True)
+        (cores / "demo.yaml").write_text(
+            "id: {vendor: example.com, library: demo, name: demo_core}\n"
+            "signals: {in: [{name: clk}]}\n"
+        )
+        (cores / "demo.core").write_text(
+            "CAPI=2:\n\nname : example.com:demo:demo_core\n\n"
+            "filesets:\n  topwrap:\n    files:\n"
+            "        - demo.yaml : { file_type : topwrapModule }\n"
+        )
+        return cores
+
+    def test_add_registers_and_writes_config(
+        self, tmpdir: Path, a_library: Path, isolated_libraries: None
+    ):
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.chdir(tmpdir)
+            assert not Path("topwrap.yaml").exists()
+
+            run_cli("library", "add", "demo", str(a_library))
+
+            assert "demo" in get_config().libraries
+            assert yaml.safe_load(Path("topwrap.yaml").read_text())["libraries"] == {
+                "demo": str(a_library)
+            }
+
+    def test_add_rejects_a_duplicate_name(
+        self, tmpdir: Path, a_library: Path, isolated_libraries: None
+    ):
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.chdir(tmpdir)
+            run_cli("library", "add", "demo", str(a_library))
+            with pytest.raises(SystemExit) as exc:
+                run_cli("library", "add", "demo", str(a_library))
+            assert exc.value.code == 1
+
+    def test_add_reports_a_missing_directory(self, tmpdir: Path, isolated_libraries: None):
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.chdir(tmpdir)
+            with pytest.raises(SystemExit) as exc:
+                run_cli("library", "add", "nope", str(Path(tmpdir) / "no_such_dir"))
+            assert exc.value.code == 1
+            assert "nope" not in get_config().libraries
+            assert not Path("topwrap.yaml").exists(), "a failed add must not write the config"
+
+    def test_list_shows_a_registered_library_and_its_module(
+        self,
+        tmpdir: Path,
+        a_library: Path,
+        isolated_libraries: None,
+        capsys: pytest.CaptureFixture[str],
+    ):
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.chdir(tmpdir)
+            run_cli("library", "add", "demo", str(a_library))
+            capsys.readouterr()
+
+            run_cli("library", "list", "modules")
+
+            out = capsys.readouterr().out
+            assert "demo" in out
+            assert "example.com:demo:demo_core:0.1" in out
+
+    def test_update_without_git_libraries_says_so(
+        self,
+        tmpdir: Path,
+        a_library: Path,
+        isolated_libraries: None,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.chdir(tmpdir)
+            run_cli("library", "add", "demo", str(a_library))
+
+            with caplog.at_level(logging.INFO):
+                run_cli("library", "update")
+
+            assert "No git libraries to update." in caplog.text
+
+    def test_update_rejects_an_unregistered_name(
+        self, tmpdir: Path, a_library: Path, isolated_libraries: None
+    ):
+        with pytest.MonkeyPatch().context() as ctx:
+            ctx.chdir(tmpdir)
+            run_cli("library", "add", "demo", str(a_library))
+
+            with pytest.raises(SystemExit) as exc:
+                run_cli("library", "update", "nope")
+            assert exc.value.code == 1

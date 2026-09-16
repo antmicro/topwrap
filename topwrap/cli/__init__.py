@@ -14,24 +14,29 @@ from cyclopts.types import ExistingDirectory, ExistingFile
 
 import topwrap.logger
 from topwrap import __version__
+from topwrap.backend.yaml.common.ip_core_schema import IPCoreDescription
 from topwrap.frontend.yaml.design import DesignDescriptionFrontendException
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
+from topwrap.library import interface_definitions, module_index
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.misc import Identifier
 from topwrap.model.module import Module
 from topwrap.repo.user_repo import Core, InterfaceDefinitionResource
 from topwrap.resource_field import FileReferenceHandler
-from topwrap.util import MarshmallowErrorRewriter, get_config, parse_incdirs
+from topwrap.util import MarshmallowErrorRewriter, get_config, parse_incdirs, warn_deprecated
 
 logger = logging.getLogger(__name__)
 
 cli = cyclopts.App(
-    default_parameter=cyclopts.Parameter(negative=()),
+    default_parameter=cyclopts.Parameter(short_alias=True),
     help_format="restructuredtext",
     version=__version__,
 )
 
 repo_cli = cyclopts.App(name="repo", help="Commands related to user repositories", show=False)
 cli.command(repo_cli)
+library_cli = cyclopts.App(name="library", help="Commands related to libraries (based on FuseSoC)")
+cli.command(library_cli)
 
 
 class LOG_LEVEL(str, Enum):
@@ -84,10 +89,19 @@ def cmd(
         if not curr.startswith("+incdir+"):
             processed_tokens.append(tokens[i])
 
+    if repo:
+        warn_deprecated(
+            "the '--repo' flag and user repositories are deprecated; register a "
+            "topwrap library ('topwrap library add') and use 'core:' in the design"
+        )
     for rep in repo:
         get_config().update_repo({rep.name: FileReferenceHandler(rep)})
 
     try:
+        if processed_tokens == ["library", "add"]:
+            cli.help_print(processed_tokens)
+            sys.exit(1)
+
         PARSE_COMMAND = ["repo", "parse"]
         if processed_tokens[:2] == PARSE_COMMAND:
             cli_args = []
@@ -114,7 +128,7 @@ def cmd(
 
 
 def load_modules_from_repos() -> tuple[Iterable[Module], set[Identifier]]:
-    """Load all IR Modules from repositories in the config"""
+    """Load all IR Modules from repositories and libraries in the config"""
 
     modules = list[Module]()
     existing_ifaces = set[Identifier]()
@@ -128,6 +142,15 @@ def load_modules_from_repos() -> tuple[Iterable[Module], set[Identifier]]:
                 logger.error(f"Could not load core '{core.name}' from repo '{repo.name}': {e}")
                 failed = True
 
+    for vlnv, path in module_index().items():
+        try:
+            desc = IPCoreDescription.load(path)
+            modules.append(IPCoreDescriptionFrontend().parse(path, desc))
+            existing_ifaces.update(desc.existing_iface_definitions)
+        except Exception as e:
+            logger.error(f"Could not load module '{vlnv}' from a library ({path}): {e}")
+            failed = True
+
     # Report every unloadable core before quitting, so that a single broken
     # core doesn't hide the remaining ones
     if failed:
@@ -137,9 +160,17 @@ def load_modules_from_repos() -> tuple[Iterable[Module], set[Identifier]]:
 
 
 def load_interfaces_from_repos() -> Iterator[InterfaceDefinition]:
+    seen: set[Identifier] = set()
     for repo in get_config().loaded_repos.values():
         for intf in repo.get_resources(InterfaceDefinitionResource):
-            yield intf.definition
+            if intf.definition.id not in seen:
+                seen.add(intf.definition.id)
+                yield intf.definition
+    for intf in interface_definitions():
+        if intf.id not in seen:
+            seen.add(intf.id)
+            yield intf
 
 
+import topwrap.cli.library  # noqa: E402, F401
 import topwrap.cli.repo  # noqa: E402, F401

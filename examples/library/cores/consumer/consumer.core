@@ -1,0 +1,15 @@
+CAPI=2:
+
+name : example.com:demo:consumer
+
+filesets:
+  topwrap:
+    files:
+        - module.yaml : { file_type : topwrapModule }
+  rtl:
+    files:
+        - consumer.sv : { file_type : systemVerilogSource }
+
+targets:
+  default:
+    filesets: [rtl]

@@ -1,0 +1,8 @@
+CAPI=2:
+
+name : antmicro.com:topwrap-interfaces:axi4lite
+
+filesets:
+  topwrap:
+    files:
+        - axi4lite.yaml : { file_type : topwrapInterface }

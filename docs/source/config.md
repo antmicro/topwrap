@@ -66,6 +66,30 @@ The configuration file for Topwrap provides the following options:
 
   For more information, refer to [User repositories](user_repositories.md).
 
+  :::{deprecated} 1.0.0
+  Use `libraries` instead.
+  :::
+
+- `libraries`
+
+  - Type: Dictionary of `name: uri`
+  - Merging strategy: Merge
+  - Specifies the libraries to load, with each library defined as an entry in which:
+    - The key is the name the library is referred to by.
+    - The value is a local directory or a git URL, optionally suffixed with `@<ref>` to pin a branch, tag, or commit.
+  - Relative local paths are resolved against the directory of the file declaring them, so a library keeps resolving regardless of the working directory.
+  - Example:
+    ```yaml
+    libraries:
+      my_cores: ./cores
+      remote_cores: https://github.com/org/some-ip-repo.git
+      pinned_cores: https://github.com/org/some-ip-repo.git@v1.2.0
+    ```
+
+  Entries are normally added with `topwrap library add` rather than by hand.
+
+  For more information, refer to [Libraries](libraries.md).
+
 ### Example configuration file
 
 Here is a sample configuration file used in the [hierarchy example](examples.md#hierarchy)

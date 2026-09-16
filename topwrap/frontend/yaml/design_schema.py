@@ -28,7 +28,11 @@ from topwrap.model.misc import Identifier
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class DesignIP(MarshmallowDataclassExtensions):
-    file: ResourcePathT
+    #: Reference to an IP core description file. Mutually exclusive with ``core``.
+    file: Optional[ResourcePathT] = ext_field(None)
+    #: FuseSoC VLNV of a module provided by a registered library (may be
+    #: partial, e.g. just the name). Mutually exclusive with ``file``.
+    core: Optional[str] = ext_field(None)
     parameters: Dict[str, IPCoreParameter] = ext_field(
         dict,
         self_cleanup=True,
@@ -41,12 +45,23 @@ class DesignIP(MarshmallowDataclassExtensions):
     clocks: dict[str, str] = ext_field(dict)
     resets: dict[str, str] = ext_field(dict)
 
+    @marshmallow.validates_schema
+    def _validate_source(self, data: Dict[str, Any], **kwargs: Any):
+        if (data.get("file") is None) == (data.get("core") is None):
+            raise marshmallow.ValidationError(
+                "exactly one of 'file' or 'core' must be set", field_name="core"
+            )
+
     @cached_property
     def module(self):
+        if self.file is None:
+            raise ValueError("DesignIP.module is only available for 'file'-based IPs")
         return IPCoreDescription.load(self.path)
 
     @property
     def path(self):
+        if self.file is None:
+            raise ValueError("DesignIP.path is only available for 'file'-based IPs")
         return self.file.to_path()
 
 

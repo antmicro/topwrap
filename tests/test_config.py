@@ -8,6 +8,7 @@ from tempfile import NamedTemporaryFile
 import pytest
 import yaml
 
+import topwrap.config as config_module
 from topwrap.config import Config, ConfigManager
 from topwrap.resource_field import FileReferenceHandler, UriReferenceHandler
 
@@ -118,3 +119,12 @@ class TestConfigManager:
                 config_path.flush()
                 manager.load()
                 assert self.contains_warnings_in_log(caplog)
+
+
+class TestBuiltinDir:
+    def test_points_at_the_real_installed_directory(self):
+        builtin = ConfigManager.BUILTIN_DIR
+        assert builtin == Path(config_module.__file__).parent / ConfigManager.BUILTIN_REPO_NAME
+        assert builtin.is_dir()
+        assert (builtin / "default_config.yaml").is_file()
+        assert (builtin / "interfaces").is_dir()

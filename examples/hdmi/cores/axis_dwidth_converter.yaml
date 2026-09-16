@@ -13,7 +13,7 @@ parameters:
 interfaces:
     s_axis:
         type:
-            name: AXI4Stream
+            name: axi4stream
             vendor: vendor
             library: libdefault
         mode: subordinate
@@ -26,7 +26,7 @@ interfaces:
 
     m_axis:
         type:
-            name: AXI4Stream
+            name: axi4stream
             vendor: vendor
             library: libdefault
         mode: manager

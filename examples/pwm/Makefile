@@ -13,7 +13,7 @@ generate: build
 
 copy_sources: build
 	cp -rf sources/ build/
-	cp -rf ipcores/* build/
+	cp -rf cores/* build/
 
 fusesoc_init:
 	fusesoc library add fusesoc_cores https://github.com/fusesoc/fusesoc-cores

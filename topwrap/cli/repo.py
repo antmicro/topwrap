@@ -21,9 +21,14 @@ from topwrap.repo.repo import (
 from topwrap.repo.resource import ResourceExistsException
 from topwrap.repo.user_repo import UserRepo
 from topwrap.resource_field import FileReferenceHandler
-from topwrap.util import get_config, parse_params
+from topwrap.util import get_config, parse_params, warn_deprecated
 
 logger = logging.getLogger(__name__)
+
+_REPO_DEPRECATION = (
+    "'topwrap repo' and the user-repository mechanism are deprecated and will be "
+    "removed; use 'topwrap library' and reference cores with 'core:' in the design"
+)
 
 
 @repo_cli.command(name="parse")
@@ -54,6 +59,9 @@ def parse_repo(
     """Parse Modules from all provided files using available frontends and store
     them in a given user repository.
 
+    .. deprecated::
+        See ``topwrap library``.
+
     Parameters
     ----------
     repository
@@ -80,6 +88,7 @@ def parse_repo(
     grouping_hint
         Grouping hints for interface inference.
     """
+    warn_deprecated(_REPO_DEPRECATION)
     repo_path = get_config().repositories.get(repository)
 
     if len(file) == 0:
@@ -173,6 +182,7 @@ def load_srcs_from_file(srcs: list[Path], incdirs: list[Path], file: Path) -> No
 @repo_cli.command(name="list", help="List all repos in current config")
 def list_repos():
     """List all repos in current config"""
+    warn_deprecated(_REPO_DEPRECATION)
 
     print("Loaded user repositories:")
     for name, path in get_config().repositories.items():
@@ -187,6 +197,7 @@ def init_repo(
     config_update: Annotated[bool, Parameter(negative="--no-config-update")] = True,
 ):
     """Create new repo"""
+    warn_deprecated(_REPO_DEPRECATION)
 
     path.mkdir(exist_ok=True, parents=True)
     if next(path.iterdir(), None) is not None:

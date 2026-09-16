@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import warnings
 from collections import defaultdict
 from enum import Enum
 from importlib.metadata import PackageNotFoundError, distribution, version
@@ -15,10 +16,10 @@ from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, Optional, Ty
 import marshmallow
 
 from topwrap.model.misc import Identifier
-from topwrap.repo.exceptions import ResourceNotFoundException
 
 if TYPE_CHECKING:
     from topwrap.config import Config
+    from topwrap.model.interface import InterfaceDefinition
     from topwrap.repo.user_repo import InterfaceDefinitionResource
 
 JsonType = Dict[str, Any]
@@ -201,15 +202,65 @@ def collect_filelist_sources(
     return list(sv_sources), include_dirs
 
 
-def get_interface_by_id(id: Identifier) -> Optional["InterfaceDefinitionResource"]:
+def iter_known_interfaces() -> Iterable["InterfaceDefinition"]:
+    """Every interface definition topwrap can see: user repos first, then the
+    registered FuseSoC libraries."""
+    from topwrap.library import interface_definitions
     from topwrap.repo.user_repo import InterfaceDefinitionResource
 
     for repo in get_config().loaded_repos.values():
-        try:
-            res = repo.get_resource(InterfaceDefinitionResource, id.combined())
-        except ResourceNotFoundException:
-            continue
-        return res
+        for res in repo.get_resources(InterfaceDefinitionResource):
+            yield res.definition
+    yield from interface_definitions()
+
+
+def get_interface_by_id(id: Identifier) -> Optional["InterfaceDefinitionResource"]:
+    """Resolve an interface ``type:`` reference to its definition.
+
+    ``id`` may be given as just a name or as ``vendor:library:name`` (see
+    :meth:`Identifier.refers_to`). Repos and libraries are searched with the
+    same rules. A fully qualified reference that names an interface exactly
+    wins outright, so spelling out the version still picks one out of several
+    versions that ``refers_to`` alone cannot tell apart. Returns ``None`` when
+    nothing matches or the reference is ambiguous (a warning is logged in the
+    latter case).
+    """
+    from topwrap.repo.user_repo import InterfaceDefinitionResource
+
+    matches: dict[str, "InterfaceDefinition"] = {}
+    for definition in iter_known_interfaces():
+        if str(definition.id) == str(id):
+            return InterfaceDefinitionResource(definition)
+        if id.refers_to(definition.id):
+            matches.setdefault(str(definition.id), definition)
+
+    if len(matches) > 1:
+        logging.getLogger(__name__).warning(
+            "interface reference '%s' is ambiguous, matches: %s",
+            id,
+            ", ".join(sorted(matches)),
+        )
+        return None
+    if not matches:
+        return None
+    return InterfaceDefinitionResource(next(iter(matches.values())))
+
+
+_warned_deprecations: set[str] = set()
+
+
+def warn_deprecated(message: str, *, key: Optional[str] = None) -> None:
+    """Emit a deprecation notice.
+
+    Always raised as a :class:`DeprecationWarning` (for programmatic callers and
+    tests). Also logged once per ``key`` (default: the message) as a ``WARNING``
+    so it is visible on the CLI without repeating for every occurrence.
+    """
+    warnings.warn(message, DeprecationWarning, stacklevel=2)
+    dedup = key if key is not None else message
+    if dedup not in _warned_deprecations:
+        _warned_deprecations.add(dedup)
+        logging.getLogger("topwrap.deprecation").warning("%s", message)
 
 
 def get_config() -> Config:

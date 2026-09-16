@@ -65,6 +65,9 @@ class ResourcePathField(marshmallow.fields.Field):
     """
 
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs: Any):
+        if value is None:
+            # an Optional[ResourcePathT] that was left unset
+            return None
         if not isinstance(value, ResourceReferenceHandler):
             raise marshmallow.ValidationError(f"Invalid type: '{type(value)}'")
         value.update_meta(self.context)

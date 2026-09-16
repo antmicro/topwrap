@@ -467,7 +467,10 @@ this: [a, b, c]
             with pytest.raises(err, match=match):
                 TestDataclass.from_dict({"files": [uri]}).files[0].to_path().open()
 
-        test_err("i/do/not/exist.yaml", InvalidIdentifierException, "match regex")
+        # A bare path (no scheme) is treated as a file: reference
+        test_err("i/do/not/exist.yaml", FileNotFoundError)
+        assert isinstance(YamlCommonSchemes.parse("i/do/not/exist.yaml"), FileReferenceHandler)
+        # A scheme-looking string with an unknown scheme is still an error
         test_err("dile:./file.txt", InvalidIdentifierException, "scheme: 'dile'")
         test_err("file:i/do/not/exist.yaml", FileNotFoundError)
         test_err("get:", IncorrectUrlException)
@@ -487,7 +490,10 @@ this: [a, b, c]
         assert list(git_handler_with_subdir.args) == ["main", "hw/ip_repo"]
 
         # Test serialization
-        assert FileReferenceHandler("path/to/file").to_str() == "file:path/to/file"
+        # A plain path is written without the deprecated "file:" prefix, unless
+        # it would then read back as some other scheme.
+        assert FileReferenceHandler("path/to/file").to_str() == "path/to/file"
+        assert FileReferenceHandler("odd:path/to/file").to_str() == "file:odd:path/to/file"
         assert UriReferenceHandler("https://google.com").to_str() == "get:https://google.com"
         assert (
             RepoReferenceHandler("cores/core", ["my_repo"]).to_str() == "repo[my_repo]:cores/core"
@@ -515,8 +521,26 @@ this: [a, b, c]
                 assert res.to_path().exists()
 
     def test_real_resource(self):
-        ref = YamlCommonSchemes.parse("repo[builtin]:axi_protocol_converter")
-        assert isinstance(ref, RepoReferenceHandler)
-        ld_core = ref.to_resource(Core).top
-        assert isinstance(ld_core, Module)
-        assert not ref.to_path().exists()
+        with TemporaryDirectory() as td:
+            core_dir = Path(td) / "cores" / "demo_core"
+            core_dir.mkdir(parents=True)
+            (core_dir / "module.yaml").write_text(
+                "id: {vendor: example.com, library: demo, name: demo_core}\n"
+                "signals: {in: [{name: clk}]}\n"
+            )
+
+            org = config.repositories
+            config.repositories = org.copy()
+            config.repositories["my_repo"] = FileReferenceHandler(td)
+            # loaded_repos is a cached_property: force it to pick up "my_repo"
+            # regardless of whether some earlier test already computed it.
+            config.__dict__.pop("loaded_repos", None)
+            try:
+                ref = YamlCommonSchemes.parse("repo[my_repo]:demo_core")
+                assert isinstance(ref, RepoReferenceHandler)
+                ld_core = ref.to_resource(Core).top
+                assert isinstance(ld_core, Module)
+                assert not ref.to_path().exists()
+            finally:
+                config.repositories = org
+                config.__dict__.pop("loaded_repos", None)

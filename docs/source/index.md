@@ -12,6 +12,7 @@ examples
 description_files
 inference
 config
+libraries
 user_repositories
 interconnect_gen
 fusesoc

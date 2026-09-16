@@ -169,7 +169,7 @@ class InterfaceDescriptionHandler(ResourceHandler[InterfaceDefinitionResource]):
         if not ifaces_dir.exists():
             return
 
-        for iface_file in ifaces_dir.iterdir():
+        for iface_file in sorted(ifaces_dir.glob("*.yaml")):
             if iface_file.is_dir():
                 continue
             try:

@@ -6,6 +6,22 @@
     "connectionStyle": "orthogonal",
     "disableInterfaceExpose": true,
     "interfaces": {
+      "antmicro.com_topwrap-interfaces_axi3_0.1": {
+        "interfaceColor": "#5ad1cd",
+        "interfaceConnectionPattern": "dashed"
+      },
+      "antmicro.com_topwrap-interfaces_axi4_0.1": {
+        "interfaceColor": "#5ad1cd",
+        "interfaceConnectionPattern": "dashed"
+      },
+      "antmicro.com_topwrap-interfaces_axi4lite_0.1": {
+        "interfaceColor": "#5ad1cd",
+        "interfaceConnectionPattern": "dashed"
+      },
+      "antmicro.com_topwrap-interfaces_axi4stream_0.1": {
+        "interfaceColor": "#5ad1cd",
+        "interfaceConnectionPattern": "dashed"
+      },
       "intf__clock": {
         "interfaceColor": "#00ca7c"
       },
@@ -14,22 +30,6 @@
       },
       "intf__port": {
         "interfaceColor": "#00ca7c"
-      },
-      "vendor_libdefault_AXI3_0.1": {
-        "interfaceColor": "#5ad1cd",
-        "interfaceConnectionPattern": "dashed"
-      },
-      "vendor_libdefault_AXI4Lite_0.1": {
-        "interfaceColor": "#5ad1cd",
-        "interfaceConnectionPattern": "dashed"
-      },
-      "vendor_libdefault_AXI4Stream_0.1": {
-        "interfaceColor": "#5ad1cd",
-        "interfaceConnectionPattern": "dashed"
-      },
-      "vendor_libdefault_AXI4_0.1": {
-        "interfaceColor": "#5ad1cd",
-        "interfaceConnectionPattern": "dashed"
       }
     },
     "layers": [
@@ -175,12 +175,12 @@
           "maxConnectionsCount": -1,
           "name": "in",
           "type": [
+            "antmicro.com_topwrap-interfaces_axi3_0.1",
+            "antmicro.com_topwrap-interfaces_axi4_0.1",
+            "antmicro.com_topwrap-interfaces_axi4lite_0.1",
+            "antmicro.com_topwrap-interfaces_axi4stream_0.1",
             "intf__ext",
-            "intf__port",
-            "vendor_libdefault_AXI3_0.1",
-            "vendor_libdefault_AXI4_0.1",
-            "vendor_libdefault_AXI4Lite_0.1",
-            "vendor_libdefault_AXI4Stream_0.1"
+            "intf__port"
           ]
         },
         {
@@ -188,12 +188,12 @@
           "maxConnectionsCount": -1,
           "name": "inout",
           "type": [
+            "antmicro.com_topwrap-interfaces_axi3_0.1",
+            "antmicro.com_topwrap-interfaces_axi4_0.1",
+            "antmicro.com_topwrap-interfaces_axi4lite_0.1",
+            "antmicro.com_topwrap-interfaces_axi4stream_0.1",
             "intf__ext",
-            "intf__port",
-            "vendor_libdefault_AXI3_0.1",
-            "vendor_libdefault_AXI4_0.1",
-            "vendor_libdefault_AXI4Lite_0.1",
-            "vendor_libdefault_AXI4Stream_0.1"
+            "intf__port"
           ]
         },
         {
@@ -201,12 +201,12 @@
           "maxConnectionsCount": -1,
           "name": "out",
           "type": [
+            "antmicro.com_topwrap-interfaces_axi3_0.1",
+            "antmicro.com_topwrap-interfaces_axi4_0.1",
+            "antmicro.com_topwrap-interfaces_axi4lite_0.1",
+            "antmicro.com_topwrap-interfaces_axi4stream_0.1",
             "intf__ext",
-            "intf__port",
-            "vendor_libdefault_AXI3_0.1",
-            "vendor_libdefault_AXI4_0.1",
-            "vendor_libdefault_AXI4Lite_0.1",
-            "vendor_libdefault_AXI4Stream_0.1"
+            "intf__port"
           ]
         }
       ],
@@ -257,10 +257,10 @@
           "maxConnectionsCount": 1,
           "name": "manager",
           "type": [
-            "vendor_libdefault_AXI3_0.1",
-            "vendor_libdefault_AXI4_0.1",
-            "vendor_libdefault_AXI4Lite_0.1",
-            "vendor_libdefault_AXI4Stream_0.1"
+            "antmicro.com_topwrap-interfaces_axi3_0.1",
+            "antmicro.com_topwrap-interfaces_axi4_0.1",
+            "antmicro.com_topwrap-interfaces_axi4lite_0.1",
+            "antmicro.com_topwrap-interfaces_axi4stream_0.1"
           ]
         },
         {
@@ -275,10 +275,10 @@
           "maxConnectionsCount": 1,
           "name": "subordinate",
           "type": [
-            "vendor_libdefault_AXI3_0.1",
-            "vendor_libdefault_AXI4_0.1",
-            "vendor_libdefault_AXI4Lite_0.1",
-            "vendor_libdefault_AXI4Stream_0.1"
+            "antmicro.com_topwrap-interfaces_axi3_0.1",
+            "antmicro.com_topwrap-interfaces_axi4_0.1",
+            "antmicro.com_topwrap-interfaces_axi4lite_0.1",
+            "antmicro.com_topwrap-interfaces_axi4stream_0.1"
           ]
         }
       ],
@@ -379,7 +379,7 @@
           "name": "axi_axil_adapter",
           "vendor": "vendor"
         },
-        "source": "repo[builtin]:axi_axil_adapter"
+        "source": "examples/hdmi/cores/axi_axil_adapter.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -401,7 +401,7 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axi",
-          "type": "vendor_libdefault_AXI4Lite_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4lite_0.1"
         },
         {
           "direction": "input",
@@ -413,7 +413,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "s_axi",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         }
       ],
       "layer": "IP Cores",
@@ -461,7 +461,7 @@
           "name": "axi_dispctrl",
           "vendor": "vendor"
         },
-        "source": "examples/hdmi/ipcores/axi_dispctrl.yaml"
+        "source": "examples/hdmi/cores/axi_dispctrl.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -531,13 +531,13 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "S00_AXI",
-          "type": "vendor_libdefault_AXI4Lite_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4lite_0.1"
         },
         {
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "S_AXIS",
-          "type": "vendor_libdefault_AXI4Stream_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4stream_0.1"
         },
         {
           "direction": "input",
@@ -583,7 +583,7 @@
           "name": "axi_interconnect",
           "vendor": "vendor"
         },
-        "source": "repo[builtin]:axi_interconnect"
+        "source": "examples/hdmi/cores/axi_interconnect.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -605,19 +605,19 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axi_0",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         },
         {
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axi_1",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         },
         {
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axi_2",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         },
         {
           "direction": "input",
@@ -629,7 +629,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "s_axi_0",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         }
       ],
       "layer": "IP Cores",
@@ -712,7 +712,7 @@
           "name": "axi_protocol_converter",
           "vendor": "vendor"
         },
-        "source": "repo[builtin]:axi_protocol_converter"
+        "source": "examples/hdmi/cores/axi_protocol_converter.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -728,13 +728,13 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "M_AXI",
-          "type": "vendor_libdefault_AXI3_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi3_0.1"
         },
         {
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "S_AXI",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         },
         {
           "direction": "input",
@@ -762,7 +762,7 @@
           "name": "axis_async_fifo",
           "vendor": "vendor"
         },
-        "source": "repo[builtin]:axis_async_fifo"
+        "source": "examples/hdmi/cores/axis_async_fifo.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -784,7 +784,7 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axis",
-          "type": "vendor_libdefault_AXI4Stream_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4stream_0.1"
         },
         {
           "direction": "input",
@@ -814,7 +814,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "s_axis",
-          "type": "vendor_libdefault_AXI4Stream_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4stream_0.1"
         },
         {
           "direction": "input",
@@ -891,7 +891,7 @@
           "name": "axis_dwidth_converter",
           "vendor": "vendor"
         },
-        "source": "repo[builtin]:axis_dwidth_converter"
+        "source": "examples/hdmi/cores/axis_dwidth_converter.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -919,13 +919,13 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axis",
-          "type": "vendor_libdefault_AXI4Stream_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4stream_0.1"
         },
         {
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "s_axis",
-          "type": "vendor_libdefault_AXI4Stream_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4stream_0.1"
         }
       ],
       "layer": "IP Cores",
@@ -953,7 +953,7 @@
           "name": "clock_crossing",
           "vendor": "vendor"
         },
-        "source": "examples/hdmi/ipcores/clock_crossing.yaml"
+        "source": "examples/hdmi/cores/clock_crossing.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -1003,7 +1003,7 @@
           "name": "dma_axi_in_axis_out",
           "vendor": "vendor"
         },
-        "source": "examples/hdmi/ipcores/dma_axi_in_axis_out.yaml"
+        "source": "examples/hdmi/cores/dma_axi_in_axis_out.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -1049,13 +1049,13 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axi",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         },
         {
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "m_axis",
-          "type": "vendor_libdefault_AXI4Stream_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4stream_0.1"
         },
         {
           "direction": "input",
@@ -1067,7 +1067,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "s_axi",
-          "type": "vendor_libdefault_AXI4Lite_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4lite_0.1"
         }
       ],
       "layer": "IP Cores",
@@ -1083,7 +1083,7 @@
           "name": "hdmi_tx",
           "vendor": "vendor"
         },
-        "source": "examples/hdmi/ipcores/hdmi_tx.yaml"
+        "source": "examples/hdmi/cores/hdmi_tx.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -1229,7 +1229,7 @@
           "name": "litex_mmcm",
           "vendor": "vendor"
         },
-        "source": "examples/hdmi/ipcores/litex_mmcm.yaml"
+        "source": "examples/hdmi/cores/litex_mmcm.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -1245,7 +1245,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "axi",
-          "type": "vendor_libdefault_AXI4Lite_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4lite_0.1"
         },
         {
           "direction": "output",
@@ -1297,7 +1297,7 @@
           "name": "proc_sys_reset",
           "vendor": "vendor"
         },
-        "source": "examples/hdmi/ipcores/proc_sys_reset.yaml"
+        "source": "examples/hdmi/cores/proc_sys_reset.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -1383,7 +1383,7 @@
           "name": "ps7",
           "vendor": "vendor"
         },
-        "source": "examples/hdmi/ipcores/ps7.yaml"
+        "source": "examples/hdmi/cores/ps7.yaml"
       },
       "category": "vendor/libdefault",
       "contextMenuActions": [
@@ -1441,7 +1441,7 @@
           "direction": "output",
           "maxConnectionsCount": 1,
           "name": "M_AXI_GP0",
-          "type": "vendor_libdefault_AXI4_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi4_0.1"
         },
         {
           "direction": "input",
@@ -1483,7 +1483,7 @@
           "direction": "input",
           "maxConnectionsCount": 1,
           "name": "S_AXI_HP0",
-          "type": "vendor_libdefault_AXI3_0.1"
+          "type": "antmicro.com_topwrap-interfaces_axi3_0.1"
         },
         {
           "direction": "inout",

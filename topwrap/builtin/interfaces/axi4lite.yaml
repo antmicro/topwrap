@@ -8,9 +8,9 @@
 # Signal description
 # - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 113,126
 id:
-  library: libdefault
-  name: AXI4Lite
-  vendor: vendor
+  library: topwrap-interfaces
+  name: axi4lite
+  vendor: antmicro.com
 signals:
     required:
         out:

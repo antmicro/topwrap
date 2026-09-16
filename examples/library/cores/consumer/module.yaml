@@ -1,0 +1,21 @@
+id:
+  vendor: example.com
+  library: demo
+  name: consumer
+interfaces:
+  stream_in:
+    mode: subordinate
+    type:
+      vendor: example.com
+      library: demo
+      name: demo_stream
+    signals:
+      in:
+        data: {bound: ['3', '0'], name: c_data}
+        valid: {name: c_valid}
+signals:
+  in:
+    - {bound: ['3', '0'], name: c_data}
+    - {name: c_valid}
+  out:
+    - {bound: ['3', '0'], name: out_1}

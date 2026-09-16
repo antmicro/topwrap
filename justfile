@@ -159,6 +159,7 @@ docs:
 
 	for p in ./examples/**/Makefile; do
 		if [[ $p == *"/Caliptra/"* ]]; then continue; fi
+		if [[ $p == *"/library/"* ]]; then continue; fi
 		DIR="$(dirname $p)"
 		NAME=$(echo "$DIR" | sed 's/.\/examples\///' | sed 's/\//_/')
 		cd $DIR

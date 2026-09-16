@@ -18,7 +18,7 @@ interfaces:
     # 1 subordinate
     S_AXI:
         type:
-            name: AXI4
+            name: axi4
             vendor: vendor
             library: libdefault
         mode: subordinate
@@ -69,7 +69,7 @@ interfaces:
     # 1 manager
     M_AXI:
         type:
-            name: AXI3
+            name: axi3
             vendor: vendor
             library: libdefault
         mode: manager

@@ -16,9 +16,12 @@ from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
 from topwrap.backend.yaml.backend import DesignDescriptionBackend, DesignPositionsBackend
+from topwrap.config import _resolve_library_uris
 from topwrap.frontend.kpm.frontend import KpmFrontend
+from topwrap.frontend.yaml.design_schema import DesignDescription
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.fuse_helper import FuseSocBuilder
+from topwrap.library import fusesoc_core_of
 from topwrap.model.module import Module
 from topwrap.plugin.base import (
     BuildContext,
@@ -150,18 +153,19 @@ class YamlInputStage(InputStage):
 
     @override
     def pre_parse_input(self, design_source: Optional[Source], sources: list[Source]):
-        from topwrap.frontend.yaml.design_schema import DesignDescription
-
         if design_source:
             if isinstance(design_source, FileSource):
                 design = DesignDescription.load(design_source.path)
+                base = design_source.path.parent
             else:
                 assert isinstance(design_source, StringSource)
                 design = DesignDescription.from_yaml(design_source.content)
+                base = Path()
 
             config_options = design.config
             if config_options:
                 get_config().update_repo(config_options.repositories)
+                get_config().update_libraries(_resolve_library_uris(config_options.libraries, base))
                 get_config().update_interface_compliance(config_options.force_interface_compliance)
 
 
@@ -280,6 +284,14 @@ class FuseSocOutputStage(OutputStage):
         fuse_builder = FuseSocBuilder(self.part)
 
         fuse_builder.add_source(Path(f"{ctx.top_module.id.name}.sv"), "systemVerilogSource")
+
+        for module in ctx.top_module.hierarchy():
+            if module is ctx.top_module or not module.refs:
+                continue
+            vlnv = fusesoc_core_of(module.refs[0].file)
+            if vlnv is not None:
+                fuse_builder.add_dependency(vlnv)
+
         fuse_builder.build(
             ctx.top_module.id.name,
             target_dir / f"{ctx.top_module.id.name}.core",

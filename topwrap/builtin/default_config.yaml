@@ -1,4 +1,10 @@
+# builtin no longer ships any cores, but the interfaces are still also
+# reachable through the (deprecated) repository mechanism; drop this entry
+# once that mechanism is removed.
 repositories:
-  builtin: file:.
+  builtin: .
+
+libraries:
+  builtin: .
 
 force_interface_compliance: false

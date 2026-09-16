@@ -282,6 +282,25 @@ class Identifier:
 
         return Identifier(vendor=m[1], library=m[2], name=m[3], version=m[4])
 
+    def refers_to(self, other: "Identifier") -> bool:
+        """Whether this identifier - given as just a name, or as
+        ``vendor:library:name`` - refers to ``other``.
+
+        Mirrors how FuseSoC resolves a core name (``eq_vln`` in the resolver,
+        the bare-name lookup in ``fusesoc.main._get_core``): ``name`` is
+        compared case-insensitively, ``vendor`` / ``library`` are only checked
+        when this identifier specifies them (i.e. is not left at the empty
+        string or the field default), and ``version`` is ignored. Uniqueness /
+        ambiguity is the caller's concern.
+        """
+        if self.name.lower() != other.name.lower():
+            return False
+        if self.vendor not in ("", "vendor") and self.vendor != other.vendor:
+            return False
+        if self.library not in ("", "libdefault") and self.library != other.library:
+            return False
+        return True
+
     def combined(self) -> str:
         return "_".join([self.vendor, self.library, self.name, self.version])
 

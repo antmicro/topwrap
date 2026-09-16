@@ -9,7 +9,7 @@ id:
 interfaces:
     axi:
         type:
-            name: AXI4Lite
+            name: axi4lite
             vendor: vendor
             library: libdefault
         mode: subordinate

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos
+from topwrap.config import library_scope
 from topwrap.plugin.base import (
     BasePlugin,
     BuildContext,
@@ -31,7 +32,7 @@ from topwrap.plugin.steps import (
     YamlDesignOutputStage,
     YamlInputStage,
 )
-from topwrap.util import JsonType
+from topwrap.util import JsonType, get_config
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ class BuildPipeline:
     validations: list[Validation]
     outputs: list[OutputStage]
     _ctx: Optional[BuildContext]
+    _libraries: dict[str, str]
 
     def __init__(
         self,
@@ -61,6 +63,7 @@ class BuildPipeline:
         self.outputs = outputs
 
         self._ctx = None
+        self._libraries = {}
 
     @property
     def ctx(self) -> BuildContext:
@@ -76,28 +79,31 @@ class BuildPipeline:
         logger.debug("Preparing modules")
 
         # Pre-parse logic
-        for i in self.inputs:
-            logger.debug(f"Pre-parsing design using: {i.name}")
-            i.pre_parse_input(design_source, sources)
+        with library_scope({}):
+            for i in self.inputs:
+                logger.debug(f"Pre-parsing design using: {i.name}")
+                i.pre_parse_input(design_source, sources)
+            self._libraries = dict(get_config().libraries)
 
-        repo_interfaces = load_interfaces_from_repos()
-        repo_modules, existing_ifaces = load_modules_from_repos()
+        with self._library_scope():
+            repo_interfaces = load_interfaces_from_repos()
+            repo_modules, existing_ifaces = load_modules_from_repos()
 
-        self._ctx = BuildContext(
-            repo_modules=[*repo_modules],
-            repo_interfaces=list(repo_interfaces),
-            design_source=design_source,
-            extra_sources=sources,
-            top_module=None,
-            loaded_modules=[],
-            existing_interfaces=existing_ifaces,
-        )
+            self._ctx = BuildContext(
+                repo_modules=[*repo_modules],
+                repo_interfaces=list(repo_interfaces),
+                design_source=design_source,
+                extra_sources=sources,
+                top_module=None,
+                loaded_modules=[],
+                existing_interfaces=existing_ifaces,
+            )
 
-        self.plugin_manager.trigger(BasePlugin.pre_ir_generation, self.ctx)
-        for i in self.inputs:
-            logger.debug(f"Processing inputs using: {i.name}")
-            i.process_input(design_source, sources, self.ctx)
-        self.plugin_manager.trigger(BasePlugin.post_ir_generation, self.ctx)
+            self.plugin_manager.trigger(BasePlugin.pre_ir_generation, self.ctx)
+            for i in self.inputs:
+                logger.debug(f"Processing inputs using: {i.name}")
+                i.process_input(design_source, sources, self.ctx)
+            self.plugin_manager.trigger(BasePlugin.post_ir_generation, self.ctx)
 
     def prepare_files(
         self,
@@ -123,6 +129,10 @@ class BuildPipeline:
         if not self.ctx:
             raise BuildException("prepare must be called before process")
 
+        with self._library_scope():
+            self._process()
+
+    def _process(self):
         self.plugin_manager.trigger(BasePlugin.pre_transform, self.ctx)
         for t in self.transformations:
             for mod in self.ctx.loaded_modules:
@@ -154,6 +164,10 @@ class BuildPipeline:
         if not self.ctx:
             raise BuildException("prepare must be called before build")
 
+        with self._library_scope():
+            self._build(outdir)
+
+    def _build(self, outdir: OutputDir):
         outdir.target_dir.mkdir(exist_ok=True)
         outdir.gensrc_dir.mkdir(exist_ok=True)
 
@@ -162,6 +176,9 @@ class BuildPipeline:
             logger.info(f"Writing output: {o.name}")
             o.write_output_to(outdir.gensrc_dir, self.ctx)
         self.plugin_manager.trigger(BasePlugin.post_output_writing, self.ctx, outdir)
+
+    def _library_scope(self):
+        return library_scope(self._libraries, replace=True)
 
     def run(
         self,

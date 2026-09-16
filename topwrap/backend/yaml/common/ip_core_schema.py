@@ -231,7 +231,7 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
     @marshmallow.validates("type")
     def _validate_type(self, id: Identifier) -> bool:
         if get_interface_by_id(id) is None:
-            raise marshmallow.ValidationError(f"Invalid interface type: {id.combined()}")
+            raise marshmallow.ValidationError(f"Invalid interface type: {id}")
         return True
 
     @marshmallow.validates_schema

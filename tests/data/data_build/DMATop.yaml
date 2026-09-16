@@ -9,7 +9,7 @@ id:
 interfaces:
     AXIS_m0:
         type:
-            name: AXI4Stream
+            name: axi4stream
             vendor: vendor
             library: libdefault
         mode: manager
@@ -24,7 +24,7 @@ interfaces:
 
     AXI_s0:
         type:
-            name: AXI4
+            name: axi4
             vendor: vendor
             library: libdefault
         mode: subordinate
@@ -53,7 +53,7 @@ interfaces:
 
     AXI_m1:
         type:
-            name: AXI4
+            name: axi4
             vendor: vendor
             library: libdefault
         mode: manager

@@ -35,7 +35,7 @@ from topwrap.plugin.base import BuildException, OutputDir
 from topwrap.plugin.pipeline import BuildPipeline
 from topwrap.plugin.steps import KpmSpecificationOutputStage
 from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
-from topwrap.util import JsonType, get_config
+from topwrap.util import JsonType, get_config, warn_deprecated
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,9 @@ def build_main(
     iface_compliance
         Force interface compliance checking.
     """
-    logger.warning("The 'build' command will be deprecated in 1.0.0.")
+    warn_deprecated(
+        "the 'build' command is deprecated and will be removed in 1.0.0; use 'generate'"
+    )
 
     if build_dir is None:
         build_dir = Path("build")
@@ -159,10 +161,10 @@ def generate_main(
             pipeline = BuildPipeline.yaml_ipxact_pipeline()
             pipeline.run_files([], design, outdir)
         if diagram:
-            pipeline = BuildPipeline.yaml_kpm_flow_pipeline(Path("kpm_dataflow.json"))
+            pipeline = BuildPipeline.yaml_kpm_flow_pipeline(target_dir / "kpm_dataflow.json")
             pipeline.run_files([], design, outdir)
         if specification:
-            pipeline = BuildPipeline.yaml_kpm_spec_pipeline(Path("kpm_spec.json"))
+            pipeline = BuildPipeline.yaml_kpm_spec_pipeline(target_dir / "kpm_spec.json")
             pipeline.run_files([], design, outdir)
     except BuildException as e:
         logger.error(f"{e}")
