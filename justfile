@@ -42,16 +42,29 @@ lint:
 	uv sync --extra lint
 	uv run pre-commit run --all-files
 
-# Run all configured linting checks.
-test-lint:
+# Check that everything lint enforces is already satisfied, without modifying any local files.
+lint-check:
 	#!/usr/bin/env bash
 	set -euo pipefail
+
+	# Scratch dir for the copy, removed on exit
+	tmp=$(mktemp -d)
+	trap 'git worktree remove --force "$tmp"' EXIT
+
+	# Snapshot tracked changes (staged + unstaged) as a commit, without
+	# touching the working tree or index, then check that out into tmp.
+	rev=$(git stash create || true)
+	git worktree add -q --detach "$tmp" "${rev:-HEAD}"
+
+	# git stash create only covers tracked files; copy untracked ones too.
+	if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+		git ls-files --others --exclude-standard -z | tar --null -T - -cf - | tar -C "$tmp" -xf -
+	fi
+
+	# Now run the real check against the copy.
+	cd "$tmp"
 	uv sync --extra lint
-	source .venv/bin/activate
-	uv run pre-commit run check-yaml-extension --all-files
-	uv run ruff format --check
-	uv run ruff check
-	uv run codespell
+	uv run pre-commit run --all-files
 
 # Run static type checking using Pyright.
 [arg("compare",long,value="1")]

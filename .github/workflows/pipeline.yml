@@ -91,7 +91,7 @@ jobs:
       - name: Run lint checks
         run: |
           just install-debian-deps
-          just test-lint
+          just lint-check
 
   package_cores:
     runs-on: ubuntu-latest

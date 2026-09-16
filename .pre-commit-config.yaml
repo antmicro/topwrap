@@ -40,11 +40,22 @@ repos:
     -   id: lint
         name: Lint
         pass_filenames: true
+        types_or: [python, pyi]
         entry: >
           bash -c '
             uv sync --extra lint
             uv run ruff format "$@"
             uv run ruff check --fix "$@"
+          ' --
+        language: system
+
+    -   id: codespell
+        name: Codespell
+        pass_filenames: true
+        exclude: ^tests/data/
+        entry: >
+          bash -c '
+            uv sync --extra lint
             uv run codespell -w "$@"
           ' --
         language: system
