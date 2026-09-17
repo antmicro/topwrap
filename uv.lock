@@ -1647,8 +1647,8 @@ wheels = [
 
 [[package]]
 name = "pipeline-manager"
-version = "0.5.0"
-source = { url = "https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.0/pipeline_manager-0.5.0-py3-none-any.whl" }
+version = "0.5.1"
+source = { url = "https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.1/pipeline_manager-0.5.1-py3-none-any.whl" }
 dependencies = [
     { name = "attrs" },
     { name = "beautifulsoup4" },
@@ -1667,7 +1667,7 @@ dependencies = [
     { name = "uvicorn", extra = ["standard"] },
 ]
 wheels = [
-    { url = "https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.0/pipeline_manager-0.5.0-py3-none-any.whl", hash = "sha256:24dd46598bd3858166170452d7ef46bed985e13ada6c08505867b7b3cd2798aa" },
+    { url = "https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.1/pipeline_manager-0.5.1-py3-none-any.whl", hash = "sha256:b53b88d30bc88ab80dfd5153ae4c1c070183014263aae80e1c0e128188ffef05" },
 ]
 
 [package.metadata]
@@ -3048,7 +3048,7 @@ requires-dist = [
     { name = "marshmallow", specifier = ">=3.20,<4.0" },
     { name = "marshmallow-dataclass", extras = ["enum"], specifier = "~=8.7.0" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = "==4.0.0" },
-    { name = "pipeline-manager", url = "https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.0/pipeline_manager-0.5.0-py3-none-any.whl" },
+    { name = "pipeline-manager", url = "https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.1/pipeline_manager-0.5.1-py3-none-any.whl" },
     { name = "pipeline-manager-backend-communication", git = "https://github.com/antmicro/kenning-pipeline-manager-backend-communication?rev=b39681ee785d7c094b78226243c44fe956e12d76" },
     { name = "pre-commit", marker = "extra == 'lint'", specifier = "==3.5.0" },
     { name = "prettytable", marker = "extra == 'tests'", specifier = "==3.11.0" },
