@@ -211,6 +211,13 @@ class DesignDescriptionFrontend:
         for comp, io in desc.external.ports.inout:
             try:
                 refio, refsig = self._resolve_ref(design, comp, io)
+                # Look if there is port with same name in module,
+                # and if there is add $n to name, where n is number
+                original_name = io
+                n = 1
+                while design.parent.ports.find_by_name(io) is not None:
+                    io = f"{original_name}${n}"
+                    n += 1
                 port = self._parse_external(design, refsig, io, PortDirection.INOUT, True)
                 if not isinstance(refio, ReferencedPort) or not isinstance(port, Port):
                     raise DesignDescriptionFrontendException(

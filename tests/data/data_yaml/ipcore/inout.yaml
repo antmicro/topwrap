@@ -1,0 +1,8 @@
+id:
+  name: inout
+  library: libdefault
+  vendor: vendor
+
+signals:
+  inout:
+    - [gpio, 7, 0]

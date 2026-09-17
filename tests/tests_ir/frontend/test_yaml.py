@@ -357,6 +357,40 @@ class TestDesignDescriptionFrontend:
         with pytest.raises(marshmallow.ValidationError, match="duplicate keys"):
             DesignDescriptionFrontend().parse_str(des)
 
+    def test_multiple_inout_same_name(self):
+        des = """
+        name: top
+
+        ips:
+            gpio0:
+                file: file:tests/data/data_yaml/ipcore/inout.yaml
+            gpio1:
+                file: file:tests/data/data_yaml/ipcore/inout.yaml
+            gpio2:
+                file: file:tests/data/data_yaml/ipcore/inout.yaml
+            gpio3:
+                file: file:tests/data/data_yaml/ipcore/inout.yaml
+            gpio4:
+                file: file:tests/data/data_yaml/ipcore/inout.yaml
+
+        external:
+            ports:
+                inout:
+                - [gpio0, gpio]
+                - [gpio1, gpio]
+                - [gpio2, gpio]
+                - [gpio3, gpio]
+                - [gpio4, gpio]
+        """
+        des, _ = DesignDescriptionFrontend().parse_str(des)
+        mod = des.parent
+        assert len(mod.ports) == 5
+        assert mod.ports[0].name == "gpio"
+        assert mod.ports[1].name == "gpio$1"
+        assert mod.ports[2].name == "gpio$2"
+        assert mod.ports[3].name == "gpio$3"
+        assert mod.ports[4].name == "gpio$4"
+
 
 class TestIPCoreDescriptionFrontend:
     def test_multidimensional_signal(self):
