@@ -14,8 +14,8 @@ from tempfile import TemporaryDirectory
 
 import click
 import yaml
-from pyslang import DiagnosticSeverity
 
+from topwrap.frontend.frontend import FrontendApproach
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.model.misc import Identifier
 from topwrap.repo.user_repo import Core, UserRepo
@@ -73,7 +73,7 @@ def package_cores(log_level: str, save_path: Path):
     repo = UserRepo("fusesoc_cores")
 
     for dir in Path("cache_dir").iterdir():
-        frontend = SystemVerilogFrontend(diag_level=DiagnosticSeverity.Fatal)
+        frontend = SystemVerilogFrontend(approach=FrontendApproach.BEST_EFFORT)
         sv_sources = [
             p for p in dir.rglob("*") if p.suffix.lower() in sv_exts and not p.is_symlink()
         ]

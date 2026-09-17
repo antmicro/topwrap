@@ -30,6 +30,46 @@ def test_loaded_interfaces_are_unique_by_vlnv():
     assert len(interface_ids) == len(set(interface_ids))
 
 
+@pytest.mark.parametrize("approach", [None, "strict", "best-effort"])
+def test_package_frontend_approach_with_unknown_module(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture, approach: str | None
+):
+    source = tmp_path / "widget.sv"
+    source.write_text(
+        "module widget(input logic clk); missing_module u_missing(.clk(clk)); endmodule\n"
+    )
+    output = tmp_path / "package"
+    args = () if approach is None else ("--frontend-approach", approach)
+
+    if approach == "best-effort":
+        run_cli("package", str(source), "--output", str(output), *args)
+
+        module = IPCoreDescriptionFrontend().parse_file(output / "widget.yaml")
+        assert module.id.name == "widget"
+        assert [port.name for port in module.ports] == ["clk"]
+    else:
+        with pytest.raises(SystemExit) as exc_info:
+            run_cli("package", str(source), "--output", str(output), *args)
+
+        assert exc_info.value.code == 1
+        assert not (output / "widget.yaml").exists()
+
+    assert "unknown module 'missing_module'" in caplog.text
+
+
+@pytest.mark.parametrize("approach", ["strict", "best-effort"])
+def test_package_frontend_approach_with_valid_module(tmp_path: Path, approach: str):
+    source = tmp_path / "widget.sv"
+    source.write_text("module widget(input logic clk); endmodule\n")
+    output = tmp_path / "package"
+
+    run_cli("package", str(source), "--output", str(output), "--frontend-approach", approach)
+
+    module = IPCoreDescriptionFrontend().parse_file(output / "widget.yaml")
+    assert module.id.name == "widget"
+    assert [port.name for port in module.ports] == ["clk"]
+
+
 def test_package_core_preserves_include_dirs_and_defines(tmp_path: Path):
     output = tmp_path / "cores" / "widget"
     include_dir = output

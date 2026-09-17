@@ -3205,39 +3205,57 @@ class SystemVerilogSlangParser:
             ps.Diags.DuplicateDefinition,
         }
 
-        warning_codes_in_body = {ps.Diags.UnknownModule}
-
-        error_codes_in_body = {ps.Diags.CouldNotOpenIncludeFile}
+        error_codes_in_body = {
+            ps.Diags.CouldNotOpenIncludeFile,
+            ps.Diags.ExpectedToken,
+            ps.Diags.ExpectedExpression,
+            ps.Diags.ExpectedDeclarator,
+            ps.Diags.UndeclaredIdentifier,
+            ps.Diags.UnknownModule,
+        }
 
         deng = ps.DiagnosticEngine(self.src_man)
         txtcli = ps.TextDiagnosticClient()
         deng.addClient(txtcli)
 
-        # diags that are in header by default are errors
-        # diags that are in body by default are ignored
-        for diag in diags:
+        def _format(diag: ps.Diagnostic) -> str:
             deng.issue(diag)
             message = txtcli.getString()
             txtcli.clear()
-            if _is_loc_in_range(diag.location, headers_ranges):
-                # Errors inside header
+            return message
+
+        # Header diagnostics preserve severity, with macro / include errors treated as warnings.
+        # diags that are in body by default are ignored
+        for diag in diags:
+            severity = deng.getSeverity(diag.code, diag.location)
+            if severity in (ps.DiagnosticSeverity.Ignored, ps.DiagnosticSeverity.Note):
+                continue
+
+            location = self.src_man.getFullyExpandedLoc(diag.location)
+            if _is_loc_in_range(location, headers_ranges):
+                # Diagnostics inside header
                 if diag.code in ignored_codes_in_header:
                     continue
 
-                is_warning = self.src_man.isMacroLoc(
-                    diag.location
-                ) or self.src_man.isPreprocessedLoc(diag.location)
+                is_warning = (
+                    severity == ps.DiagnosticSeverity.Warning
+                    or self.src_man.isMacroLoc(diag.location)
+                    or self.src_man.isPreprocessedLoc(diag.location)
+                )
 
                 if is_warning:
-                    warning_parse_diags.append(message)
+                    warning_parse_diags.append(_format(diag))
                 else:
-                    error_parse_diags.append(message)
+                    error_parse_diags.append(_format(diag))
             else:
-                # Errors inside body
-                if diag.code in warning_codes_in_body:
-                    warning_parse_diags.append(message)
-                if diag.code in error_codes_in_body:
-                    error_parse_diags.append(message)
+                # Errors inside body, instances of predefined modules are known to Topwrap
+                if diag.code == ps.Diags.UnknownModule and diag.args[0] in self._modules:
+                    continue
+                if diag.code in error_codes_in_body and severity in (
+                    ps.DiagnosticSeverity.Error,
+                    ps.DiagnosticSeverity.Fatal,
+                ):
+                    error_parse_diags.append(_format(diag))
 
         return (warning_parse_diags, error_parse_diags)
 

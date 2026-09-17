@@ -3,6 +3,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Union
@@ -17,6 +18,11 @@ from topwrap.model.module import Module
 class FrontendParseStrInput:
     name: str
     content: str
+
+
+class FrontendApproach(Enum):
+    BEST_EFFORT = "best_effort"
+    STRICT = "strict"
 
 
 @dataclass
@@ -53,7 +59,10 @@ class FrontendParseException(TranslationError):
 
 class Frontend(ABC):
     def __init__(
-        self, modules: Iterable[Module] = (), interfaces: Iterable[InterfaceDefinition] = ()
+        self,
+        modules: Iterable[Module] = (),
+        interfaces: Iterable[InterfaceDefinition] = (),
+        approach: FrontendApproach = FrontendApproach.STRICT,
     ) -> None:
         """
         :param modules: Collection of predefined module definitions
@@ -65,6 +74,7 @@ class Frontend(ABC):
         super().__init__()
         self.modules = list(modules)
         self.interfaces = list(interfaces)
+        self.approach = approach
 
     def parse_str(
         self, sources: Iterable[Union[str, FrontendParseStrInput]]

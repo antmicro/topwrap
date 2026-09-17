@@ -16,6 +16,7 @@ from tests.tests_ir.shared.helpers import (
 )
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.sv.backend import SystemVerilogBackend
+from topwrap.frontend.frontend import FrontendApproach
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 
 
@@ -44,7 +45,7 @@ def test_parse_hierarchy_matches_golden_kpm(sv_sources):
 
 def test_parse_hierarchy_sv_roundtrip(tmp_path: Path):
     sv_sources, include_dirs = get_caliptra_sources()
-    frontend = SystemVerilogFrontend()
+    frontend = SystemVerilogFrontend(approach=FrontendApproach.BEST_EFFORT)
     modules = {
         m.id.name: m for m in frontend.parse_files(sv_sources, include_dirs=include_dirs).modules
     }

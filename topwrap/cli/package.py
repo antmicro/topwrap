@@ -16,6 +16,7 @@ from cyclopts.types import ExistingFile
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.cli import cli, load_interfaces_from_repos, load_modules_from_repos
+from topwrap.frontend.frontend import FrontendApproach
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.library import write_module_core
 from topwrap.model.inference.inference import infer_interfaces_from_module, parse_grouping_hints
@@ -117,6 +118,7 @@ def package_main(
     grouping_hint: Annotated[Tuple[str, ...], Parameter(alias="-g")] = (),
     lib: bool = False,
     copy: bool = False,
+    frontend_approach: FrontendApproach = FrontendApproach.STRICT,
 ):
     """Package a single IP module parsed from its HDL sources into a Topwrap
     IP description YAML.
@@ -161,6 +163,11 @@ def package_main(
     copy
         Copy sources and include directories outside the output directory into it.
         Only applies with ``--lib``.
+    frontend_approach
+        Error handling approach when parsing sources. ``strict`` will abort parsing when errors are
+        detected. ``best-effort`` will try to parse sources even when there are errors. As a
+        result, it might produce invalid YAML files that can be fixed manually later on. For more
+        information about error handling approaches, refer to the documentation.
     """
     files, incdirs, defines = _collect_sources(sources, flist)
     if not files:
@@ -171,7 +178,7 @@ def package_main(
     known_interfaces = list(load_interfaces_from_repos())
 
     frontend_output = SystemVerilogFrontend(
-        modules=repo_modules, interfaces=known_interfaces
+        modules=repo_modules, interfaces=known_interfaces, approach=frontend_approach
     ).parse_files(files, include_dirs=incdirs, defines=defines)
     known_interface_ids = {iface.id for iface in known_interfaces}
     new_interfaces = {

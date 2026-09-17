@@ -1,5 +1,6 @@
 from examples.ir_examples.SoC_AXI.ir.design import top as axi_soc_top
 from topwrap.backend.sv.backend import SystemVerilogBackend
+from topwrap.frontend.frontend import FrontendApproach
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 
 
@@ -127,7 +128,7 @@ class TestAxiGenerator:
     def test_parsing(self):
         back = SystemVerilogBackend(all_pins=True, desc_comms=True, mod_stubs=True)
         [out] = back.serialize(back.represent(axi_soc_top), combine=True)
-        front = SystemVerilogFrontend()
+        front = SystemVerilogFrontend(approach=FrontendApproach.BEST_EFFORT)
         modules = front.parse_str([out.content]).modules
         interconnect_module = modules[-1]
         for port in self.ports:

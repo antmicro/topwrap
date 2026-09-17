@@ -54,7 +54,7 @@ class AutomaticFrontend(Frontend):
 
         for frontend, sources in split.items():
             frontend_output = frontend(
-                modules=self.modules, interfaces=self.interfaces
+                modules=self.modules, interfaces=self.interfaces, approach=self.approach
             ).parse_files(sources, include_dirs=include_dirs)
             modules.extend(frontend_output.modules)
             interfaces.extend(frontend_output.interfaces)

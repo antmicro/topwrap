@@ -12,6 +12,7 @@ from cyclopts.types import ExistingDirectory, ExistingFile, ExistingPath
 from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos, repo_cli
 from topwrap.config import ConfigManager
 from topwrap.frontend.automatic import FrontendRegistry
+from topwrap.frontend.frontend import FrontendApproach
 from topwrap.repo.exceptions import ResourceNotSupportedException
 from topwrap.repo.file_handlers import ModuleFileHandler
 from topwrap.repo.files import File, LocalFile
@@ -55,6 +56,7 @@ def parse_repo(
     grouping_hint: Annotated[
         Tuple[str, ...], Parameter(alias="-g", negative="--empty-grouping-hint")
     ] = (),
+    frontend_approach: FrontendApproach = FrontendApproach.STRICT,
 ):
     """Parse Modules from all provided files using available frontends and store
     them in a given user repository.
@@ -87,6 +89,11 @@ def parse_repo(
         Candidate interfaces for inference (repeatable).
     grouping_hint
         Grouping hints for interface inference.
+    frontend_approach
+        Error handling approach when parsing sources. ``strict`` will abort parsing when errors are
+        detected. ``best-effort`` will try to parse sources even when there are errors. As a
+        result, it might produce invalid YAML files that can be fixed manually later on. For more
+        information about error handling approaches, refer to the documentation.
     """
     warn_deprecated(_REPO_DEPRECATION)
     repo_path = get_config().repositories.get(repository)
@@ -127,7 +134,9 @@ def parse_repo(
         resources = ModuleFileHandler(
             file_srcs,
             FrontendRegistry.BY_NAME[frontend](
-                modules=repo_modules, interfaces=load_interfaces_from_repos()
+                modules=repo_modules,
+                interfaces=load_interfaces_from_repos(),
+                approach=frontend_approach,
             ),
             module,
             all_sources,

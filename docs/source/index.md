@@ -16,7 +16,6 @@ libraries
 user_repositories
 interconnect_gen
 fusesoc
-frontends
 plugins
 ```
 

@@ -114,6 +114,8 @@ topwrap package cores/widget/rtl/widget.sv \
 
 This creates `widget.yaml` and `widget.core` in `cores/widget`.
 
+By default, `--frontend-approach strict` stops packaging when the SystemVerilog parser reports an error. Use `--frontend-approach best-effort` to generate an IP description from the content the parser can recover. Check and correct the generated YAML before adding it to a library, as it may be incomplete.
+
 Interface definitions declared by the input HDL are written as separate YAML files and, with `--lib`, listed in the generated core as `topwrapInterface`. Topwrap saves each full interface VLNV once. Definitions already supplied by a built-in, registered library, or user repository are referenced rather than duplicated in the new package.
 
 Filelists supplied with `--flist` may contain source paths, `+incdir+`, `+define+`, and nested `-f` or `-F` entries. Relative paths inside a filelist are resolved from that filelist's directory.

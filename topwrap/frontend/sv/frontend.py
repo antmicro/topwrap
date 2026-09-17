@@ -9,7 +9,9 @@ from pyslang import Bag, PreprocessorOptions, SourceLocation, SyntaxTree
 
 from topwrap.frontend.frontend import (
     Frontend,
+    FrontendApproach,
     FrontendMetadata,
+    FrontendParseException,
     FrontendParseOutput,
     FrontendParseStrInput,
 )
@@ -25,8 +27,9 @@ class SystemVerilogFrontend(Frontend):
         self,
         modules: Iterable[Module] = (),
         interfaces: Iterable[InterfaceDefinition] = (),
+        approach: FrontendApproach = FrontendApproach.STRICT,
     ) -> None:
-        super().__init__(modules, interfaces)
+        super().__init__(modules, interfaces, approach)
 
     @property
     def metadata(self):
@@ -35,13 +38,14 @@ class SystemVerilogFrontend(Frontend):
     def _parser_instance(self) -> SystemVerilogSlangParser:
         return SystemVerilogSlangParser(modules=self.modules, interfaces=self.interfaces)
 
-    @staticmethod
-    def _parse_tree(inst: SystemVerilogSlangParser, tree: SyntaxTree) -> FrontendParseOutput:
+    def _parse_tree(self, inst: SystemVerilogSlangParser, tree: SyntaxTree) -> FrontendParseOutput:
         modules, interfaces, warnings, errors = inst.parse_tree(tree)
 
         for warning in warnings:
             logger.warning(warning)
 
+        if errors and self.approach == FrontendApproach.STRICT:
+            raise FrontendParseException("\n".join(errors))
         for error in errors:
             logger.error(error)
 

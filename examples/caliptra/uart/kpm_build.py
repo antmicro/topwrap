@@ -6,6 +6,7 @@ from pathlib import Path
 
 from topwrap.backend.kpm.backend import KpmBackend
 from topwrap.backend.kpm.common import LayerType
+from topwrap.frontend.frontend import FrontendApproach
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.util import collect_filelist_sources
 
@@ -19,7 +20,9 @@ SV_SOURCES, INCLUDE_DIRS = collect_filelist_sources(
 
 modules = {
     m.id.name: m
-    for m in SystemVerilogFrontend().parse_files(SV_SOURCES, include_dirs=INCLUDE_DIRS).modules
+    for m in SystemVerilogFrontend(approach=FrontendApproach.BEST_EFFORT)
+    .parse_files(SV_SOURCES, include_dirs=INCLUDE_DIRS)
+    .modules
 }
 
 kpm = KpmBackend(

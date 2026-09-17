@@ -518,6 +518,8 @@ class TestRepoCli:
             repo_path,
             "--exists-strategy",
             "overwrite",
+            "--frontend-approach",
+            "best-effort",
             *(sources_str),
         )
         assert set(cores) == mods_in_srcs
@@ -580,6 +582,8 @@ class TestRepoCli:
             repo_path,
             "--frontend",
             "systemverilog",
+            "--frontend-approach",
+            "best-effort",
             *(str(p) for p in sources),
             *("-e", "skip"),
         )
