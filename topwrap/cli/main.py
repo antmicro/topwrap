@@ -195,7 +195,12 @@ class KPM:
     ):
         args = ["pipeline_manager", "run"]
         for k, v in params_dict.items():
-            args += [f"--{k}".replace("_", "-"), f"{v}"]
+            flag = f"--{k}".replace("_", "-")
+            if isinstance(v, bool):
+                if v:
+                    args.append(flag)
+            else:
+                args += [flag, f"{v}"]
 
         child = _PipelineManagerProcess(args, preserve_parent_state, capture_logs=True)
         assert child.logs is not None
@@ -344,6 +349,7 @@ def kpm_run_server(
     backend_port: int = DEFAULT_BACKEND_PORT,
     verbosity: str = "INFO",
     preserve_parent_state: bool = False,
+    follow_symlink: bool = False,
 ):
     """Run a KPM server using Pipeline Manager's bundled frontend."""
     try:
@@ -354,6 +360,7 @@ def kpm_run_server(
             backend_host=backend_host,
             backend_port=backend_port,
             verbosity=verbosity,
+            follow_symlink=follow_symlink,
         )
     except Exception as e:
         logging.error(f"{e}")
@@ -406,6 +413,7 @@ def topwrap_gui(
     use_server: bool = True,
     raise_exception: bool = False,
     preserve_parent_state: bool = False,
+    follow_symlink: bool = False,
 ):
     """Start GUI
 
@@ -421,6 +429,10 @@ def topwrap_gui(
         Use a spawned multiprocessing.Process instead of a plain subprocess
         to run pipeline_manager. Needed under packaging setups
         where a bare subprocess doesn't inherit sys.path. POSIX-only.
+    follow_symlink
+        Follow symlinks when serving the frontend's static files. Needed
+        when the frontend directory, or files within it, are only
+        reachable through symlinks, e.g. under a Bazel-managed install.
     """
 
     logging.info("Starting server")
@@ -453,6 +465,7 @@ def topwrap_gui(
                 "backend_host": backend_host,
                 "backend_port": backend_port,
                 "preserve_parent_state": preserve_parent_state,
+                "follow_symlink": follow_symlink,
             },
         )
         if use_server:
