@@ -93,6 +93,15 @@ def _infer_modports(modports: Iterable[str]) -> dict[InterfaceMode, str]:
     return res
 
 
+def _constant_to_str(const: ps.ConstantValue) -> str:
+    """Stringify a Slang constant without abbreviating wide integers."""
+
+    text = str(const).strip()
+    if "..." in text and isinstance(value := const.value, ps.SVInt):
+        return value.toString(ps.LiteralBase.Decimal, True)
+    return text
+
+
 def _ir_id_to_sv_str(id: Identifier) -> str:
     """
     Extended IR identifiers (vendor, library) can't be natively
@@ -645,7 +654,7 @@ class _ModuleAstParserState:
             if getattr(const_val, "bad", False):
                 logger.error("Bad constant expression: %s", expr.syntax)
                 return None
-            return ElaboratableValue(str(const_val).strip())
+            return ElaboratableValue(_constant_to_str(const_val))
         if isinstance(expr, (ps.IntegerLiteral, ps.UnbasedUnsizedIntegerLiteral)):
             syn = getattr(expr, "syntax", None)
             return ElaboratableValue(str(syn if syn is not None else expr).strip())

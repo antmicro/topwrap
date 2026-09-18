@@ -12,7 +12,7 @@ from topwrap.backend.sv.backend import SystemVerilogBackend
 from topwrap.frontend.frontend import FrontendParseStrInput
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.sv.module import SystemVerilogSlangParser
-from topwrap.model.connections import Port, PortDirection
+from topwrap.model.connections import ConstantConnection, Port, PortDirection
 from topwrap.model.hdl_types import Bit, Dimensions, Enum, LogicArray
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
@@ -75,6 +75,29 @@ class TestSystemVerilogSlangParser:
 
 
 class TestSVFrontend:
+    def test_wide_constant_connection_keeps_full_precision(self):
+        value = 2**400 + 7
+        source = f"""
+        module child(input logic [511:0] i);
+        endmodule
+
+        module top;
+            child u(.i(512'd{value}));
+        endmodule
+        """
+
+        parsed = SystemVerilogFrontend().parse_str([source])
+        top = next(module for module in parsed.modules if module.id.name == "top")
+
+        assert top.design is not None
+        [connection] = [
+            connection
+            for connection in top.design.connections
+            if isinstance(connection, ConstantConnection)
+        ]
+        assert connection.source.value == f"512'd{value}"
+        assert "..." not in connection.source.value
+
     @pytest.mark.parametrize(
         ["mod", "validator"],
         [
