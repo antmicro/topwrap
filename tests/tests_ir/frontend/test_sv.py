@@ -36,7 +36,7 @@ class TestSystemVerilogSlangParser:
         front = SystemVerilogSlangParser()
         mod_str = """module abc #(parameter type xyz, parameter type less = whocares)(input xyz a);
                      endmodule"""
-        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        [mod], _, _, _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
         assert mod.parameters == [
             Parameter(name="xyz"),
             Parameter(name="less", default_value=ElaboratableValue("whocares")),
@@ -47,7 +47,7 @@ class TestSystemVerilogSlangParser:
         front = SystemVerilogSlangParser()
         mod_str = """module abc #(, parameter X = 32)(input logic a);
                      endmodule"""
-        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        [mod], _, _, _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
         assert mod.parameters == [
             Parameter(name="X", default_value=ElaboratableValue("32")),
         ]
@@ -56,7 +56,7 @@ class TestSystemVerilogSlangParser:
     def test_unpacked(self):
         front = SystemVerilogSlangParser()
         mod_str = """module abc (output logic sigs[4]); endmodule"""
-        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        [mod], _, _, _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
         [port] = mod.ports
         assert isinstance(port.type, LogicArray)
         assert port.type.item == Bit() and port.type.dimensions[0] == Dimensions(
@@ -65,8 +65,8 @@ class TestSystemVerilogSlangParser:
 
     def test_enum_complex(self):
         front = SystemVerilogSlangParser()
-        mod_str = """module abc(input enum logic[13:0] { A=3, B, C=8 } a; endmodule)"""
-        [mod], _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
+        mod_str = """module abc(input enum logic[13:0] { A=3, B, C=8 } a); endmodule"""
+        [mod], _, _, _ = front.parse_tree(ps.SyntaxTree.fromText(mod_str, front.src_man))
         [port] = mod.ports
         assert isinstance(port.type, Enum)
         assert port.type.dimensions[0].upper == ElaboratableValue(13)

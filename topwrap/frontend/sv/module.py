@@ -5,7 +5,7 @@ import logging
 import re
 from collections import deque
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Optional, Union, cast
+from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 import pyslang as ps
 
@@ -3070,7 +3070,6 @@ class _ModuleAstParserState:
 
 class SystemVerilogSlangParser:
     src_man: ps.SourceManager
-    diag_log_level: ps.DiagnosticSeverity
 
     #: A dictionary of preloaded IR Modules whose instances
     #: can be encountered in the SV sources.
@@ -3108,7 +3107,6 @@ class SystemVerilogSlangParser:
 
     def __init__(
         self,
-        diag_log_level: ps.DiagnosticSeverity = ps.DiagnosticSeverity.Error,
         modules: Iterable[Module] = (),
         interfaces: Iterable[InterfaceDefinition] = (),
         src_man: Optional[ps.SourceManager] = None,
@@ -3117,7 +3115,6 @@ class SystemVerilogSlangParser:
         self._modules = {_ir_id_to_sv_str(m.id): m for m in modules}
         self._interfaces = {_ir_id_to_sv_str(itf.id): itf for itf in interfaces}
         self._submodules = {}
-        self.diag_log_level = diag_log_level
         self._parsed_mods = {}
         self._typedefs = {}
         self._parsed_intf = []
@@ -3135,7 +3132,9 @@ class SystemVerilogSlangParser:
             (iname, mode.value): mode for iname in self._interfaces for mode in InterfaceMode
         }
 
-    def parse_tree(self, tree: ps.SyntaxTree) -> tuple[list[Module], list[InterfaceDefinition]]:
+    def parse_tree(
+        self, tree: ps.SyntaxTree
+    ) -> tuple[list[Module], list[InterfaceDefinition], list[str], list[str]]:
         """
         Parse a pyslang `SyntaxTree` into IR Modules
 
@@ -3145,19 +3144,9 @@ class SystemVerilogSlangParser:
         comp = ps.Compilation()
         comp.addSyntaxTree(tree)
 
-        deng = ps.DiagnosticEngine(self.src_man)
         diags: Iterable[ps.Diagnostic] = comp.getAllDiagnostics()
-        txtcli = ps.TextDiagnosticClient()
-        deng.addClient(txtcli)
 
-        for diag in diags:
-            sev = deng.getSeverity(diag.code, diag.location)
-            if sev.value >= self.diag_log_level.value:
-                deng.issue(diag)
-                logger.warning(
-                    f"Slang diagnostic while parsing SystemVerilog sources: \n{txtcli.getString()}"
-                )
-                txtcli.clear()
+        warnings, errors = self._check_diagnostics(tree, diags)
 
         sym_queue = deque(comp.getRoot())
 
@@ -3185,7 +3174,72 @@ class SystemVerilogSlangParser:
                 for csym in sym:
                     sym_queue.append(csym)
 
-        return (list(self._parsed_mods.values()), self._parsed_intf)
+        return (list(self._parsed_mods.values()), self._parsed_intf, warnings, errors)
+
+    def _check_diagnostics(
+        self, tree: ps.SyntaxTree, diags: Iterable[ps.Diagnostic]
+    ) -> Tuple[List[str], List[str]]:
+        root = tree.root
+        members = root.members if isinstance(root, ps.CompilationUnitSyntax) else [root]
+        headers_ranges = [
+            m.header.sourceRange for m in members if isinstance(m, ps.ModuleDeclarationSyntax)
+        ]
+
+        def _is_loc_in_range(location: ps.SourceLocation, ranges: List[ps.SourceRange]):
+            for range_ in ranges:
+                if (
+                    location.buffer == range_.start.buffer
+                    and range_.start.offset <= location.offset < range_.end.offset
+                ):
+                    return True
+            return False
+
+        warning_parse_diags: List[str] = []
+        error_parse_diags: List[str] = []
+
+        ignored_codes_in_header = {
+            ps.Diags.MissingTimeScale,
+            ps.Diags.Redefinition,
+            ps.Diags.RedefiningMacro,
+            ps.Diags.DuplicateImport,
+            ps.Diags.DuplicateDefinition,
+        }
+
+        warning_codes_in_body = {ps.Diags.UnknownModule}
+
+        error_codes_in_body = {ps.Diags.CouldNotOpenIncludeFile}
+
+        deng = ps.DiagnosticEngine(self.src_man)
+        txtcli = ps.TextDiagnosticClient()
+        deng.addClient(txtcli)
+
+        # diags that are in header by default are errors
+        # diags that are in body by default are ignored
+        for diag in diags:
+            deng.issue(diag)
+            message = txtcli.getString()
+            txtcli.clear()
+            if _is_loc_in_range(diag.location, headers_ranges):
+                # Errors inside header
+                if diag.code in ignored_codes_in_header:
+                    continue
+
+                is_warning = self.src_man.isMacroLoc(
+                    diag.location
+                ) or self.src_man.isPreprocessedLoc(diag.location)
+
+                if is_warning:
+                    warning_parse_diags.append(message)
+                else:
+                    error_parse_diags.append(message)
+            else:
+                # Errors inside body
+                if diag.code in warning_codes_in_body:
+                    warning_parse_diags.append(message)
+                if diag.code in error_codes_in_body:
+                    error_parse_diags.append(message)
+
+        return (warning_parse_diags, error_parse_diags)
 
     def _ensure_analysis_manager(self, comp: ps.Compilation) -> ps.AnalysisManager:
         if self._analysis_manager is not None and self._analysis_comp is comp:
