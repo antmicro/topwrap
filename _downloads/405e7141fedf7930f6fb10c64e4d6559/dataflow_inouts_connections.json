@@ -1,0 +1,129 @@
+{
+  "version": "20240723.13",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "88ce5b05-734a-4864-8106-fa3e0d5d68fa",
+          "id": "2f87a236-5a49-4ac7-b1d4-a4ad7ebfae74",
+          "to": "547a1207-588b-41cf-99fa-638b94d2a3cc"
+        }
+      ],
+      "id": "172986087098472",
+      "nodes": [
+        {
+          "id": "a3f4d70b-21e9-4c01-a4d8-9a2556c06282",
+          "instanceName": "iobuf_1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "90c1f719-8b2a-46ef-8d4b-86639c3fe4ec",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "a3cd3fd1-03c5-4725-8e0a-3c3b291a8df7",
+              "name": "a",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "07e86883-872a-4866-96e5-d444c39c35aa",
+              "name": "oe",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "cc7e43ad-86de-4cc2-abe3-21ff646724ed",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 3
+            },
+            {
+              "direction": "inout",
+              "id": "88ce5b05-734a-4864-8106-fa3e0d5d68fa",
+              "name": "z",
+              "side": "right",
+              "sidePosition": 4
+            },
+            {
+              "direction": "output",
+              "id": "6368cc26-f769-4d19-b35d-48e6f6732a16",
+              "name": "y",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "iobuf",
+          "position": {
+            "x": 435,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "id": "0d52d66f-0a1f-4100-b168-57f336473600",
+          "instanceName": "iobuf_2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "1bca34f6-9556-4961-acdb-5205e5e1dc08",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "c8855091-18c7-47a9-a80a-8883c1ad475d",
+              "name": "a",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "8b73957f-5446-4428-8de1-d47e26d865d4",
+              "name": "oe",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "input",
+              "id": "f289323b-cffe-41d6-977c-7a1f5c394591",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 3
+            },
+            {
+              "direction": "inout",
+              "id": "547a1207-588b-41cf-99fa-638b94d2a3cc",
+              "name": "z",
+              "side": "left",
+              "sidePosition": 4
+            },
+            {
+              "direction": "output",
+              "id": "a5488b99-feaa-4120-a3a1-8e88968727eb",
+              "name": "y",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "iobuf",
+          "position": {
+            "x": 915,
+            "y": 0
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}

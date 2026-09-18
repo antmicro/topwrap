@@ -1,0 +1,170 @@
+{
+  "version": "20240723.13",
+  "metadata": {
+    "randomizedOffset": true
+  },
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "e64a2247-edc0-449f-aaaa-6e8bd0ab2b78",
+          "id": "9c46e05a-9494-47ba-af51-b91cbac38ae9",
+          "to": "4bb44ac7-beca-461f-ba91-a18650c905ec"
+        },
+        {
+          "from": "e64a2247-edc0-449f-aaaa-6e8bd0ab2b78",
+          "id": "b4f15208-7cb4-428c-93ae-9b6d1041e8c6",
+          "to": "fc5af641-022c-4207-bfd3-42531f5a8dac"
+        }
+      ],
+      "id": "169383254977833",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "33794eef-49eb-4eb5-bf8d-c258f6f830ff",
+          "instanceName": "axi_axil_adapter_2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "355f44a1-be48-4597-8c7b-738079fd9504",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "4bb44ac7-beca-461f-ba91-a18650c905ec",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ebee0349-0579-4f2e-baa0-e4d58e86b893",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "9e9f72c0-7b78-47f3-93af-da534a118265",
+              "name": "m_axi",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "axi_axil_adapter",
+          "position": {
+            "x": -915,
+            "y": 660
+          },
+          "properties": [
+            {
+              "id": "5bfb2d15-e22e-43a1-89ae-b81a6f869005",
+              "name": "ADDR_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "c995620c-fd65-4e6b-8c09-89d5bd0ef86e",
+              "name": "AXI_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "638ce396-5697-4277-a1f8-f0c453723dd0",
+              "name": "AXI_ID_WIDTH",
+              "value": "8"
+            },
+            {
+              "id": "aac64501-5393-4fc8-a291-93b3c4b0dfbf",
+              "name": "AXI_STRB_WIDTH",
+              "value": "AXI_DATA_WIDTH/8"
+            },
+            {
+              "id": "ac74cdb3-f950-4e45-90cd-bd1fb977a0ca",
+              "name": "AXIL_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "42743aa2-3148-4767-a9c9-d226809daab9",
+              "name": "AXIL_STRB_WIDTH",
+              "value": "AXIL_DATA_WIDTH/8"
+            }
+          ],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "5358601a-962e-4097-9030-ac9f587e5f09",
+          "instanceName": "External Input",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "e64a2247-edc0-449f-aaaa-6e8bd0ab2b78",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Input",
+          "position": {
+            "x": -1485,
+            "y": 1125
+          },
+          "properties": [
+            {
+              "id": "2a04393e-3bd0-409b-8d9a-20a4d797a3b2",
+              "name": "External Name",
+              "value": ""
+            }
+          ],
+          "twoColumn": false,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "49757a53-5cd5-4d8c-aa4b-5c6347e073e0",
+          "instanceName": "litex_pwm",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "fc5af641-022c-4207-bfd3-42531f5a8dac",
+              "name": "sys_clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "786ea79b-9816-4869-8cd2-52a404c2b235",
+              "name": "sys_rst",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "807a6070-431f-48e2-966b-7bb2d4efd688",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "cbe12f99-feca-405c-aab2-f0c610e912a9",
+              "name": "pwm",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "litex_pwm",
+          "position": {
+            "x": -855,
+            "y": 1440
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}
