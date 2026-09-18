@@ -309,12 +309,12 @@ class RPCMethods:
         }
 
     async def nodes_on_change(self, graph_id: str, nodes: JsonType, **kwargs: Any):
-        logging.info("Node change event")
+        logging.debug("Reacting to node change event")
         diff = {"graph_id": graph_id, "nodes": nodes}
         await _kpm_handle_graph_change(self, None, diff)
 
     async def name_on_change(self, graph_id: str, node_id: str, name: str):
-        logging.info("Node name change event")
+        logging.debug("Reacting to node rename event")
         diff = {"graph_id": graph_id, "node_id": node_id, "name": name}
         await _kpm_handle_graph_change(self, None, diff)
 
@@ -322,6 +322,7 @@ class RPCMethods:
         await _kpm_handle_graph_change(self)
 
     async def connections_on_change(self, graph_id: str, connections: JsonType):
+        logging.debug("Reacting to connection change event")
         diff = {"graph_id": graph_id, "connections": connections}
         await _kpm_handle_graph_change(self, None, diff)
 
@@ -329,7 +330,7 @@ class RPCMethods:
         await _kpm_handle_graph_change(self)
 
     async def interfaces_on_change(self, **kwargs: Any):
-        logging.info("Interface change event")
+        logging.debug("Reacting to interface change event")
         await _kpm_handle_graph_change(self)
 
     async def graph_on_change(self, dataflow: JsonType):
