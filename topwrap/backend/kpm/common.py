@@ -22,6 +22,7 @@ class LayerType(Enum):
     EXTERNAL = "Externals"
     CONSTANT = "Constants"
     IDENT = "Identifiers"
+    DOMAINS = "Clock and reset domains"
 
 
 class KpmConnPattern(Enum):
@@ -300,6 +301,7 @@ class DomainMetanodeStrings(Enum):
 @dataclass
 class ClockDomainMetanode(Metanode):
     name: str = "Clock domain"
+    layer: Optional[LayerType] = LayerType.DOMAINS
     interfaces: list[KpmInterface] = field(
         default_factory=lambda: [
             KpmInterface(
@@ -321,6 +323,7 @@ class ClockDomainMetanode(Metanode):
 @dataclass
 class ResetDomainMetanode(Metanode):
     name: str = "Reset domain"
+    layer: Optional[LayerType] = LayerType.DOMAINS
     interfaces: list[KpmInterface] = field(
         default_factory=lambda: [
             KpmInterface(
