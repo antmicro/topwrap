@@ -270,23 +270,8 @@ class BuildPipeline:
         )
 
     @staticmethod
-    def yaml_kpm_spec_pipeline(output_path: Optional[Path] = None):
-        return BuildPipeline(
-            inputs=[
-                YamlInputStage(),
-            ],
-            transformations=[
-                MemoryMapTransformation(),
-            ],
-            validations=[],
-            outputs=[
-                KpmSpecificationOutputStage(output_path),
-            ],
-        )
-
-    @staticmethod
-    def yaml_kpm_flow_pipeline(
-        output_path: Optional[Path] = None, *, specification: Optional[JsonType] = None
+    def yaml_kpm_spec_pipeline(
+        output_path: Optional[Path] = None, *, hidden_layers: tuple[str, ...] = ()
     ):
         return BuildPipeline(
             inputs=[
@@ -297,7 +282,29 @@ class BuildPipeline:
             ],
             validations=[],
             outputs=[
-                KpmDataflowOutputStage(output_path, specification=specification),
+                KpmSpecificationOutputStage(output_path, hidden_layers=hidden_layers),
+            ],
+        )
+
+    @staticmethod
+    def yaml_kpm_flow_pipeline(
+        output_path: Optional[Path] = None,
+        *,
+        specification: Optional[JsonType] = None,
+        hidden_layers: tuple[str, ...] = (),
+    ):
+        return BuildPipeline(
+            inputs=[
+                YamlInputStage(),
+            ],
+            transformations=[
+                MemoryMapTransformation(),
+            ],
+            validations=[],
+            outputs=[
+                KpmDataflowOutputStage(
+                    output_path, specification=specification, hidden_layers=hidden_layers
+                ),
             ],
         )
 

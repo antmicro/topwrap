@@ -290,8 +290,9 @@ class FuseSocOutputStage(OutputStage):
 class KpmSpecificationOutputStage(OutputStage):
     name: str = "KPM specification"
 
-    def __init__(self, output_path: Optional[Path]):
+    def __init__(self, output_path: Optional[Path], *, hidden_layers: tuple[str, ...] = ()):
         self.output_path = output_path
+        self.hidden_layers = hidden_layers
 
     @override
     def generate_output(self, ctx: BuildContext):
@@ -313,7 +314,7 @@ class KpmSpecificationOutputStage(OutputStage):
         if ctx.top_module:
             assert ctx.top_module.design
 
-            flow = KpmDataflowBackend(spec)
+            flow = KpmDataflowBackend(spec, disabled_layers=list(self.hidden_layers))
             flow.represent_design(ctx.top_module.design, depth=-1)
             spec = flow.apply_subgraphs_to_spec(spec)
 
@@ -336,9 +337,16 @@ class KpmSpecificationOutputStage(OutputStage):
 class KpmDataflowOutputStage(OutputStage):
     name: str = "KPM dataflow"
 
-    def __init__(self, output_path: Optional[Path], *, specification: Optional[JsonType] = None):
+    def __init__(
+        self,
+        output_path: Optional[Path],
+        *,
+        specification: Optional[JsonType] = None,
+        hidden_layers: tuple[str, ...] = (),
+    ):
         self.output_path = output_path
         self.specification = specification
+        self.hidden_layers = hidden_layers
 
     @override
     def generate_output(self, ctx: BuildContext):
@@ -364,7 +372,9 @@ class KpmDataflowOutputStage(OutputStage):
 
             self.specification = spec.build()
 
-        flow = KpmDataflowBackend(self.specification, positions=ctx.positions)
+        flow = KpmDataflowBackend(
+            self.specification, positions=ctx.positions, disabled_layers=list(self.hidden_layers)
+        )
         flow.represent_design(ctx.top_module.design, depth=-1)
 
         self.specification = flow.apply_subgraphs_to_spec(self.specification)

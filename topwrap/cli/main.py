@@ -522,6 +522,7 @@ def generate_kpm_spec(
     *,
     design: Optional[ExistingFile] = None,
     output: Optional[Path] = None,
+    hidden_layers: Tuple[str, ...] = (),
 ):
     """Generate KPM specification from IP core YAMLs"""
 
@@ -529,7 +530,7 @@ def generate_kpm_spec(
         output = Path("kpm_spec.json")
 
     try:
-        pipeline = BuildPipeline.yaml_kpm_spec_pipeline(output)
+        pipeline = BuildPipeline.yaml_kpm_spec_pipeline(output, hidden_layers=hidden_layers)
         pipeline.run_files(list(files), design, OutputDir(Path(), Path()))
     except BuildException as e:
         logger.error(f"{e}")
@@ -542,6 +543,7 @@ def generate_kpm_design(
     *,
     design: ExistingFile,
     output: Optional[Path] = None,
+    hidden_layers: Tuple[str, ...] = (),
 ):
     """Generate KPM dataflow from IP core YAMLs and a design YAML"""
 
@@ -549,7 +551,7 @@ def generate_kpm_design(
         output = Path("kpm_dataflow.json")
 
     try:
-        pipeline = BuildPipeline.yaml_kpm_flow_pipeline(output)
+        pipeline = BuildPipeline.yaml_kpm_flow_pipeline(output, hidden_layers=hidden_layers)
         pipeline.run_files(list(files), design, OutputDir(Path(), Path()))
     except BuildException as e:
         logger.error(f"{e}")
