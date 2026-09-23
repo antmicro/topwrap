@@ -290,16 +290,6 @@ class KpmDataflowBackend:
             node.interfaces.append(kpm_intf)
             refs[(comp, id(ir_io[intf.name]))] = kpm_intf
 
-        for clock in comp.module.clocks:
-            domain = comp.clocks.get(clock._id)
-            assert domain is not None
-            node.set_property(f"Domain for clock '{clock.name}'", domain.name)
-
-        for reset in comp.module.resets:
-            domain = comp.resets.get(reset._id)
-            assert domain is not None
-            node.set_property(f"Domain for reset '{reset.name}'", domain.name)
-
     def add_external(
         self, graph: DataflowGraph, io: Union[Port, Interface], refs: _REFTYPE, pos: Positions
     ) -> Node:

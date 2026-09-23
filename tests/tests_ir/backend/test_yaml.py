@@ -1,6 +1,7 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 import copy
+import json
 import re
 import subprocess
 from itertools import product
@@ -8,6 +9,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from deepdiff import DeepDiff
 from typing_extensions import Optional
 
 from examples.ir_examples.modules import (
@@ -21,6 +23,8 @@ from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.tests_ir.kpm_helpers import _compare_designs, _compare_modules
 from topwrap import util
 from topwrap.backend.kpm.common import Positions
+from topwrap.backend.kpm.dataflow import KpmDataflowBackend
+from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.backend.yaml.backend import (
     DesignDescriptionBackend,
     DesignPositionsBackend,
@@ -29,6 +33,7 @@ from topwrap.backend.yaml.backend import (
 from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.config import ConfigManager
+from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.design_schema import (
@@ -787,6 +792,59 @@ class TestDesignDescriptionBackend:
         assert out_vec.type.dimensions == [
             Dimensions(upper=ElaboratableValue(15), lower=ElaboratableValue(0))
         ]
+
+    def test_domains_roundtrip(self):
+        modules_paths = [
+            Path("examples/ir_examples/domains/cores/sink/reset_sink.yaml"),
+            Path("examples/ir_examples/domains/cores/src/src.yaml"),
+        ]
+        modules = list[Module]()
+
+        # we have to work around like this due to bug #105975
+        for mod in modules_paths:
+            modules.append(IPCoreDescriptionFrontend().parse_file(mod))
+
+        des, _ = DesignDescriptionFrontend(modules).parse_file(
+            Path("examples/ir_examples/domains/top.yaml")
+        )
+
+        spec_back = KpmSpecificationBackend.default()
+        for mod in modules:
+            spec_back.add_module(mod)
+
+        spec = spec_back.build()
+        flow_back = KpmDataflowBackend(spec)
+        flow_back.represent_design(des)
+        spec = flow_back.apply_subgraphs_to_spec(spec)
+        dataflow = flow_back.build()
+
+        kpm_front = KpmFrontend(modules)
+        out = kpm_front.parse_str([json.dumps(dataflow)])
+        top = kpm_front.get_top_design(out.modules).parent
+
+        back_yaml = DesignDescriptionBackend()
+
+        out = back_yaml.represent(top)
+        [out] = back_yaml.serialize(out)
+        des_yaml = out.content
+
+        sections_to_check = ["ips", "connections", "reset_domains", "clock_domains"]
+        failed = False
+        with open("examples/ir_examples/domains/top.yaml") as file:
+            org = yaml.safe_load(file)
+            gen = yaml.safe_load(des_yaml)
+            for section in sections_to_check:
+                frag1 = org.get(section, {})
+                frag2 = gen.get(section, {})
+
+                diff = DeepDiff(
+                    frag1, frag2, ignore_order=True, exclude_regex_paths=r"root\[.*?\]\['file'\]"
+                )
+                if diff:
+                    print(diff, f"for section {section}")
+                    failed = True
+
+        assert not failed
 
     def test_memory_map_output(self):
         wishbone = get_intf_def_by_id_or_error(Identifier("wishbone"))

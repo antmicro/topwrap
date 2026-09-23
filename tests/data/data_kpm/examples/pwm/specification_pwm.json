@@ -26,17 +26,17 @@
     },
     "layers": [
       {
+        "name": "Clock and reset domains",
+        "nodeLayers": [
+          "Clock and reset domains"
+        ]
+      },
+      {
         "name": "Clock and reset ports",
         "nodeInterfaces": [
           "intf__clock"
         ],
         "nodeLayers": []
-      },
-      {
-        "name": "Clock and reset domains",
-        "nodeLayers": [
-          "Clock and reset domains"
-        ]
       },
       {
         "name": "Constants",

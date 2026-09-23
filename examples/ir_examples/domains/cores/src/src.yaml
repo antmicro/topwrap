@@ -1,0 +1,10 @@
+id:
+  library: examples
+  name: src
+  vendor: antmicro.com
+  version: '1.7'
+signals:
+  out:
+    - {name: out_rst_h}
+    - {name: out_rst_l}
+    - {name: out_clk}

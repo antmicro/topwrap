@@ -1,0 +1,50 @@
+ips:
+  reset_sink:
+    file: ./cores/sink/reset_sink.yaml
+    clocks:
+      clk_1: clk_domain_ext
+      clk_2: clk_domain_int
+    resets:
+      rst_h1: rst_domain_ext_h
+      rst_h2: rst_domain_ext_l
+      rst_l1: rst_domain_int_h
+      rst_l2: rst_domain_int_l
+  src:
+    file: ./cores/src/src.yaml
+
+clock_domains:
+  clk_domain_ext:
+    signal: clk_port_top
+  clk_domain_int:
+    signal:
+      - src
+      - out_clk
+
+reset_domains:
+  rst_domain_ext_h:
+    signal: rst_port_top_h
+    polarity: active high
+  rst_domain_ext_l:
+    signal: rst_port_top_l
+    polarity: active low
+  rst_domain_int_h:
+    signal:
+      - src
+      - out_rst_h
+    polarity: active high
+  rst_domain_int_l:
+    signal:
+      - src
+      - out_rst_l
+    polarity: active low
+
+external:
+  ports:
+    in:
+      - rst_port_top_h
+      - rst_port_top_l
+      - clk_port_top
+
+positions:
+  top.kpm_positions.yaml
+  ...

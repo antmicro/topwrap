@@ -165,16 +165,6 @@ class KpmSpecificationBackend:
                 side=Side.RIGHT.value if port.direction == PortDirection.INOUT else None,
             )
 
-        for clock in mod.clocks:
-            self._spec.add_node_type_property(
-                nid.name, f"Domain for clock '{clock.name}'", KpmPropertyType.TEXT.value, "default"
-            )
-
-        for reset in mod.resets:
-            self._spec.add_node_type_property(
-                nid.name, f"Domain for reset '{reset.name}'", KpmPropertyType.TEXT.value, "default"
-            )
-
         if recursive and mod.design is not None:
             for comp in mod.design.components:
                 self.add_module(comp.module, recursive=True)

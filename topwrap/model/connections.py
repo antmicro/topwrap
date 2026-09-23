@@ -177,6 +177,9 @@ class PortConnection(_Connection[ReferencedPort, ReferencedPort]):
     #: Specifies whether the connection should be bitwise inverted.
     invert: bool = False
 
+    #: Specifies whether the connection was created by lowering domains.
+    infered_from_domain: bool = False
+
 
 class InterfaceConnection(_Connection[ReferencedInterface, ReferencedInterface]):
     """

@@ -303,6 +303,7 @@ class Design(ModelBase):
                     PortConnection(
                         source=clock_dom.clock,
                         target=ReferencedPort(io=clock.clock, instance=comp),
+                        infered_from_domain=True,
                     )
                 )
 
@@ -345,6 +346,7 @@ class Design(ModelBase):
                         source=reset_dom.reset,
                         target=ReferencedPort(io=reset.reset, instance=comp),
                         invert=invert,
+                        infered_from_domain=True,
                     )
                 )
 

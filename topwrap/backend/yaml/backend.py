@@ -473,6 +473,9 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
         for conn in des.connections:
             if isinstance(conn, PortConnection):
+                if conn.infered_from_domain:
+                    continue
+
                 lhs, rhs = conn.target, conn.source
                 if lhs.instance is None:
                     lhs, rhs = rhs, lhs

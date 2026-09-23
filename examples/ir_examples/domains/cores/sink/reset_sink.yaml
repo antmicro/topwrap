@@ -1,0 +1,32 @@
+id:
+  library: libdefault
+  name: sink
+  vendor: vendor
+  version: '0.1'
+resets:
+  rst_h1:
+    polarity: active high
+    signal: rst_port_0
+  rst_h2:
+    polarity: active high
+    signal: rst_port_1
+  rst_l1:
+    polarity: active low
+    signal: rst_port_2
+  rst_l2:
+    polarity: active low
+    signal: rst_port_3
+clocks:
+  clk_1:
+    signal: clk_port_0
+  clk_2:
+    signal: clk_port_1
+
+signals:
+  in:
+    - {name: rst_port_1}
+    - {name: rst_port_0}
+    - {name: rst_port_3}
+    - {name: rst_port_2}
+    - {name: clk_port_0}
+    - {name: clk_port_1}

@@ -69,6 +69,8 @@ from topwrap.model.module import Design, Module
 from topwrap.util import JsonType, UnreachableError
 
 KpmIntfId = str
+ConIface = ReferencedIO | ElaboratableValue | None
+ConType = tuple[ConIface, ConIface, bool]
 
 
 @dataclass(frozen=True)
@@ -154,6 +156,12 @@ class _KpmDataflowInstanceData:
     #: Map of modules to their node positions
     _positions: dict[ObjectId[Module], Positions]
 
+    #: List of pending connections:
+    pending_connections: dict[ObjectId[Module], list[ConType]]
+
+    #: List of connections that were inferred from domains and shall be skipped
+    inferred_cons: dict[ObjectId[Module], list[ConType]]
+
     def __init__(self, spec: JsonType, flow: JsonType):
         self.refmap = {}
         self.skip_iface_conns = []
@@ -177,6 +185,9 @@ class _KpmDataflowInstanceData:
         self.pending_rst_assignments = {}
 
         self._positions = {}
+
+        self.pending_connections = {}
+        self.inferred_cons = {}
 
         self.flow = GraphBuilder(spec, SPECIFICATION_VERSION)
 
@@ -327,6 +338,9 @@ class KpmDataflowFrontend:
         self._process_connections(mod, data, graph)
 
         self._create_inverter_conns(mod, data)
+        self.update_ip_domains(mod, data)
+
+        self._realize_connections(mod, data)
 
         self._create_clock_domains(mod, data)
         self._create_reset_domains(mod, data)
@@ -375,11 +389,8 @@ class KpmDataflowFrontend:
                 conn.from_interface not in data.skip_iface_conns
                 and conn.to_interface not in data.skip_iface_conns
             ):
-                mod.design.add_connection(
-                    self._create_connection(
-                        data.refmap.get(from_uniq),
-                        data.refmap.get(to_uniq),
-                    )
+                data.pending_connections.setdefault(mod._id, []).append(
+                    (data.refmap.get(from_uniq), data.refmap.get(to_uniq), False)
                 )
 
     def _create_inverter_conns(
@@ -414,11 +425,11 @@ class KpmDataflowFrontend:
                     "module or external port"
                 )
 
-            mod.design.add_connection(
-                self._create_connection(
+            data.pending_connections.setdefault(mod._id, []).append(
+                (
                     data.refmap.get(from_intf),
                     data.refmap.get(to_intf),
-                    invert=True,
+                    True,
                 )
             )
 
@@ -436,6 +447,16 @@ class KpmDataflowFrontend:
 
                 key = ((sinst, sio), (tinst, tio))
                 data.positions_of(mod).inverters[key] = (node.position.x, node.position.y)
+
+    def _realize_connections(self, mod: Module, data: _KpmDataflowInstanceData):
+        assert mod.design
+
+        p_cons = data.pending_connections.get(mod._id, [])
+        i_cons = data.inferred_cons.get(mod._id, [])
+
+        for con in p_cons:
+            inferred = con in i_cons
+            mod.design.add_connection(self._create_connection(con[0], con[1], con[2], inferred))
 
     def _create_clock_domains(
         self,
@@ -566,21 +587,87 @@ class KpmDataflowFrontend:
             elif intf.name in twports:
                 data.refmap[uintf] = ReferencedPort(instance=inst, io=twports[intf.name])
 
-        for clock in module.clocks:
-            props = QuerableView(node.properties)
-            propname = f"Domain for clock '{clock.name}'"
-
-            if (prop := props.find_by_name(propname)) is not None:
-                data.pending_clk_assignments[(inst._id, clock._id)] = prop.value
-
-        for reset in module.resets:
-            props = QuerableView(node.properties)
-            propname = f"Domain for reset '{reset.name}'"
-
-            if (prop := props.find_by_name(propname)) is not None:
-                data.pending_rst_assignments[(inst._id, reset._id)] = prop.value
-
         return inst
+
+    def update_ip_domains(self, mod: Module, data: _KpmDataflowInstanceData):
+        assert mod.design
+        for inst in mod.design.components:
+            for clk in inst.module.clocks:
+                self._resolve_domain(mod, clk, inst, data)
+            for rst in inst.module.resets:
+                self._resolve_domain(mod, rst, inst, data)
+
+    def _resolve_domain(
+        self,
+        mod: Module,
+        clk_or_rst: Clock | Reset,
+        inst: ModuleInstance,
+        data: _KpmDataflowInstanceData,
+    ) -> None:
+        port = clk_or_rst.clock if isinstance(clk_or_rst, Clock) else clk_or_rst.reset
+
+        # find KPMiface to which our sink is connected
+        # find domain node to which the same KPMiface is connected
+        # take its name from there and assign
+
+        port_iface = None
+        for k_intf, ir_intf in data.refmap.items():
+            if (
+                isinstance(ir_intf, ReferencedPort)
+                and ir_intf.instance
+                and ir_intf.instance._id == inst._id
+                and ir_intf.io == port
+            ):
+                port_iface = k_intf
+                break
+
+        assert port_iface
+        assert len(data.intfconnmap[port_iface.interface.id]) == 1
+
+        driver = data.intfconnmap[port_iface.interface.id][0]
+
+        inverted = False
+        while driver:
+            driver_other_cons = data.intfconnmap[driver.interface.id]
+            unconnected = True
+
+            for con in driver_other_cons:
+                if con in data.clock_dom_intfs:
+                    assert isinstance(clk_or_rst, Clock)
+                    data.pending_clk_assignments[(inst._id, clk_or_rst._id)] = data.clock_dom_intfs[
+                        con
+                    ].get_property("Domain")
+                    data.inferred_cons.setdefault(mod._id, []).append(
+                        (data.refmap.get(driver), data.refmap.get(port_iface), inverted)
+                    )
+
+                    driver = None
+                    unconnected = False
+                    break
+                elif con in data.reset_dom_intfs:
+                    assert isinstance(clk_or_rst, Reset)
+                    data.pending_rst_assignments[(inst._id, clk_or_rst._id)] = data.reset_dom_intfs[
+                        con
+                    ].get_property("Domain")
+                    data.inferred_cons.setdefault(mod._id, []).append(
+                        (data.refmap.get(driver), data.refmap.get(port_iface), inverted)
+                    )
+
+                    driver = None
+                    unconnected = False
+                    break
+                elif driver in data.inverter_intfs:
+                    inv_input = data.to_inverter_conns[data.inverter_intfs[driver].id]
+                    driver = inv_input
+                    unconnected = False
+                    inverted = not inverted
+                    break
+
+            if unconnected:
+                raise KpmFrontendParseException(
+                    f"domain port {port.name} of module instance {inst.name}"
+                    "is not connected to any domain"
+                )
 
     def _create_interconnect(
         self, graph: DataflowGraph, node: Node, data: _KpmDataflowInstanceData
@@ -711,6 +798,7 @@ class KpmDataflowFrontend:
         source: Optional[Union[ElaboratableValue, ReferencedIO]],
         target: Optional[Union[ElaboratableValue, ReferencedIO]],
         invert: bool = False,
+        inferred: bool = False,
     ) -> Connection:
         if isinstance(source, ElaboratableValue) and isinstance(target, ReferencedPort):
             if invert:
@@ -720,7 +808,7 @@ class KpmDataflowFrontend:
                 )
             return ConstantConnection(source, target)
         elif isinstance(source, ReferencedPort) and isinstance(target, ReferencedPort):
-            return PortConnection(source, target, invert=invert)
+            return PortConnection(source, target, invert=invert, infered_from_domain=inferred)
         elif isinstance(source, ReferencedInterface) and isinstance(target, ReferencedInterface):
             if invert:
                 raise KpmFrontendParseException(
