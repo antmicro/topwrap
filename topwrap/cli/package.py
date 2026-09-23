@@ -4,6 +4,7 @@
 """``topwrap package`` - package a single IP module from its HDL sources."""
 
 import logging
+import shlex
 import sys
 from pathlib import Path
 from typing import Annotated, List, Optional, Tuple
@@ -49,25 +50,44 @@ def _classify_token(
         files.append(path)
 
 
-def _read_filelist(path: Path, files: List[Path], incdirs: List[Path], defines: List[str]) -> None:
+def _read_filelist(
+    path: Path,
+    files: List[Path],
+    incdirs: List[Path],
+    defines: List[str],
+    active: Optional[set[Path]] = None,
+) -> None:
     """Expand a VCS/Verilator-style ``-f`` filelist into ``files``,
     ``incdirs``, and ``defines``, recursively following nested ``-f``/``-F``
     references. Blank lines and ``//`` comments are ignored. Relative paths
     are resolved against the filelist's own directory.
     """
-    base = path.parent
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("//"):
-            continue
-        if line.startswith("-f ") or line.startswith("-F "):
-            nested = _resolve(base, Path(line[3:].strip()))
-            if not nested.is_file():
-                logger.error(f"'{nested}' is not a file")
-                sys.exit(1)
-            _read_filelist(nested, files, incdirs, defines)
-        else:
-            _classify_token(line, base, files, incdirs, defines)
+    resolved_path = path.resolve()
+    active = set() if active is None else active
+    if resolved_path in active:
+        raise ValueError(f"recursive filelist reference involving '{path}'")
+
+    active.add(resolved_path)
+    try:
+        base = path.parent
+        for raw_line in path.read_text().splitlines():
+            line = raw_line.partition("//")[0].strip()
+            if not line:
+                continue
+            tokens = iter(shlex.split(line))
+            for token in tokens:
+                if token in ("-f", "-F"):
+                    nested_path = next(tokens, None)
+                    if nested_path is None:
+                        raise ValueError(f"missing filelist path after '{token}' in '{path}'")
+                    nested = _resolve(base, Path(nested_path))
+                    if not nested.is_file():
+                        raise ValueError(f"'{nested}' is not a file")
+                    _read_filelist(nested, files, incdirs, defines, active)
+                else:
+                    _classify_token(token, base, files, incdirs, defines)
+    finally:
+        active.remove(resolved_path)
 
 
 def _collect_sources(
@@ -114,8 +134,8 @@ def package_main(
         arguments, and nested ``-f``/``-F <file>`` references from - the
         standard VCS/Verilator ``-f`` convention. Comments start with ``//``.
     output
-        Where to write the IP description YAML. Defaults to
-        ``<module-name>.yaml`` in the current directory.
+        Directory in which to write ``<module-name>.yaml`` and, with ``--lib``,
+        ``<module-name>.core``. Defaults to the current directory.
     vlnv
         Override the packaged module's identifier, as
         ``vendor:library:name[:version]`` (version defaults to ``0.1`` if
@@ -138,7 +158,6 @@ def package_main(
     """
     files, incdirs, defines = _collect_sources(sources, flist)
     if not files:
-        logger.error("At least one source file must be provided")
         cli.help_print(["package"])
         sys.exit(1)
 
@@ -191,12 +210,35 @@ def package_main(
     representation = backend.represent(module)
     module_yaml = next(backend.serialize(representation))
 
-    out_path = output if output is not None else Path(f"{module.id.name}.yaml")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = output if output is not None else Path(".")
+    if lib:
+        output_root = output_dir.resolve()
+        outside = next(
+            (path for path in (*files, *incdirs) if not path.resolve().is_relative_to(output_root)),
+            None,
+        )
+        if outside is not None:
+            logger.error(
+                "Cannot package '%s': sources and include directories must be inside "
+                "the output directory '%s'",
+                outside,
+                output_dir,
+            )
+            sys.exit(1)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    out_path = output_dir / f"{module.id.name}.yaml"
     out_path.write_text(module_yaml.content)
     logger.info(f"Wrote {out_path}")
 
     if lib:
         core_path = out_path.parent / f"{module.id.name}.core"
-        write_module_core(core_path, module.id, out_path, files)
+        write_module_core(
+            core_path,
+            module.id,
+            out_path,
+            files,
+            include_dirs=incdirs,
+            defines=defines,
+        )
         logger.info(f"Wrote {core_path}")

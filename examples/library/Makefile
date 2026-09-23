@@ -15,27 +15,27 @@ gui: project.yaml
 topwrap.yaml:
 	topwrap library add example_cores ./cores
 
-cores: cores/producer/module.yaml cores/consumer/module.yaml
+cores: cores/producer/producer.yaml cores/consumer/consumer.yaml
 
-cores/producer/module.yaml: cores/producer/producer.sv topwrap.yaml
+cores/producer/producer.yaml: cores/producer/producer.sv topwrap.yaml
 	topwrap package $< --vlnv example.com:demo:producer:0.1 \
-	  --inference --grouping-hint p=stream_out --lib -o $@
+	  --inference --grouping-hint p=stream_out --lib --output $(@D)
 
-cores/consumer/module.yaml: cores/consumer/consumer.sv topwrap.yaml
+cores/consumer/consumer.yaml: cores/consumer/consumer.sv topwrap.yaml
 	topwrap package $< --vlnv example.com:demo:consumer:0.1 \
-	  --inference --grouping-hint c=stream_in --lib -o $@
+	  --inference --grouping-hint c=stream_in --lib --output $(@D)
 
-cores/producer/producer.core: cores/producer/module.yaml
+cores/producer/producer.core: cores/producer/producer.yaml
 	@:
 
-cores/consumer/consumer.core: cores/consumer/module.yaml
+cores/consumer/consumer.core: cores/consumer/consumer.yaml
 	@:
 
 clean:
 	rm -rf $(BUILD_DIR)
 
 clean-cores:
-	rm -f cores/producer/module.yaml cores/consumer/module.yaml
+	rm -f cores/producer/producer.yaml cores/consumer/consumer.yaml
 	rm -f cores/producer/producer.core cores/consumer/consumer.core
 	rm -f topwrap.yaml
 

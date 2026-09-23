@@ -134,21 +134,29 @@ def _source_file_type(path: Path) -> str:
 
 
 def write_module_core(
-    core_path: Path, vlnv: Identifier, module_yaml: Path, sources: Iterable[Path] = ()
+    core_path: Path,
+    vlnv: Identifier,
+    module_yaml: Path,
+    sources: Iterable[Path] = (),
+    include_dirs: Iterable[Path] = (),
+    defines: Iterable[str] = (),
 ) -> None:
     """Write a CAPI2 ``.core`` file at ``core_path`` for a single module.
 
     The ``.core`` gets a ``topwrap`` fileset pointing at ``module_yaml`` with
     ``file_type: topwrapModule``, and (if given) an ``rtl`` fileset listing
     ``sources`` typed by extension - the shape a ``topwrap library`` expects.
-    ``module_yaml`` and ``sources`` are written as paths relative to
-    ``core_path``'s own directory, so the package stays portable.
+    Include files are marked with ``is_include_file`` so FuseSoC propagates
+    their directories to HDL tools. Defines are emitted as enabled
+    ``vlogdefine`` parameters on the default target.
 
     :param core_path: where to write the ``.core`` file
     :param vlnv: identifier the ``.core`` (and the module it describes) is
         known by
     :param module_yaml: path of the module's IP description YAML
     :param sources: HDL source files to list in an ``rtl`` fileset
+    :param include_dirs: directories containing HDL include files
+    :param defines: Verilog defines in ``NAME`` or ``NAME=VALUE`` form
     """
     base = core_path.resolve().parent
     module_yaml_rel = path_relative_to(module_yaml.resolve(), base)
@@ -164,17 +172,65 @@ def write_module_core(
         ),
     }
 
+    include_roots = [path.resolve() for path in include_dirs]
+    source_files = list(dict.fromkeys(src.resolve() for src in sources))
+    include_files = {
+        file.resolve()
+        for root in include_roots
+        if root.is_dir()
+        for file in root.rglob("*")
+        if file.is_file()
+    }
+    source_files.extend(sorted(include_files - set(source_files)))
+
     rtl_files = []
-    for src in sources:
-        src_rel = path_relative_to(src.resolve(), base)
-        rtl_files.append(
-            fuse_schema.FileSource(name=str(src_rel), file_type=_source_file_type(src))
+    for src in source_files:
+        include_root = next(
+            (root for root in include_roots if src.is_relative_to(root)),
+            None,
         )
+        rtl_files.append(
+            fuse_schema.FileSource(
+                name=str(path_relative_to(src, base)),
+                file_type=_source_file_type(src),
+                is_include_file=True if include_root is not None else None,
+                include_path=(
+                    str(path_relative_to(include_root, base)) if include_root is not None else None
+                ),
+            )
+        )
+
+    parameters: dict[str, fuse_schema.Parameter] = {}
+    for define in defines:
+        name, separator, raw_value = define.partition("=")
+        if not name:
+            continue
+        if not separator:
+            datatype = "bool"
+            value: bool | str | int = True
+        else:
+            try:
+                value = int(raw_value, 0)
+                datatype = "int"
+            except ValueError:
+                value = raw_value
+                datatype = "str"
+        parameters[name] = fuse_schema.Parameter(
+            datatype=datatype,
+            paramtype="vlogdefine",
+            default=value,
+        )
+
     targets = {}
     if rtl_files:
         filesets["rtl"] = fuse_schema.FileSet(files=rtl_files, depend=[])
         targets["default"] = fuse_schema.ToolTarget(
-            filesets=["rtl"], toplevel="", hooks={}, default_tool="", tools={}
+            filesets=["rtl"],
+            toplevel="",
+            hooks={},
+            parameters=list(parameters),
+            default_tool="",
+            tools={},
         )
 
     core = fuse_schema.Core(
@@ -183,6 +239,7 @@ def write_module_core(
         filesets=filesets,
         targets=targets,
         scripts={},
+        parameters=parameters,
     )
     core_path.write_text(core.to_yaml())
 

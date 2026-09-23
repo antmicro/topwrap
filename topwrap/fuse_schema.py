@@ -9,7 +9,7 @@ It is meant to be iterated on and extended as the need arises.
 As of now, the "schema" is only used for serialization.
 """
 
-from typing import Any, ClassVar, Type, Union, cast
+from typing import Any, ClassVar, Optional, Type, Union, cast
 
 import yaml
 from marshmallow import Schema as MarshmallowSchema
@@ -116,10 +116,12 @@ class VLNV_S:
 class FileSource:
     name: str
     file_type: str
+    is_include_file: Optional[bool] = None
+    include_path: Optional[str] = None
 
     @post_dump
     def post_process(_, *args: Any, **kwargs: Any):
-        return wrap_by("name", *args, **kwargs)
+        return wrap_by("name", remove_empty(*args, **kwargs))
 
 
 @dataclass
@@ -140,6 +142,7 @@ class TargetCommon:
     filesets: list[str]
     toplevel: str
     hooks: Hooks
+    parameters: list[str]
 
     @post_dump
     def post_process(_, *args: Any, **kwargs: Any):
@@ -166,6 +169,13 @@ class Script:
     cmd: list[str]
 
 
+@dataclass
+class Parameter:
+    datatype: str
+    paramtype: str
+    default: Union[bool, str, int, float]
+
+
 def _use_flow_style(core: dict[str, Any]) -> None:
     """Render each fileset file's attrs, and each target's fileset list, in
     YAML flow style - the common hand-written CAPI2 convention
@@ -187,6 +197,7 @@ class Core:
     filesets: dict[str, FileSet]
     targets: dict[str, Target]
     scripts: dict[str, Script]
+    parameters: dict[str, Parameter]
     Schema: ClassVar[Type[MarshmallowSchema]] = MarshmallowSchema
 
     @post_dump

@@ -29,8 +29,8 @@ They can be found in the "Metanode" section.
 The `verilogs` directory contains two Verilog files, `simple_core_1.v` and `simple_core_2.v`. Topwrap can automatically sparsecan them and create the necessary topwrap files using `topwrap package`:
 
 ```bash
-topwrap package cores/simple_core_1.v -o cores/simple_core_1.yaml
-topwrap package cores/simple_core_2.v -o cores/simple_core_2.yaml
+topwrap package cores/simple_core_1.v --output cores
+topwrap package cores/simple_core_2.v --output cores
 ```
 
 This is the most basic way of using topwrap, and we can now start building systems.
@@ -204,8 +204,8 @@ So far, the IP cores in this guide were referenced directly by their YAML files 
 A library is a directory (or git repository) of CAPI2 `.core` files, as we are leveraging the FuseSoC package management infrastructure. To also add those extra files, just add `--lib` to `topwrap package`:
 
 ```bash
-topwrap package --lib cores/simple_core_1.v -o cores/simple_core_1.yaml
-topwrap package --lib cores/simple_core_2.v -o cores/simple_core_2.yaml
+topwrap package --lib cores/simple_core_1.v --output cores
+topwrap package --lib cores/simple_core_2.v --output cores
 ```
 
 This writes `simple_core_1.core` and `simple_core_2.core` next to the YAML files, which is all that's needed to register the directory as a library:

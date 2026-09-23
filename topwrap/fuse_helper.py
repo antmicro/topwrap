@@ -76,6 +76,7 @@ class FuseSocTarget:
                 filesets=self.filesets,
                 toplevel=self.toplevel,
                 hooks={hook.type: hook.scripts for hook in self.hooks},
+                parameters=[],
                 default_tool=self.api.default_tool,
                 tools=self.api.tools,
             )
@@ -88,6 +89,7 @@ class FuseSocTarget:
             filesets=self.filesets,
             toplevel=self.toplevel,
             hooks={hook.type: hook.scripts for hook in self.hooks},
+            parameters=[],
             flow=self.api.type,
             flow_options=options,
         )
@@ -224,6 +226,7 @@ class FuseSocBuilder:
             filesets=self.filesets,
             targets=self.targets,
             scripts=self.scripts,
+            parameters={},
         ).to_yaml()
         with open(core_path, "w") as f:
             f.write(text)

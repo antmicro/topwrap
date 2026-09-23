@@ -14,7 +14,7 @@ $(JSONS): package
 package: cores/simple_core_1.yaml cores/simple_core_2.yaml
 
 cores/%.yaml: cores/%.v
-	topwrap package $< -o $@
+	topwrap package $< --output $(@D)
 
 clean:
 	rm -f $(JSONS)

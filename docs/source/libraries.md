@@ -92,3 +92,30 @@ config:
 ```
 
 Relative paths are resolved against the design file. This is how a design stays self-contained for anyone who checks it out.
+The declaration is scoped to that design operation and does not affect later designs parsed in the same process.
+
+## Creating a library core
+
+`topwrap package --lib` writes a CAPI2 `.core` file next to the generated IP description:
+
+```text
+cores/widget/
+└── rtl/
+    ├── include/
+    │   └── config.svh
+    └── widget.sv
+```
+
+```bash
+topwrap package cores/widget/rtl/widget.sv \
+  +incdir+cores/widget/rtl/include +define+WIDTH=8 \
+  --vlnv example.com:widgets:widget:1.0 --lib --output cores/widget
+```
+
+This creates `widget.yaml` and `widget.core` in `cores/widget`.
+
+Filelists supplied with `-f` may contain source paths, `+incdir+`, `+define+`, and nested `-f` or `-F` entries. Relative paths inside a filelist are resolved from that filelist's directory.
+
+The generated core records source files in its RTL fileset. Files found under `+incdir+` directories are marked as include files with their include path, while `+define+NAME` and `+define+NAME=VALUE` entries become FuseSoC `vlogdefine` parameters enabled on the default target.
+
+With `--lib`, every source and include directory must be inside the output directory. They may be organized in subdirectories, as above, but cannot be referenced through `..`: FuseSoC is deprecating files outside the directory containing their `.core` file. Choose a common parent as `--output`, or move the sources beneath the package directory. Topwrap reports an error before writing either output file when this condition is not met.

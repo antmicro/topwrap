@@ -18,7 +18,7 @@ name : example.com:demo:producer
 filesets:
   topwrap:
     files:
-        - module.yaml : { file_type : topwrapModule }
+        - producer.yaml : { file_type : topwrapModule }
   rtl:
     files:
         - producer.sv : { file_type : systemVerilogSource }
@@ -28,7 +28,7 @@ targets:
     filesets: [rtl]
 ```
 
-`cores/producer/module.yaml` and `producer.core` started out as the output
+`cores/producer/producer.yaml` and `producer.core` started out as the output
 of `topwrap package`, which parses HDL sources into a Topwrap IP
 description and, with `--lib`, a matching `.core` file - `+incdir+`,
 `+define+`, and `-f <filelist>` work the same way they do for other EDA
@@ -41,7 +41,7 @@ a human would call the group):
 ```bash
 topwrap library add demo_cores ./cores   # writes topwrap.yaml, see below
 topwrap package cores/producer/producer.sv --vlnv example.com:demo:producer:0.1 \
-  --inference --grouping-hint p=stream_out --lib -o cores/producer/module.yaml
+  --inference --grouping-hint p=stream_out --lib --output cores/producer
 ```
 
 or, to recreate both cores at once:
