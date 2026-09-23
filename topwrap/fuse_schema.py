@@ -9,6 +9,7 @@ It is meant to be iterated on and extended as the need arises.
 As of now, the "schema" is only used for serialization.
 """
 
+from dataclasses import dataclass
 from typing import Any, ClassVar, Optional, Type, Union, cast
 
 import yaml

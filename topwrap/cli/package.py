@@ -13,6 +13,7 @@ from cyclopts import Parameter
 from cyclopts.types import ExistingFile
 
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
+from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.cli import cli, load_interfaces_from_repos, load_modules_from_repos
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.library import write_module_core
@@ -167,6 +168,12 @@ def package_main(
     frontend_output = SystemVerilogFrontend(
         modules=repo_modules, interfaces=known_interfaces
     ).parse_files(files, include_dirs=incdirs, defines=defines)
+    known_interface_ids = {iface.id for iface in known_interfaces}
+    new_interfaces = {
+        iface.id: iface
+        for iface in frontend_output.interfaces
+        if iface.id not in known_interface_ids
+    }
 
     if len(frontend_output.modules) == 0:
         logger.error("No module found in the given sources")
@@ -196,7 +203,11 @@ def package_main(
     if vlnv is not None:
         try:
             parsed = Identifier.parse_vlnv(vlnv)
-        except ValueError:
+        except ValueError as e:
+            logger.error("%s", e)
+            sys.exit(1)
+        if parsed.name in ("", ".", "..") or "/" in parsed.name or "\\" in parsed.name:
+            logger.error("VLNV name '%s' must be a single filename component", parsed.name)
             sys.exit(1)
         module.id = Identifier(
             name=parsed.name,
@@ -231,6 +242,14 @@ def package_main(
     out_path.write_text(module_yaml.content)
     logger.info(f"Wrote {out_path}")
 
+    interface_backend = InterfaceDefinitionDescriptionBackend()
+    interface_paths = []
+    for iface in new_interfaces.values():
+        path = output_dir / f"{iface.id.combined()}.yaml"
+        interface_backend.represent(iface).save(path)
+        interface_paths.append(path)
+        logger.info(f"Wrote {path}")
+
     if lib:
         core_path = out_path.parent / f"{module.id.name}.core"
         write_module_core(
@@ -240,5 +259,6 @@ def package_main(
             files,
             include_dirs=incdirs,
             defines=defines,
+            interface_yamls=interface_paths,
         )
         logger.info(f"Wrote {core_path}")

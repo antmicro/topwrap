@@ -114,6 +114,8 @@ topwrap package cores/widget/rtl/widget.sv \
 
 This creates `widget.yaml` and `widget.core` in `cores/widget`.
 
+Interface definitions declared by the input HDL are written as separate YAML files and, with `--lib`, listed in the generated core as `topwrapInterface`. Topwrap saves each full interface VLNV once. Definitions already supplied by a built-in, registered library, or user repository are referenced rather than duplicated in the new package.
+
 Filelists supplied with `-f` may contain source paths, `+incdir+`, `+define+`, and nested `-f` or `-F` entries. Relative paths inside a filelist are resolved from that filelist's directory.
 
 The generated core records source files in its RTL fileset. Files found under `+incdir+` directories are marked as include files with their include path, while `+define+NAME` and `+define+NAME=VALUE` entries become FuseSoC `vlogdefine` parameters enabled on the default target.

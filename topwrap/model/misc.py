@@ -273,14 +273,17 @@ class Identifier:
 
     @staticmethod
     def parse_vlnv(src: str) -> "Identifier":
-        m = VLNV_RE.fullmatch(src)
+        vlnv_match = VLNV_RE.fullmatch(src)
 
-        if not m:
-            _s = f"Failed to parse VLNV: {src}"
-            logger.error(_s)
-            raise ValueError(_s)
+        if not vlnv_match:
+            raise ValueError(f"Failed to parse VLNV: {src}")
 
-        return Identifier(vendor=m[1], library=m[2], name=m[3], version=m[4])
+        return Identifier(
+            vendor=vlnv_match[1],
+            library=vlnv_match[2],
+            name=vlnv_match[3],
+            version=vlnv_match[4],
+        )
 
     def refers_to(self, other: "Identifier") -> bool:
         """Whether this identifier - given as just a name, or as

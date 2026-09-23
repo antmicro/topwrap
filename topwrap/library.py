@@ -140,12 +140,14 @@ def write_module_core(
     sources: Iterable[Path] = (),
     include_dirs: Iterable[Path] = (),
     defines: Iterable[str] = (),
+    interface_yamls: Iterable[Path] = (),
 ) -> None:
     """Write a CAPI2 ``.core`` file at ``core_path`` for a single module.
 
-    The ``.core`` gets a ``topwrap`` fileset pointing at ``module_yaml`` with
-    ``file_type: topwrapModule``, and (if given) an ``rtl`` fileset listing
-    ``sources`` typed by extension - the shape a ``topwrap library`` expects.
+    The ``.core`` gets a ``topwrap`` fileset pointing at ``module_yaml`` and
+    any ``interface_yamls`` with their respective Topwrap file types, and (if
+    given) an ``rtl`` fileset listing ``sources`` typed by extension - the
+    shape a ``topwrap library`` expects.
     Include files are marked with ``is_include_file`` so FuseSoC propagates
     their directories to HDL tools. Defines are emitted as enabled
     ``vlogdefine`` parameters on the default target.
@@ -157,36 +159,45 @@ def write_module_core(
     :param sources: HDL source files to list in an ``rtl`` fileset
     :param include_dirs: directories containing HDL include files
     :param defines: Verilog defines in ``NAME`` or ``NAME=VALUE`` form
+    :param interface_yamls: Topwrap interface descriptions to list in the
+        ``topwrap`` fileset
     """
     base = core_path.resolve().parent
     module_yaml_rel = path_relative_to(module_yaml.resolve(), base)
 
-    filesets = {
-        "topwrap": fuse_schema.FileSet(
-            files=[
-                fuse_schema.FileSource(
-                    name=str(module_yaml_rel), file_type=TOPWRAP_MODULE_FILE_TYPE
-                )
-            ],
-            depend=[],
-        ),
-    }
+    topwrap_files = [
+        fuse_schema.FileSource(name=str(module_yaml_rel), file_type=TOPWRAP_MODULE_FILE_TYPE)
+    ]
+    topwrap_files.extend(
+        fuse_schema.FileSource(
+            name=str(path_relative_to(path.resolve(), base)),
+            file_type=TOPWRAP_INTERFACE_FILE_TYPE,
+        )
+        for path in interface_yamls
+    )
+    filesets = {"topwrap": fuse_schema.FileSet(files=topwrap_files, depend=[])}
 
     include_roots = [path.resolve() for path in include_dirs]
     source_files = list(dict.fromkeys(src.resolve() for src in sources))
+    source_set = set(source_files)
+    generated_files = {
+        core_path.resolve(),
+        module_yaml.resolve(),
+        *(path.resolve() for path in interface_yamls),
+    }
     include_files = {
         file.resolve()
         for root in include_roots
         if root.is_dir()
         for file in root.rglob("*")
-        if file.is_file()
+        if file.is_file() and file.resolve() not in generated_files
     }
-    source_files.extend(sorted(include_files - set(source_files)))
+    source_files.extend(sorted(include_files - source_set))
 
     rtl_files = []
     for src in source_files:
         include_root = next(
-            (root for root in include_roots if src.is_relative_to(root)),
+            (root for root in include_roots if src not in source_set and src.is_relative_to(root)),
             None,
         )
         rtl_files.append(
