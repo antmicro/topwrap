@@ -25,6 +25,12 @@
         "nodeLayers": []
       },
       {
+        "name": "Clock and reset domains",
+        "nodeLayers": [
+          "Clock and reset domains"
+        ]
+      },
+      {
         "name": "Constants",
         "nodeLayers": [
           "Constants"
@@ -138,6 +144,7 @@
           "type": "intf__port"
         }
       ],
+      "layer": "Clock and reset domains",
       "name": "Clock domain",
       "properties": [
         {
@@ -324,6 +331,7 @@
           "type": "intf__port"
         }
       ],
+      "layer": "Clock and reset domains",
       "name": "Reset domain",
       "properties": [
         {
