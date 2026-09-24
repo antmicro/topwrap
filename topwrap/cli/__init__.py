@@ -27,10 +27,23 @@ from topwrap.util import MarshmallowErrorRewriter, get_config, parse_incdirs, wa
 
 logger = logging.getLogger(__name__)
 
+
+def _format_cli_error(err: Exception):
+    if isinstance(err, cyclopts.UnknownOptionError) or (
+        isinstance(err, cyclopts.MissingArgumentError)
+        and err.argument is not None
+        and not err.argument.field_info.is_keyword
+    ):
+        cli.help_print(err.root_input_tokens, console=err.console)
+        return ""
+    return cyclopts.CycloptsPanel(err)
+
+
 cli = cyclopts.App(
     default_parameter=cyclopts.Parameter(short_alias=True),
     help_format="restructuredtext",
     version=__version__,
+    error_formatter=_format_cli_error,
 )
 
 repo_cli = cyclopts.App(name="repo", help="Commands related to user repositories", show=False)
@@ -92,10 +105,6 @@ def cmd(
         get_config().update_repo({rep.name: FileReferenceHandler(rep)})
 
     try:
-        if processed_tokens == ["library", "add"]:
-            cli.help_print(processed_tokens)
-            sys.exit(1)
-
         # 'repo parse' is deprecated and only understands '+incdir+' via this
         # special-cased rewrite into '--include'. Every other command (e.g.
         # 'package') receives its raw tokens untouched and is responsible for
