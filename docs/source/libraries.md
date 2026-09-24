@@ -120,4 +120,11 @@ Filelists supplied with `--flist` may contain source paths, `+incdir+`, `+define
 
 The generated core records source files in its RTL fileset. Files found under `+incdir+` directories are marked as include files with their include path, while `+define+NAME` and `+define+NAME=VALUE` entries become FuseSoC `vlogdefine` parameters enabled on the default target.
 
-With `--lib`, every source and include directory must be inside the output directory. They may be organized in subdirectories, as above, but cannot be referenced through `..`: FuseSoC is deprecating files outside the directory containing their `.core` file. Choose a common parent as `--output`, or move the sources beneath the package directory. Topwrap reports an error before writing either output file when this condition is not met.
+With `--lib`, every source and include directory must be inside the output directory. If they are elsewhere, pass `--copy` to copy them into it while packaging. Source files are copied by filename, and include directories by directory name, so the generated `.core` refers to the copies. For example:
+
+```bash
+topwrap package ../rtl/widget.sv +incdir+../rtl/include \
+  --lib --copy --output cores/widget
+```
+
+Without `--copy`, Topwrap reports an error without writing the package when sources are outside output directory. You can also choose a common parent as `--output` or move the sources beneath the package directory. Keeping all files alongside the `.core` avoids references to files outside its directory, which FuseSoC is deprecating.

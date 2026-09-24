@@ -5,6 +5,7 @@
 
 import logging
 import shlex
+import shutil
 import sys
 from pathlib import Path
 from typing import Annotated, List, Optional, Tuple
@@ -115,6 +116,7 @@ def package_main(
     inference_interface: Annotated[Tuple[str, ...], Parameter(alias="-I")] = (),
     grouping_hint: Annotated[Tuple[str, ...], Parameter(alias="-g")] = (),
     lib: bool = False,
+    copy: bool = False,
 ):
     """Package a single IP module parsed from its HDL sources into a Topwrap
     IP description YAML.
@@ -156,6 +158,9 @@ def package_main(
     lib
         Also write a CAPI2 ``.core`` file next to the IP description YAML,
         so the two together can be registered with ``topwrap library add``.
+    copy
+        Copy sources and include directories outside the output directory into it.
+        Only applies with ``--lib``.
     """
     files, incdirs, defines = _collect_sources(sources, flist)
     if not files:
@@ -224,18 +229,31 @@ def package_main(
     output_dir = output if output is not None else Path(".")
     if lib:
         output_root = output_dir.resolve()
-        outside = next(
-            (path for path in (*files, *incdirs) if not path.resolve().is_relative_to(output_root)),
-            None,
-        )
-        if outside is not None:
+        outside_paths = [
+            path for path in (*files, *incdirs) if not path.resolve().is_relative_to(output_root)
+        ]
+        if outside_paths and not copy:
             logger.error(
                 "Cannot package '%s': sources and include directories must be inside "
-                "the output directory '%s'",
-                outside,
+                "the output directory '%s' (or use --copy)",
+                outside_paths[0],
                 output_dir,
             )
             sys.exit(1)
+
+        if outside_paths:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            copied: dict[Path, Path] = {}
+            for path in outside_paths:
+                resolved = path.resolve()
+                destination = output_root / resolved.name
+                if resolved.is_dir():
+                    shutil.copytree(resolved, destination, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(resolved, destination)
+                copied[resolved] = destination
+            files = [copied.get(path.resolve(), path) for path in files]
+            incdirs = [copied.get(path.resolve(), path) for path in incdirs]
 
     output_dir.mkdir(parents=True, exist_ok=True)
     out_path = output_dir / f"{module.id.name}.yaml"

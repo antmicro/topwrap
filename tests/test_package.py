@@ -93,6 +93,38 @@ def test_package_core_rejects_sources_outside_output(tmp_path: Path):
     assert not output.exists()
 
 
+def test_package_core_copies_sources_outside_output(tmp_path: Path):
+    source = tmp_path / "src" / "widget.sv"
+    source.parent.mkdir()
+    source.write_text('`include "config.svh"\nmodule widget(input logic data); endmodule\n')
+    include_dir = tmp_path / "includes"
+    include_dir.mkdir()
+    (include_dir / "config.svh").write_text("// Include file.\n")
+    output = tmp_path / "package"
+
+    run_cli(
+        "package",
+        str(source),
+        f"+incdir+{include_dir}",
+        "--lib",
+        "--copy",
+        "--output",
+        str(output),
+    )
+
+    assert (output / "widget.sv").read_text() == source.read_text()
+    assert (output / "includes" / "config.svh").read_text() == (
+        include_dir / "config.svh"
+    ).read_text()
+    rtl_files = load_core(output / "widget.core")["filesets"]["rtl"]["files"]
+    rtl_files_by_name = {name: attrs for entry in rtl_files for name, attrs in entry.items()}
+    source_attrs = rtl_files_by_name["widget.sv"]
+    header_attrs = rtl_files_by_name["includes/config.svh"]
+    assert source_attrs.get("is_include_file") is None
+    assert header_attrs["is_include_file"] is True
+    assert header_attrs["include_path"] == "includes"
+
+
 def test_package_rejects_vlnv_name_outside_output(tmp_path: Path):
     source = tmp_path / "widget.sv"
     source.write_text("module widget; endmodule\n")
