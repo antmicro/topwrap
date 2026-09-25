@@ -1,0 +1,88 @@
+{
+  "version": "20240723.13",
+  "metadata": {
+    "randomizedOffset": true
+  },
+  "graphs": [
+    {
+      "connections": [],
+      "id": "169383254977833",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "a322afe0-c7b7-4f81-9002-9229bba14d0d",
+          "instanceName": "axi_axil_adapter",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "86d03bbd-ed5f-43fb-bdac-099d48bd4fd9",
+              "name": "clk",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "7692617d-91f0-485c-973c-a9a079bc1b66",
+              "name": "rst",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "97e89128-89c8-4bf5-8bd8-9711735fa9b7",
+              "name": "s_axi",
+              "side": "left",
+              "sidePosition": 2
+            },
+            {
+              "direction": "output",
+              "id": "2ca99cbd-d12c-4ad1-91fb-b8709f056877",
+              "name": "m_axi",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "axi_axil_adapter",
+          "position": {
+            "x": -1155,
+            "y": 300
+          },
+          "properties": [
+            {
+              "id": "d86aa7dc-d8df-47fe-ac93-477d2078616f",
+              "name": "ADDR_WIDTH",
+              "value": "INVALID NAME!!!"
+            },
+            {
+              "id": "74071672-1745-4cd1-ad2b-1897c605f512",
+              "name": "AXI_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "dbf44348-a8e7-4bc0-93e9-072fc461712f",
+              "name": "AXI_ID_WIDTH",
+              "value": "8"
+            },
+            {
+              "id": "d155f6a3-563a-4377-9abb-eb09d6ff965f",
+              "name": "AXI_STRB_WIDTH",
+              "value": "AXI_DATA_WIDTH/8"
+            },
+            {
+              "id": "c30e8212-560b-491b-af3f-bac0a0baea6a",
+              "name": "AXIL_DATA_WIDTH",
+              "value": "32"
+            },
+            {
+              "id": "d26f530c-792d-4c7d-ae51-6e22e1ea5a90",
+              "name": "AXIL_STRB_WIDTH",
+              "value": "AXIL_DATA_WIDTH/8"
+            }
+          ],
+          "twoColumn": false,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}

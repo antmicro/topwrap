@@ -1,0 +1,300 @@
+{
+  "version": "20240723.13",
+  "entryGraph": "172709238443131",
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "dfb40cf0-b435-4bc0-99c0-a2030704ccc3",
+          "id": "b2f751ff-b6ca-4733-ac02-3dc145140dc8",
+          "to": "ni_172709238443125"
+        },
+        {
+          "from": "ff4ad7c9-97c0-4056-9a98-5ae75809b7db",
+          "id": "79685202-3ce6-422a-a1a9-e923e905161c",
+          "to": "ni_172709238443126"
+        },
+        {
+          "from": "ni_172709238443127",
+          "id": "3280cb8b-62eb-4a1c-8cde-efab65f25b74",
+          "to": "610298c4-ec0d-4e2a-80e3-35c00e6f353d"
+        }
+      ],
+      "id": "172709238443131",
+      "nodes": [
+        {
+          "id": "6a7e3d33-ba14-4ed2-b922-ba7227312288",
+          "instanceName": "Test Subgraph",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172709238443125",
+              "name": "cs_s1_f_mod_in_1",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "input",
+              "id": "ni_172709238443126",
+              "name": "cs_s1_f_ext_const_in",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "output",
+              "id": "ni_172709238443127",
+              "name": "cs_s1_f_int_out_1",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "New Graph Node",
+          "position": {
+            "x": 75,
+            "y": 90
+          },
+          "subgraph": "172709238443128",
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "4d156fcf-7b2d-4897-b49c-cb84dacb2aa8",
+          "instanceName": "External Input",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "dfb40cf0-b435-4bc0-99c0-a2030704ccc3",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Input",
+          "position": {
+            "x": -645,
+            "y": 0
+          },
+          "properties": [
+            {
+              "id": "f07e8776-8835-4b37-8570-b29c87c5c9f9",
+              "name": "External Name",
+              "value": "Some_input_1"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "1a93402c-44d3-4924-9d0d-4dfaaec5c28c",
+          "instanceName": "External Input",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "ff4ad7c9-97c0-4056-9a98-5ae75809b7db",
+              "name": "external",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Input",
+          "position": {
+            "x": -630,
+            "y": 270
+          },
+          "properties": [
+            {
+              "id": "3ad8d513-93ef-4543-88d9-b5d5df645ca6",
+              "name": "External Name",
+              "value": "Some_input_2"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "902d3b1f-e9d6-41a0-9bba-c24c0af8e4d6",
+          "instanceName": "External Output",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "610298c4-ec0d-4e2a-80e3-35c00e6f353d",
+              "name": "external",
+              "side": "left",
+              "sidePosition": 0
+            }
+          ],
+          "name": "External Output",
+          "position": {
+            "x": 660,
+            "y": 45
+          },
+          "properties": [
+            {
+              "id": "a04915b3-939f-41a0-81fc-343160c90ff7",
+              "name": "External Name",
+              "value": "Some_output_1"
+            }
+          ],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "from": "ni_172709238443134",
+          "id": "4876e468-c248-473e-8560-1aa18338bcb4",
+          "to": "ni_172709238443143"
+        },
+        {
+          "from": "ni_172709238443136",
+          "id": "1d0219ba-61cc-4f1e-be9b-a7e19c05cc5c",
+          "to": "ni_172709238443133"
+        },
+        {
+          "from": "ni_172709238443139",
+          "id": "38ce9037-b298-4a13-8cfb-6ed83b590eb6",
+          "to": "ni_172709238443132"
+        },
+        {
+          "from": "ni_172709238443134",
+          "id": "f991a050-40f8-433c-a436-c022cd0eba45",
+          "to": "ni_172709238443126"
+        }
+      ],
+      "id": "172709238443128",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172709238443135",
+          "instanceName": "s2_mod_2",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172709238443133",
+              "name": "cs_s2_mint_in_1",
+              "side": "left",
+              "sidePosition": 1
+            },
+            {
+              "direction": "input",
+              "id": "ni_172709238443132",
+              "name": "cs_s2_mint_in_2",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172709238443134",
+              "name": "cs_s2_f_mod_out_1",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "s2_mod_2",
+          "position": {
+            "x": 435,
+            "y": -15
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172709238443138",
+          "instanceName": "Test Subgraph cs_s1_f_mod_in_1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "cs_s1_f_mod_in_1",
+              "id": "ni_172709238443125",
+              "name": "subgraph in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172709238443136",
+              "name": "subgraph out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Subgraph port",
+          "position": {
+            "x": -105,
+            "y": 30
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172709238443141",
+          "instanceName": "Test Subgraph cs_s1_f_ext_const_in",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "cs_s1_f_ext_const_in",
+              "id": "ni_172709238443126",
+              "name": "subgraph in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "id": "ni_172709238443139",
+              "name": "subgraph out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Subgraph port",
+          "position": {
+            "x": -45,
+            "y": -150
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "node_172709238443144",
+          "instanceName": "Test Subgraph cs_s1_f_int_out_1",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "ni_172709238443143",
+              "name": "subgraph in",
+              "side": "left",
+              "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "externalName": "cs_s1_f_int_out_1",
+              "id": "ni_172709238443127",
+              "name": "subgraph out",
+              "side": "right",
+              "sidePosition": 0
+            }
+          ],
+          "name": "Subgraph port",
+          "position": {
+            "x": 915,
+            "y": -15
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}
