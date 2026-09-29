@@ -301,7 +301,7 @@ wheels = [
 [[package]]
 name = "axi-interconnect-generator-plugin"
 version = "0.0.1"
-source = { git = "https://github.com/antmicro/topwrap-utils?subdirectory=topwrap-axi-interconnect-generator-plugin&rev=949dd6b39c188a5063e05d90de74ef8a2666c369#949dd6b39c188a5063e05d90de74ef8a2666c369" }
+source = { git = "https://github.com/antmicro/topwrap-utils?subdirectory=topwrap-axi-interconnect-generator-plugin&rev=3bf3729d2218073cd412aa7e092ca18972ebfdbf#3bf3729d2218073cd412aa7e092ca18972ebfdbf" }
 dependencies = [
     { name = "pyyaml" },
 ]
@@ -3039,7 +3039,7 @@ requires-dist = [
     { name = "amaranth-soc", git = "https://github.com/antmicro/amaranth-soc?rev=236384fcaee6e3d192aedcf6ff119d90c5f56046" },
     { name = "amaranth-yosys", specifier = "==0.40.0.0.post103" },
     { name = "antmicro-sphinx-utils", marker = "extra == 'docs'", git = "https://github.com/antmicro/antmicro-sphinx-utils?rev=8907a689189de91ec2fcedd1ab8088f123bcf0ab" },
-    { name = "axi-interconnect-generator-plugin", git = "https://github.com/antmicro/topwrap-utils?subdirectory=topwrap-axi-interconnect-generator-plugin&rev=949dd6b39c188a5063e05d90de74ef8a2666c369" },
+    { name = "axi-interconnect-generator-plugin", git = "https://github.com/antmicro/topwrap-utils?subdirectory=topwrap-axi-interconnect-generator-plugin&rev=3bf3729d2218073cd412aa7e092ca18972ebfdbf" },
     { name = "build", marker = "extra == 'deploy'", specifier = "==1.2.1" },
     { name = "codespell", marker = "extra == 'lint'", specifier = "==2.3.0" },
     { name = "cyclopts" },
