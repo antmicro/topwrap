@@ -187,9 +187,12 @@ class BuildPipeline:
         design_source: Optional[Source],
         outdir: OutputDir,
     ):
-        self.prepare(sources, design_source)
-        self.process()
-        self.build(outdir)
+        try:
+            self.prepare(sources, design_source)
+            self.process()
+            self.build(outdir)
+        except Exception as e:
+            raise BuildException(f"Exception occurred during pipeline: {e}") from e
 
     def run_files(
         self,
