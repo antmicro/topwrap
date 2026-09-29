@@ -12,7 +12,8 @@ requires-python = ">=3.10"
 authors = [{name = "Antmicro"}]
 description = "Package for generating HDL wrappers and top modules for your HDL sources"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
