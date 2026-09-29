@@ -93,16 +93,16 @@ reset_domains:
   ...
 
 external: # specify the names of external ports and interfaces of the top module
-ports:
-  out:
-    - name: {ext_port_name}
-      bound: [[dim0_high, dim1_low], ..., [dimN_high, dimN, low]]
-  inout:
-    - [{ip_name/hierarchy_name, port_name}]
-interfaces:
-  in:
-    - {ext_interface_name}
-  # note that `inout:` is invalid in the interfaces section
+  ports:
+    out:
+      - name: {ext_port_name}
+        bound: [[dim0_high, dim1_low], ..., [dimN_high, dimN, low]]
+    inout:
+      - [{ip_name/hierarchy_name, port_name}]
+  interfaces:
+    in:
+      - {ext_interface_name}
+    # note that `inout:` is invalid in the interfaces section
 
 hierarchies:
    # see "Hierarchies" below for a detailed description of the format
@@ -454,6 +454,84 @@ types:
             ...
       ...
 ```
+
+### Differences between the IP and design formats
+
+The following information is present in the design format, but not in the IP format:
+
+  - `ips`, `hierarchies`, `connections` and `interconnects` and `memory_maps`
+  - `config`
+  - `positions`
+
+The following information is present in the IP format, but not in the design format:
+
+  - `parameters`
+  - `types`
+
+The mapping between other sections is as follows:
+
+  - `external/ports` corresponds to `signals`
+  - `external/interfaes` corresponds to `interfaces`
+  - `clock_domains`/`reset_domains` corresponds to `clocks`/`resets`
+  - VLNV fields (`vendor`, `library`, `name`, `versions`) are packaged into `id`
+
+Note that in the IP format, the name of the clock/reset signal is specified inside the `clocks` field and not as a separate port. The same applies to reset specification.
+
+### Interface definitions
+
+The purpose of the interface YAML file is to store information about interface definitions. These definitions are used for inferring ports to interface instances. It contains the id of the interface, which is used to reference the definition from the IP core YAML file.
+The YAML file separates `signals` into those that are required for a list of ports to be interpreted as this interface and optional signals that, if present, are inferred into a single interface instance.
+
+Regular expressions are used to find ports in the HDL module that correspond to the signals in the interface definition.
+
+```yaml
+id
+  library: libdefault
+  name: wishbone
+  vendor: vendor
+signals:
+    required:
+        out:
+            cyc: cyc
+            stb: stb
+        in:
+            ack: ack
+    optional:
+        out:
+            dat_w: dat_(w|mosi)|mosi
+            adr: adr
+            tgd_w: tgd_w
+            lock: lock
+            sel: sel
+            tga: tga
+            tgc: tgc
+            we: we
+            cti: cti
+            bte: bte
+        in:
+            dat_r: dat_(r|miso)|miso
+            tgd_r: tgd_r
+            stall: stall
+            err: err
+            rty: rty
+```
+File format explanation:
+
+- `id` \- identification of the interface. An instance of [Identifier IR class](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)
+  - `library` \- by default `libdefault`
+  - `vendor` \- by default `vendor`
+  - `name` \- same as the name in the HDL file
+- `signals` \- contains the names of signals with regular expressions that are used in the ports of Modules.
+  - `required` \- contains signals that must be present in the list of ports in the module
+  - `optional` \- contains signals that are connected to the interface instance when present in the list of ports in the module
+    - `out` \- a list of signals that are in the output direction
+    - `in` \- a list of signals that are in the input direction
+    - `inout` \- a list of signals that can be both the input and the output, similar to an `inout` port in Verilog
+
+Interfaces can also specify which clock and reset input of the IP core they use.
+This is done via the optional `clock` and `reset` keys, which specify the name of the input (see below).
+
+When connecting interfaces that have clock inputs assigned on both sides of the connection, Topwrap will automatically perform sanity checks, and report errors for connections between interfaces that belong to different clock domains.
 
 ### Parameterization
 
