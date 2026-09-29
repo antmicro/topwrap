@@ -24,6 +24,7 @@ TARGET  := 	default
 all: generate
 
 parse: clean setup
+	- rm -r ${REPO_NAME}
 	topwrap repo init ${REPO_NAME} ${REPO_NAME}
 	topwrap repo parse ${REPO_NAME} ${SOURCE_DIR}
 

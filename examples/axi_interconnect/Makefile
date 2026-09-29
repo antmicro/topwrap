@@ -35,6 +35,7 @@ build:
 	mkdir build
 
 $(REPO_NAME): $(IPCORE_SOURCES)
+	- rm -r $(REPO_NAME)
 	topwrap repo init $(REPO_NAME) $(REPO_NAME)
 	topwrap repo parse $(REPO_NAME) $(IPCORE_SOURCES) --inference
 
