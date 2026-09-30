@@ -424,4 +424,4 @@ class MarshmallowDataclassExtensions:
         with open(path) as f:
             sch = cls.Schema()
             sch.context[PathContext.CONTEXT_LOAD.value] = path
-            return cast(Self, sch.load(yaml.safe_load(f, **kwargs)))
+            return cast(Self, sch.load(yaml.safe_load(f, **kwargs) or {}))
