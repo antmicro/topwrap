@@ -7,9 +7,12 @@ from typing import Dict, List, Optional, Set, Tuple
 from pipeline_manager_backend_communication.misc_structures import MessageType
 
 from topwrap.backend.kpm.common import (
+    ClockDomainMetanode,
+    IdentifierMetanode,
     InMetanode,
     InoutMetanode,
     OutMetanode,
+    ResetDomainMetanode,
 )
 from topwrap.hdl_parsers_utils import (
     ParameterToEval,
@@ -154,7 +157,11 @@ class DataflowValidator:
             # TODO: This should probably include more nodes?
             # (e.g. interconnects due to their manager/subordinate
             # parameters?)
-            if node["name"] == "Identifier":
+            if node["name"] in [
+                IdentifierMetanode.name,
+                ClockDomainMetanode.name,
+                ResetDomainMetanode.name,
+            ]:
                 continue
 
             for param in node.get("properties", []):
