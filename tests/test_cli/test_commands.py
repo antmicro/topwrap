@@ -3,7 +3,9 @@
 
 import concurrent.futures
 import logging
+import shutil
 import socket
+import subprocess
 import threading
 from itertools import chain
 from pathlib import Path
@@ -68,13 +70,16 @@ class TestCli:
         assert Path(tmp_path / "top.sv").exists()
 
     def test_generate_fusesoc_includes_library_dependencies_and_options(self, tmp_path: Path):
+        example_dir = tmp_path / "library"
+        shutil.copytree(Path(__file__).resolve().parents[2] / "examples" / "library", example_dir)
+        subprocess.run(["make", "cores"], cwd=example_dir, check=True)
+
         sources = tmp_path / "additional_sources"
         sources.mkdir()
         (sources / "constraints.xdc").write_text("# constraints\n")
-
         run_cli(
             "generate",
-            "examples/library/project.yaml",
+            str(example_dir / "project.yaml"),
             "--fusesoc",
             "--part",
             "xc7z020clg400-3",
