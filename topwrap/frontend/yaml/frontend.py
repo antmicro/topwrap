@@ -86,6 +86,20 @@ class YamlFrontend(Frontend):
 
         return FrontendParseOutput(modules=modules, positions=pos)
 
+    def parse_design_str(self, source: Union[str, FrontendParseStrInput]):
+        modules = list[Module]()
+
+        content = source.content if isinstance(source, FrontendParseStrInput) else source
+
+        positions = {}
+        des, pos = DesignDescriptionFrontend(self.modules + modules, self.ip_generators).parse_str(
+            content
+        )
+        modules.append(des.parent)
+        positions.update(pos)
+
+        return FrontendParseOutput(modules=modules, positions=positions)
+
     def parse_module_files(self, sources: Iterable[Path]) -> FrontendParseOutput:
         modules = list[Module]()
 

@@ -147,10 +147,10 @@ class YamlInputStage(InputStage):
 
         if design_source:
             if isinstance(design_source, FileSource):
-                frontend_output = frontend.parse_files([design_source.path])
+                frontend_output = frontend.parse_design_file(design_source.path)
             else:
                 assert isinstance(design_source, StringSource)
-                frontend_output = frontend.parse_str([design_source.content])
+                frontend_output = frontend.parse_design_str(design_source.content)
 
             ctx.top_module = frontend_output.modules[0]
             ctx.loaded_modules += [ctx.top_module]
