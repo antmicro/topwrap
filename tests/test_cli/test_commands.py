@@ -319,6 +319,61 @@ class TestCli:
         graph = flow["graphs"][0]
         assert graph.get("disabledLayers", None) == ["Externals", "Identifiers"]
 
+    @pytest.mark.parametrize(
+        ("design", "should_fail", "should_fail_without_validations"),
+        [
+            ("empty.yaml", False, False),
+            ("no_external_ports.yaml", False, False),
+            ("only_id.yaml", False, False),
+            ("only_subgraph.yaml", False, False),
+            ("not_driven_clock.yaml", True, False),
+            ("not_driven_reset.yaml", True, False),
+            ("subgraph_not_driven_clock.yaml", True, False),
+            ("no_manager.yaml", True, True),
+            ("no_subordinate.yaml", True, False),
+            ("nonexistent_clock_domain.yaml", True, False),
+            ("nonexistent_reset_domain.yaml", True, False),
+            ("no_clock_interconnect.yaml", True, False),
+            ("no_reset_interconnect.yaml", True, False),
+        ],
+    )
+    def test_generate_incomplete_designs(
+        self,
+        design: str,
+        should_fail: bool,
+        should_fail_without_validations: bool,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        # Prepare AXI cores
+        monkeypatch.chdir("examples/axi_interconnect")
+        subprocess.run(["make"], check=True)
+        monkeypatch.undo()
+
+        monkeypatch.chdir("tests/data/data_yaml/incomplete")
+        # Reload config for the duration of this test
+        monkeypatch.setattr("topwrap.config.config", ConfigManager().load())
+
+        try:
+            run_cli("generate", "--verilog", design)
+            fail = False
+        except SystemExit:
+            fail = True
+        assert should_fail == fail
+
+        try:
+            run_cli("generate", "--verilog", design, "--skip-validation")
+            fail_without_validations = False
+        except SystemExit:
+            fail_without_validations = True
+        assert should_fail_without_validations == fail_without_validations
+
+        build = Path("build")
+        # Dataflow and specification should always be generated
+        run_cli("generate", "--specification", design)
+        assert (build / "kpm_spec.json").exists()
+        run_cli("generate", "--diagram", design)
+        assert (build / "kpm_dataflow.json").exists()
+
 
 class TestCleanCacheCli:
     @pytest.fixture()
