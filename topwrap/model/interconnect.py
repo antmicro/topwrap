@@ -73,10 +73,10 @@ class Interconnect(ABC, Generic[_IPAR, _MANPAR, _SUBPAR]):
     parent: Design
 
     #: The clock signal for this interconnect
-    clock: ReferencedPort
+    clock: Optional[ReferencedPort]
 
     #: The reset signal for this interconnect
-    reset: ReferencedPort
+    reset: Optional[ReferencedPort]
 
     #: Interconnect-wide type-specific parameters
     params: _IPAR
@@ -96,8 +96,8 @@ class Interconnect(ABC, Generic[_IPAR, _MANPAR, _SUBPAR]):
         self,
         *,
         name: str,
-        clock: ReferencedPort,
-        reset: ReferencedPort,
+        clock: Optional[ReferencedPort],
+        reset: Optional[ReferencedPort],
         params: _IPAR,
         managers: Mapping[ObjectId[ReferencedInterface], _MANPAR] = {},
         subordinates: Mapping[ObjectId[ReferencedInterface], _SUBPAR] = {},

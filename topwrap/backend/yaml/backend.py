@@ -458,8 +458,8 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
             file=source,
             core=core,  # pyright: ignore[reportCallIssue]
             parameters=params,
-            clocks={c.resolve().name: d.name for c, d in comp.clocks.items()},
-            resets={r.resolve().name: d.name for r, d in comp.resets.items()},
+            clocks={c.resolve().name: d.name if d else None for c, d in comp.clocks.items()},
+            resets={r.resolve().name: d.name if d else None for r, d in comp.resets.items()},
         )
 
     def _represent_connections(self, des: Design) -> ConnectionsSection:

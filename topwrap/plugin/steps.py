@@ -515,6 +515,42 @@ class YamlIpOutputStage(OutputStage):
         self.written_path = target_dir / (self.filename or out_ip.filename)
         out_ip.save(self.written_path)
 
+
+class DomainAssignedValidation(Validation):
+    name: str = "Check whether clock and reset domains are assigned"
+    priority: int = 10
+    design_only: bool = True
+    recursive = True
+
+    def __init__(self, log_level: int):
+        self.log_level = log_level
+        super().__init__()
+
+    def validate(self, mod: Module, ctx: BuildContext):
+        if mod.design is None:
+            raise BuildException("DomainAssignedValidation: design is None")
+
+        msgs = []
+
+        for comp in mod.design.components:
+            for clock_id, dom in comp.clocks.items():
+                if dom is None:
+                    msgs.append(
+                        f"Clock {clock_id.resolve().name} in module {mod.id} is not "
+                        "assigned to any domain"
+                    )
+
+            for reset_id, dom in comp.resets.items():
+                if dom is None:
+                    msgs.append(
+                        f"Reset {reset_id.resolve().name} in module {mod.id} is not "
+                        "assigned to any domain"
+                    )
+
+        if msgs:
+            raise ValidationException(msgs)
+
+
 class DomainDrivenValidationStage(Validation):
     name: str = "Check whether clock and reset domains are driven"
     priority: int = 10

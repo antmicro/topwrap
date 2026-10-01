@@ -21,6 +21,7 @@ from topwrap.plugin.base import (
 )
 from topwrap.plugin.manager import PluginManager
 from topwrap.plugin.steps import (
+    DomainAssignedValidation,
     DomainDrivenValidationStage,
     FuseSocOutputStage,
     InputStage,
@@ -273,6 +274,7 @@ class BuildPipeline:
                 MemoryMapTransformation(),
             ],
             validations=[
+                DomainAssignedValidation(logging.ERROR),
                 DomainDrivenValidationStage(logging.ERROR),
                 InterconnectHasManagerSubordinateValidation(logging.ERROR),
             ],
@@ -289,6 +291,7 @@ class BuildPipeline:
                 MemoryMapTransformation(),
             ],
             validations=[
+                DomainAssignedValidation(logging.ERROR),
                 DomainDrivenValidationStage(logging.ERROR),
                 InterconnectHasManagerSubordinateValidation(logging.ERROR),
             ],
@@ -313,7 +316,11 @@ class BuildPipeline:
             transformations=[
                 MemoryMapTransformation(),
             ],
-            validations=[],
+            validations=[
+                DomainAssignedValidation(logging.ERROR),
+                DomainDrivenValidationStage(logging.ERROR),
+                InterconnectHasManagerSubordinateValidation(logging.ERROR),
+            ],
             outputs=outputs,
         )
 
@@ -327,6 +334,7 @@ class BuildPipeline:
                 MemoryMapTransformation(),
             ],
             validations=[
+                DomainAssignedValidation(logging.WARNING),
                 DomainDrivenValidationStage(logging.WARNING),
                 InterconnectHasManagerSubordinateValidation(logging.WARNING),
             ],

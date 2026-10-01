@@ -1,6 +1,7 @@
 # Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import re
 from dataclasses import dataclass
 from itertools import chain
@@ -71,6 +72,8 @@ from topwrap.util import JsonType, UnreachableError
 KpmIntfId = str
 ConIface = ReferencedIO | ElaboratableValue | None
 ConType = tuple[ConIface, ConIface, bool]
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -556,7 +559,7 @@ class KpmDataflowFrontend:
             inst = inst_id.resolve()
             dom = mod.design.clock_domains.find_by_name(dom_name)
             if dom is None:
-                raise KpmFrontendParseException(
+                logger.warning(
                     f"Clock '{clk_id.resolve().name}' of instance '{inst.name}' of "
                     f"module '{mod.id.name}' references non-existent clock domain '{dom_name}'"
                 )
@@ -567,7 +570,7 @@ class KpmDataflowFrontend:
             inst = inst_id.resolve()
             dom = mod.design.reset_domains.find_by_name(dom_name)
             if dom is None:
-                raise KpmFrontendParseException(
+                logger.warning(
                     f"Reset '{rst_id.resolve().name}' of instance '{inst.name}' of "
                     f"module '{mod.id.name}' references non-existent reset domain '{dom_name}'"
                 )

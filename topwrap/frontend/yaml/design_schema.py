@@ -53,8 +53,8 @@ class DesignIP(MarshmallowDataclassExtensions):
             values=IPCoreParameterField(),
         ),
     )
-    clocks: dict[str, str] = ext_field(dict)
-    resets: dict[str, str] = ext_field(dict)
+    clocks: dict[str, Optional[str]] = ext_field(dict)
+    resets: dict[str, Optional[str]] = ext_field(dict)
 
     @marshmallow.validates_schema
     def _validate_source(self, data: Dict[str, Any], **kwargs: Any):
@@ -138,8 +138,8 @@ class DesignSectionInterconnect(MarshmallowDataclassExtensions):
         return True
 
     type: str
-    clock: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
-    reset: Union[str, Tuple[str, str]] = ext_field(inline_depth=0)
+    clock: Optional[Union[str, Tuple[str, str]]] = ext_field(inline_depth=0)
+    reset: Optional[Union[str, Tuple[str, str]]] = ext_field(inline_depth=0)
     params: Dict[str, Any] = ext_field(dict)
     managers: Dict[str, Union[List[str], Dict[str, Dict[str, Any]]]] = ext_field(dict)
     subordinates: Dict[str, Dict[str, Subordinate]] = ext_field(dict)

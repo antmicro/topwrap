@@ -829,7 +829,9 @@ class DesignDescriptionFrontend:
 
     def _parse_clock_reset_assignments(
         self, design: Design, name: str, mod: Module, ip: DesignIP
-    ) -> tuple[dict[ObjectId[Clock], ClockDomain], dict[ObjectId[Reset], ResetDomain]]:
+    ) -> tuple[
+        dict[ObjectId[Clock], Optional[ClockDomain]], dict[ObjectId[Reset], Optional[ResetDomain]]
+    ]:
         clock_dom_names = {}
         for cname, dname in ip.clocks.items():
             clock = mod.clocks.find_by_name(cname)
@@ -866,7 +868,7 @@ class DesignDescriptionFrontend:
         for cid, dname in clock_dom_names.items():
             dom = design.clock_domains.find_by_name(dname)
             if dom is None:
-                raise DesignDescriptionFrontendException(
+                logger.warning(
                     f"Clock '{cid.resolve().name}' of instance '{name}' of "
                     f"module '{mod.id.name}' references non-existent clock domain '{dname}'"
                 )
@@ -876,7 +878,7 @@ class DesignDescriptionFrontend:
         for rid, dname in reset_dom_names.items():
             dom = design.reset_domains.find_by_name(dname)
             if dom is None:
-                raise DesignDescriptionFrontendException(
+                logger.warning(
                     f"Reset '{rid.resolve().name}' of instance '{name}' of "
                     f"module '{mod.id.name}' references non-existent reset domain '{dname}'"
                 )
