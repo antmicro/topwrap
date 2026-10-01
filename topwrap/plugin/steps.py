@@ -95,6 +95,9 @@ class Validation(ABC):
     # The number corresponding to the log level of a validation check
     log_level: int
 
+    # If true, look recursively through the whole design tree
+    recursive: bool = False
+
     @abstractmethod
     def validate(self, mod: Module, ctx: BuildContext):
         """
@@ -516,6 +519,7 @@ class DomainDrivenValidationStage(Validation):
     name: str = "Check whether clock and reset domains are driven"
     priority: int = 10
     design_only: bool = True
+    recursive = True
 
     def __init__(self, log_level: int):
         self.log_level = log_level
@@ -543,6 +547,7 @@ class InterconnectHasManagerSubordinateValidation(Validation):
     name: str = "Check whether each interconnect has at least one subordinate and one manager"
     priority: int = 10
     design_only: bool = True
+    recursive = True
 
     def __init__(self, log_level: int):
         self.log_level = log_level

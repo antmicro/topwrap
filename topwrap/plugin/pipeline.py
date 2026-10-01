@@ -7,6 +7,7 @@ from typing import Optional
 
 from topwrap.cli import load_interfaces_from_repos, load_modules_from_repos
 from topwrap.config import library_scope
+from topwrap.model.module import Module
 from topwrap.plugin.base import (
     BasePlugin,
     BuildContext,
@@ -147,6 +148,20 @@ class BuildPipeline:
         with self._library_scope():
             self._process()
 
+    def _evaluate_validation(self, v: Validation, mod: Module):
+        exceptions = []
+        if v.design_only and mod.design is None:
+            return []
+        logger.info(f"Running validation: {v.name} on module {mod.id}")
+        try:
+            v.validate(mod, self.ctx)
+        except ValidationException as e:
+            exceptions.append((v.name, e, v.log_level))
+        if v.recursive and mod.design:
+            for comp in mod.design.components:
+                exceptions.extend(self._evaluate_validation(v, comp.module))
+        return exceptions
+
     def _process(self):
         self.plugin_manager.trigger(BasePlugin.pre_transform, self.ctx)
         for t in self.transformations:
@@ -161,13 +176,7 @@ class BuildPipeline:
         exceptions = []
         for v in self.validations:
             for mod in self.ctx.loaded_modules:
-                if v.design_only and mod.design is None:
-                    continue
-                logger.info(f"Running validation: {v.name}")
-                try:
-                    v.validate(mod, self.ctx)
-                except ValidationException as e:
-                    exceptions.append((v.name, e, v.log_level))
+                exceptions.extend(self._evaluate_validation(v, mod))
         if exceptions:
             fail = False
             for vname, e, lvl in exceptions:
