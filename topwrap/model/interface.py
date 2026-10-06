@@ -15,6 +15,7 @@ from topwrap.model.misc import (
     Identifier,
     ModelBase,
     ObjectId,
+    Parameter,
     QuerableView,
     RelationshipError,
     VariableName,
@@ -105,11 +106,21 @@ class InterfaceDefinition(ModelBase):
 
     id: Identifier
     _signals: list[InterfaceSignal]
+    _parameters: list[Parameter]
 
-    def __init__(self, *, id: Identifier, signals: Iterable[InterfaceSignal] = ()) -> None:
+    def __init__(
+        self,
+        *,
+        id: Identifier,
+        signals: Iterable[InterfaceSignal] = (),
+        parameters: Iterable[Parameter] = (),
+    ) -> None:
         super().__init__()
         self.id = id
         self._signals = [*signals]
+        self._parameters = []
+        for param in parameters:
+            self.add_parameter(param)
 
     @property
     def signals(self) -> QuerableView[InterfaceSignal]:
@@ -119,9 +130,17 @@ class InterfaceDefinition(ModelBase):
         """
         return QuerableView(self._signals)
 
+    @property
+    def parameters(self) -> QuerableView[Parameter]:
+        return QuerableView(self._parameters)
+
     def add_signal(self, signal: InterfaceSignal):
         set_parent(signal, self)
         self._signals.append(signal)
+
+    def add_parameter(self, parameter: Parameter):
+        set_parent(parameter, self)
+        self._parameters.append(parameter)
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, InterfaceDefinition):
@@ -150,6 +169,9 @@ class Interface(ModelBase):
 
     #: The definition of the interface that this is an instance of
     definition: InterfaceDefinition
+
+    #: Concrete parameter values for the interface that this is an instance of.
+    parameters: dict[ObjectId[Parameter], ElaboratableValue]
 
     #: The module definition that contains this interface instance
     parent: Module
@@ -192,6 +214,9 @@ class Interface(ModelBase):
         clock: Optional[Clock] = None,
         reset: Optional[Reset] = None,
         size: Optional[int] = None,
+        parameters: Mapping[
+            ObjectId[Parameter], ElaboratableValue
+        ] = {},
     ):
         super().__init__()
         self.name = name
@@ -201,6 +226,8 @@ class Interface(ModelBase):
         self.clock = clock
         self.reset = reset
         self.size = size
+        self.parameters = {}
+        self.parameters.update(parameters)
 
     @property
     def independent_signals(self) -> Iterator[InterfaceSignal]:

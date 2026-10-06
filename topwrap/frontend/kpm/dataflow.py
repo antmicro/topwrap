@@ -55,9 +55,9 @@ from topwrap.model.connections import (
     ResetPolarity,
 )
 from topwrap.model.design import ClockDomain, ModuleInstance, ResetDomain
-from topwrap.model.hdl_types import Bit, Logic
+from topwrap.model.hdl_types import Bit, ElabvalueEvaluator, Logic
 from topwrap.model.interconnect import Interconnect
-from topwrap.model.interface import Interface, InterfaceDefinition
+from topwrap.model.interface import Interface
 from topwrap.model.misc import (
     ElaboratableValue,
     FileReference,
@@ -656,12 +656,24 @@ class KpmDataflowFrontend:
         assert kpm_intf.interface.external_name is not None
 
         twtype = next(self._infer_io_type(data, kpm_intf.graph, kpm_intf.interface), Bit())
-        if isinstance(twtype, InterfaceDefinition):
+        if isinstance(twtype, tuple):
+            inst_intf = twtype[0]
+            inst = twtype[1]
+
+            name = kpm_intf.interface.external_name
+
+            inst_params = {}
+            for prop in inst.properties:
+                if (param := inst_intf.parent.parameters.find_by_name(prop.name)) is not None:
+                    inst_params[param._id] = kpm_val_to_elab_val(prop.value)
+
+            params, _ = ElabvalueEvaluator.resolve_intf_values(inst_intf, inst_params)
             intf = Interface(
-                name=kpm_intf.interface.external_name,
+                name=name,
                 mode=kpm_dir_to_ir_intf(kpm_intf.interface.direction),
-                definition=twtype,
-                signals={s._id: None for s in twtype.signals},
+                definition=inst_intf.definition,
+                signals={s._id: None for s in inst_intf.definition.signals},
+                parameters=params,
             )
             ref = ReferencedInterface.external(intf)
             des.parent.add_interface(intf)
@@ -731,7 +743,7 @@ class KpmDataflowFrontend:
         graph: DataflowGraph,
         intf: KpmInterface,
         visited: Optional[set[KpmUniqueInterface]] = None,
-    ) -> Iterator[Union[InterfaceDefinition, Logic]]:
+    ) -> Iterator[Union[tuple[Interface, Node], Logic]]:
         """
         Tries to infer if a KPM Interface represents an IR interface and gets
         its `InterfaceDefinition` or a `Logic` if it represents an IR port.
@@ -785,4 +797,4 @@ class KpmDataflowFrontend:
         elif not is_metanode(node.name) and (mod := self._modmap.get(node.name)) is not None:
             for t in chain(mod.interfaces, mod.non_intf_ports()):
                 if t.name == intf.name:
-                    yield t.type if isinstance(t, Port) else t.definition
+                    yield t.type if isinstance(t, Port) else (t, node)

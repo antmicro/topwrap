@@ -9,20 +9,34 @@ id:
   name: axi4lite
   vendor: antmicro.com
 
+parameters:
+  ID_WIDTH: 1
+  ADDR_WIDTH: 32
+  DATA_WIDTH: 64
+  AWUSER_WIDTH: 1
+  ARUSER_WIDTH: 1
+  WUSER_WIDTH: 1
+  RUSER_WIDTH: 1
+  BUSER_WIDTH: 1
+
 signals:
   # AW channel.
   awid:
     pattern: aw[._]?id
     modes: {manager: [out, optional]}
+    bound: ['ID_WIDTH-1', '0']
   awaddr:
     pattern: aw[._]?addr
     modes: {manager: [out, required]}
+    bound: ['ADDR_WIDTH-1', '0']
   awprot:
     pattern: aw[._]?prot
     modes: {manager: [out, required], subordinate: [in, optional]}
+    bound: ['2', '0']
   awuser:
     pattern: aw[._]?user
     modes: {manager: [out, optional]}
+    bound: ['AWUSER_WIDTH-1', '0']
   awvalid:
     pattern: aw[._]?valid
     modes: {manager: [out, required]}
@@ -33,13 +47,16 @@ signals:
   wdata:
     pattern: w[._]?data
     modes: {manager: [out, required]}
+    bound: ['DATA_WIDTH-1', '0']
   wstrb:
     pattern: w[._]?strb
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '255'
+    bound: ['DATA_WIDTH/8 -1', '0']
   wuser:
     pattern: w[._]?user
     modes: {manager: [out, optional]}
+    bound: ['WUSER_WIDTH-1', '0']
   wvalid:
     pattern: w[._]?valid
     modes: {manager: [out, required]}
@@ -50,12 +67,15 @@ signals:
   bid:
     pattern: b[._]?id
     modes: {manager: [in, optional]}
+    bound: ['ID_WIDTH-1', '0']
   bresp:
     pattern: b[._]?resp
     modes: {manager: [in, optional], subordinate: [out, required]}
+    bound: ['ADDR_WIDTH-1', '0']
   buser:
     pattern: b[._]?user
     modes: {manager: [in, optional]}
+    bound: ['BUSER_WIDTH-1', '0']
   bvalid:
     pattern: b[._]?valid
     modes: {manager: [in, required]}
@@ -66,15 +86,19 @@ signals:
   arid:
     pattern: ar[._]?id
     modes: {manager: [out, optional]}
+    bound: ['ID_WIDTH-1', '0']
   araddr:
     pattern: ar[._]?addr
     modes: {manager: [out, required]}
+    bound: ['ADDR_WIDTH-1', '0']
   arprot:
     pattern: ar[._]?prot
     modes: {manager: [out, required], subordinate: [in, optional]}
+    bound: ['ADDR_WIDTH-1', '0']
   aruser:
     pattern: ar[._]?user
     modes: {manager: [out, optional]}
+    bound: ['ARUSER_WIDTH-1', '0']
   arvalid:
     pattern: ar[._]?valid
     modes: {manager: [out, required]}
@@ -85,13 +109,16 @@ signals:
   rid:
     pattern: r[._]?id
     modes: {manager: [in, optional]}
+    bound: ['ID_WIDTH-1', '0']
   rdata:
     pattern: r[._]?data
     modes: {manager: [in, required]}
+    bound: ['DATA_WIDTH-1', '0']
   rresp:
     pattern: r[._]?resp
     modes: {manager: [in, optional], subordinate: [out, required]}
     default: '0'
+    bound: ['1', '0']
   rlast:
     pattern: r[._]?last
     modes: {manager: [in, optional]}
@@ -99,6 +126,7 @@ signals:
   ruser:
     pattern: r[._]?user
     modes: {manager: [in, optional]}
+    bound: ['RUSER_WIDTH-1', '0']
   rvalid:
     pattern: r[._]?valid
     modes: {manager: [in, required]}

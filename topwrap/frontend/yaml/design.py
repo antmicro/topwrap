@@ -38,7 +38,7 @@ from topwrap.model.connections import (
     ResetPolarity,
 )
 from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
-from topwrap.model.hdl_types import Bit, Bits, Dimensions
+from topwrap.model.hdl_types import Bit, Bits, Dimensions, ElabvalueEvaluator
 from topwrap.model.interconnect import Interconnect
 from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode, InterfaceSignal
 from topwrap.model.memory_map import MemoryMap as IRMemoryMap
@@ -233,7 +233,7 @@ class DesignDescriptionFrontend:
                 while design.parent.ports.find_by_name(io) is not None:
                     io = f"{original_name}${n}"
                     n += 1
-                port = self._parse_external(design, refsig, io, PortDirection.INOUT, True)
+                port = self._parse_external(design, refsig, io, PortDirection.INOUT, True, comp)
                 if not isinstance(refio, ReferencedPort) or not isinstance(port, Port):
                     raise DesignDescriptionFrontendException(
                         "Not a port or not connected to a port"
@@ -470,7 +470,7 @@ class DesignDescriptionFrontend:
 
     def _infer_interconnect_interface(
         self, intr: DesignSectionInterconnect, des: Design, iname: str
-    ) -> tuple[InterfaceDefinition, dict[ObjectId[InterfaceSignal], ReferencedPort | None]]:
+    ) -> tuple[InterfaceDefinition, dict[ObjectId[InterfaceSignal], ReferencedPort | None], str]:
         def get_refio_from_connection(
             des: Design, name: str, ref: str
         ) -> Optional[ReferencedInterface]:
@@ -489,14 +489,13 @@ class DesignDescriptionFrontend:
                 refio = get_refio_from_connection(des, mname, man)
                 if not refio:
                     continue
-                return refio.io.definition, refio.io.signals
-
+                return refio.io.definition, refio.io.signals, mname
         for sname, subs in intr.subordinates.items():
             for sub, _ in subs.items():
                 refio = get_refio_from_connection(des, sname, sub)
                 if not refio:
                     continue
-                return refio.io.definition, refio.io.signals
+                return refio.io.definition, refio.io.signals, sname
 
         raise DesignDescriptionFrontendException(
             f"Interconnect '{iname}' has all its connections connecting to external ports;"
@@ -528,10 +527,12 @@ class DesignDescriptionFrontend:
                     # This interface doesn't exist, we only describe definitions and signals
                     # of what to infer from external interface connected to interconnect
                     conn_to = Interface("dummy", mode, intf_def, intf_sigs)
-                    self._parse_external(des, conn_to, name, decls[name][0], decls[name][1])
+                    conn_to.parent = des.parent
+
+                    self._parse_external(des, conn_to, name, decls[name][0], decls[name][1], comp)
                     del decls[name]
 
-        intf_def, intf_sigs = self._infer_interconnect_interface(intr, des, iname)
+        intf_def, intf_sigs, comp = self._infer_interconnect_interface(intr, des, iname)
 
         for _, mans in intr.managers.items():
             for man in mans:
@@ -612,7 +613,9 @@ class DesignDescriptionFrontend:
             external = des.parent.ios.find_by_name(ref)
             if external is None:
                 if ref in decls:
-                    external = self._parse_external(des, refsig, ref, decls[ref][0], decls[ref][1])
+                    external = self._parse_external(
+                        des, refsig, ref, decls[ref][0], decls[ref][1], comp
+                    )
                     del decls[ref]
                 else:
                     raise DesignDescriptionFrontendException(
@@ -647,17 +650,18 @@ class DesignDescriptionFrontend:
         name: str,
         dir: PortDirection,
         is_port: bool,
+        comp: str,
     ) -> Union[Port, Interface]:
         """
         Add an external IO to the design with its type inferred
         from the other side of the connection.
         """
-
         if isinstance(conn_to, Port):
             if not is_port:
                 raise DesignDescriptionFrontendException(
                     f"External '{name}' was declared as an interface, but tries to represent a port"
                 )
+            # TODO elab params here
             io = Port(name=name, direction=dir, type=conn_to.type)
             des.parent.add_port(io)
         else:
@@ -675,11 +679,35 @@ class DesignDescriptionFrontend:
                     f"External interface '{name}' was declared as {dir}, "
                     f"but is connected to {conn_to.mode}"
                 )
+
+            nsigs = dict[ObjectId[InterfaceSignal], ReferencedPort | None]()
+            inst = des.components.find_by_name_or_error(comp)
+            params, sigtypes = ElabvalueEvaluator.resolve_intf_values(conn_to, inst.parameters)
+
+            for sig, prt in conn_to.signals.items():
+                sig = sig.resolve()
+                if prt is None:
+                    nsigs[sig._id] = None
+                else:
+                    new_name = name + "_" + sig.name
+                    new_port = Port(
+                        name=new_name.lower(),
+                        direction=sig.modes[conn_to.mode].direction,
+                        # type=prt.io.type,
+                        type=sigtypes[sig._id],
+                        default_value=sig.default,
+                    )
+                    des.parent.add_port(new_port)
+                    nsigs[sig._id] = ReferencedPort.external(new_port)
+
+            # maybe we should pass clock, reset, size too?
             io = Interface(
                 name=name,
                 mode=conn_to.mode,
                 definition=conn_to.definition,
-                signals={s: None for s in conn_to.signals},
+                signals=nsigs,
+                # parameters=conn_to.parameters
+                parameters=params,
             )
             des.parent.add_interface(io)
 

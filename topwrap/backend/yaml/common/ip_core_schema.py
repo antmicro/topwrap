@@ -67,7 +67,6 @@ Signal = Union[
     IPCoreComplexSignal,
 ]
 
-
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCorePort:
     name: str
@@ -217,6 +216,15 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
+class IPCoreComplexParameter(MarshmallowDataclassExtensions):
+    value: Union[int, str]
+    width: int
+
+
+IPCoreParameter = Optional[Union[IPCoreComplexParameter, int, str]]
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreInterface(MarshmallowDataclassExtensions):
     """Interface specified in IP Core YAML file. `Type` field has name of InterfaceDefinition"""
 
@@ -226,6 +234,7 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
     clock: Optional[str] = ext_field(None)
     reset: Optional[str] = ext_field(None)
     size: Optional[int] = ext_field(None)
+    parameters: dict[str, IPCoreParameter] = ext_field(dict)
 
     @marshmallow.validates("type")
     def _validate_type(self, id: Identifier) -> bool:
@@ -258,15 +267,6 @@ class IPCoreInterface(MarshmallowDataclassExtensions):
             if errors:
                 raise marshmallow.ValidationError(errors)
         return True
-
-
-@marshmallow_dataclass.dataclass(frozen=True)
-class IPCoreComplexParameter(MarshmallowDataclassExtensions):
-    value: Union[int, str]
-    width: int
-
-
-IPCoreParameter = Optional[Union[IPCoreComplexParameter, int, str]]
 
 
 class IPCoreParameterField(marshmallow.fields.Field):

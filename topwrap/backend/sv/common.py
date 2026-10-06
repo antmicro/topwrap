@@ -10,9 +10,11 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, Template
 
 from topwrap import __version__
+from topwrap.model.connections import ReferencedPort
 from topwrap.model.hdl_types import (
     Bit,
     BitStruct,
+    ElabvalueEvaluator,
     Enum,
     Logic,
     LogicArray,
@@ -88,6 +90,7 @@ def get_template(name: str) -> Template:
             "topwrap_version": __version__,
             sv_varname.__name__: sv_varname,
             serialize_type.__name__: serialize_type,
+            ElabvalueEvaluator.__name__: ElabvalueEvaluator,
         },
     )
 

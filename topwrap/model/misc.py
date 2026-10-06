@@ -30,7 +30,9 @@ import marshmallow
 from typing_extensions import Self
 
 if TYPE_CHECKING:
+    from topwrap.backend.yaml.common.interface_schema import InterfaceComplexParameter
     from topwrap.backend.yaml.common.ip_core_schema import IPCoreComplexParameter
+    from topwrap.model.interface import InterfaceDefinition
     from topwrap.model.module import Module
 
 
@@ -183,9 +185,11 @@ class ElaboratableValue:
     """
 
     value: str
-    raw: Union[int, str, IPCoreComplexParameter]
+    raw: Union[int, str, IPCoreComplexParameter, InterfaceComplexParameter]
 
-    def __init__(self, expr: Union[int, str, IPCoreComplexParameter]) -> None:
+    def __init__(
+        self, expr: Union[int, str, IPCoreComplexParameter, InterfaceComplexParameter]
+    ) -> None:
         self.raw = expr
         self.value = str(expr)
 
@@ -323,7 +327,7 @@ class FileReference:
 class Parameter(ModelBase):
     """Represents a parameter definition for a HDL module"""
 
-    parent: Module
+    parent: Module | InterfaceDefinition
     name: VariableName
 
     #: If a value for this parameter was not provided

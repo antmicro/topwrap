@@ -139,6 +139,16 @@ class KpmSpecificationBackend:
                 side=Side.RIGHT.value if intf.mode == InterfaceMode.UNSPECIFIED else None,
             )
 
+            for param, val in intf.parameters.items():
+                param = param.resolve()
+                self._spec.add_node_type_property(
+                    nid.name,
+                    f"Interface Param {intf.name} {param.name}",
+                    KpmPropertyType.TEXT.value,
+                    elab_val_to_kpm_val(val),
+                    hidden=True,
+                )
+
         clock_reset_ports = set(clock.clock._id for clock in mod.clocks) | set(
             reset.reset._id for reset in mod.resets
         )

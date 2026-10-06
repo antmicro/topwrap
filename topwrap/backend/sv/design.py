@@ -17,6 +17,7 @@ from topwrap.model.connections import (
     Port,
     PortConnection,
     PortDirection,
+    ReferencedInterface,
     ReferencedPort,
 )
 from topwrap.model.design import Design, ModuleInstance
@@ -43,7 +44,7 @@ class _SystemVerilogDesignData:
     #: Interfaces that should be instantiated in the design
     #: in order to realize an `InterfaceConnection` between
     #: two components. Key is the generated name for the instance
-    intf_decls: dict[str, InterfaceDefinition]
+    intf_decls: dict[str, ReferencedInterface]
 
     #: Nets that should be instantiated in the design to realize
     #: sliced connections between components. Keys are nets'
@@ -163,7 +164,7 @@ class _SystemVerilogDesignData:
                 csn = conn.source.instance.name if conn.source.instance is not None else "EXT"
                 ctn = conn.target.instance.name if conn.target.instance is not None else "EXT"
                 intf = sv_varname(f"{csn}__{conn.source.io.name}__{ctn}__{conn.target.io.name}")
-                self.intf_decls[intf] = conn.source.io.definition
+                self.intf_decls[intf] = conn.source
 
             # All internal independent interfaces must be connected to an interface instance
             if src_ind and conn.source.instance is not None:

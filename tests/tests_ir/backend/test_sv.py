@@ -283,7 +283,7 @@ class TestSystemVerilogDesignBackend:
         cs, ct = int_con.source, int_con.target
         assert cs.instance is not None and ct.instance is not None
         intf_name = f"{cs.instance.name}__{cs.io.name}__{ct.instance.name}__{ct.io.name}"
-        assert svdb.intf_decls == {intf_name: int_con.source.io.definition}
+        assert svdb.intf_decls == {intf_name: int_con.source}
         assert svdb.port_maps[cs.instance._id][cs.io.name] == intf_name
         assert svdb.port_maps[ct.instance._id][ct.io.name] == intf_name
 
@@ -305,7 +305,7 @@ class TestSystemVerilogDesignBackend:
         assert cs.instance is not None and ct.instance is not None
         intf_name = f"{cs.instance.name}__{cs.io.name}__{ct.instance.name}__{ct.io.name}"
         net_name = f"{ct.instance.name}__sci_control"
-        assert svdb.intf_decls == {intf_name: int_con.source.io.definition}
+        assert svdb.intf_decls == {intf_name: int_con.source}
         assert svdb.nets == {net_name: ct.io.parent.ports.find_by_name_or_error("sci_control").type}
         assert svdb.port_maps[ct.instance._id]["sci_control"] == net_name
         for sig in ("addr", "write", "strb", "ack"):
@@ -495,7 +495,9 @@ endpackage
 
         assert (
             out
-            == """interface AXI_4_Stream;
+            == """interface AXI_4_Stream #(
+
+);
   logic TVALID;
   logic TREADY;
   logic TDATA;

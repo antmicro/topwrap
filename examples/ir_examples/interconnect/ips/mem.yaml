@@ -17,15 +17,23 @@ interfaces:
     type:
       name: wishbone
     mode: subordinate
+
+    parameters:
+      ADDR_WIDTH: 32
+      DATA_WIDTH: WIDTH
+
     signals:
       in:
-        cyc: i_cyc
-        stb: i_stb
-        adr: [i_adr, 31, 0]
-        dat_w: [i_dat, WIDTH-1, 0]
-        we: i_we
+        cyc: {name: i_cyc}
+        stb: {name: i_stb}
+        #adr: [i_adr, 31, 0]
+        adr: {name: i_adr}
+        #dat_w: [i_dat, WIDTH-1, 0]
+        dat_w: {name: i_dat}
+        we: {name: i_we}
       out:
-        dat_r: [o_dat, WIDTH-1, 0]
-        ack: o_ack
-        stall: o_stall
-        err: o_err
+        #dat_r: [o_dat, WIDTH-1, 0]
+        dat_r: {name: o_dat}
+        ack: {name: o_ack}
+        stall: {name: o_stal}
+        err: {name: o_err}

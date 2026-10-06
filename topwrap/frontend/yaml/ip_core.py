@@ -33,6 +33,7 @@ from topwrap.model.hdl_types import (
     Bits,
     BitStruct,
     Dimensions,
+    ElabvalueEvaluator,
     Logic,
     LogicBitSelect,
     LogicSelect,
@@ -43,7 +44,7 @@ from topwrap.model.interface import (
     InterfaceMode,
     InterfaceSignal,
 )
-from topwrap.model.misc import ElaboratableValue, ExtensionData, FileReference, Parameter
+from topwrap.model.misc import ElaboratableValue, ExtensionData, FileReference, ObjectId, Parameter
 from topwrap.model.module import Module
 from topwrap.util import get_interface_by_id
 
@@ -130,6 +131,7 @@ class IPCoreDescriptionFrontend:
         types: dict[str, Logic],
         intf_sig: Optional[InterfaceSignal] = None,
         intf_mode: Optional[InterfaceMode] = None,
+        intf_subs_types: dict[ObjectId[InterfaceSignal], Logic] | None = None,
     ) -> Union[Port, ReferencedPort]:
         def to_dims(lst: Sequence[Union[str, int]]):
             return Dimensions(
@@ -143,7 +145,10 @@ class IPCoreDescriptionFrontend:
                 if signal.type is None:
                     bounds = signal.bound
                     if bounds is None:
-                        type = Bit()
+                        if intf_sig and intf_subs_types:
+                            type = intf_subs_types[intf_sig._id]
+                        else:
+                            type = Bit()
                     else:
                         if not isinstance(bounds[0], tuple):
                             bounds = (cast(tuple[str | int, str | int], bounds),)
@@ -216,6 +221,16 @@ class IPCoreDescriptionFrontend:
 
             byname = {s.name: s for s in ird.signals}
             signals = {}
+
+            params = dict[ObjectId[Parameter], ElaboratableValue]()
+            for pname, param in iface.parameters.items():
+                def_par = ird.parameters.find_by_name_or_error(pname)
+
+                irp = param_to_ir_param(param)
+                assert irp
+                params[def_par._id] = irp
+
+            intf_subs_types = ElabvalueEvaluator.substitute_intf_params_for_module(ird, mod, params)
             for dir, sigs in (
                 (PortDirection.IN, iface.signals.input),
                 (PortDirection.OUT, iface.signals.output),
@@ -223,15 +238,14 @@ class IPCoreDescriptionFrontend:
             ):
                 for sname, sig in sigs.items():
                     if sig:
-                        port = self._parse_signal(mod, dir, sig, types, byname[sname], iface.mode)
+                        port = self._parse_signal(
+                            mod, dir, sig, types, byname[sname], iface.mode, intf_subs_types
+                        )
 
                         if isinstance(port, Port):
                             port = ReferencedPort.external(port)
 
-                        # we have to update definition, because by default all signals are 1bit wide
-                        ifsg = byname[sname]
-                        ifsg.type = port.io.type
-                        signals[ifsg._id] = port
+                        signals[byname[sname]._id] = port
                     else:
                         signals[byname[sname]._id] = None
 
@@ -258,6 +272,7 @@ class IPCoreDescriptionFrontend:
                     clock=clock,
                     reset=reset,
                     size=iface.size,
+                    parameters=params,
                 )
             )
 

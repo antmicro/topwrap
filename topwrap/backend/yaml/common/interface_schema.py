@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, Tuple, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -10,7 +10,7 @@ from topwrap.common_serdes import (
     RegexpT,
     ext_field,
 )
-from topwrap.model.misc import Identifier
+from topwrap.model.misc import ElaboratableValue, Identifier
 
 InterfaceDefinitionSignalDirection = Literal["in", "out", "inout"]
 InterfaceDefinitionSignalRequired = Literal["required", "optional"]
@@ -18,12 +18,17 @@ InterfaceDefinitionSignalMode = tuple[
     InterfaceDefinitionSignalDirection, InterfaceDefinitionSignalRequired
 ]
 
+_StrOrInt = Union[str, int]
+InterfaceDimension = Tuple[_StrOrInt, _StrOrInt]
+InterfaceBounds = Union[InterfaceDimension, Tuple[InterfaceDimension, ...]]
+
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class InterfaceDefinitionSignalDescription(MarshmallowDataclassExtensions):
     pattern: RegexpT = ext_field()
     modes: dict[str, InterfaceDefinitionSignalMode] = ext_field()
     default: Optional[str | int] = ext_field(None)
+    bound: Optional[InterfaceBounds] = ext_field(None)
 
     @marshmallow.validates_schema
     def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
@@ -33,6 +38,7 @@ class InterfaceDefinitionSignalDescription(MarshmallowDataclassExtensions):
         return True
 
 
+# old
 @marshmallow_dataclass.dataclass(frozen=True)
 class InterfaceDefinitionSignalsDescription(MarshmallowDataclassExtensions):
     @marshmallow_dataclass.dataclass(frozen=True)
@@ -46,6 +52,15 @@ class InterfaceDefinitionSignalsDescription(MarshmallowDataclassExtensions):
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
+class InterfaceComplexParameter(MarshmallowDataclassExtensions):
+    value: Union[int, str]
+    width: int
+
+
+InterfaceParameter = Optional[Union[InterfaceComplexParameter, int, str]]
+
+
+@marshmallow_dataclass.dataclass(frozen=True)
 class InterfaceDefinitionDescription(MarshmallowDataclassExtensions):
     """Interface described in YAML interface definition file"""
 
@@ -53,3 +68,8 @@ class InterfaceDefinitionDescription(MarshmallowDataclassExtensions):
     signals: (
         InterfaceDefinitionSignalsDescription | dict[str, InterfaceDefinitionSignalDescription]
     ) = ext_field(inline_depth=2)
+    parameters: Dict[str, InterfaceParameter] = ext_field(dict)
+
+
+def param_to_ir_param(par: InterfaceParameter) -> Optional[ElaboratableValue]:
+    return ElaboratableValue(par) if par is not None else None

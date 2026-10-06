@@ -9,19 +9,31 @@ id:
   name: wishbone
   vendor: antmicro.com
 
+parameters:
+  GRANULARITY: 8
+  ADDR_WIDTH: 32
+  DATA_WIDTH: 64
+  TGA_WIDTH: 32
+  TGD_WIDTH: 32
+  TGC_WIDTH: 32
+
 signals:
   adr:
     pattern: adr
     modes: {manager: [out, required]}
+    bound: ['ADDR_WIDTH-1', '$clog2(DATA_WIDTH/GRANULARITY)'] # TODO are those correct?
   dat_w:
     pattern: mosi|dat_(w|mosi)
     modes: {manager: [out, required]}
+    bound: ['DATA_WIDTH-1', '0']
   dat_r:
     pattern: miso|dat_(r|miso)
     modes: {manager: [in, required]}
+    bound: ['DATA_WIDTH-1', '0']
   sel:
     pattern: sel
     modes: {manager: [out, required]}
+    bound: ['DATA_WIDTH/8-1', '0']
   cyc:
     pattern: cyc
     modes: {manager: [out, required]}
@@ -49,18 +61,24 @@ signals:
   cti:
     pattern: cti
     modes: {manager: [out, optional]}
+    bound: ['2', '0']
   bte:
     pattern: bte
     modes: {manager: [out, optional]}
+    bound: ['1', '0']
   tgd_w:
     pattern: tgd_(w|mosi)
     modes: {manager: [out, optional]}
+    bound: ['TGD_WIDTH-1', '0']
   tgd_r:
     pattern: tgd_(r|miso)
     modes: {manager: [in, optional]}
+    bound: ['TGD_WIDTH-1', '0']
   tga:
     pattern: tga
     modes: {manager: [out, optional]}
+    bound: ['TGA_WIDTH-1', '0']
   tgc:
     pattern: tgc
     modes: {manager: [out, optional]}
+    bound: ['TGC_WIDTH', '0']

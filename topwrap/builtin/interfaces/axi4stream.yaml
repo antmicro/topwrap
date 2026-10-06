@@ -8,6 +8,12 @@ id:
   name: axi4stream
   vendor: antmicro.com
 
+parameters:
+  TID_WIDTH: 4
+  TDATA_WIDTH: 4
+  TDEST_WIDTH: 4
+  TUSER_WIDTH: 32
+
 signals:
   # assuming transmitter = manager
   tvalid:
@@ -21,21 +27,27 @@ signals:
     pattern: tdata
     modes: {manager: [out, optional]}
     default: '0'
+    bound: ['TDATA_WIDTH-1', '0']
   tstrb:
     pattern: tstrb
     modes: {manager: [out, optional]}
+    bound: ['TDATA_WIDTH/8 -1', '0']
   tkeep:
     pattern: tkeep
     modes: {manager: [out, optional]}
+    bound: ['TDATA_WIDTH/8 -1', '0']
   tlast:
     pattern: tlast
     modes: {manager: [out, optional]}
   tid:
     pattern: tid
     modes: {manager: [out, optional]}
+    bound: ['TID_WIDTH-1', '0']
   tdest:
     pattern: tdest
     modes: {manager: [out, optional]}
+    bound: ['TDEST_WIDTH-1', '0']
   tuser:
     pattern: tuser
     modes: {manager: [out, optional]}
+    bound: ['TUSER_WIDTH-1', '0']

@@ -2,22 +2,23 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import re
-from typing import Optional
+from typing import Optional, Sequence, Union, cast
 
 from topwrap.backend.yaml.common.interface_schema import (
     InterfaceDefinitionDescription,
     InterfaceDefinitionSignalMode,
     InterfaceDefinitionSignalsDescription,
+    param_to_ir_param,
 )
 from topwrap.model.connections import PortDirection
-from topwrap.model.hdl_types import Bit
+from topwrap.model.hdl_types import Bit, Bits, Dimensions
 from topwrap.model.interface import (
     InterfaceDefinition,
     InterfaceMode,
     InterfaceSignal,
     InterfaceSignalConfiguration,
 )
-from topwrap.model.misc import ElaboratableValue, Identifier
+from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
 
 
 class InterfaceDefinitionDescriptionFrontend:
@@ -68,10 +69,25 @@ class InterfaceDefinitionDescriptionFrontend:
             if umode is not None:
                 modes[InterfaceMode.UNSPECIFIED] = umode
 
+            sigtype = Bit()
+            bounds = sigdef.bound
+
+            def to_dims(lst: Sequence[Union[str, int]]):
+                return Dimensions(
+                    upper=ElaboratableValue(lst[0]),
+                    lower=ElaboratableValue(lst[1]),
+                )
+
+            if bounds:
+                if not isinstance(bounds[0], tuple):
+                    bounds = (cast(tuple[str | int, str | int], bounds),)
+                sigtype = Bits(
+                    dimensions=[to_dims(dim) for dim in cast(Sequence[Sequence[str | int]], bounds)]
+                )
             intf.add_signal(
                 InterfaceSignal(
                     name=name,
-                    type=Bit(),
+                    type=sigtype,
                     regexp=re.compile(sigdef.pattern),
                     modes=modes,
                     default=ElaboratableValue(sigdef.default)
@@ -79,6 +95,9 @@ class InterfaceDefinitionDescriptionFrontend:
                     else None,
                 )
             )
+
+        for name, param in desc.parameters.items():
+            intf.add_parameter(Parameter(name=name, default_value=param_to_ir_param(param)))
 
         return intf
 

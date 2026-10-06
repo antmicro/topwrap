@@ -438,7 +438,7 @@ class TestIPCoreDescriptionFrontend:
         clk, rst = mod.non_intf_ports()
         assert isinstance(clk.type, Bit) and isinstance(rst.type, Bit)
         assert isinstance(idat := mod.ports.find_by_name("i_dat").type, Bits)
-        assert idat.dimensions[0].upper == ElaboratableValue("WIDTH-1")
+        assert idat.dimensions[0].upper == ElaboratableValue("(WIDTH)-1")
 
         [intf] = mod.interfaces
         assert intf.mode is InterfaceMode.SUBORDINATE

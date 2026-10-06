@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import logging
+import math
 import re
 from abc import ABC, abstractmethod
 from copy import deepcopy
@@ -12,6 +14,7 @@ from itertools import zip_longest
 from math import ceil, log2
 from operator import mul
 from typing import (
+    TYPE_CHECKING,
     Collection,
     Generic,
     Iterable,
@@ -22,10 +25,24 @@ from typing import (
     cast,
 )
 
+import simpleeval
 from typing_extensions import override
 
-from topwrap.model.misc import ElaboratableValue, ModelBase, VariableName, set_parent
+from topwrap.model.misc import (
+    ElaboratableValue,
+    ModelBase,
+    ObjectId,
+    Parameter,
+    VariableName,
+    set_parent,
+)
 
+if TYPE_CHECKING:
+    from topwrap.model.design import ModuleInstance
+    from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceSignal
+    from topwrap.model.module import Module
+
+logger = logging.getLogger(__name__)
 _SYMBOLIC_DIM_RE = re.compile(r"[A-Za-z_$]")
 
 
@@ -335,3 +352,213 @@ class LogicBitSelect:
     """Represents a logic array indexing operation"""
 
     slice: Dimensions
+
+
+class ElabvalueEvaluator:
+    # This prefix is used to replace $ char in $clog2 verilog function
+    # We have to do this, because simpleeval cannot take $ and pure `clog2` could
+    # cause naming collisions if someone insane decided to name their parameter `clog2`.
+    # it's not a perfect solution, but I doubt that someone will make a parameter
+    # with a name starting as a sha256 of lyrics "Comfortably Numb"
+    clog_prefix = "_9263cec0fd53ad433112bdf3883bbd4a539aa61ead4995709555cd7216015109_"
+
+    funcs = simpleeval.DEFAULT_FUNCTIONS.copy()
+    funcs.update(_9263cec0fd53ad433112bdf3883bbd4a539aa61ead4995709555cd7216015109_clog2=lambda val: math.ceil(log2(val)))
+    # maybe we should add more SV math functions?
+
+    @staticmethod
+    def sanitize(string: str) -> str:
+        def convert_constants(string: str, lst: list[str], base: int):
+            for match in lst:
+                val = match.split("'", 1)
+                val = val[1][1:]
+                string = string.replace(match, str(int(val, base)))
+
+            return string
+
+        # remove '$' from input string, to allow eval to recognise functions properly
+        # replace this with our prefix
+        string = re.sub(r"\$", ElabvalueEvaluator.clog_prefix, string)
+
+        # detect and replace verilog style value (e.g. 8'b11010011)
+        # this should also match something like width'd12 and 'o7
+        matches_bin = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'b[0-1]+\b", string)
+        matches_dec = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'d[0-9]+", string)
+        matches_oct = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'o[0-7]+", string)
+        matches_hex = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'h[0-9a-fA-F]+", string)
+
+        matches_0 = re.findall(r"(?<!\w)'0\b", string)
+        matches_1 = re.findall(r"(?<!\w)'0\b", string)
+        if len(matches_1) > 1:
+            logger.warning("'1 detected in parameter value; it cannot be handled!")
+
+        string = convert_constants(string, matches_0, 2) # base doesnt matter for 0
+        string = convert_constants(string, matches_bin, 2)
+        string = convert_constants(string, matches_oct, 8)
+        string = convert_constants(string, matches_dec, 10)
+        string = convert_constants(string, matches_hex, 16)
+
+        return string
+
+    @staticmethod
+    def expr_good(expr: str):
+        # check whether expression is "basic" which means
+        # that it only contains constants and operators (clog included)
+        pattern = r"^(?:[\d()+\-*/\s]|clog2)+$"
+        return re.fullmatch(pattern, expr)
+
+    @staticmethod
+    # TODO This function has an edge case when
+    # parameter in intfdefinition and module has the same name!
+    def substitute_intf_params_for_module(
+        intf: InterfaceDefinition, mod: Module, params: dict[ObjectId[Parameter], ElaboratableValue]
+    ) -> dict[ObjectId[InterfaceSignal], Logic]:
+        combined = {}
+        for parameter in intf.parameters:
+            if params.get(parameter._id, None) is None:
+                combined[parameter._id] = parameter.default_value
+            else:
+                combined[parameter._id] = params[parameter._id]
+
+        res = {}
+        for sig in intf.signals:
+            if isinstance(sig.type, Bit):
+                res[sig._id] = Bit()
+            elif isinstance(sig.type, Bits):
+                upp = sig.type.dimensions[0].upper.value
+                low = sig.type.dimensions[0].lower.value
+
+                for param, val in combined.items():
+                    upp = re.sub(rf"\b{re.escape(param.resolve().name)}\b", f"({val.value})", upp)
+                    low = re.sub(rf"\b{re.escape(param.resolve().name)}\b", f"({val.value})", low)
+
+                upp = ElaboratableValue(upp)
+                low = ElaboratableValue(low)
+                res[sig._id] = Bits(dimensions=[Dimensions(upper=upp, lower=low)])
+
+        return res
+
+    @staticmethod
+    def resolve_intf_values(
+        intf: Interface,
+        instance: dict[ObjectId[Parameter], ElaboratableValue],
+    ) -> tuple[
+        Mapping[ObjectId[Parameter], ElaboratableValue], Mapping[ObjectId[InterfaceSignal], Logic]
+    ]:
+        """
+        Resolve interface parameters to their integer values and
+        Resolve interface signals types to their final types
+        """
+        inst_combined, inst_env = ElabvalueEvaluator.preprocess_params(
+            instance, intf.parent.parameters
+        )
+        inst_params = ElabvalueEvaluator.resolve_params(inst_combined, inst_env)
+
+        intf_params = dict[ObjectId[Parameter], ElaboratableValue]()
+        for k, v in intf.parameters.items():
+            v = ElabvalueEvaluator.sanitize(v.value)
+            intf_params[k] = ElaboratableValue(
+                int(
+                    simpleeval.simple_eval(v, names=inst_params, functions=ElabvalueEvaluator.funcs)
+                )
+            )
+
+        intf_combined, intf_env = ElabvalueEvaluator.preprocess_params(
+            intf_params, intf.definition.parameters
+        )
+        intf_params_resolved = ElabvalueEvaluator.resolve_params(intf_combined, intf_env)
+
+        sigtypes = {}
+        for sig in intf.signals:
+            sigtypes[sig] = ElabvalueEvaluator.eval_type(sig.resolve().type, intf_params_resolved)
+        paramvals = dict[ObjectId[Parameter], ElaboratableValue]()
+        for param in intf.parameters.keys():
+            paramvals[param] = ElaboratableValue(intf_params_resolved[param.resolve().name])
+
+        return paramvals, sigtypes
+
+    @staticmethod
+    def preprocess_params(
+        map: dict[ObjectId[Parameter], ElaboratableValue],
+        defaults: Iterable[Parameter],
+    ) -> tuple[dict[str, str], dict[str, int]]:
+        # Combine map and defaults into single dict
+        combined = dict[str, str]()
+        for param, val in map.items():
+            param = param.resolve()
+            combined[param.name] = val.value
+
+        for param in defaults:
+            if combined.get(param.name) is None:
+                if param.default_value is None:
+                    logger.warning(f"parameter '{param.name}' has no value")
+                    continue
+                combined[param.name] = param.default_value.value
+
+        for param in combined:
+            combined[param] = ElabvalueEvaluator.sanitize(combined[param])
+
+        # resolve all parameters to their values and put them in env
+        env = dict[str, int]()
+        for param, pval in combined.items():
+            for other, oth_val in combined.items():
+                if param == other:
+                    continue
+                combined[other] = re.sub(rf"\b{re.escape(param)}\b", f"({pval})", oth_val)
+
+        for p, v in combined.items():
+            if ElabvalueEvaluator.expr_good(v):
+                env[p] = int(
+                    simpleeval.simple_eval(v, names=env, functions=ElabvalueEvaluator.funcs)
+                )
+
+        return combined, env
+
+    @staticmethod
+    def resolve_params(combined: dict[str, str], env: dict[str, int]) -> dict[str, int]:
+        params = env.copy()
+        for param, val in combined.items():
+            try:
+                res = int(
+                    simpleeval.simple_eval(val, names=env, functions=ElabvalueEvaluator.funcs)
+                )
+                params[param] = res
+            except simpleeval.InvalidExpression:
+                pass
+                # its not that bad if we cannot eval: some params are not used for width definitions
+                # and will never eval to any integer value. We can skip them, and try to evaluate
+                # our widths - it's likely that we dont need those parameters anyways
+                # main drawback is that it produces a long log
+                # logger.warning(f"cannot eval parameter {param}; it will be skipped")
+        return params
+
+    @staticmethod
+    def eval_type(type: Logic, env: dict[str, int]) -> Logic:
+        if isinstance(type, Bit):
+            return type
+        elif isinstance(type, LogicArray):
+            result = type.copy()
+            for i in range(len(result.dimensions)):
+                dims = result.dimensions[i]
+
+                res = ElabvalueEvaluator.eval_dims(dims, env)
+                result.dimensions[i] = res
+
+            return result
+
+        # default, maybe we should throw an error? we might only support 2 dimensions really
+        return type
+
+    @staticmethod
+    def eval_dims(dims: Dimensions, env: dict[str, int]) -> Dimensions:
+        upp = ElabvalueEvaluator.sanitize(dims.upper.value)
+        lwr = ElabvalueEvaluator.sanitize(dims.lower.value)
+
+        try:
+            uval = int(simpleeval.simple_eval(upp, names=env, functions=ElabvalueEvaluator.funcs))
+            lval = int(simpleeval.simple_eval(lwr, names=env, functions=ElabvalueEvaluator.funcs))
+        except Exception as e:
+            logger.warning(f"Cannot infer port widths; {e}")
+            return dims
+
+        return Dimensions(upper=ElaboratableValue(uval), lower=ElaboratableValue(lval))

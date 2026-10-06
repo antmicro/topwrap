@@ -233,10 +233,18 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
                 assert dir == PortDirection.INOUT
                 inout[sig.resolve().name] = represented_sig
 
+        # parameters
+        params = {}
+        for p, v in intf.parameters.items():
+            params[p.resolve().name] = v.value
+            if isinstance(v.raw, IPCoreComplexParameter):
+                params[p.resolve().name] = v.raw
+
         return IPCoreInterface(
             type=intf.definition.id,
             mode=intf.mode,
             signals=IPCoreIntfPorts(input, output, inout),
+            parameters=params,
         )
 
     def _represent_params(self, params: Iterable[Parameter]) -> dict[str, IPCoreParameter]:

@@ -23,6 +23,7 @@ from topwrap.model.misc import (
     ElaboratableValue,
     FileReference,
     Identifier,
+    ObjectId,
     Parameter,
 )
 from topwrap.model.module import Module
@@ -117,6 +118,11 @@ class KpmSpecificationFrontend:
                 # skip clock/reset domain assignment properties
                 if prop["name"].startswith("Domain for"):
                     continue
+
+                # skip intf param properties
+                if prop["name"].startswith("Interface Param"):
+                    continue
+
                 mod.add_parameter(
                     Parameter(name=prop["name"], default_value=ElaboratableValue(prop["default"]))
                 )
@@ -138,12 +144,15 @@ class KpmSpecificationFrontend:
                     Direction._value2member_map_[intf.get("direction", Direction.INOUT.value)],
                 )
                 if (idef := self._intfmap.get(type)) is not None:
+                    params = self._create_hidden_intf_params(node, intf, idef)
+
                     mod.add_interface(
                         Interface(
                             name=intf["name"],
                             mode=kpm_dir_to_ir_intf(dir),
                             definition=idef,
                             signals={s._id: None for s in idef.signals},
+                            parameters=params,
                         )
                     )
                 elif type == PORT_INTF_TYPE or allow_unknown_intfs:
@@ -161,3 +170,16 @@ class KpmSpecificationFrontend:
                     )
 
             yield mod, {}
+
+    def _create_hidden_intf_params(
+        self, node: JsonType, intf: JsonType, idef: InterfaceDefinition
+    ) -> dict[ObjectId[Parameter], ElaboratableValue]:
+        params = dict[ObjectId[Parameter], ElaboratableValue]()
+
+        props = node.get("properties", ())
+        for param in idef.parameters:
+            for prop in props:
+                if prop["name"] == f"Interface Param {intf['name']} {param.name}":
+                    params[param._id] = ElaboratableValue(prop["default"])
+                    break
+        return params

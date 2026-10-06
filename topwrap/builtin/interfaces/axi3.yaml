@@ -3,10 +3,21 @@
 
 # Signal description
 # - https://developer.arm.com/documentation/ihi0022/e (version E), pages: 31,101,113
+
 id:
   library: topwrap-interfaces
   name: axi3
   vendor: antmicro.com
+
+parameters:
+  ID_WIDTH: 4
+  ADDR_WIDTH: 32
+  DATA_WIDTH: 64
+  AWUSER_WIDTH: 32
+  ARUSER_WIDTH: 32
+  WUSER_WIDTH: 32
+  RUSER_WIDTH: 32
+  BUSER_WIDTH: 32
 
 signals:
   # AW channel.
@@ -14,35 +25,44 @@ signals:
     pattern: aw[._]?id
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '0'
+    bound: ['ID_WIDTH-1', '0']
   awaddr:
     pattern: aw[._]?addr
     modes: {manager: [out, required]}
+    bound: ['ADDR_WIDTH-1', '0']
   awlen:
     pattern: aw[._]?len
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '0'
+    bound: ['7', '0'] # axi3 uses only [3:0] but specification says that the signal is [7:0] for both axi3 and 4
   awsize:
     pattern: aw[._]?size
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '3'
+    bound: ['2', '0']
   awburst:
     pattern: aw[._]?burst
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '1'
+    bound: ['1', '0']
   awlock:
     pattern: aw[._]?lock
     modes: {manager: [out, optional]}
     default: '0'
+    bound: ['1', '0']
   awcache:
     pattern: aw[._]?cache
     modes: {manager: [out, optional]}
     default: '0'
+    bound: ['3', '0']
   awprot:
     pattern: aw[._]?prot
     modes: {manager: [out, required], subordinate: [in, optional]}
+    bound: ['2', '0']
   awuser:
     pattern: aw[._]?user
     modes: {manager: [out, optional]}
+    bound: ['AWUSER_WIDTH-1', '0']
   awvalid:
     pattern: aw[._]?valid
     modes: {manager: [out, required]}
@@ -54,19 +74,23 @@ signals:
     pattern: w[._]?id
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '0'
+    bound: ['ID_WIDTH-1', '0']
   wdata:
     pattern: w[._]?data
     modes: {manager: [out, required]}
+    bound: ['DATA_WIDTH-1', '0']
   wstrb:
     pattern: w[._]?strb
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '255'
+    bound: ['DATA_WIDTH/8', '0'] # maybe ceil from this?
   wlast:
     pattern: w[._]?last
     modes: {manager: [out, required], subordinate: [in, optional]}
   wuser:
     pattern: w[._]?user
     modes: {manager: [out, optional]}
+    bound: ['WUSER_WIDTH-1', '0']
   wvalid:
     pattern: w[._]?valid
     modes: {manager: [out, required]}
@@ -77,13 +101,16 @@ signals:
   bid:
     pattern: b[._]?id
     modes: {manager: [in, optional], subordinate: [out, required]}
+    bound: ['ID_WIDTH-1', '0']
   bresp:
     pattern: b[._]?resp
     modes: {manager: [in, optional], subordinate: [out, required]}
     default: '0'
+    bound: ['1', '0']
   buser:
     pattern: b[._]?user
     modes: {manager: [in, optional]}
+    bound: ['BUSER_WIDTH-1', '0']
   bvalid:
     pattern: b[._]?valid
     modes: {manager: [in, required]}
@@ -95,35 +122,44 @@ signals:
     pattern: ar[._]?id
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '0'
+    bound: ['ID_WIDTH-1', '0']
   araddr:
     pattern: ar[._]?addr
     modes: {manager: [out, required]}
+    bound: ['ADDR_WIDTH-1', '0']
   arlen:
     pattern: ar[._]?len
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '0'
+    bound: ['7', '0'] # axi3 uses only [3:0] but specification says that the signal is [7:0] for both axi3 and 4
   arsize:
     pattern: ar[._]?size
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '3'
+    bound: ['2', '0']
   arburst:
     pattern: ar[._]?burst
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '1'
+    bound: ['1', '0']
   arlock:
     pattern: ar[._]?lock
     modes: {manager: [out, optional]}
     default: '0'
+    bound: ['1', '0']
   arcache:
     pattern: ar[._]?cache
     modes: {manager: [out, optional]}
     default: '0'
+    bound: ['3', '0']
   arprot:
     pattern: ar[._]?prot
     modes: {manager: [out, required], subordinate: [in, optional]}
+    bound: ['2', '0']
   aruser:
     pattern: ar[._]?user
     modes: {manager: [out, optional]}
+    bound: ['ARUSER_WIDTH-1', '0']
   arvalid:
     pattern: ar[._]?valid
     modes: {manager: [out, required]}
@@ -134,19 +170,23 @@ signals:
   rid:
     pattern: r[._]?id
     modes: {manager: [in, optional], subordinate: [out, required]}
+    bound: ['ID_WIDTH-1', '0']
   rdata:
     pattern: r[._]?data
     modes: {manager: [in, required]}
+    bound: ['DATA_WIDTH-1', '0']
   rresp:
     pattern: r[._]?resp
     modes: {manager: [in, optional], subordinate: [out, required]}
     default: '0'
+    bound: ['1', '0']
   rlast:
     pattern: r[._]?last
     modes: {manager: [in, optional], subordinate: [out, required]}
   ruser:
     pattern: r[._]?user
     modes: {manager: [in, optional]}
+    bound: ['RUSER_WIDTH-1', '0']
   rvalid:
     pattern: r[._]?valid
     modes: {manager: [in, required]}
