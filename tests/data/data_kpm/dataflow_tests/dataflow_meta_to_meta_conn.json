@@ -1,5 +1,5 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "metadata": {
     "randomizedOffset": true
   },
@@ -17,57 +17,67 @@
         {
           "enabledInterfaceGroups": [],
           "id": "6c96482c-fc3e-43bb-a6d7-23e232dc804f",
-          "instanceName": "External Inout",
+          "instanceName": "",
           "interfaces": [
             {
+              "direction": "input",
+              "id": "6d6ff037-3417-452a-a8a5-61125af8c9a5",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "1eed5434-bf1f-4907-b533-ba25575f119c",
+              "name": "out"
+            },
+            {
               "direction": "inout",
+              "externalName": "",
               "id": "403ab4e6-e1e2-4843-9980-5f4b3ac4de7c",
-              "name": "external",
+              "name": "inout",
               "side": "left",
               "sidePosition": 0
             }
           ],
-          "name": "External Inout",
+          "name": "External I/O",
           "position": {
             "x": -855,
             "y": 300
           },
-          "properties": [
-            {
-              "id": "504e0c9e-b0c5-4c49-a07e-a3251e1f4a80",
-              "name": "External Name",
-              "value": ""
-            }
-          ],
-          "twoColumn": false,
+          "properties": [],
+          "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
           "id": "35ef04e1-eddd-4ff7-90d4-644d003d37d6",
-          "instanceName": "External Input",
+          "instanceName": "",
           "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "",
+              "id": "e8d83c17-a797-41be-90ca-f2ded4f3e1e8",
+              "name": "in"
+            },
             {
               "direction": "output",
               "id": "1af020b3-626b-4fe6-a3da-fad06f3f612c",
-              "name": "external",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "944ea140-d310-476c-a7ac-9c9869a3dfeb",
+              "name": "inout"
             }
           ],
-          "name": "External Input",
+          "name": "External I/O",
           "position": {
             "x": -1320,
             "y": 300
           },
-          "properties": [
-            {
-              "id": "1ae83ee8-98d5-4bd3-b93c-beac8c17a166",
-              "name": "External Name",
-              "value": ""
-            }
-          ],
-          "twoColumn": false,
+          "properties": [],
+          "twoColumn": true,
           "width": 200
         }
       ]

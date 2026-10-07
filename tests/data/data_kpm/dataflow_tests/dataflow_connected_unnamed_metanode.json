@@ -1,5 +1,5 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "metadata": {
     "randomizedOffset": true
   },
@@ -53,7 +53,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "axi_axil_adapter",
+          "name": "axi_axil_adapter v0.1 (vendor/libdefault)",
           "position": {
             "x": -915,
             "y": 660
@@ -96,29 +96,34 @@
         {
           "enabledInterfaceGroups": [],
           "id": "5358601a-962e-4097-9030-ac9f587e5f09",
-          "instanceName": "External Input",
+          "instanceName": "",
           "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "",
+              "id": "cebab009-256b-49b0-8556-c74cb147ee3a",
+              "name": "in"
+            },
             {
               "direction": "output",
               "id": "e64a2247-edc0-449f-aaaa-6e8bd0ab2b78",
-              "name": "external",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "f438d44a-6696-4cc0-80e8-8cf4f69777a3",
+              "name": "inout"
             }
           ],
-          "name": "External Input",
+          "name": "External I/O",
           "position": {
             "x": -1485,
             "y": 1125
           },
-          "properties": [
-            {
-              "id": "2a04393e-3bd0-409b-8d9a-20a4d797a3b2",
-              "name": "External Name",
-              "value": ""
-            }
-          ],
-          "twoColumn": false,
+          "properties": [],
+          "twoColumn": true,
           "width": 200
         },
         {
@@ -155,7 +160,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "litex_pwm",
+          "name": "litex_pwm v0.1 (vendor/libdefault)",
           "position": {
             "x": -855,
             "y": 1440

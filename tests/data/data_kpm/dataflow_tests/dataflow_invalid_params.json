@@ -1,5 +1,5 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "metadata": {
     "randomizedOffset": true
   },
@@ -42,7 +42,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "axi_axil_adapter",
+          "name": "axi_axil_adapter v0.1 (vendor/libdefault)",
           "position": {
             "x": -1155,
             "y": 300

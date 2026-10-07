@@ -1,5 +1,5 @@
 {
-  "version": "20240723.13",
+  "version": "20250623.14",
   "entryGraph": "e8c37f4e-24a9-4ab5-b189-cc08efdf79e9",
   "graphs": [
     {
@@ -161,25 +161,30 @@
         {
           "enabledInterfaceGroups": [],
           "id": "80116a2e-3f1d-476e-b41d-5643afb8fda9",
-          "instanceName": "Subgraph port",
+          "instanceName": "subgraph in",
           "interfaces": [
             {
               "direction": "input",
               "externalName": "subgraph in",
               "id": "87387163-0518-4c0a-b435-46495806c918",
-              "name": "subgraph in",
+              "name": "in",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "output",
               "id": "53a56099-9c8c-49f1-a0cf-a6018c3c414c",
-              "name": "subgraph out",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "595d9ae9-8347-4bcc-b20f-4b80f147cdd8",
+              "name": "inout"
             }
           ],
-          "name": "Subgraph port",
+          "name": "External I/O",
           "position": {
             "x": 810,
             "y": 105
@@ -222,7 +227,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "c_mod_3",
+          "name": "c_mod_3 v0.1 (vendor/libdefault)",
           "position": {
             "x": 375,
             "y": 90
@@ -251,28 +256,33 @@
         {
           "enabledInterfaceGroups": [],
           "id": "317587a6-c1b4-44b2-a234-961aa107e941",
-          "instanceName": "External Input",
+          "instanceName": "",
           "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "",
+              "id": "c59f466b-5be8-4f81-a43c-9f2123a6ca64",
+              "name": "in"
+            },
             {
               "direction": "output",
               "id": "e21d2da0-4708-44d8-8325-fcafbcaadf30",
-              "name": "external",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "1b356b71-4f26-463f-a483-952c5e2cbfa1",
+              "name": "inout"
             }
           ],
-          "name": "External Input",
+          "name": "External I/O",
           "position": {
             "x": 420,
             "y": 90
           },
-          "properties": [
-            {
-              "id": "0acf3d13-a5e3-49c9-b1e5-b15d45aaa853",
-              "name": "External Name",
-              "value": ""
-            }
-          ],
+          "properties": [],
           "twoColumn": true,
           "width": 200
         },
@@ -303,7 +313,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "s1_mod_1",
+          "name": "s1_mod_1 v0.1 (vendor/libdefault)",
           "position": {
             "x": 945,
             "y": 135
@@ -359,7 +369,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "s1_mod_2",
+          "name": "s1_mod_2 v0.1 (vendor/libdefault)",
           "position": {
             "x": 465,
             "y": 150
@@ -388,7 +398,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "s1_mod_2",
+          "name": "s1_mod_2 v0.1 (vendor/libdefault)",
           "position": {
             "x": 975,
             "y": 75
@@ -417,28 +427,33 @@
         {
           "enabledInterfaceGroups": [],
           "id": "96c43877-60ec-46a4-8b52-fa06971ae484",
-          "instanceName": "External Inout",
+          "instanceName": "afdsf",
           "interfaces": [
             {
+              "direction": "input",
+              "id": "a5d49f0f-3f2f-4cc9-9f59-b64d202cb90b",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "cb54bd36-6d0b-4a27-b850-fe2f151ada3c",
+              "name": "out"
+            },
+            {
               "direction": "inout",
+              "externalName": "afdsf",
               "id": "9bb129ea-5d5c-417c-9b57-ccb3731a958e",
-              "name": "external",
+              "name": "inout",
               "side": "left",
               "sidePosition": 0
             }
           ],
-          "name": "External Inout",
+          "name": "External I/O",
           "position": {
             "x": 915,
             "y": 90
           },
-          "properties": [
-            {
-              "id": "e18c513f-7cd0-4db3-83ef-ac9ea391d3de",
-              "name": "External Name",
-              "value": "afdsf"
-            }
-          ],
+          "properties": [],
           "twoColumn": true,
           "width": 200
         },
@@ -462,7 +477,7 @@
               "sidePosition": 0
             }
           ],
-          "name": "c_mod_1",
+          "name": "c_mod_1 v0.1 (vendor/libdefault)",
           "position": {
             "x": 495,
             "y": 345
@@ -486,28 +501,33 @@
         {
           "enabledInterfaceGroups": [],
           "id": "879241d5-7af0-4dbc-b478-8a25fbdfa4d4",
-          "instanceName": "External Inout",
+          "instanceName": "a",
           "interfaces": [
             {
+              "direction": "input",
+              "id": "a19a4acd-55b4-4f83-bd00-62f196f481e1",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "f33154ea-8b82-4502-a2b7-e1dd5be878b6",
+              "name": "out"
+            },
+            {
               "direction": "inout",
+              "externalName": "a",
               "id": "169e7127-5d7f-419a-9afa-94d8919f3895",
-              "name": "external",
+              "name": "inout",
               "side": "left",
               "sidePosition": 0
             }
           ],
-          "name": "External Inout",
+          "name": "External I/O",
           "position": {
             "x": 480,
             "y": 120
           },
-          "properties": [
-            {
-              "id": "93689fe2-80c3-452f-bb31-739080de36d9",
-              "name": "External Name",
-              "value": "a"
-            }
-          ],
+          "properties": [],
           "twoColumn": true,
           "width": 200
         }
@@ -526,56 +546,66 @@
         {
           "enabledInterfaceGroups": [],
           "id": "7a35fd3f-504d-4203-92d2-9c21616c3e7e",
-          "instanceName": "External Input",
+          "instanceName": "aaaaaa",
           "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "aaaaaa",
+              "id": "b7319082-4341-4310-b2c8-aebca172c4e3",
+              "name": "in"
+            },
             {
               "direction": "output",
               "id": "ee020193-794f-4986-84d0-c7e83dc2aa4f",
-              "name": "external",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "2091ec3a-1725-4d6f-9857-e0f767bc748c",
+              "name": "inout"
             }
           ],
-          "name": "External Input",
+          "name": "External I/O",
           "position": {
             "x": 495,
             "y": 210
           },
-          "properties": [
-            {
-              "id": "a8574a24-62a4-47b7-a570-b8ef423d418f",
-              "name": "External Name",
-              "value": "aaaaaa"
-            }
-          ],
+          "properties": [],
           "twoColumn": true,
           "width": 200
         },
         {
           "enabledInterfaceGroups": [],
           "id": "814a11de-1636-499d-8ce7-4a218a1095ad",
-          "instanceName": "External Output",
+          "instanceName": "bbbbbbbbbbb",
           "interfaces": [
             {
               "direction": "input",
               "id": "e3ba0c5a-9ac5-42e8-a985-d15f0a7c5d36",
-              "name": "external",
+              "name": "in",
               "side": "left",
               "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "externalName": "bbbbbbbbbbb",
+              "id": "33a2cfad-f859-42f5-a8c0-0338ff57859d",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "e6ce21f5-2063-434e-a130-f129e6baa5f4",
+              "name": "inout"
             }
           ],
-          "name": "External Output",
+          "name": "External I/O",
           "position": {
             "x": 975,
             "y": 210
           },
-          "properties": [
-            {
-              "id": "3f691805-15a1-4cf9-8b73-9f9c944f45a2",
-              "name": "External Name",
-              "value": "bbbbbbbbbbb"
-            }
-          ],
+          "properties": [],
           "twoColumn": true,
           "width": 200
         }
@@ -594,28 +624,33 @@
         {
           "enabledInterfaceGroups": [],
           "id": "19b538bb-1da3-4d2b-ad20-4284d11cf378",
-          "instanceName": "External Output",
+          "instanceName": "bara",
           "interfaces": [
             {
               "direction": "input",
               "id": "ca7074a3-fd97-41b3-928d-340e05d3e7db",
-              "name": "external",
+              "name": "in",
               "side": "left",
               "sidePosition": 0
+            },
+            {
+              "direction": "output",
+              "externalName": "bara",
+              "id": "48d0fa26-fcf8-4a20-81db-395ee22aacc6",
+              "name": "out"
+            },
+            {
+              "direction": "inout",
+              "id": "f0661c75-b27a-4edd-8557-7904c8b692c9",
+              "name": "inout"
             }
           ],
-          "name": "External Output",
+          "name": "External I/O",
           "position": {
             "x": 885,
             "y": 135
           },
-          "properties": [
-            {
-              "id": "418b973f-996d-4fd4-a0a6-65da027e9b0d",
-              "name": "External Name",
-              "value": "bara"
-            }
-          ],
+          "properties": [],
           "twoColumn": true,
           "width": 200
         },
@@ -662,25 +697,30 @@
         {
           "enabledInterfaceGroups": [],
           "id": "692d6c48-6aed-425b-8652-a1b3e7e60765",
-          "instanceName": "Subgraph port",
+          "instanceName": "subgraph in",
           "interfaces": [
             {
               "direction": "input",
               "externalName": "subgraph in",
               "id": "86350c6c-9bd7-4c95-97ec-9c2a92dd1c2c",
-              "name": "subgraph in",
+              "name": "in",
               "side": "left",
               "sidePosition": 0
             },
             {
               "direction": "output",
               "id": "ae3c4115-6d30-46b5-bce0-2422e15559fb",
-              "name": "subgraph out",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "dfe11897-1e42-46d0-b0e7-a8f70986fc83",
+              "name": "inout"
             }
           ],
-          "name": "Subgraph port",
+          "name": "External I/O",
           "position": {
             "x": 480,
             "y": 180
@@ -692,12 +732,12 @@
         {
           "enabledInterfaceGroups": [],
           "id": "bb98f4a0-4c61-4b52-a8f0-3dff067574c9",
-          "instanceName": "Subgraph port",
+          "instanceName": "subgraph out",
           "interfaces": [
             {
               "direction": "input",
               "id": "ef0784d8-c4b9-4e5b-b239-1ad493db5475",
-              "name": "subgraph in",
+              "name": "in",
               "side": "left",
               "sidePosition": 0
             },
@@ -705,12 +745,17 @@
               "direction": "output",
               "externalName": "subgraph out",
               "id": "ef195331-344f-443a-bd44-b9b0eb5ac2fe",
-              "name": "subgraph out",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "b66589d2-264b-460d-bdbb-01c9da451c69",
+              "name": "inout"
             }
           ],
-          "name": "Subgraph port",
+          "name": "External I/O",
           "position": {
             "x": 900,
             "y": 180
@@ -728,28 +773,33 @@
         {
           "enabledInterfaceGroups": [],
           "id": "2cb06c8a-21a2-44f0-a9f8-d948963feb5d",
-          "instanceName": "External Input",
+          "instanceName": "",
           "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "",
+              "id": "e9563de5-87ad-49c6-a312-f62944ae07c5",
+              "name": "in"
+            },
             {
               "direction": "output",
               "id": "4189bc9f-0c94-4735-bc15-8ed469a43e94",
-              "name": "external",
+              "name": "out",
               "side": "right",
               "sidePosition": 0
+            },
+            {
+              "direction": "inout",
+              "id": "2052ec47-cb4f-4a31-a951-0c355a30180d",
+              "name": "inout"
             }
           ],
-          "name": "External Input",
+          "name": "External I/O",
           "position": {
             "x": 510,
             "y": 120
           },
-          "properties": [
-            {
-              "id": "685ff295-e872-47fa-b9b0-5f73cbc2bd40",
-              "name": "External Name",
-              "value": ""
-            }
-          ],
+          "properties": [],
           "twoColumn": true,
           "width": 200
         }
