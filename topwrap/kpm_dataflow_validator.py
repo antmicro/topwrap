@@ -194,7 +194,10 @@ class DataflowValidator:
                 # Exclude subgraph node interfaces - they share IDs with exposed interfaces
                 # but need to be checked for connections in their parent graph
                 # Also exclude subgraph metanodes - their interfaces are internal connection points
-                if not is_subgraph_node(node) and not is_subgraph_metanode(node)
+                # External I/O's unused directions are placeholders, not design ports.
+                if not is_subgraph_node(node)
+                and not is_subgraph_metanode(node)
+                and node["name"] != IoMetanode.name
             ]
         )
 
@@ -305,7 +308,11 @@ class DataflowValidator:
             return CheckResult(check_name, MessageType.OK)
 
         for sub_metanode in subgraph_metanodes:
-            sub_metanode_iface_id = get_exposed_subgraph_meta_iface(sub_metanode)["id"]
+            exposed = get_exposed_subgraph_meta_iface(sub_metanode)
+            # Bidirectional External I/O uses the same interface for exposure and connections.
+            if sub_metanode["name"] == IoMetanode.name and exposed["direction"] == "inout":
+                continue
+            sub_metanode_iface_id = exposed["id"]
             graph_id = get_graph_id_from_node(self.dataflow, sub_metanode["id"])
             if check_for_iface_in_conn_graph(self.dataflow, sub_metanode_iface_id, graph_id):
                 graph_name = get_graph_id_name(self.dataflow, graph_id)
@@ -342,10 +349,11 @@ class DataflowValidator:
             if not external_name:
                 continue
 
-            if external_name in ext_names_set:
+            scoped_name = (get_graph_id_from_node(self.dataflow, metanode["id"]), external_name)
+            if scoped_name in ext_names_set:
                 duplicates.add(external_name)
             else:
-                ext_names_set.add(external_name)
+                ext_names_set.add(scoped_name)
 
         if duplicates:
             return CheckResult(

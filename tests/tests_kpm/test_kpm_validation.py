@@ -177,7 +177,8 @@ def test_pwm_dataflow_validation(check_function, expected_result, pwm_dataflow):
         (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
-        (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
+        # Unused directions on External I/O nodes do not represent unconnected design ports.
+        (DataflowValidator.check_unconnected_ports_interfaces, MessageType.OK),
     ],
 )
 def test_hierarchy_dataflow_validation(check_function, expected_result, hierarchy_dataflow):

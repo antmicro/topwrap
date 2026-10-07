@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from topwrap.backend.kpm.common import Positions
+from topwrap.backend.kpm.common import IoMetanode, Positions
 from topwrap.hdl_parsers_utils import PortDirection
 from topwrap.model.design import Design
 from topwrap.model.misc import Identifier
@@ -125,7 +125,7 @@ def kpm_direction_to_port_dir(kpm_dir: str) -> PortDirection:
 
 def is_external_metanode(node: JsonType) -> bool:
     """Return True if a node is an external metanode, False otherwise."""
-    return node["name"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME]
+    return node["name"] in [EXT_INPUT_NAME, EXT_OUTPUT_NAME, EXT_INOUT_NAME, IoMetanode.name]
 
 
 def is_constant_metanode(node: JsonType) -> bool:
@@ -171,6 +171,16 @@ def is_kpm_interface_a_topwrap_interface(node: JsonType, port_name: str, spec: J
 def _get_subgraph_metanode_iface(subgraph_metanode: JsonType, exposed: bool) -> JsonType:
     for idx, interface in enumerate(subgraph_metanode["interfaces"]):
         if is_exposed_iface(interface):
+            if subgraph_metanode["name"] == IoMetanode.name:
+                if exposed:
+                    return interface
+                if interface["name"] == "in":
+                    name = "out"
+                elif interface["name"] == "out":
+                    name = "in"
+                else:
+                    name = "inout"
+                return next(i for i in subgraph_metanode["interfaces"] if i["name"] == name)
             # Subgraph metanodes have two ports - the external subgraph reference and the second one
             # will the connections of subgraph port
             # Because of this the "connection subgraph iface" will always be at the index "opposite"
@@ -195,8 +205,12 @@ def get_unexposed_subgraph_meta_iface(subgraph_metanode: JsonType) -> JsonType:
 def get_dataflow_subgraph_metanodes(dataflow_json: JsonType) -> List[JsonType]:
     """Return a list of subgraph metanodes"""
     subgraph_metanodes = []
+    subgraph_ids = {node["subgraph"] for node in get_dataflow_subgraph_nodes(dataflow_json)}
     for node in get_all_graph_nodes(dataflow_json):
-        if is_subgraph_metanode(node):
+        if is_subgraph_metanode(node) or (
+            node["name"] == IoMetanode.name
+            and get_graph_id_from_node(dataflow_json, node["id"]) in subgraph_ids
+        ):
             subgraph_metanodes.append(node)
     return subgraph_metanodes
 
@@ -316,7 +330,10 @@ def get_dataflow_external_interfaces(dataflow_json: JsonType) -> Dict[str, List[
     """Return a dict of all the interfaces of all the external metanodes.
     The resulting dict consists of items
     {"iface_id": [InterfaceData]}"""
-    return _get_interfaces(get_dataflow_external_metanodes(dataflow_json))
+    nodes = get_dataflow_external_metanodes(dataflow_json)
+    interfaces = _get_interfaces(nodes)
+    connected_ids = {get_metanode_interface_id(node) for node in nodes}
+    return {key: value for key, value in interfaces.items() if key in connected_ids}
 
 
 def get_dataflow_constant_interfaces(dataflow_json: JsonType) -> Dict[str, List[InterfaceData]]:
@@ -357,6 +374,8 @@ def get_metanode_interface_id(metanode: JsonType) -> str:
     """Return given metanode's interface id. Metanodes always have exactly 1
     interface, so it suffices to take 0th element of the "interfaces" array.
     """
+    if metanode["name"] == IoMetanode.name:
+        return get_unexposed_subgraph_meta_iface(metanode)["id"]
     return metanode["interfaces"][0]["id"]
 
 
@@ -365,13 +384,15 @@ def get_metanode_property_value(metanode: JsonType) -> str:
     Metanodes always have exactly one property, so it suffices to take
     0th element of the "properties" array.
     """
+    if metanode["name"] == IoMetanode.name:
+        return get_exposed_subgraph_meta_iface(metanode)["externalName"]
     return metanode["properties"][0]["value"]
 
 
 def get_external_metanode_direction(metanode: JsonType) -> PortDirection:
     """Gets a PortDirection of the external or subgraph port metanode"""
 
-    if is_subgraph_metanode(metanode):
+    if is_subgraph_metanode(metanode) or metanode["name"] == IoMetanode.name:
         dir = get_exposed_subgraph_meta_iface(metanode)["direction"]
         return kpm_direction_to_port_dir(dir)
     elif is_external_metanode(metanode):
