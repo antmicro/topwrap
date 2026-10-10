@@ -429,7 +429,7 @@ def _candidate_interfaces_for_group(
         yield intf
 
 
-def _candidate_intf_ordering_key(candidate: Interface) -> tuple[int, int]:
+def _candidate_intf_ordering_key(candidate: Interface) -> tuple[int, int, int]:
     """
     Generate a sorting key for a given candidate.
     """
@@ -448,6 +448,9 @@ def _candidate_intf_ordering_key(candidate: Interface) -> tuple[int, int]:
         len(req_signals),
         # Secondly, prefer interfaces with more optional signals matched.
         len(opt_signals.intersection(cand_signals)),
+        # Finally, prefer the definition the ports fill the most, e.g. AXI4Lite over AXI4 for
+        # ports that have no burst signals.
+        len(cand_signals) - len(cand_def.signals),
     )
 
 
@@ -493,6 +496,10 @@ def infer_interfaces_from_module(
 
     options = options or InterfaceInferenceOptions()
     grouping_hints = grouping_hints or {}
+
+    # Candidates that rank equally are tried in this order, whichever order the caller loaded the
+    # definitions in.
+    intf_defs = sorted(intf_defs, key=lambda d: d.id.combined())
 
     groups = _generate_candidate_groups(module, grouping_hints, options)
 

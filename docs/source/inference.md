@@ -40,6 +40,12 @@ are. Then, interface modes are determined based on port directions, and finally,
 assignments are applied, going from best to worst. If a port is used by two or more interfaces, the
 higher scoring one takes precedence, and the lower scoring interfaces are ignored.
 
+Candidates are ranked by the number of required signals of the interface, then by the number of
+optional signals matched, and finally by how much of its own definition the ports fill. The last
+rule makes ports without burst signals become `AXI4Lite` rather than `AXI4` or `AXI3`, which also
+match them. Candidates that still tie are tried in the order of their combined
+`vendor_library_name_version` identifiers, regardless of the order the definitions were loaded in.
+
 You can limit which interface definitions are considered during inference using the
 `--inference-interface` argument. The argument takes an interface definition name, and can be
 specified multiple times. During inference, only interfaces with names matching the specified ones

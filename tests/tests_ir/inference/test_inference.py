@@ -3,10 +3,13 @@
 
 
 import copy
+import itertools
 from pathlib import Path
 
+import pytest
 import yaml
 
+import topwrap
 from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.data.data_ir.inference.axi_if import axi4_intf
 from tests.data.data_ir.inference.axi_wb_root import axi_wb_root
@@ -560,3 +563,39 @@ class TestInferenceRegression:
         assert s_intfs == {
             "AXI4Lite": "AXI4Lite",
         }
+
+
+def _builtin_intf(name: str):
+    path = Path(topwrap.__file__).parent / "builtin" / "interfaces" / f"{name}.yaml"
+    return InterfaceDefinitionDescriptionFrontend().parse(
+        InterfaceDefinitionDescription.from_yaml(path.read_text())
+    )
+
+
+class TestInterfaceInferenceTies:
+    """
+    Ports of an AXI4Lite subordinate also fit AXI3 and AXI4, and the three rank equally on the
+    number of matched signals, so the outcome must not depend on the order of the definitions.
+    """
+
+    @staticmethod
+    def _lite_module() -> Module:
+        lite = _builtin_intf("axi4lite")
+        ports = [
+            Port(
+                name=f"s_{sig.name.lower()}",
+                direction=sig.modes[InterfaceMode.SUBORDINATE].direction,
+            )
+            for sig in lite.signals
+        ]
+        return Module(id=Identifier(name="lite_dut"), ports=ports, design=Design())
+
+    @pytest.mark.parametrize(
+        "order", list(itertools.permutations(["axi3", "axi4", "axi4lite"])), ids="-".join
+    )
+    def test_independent_of_definition_order(self, order):
+        mod = self._lite_module()
+
+        infer_interfaces_from_module(mod, [_builtin_intf(name) for name in order])
+
+        assert _all_interfaces(mod) == ({}, {"s": "axi4lite"})
