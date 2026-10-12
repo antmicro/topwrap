@@ -84,6 +84,7 @@ class TestCli:
         run_cli(
             "generate",
             str(example_dir / "project.yaml"),
+            "--verilog",
             "--fusesoc",
             "--part",
             "xc7z020clg400-3",

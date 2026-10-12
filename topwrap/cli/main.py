@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import IO, Annotated, Any, Callable, Coroutine, Optional, Tuple, Union, cast
 
 import rich.console
-from cyclopts import Parameter
+from cyclopts import ArgumentCollection, Group, Parameter
 from cyclopts.types import ExistingDirectory, ExistingFile
 
 from topwrap.cli import cli
@@ -104,6 +104,19 @@ def build_main(
         sys.exit(1)
 
 
+def one_true(argument_collection: ArgumentCollection):
+    if not any(arg.value for arg in argument_collection):
+        raise ValueError(
+            "Specify at least one type of output with --{verilog,ipxact,diagram,specification}"
+        )
+
+
+output_types_group = Group(
+    "Output types",
+    validator=one_true,
+)
+
+
 @cli.command(name="generate")
 def generate_main(
     design: ExistingFile,
@@ -113,11 +126,12 @@ def generate_main(
     sources: Annotated[
         Tuple[ExistingDirectory, ...], Parameter(alias="-s", negative="--empty-sources")
     ] = (),
+    verilog: Annotated[bool, Parameter(group=output_types_group)] = False,
     fusesoc: bool = False,
     part: Annotated[Optional[str], Parameter(alias="-p")] = None,
-    ipxact: bool = False,
-    diagram: bool = False,
-    specification: bool = False,
+    ipxact: Annotated[bool, Parameter(group=output_types_group)] = False,
+    diagram: Annotated[bool, Parameter(group=output_types_group)] = False,
+    specification: Annotated[bool, Parameter(group=output_types_group)] = False,
     iface_compliance: bool = False,
 ):
     """Generate SystemVerilog from a top design YAML file.
@@ -131,8 +145,11 @@ def generate_main(
     sources
         Directories containing additional HDL or constraint sources for the
         generated FuseSoC core.
+    verilog
+        Generate SystemVerilog RTL from the design.
     fusesoc
-        Generate a FuseSoC .core file for further synthesis.
+        Generate a FuseSoC .core file for further synthesis. Only works when
+        --verilog is set.
     part
         FPGA part number used by the generated FuseSoC target.
     ipxact
@@ -151,12 +168,13 @@ def generate_main(
     outdir = OutputDir(target_dir, gensrc_dir)
 
     try:
-        pipeline = BuildPipeline.yaml_sv_pipeline(
-            fuse=fusesoc,
-            fuse_part=part,
-            fuse_src_dirs=list(sources),
-        )
-        pipeline.run_files([], design, outdir)
+        if verilog:
+            pipeline = BuildPipeline.yaml_sv_pipeline(
+                fuse=fusesoc,
+                fuse_part=part,
+                fuse_src_dirs=list(sources),
+            )
+            pipeline.run_files([], design, outdir)
         if ipxact:
             pipeline = BuildPipeline.yaml_ipxact_pipeline()
             pipeline.run_files([], design, outdir)

@@ -6,7 +6,7 @@ BUILD_DIR = build
 all: $(BUILD_DIR)
 
 $(BUILD_DIR): project.yaml
-	topwrap generate $< --specification --diagram
+	topwrap generate $< --verilog --specification --diagram
 
 gui: project.yaml
 	topwrap gui -d $<
