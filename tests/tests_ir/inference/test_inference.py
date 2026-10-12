@@ -9,7 +9,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-import topwrap
 from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.data.data_ir.inference.axi_if import axi4_intf
 from tests.data.data_ir.inference.axi_wb_root import axi_wb_root
@@ -21,6 +20,7 @@ from tests.data.data_ir.inference.wb_if import wb_intf
 from tests.tests_ir.backend.test_yaml import get_intf_def_by_id_or_error
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
+from topwrap.library import resolve_interface_definition
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.design import Design
 from topwrap.model.hdl_types import Bit, BitStruct, StructField
@@ -565,13 +565,6 @@ class TestInferenceRegression:
         }
 
 
-def _builtin_intf(name: str):
-    path = Path(topwrap.__file__).parent / "builtin" / "interfaces" / f"{name}.yaml"
-    return InterfaceDefinitionDescriptionFrontend().parse(
-        InterfaceDefinitionDescription.from_yaml(path.read_text())
-    )
-
-
 class TestInterfaceInferenceTies:
     """
     Ports of an AXI4Lite subordinate also fit AXI3 and AXI4, and the three rank equally on the
@@ -580,7 +573,8 @@ class TestInterfaceInferenceTies:
 
     @staticmethod
     def _lite_module() -> Module:
-        lite = _builtin_intf("axi4lite")
+        lite = resolve_interface_definition("antmicro.com:topwrap-interfaces:axi4lite:0.1")
+        assert lite is not None
         ports = [
             Port(
                 name=f"s_{sig.name.lower()}",
@@ -591,11 +585,27 @@ class TestInterfaceInferenceTies:
         return Module(id=Identifier(name="lite_dut"), ports=ports, design=Design())
 
     @pytest.mark.parametrize(
-        "order", list(itertools.permutations(["axi3", "axi4", "axi4lite"])), ids="-".join
+        "order",
+        list(
+            itertools.permutations(
+                [
+                    "antmicro.com:topwrap-interfaces:axi3:0.1",
+                    "antmicro.com:topwrap-interfaces:axi4:0.1",
+                    "antmicro.com:topwrap-interfaces:axi4lite:0.1",
+                ]
+            )
+        ),
+        ids="-".join,
     )
     def test_independent_of_definition_order(self, order):
         mod = self._lite_module()
 
-        infer_interfaces_from_module(mod, [_builtin_intf(name) for name in order])
+        intf_defs = []
+        for vlnv in order:
+            definition = resolve_interface_definition(vlnv)
+            assert definition is not None
+            intf_defs.append(definition)
+
+        infer_interfaces_from_module(mod, intf_defs)
 
         assert _all_interfaces(mod) == ({}, {"s": "axi4lite"})
