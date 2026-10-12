@@ -373,15 +373,18 @@ class MarshmallowDataclassExtensions:
                     section_strs.append(section_str)
                 else:
                     section_strs.append(f"{section}:")
-                    content = indent(
-                        yaml.dump(
-                            des[section],
-                            Dumper=InlineYamlDumper,
-                            sort_keys=False,
-                            **kwargs,
-                        ),
-                        "  ",
-                    )
+                    if isinstance(des[section], str):
+                        content = f"  {des[section]}\n"
+                    else:
+                        content = indent(
+                            yaml.dump(
+                                des[section],
+                                Dumper=InlineYamlDumper,
+                                sort_keys=False,
+                                **kwargs,
+                            ),
+                            "  ",
+                        )
                     # Don't insert newline between sections in hierarchies
                     if not is_toplevel:
                         content = content.rstrip()

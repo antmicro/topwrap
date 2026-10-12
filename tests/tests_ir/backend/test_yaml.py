@@ -30,6 +30,11 @@ from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.config import ConfigManager
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
+from topwrap.frontend.yaml.design_schema import (
+    DesignDescription,
+    DesignExternalPorts,
+    DesignExternalSection,
+)
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.interconnects.wishbone_rr import (
     WishboneInterconnect,
@@ -895,6 +900,15 @@ class TestDesignPositionsBackend:
                 },
             ],
         }
+
+    def test_position_field_correct_formatting(self):
+        ports = DesignExternalPorts(input=["first_port"], output=["second_port"], inout=[])
+        external = DesignExternalSection(ports=ports)
+        des = DesignDescription(name="top", positions="my_position_file.yaml", external=external)
+
+        data = DesignDescription.Schema().dump(des)
+        str_out = yaml.safe_dump(data)
+        assert "..." not in str_out
 
 
 class TestInterfaceDescriptionBackend:
