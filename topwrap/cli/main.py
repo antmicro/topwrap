@@ -131,6 +131,7 @@ def generate_main(
     part: Annotated[Optional[str], Parameter(alias="-p")] = None,
     ipxact: Annotated[bool, Parameter(group=output_types_group)] = False,
     diagram: Annotated[bool, Parameter(group=output_types_group)] = False,
+    hidden_layers: Tuple[str, ...] = (),
     specification: Annotated[bool, Parameter(group=output_types_group)] = False,
     iface_compliance: bool = False,
 ):
@@ -156,6 +157,8 @@ def generate_main(
         Generate IP-XACT 2022 files.
     diagram
         Generate a KPM dataflow diagram.
+    hidden_layers
+        Layers to exclude from the KPM specification and dataflow diagram.
     specification
         Generate a KPM specification file.
     iface_compliance
@@ -179,10 +182,14 @@ def generate_main(
             pipeline = BuildPipeline.yaml_ipxact_pipeline()
             pipeline.run_files([], design, outdir)
         if diagram:
-            pipeline = BuildPipeline.yaml_kpm_flow_pipeline(target_dir / "kpm_dataflow.json")
+            pipeline = BuildPipeline.yaml_kpm_flow_pipeline(
+                target_dir / "kpm_dataflow.json", hidden_layers=hidden_layers
+            )
             pipeline.run_files([], design, outdir)
         if specification:
-            pipeline = BuildPipeline.yaml_kpm_spec_pipeline(target_dir / "kpm_spec.json")
+            pipeline = BuildPipeline.yaml_kpm_spec_pipeline(
+                target_dir / "kpm_spec.json", hidden_layers=hidden_layers
+            )
             pipeline.run_files([], design, outdir)
     except BuildException as e:
         logger.error(f"{e}")

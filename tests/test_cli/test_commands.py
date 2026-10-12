@@ -24,7 +24,7 @@ from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.library import clear_index_cache
 from topwrap.plugin.base import BuildException
-from topwrap.util import get_config
+from topwrap.util import get_config, read_json_file
 
 pytest_plugins = "tests.tests_ir.frontend.test_automatic"
 
@@ -50,6 +50,10 @@ class TestCli:
     @pytest.fixture
     def build_design_yaml(self):
         return Path(self.test_data_path + "data_build/design.yaml")
+
+    @pytest.fixture
+    def getting_started_demo_yaml(self):
+        return Path("examples/getting_started_demo/project.yaml")
 
     def test_top_level_command(self, tmpdir: Path):
         # Using `topwrap specification` because it's a dummy command option-wise
@@ -281,6 +285,37 @@ class TestCli:
         assert not (repo_path / "cores").exists()
         run_cli("--repo", str(repo_path), "repo", "parse", repo_name, "-f", str(filelist_path))
         assert (repo_path / "cores").exists()
+
+    def test_generate_ignores_kpm_hidden_layers(
+        self, getting_started_demo_yaml: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        design = getting_started_demo_yaml.resolve()
+        # Run from elsewhere so that a stray relative path is visible as such.
+        cwd = tmp_path / "cwd"
+        cwd.mkdir()
+        target = tmp_path / "out"
+        monkeypatch.chdir(cwd)
+
+        run_cli(
+            "generate",
+            str(design),
+            "--target-dir",
+            str(target),
+            "--specification",
+            "--diagram",
+            "--hidden-layers",
+            "Externals",
+            "--hidden-layers",
+            "Identifiers",
+        )
+
+        assert (target / "kpm_spec.json").exists()
+        assert (target / "kpm_dataflow.json").exists()
+        flow = read_json_file(target / "kpm_dataflow.json")
+
+        assert len(flow["graphs"]) == 1
+        graph = flow["graphs"][0]
+        assert graph.get("disabledLayers", None) == ["Externals", "Identifiers"]
 
 
 class TestCleanCacheCli:
