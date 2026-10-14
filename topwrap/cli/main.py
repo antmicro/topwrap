@@ -33,7 +33,12 @@ from topwrap.kpm_common import RPCparams
 from topwrap.kpm_topwrap_client import kpm_run_client
 from topwrap.plugin.base import BuildException, OutputDir
 from topwrap.plugin.pipeline import BuildPipeline
-from topwrap.plugin.steps import KpmSpecificationOutputStage, YamlIpOutputStage
+from topwrap.plugin.steps import (
+    InterfaceFlattenTransformation,
+    KpmSpecificationOutputStage,
+    Transformation,
+    YamlIpOutputStage,
+)
 from topwrap.repo.files import DEFAULT_GIT_CACHE_DIR
 from topwrap.util import JsonType, get_config, warn_deprecated
 
@@ -134,6 +139,7 @@ def generate_main(
     hidden_layers: Tuple[str, ...] = (),
     specification: Annotated[bool, Parameter(group=output_types_group)] = False,
     iface_compliance: bool = False,
+    flatten_interfaces: bool = False,
 ):
     """Generate SystemVerilog from a top design YAML file.
 
@@ -163,12 +169,19 @@ def generate_main(
         Generate a KPM specification file.
     iface_compliance
         Force interface compliance checking.
+    flatten_interfaces
+        Transform external interfaces on the top module into plain ports
     """
     gensrc_dir = Path(target_dir) / Path("src")
 
     get_config().force_interface_compliance = iface_compliance
 
     outdir = OutputDir(target_dir, gensrc_dir)
+
+    additional_trans = list[Transformation]()
+
+    if flatten_interfaces:
+        additional_trans.append(InterfaceFlattenTransformation())
 
     try:
         if verilog:
@@ -177,19 +190,23 @@ def generate_main(
                 fuse_part=part,
                 fuse_src_dirs=list(sources),
             )
+            pipeline.transformations += additional_trans
             pipeline.run_files([], design, outdir)
         if ipxact:
             pipeline = BuildPipeline.yaml_ipxact_pipeline()
+            pipeline.transformations += additional_trans
             pipeline.run_files([], design, outdir)
         if diagram:
             pipeline = BuildPipeline.yaml_kpm_flow_pipeline(
                 target_dir / "kpm_dataflow.json", hidden_layers=hidden_layers
             )
+            pipeline.transformations += additional_trans
             pipeline.run_files([], design, outdir)
         if specification:
             pipeline = BuildPipeline.yaml_kpm_spec_pipeline(
                 target_dir / "kpm_spec.json", hidden_layers=hidden_layers
             )
+            pipeline.transformations += additional_trans
             pipeline.run_files([], design, outdir)
     except BuildException as e:
         logger.error(f"{e}")

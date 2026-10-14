@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional
 
-from topwrap.model.connections import Clock, PortDirection, ReferencedPort, Reset
+from topwrap.model.connections import Clock, Port, PortDirection, ReferencedPort, Reset
 from topwrap.model.hdl_types import Logic
 from topwrap.model.misc import (
     ElaboratableValue,
@@ -16,6 +16,7 @@ from topwrap.model.misc import (
     ModelBase,
     ObjectId,
     QuerableView,
+    RelationshipError,
     VariableName,
     set_parent,
 )
@@ -228,3 +229,37 @@ class Interface(ModelBase):
     @property
     def has_sliced_signals(self) -> bool:
         return next(self.sliced_signals, None) is not None
+
+    def flatten(self):
+        """
+        Transforms all independently realized signals of this interface
+        into sliced signals, creating the necessary ports and adding
+        them to the parent module.
+        """
+
+        for sig in self.independent_signals:
+            if self.mode not in sig.modes:
+                raise RelationshipError(
+                    f"{sig.name} present in {self.name} interface instance for {self.mode},"
+                    " but it's illegal according to the interface signal definition."
+                )
+
+            i = 1
+            base_name = unique_name = f"{self.name}__{sig.name}"
+            while self.parent.ios.find_by_name(unique_name):
+                unique_name = base_name + f"__{i}"
+                i += 1
+
+            newport = Port(
+                name=unique_name,
+                direction=sig.modes[self.mode].direction,
+                # TODO: This needs better handling when parameterized
+                # interfaces get implemented. If the signal type refers
+                # to any parameters, these parameters will have to be
+                # reextracted as module parameters and uniquified or elaborated.
+                type=sig.type,
+                default_value=sig.default,
+            )
+
+            self.parent.add_port(newport)
+            self.signals[sig._id] = ReferencedPort.external(newport)

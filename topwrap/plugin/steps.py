@@ -235,6 +235,20 @@ class MemoryMapTransformation(Transformation):
         mod.design.update_interconnects_from_memory_maps()
 
 
+class InterfaceFlattenTransformation(Transformation):
+    name = "Flatten all interface modports on the module into plain ports"
+    priority = 0
+    design_only = False
+
+    @override
+    def apply_transformation(self, mod: Module, ctx: BuildContext):
+        if mod is not ctx.top_module:
+            return
+
+        for intf in mod.interfaces:
+            intf.flatten()
+
+
 class SystemVerilogOutputStage(OutputStage):
     name: str = "SystemVerilog module"
 

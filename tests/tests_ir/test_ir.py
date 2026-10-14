@@ -2,13 +2,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import re
 from pathlib import Path
 
 import pytest
 
 from examples.ir_examples.modules import axis_streamer, intf_top
 from topwrap.frontend.yaml.frontend import YamlFrontend
-from topwrap.model.connections import PortDirection
+from topwrap.model.connections import Port, PortDirection, ReferencedPort
+from topwrap.model.hdl_types import Bit
+from topwrap.model.interface import (
+    Interface,
+    InterfaceDefinition,
+    InterfaceMode,
+    InterfaceSignal,
+    InterfaceSignalConfiguration,
+)
+from topwrap.model.misc import Identifier, QuerableView
+from topwrap.model.module import Module
 
 
 class TestQuerableView:
@@ -99,3 +110,109 @@ class TestAddressMaps:
             "Skipping memory map in 'interconnect0' interconnect, because of: Memory map: "
             "'non_existiend_map' is not defined" in caplog.text
         )
+
+
+class TestInterface:
+    def test_interface_flattening(self):
+        intf = InterfaceDefinition(
+            id=Identifier("definitely_an_interface"),
+            signals=[
+                InterfaceSignal(
+                    name="psig1",
+                    regexp=re.compile("sig1"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(PortDirection.IN, True),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            PortDirection.OUT, True
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="psig2",
+                    regexp=re.compile("sig2"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            PortDirection.OUT, True
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            PortDirection.IN, True
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="rsig1",
+                    regexp=re.compile("rsig1"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(PortDirection.IN, True),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            PortDirection.OUT, True
+                        ),
+                    },
+                ),
+                InterfaceSignal(
+                    name="rsig2",
+                    regexp=re.compile("rsig2"),
+                    type=Bit(),
+                    modes={
+                        InterfaceMode.MANAGER: InterfaceSignalConfiguration(
+                            PortDirection.OUT, True
+                        ),
+                        InterfaceMode.SUBORDINATE: InterfaceSignalConfiguration(
+                            PortDirection.IN, True
+                        ),
+                    },
+                ),
+            ],
+        )
+
+        mod = Module(
+            id=Identifier("test_module"),
+            ports=(
+                ports := QuerableView(
+                    [
+                        Port(name="clk_i", direction=PortDirection.IN, type=Bit()),
+                        Port(name="intf_sig1_i", direction=PortDirection.IN, type=Bit()),
+                        Port(name="intf_sig2_o", direction=PortDirection.OUT, type=Bit()),
+                        # this will have a duplicated name in the "{intf.name}__{sig.name} scheme"
+                        Port(name="intf_inst__rsig1", direction=PortDirection.IN, type=Bit()),
+                    ]
+                )
+            ),
+            interfaces=[
+                Interface(
+                    "intf_inst",
+                    mode=InterfaceMode.MANAGER,
+                    definition=intf,
+                    signals={
+                        intf.signals.find_by_name_or_error("psig1")._id: ReferencedPort.external(
+                            ports.find_by_name_or_error("intf_sig1_i")
+                        ),
+                        intf.signals.find_by_name_or_error("psig2")._id: ReferencedPort.external(
+                            ports.find_by_name_or_error("intf_sig2_o")
+                        ),
+                        intf.signals.find_by_name_or_error("rsig1")._id: None,
+                        intf.signals.find_by_name_or_error("rsig2")._id: None,
+                    },
+                )
+            ],
+        )
+
+        mod.interfaces[0].flatten()
+
+        # check if all signals are still in the instance and none are independent
+        assert len(mod.interfaces[0].signals) == len(intf.signals)
+        assert not mod.interfaces[0].has_independent_signals
+
+        # verify that all signals are sliced with an external port
+        for sig, ref in mod.interfaces[0].signals.items():
+            assert sig.resolve() in intf.signals
+            assert ref is not None
+            assert ref.io in mod.ports
+
+        # check whether the name of a flattened port that would
+        # otherwise be a duplicate was correctly suffixed
+        assert mod.ports.find_by_name("intf_inst__rsig1") is not None
+        assert mod.ports.find_by_name("intf_inst__rsig1__1") is not None
