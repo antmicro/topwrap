@@ -4,33 +4,32 @@ import threading
 
 from topwrap.cli.main import (
     DEFAULT_BACKEND_ADDR,
-    DEFAULT_BACKEND_PORT,
     DEFAULT_SERVER_ADDR,
-    DEFAULT_SERVER_PORT,
     KPM,
 )
+
+logging.basicConfig(level=logging.INFO)
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
     logging.info("Starting server")
     server_ready_event = threading.Event()
-    server_init_failed = threading.Event()
 
-    executor.submit(
+    server_future = executor.submit(
         KPM.run_server,
         preserve_parent_state=False,
         server_ready_event=server_ready_event,
         show_kpm_logs=True,
-        server_init_failed=server_init_failed,
         shutdown_server=True,
-        server_host=DEFAULT_SERVER_ADDR,
-        server_port=DEFAULT_SERVER_PORT,
+        tcp_server_host=DEFAULT_SERVER_ADDR,
+        tcp_server_port=0,
         backend_host=DEFAULT_BACKEND_ADDR,
-        backend_port=DEFAULT_BACKEND_PORT,
+        backend_port=0,
     )
     logging.info("Waiting for KPM server to initialize")
-    server_ready_event.wait()
-    logging.info("Server initialized")
-    if server_init_failed.is_set():
-        logging.error("KPM server failed to initialize. Aborting")
-        raise RuntimeError()
-    logging.info("Shutting down server")
+    while not server_ready_event.wait(timeout=0.1):
+        if server_future.done():
+            server_future.result()
+
+    logging.info("Server initialized, waiting for shutdown")
+    server_future.result()
+    logging.info("Server shut down")
