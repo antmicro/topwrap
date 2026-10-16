@@ -140,6 +140,7 @@ def generate_main(
     specification: Annotated[bool, Parameter(group=output_types_group)] = False,
     iface_compliance: bool = False,
     flatten_interfaces: bool = False,
+    skip_validation: bool = False,
 ):
     """Generate SystemVerilog from a top design YAML file.
 
@@ -171,6 +172,8 @@ def generate_main(
         Force interface compliance checking.
     flatten_interfaces
         Transform external interfaces on the top module into plain ports
+    skip_validation
+        Generate SystemVerilog output even if validations fail.
     """
     gensrc_dir = Path(target_dir) / Path("src")
 
@@ -191,11 +194,11 @@ def generate_main(
                 fuse_src_dirs=list(sources),
             )
             pipeline.transformations += additional_trans
-            pipeline.run_files([], design, outdir)
+            pipeline.run_files([], design, outdir, skip_validation)
         if ipxact:
             pipeline = BuildPipeline.yaml_ipxact_pipeline()
             pipeline.transformations += additional_trans
-            pipeline.run_files([], design, outdir)
+            pipeline.run_files([], design, outdir, skip_validation)
         if diagram:
             pipeline = BuildPipeline.yaml_kpm_flow_pipeline(
                 target_dir / "kpm_dataflow.json", hidden_layers=hidden_layers

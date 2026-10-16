@@ -143,12 +143,12 @@ class BuildPipeline:
             StringSource(design_source) if design_source is not None else None,
         )
 
-    def process(self):
+    def process(self, skip_validation: bool = False):
         if not self.ctx:
             raise BuildException("prepare must be called before process")
 
         with self._library_scope():
-            self._process()
+            self._process(skip_validation)
 
     def _evaluate_validation(self, v: Validation, mod: Module):
         exceptions = []
@@ -164,7 +164,7 @@ class BuildPipeline:
                 exceptions.extend(self._evaluate_validation(v, comp.module))
         return exceptions
 
-    def _process(self):
+    def _process(self, skip_validation: bool = False):
         self.plugin_manager.trigger(BasePlugin.pre_transform, self.ctx)
         for t in self.transformations:
             for mod in self.ctx.loaded_modules:
@@ -182,6 +182,8 @@ class BuildPipeline:
         if exceptions:
             fail = False
             for vname, e, lvl in exceptions:
+                if skip_validation:
+                    lvl = min(lvl, logging.WARNING)
                 logger.log(lvl, f"Validation {vname} return error {e}")
                 if lvl >= logging.ERROR:
                     fail = True
@@ -224,10 +226,11 @@ class BuildPipeline:
         sources: list[Source],
         design_source: Optional[Source],
         outdir: OutputDir,
+        skip_validation: bool = False,
     ):
         try:
             self.prepare(sources, design_source)
-            self.process()
+            self.process(skip_validation)
             self.build(outdir)
         except Exception as e:
             raise BuildException(f"Exception occurred during pipeline: {e}") from e
@@ -237,11 +240,13 @@ class BuildPipeline:
         sources: list[Path],
         design_source: Optional[Path],
         outdir: OutputDir,
+        skip_validation: bool = False,
     ):
         self.run(
             [FileSource(f) for f in sources],
             design_source and FileSource(design_source),
             outdir,
+            skip_validation,
         )
 
     def run_str(
@@ -249,11 +254,13 @@ class BuildPipeline:
         sources: list[str],
         design_source: Optional[str],
         outdir: OutputDir,
+        skip_validation: bool = False,
     ):
         self.run(
             [StringSource(f) for f in sources],
             StringSource(design_source) if design_source is not None else None,
             outdir,
+            skip_validation,
         )
 
     @staticmethod
