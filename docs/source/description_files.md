@@ -875,3 +875,20 @@ modules:
      - `source` - the source signal of the connection with an inverter
 	 - `target` - the target signal of the connection with an inverter
 	 - `position` - the inverter's position
+
+
+## Optional fields and validation
+
+Topwrap allows a design to be saved in an incomplete state to facilitate the GUI workflow.
+Currently the following are allowed:
+
+ - interconnects without any manager
+ - interconnects without any subordinate
+ - clock and reset domains without a driving signal
+ - modules with unassigned clock and reset domains
+
+### Validation
+
+During the processing of a design topwrap validates it for incompleteness as described above.
+Any found issues are printed. If the user tries to generate SystemVerilog or IPXACT from an incomplete design,
+the process will fail by default. Validation errors for `topwrap generate` can be ignored with the `--skip-validation` flag.
