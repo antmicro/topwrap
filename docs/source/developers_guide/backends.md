@@ -19,7 +19,7 @@ It is mainly used to export a design to the GUI.
 ## YAML backends
 
 IpCoreDescriptionBackend and DesignDescriptionBackend classes are used to generate IP core description and design description YAML files, respectively.
-They follow the format specified in [design description](description_files.md#design-description).
+They follow the format specified in [design description](../description_files.md#design-description).
 
 ## IPXACTBackend
 

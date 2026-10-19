@@ -287,7 +287,7 @@ extensions: ...
 
 ### File format explanation
 
-- `id` \- identification of the Core. An instance of [Identifier IR class](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)
+- `id` \- identification of the Core. An instance of [Identifier IR class](/developers_guide/internal_representation.md#internal-representation)
   - `library` \- by default `libdefault`
   - `vendor` \- by default `vendor`
   - `name` \- same as the name in the HDL file
@@ -297,7 +297,7 @@ extensions: ...
   - `in` \- a list of signals that are in the input direction
   - `inout` \- a list of signals that can be both input and output, similar to an `inout` port in Verilog
 - `interfaces` \- a list of interfaces
-  - `type` \- the [ID](developers_guide/internal_representation.html#topwrap.model.misc.Identifier) of the interface definition that is used for that interface. See the [Interface Definition YAML](#interface-description-files).
+  - `type` \- the [ID](/developers_guide/internal_representation.md#internal-representation) of the interface definition that is used for that interface. See the [Interface Definition YAML](#interface-definition-files).
   - `mode` \- `manager`, `subordinate` or `unspecified`. When generating ports, the mode is used to determine the direction of the port. `unspecified` behaves the same as `manager`. When doing inference, all newly created interfaces have their `type` set to `unspecified`.
   - `size` \- the optional field that is only used when `mode` is `subordinate`, it is used when there is an instance of this module specified in `address_maps` in the design YAML.
   - `signals` \- a list of signals mapped to ports. Signals from the interface definition need to be mapped to ports in the HDL module.
@@ -305,7 +305,7 @@ extensions: ...
   - `reset` \- (optional) name of the reset input for this interface.
 - `types` \- structure type definitions used by signals (described below in more detail)
   - `members` \- member fields of a struct type.
-- `existing_iface_definitions` \- a list of interface definitions that exist in parsed HDL code in form of [ID](developers_guide/internal_representation.html#topwrap.model.misc.Identifier)s.
+- `existing_iface_definitions` \- a list of interface definitions that exist in parsed HDL code in form of [ID](/developers_guide/internal_representation.md#internal-representation)s.
 - `extensions` \- plugin specific settings, has the same meaning as the `extensions`-property in [design files](#design-description).
 
 Interfaces can also specify which clock and reset input of the IP core they use.

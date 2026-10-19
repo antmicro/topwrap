@@ -4,7 +4,7 @@ This document is an exploration of the [IP-XACT format](https://www.accellera.or
 
 All IP-XACT elements generated for the IR examples are located under `examples/ir_examples/[example]/ipxact/antmicro.com/[example]` where `antmicro.com/[example]` represents the [`vendor/library`](#vlnv).
 They all conform to the 2022 version.
-These files can be regenerated with the `topwrap ipxact_gen` command (see [Generating IPXACT 2022 files](../getting_started.md#generating-ipxact-2022-files)), which is driven by the [IPXACTBackend](../backends.md#ipxactbackend).
+These files can be regenerated with the `topwrap ipxact_gen` command (see [Generating IPXACT 2022 files](../getting_started.md#generating-ipxact-2022-files)), which is driven by the [IPXACTBackend](backends.md#IPXACTBackend).
 
 ## General observations
 
@@ -133,7 +133,7 @@ In Topwrap, all IP parameters do get realised in the generated Verilog and there
 
 ### File sets
 
-Each component in IP-XACT can contain an <ipxact:fileSets> section.
+Each component in IP-XACT can contain an \<ipxact:fileSets\> section.
 This is a very exhaustive section about one or more groups of *files* that this component depends on.
 The type and purpose of every such file is marked, e.g: `verilogSource`.
 
@@ -259,7 +259,7 @@ There isn't much special about them, they are represented very similarly to our 
 
 ## [Interface example](./ir-examples.md#interface)
 
-The key thing about this example is that it uses an interface connection (AXI 4 Stream) between two IPs, an inout port, a constant value supplied to a port and [port slicing](../description_files.md#port-slicing).
+The key thing about this example is that it uses an interface connection (AXI 4 Stream) between two IPs, an inout port, a constant value supplied to a port and [port slicing](../description_files.md#signals).
 
 :::{info}
 An interface is a named, predefined collection of logical signals used to transfer information between different IPs or other building blocks.
@@ -272,7 +272,7 @@ IP-XACT refers to the same concept as a "bus".
 
 ### Bus definitions
 
-Custom interfaces in Topwrap are defined using [interface description files](../description_files.md#interface-description-files).
+Custom interfaces in Topwrap are defined using [interface definition files](../description_files.md#interface-definition-files).
 
 Custom interfaces are well recognized and supported in IP-XACT.
 They are represented by two files, a "bus definition" that defines the existence of the interface/bus itself, its name and configurable parameters; and an "abstraction definition" that defines the logical signals of the interface.

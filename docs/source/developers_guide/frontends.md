@@ -29,7 +29,7 @@ It is mainly used for getting a design from a GUI.
 ## YamlFrontend
 
 YamlFrontend class is used to parse design.yaml and module.yaml files.
-It follows a format specified in [design description](#design-description).
+It follows a format specified in [design description](../description_files.md#design-description).
 
 ## IpXactFrontend
 

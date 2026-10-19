@@ -32,7 +32,7 @@ The `module.yaml` should be edited by a user to fill in information's that canno
 
 This resource represents a custom definition of an interface that can be used to make connections between IP cores.
 
-Each such definition is stored as a separate [interface description file](description_files.md#interface-description-files) under the `interfaces` subdirectory.
+Each such definition is stored as a separate [interface description file](description_files.md#interface-definition-files) under the `interfaces` subdirectory.
 
 ## CLI
 

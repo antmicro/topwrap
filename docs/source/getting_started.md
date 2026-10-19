@@ -10,7 +10,7 @@ If you haven't installed Topwrap yet, go to the [Installation chapter](#installa
 
 ## Design overview
 
-We are going to create a design that will be visually represented in an [interactive GUI](https://antmicro.github.io/topwrap/usage.md#gui), as seen below.
+We are going to create a design that will be visually represented in an [interactive GUI](advanced_options.md#creating-block-designs-in-the-gui), as seen below.
 
 ```{pipeline_manager}
 :spec: ../build/kpm_jsons/spec_getting_started_demo.json
@@ -182,7 +182,7 @@ topwrap generate --ipxact {design_name.yaml}
 
 By default the generated files are written to the `build/src` directory. Change the parent directory with the `--target-dir` argument. Use `--iface-compliance` to force interface compliance checking.
 
-See [Backends](backends.md#ipxactbackend) for details on the backend driving this command.
+See [Backends](/developers_guide/backends.md#ipxactbackend) for details on the backend driving this command.
 
 ### Synthesis & FuseSoC
 

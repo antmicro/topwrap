@@ -1,6 +1,6 @@
 # Interface Definition
 
-Topwrap uses [interface definition files](interface.md#interface-definition) for its parsing functionality.
+Topwrap uses [interface definition files](/description_files.md#interface-definition-files) for its parsing functionality.
 
 These are used to match a given set of signals that appear in the HDL source with signals in the interface definition.
 
