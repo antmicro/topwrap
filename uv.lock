@@ -1767,11 +1767,11 @@ wheels = [
 
 [[package]]
 name = "pyfakefs"
-version = "5.7.1"
+version = "5.10.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/14/43/e0d0f256734cc03bcfb1f7d15d6bf19339531e8cd6fadfc3fcb8ae077a10/pyfakefs-5.7.1.tar.gz", hash = "sha256:24774c632f3b67ea26fd56b08115ba7c339d5cd65655410bca8572d73a1ae9a4", size = 211163, upload-time = "2024-10-13T07:52:19.339Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/58/1c/4b9489847535a41e074d108bfb86119ab463aa3012f4cb8f6b7f9154e00a/pyfakefs-5.10.2.tar.gz", hash = "sha256:8ae0e5421e08de4e433853a4609a06a1835f4bc2a3ce13b54f36713a897474ba", size = 231379, upload-time = "2025-11-04T20:19:04.446Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/8b/0d90a59d571aa6df4f8ea18ced442a66203e20a4d97a71ba10a39595477c/pyfakefs-5.7.1-py3-none-any.whl", hash = "sha256:6503ffe7f401701cf974b502311f926da2b0657a72244a6ba36e985ceb3dd783", size = 226093, upload-time = "2024-10-13T07:52:17.936Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/65/3a15447a8630a6bb79cf1ecd9e323a72b28830cb9f367494bedcd045059d/pyfakefs-5.10.2-py3-none-any.whl", hash = "sha256:6ff0e84653a71efc6a73f9ee839c3141e3a7cdf4e1fb97666f82ac5b24308d64", size = 246305, upload-time = "2025-11-04T20:19:02.583Z" },
 ]
 
 [[package]]
@@ -2606,7 +2606,7 @@ requires-dist = [
     { name = "pipeline-manager-backend-communication", git = "https://github.com/antmicro/kenning-pipeline-manager-backend-communication?rev=e26894d9bdd97da49ad4d04f1ffd00c8de9024ca" },
     { name = "pre-commit", marker = "extra == 'lint'", specifier = "==3.5.0" },
     { name = "prettytable", marker = "extra == 'tests'", specifier = "==3.11.0" },
-    { name = "pyfakefs", marker = "extra == 'tests'", specifier = "==5.7.1" },
+    { name = "pyfakefs", marker = "extra == 'tests'", specifier = "==5.10.2" },
     { name = "pygtrie", specifier = "==2.5.0" },
     { name = "pylint", marker = "extra == 'docs'", specifier = "==4.0.9" },
     { name = "pyright", marker = "extra == 'tests'", specifier = "==1.1.385" },
