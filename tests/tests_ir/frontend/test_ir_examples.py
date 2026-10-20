@@ -193,8 +193,8 @@ class TestIrExamples:
             Parameter(name="CIF_DATA_WIDTH", default_value=ElaboratableValue(64)) in mod.parameters
         )
 
-        assert len(mod.ports) == 4
-        for n in ["char_streams", "cow_out", "hw_id", "clk"]:
+        assert len(mod.ports) == 6
+        for n in ["char_streams", "cow_out", "hw_id", "clk", "sci_ctrl_dbg_in", "sci_ctrl_dbg_out"]:
             assert mod.ports.find_by_name(n)
         assert isinstance(cstr := mod.ports.find_by_name_or_error("char_streams").type, BitStruct)
         assert isinstance(mod.ports.find_by_name_or_error("hw_id").type, LogicArray)
@@ -214,7 +214,6 @@ class TestIrExamples:
         intf = mod.interfaces[0]
         assert intf.name == "SCI_ctrl"
         assert intf.mode == InterfaceMode.SUBORDINATE
-        assert not intf.has_sliced_signals
         assert intf.has_independent_signals
 
         # SCI interface

@@ -313,7 +313,7 @@ class _SystemVerilogDesignData:
     def _port_map_or_assign(
         self,
         port: Union[ElaboratableValue, ReferencedPort, str],
-        right: Union[ElaboratableValue, ReferencedPort, str],
+        other: Union[ElaboratableValue, ReferencedPort, str],
         invert: bool,
     ) -> None:
         if (
@@ -323,12 +323,25 @@ class _SystemVerilogDesignData:
             and port.io.name not in self.port_maps[port.instance._id]
         ):
             self.port_maps[port.instance._id][port.io.name] = self._normalize_port_expr(
-                ("~" if invert else "") + self._serialize_conn_value(right)
+                ("~" if invert else "") + self._serialize_conn_value(other)
             )
             return
-        self.assign_map[self._serialize_conn_value(right)] = (
+
+        # if other side is an external input, the sides need
+        # to be swapped, otherwise an assignment to an external input
+        # will be generated
+        if (
+            isinstance(other, ReferencedPort)
+            and other.is_external
+            and other.io.direction is PortDirection.IN
+        ):
+            left, right = port, other
+        else:
+            left, right = other, port
+
+        self.assign_map[self._serialize_conn_value(left)] = (
             "~" if invert else ""
-        ) + self._serialize_conn_value(port)
+        ) + self._serialize_conn_value(right)
 
     def _dedupe_partial_selects(
         self,
@@ -381,17 +394,17 @@ class _SystemVerilogDesignData:
     def _connect_external_unsliced(
         self, port: Port, target: Union[ReferencedPort, ElaboratableValue, str], invert: bool
     ) -> None:
-        ext_port_name = sv_varname(port.name)
+        ext_port = ReferencedPort.external(port)
         if not self._is_plain_output_ref(target):
-            self._port_map_or_assign(target, ext_port_name, invert)
+            self._port_map_or_assign(target, ext_port, invert)
             return
         assert isinstance(target, ReferencedPort)
         assert target.instance is not None
         existing = self.port_maps[target.instance._id].get(target.io.name)
         if existing:
-            self._port_map_or_assign(existing, ext_port_name, invert)
+            self._port_map_or_assign(existing, ext_port, invert)
         else:
-            self._port_map_or_assign(target, ext_port_name, invert)
+            self._port_map_or_assign(target, ext_port, invert)
 
     def _try_direct_partial_connection(
         self,

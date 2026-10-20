@@ -21,7 +21,7 @@ from topwrap.model.hdl_types import (
     StructField,
 )
 from topwrap.model.interface import Interface, InterfaceMode, InterfaceSignal
-from topwrap.model.misc import ElaboratableValue, Identifier, ObjectId, Parameter
+from topwrap.model.misc import ElaboratableValue, Identifier, ObjectId, Parameter, QuerableView
 from topwrap.model.module import Module
 
 from .proc import proc_mod
@@ -34,7 +34,7 @@ seq_to_sci = ModuleInstance(name="seq_to_sci", module=seq_sci_mod)
 proc = ModuleInstance(name="proc", module=proc_mod)
 
 external_ports = [
-    Port(
+    char_streams := Port(
         name="char_streams",
         direction=PortDirection.IN,
         type=BitStruct(
@@ -55,18 +55,29 @@ external_ports = [
             ],
         ),
     ),
-    Port(
+    cow_out := Port(
         name="cow_out",
         direction=PortDirection.OUT,
         type=Bits(dimensions=[Dimensions(ElaboratableValue(7))]),
     ),
-    Port(
+    hw_id := Port(
         name="hw_id",
         direction=PortDirection.OUT,
         type=Bits(dimensions=[Dimensions(ElaboratableValue(31))]),
     ),
-    Port(name="clk", direction=PortDirection.IN),
+    clk := Port(name="clk", direction=PortDirection.IN),
+    sci_ctrl_dbg_in := Port(
+        name="sci_ctrl_dbg_in",
+        direction=PortDirection.IN,
+        type=sci_intf.signals.find_by_name_or_error("dbg_in").type,
+    ),
+    sci_ctrl_dbg_out := Port(
+        name="sci_ctrl_dbg_out",
+        direction=PortDirection.OUT,
+        type=sci_intf.signals.find_by_name_or_error("dbg_out").type,
+    ),
 ]
+external_ports = QuerableView(external_ports)
 
 sci_sigs: dict[ObjectId[InterfaceSignal], Optional[ReferencedPort]]
 sci_sigs = {s._id: None for s in sci_intf.signals}
@@ -80,7 +91,15 @@ module = Module(
             name="SCI_ctrl",
             definition=sci_intf,
             mode=InterfaceMode.SUBORDINATE,
-            signals=sci_sigs,
+            signals={
+                **sci_sigs,
+                sci_intf.signals.find_by_name_or_error("dbg_in")._id: ReferencedPort.external(
+                    sci_ctrl_dbg_in
+                ),
+                sci_intf.signals.find_by_name_or_error("dbg_out")._id: ReferencedPort.external(
+                    sci_ctrl_dbg_out
+                ),
+            },
         ),
         sci_extcon_man := Interface(
             name="SCI_ext_man",
@@ -103,14 +122,12 @@ module = Module(
         components=[sseq, seq_to_sci, proc],
         connections=[
             ConstantConnection(
-                source=ElaboratableValue(0x34256), target=ReferencedPort.external(external_ports[2])
+                source=ElaboratableValue(0x34256), target=ReferencedPort.external(hw_id)
             ),
             PortConnection(
                 source=ReferencedPort.external(
-                    io=external_ports[0],
-                    select=LogicSelect(
-                        logic=external_ports[0].type, ops=[LogicFieldSelect(a_strf)]
-                    ),
+                    io=char_streams,
+                    select=LogicSelect(logic=char_streams.type, ops=[LogicFieldSelect(a_strf)]),
                 ),
                 target=ReferencedPort(
                     instance=sseq,
@@ -127,10 +144,8 @@ module = Module(
             ),
             PortConnection(
                 source=ReferencedPort.external(
-                    io=external_ports[0],
-                    select=LogicSelect(
-                        logic=external_ports[0].type, ops=[LogicFieldSelect(b_strf)]
-                    ),
+                    io=char_streams,
+                    select=LogicSelect(logic=char_streams.type, ops=[LogicFieldSelect(b_strf)]),
                 ),
                 target=ReferencedPort(
                     instance=sseq,
@@ -176,7 +191,7 @@ module = Module(
                         ops=[LogicFieldSelect(cast(BitStruct, port.type).fields[0])],
                     ),
                 ),
-                target=ReferencedPort.external(io=external_ports[1]),
+                target=ReferencedPort.external(io=cow_out),
             ),
             InterfaceConnection(
                 source=ReferencedInterface.external(sci_ctrl_inst),
@@ -186,7 +201,7 @@ module = Module(
                 ),
             ),
             PortConnection(
-                source=ReferencedPort.external(io=external_ports[-1]),
+                source=ReferencedPort.external(io=clk),
                 target=ReferencedPort(
                     instance=proc, io=proc_mod.ports.find_by_name_or_error("clk")
                 ),

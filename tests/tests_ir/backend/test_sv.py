@@ -310,7 +310,7 @@ class TestSystemVerilogDesignBackend:
         assert svdb.port_maps[ct.instance._id]["sci_control"] == net_name
         for sig in ("addr", "write", "strb", "ack"):
             assert svdb.assign_map[f"{intf_name}.{sig}"] == f"{net_name}.{sig}"
-        assert len(svdb.assign_map) == 4
+        assert len(svdb.assign_map) == 6
 
         # external part
         cs, ct = ext_con.source, ext_con.target
@@ -351,6 +351,45 @@ class TestSystemVerilogDesignBackend:
                 assert svdb.assign_map[trg] == src
             else:
                 assert svdb.assign_map[src] == trg
+
+    def test_intf_sliced_external_to_independent_signal_conn(
+        self, svdb: _SystemVerilogDesignData, adv_des: Design
+    ):
+        """Verify that interface signals realized by external ports connected
+        to independent interface signals get serialized into the assign map correctly"""
+
+        IN_PORT = "sci_ctrl_dbg_in"
+        OUT_PORT = "sci_ctrl_dbg_out"
+        IN_SIG = "dbg_in"
+        OUT_SIG = "dbg_out"
+
+        conn = adv_des.connections.find_by(
+            lambda c: isinstance(c, InterfaceConnection) and c.source.io.name == "SCI_ctrl"
+        )
+        assert isinstance(conn, InterfaceConnection)
+
+        # make sure these signals are actually sliced in the source
+        # and independent in the target
+        for side, should_be_sliced in [(conn.source, True), (conn.target, False)]:
+            for sig in [IN_SIG, OUT_SIG]:
+                realization = side.io.signals[
+                    side.io.definition.signals.find_by_name_or_error(sig)._id
+                ]
+                if should_be_sliced:
+                    assert isinstance(realization, ReferencedPort)
+                else:
+                    assert realization is None
+
+        svdb.parse_connection(conn)
+        svdb.parse_partial_conns()
+
+        # verify that the generated assignments are:
+        # assign intf.IN_SIG = IN_PORT;
+        # assign OUT_PORT = intf.OUT_SIG;
+        assert svdb.assign_map == {
+            f"{conn.source.io.name}.{IN_SIG}": IN_PORT,
+            OUT_PORT: f"{conn.source.io.name}.{OUT_SIG}",
+        }
 
     def test_plain_inv_port_conn(self, svdb: _SystemVerilogDesignData, inv_des: Design):
         conn = inv_des.connections.find_by(

@@ -82,5 +82,17 @@ sci_intf = InterfaceDefinition(
             type=Bits(dimensions=[Dimensions(ElaboratableValue(1))]),
             modes=make_mm(True, PortDirection.IN),
         ),
+        InterfaceSignal(
+            name="dbg_out",
+            regexp=re.compile("dbg_out"),
+            type=Bit(),
+            modes=make_mm(True, PortDirection.OUT),
+        ),
+        InterfaceSignal(
+            name="dbg_in",
+            regexp=re.compile("dbg_in"),
+            type=Bit(),
+            modes=make_mm(True, PortDirection.IN),
+        ),
     ],
 )
