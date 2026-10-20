@@ -2,9 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import re
+
 import pytest
 from pyslang import Compilation, DiagnosticEngine, SourceManager, SyntaxTree
 
+from examples.ir_examples.axi_wb_uart.ir.design import top as axi_wb_uart_top
 from examples.ir_examples.modules import (
     adv_top,
     hier_top,
@@ -42,7 +45,7 @@ from topwrap.model.hdl_types import (
     has_symbolic_dimensions,
 )
 from topwrap.model.interconnect import Interconnect, InterconnectParams
-from topwrap.model.misc import ElaboratableValue, Identifier
+from topwrap.model.misc import ElaboratableValue, Identifier, Parameter
 from topwrap.model.module import Module
 
 
@@ -537,6 +540,18 @@ endinterface
         with pytest.raises(GeneratorNotImplementedError):
             backend.represent(module)
 
+    def test_declarations_sorted(self):
+        backend = SystemVerilogBackend(desc_comms=False)
+        [out] = backend.serialize(backend.represent(adv_top), combine=True)
+        # Top module only
+        top = out.content.split("module advanced_top")[1].split("endmodule")[0]
+
+        nets = re.findall(r"^(?:  logic .*|\} )(\w+);$", top, re.M)
+        assigns = re.findall(r"^  assign (\S+) =", top, re.M)
+        assert len(nets) > 1 and len(assigns) > 1
+        assert nets == sorted(nets)
+        assert assigns == sorted(assigns)
+
     def test_default_port_value(self):
         bv = Bits(dimensions=[Dimensions(upper=ElaboratableValue(3))])
         inner_ports = [
@@ -615,10 +630,10 @@ endinterface
 );
 
   inner xinner (
-    .foo(5),
-    .qux(6),
+    .bar(4),
     .baz(foo),
-    .bar(4)
+    .foo(5),
+    .qux(6)
   );
 
 endmodule
@@ -688,3 +703,63 @@ endmodule
 endmodule
 """
         )
+
+    def test_instance_parameter_name_order(self):
+        zebra = Parameter(name="ZEBRA")
+        alpha = Parameter(name="ALPHA")
+        middle = Parameter(name="MIDDLE")
+        device = Module(
+            id=Identifier(name="parameter_order_device"),
+            parameters=[zebra, alpha, middle],
+        )
+        instance = ModuleInstance(
+            name="device",
+            module=device,
+            parameters={
+                middle._id: ElaboratableValue(30),
+                zebra._id: ElaboratableValue(10),
+                alpha._id: ElaboratableValue(20),
+            },
+        )
+        top = Module(
+            id=Identifier(name="parameter_order_top"),
+            design=Design(components=[instance]),
+        )
+
+        output = SystemVerilogBackend(desc_comms=False).represent(top)
+        content = next(mod.content for mod in output.modules if mod.name == "parameter_order_top")
+        parameters = content.split("  parameter_order_device #(\n", 1)[1].split("  ) device (", 1)[
+            0
+        ]
+        assert [line.strip() for line in parameters.splitlines() if line.strip()] == [
+            ".ALPHA(20),",
+            ".MIDDLE(30),",
+            ".ZEBRA(10)",
+        ]
+
+    def test_port_order(self):
+        expected_ports = [
+            "first_r_port_had_funny_name",
+            "clk",
+            "first_awaddr",
+            "first_awready",
+            "first_awvalid",
+            "first_wdata",
+            "second_awaddr",
+            "second_awready",
+            "second_awvalid",
+            "second_wdata",
+        ]
+        assert [port.name for port in axi_wb_uart_top.ports] != expected_ports
+
+        backend = SystemVerilogBackend(desc_comms=False)
+        output = backend.represent(axi_wb_uart_top)
+        content = next(mod.content for mod in output.modules if mod.name == "port_order_top")
+
+        declarations = content.split("\n);", 1)[0].splitlines()[1:]
+        assert [line.rstrip(",").split()[-1] for line in declarations] == expected_ports
+
+        connections = content.split("  port_order_device device (", 1)[1].split("\n  );", 1)[0]
+        assert [
+            line.strip().split("(")[0] for line in connections.splitlines() if line.strip()
+        ] == [f".{name}" for name in ["clk", "first_r_port_had_funny_name", *expected_ports[2:]]]

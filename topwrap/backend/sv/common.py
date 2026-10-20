@@ -4,7 +4,6 @@
 import enum
 import re
 from dataclasses import dataclass
-from datetime import datetime
 from functools import reduce
 from pathlib import Path
 
@@ -86,7 +85,6 @@ def get_template(name: str) -> Template:
     return TEMPLATE.get_template(
         name,
         globals={
-            "gen_date": datetime.now,
             "topwrap_version": __version__,
             sv_varname.__name__: sv_varname,
             serialize_type.__name__: serialize_type,

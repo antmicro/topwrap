@@ -5,7 +5,7 @@ import logging
 import re
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Union
+from typing import ClassVar, Iterator, Optional, Union
 
 from jinja2 import Template
 
@@ -23,6 +23,7 @@ from topwrap.model.design import Design, ModuleInstance
 from topwrap.model.hdl_types import Logic, LogicSelect, has_symbolic_dimensions
 from topwrap.model.interface import Interface, InterfaceDefinition
 from topwrap.model.misc import ElaboratableValue, ObjectId
+from topwrap.model.module import Module
 from topwrap.util import MISSING, unwrap_simple_parenthesized_sv_literal
 
 logger = logging.getLogger(__name__)
@@ -509,6 +510,11 @@ class _SystemVerilogDesignData:
 class SystemVerilogDesignBackend:
     template: ClassVar[Template] = get_template("design.j2")
 
+    @dataclass
+    class _InterfacePortGroup:
+        name: str
+        ports: list[str]
+
     #: The package from which type and interface definitions
     #: should be imported
     package_name: Optional[str]
@@ -517,6 +523,60 @@ class SystemVerilogDesignBackend:
         self.package_name = package_name
         self.all_pins = all_pins
         self.desc_comms = desc_comms
+
+    @staticmethod
+    def _interface_port_groups(
+        module: Module,
+    ) -> Iterator["SystemVerilogDesignBackend._InterfacePortGroup"]:
+        """Yield interface pins grouped and sorted by signal name."""
+        seen: set[str] = set()
+        for interface in module.interfaces:
+            names: list[str] = []
+            for signal in sorted(interface.definition.signals, key=lambda signal: signal.name):
+                port = interface.signals.get(signal._id)
+                if port is not None and port.io.name not in seen:
+                    names.append(port.io.name)
+                    seen.add(port.io.name)
+            yield SystemVerilogDesignBackend._InterfacePortGroup(interface.name, names)
+
+    @staticmethod
+    def _ordered_io_names(module: Module, *, sort_scalar: bool = False) -> Iterator[str]:
+        """Yield scalar names first, then each interface and its pins sorted by signal name."""
+        interface_ports: set[str] = set()
+        for group in SystemVerilogDesignBackend._interface_port_groups(module):
+            interface_ports.update(group.ports)
+
+        scalar_names = [port.name for port in module.ports if port.name not in interface_ports]
+        if sort_scalar:
+            scalar_names.sort()
+        yield from scalar_names
+
+        for group in SystemVerilogDesignBackend._interface_port_groups(module):
+            yield group.name
+            yield from group.ports
+
+    @staticmethod
+    def _ordered_module_ports(module: Module) -> list[Port]:
+        """Keep scalar ports in their original order and group interface pins."""
+        ports_by_name = {port.name: port for port in module.ports}
+        return [
+            ports_by_name[name]
+            for name in SystemVerilogDesignBackend._ordered_io_names(module)
+            if name in ports_by_name
+        ]
+
+    @staticmethod
+    def _ordered_port_map(module: Module, port_map: dict[str, str]) -> dict[str, str]:
+        """Sort scalar connections by name and group interface connections."""
+        ordered = {
+            name: port_map[name]
+            for name in SystemVerilogDesignBackend._ordered_io_names(module, sort_scalar=True)
+            if name in port_map
+        }
+        for name in sorted(port_map):
+            if name not in ordered:
+                ordered[name] = port_map[name]
+        return ordered
 
     @staticmethod
     def _expr_mentions_port(expr: str, port_names: set[str]) -> bool:
@@ -562,6 +622,18 @@ class SystemVerilogDesignBackend:
                     if io.name not in data.port_maps[comp._id]:
                         data.port_maps[comp._id][io.name] = ""
 
+        # Declaration order, not connection order
+        mod_ports = self._ordered_module_ports(des.parent)
+        inst_params = {}
+        for comp in des.components:
+            inst_params[comp._id] = dict(
+                sorted(comp.parameters.items(), key=lambda item: item[0].resolve().name)
+            )
+            if comp._id in data.port_maps:
+                data.port_maps[comp._id] = self._ordered_port_map(
+                    comp.module, data.port_maps.get(comp._id, {})
+                )
+
         header_params = []
         local_params = []
         port_names = {p.name for p in des.parent.ports}
@@ -577,6 +649,8 @@ class SystemVerilogDesignBackend:
         out = self.template.render(
             mod=des.parent,
             back=data,
+            mod_ports=mod_ports,
+            inst_params=inst_params,
             mod_header_params=header_params,
             mod_local_params=local_params,
             top_level=top_level,
