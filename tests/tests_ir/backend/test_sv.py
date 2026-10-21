@@ -560,6 +560,7 @@ endinterface
 
         assert "ext_manager__ack" in out.content
         assert not re.search(r"\bid_\d+_", out.content)
+        assert "(* src =" not in out.content
 
     def test_interconnect_name_clash(self):
         top = copy.deepcopy(intr_top)

@@ -99,7 +99,7 @@ class WishboneRRSystemVerilogGenerator(SystemVerilogGenerator[WishboneInterconne
                 size=size,
             )
         return SVFile(
-            content=verilog.convert(ic, name=f"interconnect_{interconnect.name}"),
+            content=verilog.convert(ic, name=f"interconnect_{interconnect.name}", emit_src=False),
             name=f"interconnect_{interconnect.name}",
             type=SVFileType.MODULE,
         )
