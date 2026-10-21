@@ -8,7 +8,7 @@ import axi_interconnect_generator_plugin
 from amaranth.back import verilog
 
 import topwrap.backend.sv.wishbone_interconnect as wb_inter
-from topwrap.backend.generator import Generator
+from topwrap.backend.generator import Generator, InterconnectGenerationError
 from topwrap.backend.sv.common import SVFile, SVFileType
 from topwrap.interconnects.axi import AXIInterconnect
 from topwrap.interconnects.wishbone_rr import WishboneInterconnect
@@ -38,6 +38,29 @@ PULP_AXI_VERILOGWRITER_NAME = "verilogwriter.py"
 PULP_AXI_AXIINTERCONGEN_NAME = "axi_intercon_gen.py"
 
 
+def _interface_name(referenced_interface: ReferencedInterface) -> str:
+    """Return a stable name for an interface connected to an interconnect."""
+
+    if referenced_interface.instance is not None:
+        return f"{referenced_interface.instance.name}_{referenced_interface.io.name}"
+    return referenced_interface.io.name
+
+
+def _check_unique_interface_names(interconnect: Interconnect[Any, Any, Any]) -> None:
+    """Reject endpoints whose stable names would collide in generated HDL."""
+
+    names = [
+        _interface_name(interface_id.resolve())
+        for interface_id in [*interconnect.managers, *interconnect.subordinates]
+    ]
+    duplicates = sorted({name for name in names if names.count(name) > 1})
+    if duplicates:
+        raise InterconnectGenerationError(
+            f"Interfaces connected to interconnect '{interconnect.name}' have clashing names: "
+            + ", ".join(duplicates)
+        )
+
+
 class SystemVerilogGenerator(Generator[SVFile, _INTERCONNECT], ABC, Generic[_INTERCONNECT]):
     """
     It is System Verilog specific generator, it's empty and need subclass for each Interconnect
@@ -48,15 +71,6 @@ class SystemVerilogGenerator(Generator[SVFile, _INTERCONNECT], ABC, Generic[_INT
 
 
 class WishboneRRSystemVerilogGenerator(SystemVerilogGenerator[WishboneInterconnect]):
-    @staticmethod
-    def generate_instance_name(referenced_interface: ReferencedInterface) -> str:
-        instance_name = None
-        if referenced_interface.instance is not None:
-            instance_name = referenced_interface.instance.name
-        else:
-            instance_name = f"id_{referenced_interface._id._id}"
-        return f"{instance_name}_{referenced_interface.io.name}"
-
     def generate(
         self, interconnect: WishboneInterconnect, module_instance: ModuleInstance
     ) -> SVFile:
@@ -73,14 +87,14 @@ class WishboneRRSystemVerilogGenerator(SystemVerilogGenerator[WishboneInterconne
 
         for referenced_interface_id in interconnect.managers:
             referenced_interface = referenced_interface_id.resolve()
-            ic.add_manager(name=self.generate_instance_name(referenced_interface))
+            ic.add_manager(name=_interface_name(referenced_interface))
 
         for referenced_interface_id in interconnect.subordinates:
             referenced_interface = referenced_interface_id.resolve()
             subordinate = interconnect.subordinates[referenced_interface_id]
             size = int(int(subordinate.size.value) / data_width_in_bytes)
             ic.add_subordinator(
-                name=self.generate_instance_name(referenced_interface),
+                name=_interface_name(referenced_interface),
                 addr=int(subordinate.address.value),
                 size=size,
             )
@@ -91,7 +105,7 @@ class WishboneRRSystemVerilogGenerator(SystemVerilogGenerator[WishboneInterconne
         )
 
     def get_name(self, referenced_interface: ReferencedInterface, signal: InterfaceSignal) -> str:
-        return f"{self.generate_instance_name(referenced_interface)}__{signal.name}"
+        return f"{_interface_name(referenced_interface)}__{signal.name}"
 
     def add_module_instance_to_design(
         self,
@@ -105,6 +119,7 @@ class WishboneRRSystemVerilogGenerator(SystemVerilogGenerator[WishboneInterconne
 
         :param interconnect: `Interconnect` to represent as `ModuleInstance`
         """
+        _check_unique_interface_names(interconnect)
         module = Module(
             id=Identifier(f"interconnect_{interconnect.name}"),
             design=None,
@@ -189,12 +204,7 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
         for subordinate_id in interconnect.subordinates:
             referenced_interface = subordinate_id.resolve()
             subordinate = interconnect.subordinates[subordinate_id]
-            instance_name = None
-            if referenced_interface.instance is not None:
-                instance_name = referenced_interface.instance.name
-            else:
-                instance_name = f"id_{referenced_interface._id._id}"
-            name = f"{instance_name}_{referenced_interface.io.name}"
+            name = _interface_name(referenced_interface)
             config["parameters"]["slaves"][name] = {
                 "offset": subordinate.address.elaborate(),
                 "size": subordinate.size.elaborate(),
@@ -204,12 +214,7 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
         for manager_id in interconnect.managers:
             manager = interconnect.managers[manager_id]
             referenced_interface = manager_id.resolve()
-            instance_name = None
-            if referenced_interface.instance is not None:
-                instance_name = referenced_interface.instance.name
-            else:
-                instance_name = f"id_{referenced_interface._id._id}"
-            name = f"{instance_name}_{referenced_interface.io.name}"
+            name = _interface_name(referenced_interface)
             config["parameters"]["masters"][name] = {
                 "id_width": manager.id_width.elaborate(),
                 "slaves": subordinate_names,
@@ -222,13 +227,7 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
         return SVFile(content=out, name=name, type=SVFileType.MODULE)
 
     def get_name(self, referenced_interface: ReferencedInterface, signal: InterfaceSignal) -> str:
-        instance_name = None
-        external = False
-        if referenced_interface.instance is not None:
-            instance_name = referenced_interface.instance.name
-        else:
-            instance_name = f"id_{referenced_interface._id._id}"
-            external = True
+        external = referenced_interface.instance is None
 
         mode = referenced_interface.io.mode
         if not external:
@@ -239,10 +238,7 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
         direction_str = (
             "o" if direction == PortDirection.OUT else "i" if direction == PortDirection.IN else ""
         )
-        name = (
-            f"{direction_str}_{instance_name}_{referenced_interface.io.name}_{signal.name.lower()}"
-        )
-        return name
+        return f"{direction_str}_{_interface_name(referenced_interface)}_{signal.name.lower()}"
 
     def _add_clk_and_rst_ports_to_design(
         self,
@@ -271,6 +267,7 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
 
         :param interconnect: `Interconnect` to represent as `ModuleInstance`
         """
+        _check_unique_interface_names(interconnect)
         module = Module(
             id=Identifier(f"interconnect_{interconnect.name}"),
             design=None,

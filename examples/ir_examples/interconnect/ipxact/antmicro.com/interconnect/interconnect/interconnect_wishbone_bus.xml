@@ -68,39 +68,39 @@
 					<ipxact:portMaps>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>ack</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__ack</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__ack</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>adr</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__adr</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__adr</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>cyc</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__cyc</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__cyc</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>dat_r</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__dat_r</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__dat_r</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>dat_w</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__dat_w</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__dat_w</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>stb</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__stb</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__stb</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>stall</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__stall</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__stall</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>we</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__we</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__we</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 						<ipxact:portMap>
 							<ipxact:logicalPort><ipxact:name>err</ipxact:name></ipxact:logicalPort>
-							<ipxact:physicalPort><ipxact:name>id_539_ext_manager__err</ipxact:name></ipxact:physicalPort>
+							<ipxact:physicalPort><ipxact:name>ext_manager__err</ipxact:name></ipxact:physicalPort>
 						</ipxact:portMap>
 					</ipxact:portMaps>
 				</ipxact:abstractionType>
@@ -466,7 +466,7 @@
 
 			<!-- EXT MANAGER PORTS -->
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__ack</ipxact:name>
+				<ipxact:name>ext_manager__ack</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>0</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
@@ -474,7 +474,7 @@
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__dat_r</ipxact:name>
+				<ipxact:name>ext_manager__dat_r</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>7</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
@@ -482,35 +482,35 @@
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__adr</ipxact:name>
+				<ipxact:name>ext_manager__adr</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>31</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__cyc</ipxact:name>
+				<ipxact:name>ext_manager__cyc</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>0</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__dat_w</ipxact:name>
+				<ipxact:name>ext_manager__dat_w</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>7</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__stb</ipxact:name>
+				<ipxact:name>ext_manager__stb</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>0</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__stall</ipxact:name>
+				<ipxact:name>ext_manager__stall</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>0</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
@@ -518,14 +518,14 @@
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__we</ipxact:name>
+				<ipxact:name>ext_manager__we</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>in</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>0</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>
 				</ipxact:wire>
 			</ipxact:port>
 			<ipxact:port>
-				<ipxact:name>id_539_ext_manager__err</ipxact:name>
+				<ipxact:name>ext_manager__err</ipxact:name>
 				<ipxact:wire>
 					<ipxact:direction>out</ipxact:direction>
 					<ipxact:vectors><ipxact:vector><ipxact:left>0</ipxact:left><ipxact:right>0</ipxact:right></ipxact:vector></ipxact:vectors>

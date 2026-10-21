@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import copy
 import re
 
 import pytest
@@ -18,6 +19,7 @@ from examples.ir_examples.modules import (
 )
 from examples.ir_examples.SoC_AXI.ir.design import top as axi_soc_top
 from examples.soc.ir.design import top as soc_top
+from topwrap.backend.generator import InterconnectGenerationError
 from topwrap.backend.sv.backend import GeneratorNotImplementedError, SystemVerilogBackend
 from topwrap.backend.sv.common import serialize_select, serialize_type, sv_varname
 from topwrap.backend.sv.design import Design, _SystemVerilogDesignData
@@ -551,6 +553,27 @@ endinterface
         assert len(nets) > 1 and len(assigns) > 1
         assert nets == sorted(nets)
         assert assigns == sorted(assigns)
+
+    def test_external_interconnect_names_stable(self):
+        backend = SystemVerilogBackend(desc_comms=False)
+        [out] = backend.serialize(backend.represent(intr_top), combine=True)
+
+        assert "ext_manager__ack" in out.content
+        assert not re.search(r"\bid_\d+_", out.content)
+
+    def test_interconnect_name_clash(self):
+        top = copy.deepcopy(intr_top)
+        assert top.design is not None
+        [interconnect] = top.design.interconnects
+        external = next(
+            reference.resolve().io
+            for reference in interconnect.managers
+            if reference.resolve().instance is None
+        )
+        external.name = "dsp_bus"  # Conflicts with instance `dsp`, interface `bus`.
+
+        with pytest.raises(InterconnectGenerationError, match="dsp_bus"):
+            SystemVerilogBackend(desc_comms=False).represent(top)
 
     def test_default_port_value(self):
         bv = Bits(dimensions=[Dimensions(upper=ElaboratableValue(3))])
