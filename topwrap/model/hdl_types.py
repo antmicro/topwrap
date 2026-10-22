@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import ast
 import logging
 import math
 import re
@@ -18,6 +19,7 @@ from typing import (
     Collection,
     Generic,
     Iterable,
+    Iterator,
     Mapping,
     Optional,
     TypeVar,
@@ -38,7 +40,6 @@ from topwrap.model.misc import (
 )
 
 if TYPE_CHECKING:
-    from topwrap.model.design import ModuleInstance
     from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceSignal
     from topwrap.model.module import Module
 
@@ -360,10 +361,10 @@ class ElabvalueEvaluator:
     # cause naming collisions if someone insane decided to name their parameter `clog2`.
     # it's not a perfect solution, but I doubt that someone will make a parameter
     # with a name starting as a sha256 of lyrics "Comfortably Numb"
-    clog_prefix = "_9263cec0fd53ad433112bdf3883bbd4a539aa61ead4995709555cd7216015109_"
+    clog_prefix = "_9263cec0fd53ad433112bdf3883bbd7216015109_"
 
     funcs = simpleeval.DEFAULT_FUNCTIONS.copy()
-    funcs.update(_9263cec0fd53ad433112bdf3883bbd4a539aa61ead4995709555cd7216015109_clog2=lambda val: math.ceil(log2(val)))
+    funcs.update(_9263cec0fd53ad433112bdf3883bbd7216015109_clog2=lambda val: math.ceil(log2(val)))
     # maybe we should add more SV math functions?
 
     @staticmethod
@@ -392,7 +393,7 @@ class ElabvalueEvaluator:
         if len(matches_1) > 1:
             logger.warning("'1 detected in parameter value; it cannot be handled!")
 
-        string = convert_constants(string, matches_0, 2) # base doesnt matter for 0
+        string = convert_constants(string, matches_0, 2)  # base does not matter for 0
         string = convert_constants(string, matches_bin, 2)
         string = convert_constants(string, matches_oct, 8)
         string = convert_constants(string, matches_dec, 10)
@@ -515,6 +516,10 @@ class ElabvalueEvaluator:
         return combined, env
 
     @staticmethod
+    def just_eval(val: ElaboratableValue, env: dict[str, int]) -> int:
+        return int(simpleeval.simple_eval(val.value, names=env, functions=ElabvalueEvaluator.funcs))
+
+    @staticmethod
     def resolve_params(combined: dict[str, str], env: dict[str, int]) -> dict[str, int]:
         params = env.copy()
         for param, val in combined.items():
@@ -523,7 +528,7 @@ class ElabvalueEvaluator:
                     simpleeval.simple_eval(val, names=env, functions=ElabvalueEvaluator.funcs)
                 )
                 params[param] = res
-            except simpleeval.InvalidExpression:
+            except (simpleeval.InvalidExpression, SyntaxError):
                 pass
                 # its not that bad if we cannot eval: some params are not used for width definitions
                 # and will never eval to any integer value. We can skip them, and try to evaluate
@@ -562,3 +567,26 @@ class ElabvalueEvaluator:
             return dims
 
         return Dimensions(upper=ElaboratableValue(uval), lower=ElaboratableValue(lval))
+
+    @staticmethod
+    def get_elab_value_deps(
+        val: ElaboratableValue, params: Iterable[Parameter]
+    ) -> Iterator[Parameter]:
+        """
+        For a given ElaboratableValue and a set of parameters find out which parameters it uses
+        """
+
+        used_names = set[str]()
+
+        def handler(node: ast.Name):
+            if node.id not in ElabvalueEvaluator.funcs:
+                used_names.add(node.id)
+            return 1
+
+        simpleeval.simple_eval(
+            ElabvalueEvaluator.sanitize(val.value),
+            names=handler,
+            functions=ElabvalueEvaluator.funcs,
+        )
+
+        yield from (p for p in params if p.name in used_names)

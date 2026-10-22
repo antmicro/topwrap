@@ -3,7 +3,7 @@
 
 import itertools
 import logging
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, Collection, Iterable, Iterator, Optional, cast
 
@@ -12,12 +12,13 @@ from pygtrie import CharTrie
 from topwrap.model.connections import Port, PortDirection
 from topwrap.model.hdl_types import (
     BitStruct,
+    ElabvalueEvaluator,
     LogicArray,
     LogicBitSelect,
 )
 from topwrap.model.inference.port import PortSelector, PortSelectorOp
 from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode, InterfaceSignal
-from topwrap.model.misc import QuerableView
+from topwrap.model.misc import ElaboratableValue, ObjectId, Parameter, QuerableView
 from topwrap.model.module import Module
 
 logger = logging.getLogger(__name__)
@@ -376,6 +377,67 @@ def _deduce_intf_mode_from_ports(
         return InterfaceMode.SUBORDINATE
 
 
+def _deduce_intf_parameters_from_ports(
+    mod: Module,
+    matched_ports: dict[str, InterfaceSignal],
+    ports: dict[str, PortSelector],
+    intf: InterfaceDefinition,
+) -> dict[ObjectId[Parameter], ElaboratableValue]:
+    cands = defaultdict[ObjectId[Parameter], list[tuple[float, ElaboratableValue]]](list)
+
+    for pname, isig in matched_ports.items():
+        port = mod.ports.find_by_name_or_error(ports[pname].port)
+
+        # dimensional parameter matching can only be done on LogicArray types for now
+        if (
+            not isinstance(isig.type, LogicArray)
+            or not isinstance(port.type, LogicArray)
+            or isig.type.item != port.type.item
+        ):
+            continue
+
+        # zip the dimensions of both types, e.g. if one is `logic [4:0][Width-1:0]` and other
+        # is `logic [3:0][63:0]`, iterate over [(4, 3), (0, 0), (Width-1, 63), (0, 0)] pairs
+        sigdims = itertools.chain(*((d.upper, d.lower) for d in isig.type.dimensions))
+        portdims = itertools.chain(*((d.upper, d.lower) for d in port.type.dimensions))
+        for selab, pelab in zip(sigdims, portdims, strict=False):
+            srefs = [*ElabvalueEvaluator.get_elab_value_deps(selab, intf.parameters)]
+            if len(srefs) != 1:
+                continue  # this dimension's ElabValue references multiple parameters
+            param = srefs[0]
+
+            prefs = [*ElabvalueEvaluator.get_elab_value_deps(pelab, mod.parameters)]
+            if len(prefs) == 1:
+                # the port type expression refers to one module parameter, e.g.
+                # a (Width-1, AxiAddrWidth-1) pair. Ideally the expressions would
+                # have to be checked for equivalence, but for now (Width = AxiAddrWidth)
+                # will be assumed
+                cands[param._id].append((0.5, ElaboratableValue(prefs[0].name)))
+            # TODO: this solver is very naive, think about better implementation
+            elif len(prefs) == 0:
+                # the port type expression is constant, e.g. the (Width-1, 63) example from above
+                # so the parameter value can be extracted by solving `Width - 1 == 63`
+                pval = ElabvalueEvaluator.just_eval(pelab, {})
+                # evaluates the signal expression with the parameter substituted for an integer
+                NUM = 777
+                one_eval = ElabvalueEvaluator.just_eval(selab, {param.name: NUM})
+                if one_eval == NUM:
+                    # the evaluated value is equal to the substituted integer, no operations were
+                    # performed and the parameter is equal to the constant value of the port
+                    cands[param._id].append((0.7, ElaboratableValue(pval)))
+                elif one_eval == NUM - 1:
+                    # the evaled value is equal to the substituted integer minus one, most
+                    # likely the `Parameter-1` pattern
+                    cands[param._id].append((0.6, ElaboratableValue(pval + 1)))
+                else:
+                    # for now other relations are explicitly unsupported
+                    logger.debug(
+                        f"Unrecognized relation: `{selab}` with {param.name}: {NUM} == {one_eval}"
+                    )
+
+    return {param: sorted(cands)[0][1] for param, cands in cands.items()}
+
+
 def _candidate_interfaces_for_group(
     group: tuple[str, dict[str, PortSelector]],
     grouping_hints: dict[str, str],
@@ -417,6 +479,8 @@ def _candidate_interfaces_for_group(
         if required_sigs.intersection(matched_sigs) != required_sigs:
             continue
 
+        params = _deduce_intf_parameters_from_ports(module, matched_ports, ports, intf)
+
         intf = Interface(
             name=name,
             mode=mode,
@@ -425,6 +489,7 @@ def _candidate_interfaces_for_group(
                 sig._id: ports[pname].make_referenced_port(module, mode, sig)
                 for pname, sig in matched_ports.items()
             },
+            parameters=params,
         )
         yield intf
 

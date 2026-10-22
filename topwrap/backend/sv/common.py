@@ -10,7 +10,6 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, Template
 
 from topwrap import __version__
-from topwrap.model.connections import ReferencedPort
 from topwrap.model.hdl_types import (
     Bit,
     BitStruct,

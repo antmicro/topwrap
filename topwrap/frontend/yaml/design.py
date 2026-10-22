@@ -680,33 +680,15 @@ class DesignDescriptionFrontend:
                     f"but is connected to {conn_to.mode}"
                 )
 
-            nsigs = dict[ObjectId[InterfaceSignal], ReferencedPort | None]()
             inst = des.components.find_by_name_or_error(comp)
-            params, sigtypes = ElabvalueEvaluator.resolve_intf_values(conn_to, inst.parameters)
-
-            for sig, prt in conn_to.signals.items():
-                sig = sig.resolve()
-                if prt is None:
-                    nsigs[sig._id] = None
-                else:
-                    new_name = name + "_" + sig.name
-                    new_port = Port(
-                        name=new_name.lower(),
-                        direction=sig.modes[conn_to.mode].direction,
-                        # type=prt.io.type,
-                        type=sigtypes[sig._id],
-                        default_value=sig.default,
-                    )
-                    des.parent.add_port(new_port)
-                    nsigs[sig._id] = ReferencedPort.external(new_port)
+            params, _ = ElabvalueEvaluator.resolve_intf_values(conn_to, inst.parameters)
 
             # maybe we should pass clock, reset, size too?
             io = Interface(
                 name=name,
                 mode=conn_to.mode,
                 definition=conn_to.definition,
-                signals=nsigs,
-                # parameters=conn_to.parameters
+                signals={s: None for s in conn_to.signals},
                 parameters=params,
             )
             des.parent.add_interface(io)

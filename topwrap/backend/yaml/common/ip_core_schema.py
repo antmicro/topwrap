@@ -67,6 +67,7 @@ Signal = Union[
     IPCoreComplexSignal,
 ]
 
+
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCorePort:
     name: str

@@ -9,7 +9,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Iterable, Iterator, Mapping, Optional
 
 from topwrap.model.connections import Clock, Port, PortDirection, ReferencedPort, Reset
-from topwrap.model.hdl_types import Logic
+from topwrap.model.hdl_types import ElabvalueEvaluator, Logic
 from topwrap.model.misc import (
     ElaboratableValue,
     Identifier,
@@ -214,9 +214,7 @@ class Interface(ModelBase):
         clock: Optional[Clock] = None,
         reset: Optional[Reset] = None,
         size: Optional[int] = None,
-        parameters: Mapping[
-            ObjectId[Parameter], ElaboratableValue
-        ] = {},
+        parameters: Mapping[ObjectId[Parameter], ElaboratableValue] = {},
     ):
         super().__init__()
         self.name = name
@@ -264,6 +262,11 @@ class Interface(ModelBase):
         them to the parent module.
         """
 
+        # TODO: This resolves all generated ports to have constant widths, but
+        # it would actually be possible to spill the necessary parameters
+        # of the interface into parameters of the module.
+        _, types = ElabvalueEvaluator.resolve_intf_values(self, self.parameters)
+
         for sig in self.independent_signals:
             if self.mode not in sig.modes:
                 raise RelationshipError(
@@ -272,7 +275,7 @@ class Interface(ModelBase):
                 )
 
             i = 1
-            base_name = unique_name = f"{self.name}__{sig.name}"
+            base_name = unique_name = f"{self.name}_{sig.name}"
             while self.parent.ios.find_by_name(unique_name):
                 unique_name = base_name + f"__{i}"
                 i += 1
@@ -280,11 +283,7 @@ class Interface(ModelBase):
             newport = Port(
                 name=unique_name,
                 direction=sig.modes[self.mode].direction,
-                # TODO: This needs better handling when parameterized
-                # interfaces get implemented. If the signal type refers
-                # to any parameters, these parameters will have to be
-                # reextracted as module parameters and uniquified or elaborated.
-                type=sig.type,
+                type=types[sig._id],
                 default_value=sig.default,
             )
 

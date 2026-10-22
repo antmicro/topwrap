@@ -71,7 +71,7 @@ signals:
   bresp:
     pattern: b[._]?resp
     modes: {manager: [in, optional], subordinate: [out, required]}
-    bound: ['ADDR_WIDTH-1', '0']
+    bound: ['1', '0']
   buser:
     pattern: b[._]?user
     modes: {manager: [in, optional]}
@@ -94,7 +94,7 @@ signals:
   arprot:
     pattern: ar[._]?prot
     modes: {manager: [out, required], subordinate: [in, optional]}
-    bound: ['ADDR_WIDTH-1', '0']
+    bound: ['2', '0']
   aruser:
     pattern: ar[._]?user
     modes: {manager: [out, optional]}
