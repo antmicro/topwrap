@@ -5,7 +5,9 @@ import logging
 from pathlib import Path
 from typing import Iterable, Union
 
-from pyslang import Bag, PreprocessorOptions, SourceLocation, SyntaxTree
+from pyslang import Bag, SourceLocation
+from pyslang.parsing import PreprocessorOptions
+from pyslang.syntax import SyntaxTree
 
 from topwrap.frontend.frontend import (
     Frontend,

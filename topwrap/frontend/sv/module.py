@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 import pyslang as ps
+import pyslang.analysis as pan
+import pyslang.ast as pa
+import pyslang.syntax as psy
 
 from topwrap.backend.sv.common import sv_varname
 from topwrap.model.connections import (
@@ -44,11 +47,11 @@ from topwrap.util import MISSING, is_simple_sv_literal
 logger = logging.getLogger(__name__)
 
 
-def _slang_dir_to_ir_dir(dir: ps.ArgumentDirection) -> PortDirection:
+def _slang_dir_to_ir_dir(dir: pa.ArgumentDirection) -> PortDirection:
     return {
-        ps.ArgumentDirection.In: PortDirection.IN,
-        ps.ArgumentDirection.InOut: PortDirection.INOUT,
-        ps.ArgumentDirection.Out: PortDirection.OUT,
+        pa.ArgumentDirection.In: PortDirection.IN,
+        pa.ArgumentDirection.InOut: PortDirection.INOUT,
+        pa.ArgumentDirection.Out: PortDirection.OUT,
     }[dir]
 
 
@@ -161,7 +164,7 @@ def _logic_with_dims(item: Logic, dims: list[Dimensions]) -> Logic:
 
 class _ModuleAstParserState:
     def __init__(
-        self, parser: "SystemVerilogSlangParser", mod_ast: ps.InstanceSymbol, comp: ps.Compilation
+        self, parser: "SystemVerilogSlangParser", mod_ast: pa.InstanceSymbol, comp: pa.Compilation
     ) -> None:
         self.parser = parser
         self.mod_ast = mod_ast
@@ -171,7 +174,7 @@ class _ModuleAstParserState:
         self._instance_output_sources_by_name_cache: Optional[dict[str, list[ReferencedPort]]] = (
             None
         )
-        self._instance_port_expr_text_cache: dict[ps.InstanceSymbol, dict[str, str]] = {}
+        self._instance_port_expr_text_cache: dict[pa.InstanceSymbol, dict[str, str]] = {}
         self._member_expr_types: tuple[type, ...] = ()
         self._module_text_for_port_scan = ""
         self._port_expr_re: re.Pattern[str] = re.compile(r"$^")
@@ -181,32 +184,32 @@ class _ModuleAstParserState:
         ] = {}
         self._resolving: set[tuple[str, Optional[tuple[int, int]]]] = set()
         self._select_cache: dict[str, ReferencedPort] = {}
-        self.am: ps.AnalysisManager = cast(ps.AnalysisManager, None)
+        self.am: pan.AnalysisManager = cast(pan.AnalysisManager, None)
         self.bb_mod: Module = cast(Module, None)
         self.bb_ports: dict[str, Port] = {}
         self.components: list[ModuleInstance] = []
         self.concat_idx = 0
         self.connections: list[Union[PortConnection, ConstantConnection]] = []
-        self.cont_assign_map: dict[ps.Symbol, list[ps.Expression]] = {}
-        self.cont_assign_text_map: dict[ps.Symbol, list[str]] = {}
-        self.inst_port_conns: dict[ps.InstanceSymbol, list[ps.PortConnection]] = {}
-        self.instance_map: dict[ps.InstanceSymbol, ModuleInstance] = {}
-        self.instance_output_sources: dict[ps.InstanceSymbol, list[tuple[ps.Symbol, Port]]] = {}
+        self.cont_assign_map: dict[pa.Symbol, list[pa.Expression]] = {}
+        self.cont_assign_text_map: dict[pa.Symbol, list[str]] = {}
+        self.inst_port_conns: dict[pa.InstanceSymbol, list[pa.PortConnection]] = {}
+        self.instance_map: dict[pa.InstanceSymbol, ModuleInstance] = {}
+        self.instance_output_sources: dict[pa.InstanceSymbol, list[tuple[pa.Symbol, Port]]] = {}
         self.logic_inst: Optional[ModuleInstance] = None
         self.mod: Module = cast(Module, None)
         self.name_to_instance_ports: dict[str, list[ReferencedPort]] = {}
-        self.ports_by_name: dict[str, ps.PortSymbol] = {}
-        self.ports_by_norm_name: dict[str, ps.PortSymbol] = {}
-        self.procedural_assignments: dict[str, list[ps.Expression]] = {}
-        self.sym_by_name: dict[str, ps.Symbol] = {}
-        self.sym_by_norm_name: dict[str, ps.Symbol] = {}
-        self.sym_ports: dict[ps.Symbol, Port] = {}
-        self.sym_to_instance_ports: dict[ps.Symbol, list[ReferencedPort]] = {}
+        self.ports_by_name: dict[str, pa.PortSymbol] = {}
+        self.ports_by_norm_name: dict[str, pa.PortSymbol] = {}
+        self.procedural_assignments: dict[str, list[pa.Expression]] = {}
+        self.sym_by_name: dict[str, pa.Symbol] = {}
+        self.sym_by_norm_name: dict[str, pa.Symbol] = {}
+        self.sym_ports: dict[pa.Symbol, Port] = {}
+        self.sym_to_instance_ports: dict[pa.Symbol, list[ReferencedPort]] = {}
 
     class _ConcatRun:
         def __init__(self) -> None:
             self.items: list[dict[str, Any]] = []
-            self.base: Optional[ps.Symbol] = None
+            self.base: Optional[pa.Symbol] = None
             self.step: Optional[int] = None
 
         def reset(self) -> None:
@@ -297,7 +300,7 @@ class _ModuleAstParserState:
             getattr(token, "value", None) or getattr(token, "valueText", None) or str(token).strip()
         )
 
-    def _lookup_symbol_by_name(self, name: Optional[str]) -> Optional[ps.Symbol]:
+    def _lookup_symbol_by_name(self, name: Optional[str]) -> Optional[pa.Symbol]:
         if name is None:
             return None
         if (hit := (self.ports_by_name.get(name) or self.sym_by_name.get(name))) is not None:
@@ -305,11 +308,11 @@ class _ModuleAstParserState:
         norm = self._norm_sv_ident(name)
         return self.ports_by_norm_name.get(norm) or self.sym_by_norm_name.get(norm)
 
-    def _base_symbol_from_syntax(self, expr: Optional[ps.Expression]) -> Optional[ps.Symbol]:
+    def _base_symbol_from_syntax(self, expr: Optional[pa.Expression]) -> Optional[pa.Symbol]:
         if expr is None:
             return None
         syntax = getattr(expr, "syntax", None)
-        if isinstance(syntax, ps.IdentifierSelectNameSyntax):
+        if isinstance(syntax, psy.IdentifierSelectNameSyntax):
             base = self._token_text(getattr(syntax, "identifier", None))
             return self._lookup_symbol_by_name(base)
         return None
@@ -319,7 +322,7 @@ class _ModuleAstParserState:
     ) -> Optional[str]:
         if expr is None:
             return None
-        if isinstance(expr, ps.NamedValueExpression):
+        if isinstance(expr, pa.NamedValueExpression):
             sym = getattr(expr, "symbol", None)
             name = getattr(sym, "name", None)
             if name is not None and name in genvar_map:
@@ -327,19 +330,19 @@ class _ModuleAstParserState:
             if allowed_names is not None and name is not None and (name not in allowed_names):
                 return None
             return str(sym.name) if sym is not None else str(expr).strip()
-        if isinstance(expr, ps.IdentifierNameSyntax):
+        if isinstance(expr, psy.IdentifierNameSyntax):
             name = self._token_text(expr.identifier)
             if name is not None and name in genvar_map:
                 return str(genvar_map[name])
             if allowed_names is not None and name is not None and (name not in allowed_names):
                 return None
             return name or str(expr).strip()
-        if isinstance(expr, ps.IdentifierSelectNameSyntax):
+        if isinstance(expr, psy.IdentifierSelectNameSyntax):
             base = self._token_text(expr.identifier) or str(expr.identifier).strip()
             if allowed_names is not None and base not in allowed_names and ("::" not in base):
                 return None
             for selector in expr.selectors:
-                if isinstance(selector, ps.ElementSelectSyntax):
+                if isinstance(selector, psy.ElementSelectSyntax):
                     bit_sel = selector.selector
                     idx_expr = getattr(bit_sel, "expr", None)
                     idx_str = self._param_expr_str(idx_expr, genvar_map, allowed_names)
@@ -349,7 +352,7 @@ class _ModuleAstParserState:
                 else:
                     base = f"{base}{str(selector).strip()}"
             return base
-        if isinstance(expr, ps.ElementSelectExpression):
+        if isinstance(expr, pa.ElementSelectExpression):
             base = (
                 self._param_expr_str(expr.value, genvar_map, allowed_names)
                 or str(expr.value).strip()
@@ -359,7 +362,7 @@ class _ModuleAstParserState:
                 or str(expr.selector).strip()
             )
             return f"{base}[{idx}]"
-        if isinstance(expr, ps.RangeSelectExpression):
+        if isinstance(expr, pa.RangeSelectExpression):
             base = (
                 self._param_expr_str(expr.value, genvar_map, allowed_names)
                 or str(expr.value).strip()
@@ -372,12 +375,12 @@ class _ModuleAstParserState:
                 or str(expr.right).strip()
             )
             selection_kind = getattr(expr, "selectionKind", None)
-            if selection_kind == ps.RangeSelectionKind.IndexedUp:
+            if selection_kind == pa.RangeSelectionKind.IndexedUp:
                 return f"{base}[{left}+:{right}]"
-            if selection_kind == ps.RangeSelectionKind.IndexedDown:
+            if selection_kind == pa.RangeSelectionKind.IndexedDown:
                 return f"{base}[{left}-:{right}]"
             return f"{base}[{left}:{right}]"
-        if isinstance(expr, ps.ParenthesizedExpressionSyntax):
+        if isinstance(expr, psy.ParenthesizedExpressionSyntax):
             inner = (
                 self._param_expr_str(expr.expression, genvar_map, allowed_names)
                 or str(expr.expression).strip()
@@ -386,7 +389,7 @@ class _ModuleAstParserState:
         return str(expr).strip()
 
     def _instance_param_overrides(
-        self, inst_sym: ps.InstanceSymbol, child_mod: Module, genvar_map: dict[str, int]
+        self, inst_sym: pa.InstanceSymbol, child_mod: Module, genvar_map: dict[str, int]
     ) -> dict[ObjectId[Parameter], ElaboratableValue]:
         syntax = getattr(inst_sym, "syntax", None)
         parent = getattr(syntax, "parent", None) if syntax is not None else None
@@ -398,9 +401,9 @@ class _ModuleAstParserState:
         overrides: dict[ObjectId[Parameter], ElaboratableValue] = {}
         ordered_idx = 0
         for param in param_list:
-            if not isinstance(param, ps.ParamAssignmentSyntax):
+            if not isinstance(param, psy.ParamAssignmentSyntax):
                 continue
-            if isinstance(param, ps.OrderedParamAssignmentSyntax):
+            if isinstance(param, psy.OrderedParamAssignmentSyntax):
                 if ordered_idx >= len(child_mod.parameters):
                     ordered_idx += 1
                     continue
@@ -411,7 +414,7 @@ class _ModuleAstParserState:
                 if expr_str is None:
                     continue
                 overrides[param_def._id] = ElaboratableValue(expr_str)
-            elif isinstance(param, ps.NamedParamAssignmentSyntax):
+            elif isinstance(param, psy.NamedParamAssignmentSyntax):
                 name = getattr(param, "name", None)
                 pname = getattr(name, "value", None) if name is not None else None
                 if pname is None and name is not None:
@@ -430,25 +433,25 @@ class _ModuleAstParserState:
 
     def _collect_instances(
         self,
-        scope: Iterable[ps.Symbol],
+        scope: Iterable[pa.Symbol],
         name_suffix: str = "",
         genvar_map: Optional[dict[str, int]] = None,
     ) -> None:
         """Recursively collect module instances from a scope, including generate blocks."""
         genvar_map = {} if genvar_map is None else genvar_map
         for entry in scope:
-            if isinstance(entry, ps.GenerateBlockArraySymbol):
+            if isinstance(entry, pa.GenerateBlockArraySymbol):
                 gen_name = self._token_text(getattr(entry.syntax, "identifier", None))
                 for block in entry.entries:
-                    if isinstance(block, ps.GenerateBlockSymbol):
+                    if isinstance(block, pa.GenerateBlockSymbol):
                         block_suffix = f"{name_suffix}#{block.arrayIndex}"
                         block_genvars = dict(genvar_map)
                         if gen_name is not None:
                             block_genvars[gen_name] = int(block.arrayIndex)
                         self._collect_instances(block, block_suffix, block_genvars)
-            elif isinstance(entry, ps.GenerateBlockSymbol):
+            elif isinstance(entry, pa.GenerateBlockSymbol):
                 self._collect_instances(entry, name_suffix, genvar_map)
-            elif isinstance(entry, ps.InstanceSymbol) and entry.isModule:
+            elif isinstance(entry, pa.InstanceSymbol) and entry.isModule:
                 self.parser._visit_instance_ast(entry, self.comp, False)
                 child_mod = self.parser._submodules[entry.body.name]
                 inst_name = f"{entry.name}{name_suffix}"
@@ -463,28 +466,28 @@ class _ModuleAstParserState:
             return True
         return hasattr(expr, "member") and hasattr(expr, "value")
 
-    def _expr_symbol(self, expr: Optional[ps.Expression]) -> Optional[ps.Symbol]:
+    def _expr_symbol(self, expr: Optional[pa.Expression]) -> Optional[pa.Symbol]:
         if expr is None:
             return None
-        if isinstance(expr, ps.NamedValueExpression):
+        if isinstance(expr, pa.NamedValueExpression):
             base_sym = self._base_symbol_from_syntax(expr)
             if base_sym is not None:
                 return base_sym
             return expr.symbol
-        if isinstance(expr, ps.ConversionExpression):
+        if isinstance(expr, pa.ConversionExpression):
             operand = getattr(expr, "operand", None)
-            return self._expr_symbol(operand) if isinstance(operand, ps.Expression) else None
-        if isinstance(expr, (ps.ElementSelectExpression, ps.RangeSelectExpression)):
+            return self._expr_symbol(operand) if isinstance(operand, pa.Expression) else None
+        if isinstance(expr, (pa.ElementSelectExpression, pa.RangeSelectExpression)):
             return self._expr_symbol(expr.value)
         if self._is_member_access(expr):
             base = getattr(expr, "value", None)
-            if isinstance(base, ps.Expression):
+            if isinstance(base, pa.Expression):
                 return self._expr_symbol(base)
             sym = getattr(base, "symbol", None)
             if sym is not None:
                 return sym
             return self._expr_symbol(base) if base is not None else None
-        if isinstance(expr, ps.AssignmentExpression):
+        if isinstance(expr, pa.AssignmentExpression):
             for side in (expr.right, expr.left):
                 sym = self._expr_symbol(side)
                 if sym is not None:
@@ -504,12 +507,12 @@ class _ModuleAstParserState:
         except Exception:
             return ""
 
-    def _walk_procedural_stmts(self, stmt: Optional[ps.Statement]) -> None:
+    def _walk_procedural_stmts(self, stmt: Optional[pa.Statement]) -> None:
         if stmt is None:
             return
-        if isinstance(stmt, ps.ExpressionStatement):
+        if isinstance(stmt, pa.ExpressionStatement):
             expr = stmt.expr
-            if isinstance(expr, ps.AssignmentExpression):
+            if isinstance(expr, pa.AssignmentExpression):
                 lhs = expr.left
                 lhs_sym = self._expr_symbol(lhs)
                 if lhs_sym is not None:
@@ -520,21 +523,21 @@ class _ModuleAstParserState:
             child = getattr(stmt, attr, None)
             if isinstance(child, list):
                 for entry in child:
-                    if isinstance(entry, ps.Statement):
+                    if isinstance(entry, pa.Statement):
                         self._walk_procedural_stmts(entry)
-            elif isinstance(child, ps.Statement):
+            elif isinstance(child, pa.Statement):
                 self._walk_procedural_stmts(child)
             else:
                 child_list = getattr(child, "list", None)
                 if isinstance(child_list, list):
                     for entry in child_list:
-                        if isinstance(entry, ps.Statement):
+                        if isinstance(entry, pa.Statement):
                             self._walk_procedural_stmts(entry)
 
     def _cache_instance_outputs(self) -> None:
         for inst_sym, inst in self.instance_map.items():
             child_mod = inst.module
-            outputs: list[tuple[ps.Symbol, Port]] = []
+            outputs: list[tuple[pa.Symbol, Port]] = []
             for pc in self.inst_port_conns.get(inst_sym, []):
                 child_port = child_mod.ports.find_by_name(pc.port.name)
                 if child_port is None:
@@ -615,7 +618,7 @@ class _ModuleAstParserState:
                 return text[k + 1 : close_idx]
         return None
 
-    def _build_instance_port_expr_cache(self, inst_sym: ps.InstanceSymbol) -> dict[str, str]:
+    def _build_instance_port_expr_cache(self, inst_sym: pa.InstanceSymbol) -> dict[str, str]:
         cached: dict[str, str] = {}
         syn = getattr(inst_sym, "syntax", None)
         rng = getattr(syn, "sourceRange", None) if syn is not None else None
@@ -639,14 +642,14 @@ class _ModuleAstParserState:
         cached.update(self._extract_port_exprs(snippet))
         return cached
 
-    def _raw_instance_port_expr(self, inst_sym: ps.InstanceSymbol, port_name: str) -> Optional[str]:
+    def _raw_instance_port_expr(self, inst_sym: pa.InstanceSymbol, port_name: str) -> Optional[str]:
         cached = self._instance_port_expr_text_cache.get(inst_sym)
         if cached is None:
             cached = self._build_instance_port_expr_cache(inst_sym)
             self._instance_port_expr_text_cache[inst_sym] = cached
         return cached.get(port_name)
 
-    def _expr_constant(self, expr: Optional[ps.Expression]) -> Optional[ElaboratableValue]:
+    def _expr_constant(self, expr: Optional[pa.Expression]) -> Optional[ElaboratableValue]:
         if expr is None:
             return None
         const_val = expr.constant
@@ -655,12 +658,12 @@ class _ModuleAstParserState:
                 logger.error("Bad constant expression: %s", expr.syntax)
                 return None
             return ElaboratableValue(_constant_to_str(const_val))
-        if isinstance(expr, (ps.IntegerLiteral, ps.UnbasedUnsizedIntegerLiteral)):
+        if isinstance(expr, (pa.IntegerLiteral, pa.UnbasedUnsizedIntegerLiteral)):
             syn = getattr(expr, "syntax", None)
             return ElaboratableValue(str(syn if syn is not None else expr).strip())
         return None
 
-    def _expr_index_and_str(self, expr: ps.Expression) -> tuple[Optional[int], str]:
+    def _expr_index_and_str(self, expr: pa.Expression) -> tuple[Optional[int], str]:
         def _parse_sv_int_literal(text: str) -> Optional[int]:
             s = text.strip().replace("_", "")
             if s == "":
@@ -702,9 +705,9 @@ class _ModuleAstParserState:
         syntax = expr.syntax
         return (None, str(syntax) if syntax else "?")
 
-    def _packed_outer_index_pos(self, sym: ps.Symbol, idx: int) -> Optional[tuple[int, int]]:
+    def _packed_outer_index_pos(self, sym: pa.Symbol, idx: int) -> Optional[tuple[int, int]]:
         sym_type = getattr(sym, "type", None)
-        if not isinstance(sym_type, ps.PackedArrayType):
+        if not isinstance(sym_type, pa.PackedArrayType):
             return None
         fixed_range = getattr(sym_type, "fixedRange", None)
         elem_type = getattr(sym_type, "elementType", None)
@@ -725,11 +728,11 @@ class _ModuleAstParserState:
             return None
         return (pos, elem_width)
 
-    def _select_index_range(self, sym: ps.Symbol, idx: int) -> Optional[tuple[int, int]]:
+    def _select_index_range(self, sym: pa.Symbol, idx: int) -> Optional[tuple[int, int]]:
         pos_info = self._packed_outer_index_pos(sym, idx)
         if pos_info is None:
             sym_type = getattr(sym, "type", None)
-            if not isinstance(sym_type, ps.PackedArrayType):
+            if not isinstance(sym_type, pa.PackedArrayType):
                 return (idx, idx)
             return None
         pos, elem_width = pos_info
@@ -738,13 +741,13 @@ class _ModuleAstParserState:
         return (low, high)
 
     def _select_range_for_indices(
-        self, sym: ps.Symbol, left_idx: int, right_idx: int
+        self, sym: pa.Symbol, left_idx: int, right_idx: int
     ) -> Optional[tuple[int, int]]:
         pos_left = self._packed_outer_index_pos(sym, left_idx)
         pos_right = self._packed_outer_index_pos(sym, right_idx)
         if pos_left is None or pos_right is None:
             sym_type = getattr(sym, "type", None)
-            if not isinstance(sym_type, ps.PackedArrayType):
+            if not isinstance(sym_type, pa.PackedArrayType):
                 low, high = sorted((left_idx, right_idx))
                 return (low, high)
             return None
@@ -757,28 +760,28 @@ class _ModuleAstParserState:
         high = (high_pos + 1) * elem_width - 1
         return (low, high)
 
-    def _expr_name(self, expr: Optional[ps.Expression]) -> str:
+    def _expr_name(self, expr: Optional[pa.Expression]) -> str:
         if expr is None:
             return "_unknown_var"
-        if isinstance(expr, ps.ElementSelectExpression):
+        if isinstance(expr, pa.ElementSelectExpression):
             base = self._expr_name(expr.value)
             _idx, idx_str = self._expr_index_and_str(expr.selector)
             return f"{base}[{idx_str}]"
-        if isinstance(expr, ps.RangeSelectExpression):
+        if isinstance(expr, pa.RangeSelectExpression):
             base = self._expr_name(expr.value)
             _left_idx, left_str = self._expr_index_and_str(expr.left)
             _right_idx, right_str = self._expr_index_and_str(expr.right)
             return self._range_select_name(base, left_str, right_str, expr.selectionKind)
         if self._is_member_access(expr):
             base = getattr(expr, "value", None)
-            if isinstance(base, ps.Expression):
+            if isinstance(base, pa.Expression):
                 return self._expr_name(base)
         sym = self._expr_symbol(expr)
         if sym is not None:
             return sym.name
         return str(expr.syntax) if expr.syntax else "_unknown_var"
 
-    def _symbol_bit_width(self, sym: ps.Symbol) -> Optional[int]:
+    def _symbol_bit_width(self, sym: pa.Symbol) -> Optional[int]:
         sym_type = getattr(sym, "type", None)
         if sym_type is None:
             return None
@@ -788,7 +791,7 @@ class _ModuleAstParserState:
             return None
         return width if isinstance(width, int) else None
 
-    def _expr_bit_width(self, expr: ps.Expression) -> Optional[int]:
+    def _expr_bit_width(self, expr: pa.Expression) -> Optional[int]:
         expr_type = getattr(expr, "type", None)
         if expr_type is None:
             return None
@@ -798,15 +801,15 @@ class _ModuleAstParserState:
             return None
         return width if isinstance(width, int) else None
 
-    def _is_singleton_array_symbol(self, sym: ps.Symbol) -> bool:
+    def _is_singleton_array_symbol(self, sym: pa.Symbol) -> bool:
         sym_type = getattr(sym, "type", None)
-        if not isinstance(sym_type, ps.PackedArrayType):
+        if not isinstance(sym_type, pa.PackedArrayType):
             return False
         fixed_range = getattr(sym_type, "fixedRange", None)
         width = getattr(fixed_range, "width", None)
         return width == 1
 
-    def _iter_expr_children(self, node: ps.Expression) -> Iterator[ps.Expression]:
+    def _iter_expr_children(self, node: pa.Expression) -> Iterator[pa.Expression]:
         for attr in (
             "left",
             "right",
@@ -821,25 +824,25 @@ class _ModuleAstParserState:
                 child = getattr(node, attr)
             except Exception:
                 continue
-            if isinstance(child, ps.Expression):
+            if isinstance(child, pa.Expression):
                 yield child
             elif isinstance(child, (list, tuple)):
                 for elem in child:
-                    if isinstance(elem, ps.Expression):
+                    if isinstance(elem, pa.Expression):
                         yield elem
                     elif hasattr(elem, "expr"):
                         expr = elem.expr
-                        if isinstance(expr, ps.Expression):
+                        if isinstance(expr, pa.Expression):
                             yield expr
 
     def _expr_used_inputs(
-        self, expr: Optional[ps.Expression]
-    ) -> tuple[list[tuple[ps.Symbol, Optional[tuple[int, int]]]], list[ElaboratableValue]]:
-        syms: set[tuple[ps.Symbol, Optional[tuple[int, int]]]] = set()
+        self, expr: Optional[pa.Expression]
+    ) -> tuple[list[tuple[pa.Symbol, Optional[tuple[int, int]]]], list[ElaboratableValue]]:
+        syms: set[tuple[pa.Symbol, Optional[tuple[int, int]]]] = set()
         consts: list[ElaboratableValue] = []
         visited: set[int] = set()
 
-        def _walk(node: Optional[ps.Expression]) -> None:
+        def _walk(node: Optional[pa.Expression]) -> None:
             if node is None:
                 return
             node_id = id(node)
@@ -850,14 +853,14 @@ class _ModuleAstParserState:
             if const is not None:
                 consts.append(const)
                 return
-            if isinstance(node, ps.ElementSelectExpression):
+            if isinstance(node, pa.ElementSelectExpression):
                 value_sym = getattr(node.value, "symbol", None) or self._expr_symbol(node.value)
                 if value_sym is not None:
                     idx, _ = self._expr_index_and_str(node.selector)
                     rng = self._select_index_range(value_sym, idx) if idx is not None else None
                     syms.add((value_sym, rng))
                 return
-            if isinstance(node, ps.RangeSelectExpression):
+            if isinstance(node, pa.RangeSelectExpression):
                 value_sym = getattr(node.value, "symbol", None) or self._expr_symbol(node.value)
                 if value_sym is not None:
                     left_idx, _ = self._expr_index_and_str(node.left)
@@ -870,14 +873,14 @@ class _ModuleAstParserState:
             if self._is_member_access(node):
                 base = getattr(node, "value", None)
                 base_sym = None
-                if isinstance(base, ps.Expression):
+                if isinstance(base, pa.Expression):
                     base_sym = self._expr_symbol(base)
                 else:
                     base_sym = getattr(base, "symbol", None)
                 if base_sym is not None:
                     syms.add((base_sym, None))
                     return
-                if isinstance(base, ps.Expression):
+                if isinstance(base, pa.Expression):
                     _walk(base)
                     return
             sym = getattr(node, "symbol", None)
@@ -894,15 +897,15 @@ class _ModuleAstParserState:
         _walk(expr)
         return (list(syms), consts)
 
-    def _timing_trigger_exprs(self, ctrl: Optional[Any]) -> list[ps.Expression]:
+    def _timing_trigger_exprs(self, ctrl: Optional[Any]) -> list[pa.Expression]:
         if ctrl is None:
             return []
-        exprs: list[ps.Expression] = []
-        if isinstance(ctrl, ps.Expression):
+        exprs: list[pa.Expression] = []
+        if isinstance(ctrl, pa.Expression):
             exprs.append(ctrl)
         for attr in ("expr", "expression", "condition"):
             val = getattr(ctrl, attr, None)
-            if isinstance(val, ps.Expression):
+            if isinstance(val, pa.Expression):
                 exprs.append(val)
         for attr in ("event", "events"):
             val = getattr(ctrl, attr, None)
@@ -1075,7 +1078,7 @@ class _ModuleAstParserState:
         select_out = self._create_select(select_name, value_sources, through_logic)
         return ([select_out], False) if select_out is not None else ([], False)
 
-    def _external_input_port(self, sym: ps.Symbol) -> Optional[Port]:
+    def _external_input_port(self, sym: pa.Symbol) -> Optional[Port]:
         port = self.sym_ports.get(sym)
         if port is None:
             name = getattr(sym, "name", None)
@@ -1088,17 +1091,17 @@ class _ModuleAstParserState:
         return None
 
     def _range_select_name(
-        self, var_name: str, left_str: str, right_str: str, selection_kind: ps.RangeSelectionKind
+        self, var_name: str, left_str: str, right_str: str, selection_kind: pa.RangeSelectionKind
     ) -> str:
-        if selection_kind == ps.RangeSelectionKind.IndexedUp:
+        if selection_kind == pa.RangeSelectionKind.IndexedUp:
             return f"{var_name}[{left_str}+:{right_str}]"
-        if selection_kind == ps.RangeSelectionKind.IndexedDown:
+        if selection_kind == pa.RangeSelectionKind.IndexedDown:
             return f"{var_name}[{left_str}-:{right_str}]"
         return f"{var_name}[{left_str}:{right_str}]"
 
-    def _select_span(self, op: ps.Expression) -> Optional[dict[str, Any]]:
-        if isinstance(op, ps.ElementSelectExpression):
-            if isinstance(op.value, (ps.ElementSelectExpression, ps.RangeSelectExpression)):
+    def _select_span(self, op: pa.Expression) -> Optional[dict[str, Any]]:
+        if isinstance(op, pa.ElementSelectExpression):
+            if isinstance(op.value, (pa.ElementSelectExpression, pa.RangeSelectExpression)):
                 return None
             base_sym = self._expr_symbol(op.value)
             if base_sym is None:
@@ -1115,10 +1118,10 @@ class _ModuleAstParserState:
                 "right_str": idx_str,
                 "dir": 0,
             }
-        if isinstance(op, ps.RangeSelectExpression):
-            if op.selectionKind != ps.RangeSelectionKind.Simple:
+        if isinstance(op, pa.RangeSelectExpression):
+            if op.selectionKind != pa.RangeSelectionKind.Simple:
                 return None
-            if isinstance(op.value, (ps.ElementSelectExpression, ps.RangeSelectExpression)):
+            if isinstance(op.value, (pa.ElementSelectExpression, pa.RangeSelectExpression)):
                 return None
             base_sym = self._expr_symbol(op.value)
             if base_sym is None:
@@ -1164,14 +1167,14 @@ class _ModuleAstParserState:
             run.reset()
             return
         select_name = self._range_select_name(
-            base_sym.name, first["left_str"], last["right_str"], ps.RangeSelectionKind.Simple
+            base_sym.name, first["left_str"], last["right_str"], pa.RangeSelectionKind.Simple
         )
         sources, through_logic = self._resolve_sources_with_logic(base_sym)
         merged.append(self._select_output(select_name, sources, through_logic))
         run.reset()
 
     def _concat_operand_sources(
-        self, expr: ps.ConcatenationExpression
+        self, expr: pa.ConcatenationExpression
     ) -> list[tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]]:
         merged: list[tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]] = []
         run = self._ConcatRun()
@@ -1224,7 +1227,7 @@ class _ModuleAstParserState:
         return drv_low <= sel_low and drv_high >= sel_high
 
     def _expr_sources_concat(
-        self, expr: ps.ConcatenationExpression
+        self, expr: pa.ConcatenationExpression
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         operand_sources = self._concat_operand_sources(expr)
         if len(operand_sources) == 1:
@@ -1239,7 +1242,7 @@ class _ModuleAstParserState:
 
     def _try_internal_bit_driver(
         self,
-        value_sym: ps.Symbol,
+        value_sym: pa.Symbol,
         selector_idx: int,
         sel_range: Optional[tuple[int, int]],
         packed_value: bool,
@@ -1252,9 +1255,11 @@ class _ModuleAstParserState:
           - needs_logic=True if we encountered at least one logic-only covering driver
         """
         needs_logic = False
-        for drv, rng in self.am.getDrivers(value_sym):
+        assert isinstance(value_sym, pa.ValueSymbol)
+        for drv in self.am.getDrivers(value_sym):
+            rng = drv.bounds
             cont = drv.containingSymbol
-            if isinstance(cont, ps.InstanceBodySymbol):
+            if isinstance(cont, pa.InstanceBodySymbol):
                 continue
             if not self._covers_bit_driver(rng, selector_idx, sel_range, packed_value):
                 continue
@@ -1266,7 +1271,7 @@ class _ModuleAstParserState:
         return (None, needs_logic)
 
     def _expr_sources_bit_select(
-        self, expr: ps.ElementSelectExpression
+        self, expr: pa.ElementSelectExpression
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         value_expr = expr.value
         selector_idx, selector_str = self._expr_index_and_str(expr.selector)
@@ -1278,7 +1283,7 @@ class _ModuleAstParserState:
         var_name = self._expr_name(value_expr)
         needs_logic = False
         if value_sym is not None:
-            packed_value = isinstance(getattr(value_sym, "type", None), ps.PackedArrayType)
+            packed_value = isinstance(getattr(value_sym, "type", None), pa.PackedArrayType)
             sel_range = (
                 self._select_index_range(value_sym, selector_idx)
                 if selector_idx is not None
@@ -1308,16 +1313,18 @@ class _ModuleAstParserState:
 
     def _try_internal_range_driver(
         self,
-        value_sym: ps.Symbol,
+        value_sym: pa.Symbol,
         packed_value: bool,
         sel_range: Optional[tuple[int, int]],
         left_idx: int,
         right_idx: int,
     ) -> tuple[Optional[tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]], bool]:
         needs_logic = False
-        for drv, rng in self.am.getDrivers(value_sym):
+        assert isinstance(value_sym, pa.ValueSymbol)
+        for drv in self.am.getDrivers(value_sym):
+            rng = drv.bounds
             cont = drv.containingSymbol
-            if isinstance(cont, ps.InstanceBodySymbol):
+            if isinstance(cont, pa.InstanceBodySymbol):
                 continue
             if not self._covers_range_driver(rng, sel_range, packed_value, left_idx, right_idx):
                 continue
@@ -1329,7 +1336,7 @@ class _ModuleAstParserState:
         return (None, needs_logic)
 
     def _expr_sources_range_select(
-        self, expr: ps.RangeSelectExpression
+        self, expr: pa.RangeSelectExpression
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         value_expr = expr.value
         selection_kind = expr.selectionKind
@@ -1343,14 +1350,14 @@ class _ModuleAstParserState:
         var_name = self._expr_name(value_expr)
         needs_logic = False
         if value_sym is not None:
-            packed_value = isinstance(getattr(value_sym, "type", None), ps.PackedArrayType)
+            packed_value = isinstance(getattr(value_sym, "type", None), pa.PackedArrayType)
             sel_range = (
                 self._select_range_for_indices(value_sym, left_idx, right_idx)
                 if left_idx is not None and right_idx is not None
                 else None
             )
             if (
-                selection_kind == ps.RangeSelectionKind.Simple
+                selection_kind == pa.RangeSelectionKind.Simple
                 and left_idx is not None
                 and (right_idx is not None)
             ):
@@ -1377,7 +1384,7 @@ class _ModuleAstParserState:
         return self._select_output(select_name, [], needs_logic)
 
     def _expr_sources_generic(
-        self, expr: ps.Expression
+        self, expr: pa.Expression
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         const_val = self._expr_constant(expr)
         if const_val is not None:
@@ -1434,16 +1441,16 @@ class _ModuleAstParserState:
 
     def _parse_text_select(
         self, sel: str
-    ) -> tuple[str, Optional[str], Optional[ps.RangeSelectionKind]]:
+    ) -> tuple[str, Optional[str], Optional[pa.RangeSelectionKind]]:
         if "+:" in sel:
             left, right = sel.split("+:", 1)
-            return (left.strip(), right.strip(), ps.RangeSelectionKind.IndexedUp)
+            return (left.strip(), right.strip(), pa.RangeSelectionKind.IndexedUp)
         if "-:" in sel:
             left, right = sel.split("-:", 1)
-            return (left.strip(), right.strip(), ps.RangeSelectionKind.IndexedDown)
+            return (left.strip(), right.strip(), pa.RangeSelectionKind.IndexedDown)
         if ":" in sel:
             left, right = sel.split(":", 1)
-            return (left.strip(), right.strip(), ps.RangeSelectionKind.Simple)
+            return (left.strip(), right.strip(), pa.RangeSelectionKind.Simple)
         return (sel.strip(), None, None)
 
     def _apply_text_selects(
@@ -1532,8 +1539,8 @@ class _ModuleAstParserState:
 
     def _named_expr_sources(
         self,
-        expr: ps.NamedValueExpression,
-        inst_sym: Optional[ps.InstanceSymbol],
+        expr: pa.NamedValueExpression,
+        inst_sym: Optional[pa.InstanceSymbol],
         port_name: Optional[str],
     ) -> Optional[tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]]:
         named_sym = getattr(expr, "symbol", None)
@@ -1571,7 +1578,7 @@ class _ModuleAstParserState:
         return recovered if recovered is not None else ([], False)
 
     def _invalid_expr_sources(
-        self, expr: ps.Expression, inst_sym: Optional[ps.InstanceSymbol], port_name: Optional[str]
+        self, expr: pa.Expression, inst_sym: Optional[pa.InstanceSymbol], port_name: Optional[str]
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         rng = getattr(expr, "sourceRange", None)
         from_range = ""
@@ -1588,8 +1595,8 @@ class _ModuleAstParserState:
 
     def _expr_sources_with_logic(
         self,
-        expr: Optional[ps.Expression],
-        inst_sym: Optional[ps.InstanceSymbol] = None,
+        expr: Optional[pa.Expression],
+        inst_sym: Optional[pa.InstanceSymbol] = None,
         port_name: Optional[str] = None,
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         if expr is None:
@@ -1597,7 +1604,7 @@ class _ModuleAstParserState:
         invalid_expr_t = getattr(ps, "InvalidExpression", None)
         if invalid_expr_t is not None and isinstance(expr, invalid_expr_t):
             return self._invalid_expr_sources(expr, inst_sym, port_name)
-        if isinstance(expr, ps.AssignmentExpression):
+        if isinstance(expr, pa.AssignmentExpression):
             left = getattr(expr, "left", None)
             right = getattr(expr, "right", None)
             empty_arg_t = getattr(ps, "EmptyArgumentExpression", None)
@@ -1605,17 +1612,17 @@ class _ModuleAstParserState:
                 right is None or (empty_arg_t is not None and isinstance(right, empty_arg_t))
             ):
                 return self._expr_sources_with_logic(left)
-        if isinstance(expr, ps.ConversionExpression):
+        if isinstance(expr, pa.ConversionExpression):
             operand = getattr(expr, "operand", None)
-            if isinstance(operand, ps.Expression):
+            if isinstance(operand, pa.Expression):
                 return self._expr_sources_with_logic(operand)
-        if isinstance(expr, ps.ConcatenationExpression):
+        if isinstance(expr, pa.ConcatenationExpression):
             return self._expr_sources_concat(expr)
-        if isinstance(expr, ps.ElementSelectExpression):
+        if isinstance(expr, pa.ElementSelectExpression):
             return self._expr_sources_bit_select(expr)
-        if isinstance(expr, ps.RangeSelectExpression):
+        if isinstance(expr, pa.RangeSelectExpression):
             return self._expr_sources_range_select(expr)
-        if isinstance(expr, ps.NamedValueExpression):
+        if isinstance(expr, pa.NamedValueExpression):
             recovered_named = self._named_expr_sources(expr, inst_sym, port_name)
             if recovered_named is not None:
                 return recovered_named
@@ -1631,7 +1638,7 @@ class _ModuleAstParserState:
         return self._expr_sources_generic(expr)
 
     def _instance_port_sources(
-        self, sym: ps.Symbol, inst_sym: Optional[ps.InstanceSymbol] = None
+        self, sym: pa.Symbol, inst_sym: Optional[pa.InstanceSymbol] = None
     ) -> list[Union[ReferencedPort, ElaboratableValue]]:
         def _as_sources(
             refs: list[ReferencedPort],
@@ -1716,13 +1723,13 @@ class _ModuleAstParserState:
             )
         return list(self._instance_output_sources_by_name_cache.get(name, []))
 
-    def _is_unpacked_array_symbol(self, sym: ps.Symbol) -> bool:
-        if not isinstance(sym, (ps.VariableSymbol, ps.NetSymbol)):
+    def _is_unpacked_array_symbol(self, sym: pa.Symbol) -> bool:
+        if not isinstance(sym, (pa.VariableSymbol, pa.NetSymbol)):
             return False
         sym_type = sym.type
-        if isinstance(sym_type, ps.FixedSizeUnpackedArrayType):
+        if isinstance(sym_type, pa.FixedSizeUnpackedArrayType):
             return True
-        if not isinstance(sym_type, ps.PackedArrayType):
+        if not isinstance(sym_type, pa.PackedArrayType):
             return False
         elem_type = getattr(sym_type, "elementType", None)
         scalar_type = getattr(ps, "ScalarType", None)
@@ -1732,34 +1739,34 @@ class _ModuleAstParserState:
         width = getattr(fixed_range, "width", None)
         return width not in (None, 1)
 
-    def _is_comb_block(self, block: ps.ProceduralBlockSymbol) -> bool:
-        if block.procedureKind == ps.ProceduralBlockKind.AlwaysComb:
+    def _is_comb_block(self, block: pa.ProceduralBlockSymbol) -> bool:
+        if block.procedureKind == pa.ProceduralBlockKind.AlwaysComb:
             return True
-        if block.procedureKind != ps.ProceduralBlockKind.Always:
+        if block.procedureKind != pa.ProceduralBlockKind.Always:
             return False
         timing = getattr(block.body, "timing", None)
-        return timing is None or getattr(timing, "kind", None) == ps.TimingControlKind.ImplicitEvent
+        return timing is None or getattr(timing, "kind", None) == pa.TimingControlKind.ImplicitEvent
 
-    def _stmt_from_node(self, node: Any) -> Optional[ps.Statement]:
-        if isinstance(node, ps.Statement):
+    def _stmt_from_node(self, node: Any) -> Optional[pa.Statement]:
+        if isinstance(node, pa.Statement):
             return node
         for attr in ("stmt", "statement", "body"):
             stmt = getattr(node, attr, None)
-            if isinstance(stmt, ps.Statement):
+            if isinstance(stmt, pa.Statement):
                 return stmt
         return None
 
-    def _exprs_from_stmt(self, node: Any) -> list[ps.Expression]:
-        exprs: list[ps.Expression] = []
+    def _exprs_from_stmt(self, node: Any) -> list[pa.Expression]:
+        exprs: list[pa.Expression] = []
         for attr in ("predicate", "condition", "expr", "expression", "cond"):
             expr = getattr(node, attr, None)
-            if isinstance(expr, ps.Expression):
+            if isinstance(expr, pa.Expression):
                 exprs.append(expr)
         conditions = getattr(node, "conditions", None)
         if isinstance(conditions, list):
             for cond in conditions:
                 expr = getattr(cond, "expr", None)
-                if isinstance(expr, ps.Expression):
+                if isinstance(expr, pa.Expression):
                     exprs.append(expr)
         return exprs
 
@@ -1774,7 +1781,7 @@ class _ModuleAstParserState:
             return items_list
         return items if isinstance(items, list) else []
 
-    def _lhs_matches_sym(self, sym: ps.Symbol, lhs: ps.Expression) -> bool:
+    def _lhs_matches_sym(self, sym: pa.Symbol, lhs: pa.Expression) -> bool:
         lhs_sym = self._expr_symbol(lhs) or getattr(lhs, "symbol", None)
         if lhs_sym is sym:
             return True
@@ -1782,37 +1789,37 @@ class _ModuleAstParserState:
         sym_name = getattr(sym, "name", None)
         return isinstance(lhs_name, str) and lhs_name == sym_name
 
-    def _stmt_assigns_sym(self, stmt: Optional[ps.Statement], sym: ps.Symbol) -> bool:
+    def _stmt_assigns_sym(self, stmt: Optional[pa.Statement], sym: pa.Symbol) -> bool:
         if stmt is None:
             return False
         checker = self._STMT_ASSIGN_CHECKERS.get(type(stmt))
         if checker is not None:
             return checker(stmt, sym)
         inner = getattr(stmt, "stmt", None)
-        if isinstance(inner, ps.Statement):
+        if isinstance(inner, pa.Statement):
             return self._stmt_assigns_sym(inner, sym)
         for child in self._iter_stmt_children(stmt):
             if self._stmt_assigns_sym(child, sym):
                 return True
         return False
 
-    def _assign_expr_stmt(self, stmt: ps.Statement, sym: ps.Symbol) -> bool:
-        node = cast(ps.ExpressionStatement, stmt)
+    def _assign_expr_stmt(self, stmt: pa.Statement, sym: pa.Symbol) -> bool:
+        node = cast(pa.ExpressionStatement, stmt)
         expr = node.expr
-        if not isinstance(expr, ps.AssignmentExpression):
+        if not isinstance(expr, pa.AssignmentExpression):
             return False
         return self._lhs_matches_sym(sym, expr.left)
 
-    def _assign_block_stmt(self, stmt: ps.Statement, sym: ps.Symbol) -> bool:
-        node = cast(ps.BlockStatement, stmt)
+    def _assign_block_stmt(self, stmt: pa.Statement, sym: pa.Symbol) -> bool:
+        node = cast(pa.BlockStatement, stmt)
         return self._stmt_assigns_sym(self._stmt_from_node(node.body), sym)
 
-    def _assign_stmt_list(self, stmt: ps.Statement, sym: ps.Symbol) -> bool:
-        node = cast(ps.StatementList, stmt)
+    def _assign_stmt_list(self, stmt: pa.Statement, sym: pa.Symbol) -> bool:
+        node = cast(pa.StatementList, stmt)
         return any((self._stmt_assigns_sym(s, sym) for s in node.list))
 
-    def _assign_conditional(self, stmt: ps.Statement, sym: ps.Symbol) -> bool:
-        node = cast(ps.ConditionalStatement, stmt)
+    def _assign_conditional(self, stmt: pa.Statement, sym: pa.Symbol) -> bool:
+        node = cast(pa.ConditionalStatement, stmt)
         then_stmt = self._stmt_from_node(getattr(node, "ifTrue", None)) or self._stmt_from_node(
             getattr(node, "statement", None)
         )
@@ -1821,8 +1828,8 @@ class _ModuleAstParserState:
         )
         return self._stmt_assigns_sym(then_stmt, sym) or self._stmt_assigns_sym(else_stmt, sym)
 
-    def _assign_case(self, stmt: ps.Statement, sym: ps.Symbol) -> bool:
-        node = cast(ps.CaseStatement, stmt)
+    def _assign_case(self, stmt: pa.Statement, sym: pa.Symbol) -> bool:
+        node = cast(pa.CaseStatement, stmt)
         return any(
             (
                 self._stmt_assigns_sym(self._stmt_from_node(item), sym)
@@ -1830,11 +1837,11 @@ class _ModuleAstParserState:
             )
         )
 
-    def _assign_false(self, _stmt: ps.Statement, _sym: ps.Symbol) -> bool:
+    def _assign_false(self, _stmt: pa.Statement, _sym: pa.Symbol) -> bool:
         return False
 
     def _procedural_conditional_sources(
-        self, stmt: Optional[ps.Statement], sym: ps.Symbol
+        self, stmt: Optional[pa.Statement], sym: pa.Symbol
     ) -> list[Union[ReferencedPort, ElaboratableValue]]:
         if stmt is None:
             return []
@@ -1842,7 +1849,7 @@ class _ModuleAstParserState:
         stack: list[Any] = [stmt]
         while stack:
             node = stack.pop()
-            if isinstance(node, ps.ConditionalStatement):
+            if isinstance(node, pa.ConditionalStatement):
                 then_stmt = self._stmt_from_node(
                     getattr(node, "ifTrue", None)
                 ) or self._stmt_from_node(getattr(node, "statement", None))
@@ -1853,7 +1860,7 @@ class _ModuleAstParserState:
                     for cond_expr in self._exprs_from_stmt(node):
                         srcs, _ = self._expr_sources_with_logic(cond_expr)
                         out.extend(srcs)
-            elif isinstance(node, ps.CaseStatement):
+            elif isinstance(node, pa.CaseStatement):
                 if any(
                     (
                         self._stmt_assigns_sym(self._stmt_from_node(item), sym)
@@ -1864,7 +1871,7 @@ class _ModuleAstParserState:
                         srcs, _ = self._expr_sources_with_logic(cond_expr)
                         out.extend(srcs)
             inner = getattr(node, "stmt", None)
-            if isinstance(inner, ps.Statement):
+            if isinstance(inner, pa.Statement):
                 stack.append(inner)
             for attr in ("body", "ifTrue", "ifFalse", "elseClause"):
                 child = getattr(node, attr, None)
@@ -1874,15 +1881,15 @@ class _ModuleAstParserState:
             for attr in ("list", "statements"):
                 child = getattr(node, attr, None)
                 if isinstance(child, list):
-                    stack.extend([c for c in child if isinstance(c, ps.Statement)])
+                    stack.extend([c for c in child if isinstance(c, pa.Statement)])
                 else:
                     child_list = getattr(child, "list", None)
                     if isinstance(child_list, list):
-                        stack.extend([c for c in child_list if isinstance(c, ps.Statement)])
+                        stack.extend([c for c in child_list if isinstance(c, pa.Statement)])
         return out
 
     def _procedural_seq_sources(
-        self, block: ps.ProceduralBlockSymbol, sym: ps.Symbol
+        self, block: pa.ProceduralBlockSymbol, sym: pa.Symbol
     ) -> list[Union[ReferencedPort, ElaboratableValue]]:
         timing = getattr(block.body, "timing", None)
         trigger_sources: list[Union[ReferencedPort, ElaboratableValue]] = []
@@ -1898,9 +1905,9 @@ class _ModuleAstParserState:
         return trigger_sources
 
     def _comb_collect_assignment(
-        self, state: "_CombState", sym: ps.Symbol, expr: ps.Expression
+        self, state: "_CombState", sym: pa.Symbol, expr: pa.Expression
     ) -> None:
-        if not isinstance(expr, ps.AssignmentExpression):
+        if not isinstance(expr, pa.AssignmentExpression):
             return
         if not self._lhs_matches_sym(sym, expr.left):
             return
@@ -1910,7 +1917,7 @@ class _ModuleAstParserState:
         state.assignments += 1
 
     def _comb_handle_conditional(
-        self, state: "_CombState", sym: ps.Symbol, node: ps.ConditionalStatement
+        self, state: "_CombState", sym: pa.Symbol, node: pa.ConditionalStatement
     ) -> None:
         then_stmt = self._stmt_from_node(getattr(node, "ifTrue", None)) or self._stmt_from_node(
             getattr(node, "statement", None)
@@ -1925,7 +1932,7 @@ class _ModuleAstParserState:
             state.proc_logic = True
 
     def _comb_handle_case(
-        self, state: "_CombState", sym: ps.Symbol, node: ps.CaseStatement
+        self, state: "_CombState", sym: pa.Symbol, node: pa.CaseStatement
     ) -> None:
         if any(
             (
@@ -1939,7 +1946,7 @@ class _ModuleAstParserState:
             state.proc_logic = True
 
     def _procedural_comb_sources(
-        self, block: ps.ProceduralBlockSymbol, sym: ps.Symbol
+        self, block: pa.ProceduralBlockSymbol, sym: pa.Symbol
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         state = self._CombState()
         stack: list[Any] = [block.body]
@@ -1947,15 +1954,15 @@ class _ModuleAstParserState:
             stmt = stack.pop()
             if stmt is None:
                 continue
-            if isinstance(stmt, ps.ExpressionStatement):
-                self._comb_collect_assignment(state, sym, cast(ps.ExpressionStatement, stmt).expr)
-            elif isinstance(stmt, ps.BlockStatement):
-                stack.append(self._stmt_from_node(cast(ps.BlockStatement, stmt).body))
-            elif isinstance(stmt, ps.StatementList):
-                stack.extend(reversed(cast(ps.StatementList, stmt).list))
-            elif isinstance(stmt, ps.ConditionalStatement):
-                self._comb_handle_conditional(state, sym, cast(ps.ConditionalStatement, stmt))
-                node = cast(ps.ConditionalStatement, stmt)
+            if isinstance(stmt, pa.ExpressionStatement):
+                self._comb_collect_assignment(state, sym, cast(pa.ExpressionStatement, stmt).expr)
+            elif isinstance(stmt, pa.BlockStatement):
+                stack.append(self._stmt_from_node(cast(pa.BlockStatement, stmt).body))
+            elif isinstance(stmt, pa.StatementList):
+                stack.extend(reversed(cast(pa.StatementList, stmt).list))
+            elif isinstance(stmt, pa.ConditionalStatement):
+                self._comb_handle_conditional(state, sym, cast(pa.ConditionalStatement, stmt))
+                node = cast(pa.ConditionalStatement, stmt)
                 stack.append(
                     self._stmt_from_node(getattr(node, "ifFalse", None))
                     or self._stmt_from_node(getattr(node, "elseClause", None))
@@ -1964,37 +1971,37 @@ class _ModuleAstParserState:
                     self._stmt_from_node(getattr(node, "ifTrue", None))
                     or self._stmt_from_node(getattr(node, "statement", None))
                 )
-            elif isinstance(stmt, ps.CaseStatement):
-                self._comb_handle_case(state, sym, cast(ps.CaseStatement, stmt))
-                node = cast(ps.CaseStatement, stmt)
+            elif isinstance(stmt, pa.CaseStatement):
+                self._comb_handle_case(state, sym, cast(pa.CaseStatement, stmt))
+                node = cast(pa.CaseStatement, stmt)
                 for item in reversed(self._case_items(node)):
                     stack.append(self._stmt_from_node(item))
             else:
                 inner = getattr(stmt, "stmt", None)
-                if isinstance(inner, ps.Statement):
+                if isinstance(inner, pa.Statement):
                     stack.append(inner)
         return (state.sources, state.proc_logic or state.assignments > 1)
 
     def _driver_sources_with_logic(
-        self, drv: ps.ValueDriver, sym: ps.Symbol
+        self, drv: pan.ValueDriver, sym: pa.Symbol
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         cont = drv.containingSymbol
-        if isinstance(cont, ps.ContinuousAssignSymbol):
+        if isinstance(cont, pa.ContinuousAssignSymbol):
             assignment = cont.assignment
             rhs = (
-                assignment.right if isinstance(assignment, ps.AssignmentExpression) else assignment
+                assignment.right if isinstance(assignment, pa.AssignmentExpression) else assignment
             )
             return self._expr_sources_with_logic(rhs)
-        if isinstance(cont, ps.InstanceSymbol):
+        if isinstance(cont, pa.InstanceSymbol):
             return (self._instance_port_sources(sym, cont), False)
-        if isinstance(cont, ps.InstanceBodySymbol):
+        if isinstance(cont, pa.InstanceBodySymbol):
             ext_port = self.sym_ports.get(sym)
             return (
                 ([ReferencedPort.external(ext_port)], False)
                 if ext_port is not None
                 else ([], False)
             )
-        if isinstance(cont, ps.ProceduralBlockSymbol):
+        if isinstance(cont, pa.ProceduralBlockSymbol):
             if self._is_comb_block(cont):
                 return self._procedural_comb_sources(cont, sym)
             return (self._procedural_seq_sources(cont, sym), True)
@@ -2003,10 +2010,10 @@ class _ModuleAstParserState:
 
     def _combine_disjoint_drivers(
         self,
-        sym: ps.Symbol,
-        drivers: list[tuple[ps.ValueDriver, tuple[int, int]]],
+        sym: pa.Symbol,
+        drivers: list[tuple[pan.ValueDriver, tuple[int, int]]],
         driver_sources: dict[
-            ps.ValueDriver, tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]
+            pan.ValueDriver, tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]
         ],
     ) -> Optional[list[Union[ReferencedPort, ElaboratableValue]]]:
         if self._symbol_bit_width(sym) == 1:
@@ -2024,7 +2031,7 @@ class _ModuleAstParserState:
             return [concat_out] if concat_out is not None else None
         if len(drivers) <= 1:
             return None
-        ranges: list[tuple[int, int, ps.ValueDriver]] = []
+        ranges: list[tuple[int, int, pan.ValueDriver]] = []
         for drv, rng in drivers:
             if not isinstance(rng, tuple) or len(rng) != 2:
                 return None
@@ -2077,25 +2084,25 @@ class _ModuleAstParserState:
         self._resolve_cache[key] = (sources[:], logic)
         return (sources, logic)
 
-    def _iter_stmt_children(self, stmt: ps.Statement) -> Iterator[ps.Statement]:
+    def _iter_stmt_children(self, stmt: pa.Statement) -> Iterator[pa.Statement]:
         for attr in ("stmt", "body", "ifTrue", "ifFalse", "elseClause"):
             child = getattr(stmt, attr, None)
-            if isinstance(child, ps.Statement):
+            if isinstance(child, pa.Statement):
                 yield child
         for attr in ("list", "statements"):
             child = getattr(stmt, attr, None)
             if isinstance(child, list):
                 for entry in child:
-                    if isinstance(entry, ps.Statement):
+                    if isinstance(entry, pa.Statement):
                         yield entry
             else:
                 child_list = getattr(child, "list", None)
                 if isinstance(child_list, list):
                     for entry in child_list:
-                        if isinstance(entry, ps.Statement):
+                        if isinstance(entry, pa.Statement):
                             yield entry
 
-    def _symbol_cache_key(self, sym: Optional[ps.Symbol]) -> str:
+    def _symbol_cache_key(self, sym: Optional[pa.Symbol]) -> str:
         if sym is None:
             return "<none>"
         lex_path = getattr(sym, "lexicalPath", None)
@@ -2107,7 +2114,7 @@ class _ModuleAstParserState:
         return repr(sym)
 
     def _resolve_no_driver_sources(
-        self, sym: ps.Symbol, logic_only_driver: bool
+        self, sym: pa.Symbol, logic_only_driver: bool
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         cont_exprs = self.cont_assign_map.get(sym)
         if cont_exprs:
@@ -2151,18 +2158,20 @@ class _ModuleAstParserState:
         return ([], logic_only_driver)
 
     def _collect_driver_candidates(
-        self, sym: ps.Symbol, rng: Optional[tuple[int, int]]
+        self, sym: pa.Symbol, rng: Optional[tuple[int, int]]
     ) -> tuple[
-        list[tuple[ps.ValueDriver, tuple[int, int]]],
-        dict[ps.ValueDriver, tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]],
+        list[tuple[pan.ValueDriver, tuple[int, int]]],
+        dict[pan.ValueDriver, tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]],
         bool,
     ]:
-        filtered_drivers: list[tuple[ps.ValueDriver, tuple[int, int]]] = []
+        filtered_drivers: list[tuple[pan.ValueDriver, tuple[int, int]]] = []
         driver_sources: dict[
-            ps.ValueDriver, tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]
+            pan.ValueDriver, tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]
         ] = {}
         logic_only_driver = False
-        for drv, drv_rng in self.am.getDrivers(sym):
+        assert isinstance(sym, pa.ValueSymbol)
+        for drv in self.am.getDrivers(sym):
+            drv_rng = drv.bounds
             if rng is not None and isinstance(drv_rng, tuple) and (len(drv_rng) == 2):
                 if all((isinstance(x, int) for x in drv_rng)):
                     drv_low, drv_high = sorted(drv_rng)
@@ -2177,7 +2186,7 @@ class _ModuleAstParserState:
         return (filtered_drivers, driver_sources, logic_only_driver)
 
     def _resolve_sources_impl(
-        self, sym: ps.Symbol, rng: Optional[tuple[int, int]]
+        self, sym: pa.Symbol, rng: Optional[tuple[int, int]]
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         filtered_drivers, driver_sources, logic_only_driver = self._collect_driver_candidates(
             sym, rng
@@ -2196,7 +2205,7 @@ class _ModuleAstParserState:
         return (sources, logic)
 
     def _resolve_sources_with_logic(
-        self, sym: Optional[ps.Symbol] = None, rng: Optional[tuple[int, int]] = None
+        self, sym: Optional[pa.Symbol] = None, rng: Optional[tuple[int, int]] = None
     ) -> tuple[list[Union[ReferencedPort, ElaboratableValue]], bool]:
         if sym is None:
             return ([], False)
@@ -2293,9 +2302,9 @@ class _ModuleAstParserState:
 
     def _instance_port_expr_text(
         self,
-        inst_sym: ps.InstanceSymbol,
+        inst_sym: pa.InstanceSymbol,
         port_name: str,
-        pc_by_name: Optional[dict[str, ps.PortConnection]] = None,
+        pc_by_name: Optional[dict[str, pa.PortConnection]] = None,
     ) -> str:
         expr_txt = ""
         if pc_by_name is None:
@@ -2697,7 +2706,7 @@ class _ModuleAstParserState:
         return (inst_name, port_name)
 
     def _should_repair_helper_input(
-        self, raw_expr: str, inst_name: str, port_name: str, src_inst_sym: ps.InstanceSymbol
+        self, raw_expr: str, inst_name: str, port_name: str, src_inst_sym: pa.InstanceSymbol
     ) -> bool:
         implied_wire = f"{inst_name}__{port_name}"
         if raw_expr in {f"{inst_name}.{port_name}", implied_wire}:
@@ -2714,10 +2723,10 @@ class _ModuleAstParserState:
     def _repair_single_helper_input(
         self,
         helper: ModuleInstance,
-        helper_sym: ps.InstanceSymbol,
+        helper_sym: pa.InstanceSymbol,
         helper_port: Port,
         inst_by_name: dict[str, ModuleInstance],
-        instsym_by_inst: dict[ModuleInstance, ps.InstanceSymbol],
+        instsym_by_inst: dict[ModuleInstance, pa.InstanceSymbol],
     ) -> bool:
         split = self._split_helper_src_port(helper_port.name)
         if split is None:
@@ -2766,17 +2775,17 @@ class _ModuleAstParserState:
                 ):
                     connected_helper_inputs.add(helper_port.name)
 
-    def _build_module_header(self) -> ps.InstanceBodySymbol:
-        body: ps.InstanceBodySymbol = self.mod_ast.body
+    def _build_module_header(self) -> pa.InstanceBodySymbol:
+        body: pa.InstanceBodySymbol = self.mod_ast.body
         mod_id = Identifier(name=body.name)
         self.mod = Module(id=mod_id)
-        self.sym_ports: dict[ps.Symbol, Port] = {}
+        self.sym_ports: dict[pa.Symbol, Port] = {}
         for param_ast in body.parameters:
             param = self.parser._parse_parameter_ast(param_ast)
             if param is not None:
                 self.mod.add_parameter(param)
         for port_ast in body.portList:
-            if isinstance(port_ast, ps.InterfacePortSymbol):
+            if isinstance(port_ast, pa.InterfacePortSymbol):
                 if port_ast.interfaceDef is None:
                     logger.warning(
                         "There is no interface definition in provided sources "
@@ -2784,7 +2793,7 @@ class _ModuleAstParserState:
                     )
                     continue
                 for conn in port_ast.connection:
-                    if isinstance(conn, ps.InstanceSymbol):
+                    if isinstance(conn, pa.InstanceSymbol):
                         self.parser._visit_instance_ast(conn, self.comp, True)
                 name = port_ast.interfaceDef.name
                 idef = self.parser._interfaces.get(name)
@@ -2809,8 +2818,8 @@ class _ModuleAstParserState:
                 )
                 self.mod.add_interface(inst)
             else:
-                if not isinstance(port_ast, ps.PortSymbol) or not isinstance(
-                    port_ast.internalSymbol, (ps.VariableSymbol, ps.NetSymbol)
+                if not isinstance(port_ast, pa.PortSymbol) or not isinstance(
+                    port_ast.internalSymbol, (pa.VariableSymbol, pa.NetSymbol)
                 ):
                     logger.error(
                         "Exotic port symbol: %s, %s",
@@ -2831,17 +2840,17 @@ class _ModuleAstParserState:
         self.mod.add_reference(FileReference(file=file, line=line, column=column))
         return body
 
-    def _init_parsing_state(self, body: ps.InstanceBodySymbol) -> None:
+    def _init_parsing_state(self, body: pa.InstanceBodySymbol) -> None:
         self.components: list[ModuleInstance] = []
         self.connections: list[Union[PortConnection, ConstantConnection]] = []
         self.concat_idx = 0
         self.am = self.parser._ensure_analysis_manager(self.comp)
-        self.instance_map: dict[ps.InstanceSymbol, ModuleInstance] = {}
-        self.inst_port_conns: dict[ps.InstanceSymbol, list[ps.PortConnection]] = {}
-        self.sym_by_name: dict[str, ps.Symbol] = {}
-        self.sym_by_norm_name: dict[str, ps.Symbol] = {}
-        self.ports_by_name: dict[str, ps.PortSymbol] = {}
-        self.ports_by_norm_name: dict[str, ps.PortSymbol] = {}
+        self.instance_map: dict[pa.InstanceSymbol, ModuleInstance] = {}
+        self.inst_port_conns: dict[pa.InstanceSymbol, list[pa.PortConnection]] = {}
+        self.sym_by_name: dict[str, pa.Symbol] = {}
+        self.sym_by_norm_name: dict[str, pa.Symbol] = {}
+        self.ports_by_name: dict[str, pa.PortSymbol] = {}
+        self.ports_by_norm_name: dict[str, pa.PortSymbol] = {}
         self._populate_symbol_lookup(body)
         self._collect_instances(body)
         self._member_expr_types = self._build_member_expr_types()
@@ -2851,19 +2860,19 @@ class _ModuleAstParserState:
         self._init_blackbox_state(body)
         self._init_resolution_state()
 
-    def _populate_symbol_lookup(self, body: ps.InstanceBodySymbol) -> None:
+    def _populate_symbol_lookup(self, body: pa.InstanceBodySymbol) -> None:
         for sym in self.sym_ports:
             name = getattr(sym, "name", None)
             if not isinstance(name, str):
                 continue
             self.sym_by_name[name] = sym
             self.sym_by_norm_name.setdefault(self._norm_sv_ident(name), sym)
-            if isinstance(sym, ps.PortSymbol):
+            if isinstance(sym, pa.PortSymbol):
                 self.ports_by_name[name] = sym
                 self.ports_by_norm_name.setdefault(self._norm_sv_ident(name), sym)
 
         for entry in body:
-            if not isinstance(entry, (ps.VariableSymbol, ps.NetSymbol)):
+            if not isinstance(entry, (pa.VariableSymbol, pa.NetSymbol)):
                 continue
             self.sym_by_name[entry.name] = entry
             self.sym_by_norm_name.setdefault(self._norm_sv_ident(entry.name), entry)
@@ -2880,20 +2889,20 @@ class _ModuleAstParserState:
             if t is not None
         )
 
-    def _collect_continuous_assignments(self, body: ps.InstanceBodySymbol) -> None:
-        self.cont_assign_map: dict[ps.Symbol, list[ps.Expression]] = {}
-        self.cont_assign_text_map: dict[ps.Symbol, list[str]] = {}
+    def _collect_continuous_assignments(self, body: pa.InstanceBodySymbol) -> None:
+        self.cont_assign_map: dict[pa.Symbol, list[pa.Expression]] = {}
+        self.cont_assign_text_map: dict[pa.Symbol, list[str]] = {}
         for entry in body:
-            if not isinstance(entry, ps.ContinuousAssignSymbol):
+            if not isinstance(entry, pa.ContinuousAssignSymbol):
                 continue
             assignment = entry.assignment
-            if isinstance(assignment, ps.AssignmentExpression):
+            if isinstance(assignment, pa.AssignmentExpression):
                 lhs = assignment.left
                 rhs = assignment.right
             else:
                 lhs = getattr(assignment, "left", None)
                 rhs = getattr(assignment, "right", None)
-            if rhs is None or not isinstance(lhs, ps.NamedValueExpression):
+            if rhs is None or not isinstance(lhs, pa.NamedValueExpression):
                 raw = self._raw_source_for_node(assignment) or self._raw_source_for_node(entry)
                 m = re.match(
                     "\\s*(?:assign\\s+)?(?P<lhs>\\\\\\S+|[A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*(?P<rhs>.*?)\\s*;?\\s*$",
@@ -2916,17 +2925,17 @@ class _ModuleAstParserState:
                 continue
             self.cont_assign_map.setdefault(lhs_sym, []).append(rhs)
 
-    def _collect_procedural_assignments(self, body: ps.InstanceBodySymbol) -> None:
-        self.procedural_assignments: dict[str, list[ps.Expression]] = {}
+    def _collect_procedural_assignments(self, body: pa.InstanceBodySymbol) -> None:
+        self.procedural_assignments: dict[str, list[pa.Expression]] = {}
         for entry in body:
-            if isinstance(entry, ps.ProceduralBlockSymbol):
+            if isinstance(entry, pa.ProceduralBlockSymbol):
                 self._walk_procedural_stmts(entry.body)
 
-    def _prepare_instance_output_tracking(self, body: ps.InstanceBodySymbol) -> None:
-        self.instance_output_sources: dict[ps.InstanceSymbol, list[tuple[ps.Symbol, Port]]] = {}
-        self.sym_to_instance_ports: dict[ps.Symbol, list[ReferencedPort]] = {}
+    def _prepare_instance_output_tracking(self, body: pa.InstanceBodySymbol) -> None:
+        self.instance_output_sources: dict[pa.InstanceSymbol, list[tuple[pa.Symbol, Port]]] = {}
+        self.sym_to_instance_ports: dict[pa.Symbol, list[ReferencedPort]] = {}
         self.name_to_instance_ports: dict[str, list[ReferencedPort]] = {}
-        self._instance_port_expr_text_cache: dict[ps.InstanceSymbol, dict[str, str]] = {}
+        self._instance_port_expr_text_cache: dict[pa.InstanceSymbol, dict[str, str]] = {}
         self._module_text_for_port_scan = ""
         body_syn = getattr(body, "syntax", None)
         body_rng = getattr(body_syn, "sourceRange", None) if body_syn is not None else None
@@ -2942,7 +2951,7 @@ class _ModuleAstParserState:
         )
         self._cache_instance_outputs()
 
-    def _init_blackbox_state(self, body: ps.InstanceBodySymbol) -> None:
+    def _init_blackbox_state(self, body: pa.InstanceBodySymbol) -> None:
         self.logic_inst: Optional[ModuleInstance] = None
         bb_base_name = f"{body.name}.(control)"
         bb_name = bb_base_name
@@ -2959,14 +2968,14 @@ class _ModuleAstParserState:
 
     def _init_resolution_state(self) -> None:
         self._STMT_ASSIGN_CHECKERS: dict[type, Any] = {
-            ps.ExpressionStatement: self._assign_expr_stmt,
-            ps.BlockStatement: self._assign_block_stmt,
-            ps.StatementList: self._assign_stmt_list,
-            ps.ConditionalStatement: self._assign_conditional,
-            ps.CaseStatement: self._assign_case,
-            ps.ForLoopStatement: self._assign_false,
-            ps.ForeachLoopStatement: self._assign_false,
-            ps.VariableDeclStatement: self._assign_false,
+            pa.ExpressionStatement: self._assign_expr_stmt,
+            pa.BlockStatement: self._assign_block_stmt,
+            pa.StatementList: self._assign_stmt_list,
+            pa.ConditionalStatement: self._assign_conditional,
+            pa.CaseStatement: self._assign_case,
+            pa.ForLoopStatement: self._assign_false,
+            pa.ForeachLoopStatement: self._assign_false,
+            pa.VariableDeclStatement: self._assign_false,
         }
         self._resolving: set[tuple[str, Optional[tuple[int, int]]]] = set()
         self._resolve_cache: dict[
@@ -2976,7 +2985,7 @@ class _ModuleAstParserState:
         self._cycle_reported: set[tuple[str, Optional[tuple[int, int]]]] = set()
 
     def _recover_instance_input_sources(
-        self, inst_sym: ps.InstanceSymbol, pc: ps.PortConnection
+        self, inst_sym: pa.InstanceSymbol, pc: pa.PortConnection
     ) -> list[Union[ReferencedPort, ElaboratableValue]]:
         raw_expr = str(getattr(pc.expression, "syntax", "")).strip()
         if raw_expr == "":
@@ -3128,8 +3137,8 @@ class SystemVerilogSlangParser:
         self._placeholder_interfaces = set()
         self._concat_modules: dict[int, Module] = {}  # concat modules of each size
         self._select_modules: dict[str, Module] = {}  # select modules by select name
-        self._analysis_manager: Optional[ps.AnalysisManager] = None
-        self._analysis_comp: Optional[ps.Compilation] = None
+        self._analysis_manager: Optional[pan.AnalysisManager] = None
+        self._analysis_comp: Optional[pa.Compilation] = None
         # This may look like a useless operation, but this dictionary's
         # purpose is to store a mapping between SV modports and inferred
         # IR `InterfaceMode`. IR interfaces are loaded into this dict here
@@ -3141,7 +3150,7 @@ class SystemVerilogSlangParser:
         self._skip_selects = skip_selects
 
     def parse_tree(
-        self, tree: ps.SyntaxTree
+        self, tree: psy.SyntaxTree
     ) -> tuple[list[Module], list[InterfaceDefinition], list[str], list[str]]:
         """
         Parse a pyslang `SyntaxTree` into IR Modules
@@ -3149,7 +3158,7 @@ class SystemVerilogSlangParser:
         :param tree: A group of SV sources parsed into a `SyntaxTree`
         """
 
-        comp = ps.Compilation()
+        comp = pa.Compilation()
         comp.addSyntaxTree(tree)
 
         diags: Iterable[ps.Diagnostic] = comp.getAllDiagnostics()
@@ -3165,32 +3174,32 @@ class SystemVerilogSlangParser:
             # In the AST there is no distinction between an instance and
             # a definition. All definitions are monomorphised with instances
             # with specific parameter values set.
-            if isinstance(sym, ps.InstanceSymbol):
+            if isinstance(sym, pa.InstanceSymbol):
                 self._visit_instance_ast(sym, comp, True)
                 for csym in sym.body:
                     sym_queue.append(csym)
             # A `TypeAliasType` is a type alias. When encountered here it
             # specifically refers to a `typedef` construct. (But note that
             # this is not a concrete rule in other places of AST)
-            elif isinstance(sym, ps.TypeAliasType):
+            elif isinstance(sym, pa.TypeAliasType):
                 self._handle_typealias_ast(sym)
             # An assumption is made here that a compilation unit is basically
             # a wrapper for all modules, interfaces, packages, macros, etc. sharing
             # the same namespace context. So they're just treated as a container
             # for other symbols
-            elif isinstance(sym, ps.CompilationUnitSymbol):
+            elif isinstance(sym, pa.CompilationUnitSymbol):
                 for csym in sym:
                     sym_queue.append(csym)
 
         return (list(self._parsed_mods.values()), self._parsed_intf, warnings, errors)
 
     def _check_diagnostics(
-        self, tree: ps.SyntaxTree, diags: Iterable[ps.Diagnostic]
+        self, tree: psy.SyntaxTree, diags: Iterable[ps.Diagnostic]
     ) -> Tuple[List[str], List[str]]:
         root = tree.root
-        members = root.members if isinstance(root, ps.CompilationUnitSyntax) else [root]
+        members = root.members if isinstance(root, psy.CompilationUnitSyntax) else [root]
         headers_ranges = [
-            m.header.sourceRange for m in members if isinstance(m, ps.ModuleDeclarationSyntax)
+            m.header.sourceRange for m in members if isinstance(m, psy.ModuleDeclarationSyntax)
         ]
 
         def _is_loc_in_range(location: ps.SourceLocation, ranges: List[ps.SourceRange]):
@@ -3267,11 +3276,11 @@ class SystemVerilogSlangParser:
 
         return (warning_parse_diags, error_parse_diags)
 
-    def _ensure_analysis_manager(self, comp: ps.Compilation) -> ps.AnalysisManager:
+    def _ensure_analysis_manager(self, comp: pa.Compilation) -> pan.AnalysisManager:
         if self._analysis_manager is not None and self._analysis_comp is comp:
             return self._analysis_manager
 
-        am = ps.AnalysisManager()
+        am = pan.AnalysisManager()
         am.analyze(comp)
         self._analysis_manager = am
         self._analysis_comp = comp
@@ -3295,21 +3304,22 @@ class SystemVerilogSlangParser:
                         intf.signals = dict(updated_signals)
 
     def _visit_instance_ast(
-        self, node: ps.InstanceSymbol, comp: ps.Compilation, addToModules: bool
+        self, node: pa.InstanceSymbol, comp: pa.Compilation, addToModules: bool
     ):
         # An array of module/interface instances. Since they all
         # share the same base definition, it's enough to just handle
         # the first (or any) element.
-        if isinstance(node, ps.InstanceArraySymbol):
-            if isinstance(node[0], ps.InstanceSymbol):
-                self._visit_instance_ast(node[0], comp, addToModules)
+        if isinstance(node, pa.InstanceArraySymbol):
+            item = node[0]
+            if isinstance(item, pa.InstanceSymbol):
+                self._visit_instance_ast(item, comp, addToModules)
             return
 
         # An instance body contains ports, parameters and children
         # components. It can be possibly regarded as just a module
         # /interface definition (but not exactly, since different `InstanceSymbol`s
         # do not share the same `InstanceBodySymbol`)
-        body: ps.InstanceBodySymbol = node.body
+        body: pa.InstanceBodySymbol = node.body
         if node.isInterface:
             if body.name in self._interfaces and body.name not in self._placeholder_interfaces:
                 self._parsed_intf.append(self._interfaces[body.name])
@@ -3338,7 +3348,7 @@ class SystemVerilogSlangParser:
                     module = self._parse_module_ast(node, comp)
                 self._submodules[body.name] = module
 
-    def _handle_typealias_ast(self, node: ps.TypeAliasType):
+    def _handle_typealias_ast(self, node: pa.TypeAliasType):
         if node.targetType.typeSyntax is None:
             return
         typ = self._parse_var_type_cst(node.targetType.typeSyntax, node)
@@ -3347,18 +3357,18 @@ class SystemVerilogSlangParser:
             return
         self._typedefs[node.lexicalPath] = typ
 
-    def _parse_module_ast(self, mod_ast: ps.InstanceSymbol, comp: ps.Compilation) -> Module:
+    def _parse_module_ast(self, mod_ast: pa.InstanceSymbol, comp: pa.Compilation) -> Module:
         return _ModuleAstParserState(self, mod_ast, comp).parse()
 
-    def _parse_interface_ast(self, intf_ast: ps.InstanceBodySymbol) -> InterfaceDefinition:
+    def _parse_interface_ast(self, intf_ast: pa.InstanceBodySymbol) -> InterfaceDefinition:
         signals = dict[str, InterfaceSignal]()
         id = Identifier(name=intf_ast.name)
         # `ModportPortSymbol` is a specific signal in a SV modport list
         # (e.g. "addr" in `modport axi_drv(output addr, input rdata);`)
         # while "axi_drv" itself is a `ModportSymbol`
-        modports = dict[str, list[ps.ModportPortSymbol]]()
+        modports = dict[str, list[pa.ModportPortSymbol]]()
         for entry in intf_ast:
-            if isinstance(entry, (ps.VariableSymbol, ps.NetSymbol)):
+            if isinstance(entry, (pa.VariableSymbol, pa.NetSymbol)):
                 ir_type = self._parse_var_type_ast(entry)
                 signals[entry.name] = InterfaceSignal(
                     name=entry.name,
@@ -3374,10 +3384,10 @@ class SystemVerilogSlangParser:
                         )
                     },
                 )
-            elif isinstance(entry, ps.ModportSymbol):
-                sigs = list[ps.ModportPortSymbol]()
+            elif isinstance(entry, pa.ModportSymbol):
+                sigs = list[pa.ModportPortSymbol]()
                 for sig in entry:
-                    if isinstance(sig, ps.ModportPortSymbol):
+                    if isinstance(sig, pa.ModportPortSymbol):
                         sigs.append(sig)
                 modports[entry.name] = sigs
 
@@ -3399,14 +3409,14 @@ class SystemVerilogSlangParser:
         )
 
     # `Symbol` is a base type for all AST objects
-    def _parse_parameter_ast(self, param_ast: ps.Symbol) -> Optional[Parameter]:
+    def _parse_parameter_ast(self, param_ast: pa.Symbol) -> Optional[Parameter]:
         def_val = None
         # `ParameterSymbol` corresponds to `parameter [int,byte,logic,etc.] pname = 0,`
         # in SystemVerilog
-        if isinstance(param_ast, ps.ParameterSymbol):
+        if isinstance(param_ast, pa.ParameterSymbol):
             # `DeclaratorSyntax` - the CST declaring something with a possible initializer value
             # (here the right hand side of "=") in a definition of a e.g. a module
-            if not isinstance(param_ast.syntax, ps.DeclaratorSyntax):
+            if not isinstance(param_ast.syntax, psy.DeclaratorSyntax):
                 logger.error(
                     f"Expected DeclaratorSyntax, got: {param_ast.syntax} in {param_ast.lexicalPath}"
                 )
@@ -3417,8 +3427,8 @@ class SystemVerilogSlangParser:
                 def_val = str(param_ast.syntax.initializer.expr).strip()
         # `TypeParameterSymbol` corresponds to `parameter type pname = logic`
         # in SystemVerilog
-        elif isinstance(param_ast, ps.TypeParameterSymbol):
-            if not isinstance(param_ast.targetType, ps.DeclaredType):
+        elif isinstance(param_ast, pa.TypeParameterSymbol):
+            if not isinstance(param_ast.targetType, pa.DeclaredType):
                 logger.error(
                     f"Expected DeclaredType, got: {param_ast.targetType} in {param_ast.lexicalPath}"
                 )
@@ -3442,10 +3452,10 @@ class SystemVerilogSlangParser:
         def_val = None if def_val is None else ElaboratableValue(def_val)
         return Parameter(name=param_ast.name, default_value=def_val)
 
-    def _parse_var_type_ast(self, var: Union[ps.VariableSymbol, ps.NetSymbol]) -> Logic:
+    def _parse_var_type_ast(self, var: Union[pa.VariableSymbol, pa.NetSymbol]) -> Logic:
         # `FixedSizeUnpackedArrayType` - an unpacked array type, for example `logic var1[4][8];`
-        if isinstance(var.type, ps.FixedSizeUnpackedArrayType):
-            if not isinstance(var.syntax, ps.DeclaratorSyntax):
+        if isinstance(var.type, pa.FixedSizeUnpackedArrayType):
+            if not isinstance(var.syntax, psy.DeclaratorSyntax):
                 logger.error(f"Expected DeclaratorSyntax, got: {var.syntax} in {var.lexicalPath}")
                 return Bit()
 
@@ -3463,36 +3473,29 @@ class SystemVerilogSlangParser:
         return self._parse_var_type_cst(var.declaredType.typeSyntax, var)
 
     def _telescope_type_ast(self, sym: Any) -> Any:
-        while isinstance(sym, ps.TypeAliasType):
+        while isinstance(sym, pa.TypeAliasType):
             sym = sym.targetType.type
         return sym
 
     # `SyntaxNode` is a common base type for all CST objects, just like `Symbol`
     # is a base type for all AST objects
-    def _extract_dimensions_cst(self, dim_node: ps.SyntaxNode) -> Iterator[Dimensions]:
-        # `SyntaxNode.SyntaxKind` is a tag of the variant (as if a `SyntaxNode` was a tagged union)
-        # of CST object. Some variants are only available as a kind, while some also have
-        # a dedicated class that inherits from `SyntaxNode`...
-        if dim_node.kind != ps.SyntaxKind.SyntaxList:
-            logger.error(
-                f"Expected dimensions to be a SyntaxList, got: {dim_node.kind} in {dim_node}"
-            )
-            return
-
+    def _extract_dimensions_cst(
+        self, dim_node: list[psy.VariableDimensionSyntax]
+    ) -> Iterator[Dimensions]:
         for dim in dim_node:
-            if not isinstance(dim, ps.VariableDimensionSyntax) or not isinstance(
-                spec := dim.specifier, ps.RangeDimensionSpecifierSyntax
+            if not isinstance(dim, psy.VariableDimensionSyntax) or not isinstance(
+                spec := dim.specifier, psy.RangeDimensionSpecifierSyntax
             ):
                 logger.error(f"Expected a VariableDimensionSyntax, got: {dim}")
                 continue
 
             # A dimension defined by a single number - its size, e.g.: `logic var1[4];`
-            if isinstance(spec.selector, ps.BitSelectSyntax):
+            if isinstance(spec.selector, psy.BitSelectSyntax):
                 yield Dimensions(
                     upper=ElaboratableValue(str(spec.selector.expr)) - ElaboratableValue(1)
                 )
             # A dimension defined by a bit range, e.g.: `logic var1[0:3];`
-            elif isinstance(spec.selector, ps.RangeSelectSyntax):
+            elif isinstance(spec.selector, psy.RangeSelectSyntax):
                 yield Dimensions(
                     upper=ElaboratableValue(str(spec.selector.left)),
                     lower=ElaboratableValue(str(spec.selector.right)),
@@ -3500,24 +3503,24 @@ class SystemVerilogSlangParser:
             else:
                 logger.error(f"Unexpected dimensions selector: {type(spec.selector)}")
 
-    def _parse_var_type_cst(self, syn: ps.SyntaxNode, sym: ps.Symbol) -> Logic:
+    def _parse_var_type_cst(self, syn: psy.SyntaxNode, sym: pa.Symbol) -> Logic:
         # All common SV base numerical types fall under `IntegerTypeSyntax`:
         # `logic`, `reg`, `bit`, etc.
         # `ImplicitTypeSyntax` is used for elements without an explicit type, e.g.
         # a net declaration: `wire [3:0] net1 = abc[3:0];`
-        if isinstance(syn, (ps.IntegerTypeSyntax, ps.ImplicitTypeSyntax)):
+        if isinstance(syn, (psy.IntegerTypeSyntax, psy.ImplicitTypeSyntax)):
             (*dims,) = self._extract_dimensions_cst(syn.dimensions)
             if len(dims) == 0:
                 return Bit()
             else:
                 return Bits(dimensions=dims)
-        elif isinstance(syn, ps.StructUnionTypeSyntax):
+        elif isinstance(syn, psy.StructUnionTypeSyntax):
             return self._parse_struct_type_cst(syn, sym)
         # `NamedTypeSyntax` refers to any type referenced by an alias
         # e.g. a name of a typedef or name of a `parameter type`
-        elif isinstance(syn, ps.NamedTypeSyntax):
+        elif isinstance(syn, psy.NamedTypeSyntax):
             return self._parse_type_alias_cst(syn, sym)
-        elif isinstance(syn, ps.EnumTypeSyntax):
+        elif isinstance(syn, psy.EnumTypeSyntax):
             return self._parse_enum_type_cst(syn, sym)
         else:
             logger.warning(
@@ -3525,17 +3528,17 @@ class SystemVerilogSlangParser:
             )
             return Bit()
 
-    def _parse_struct_type_cst(self, syn: ps.StructUnionTypeSyntax, sym: ps.Symbol) -> Logic:
+    def _parse_struct_type_cst(self, syn: psy.StructUnionTypeSyntax, sym: pa.Symbol) -> Logic:
         (*dims,) = self._extract_dimensions_cst(syn.dimensions)
         fields = list[StructField[Logic]]()
         for mem in syn.members:
-            if not isinstance(mem, ps.StructUnionMemberSyntax):
+            if not isinstance(mem, psy.StructUnionMemberSyntax):
                 logger.error(f"Unexpected type of struct member: {type(mem)} in {sym.lexicalPath}")
                 continue
 
             mem_type = self._parse_var_type_cst(mem.type, sym)
             for decl in mem.declarators:
-                if not isinstance(decl, ps.DeclaratorSyntax):
+                if not isinstance(decl, psy.DeclaratorSyntax):
                     continue
                 (*decl_dims,) = self._extract_dimensions_cst(decl.dimensions)
                 if len(decl_dims) != 0:
@@ -3551,12 +3554,12 @@ class SystemVerilogSlangParser:
         struct = BitStruct(fields=fields)
         return struct if dims == [] else LogicArray(item=struct, dimensions=dims)
 
-    def _parse_type_alias_cst(self, syn: ps.NamedTypeSyntax, sym: ps.Symbol) -> Logic:
+    def _parse_type_alias_cst(self, syn: psy.NamedTypeSyntax, sym: pa.Symbol) -> Logic:
         if not isinstance(
             syn.name,
             # First is a plain name, second is a select operation on a plain name (dimensions)
             # third is a name with a scope, so e.g. `package::class::type_a`
-            (ps.IdentifierNameSyntax, ps.IdentifierSelectNameSyntax, ps.ScopedNameSyntax),
+            (psy.IdentifierNameSyntax, psy.IdentifierSelectNameSyntax, psy.ScopedNameSyntax),
         ):
             logger.error(f"Unexpected named type: {type(syn.name)} in {sym.lexicalPath}")
             return Bit()
@@ -3572,7 +3575,7 @@ class SystemVerilogSlangParser:
         if not dims:
             dims.extend(_extract_dims_from_alias_text(cleaned_name))
 
-        parent: ps.Scope = sym.parentScope
+        parent: pa.Scope = sym.parentScope
         try:
             typeref = parent.lookupName(lookup_name)
         except RuntimeError:
@@ -3588,7 +3591,7 @@ class SystemVerilogSlangParser:
         name = typeref.lexicalPath
         ir_type = self._typedefs.get(name)
         if ir_type is None:
-            if isinstance(typeref, ps.TypeAliasType):
+            if isinstance(typeref, pa.TypeAliasType):
                 self._handle_typealias_ast(typeref)
                 ir_type = self._typedefs.get(name)
                 if ir_type is None:
@@ -3614,19 +3617,19 @@ class SystemVerilogSlangParser:
             return _logic_with_dims(fallback, dims)
         return _logic_with_dims(ir_type.copy(), dims)
 
-    def _parse_enum_type_cst(self, syn: ps.EnumTypeSyntax, sym: ps.Symbol) -> Enum:
+    def _parse_enum_type_cst(self, syn: psy.EnumTypeSyntax, sym: pa.Symbol) -> Enum:
         (*dims,) = self._extract_dimensions_cst(syn.dimensions)
         base_type = self._parse_var_type_cst(syn.baseType, sym)
         if isinstance(base_type, LogicArray):
             dims.extend(base_type.dimensions)
         resolved = self._telescope_type_ast(sym)
-        if isinstance(resolved, ps.EnumType):
+        if isinstance(resolved, pa.EnumType):
             dims = [Dimensions(upper=ElaboratableValue(resolved.bitWidth - 1)), *dims]
 
         prev = None
         variants = {}
         for member in syn.members:
-            if isinstance(member, ps.DeclaratorSyntax):
+            if isinstance(member, psy.DeclaratorSyntax):
                 if member.initializer is not None:
                     val = ElaboratableValue(str(member.initializer.expr).strip())
                 else:

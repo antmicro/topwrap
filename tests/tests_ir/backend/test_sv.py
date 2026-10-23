@@ -7,7 +7,9 @@ import re
 from pathlib import Path
 
 import pytest
-from pyslang import Compilation, DiagnosticEngine, SourceManager, SyntaxTree
+from pyslang import DiagnosticEngine, SourceManager
+from pyslang.ast import Compilation
+from pyslang.syntax import SyntaxTree
 
 from examples.ir_examples.axi_wb_uart.ir.design import top as axi_wb_uart_top
 from examples.ir_examples.modules import (
@@ -554,7 +556,7 @@ endinterface
             (intr_top, 0),
             (adv_top, 0),
             (soc_top, 0),
-            (axi_soc_top, 33),  # Dependencies needed by axi interconnect will create these errors
+            (axi_soc_top, 34),  # Dependencies needed by axi interconnect will create these errors
         ),
     )
     def test_generated_syntax(self, module: Module, expected_err_count: int):

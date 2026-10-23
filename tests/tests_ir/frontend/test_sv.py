@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Callable
 
-import pyslang as ps
+import pyslang.syntax as ps
 import pytest
 
 from examples.ir_examples.advanced.ir.types import sci_intf
