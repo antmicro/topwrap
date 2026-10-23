@@ -18,9 +18,9 @@ interfaces:
     reset: rst
     signals:
       in:
-        TDATA: [a_dat_i, 31, 0]
-        TVALID: [a_ctrl_i, 4, 0, 4, 4]
-        TKEEP: [a_ctrl_i, 4, 0, 3, 0]
+        tdata: [a_dat_i, 31, 0]
+        tvalid: [a_ctrl_i, 4, 0, 4, 4]
+        tkeep: [a_ctrl_i, 4, 0, 3, 0]
 
   io_b:
     type:
@@ -30,9 +30,9 @@ interfaces:
     reset: rst
     signals:
       out:
-        TDATA: [b_dat_o, 31, 0]
-        TVALID: [b_ctrl_o, 4, 0, 0, 0]
-        TKEEP: [b_ctrl_o, 4, 0, 4, 1]
+        tdata: [b_dat_o, 31, 0]
+        tvalid: [b_ctrl_o, 4, 0, 0, 0]
+        tkeep: [b_ctrl_o, 4, 0, 4, 1]
 
 clocks:
   clk_a:

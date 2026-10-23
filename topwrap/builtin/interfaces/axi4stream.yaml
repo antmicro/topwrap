@@ -10,32 +10,32 @@ id:
 
 signals:
   # assuming transmitter = manager
-  TVALID:
+  tvalid:
     pattern: tvalid
     modes: {manager: [out, required]}
-  TREADY:
+  tready:
     pattern: tready
     modes: {manager: [in, optional]}
     default: '1'
-  TDATA:
+  tdata:
     pattern: tdata
     modes: {manager: [out, optional]}
     default: '0'
-  TSTRB:
+  tstrb:
     pattern: tstrb
     modes: {manager: [out, optional]}
-  TKEEP:
+  tkeep:
     pattern: tkeep
     modes: {manager: [out, optional]}
-  TLAST:
+  tlast:
     pattern: tlast
     modes: {manager: [out, optional]}
-  TID:
+  tid:
     pattern: tid
     modes: {manager: [out, optional]}
-  TDEST:
+  tdest:
     pattern: tdest
     modes: {manager: [out, optional]}
-  TUSER:
+  tuser:
     pattern: tuser
     modes: {manager: [out, optional]}

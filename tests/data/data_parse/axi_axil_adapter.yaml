@@ -3,26 +3,26 @@ interfaces:
     mode: manager
     signals:
       in:
-        ARREADY: m_axil_arready
-        AWREADY: m_axil_awready
-        BRESP: [m_axil_bresp, 1, 0]
-        BVALID: m_axil_bvalid
-        RDATA: [m_axil_rdata, (AXIL_DATA_WIDTH-1), 0]
-        RRESP: [m_axil_rresp, 1, 0]
-        RVALID: m_axil_rvalid
-        WREADY: m_axil_wready
+        arready: m_axil_arready
+        awready: m_axil_awready
+        bresp: [m_axil_bresp, 1, 0]
+        bvalid: m_axil_bvalid
+        rdata: [m_axil_rdata, (AXIL_DATA_WIDTH-1), 0]
+        rresp: [m_axil_rresp, 1, 0]
+        rvalid: m_axil_rvalid
+        wready: m_axil_wready
       out:
-        ARADDR: [m_axil_araddr, (ADDR_WIDTH-1), 0]
-        ARPROT: [m_axil_arprot, 2, 0]
-        ARVALID: m_axil_arvalid
-        AWADDR: [m_axil_awaddr, (ADDR_WIDTH-1), 0]
-        AWPROT: [m_axil_awprot, 2, 0]
-        AWVALID: m_axil_awvalid
-        BREADY: m_axil_bready
-        RREADY: m_axil_rready
-        WDATA: [m_axil_wdata, (AXIL_DATA_WIDTH-1), 0]
-        WSTRB: [m_axil_wstrb, (AXIL_STRB_WIDTH-1), 0]
-        WVALID: m_axil_wvalid
+        araddr: [m_axil_araddr, (ADDR_WIDTH-1), 0]
+        arprot: [m_axil_arprot, 2, 0]
+        arvalid: m_axil_arvalid
+        awaddr: [m_axil_awaddr, (ADDR_WIDTH-1), 0]
+        awprot: [m_axil_awprot, 2, 0]
+        awvalid: m_axil_awvalid
+        bready: m_axil_bready
+        rready: m_axil_rready
+        wdata: [m_axil_wdata, (AXIL_DATA_WIDTH-1), 0]
+        wstrb: [m_axil_wstrb, (AXIL_STRB_WIDTH-1), 0]
+        wvalid: m_axil_wvalid
     type:
       name: axi4lite
       vendor: vendor
@@ -31,42 +31,42 @@ interfaces:
     mode: subordinate
     signals:
       in:
-        ARADDR: [s_axi_araddr, (ADDR_WIDTH-1), 0]
-        ARBURST: [s_axi_arburst, 1, 0]
-        ARCACHE: [s_axi_arcache, 3, 0]
-        ARID: [s_axi_arid, (AXI_ID_WIDTH-1), 0]
-        ARLEN: [s_axi_arlen, 7, 0]
-        ARLOCK: s_axi_arlock
-        ARPROT: [s_axi_arprot, 2, 0]
-        ARSIZE: [s_axi_arsize, 2, 0]
-        ARVALID: s_axi_arvalid
-        AWADDR: [s_axi_awaddr, (ADDR_WIDTH-1), 0]
-        AWBURST: [s_axi_awburst, 1, 0]
-        AWCACHE: [s_axi_awcache, 3, 0]
-        AWID: [s_axi_awid, (AXI_ID_WIDTH-1), 0]
-        AWLEN: [s_axi_awlen, 7, 0]
-        AWLOCK: s_axi_awlock
-        AWPROT: [s_axi_awprot, 2, 0]
-        AWSIZE: [s_axi_awsize, 2, 0]
-        AWVALID: s_axi_awvalid
-        BREADY: s_axi_bready
-        RREADY: s_axi_rready
-        WDATA: [s_axi_wdata, (AXI_DATA_WIDTH-1), 0]
-        WLAST: s_axi_wlast
-        WSTRB: [s_axi_wstrb, (AXI_STRB_WIDTH-1), 0]
-        WVALID: s_axi_wvalid
+        araddr: [s_axi_araddr, (ADDR_WIDTH-1), 0]
+        arburst: [s_axi_arburst, 1, 0]
+        arcache: [s_axi_arcache, 3, 0]
+        arid: [s_axi_arid, (AXI_ID_WIDTH-1), 0]
+        arlen: [s_axi_arlen, 7, 0]
+        arlock: s_axi_arlock
+        arprot: [s_axi_arprot, 2, 0]
+        arsize: [s_axi_arsize, 2, 0]
+        arvalid: s_axi_arvalid
+        awaddr: [s_axi_awaddr, (ADDR_WIDTH-1), 0]
+        awburst: [s_axi_awburst, 1, 0]
+        awcache: [s_axi_awcache, 3, 0]
+        awid: [s_axi_awid, (AXI_ID_WIDTH-1), 0]
+        awlen: [s_axi_awlen, 7, 0]
+        awlock: s_axi_awlock
+        awprot: [s_axi_awprot, 2, 0]
+        awsize: [s_axi_awsize, 2, 0]
+        awvalid: s_axi_awvalid
+        bready: s_axi_bready
+        rready: s_axi_rready
+        wdata: [s_axi_wdata, (AXI_DATA_WIDTH-1), 0]
+        wlast: s_axi_wlast
+        wstrb: [s_axi_wstrb, (AXI_STRB_WIDTH-1), 0]
+        wvalid: s_axi_wvalid
       out:
-        ARREADY: s_axi_arready
-        AWREADY: s_axi_awready
-        BID: [s_axi_bid, (AXI_ID_WIDTH-1), 0]
-        BRESP: [s_axi_bresp, 1, 0]
-        BVALID: s_axi_bvalid
-        RDATA: [s_axi_rdata, (AXI_DATA_WIDTH-1), 0]
-        RID: [s_axi_rid, (AXI_ID_WIDTH-1), 0]
-        RLAST: s_axi_rlast
-        RRESP: [s_axi_rresp, 1, 0]
-        RVALID: s_axi_rvalid
-        WREADY: s_axi_wready
+        arready: s_axi_arready
+        awready: s_axi_awready
+        bid: [s_axi_bid, (AXI_ID_WIDTH-1), 0]
+        bresp: [s_axi_bresp, 1, 0]
+        bvalid: s_axi_bvalid
+        rdata: [s_axi_rdata, (AXI_DATA_WIDTH-1), 0]
+        rid: [s_axi_rid, (AXI_ID_WIDTH-1), 0]
+        rlast: s_axi_rlast
+        rresp: [s_axi_rresp, 1, 0]
+        rvalid: s_axi_rvalid
+        wready: s_axi_wready
     type:
       name: axi3
       vendor: vendor

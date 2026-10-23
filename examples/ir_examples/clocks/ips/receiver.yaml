@@ -17,12 +17,12 @@ interfaces:
     reset: rst
     signals:
       in:
-        TDATA: [dat_i, 31, 0]
+        tdata: [dat_i, 31, 0]
 
         # PORT SLICING
         # reversed situation from streamer.yaml
-        TVALID: [ctrl_i, 4, 0, 4, 4]
-        TKEEP: [ctrl_i, 4, 0, 3, 0]
+        tvalid: [ctrl_i, 4, 0, 4, 4]
+        tkeep: [ctrl_i, 4, 0, 3, 0]
 
 clocks:
   clk:

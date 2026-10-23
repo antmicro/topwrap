@@ -56,11 +56,11 @@ interfaces:
             library: topwrap-interfaces
         signals:
             out:
-                TDATA: p1
-                TVALID: p2
-                TBUBU: p3
+                tdata: p1
+                tvalid: p2
+                tbubu: p3
             in:
-                TREADY: p4"""
+                tready: p4"""
         )
 
     @pytest.fixture
@@ -80,11 +80,11 @@ interfaces:
             library: topwrap-interfaces
         signals:
             out:
-                TDATA: p1
-                TVALID: p2
-                TLAST: p3
+                tdata: p1
+                tvalid: p2
+                tlast: p3
             in:
-                TREADY: p4"""
+                tready: p4"""
         )
 
     @pytest.fixture
@@ -122,11 +122,11 @@ interfaces:
     ):
         with pytest.raises(
             ValidationError,
-            match='Required out port "TLAST" of interface '
+            match='Required out port "tlast" of interface '
             '"antmicro.com_topwrap-interfaces_axi4stream" not present',
         ) and pytest.raises(
             ValidationError,
-            match='Unknown out port "TBUBU", not present in interface '
+            match='Unknown out port "tbubu", not present in interface '
             '"antmicro.com_topwrap-interfaces_axi4stream_0.1"',
         ):
             IPCoreDescription.from_dict(invalid_interface_compliance_core)

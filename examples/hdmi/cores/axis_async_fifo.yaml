@@ -24,15 +24,15 @@ interfaces:
         mode: subordinate
         signals:
             in:
-                TDATA: [s_axis_tdata, DATA_WIDTH-1, 0]
-                TKEEP: [s_axis_tkeep, KEEP_WIDTH-1, 0]
-                TVALID: s_axis_tvalid
-                TLAST: s_axis_tlast
-                TID: [s_axis_tid, ID_WIDTH-1, 0]
-                TDEST: [s_axis_tdest, DEST_WIDTH-1, 0]
-                TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
+                tdata: [s_axis_tdata, DATA_WIDTH-1, 0]
+                tkeep: [s_axis_tkeep, KEEP_WIDTH-1, 0]
+                tvalid: s_axis_tvalid
+                tlast: s_axis_tlast
+                tid: [s_axis_tid, ID_WIDTH-1, 0]
+                tdest: [s_axis_tdest, DEST_WIDTH-1, 0]
+                tuser: [s_axis_tuser, USER_WIDTH-1, 0]
             out:
-                TREADY: s_axis_tready
+                tready: s_axis_tready
 
     m_axis:
         type:
@@ -42,15 +42,15 @@ interfaces:
         mode: manager
         signals:
             in:
-                TREADY: m_axis_tready
+                tready: m_axis_tready
             out:
-                TDATA: [m_axis_tdata, DATA_WIDTH-1, 0]
-                TKEEP: [m_axis_tkeep, KEEP_WIDTH-1, 0]
-                TVALID: m_axis_tvalid
-                TLAST: m_axis_tlast
-                TID: [m_axis_tid, ID_WIDTH-1, 0]
-                TDEST: [m_axis_tdest, DEST_WIDTH-1, 0]
-                TUSER: [m_axis_tuser, USER_WIDTH-1, 0]
+                tdata: [m_axis_tdata, DATA_WIDTH-1, 0]
+                tkeep: [m_axis_tkeep, KEEP_WIDTH-1, 0]
+                tvalid: m_axis_tvalid
+                tlast: m_axis_tlast
+                tid: [m_axis_tid, ID_WIDTH-1, 0]
+                tdest: [m_axis_tdest, DEST_WIDTH-1, 0]
+                tuser: [m_axis_tuser, USER_WIDTH-1, 0]
 
 signals:
     in:

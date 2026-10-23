@@ -22,21 +22,21 @@ interfaces:
     mode: subordinate
     signals:
       in:
-        AWADDR: [axi_awaddr, 31, 0]
-        AWVALID: axi_awvalid
-        WDATA: [axi_wdata, 31, 0]
-        WSTRB: [axi_wstrb, 3, 0]
-        WVALID: axi_wvalid
-        BREADY: axi_bready
-        ARADDR: [axi_araddr, 31, 0]
-        ARVALID: axi_arvalid
-        RREADY: axi_rready
+        awaddr: [axi_awaddr, 31, 0]
+        awvalid: axi_awvalid
+        wdata: [axi_wdata, 31, 0]
+        wstrb: [axi_wstrb, 3, 0]
+        wvalid: axi_wvalid
+        bready: axi_bready
+        araddr: [axi_araddr, 31, 0]
+        arvalid: axi_arvalid
+        rready: axi_rready
       out:
-        AWREADY: axi_awready
-        WREADY: axi_wready
-        BRESP: [axi_bresp, 1, 0]
-        BVALID: axi_bvalid
-        ARREADY: axi_arready
-        RDATA: [axi_rdata, 31, 0]
-        RRESP: [axi_rresp, 1, 0]
-        RVALID: axi_rvalid
+        awready: axi_awready
+        wready: axi_wready
+        bresp: [axi_bresp, 1, 0]
+        bvalid: axi_bvalid
+        arready: axi_arready
+        rdata: [axi_rdata, 31, 0]
+        rresp: [axi_rresp, 1, 0]
+        rvalid: axi_rvalid

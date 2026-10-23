@@ -24,46 +24,46 @@ interfaces:
         mode: subordinate
         signals:
             in:
-                AWID: [s_axi_awid, 3, 0]
-                AWADDR: [s_axi_awaddr, 31, 0]
-                AWLEN: [s_axi_awlen, 7, 0]
-                AWSIZE: [s_axi_awsize, 2, 0]
-                AWBURST: [s_axi_awburst, 1, 0]
-                AWLOCK: s_axi_awlock
-                AWCACHE: [s_axi_awcache, 3, 0]
-                AWPROT: [s_axi_awprot, 2, 0]
-                #AWREGION: [m_axi_awregion, 3, 0]
-                AWQOS: [s_axi_awqos, 3, 0]
-                AWVALID: s_axi_awvalid
-                WDATA: [s_axi_wdata, 63, 0]
-                WSTRB: [s_axi_wstrb, 7, 0]
-                WLAST: s_axi_wlast
-                WVALID: s_axi_wvalid
-                BREADY: s_axi_bready
-                ARID: [s_axi_arid, 3, 0]
-                ARADDR: [s_axi_araddr, 31, 0]
-                ARLEN: [s_axi_arlen, 7, 0]
-                ARSIZE: [s_axi_arsize, 2, 0]
-                ARBURST: [s_axi_arburst, 1, 0]
-                ARLOCK: s_axi_arlock
-                ARCACHE: [s_axi_arcache, 3, 0]
-                ARPROT: [s_axi_arprot, 2, 0]
-                ARQOS: [s_axi_arqos, 3, 0]
-                ARVALID: s_axi_arvalid
-                RREADY: s_axi_rready
+                awid: [s_axi_awid, 3, 0]
+                awaddr: [s_axi_awaddr, 31, 0]
+                awlen: [s_axi_awlen, 7, 0]
+                awsize: [s_axi_awsize, 2, 0]
+                awburst: [s_axi_awburst, 1, 0]
+                awlock: s_axi_awlock
+                awcache: [s_axi_awcache, 3, 0]
+                awprot: [s_axi_awprot, 2, 0]
+                #awregion: [m_axi_awregion, 3, 0]
+                awqos: [s_axi_awqos, 3, 0]
+                awvalid: s_axi_awvalid
+                wdata: [s_axi_wdata, 63, 0]
+                wstrb: [s_axi_wstrb, 7, 0]
+                wlast: s_axi_wlast
+                wvalid: s_axi_wvalid
+                bready: s_axi_bready
+                arid: [s_axi_arid, 3, 0]
+                araddr: [s_axi_araddr, 31, 0]
+                arlen: [s_axi_arlen, 7, 0]
+                arsize: [s_axi_arsize, 2, 0]
+                arburst: [s_axi_arburst, 1, 0]
+                arlock: s_axi_arlock
+                arcache: [s_axi_arcache, 3, 0]
+                arprot: [s_axi_arprot, 2, 0]
+                arqos: [s_axi_arqos, 3, 0]
+                arvalid: s_axi_arvalid
+                rready: s_axi_rready
 
             out:
-                AWREADY: s_axi_awready
-                WREADY: s_axi_wready
-                BID: [s_axi_bid, 3, 0]
-                BRESP: [s_axi_bresp, 1, 0]
-                BVALID: s_axi_bvalid
-                ARREADY: s_axi_arready
-                RID: [s_axi_rid, 3, 0]
-                RDATA: [s_axi_rdata, 63, 0]
-                RRESP: [s_axi_rresp, 1, 0]
-                RLAST: s_axi_rlast
-                RVALID: s_axi_rvalid
+                awready: s_axi_awready
+                wready: s_axi_wready
+                bid: [s_axi_bid, 3, 0]
+                bresp: [s_axi_bresp, 1, 0]
+                bvalid: s_axi_bvalid
+                arready: s_axi_arready
+                rid: [s_axi_rid, 3, 0]
+                rdata: [s_axi_rdata, 63, 0]
+                rresp: [s_axi_rresp, 1, 0]
+                rlast: s_axi_rlast
+                rvalid: s_axi_rvalid
 
 
     # 1 manager
@@ -76,44 +76,44 @@ interfaces:
         signals:
             in:
 
-                AWREADY: m_axi_awready
-                WREADY: m_axi_wready
-                BID: [m_axi_bid, 3, 0]
-                BRESP: [m_axi_bresp, 1, 0]
-                BVALID: m_axi_bvalid
-                ARREADY: m_axi_arready
-                RID: [m_axi_rid, 3, 0]
-                RDATA: [m_axi_rdata, 63, 0]
-                RRESP: [m_axi_rresp, 1, 0]
-                RLAST: m_axi_rlast
-                RVALID: m_axi_rvalid
+                awready: m_axi_awready
+                wready: m_axi_wready
+                bid: [m_axi_bid, 3, 0]
+                bresp: [m_axi_bresp, 1, 0]
+                bvalid: m_axi_bvalid
+                arready: m_axi_arready
+                rid: [m_axi_rid, 3, 0]
+                rdata: [m_axi_rdata, 63, 0]
+                rresp: [m_axi_rresp, 1, 0]
+                rlast: m_axi_rlast
+                rvalid: m_axi_rvalid
 
             out:
-                AWID: [m_axi_awid, 3, 0]
-                AWADDR: [m_axi_awaddr, 31, 0]
-                AWLEN: [m_axi_awlen, 3, 0]
-                AWSIZE: [m_axi_awsize, 2, 0]
-                AWBURST: [m_axi_awburst, 1, 0]
-                AWLOCK: [m_axi_awlock, 1, 0]
-                AWCACHE: [m_axi_awcache, 3, 0]
-                AWPROT: [m_axi_awprot, 2, 0]
-                AWVALID: m_axi_awvalid
-                WID: [m_axi_wid, 3, 0]
-                WDATA: [m_axi_wdata, 63, 0]
-                WSTRB: [m_axi_wstrb, 7, 0]
-                WLAST: m_axi_wlast
-                WVALID: m_axi_wvalid
-                BREADY: m_axi_bready
-                ARID: [m_axi_arid, 3, 0]
-                ARADDR: [m_axi_araddr, 31, 0]
-                ARLEN: [m_axi_arlen, 3, 0]
-                ARSIZE: [m_axi_arsize, 2, 0]
-                ARBURST: [m_axi_arburst, 1, 0]
-                ARLOCK: [m_axi_arlock, 1, 0]
-                ARCACHE: [m_axi_arcache, 3, 0]
-                ARPROT: [m_axi_arprot, 2, 0]
-                ARVALID: m_axi_arvalid
-                RREADY: m_axi_rready
+                awid: [m_axi_awid, 3, 0]
+                awaddr: [m_axi_awaddr, 31, 0]
+                awlen: [m_axi_awlen, 3, 0]
+                awsize: [m_axi_awsize, 2, 0]
+                awburst: [m_axi_awburst, 1, 0]
+                awlock: [m_axi_awlock, 1, 0]
+                awcache: [m_axi_awcache, 3, 0]
+                awprot: [m_axi_awprot, 2, 0]
+                awvalid: m_axi_awvalid
+                wid: [m_axi_wid, 3, 0]
+                wdata: [m_axi_wdata, 63, 0]
+                wstrb: [m_axi_wstrb, 7, 0]
+                wlast: m_axi_wlast
+                wvalid: m_axi_wvalid
+                bready: m_axi_bready
+                arid: [m_axi_arid, 3, 0]
+                araddr: [m_axi_araddr, 31, 0]
+                arlen: [m_axi_arlen, 3, 0]
+                arsize: [m_axi_arsize, 2, 0]
+                arburst: [m_axi_arburst, 1, 0]
+                arlock: [m_axi_arlock, 1, 0]
+                arcache: [m_axi_arcache, 3, 0]
+                arprot: [m_axi_arprot, 2, 0]
+                arvalid: m_axi_arvalid
+                rready: m_axi_rready
 
 
 signals:

@@ -11,97 +11,97 @@ id:
 
 signals:
   # AW channel.
-  AWID:
+  awid:
     pattern: aw[._]?id
     modes: {manager: [out, optional]}
-  AWADDR:
+  awaddr:
     pattern: aw[._]?addr
     modes: {manager: [out, required]}
-  AWPROT:
+  awprot:
     pattern: aw[._]?prot
     modes: {manager: [out, required], subordinate: [in, optional]}
-  AWUSER:
+  awuser:
     pattern: aw[._]?user
     modes: {manager: [out, optional]}
-  AWVALID:
+  awvalid:
     pattern: aw[._]?valid
     modes: {manager: [out, required]}
-  AWREADY:
+  awready:
     pattern: aw[._]?ready
     modes: {manager: [in, required]}
   # W channel.
-  WDATA:
+  wdata:
     pattern: w[._]?data
     modes: {manager: [out, required]}
-  WSTRB:
+  wstrb:
     pattern: w[._]?strb
     modes: {manager: [out, optional], subordinate: [in, required]}
     default: '255'
-  WUSER:
+  wuser:
     pattern: w[._]?user
     modes: {manager: [out, optional]}
-  WVALID:
+  wvalid:
     pattern: w[._]?valid
     modes: {manager: [out, required]}
-  WREADY:
+  wready:
     pattern: w[._]?ready
     modes: {manager: [in, required]}
   # B channel.
-  BID:
+  bid:
     pattern: b[._]?id
     modes: {manager: [in, optional]}
-  BRESP:
+  bresp:
     pattern: b[._]?resp
     modes: {manager: [in, optional], subordinate: [out, required]}
-  BUSER:
+  buser:
     pattern: b[._]?user
     modes: {manager: [in, optional]}
-  BVALID:
+  bvalid:
     pattern: b[._]?valid
     modes: {manager: [in, required]}
-  BREADY:
+  bready:
     pattern: b[._]?ready
     modes: {manager: [out, required]}
   # AR channel.
-  ARID:
+  arid:
     pattern: ar[._]?id
     modes: {manager: [out, optional]}
-  ARADDR:
+  araddr:
     pattern: ar[._]?addr
     modes: {manager: [out, required]}
-  ARPROT:
+  arprot:
     pattern: ar[._]?prot
     modes: {manager: [out, required], subordinate: [in, optional]}
-  ARUSER:
+  aruser:
     pattern: ar[._]?user
     modes: {manager: [out, optional]}
-  ARVALID:
+  arvalid:
     pattern: ar[._]?valid
     modes: {manager: [out, required]}
-  ARREADY:
+  arready:
     pattern: ar[._]?ready
     modes: {manager: [in, required]}
   # R channel.
-  RID:
+  rid:
     pattern: r[._]?id
     modes: {manager: [in, optional]}
-  RDATA:
+  rdata:
     pattern: r[._]?data
     modes: {manager: [in, required]}
-  RRESP:
+  rresp:
     pattern: r[._]?resp
     modes: {manager: [in, optional], subordinate: [out, required]}
     default: '0'
-  RLAST:
+  rlast:
     pattern: r[._]?last
     modes: {manager: [in, optional]}
     default: '1'
-  RUSER:
+  ruser:
     pattern: r[._]?user
     modes: {manager: [in, optional]}
-  RVALID:
+  rvalid:
     pattern: r[._]?valid
     modes: {manager: [in, required]}
-  RREADY:
+  rready:
     pattern: r[._]?ready
     modes: {manager: [out, required]}
