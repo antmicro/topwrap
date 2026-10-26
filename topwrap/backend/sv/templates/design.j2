@@ -36,7 +36,7 @@ module {{ mod.id.name|sv_var }}{% if package_name %} import {{ package_name }}::
 {% endfor %}
 {% for inst_name, idef in back.intf_decls|dictsort(true) %}
   {% set params, _ = ElabvalueEvaluator.resolve_intf_values(idef.io, idef.instance.parameters) %}
-{{ idef.io.definition.id.name|sv_var }}{% if idef.io.parameters|length > 0 %}#(
+{{ idef.io.definition.id.name|sv_var }}{% if idef.io.parameters|length > 0 %} #(
 {% for param, val in idef.io.parameters.items() %}
     .{{ param.resolve().name|sv_var }}({{ params[param].value }}){% if not loop.last %},
 {% endif %}

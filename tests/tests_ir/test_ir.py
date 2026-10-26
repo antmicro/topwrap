@@ -176,8 +176,8 @@ class TestInterface:
                         Port(name="clk_i", direction=PortDirection.IN, type=Bit()),
                         Port(name="intf_sig1_i", direction=PortDirection.IN, type=Bit()),
                         Port(name="intf_sig2_o", direction=PortDirection.OUT, type=Bit()),
-                        # this will have a duplicated name in the "{intf.name}__{sig.name} scheme"
-                        Port(name="intf_inst__rsig1", direction=PortDirection.IN, type=Bit()),
+                        # this will have a duplicated name in the "{intf.name}_{sig.name} scheme"
+                        Port(name="intf_inst_rsig1", direction=PortDirection.IN, type=Bit()),
                     ]
                 )
             ),
@@ -214,5 +214,5 @@ class TestInterface:
 
         # check whether the name of a flattened port that would
         # otherwise be a duplicate was correctly suffixed
-        assert mod.ports.find_by_name("intf_inst__rsig1") is not None
-        assert mod.ports.find_by_name("intf_inst__rsig1__1") is not None
+        assert mod.ports.find_by_name("intf_inst_rsig1") is not None
+        assert mod.ports.find_by_name("intf_inst_rsig1__1") is not None

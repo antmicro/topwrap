@@ -247,18 +247,23 @@ interfaces:
       library: libdefault
     mode: manager
     # the size field in manager mode is unused by topwrap
+    parameters:
+      DATA_WIDTH: 64
+      ID_WIDTH: 2
     signals:
       out:
         bready: ifu_bready
-        awaddr: [ifu_awaddr, 31, 0]
+        awaddr: ifu_awaddr
         # ... remainder of AXI signals ...
       in:
         awready: ifu_awready
-        rdata: [ifu_rdata, 63, 0]
+        rdata: ifu_rdata
         # ... remainder of AXI signals ...
   iface1_wb:
     type: wishbone
     mode: subordinate
+    parameters:
+      DATA_WIDTH: 32
     size: 0xFFFF # the size field in subordinate mode is optional
     signals:
       # wishbone signals
@@ -303,6 +308,7 @@ extensions: ...
   - `signals` \- a list of signals mapped to ports. Signals from the interface definition need to be mapped to ports in the HDL module.
   - `clock` \- (optional) name of the clock input this interface is synchronous to.
   - `reset` \- (optional) name of the reset input for this interface.
+  - `parameters` \- (optional) values for parameters (described in [Interface Definition YAML](#interface-definition-files)) for this interface instance
 - `types` \- structure type definitions used by signals (described below in more detail)
   - `members` \- member fields of a struct type.
 - `existing_iface_definitions` \- a list of interface definitions that exist in parsed HDL code in form of [ID](/developers_guide/internal_representation.md#internal-representation)s.
@@ -360,7 +366,6 @@ interfaces:
             in:
                 BAR:
                     name: bar
-                    bound: [63, 0]
                     slice: [47, 16]
                 ...
                 BAZ:
@@ -549,14 +554,24 @@ interfaces:
     s_axis:
         type: AXI4Stream
         mode: subordinate
+        parameters:
+          TID_WIDTH: ID_WIDTH
+          TDATA_WIDTH: DATA_WIDTH
+          TDEST_WIDTH: DEST_WIDTH
+          TUSER_WIDTH: USER_WIDTH
         signals:
             in:
-                TDATA: [s_axis_tdata, DATA_WIDTH-1, 0]
-                TKEEP: [s_axis_tkeep, KEEP_WIDTH-1, 0]
+                TDATA: s_axis_tdata
+                TKEEP: s_axis_tkeep
                 ...
-                TID: [s_axis_tid, ID_WIDTH-1, 0]
-                TDEST: [s_axis_tdest, DEST_WIDTH-1, 0]
-                TUSER: [s_axis_tuser, USER_WIDTH-1, 0]
+                TID: s_axis_tid
+                TDEST: s_axis_tdest
+                TUSER: s_axis_tuser
+signals:
+  out:
+    - name: other_dat_out
+      bound: [DATA_WIDTH-1, 0]
+      default: 0
 ```
 
 The parameter values can be integers or math expressions.
@@ -606,49 +621,70 @@ id:
   library: libdefault
   vendor: vendor
 
+parameters:
+  GRANULARITY: 8
+  ADDR_WIDTH: 32
+  DATA_WIDTH: 64
+  TGA_WIDTH: 32
+  TGD_WIDTH: 32
+  TGC_WIDTH: 32
+
 signals:
   adr:
     pattern: adr
-    manager: [out, required]
+    modes: {manager: [out, required]}
+    bound: ['ADDR_WIDTH-1', '$clog2(DATA_WIDTH/GRANULARITY)']
   dat_w:
     pattern: mosi|dat_(w|mosi)
-    manager: [out, required]
+    modes: {manager: [out, required]}
+    bound: ['DATA_WIDTH-1', '0']
   dat_r:
     pattern: miso|dat_(r|miso)
-    manager: [in, required]
+    modes: {manager: [in, required]}
+    bound: ['DATA_WIDTH-1', '0']
   sel:
     pattern: sel
-    manager: [out, required]
+    modes: {manager: [out, required]}
+    bound: ['DATA_WIDTH/8-1', '0']
   cyc:
     pattern: cyc
-    manager: [out, required]
+    modes: {manager: [out, required]}
   stb:
     pattern: stb
-    manager: [out, required]
+    modes: {manager: [out, required]}
   we:
     pattern: we
-    manager: [out, required]
+    modes: {manager: [out, required]}
   ack:
     pattern: ack
-    manager: [in, required]
+    modes: {manager: [in, required]}
+  err:
+    pattern: err
+    modes: {manager: [in, optional]}
+  rty:
+    pattern: rty
+    modes: {manager: [in, optional]}
+  stall:
+    pattern: stall
+    modes: {manager: [in, optional]}
+  lock:
+    pattern: lock
+    modes: {manager: [out, optional]}
+
   ...
-  tga:
-    pattern: tga
-    manager: [out, optional]
-  tgc:
-    pattern: tgc
-    manager: [out, optional]
 ```
 
 File format explanation:
 
 - `id` - identifier of the interface
+- `parameters` - dictionary of parameter names and their default values. Those can be used to allow Interfaces to have e.g. adjustable size data signals
 - `signals` - dictionary of signals that this interface is comprised of; each item's key is the signal name, and the value is an object with the following keys:
   - `pattern` - the regex pattern used for matching signals to ports during interface inference
   - `manager` - (optional) the signal direction and whether it's optional or required in the manager mode of the interface
   - `subordinate` - (optional) the signal direction and whether it's optional or required in the subordinate mode of the interface
   - `unspecified` - (optional) the signal direction and whether it's optional or required in the unspecified mode of the interface
   - `default` - (optional) the value assigned to the signal if the other side does not contain the signal
+  - `bound` - (optional) bounds of the signal (can be parameterized)
 
 For each mode specification, the first value is one of `in`, `out` or `inout`, and the second value is one of `required`, `optional`.
 

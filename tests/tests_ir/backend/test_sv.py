@@ -495,9 +495,8 @@ endpackage
 
         assert (
             out
-            == """interface AXI_4_Stream #(
+            == """interface AXI_4_Stream;
 
-);
   logic TVALID;
   logic TREADY;
   logic TDATA;

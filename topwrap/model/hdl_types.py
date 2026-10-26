@@ -356,19 +356,17 @@ class LogicBitSelect:
 
 
 class ElabvalueEvaluator:
-    # This prefix is used to replace $ char in $clog2 verilog function
-    # We have to do this, because simpleeval cannot take $ and pure `clog2` could
-    # cause naming collisions if someone insane decided to name their parameter `clog2`.
-    # it's not a perfect solution, but I doubt that someone will make a parameter
-    # with a name starting as a sha256 of lyrics "Comfortably Numb"
-    clog_prefix = "_9263cec0fd53ad433112bdf3883bbd7216015109_"
+    # This prefix is used to replace the $ char in SystemVerilog system functions
+    # Simpleeval cannot parse $ and pure `clog2` could cause naming collisions
+    sv_sysfunc_pfx = "_9263cec0fd53ad433112bdf3883bbd7216015109_"
 
-    funcs = simpleeval.DEFAULT_FUNCTIONS.copy()
-    funcs.update(_9263cec0fd53ad433112bdf3883bbd7216015109_clog2=lambda val: math.ceil(log2(val)))
-    # maybe we should add more SV math functions?
+    # More math functions can be added according to needs
+    funcs = {
+        sv_sysfunc_pfx + "clog2": lambda val: math.ceil(log2(val)),
+    }
 
     @staticmethod
-    def sanitize(string: str) -> str:
+    def _sanitize(string: str) -> str:
         def convert_constants(string: str, lst: list[str], base: int):
             for match in lst:
                 val = match.split("'", 1)
@@ -379,17 +377,17 @@ class ElabvalueEvaluator:
 
         # remove '$' from input string, to allow eval to recognise functions properly
         # replace this with our prefix
-        string = re.sub(r"\$", ElabvalueEvaluator.clog_prefix, string)
+        string = re.sub(r"\$", ElabvalueEvaluator.sv_sysfunc_pfx, string)
 
         # detect and replace verilog style value (e.g. 8'b11010011)
         # this should also match something like width'd12 and 'o7
         matches_bin = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'b[0-1]+\b", string)
-        matches_dec = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'d[0-9]+", string)
-        matches_oct = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'o[0-7]+", string)
-        matches_hex = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'h[0-9a-fA-F]+", string)
+        matches_dec = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'d[0-9]+\b", string)
+        matches_oct = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'o[0-7]+\b", string)
+        matches_hex = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'h[0-9a-fA-F]+\b", string)
 
         matches_0 = re.findall(r"(?<!\w)'0\b", string)
-        matches_1 = re.findall(r"(?<!\w)'0\b", string)
+        matches_1 = re.findall(r"(?<!\w)'1\b", string)
         if len(matches_1) > 1:
             logger.warning("'1 detected in parameter value; it cannot be handled!")
 
@@ -400,13 +398,6 @@ class ElabvalueEvaluator:
         string = convert_constants(string, matches_hex, 16)
 
         return string
-
-    @staticmethod
-    def expr_good(expr: str):
-        # check whether expression is "basic" which means
-        # that it only contains constants and operators (clog included)
-        pattern = r"^(?:[\d()+\-*/\s]|clog2)+$"
-        return re.fullmatch(pattern, expr)
 
     @staticmethod
     # TODO This function has an edge case when
@@ -450,28 +441,36 @@ class ElabvalueEvaluator:
         Resolve interface parameters to their integer values and
         Resolve interface signals types to their final types
         """
-        inst_combined, inst_env = ElabvalueEvaluator.preprocess_params(
+        inst_combined, inst_env = ElabvalueEvaluator._preprocess_params(
             instance, intf.parent.parameters
         )
-        inst_params = ElabvalueEvaluator.resolve_params(inst_combined, inst_env)
+        inst_params = ElabvalueEvaluator._resolve_params(inst_combined, inst_env)
 
         intf_params = dict[ObjectId[Parameter], ElaboratableValue]()
         for k, v in intf.parameters.items():
-            v = ElabvalueEvaluator.sanitize(v.value)
-            intf_params[k] = ElaboratableValue(
-                int(
-                    simpleeval.simple_eval(v, names=inst_params, functions=ElabvalueEvaluator.funcs)
+            try:
+                val = ElabvalueEvaluator._sanitize(v.value)
+                intf_params[k] = ElaboratableValue(
+                    int(
+                        simpleeval.simple_eval(
+                            val, names=inst_params, functions=ElabvalueEvaluator.funcs
+                        )
+                    )
                 )
-            )
+            except (simpleeval.InvalidExpression, SyntaxError) as e:
+                logger.warning(
+                    f"cannot resolve parameter {k.resolve().name} from intf {intf.name} due to {e}"
+                )
+                intf_params[k] = v
 
-        intf_combined, intf_env = ElabvalueEvaluator.preprocess_params(
+        intf_combined, intf_env = ElabvalueEvaluator._preprocess_params(
             intf_params, intf.definition.parameters
         )
-        intf_params_resolved = ElabvalueEvaluator.resolve_params(intf_combined, intf_env)
+        intf_params_resolved = ElabvalueEvaluator._resolve_params(intf_combined, intf_env)
 
         sigtypes = {}
         for sig in intf.signals:
-            sigtypes[sig] = ElabvalueEvaluator.eval_type(sig.resolve().type, intf_params_resolved)
+            sigtypes[sig] = ElabvalueEvaluator._eval_type(sig.resolve().type, intf_params_resolved)
         paramvals = dict[ObjectId[Parameter], ElaboratableValue]()
         for param in intf.parameters.keys():
             paramvals[param] = ElaboratableValue(intf_params_resolved[param.resolve().name])
@@ -479,7 +478,7 @@ class ElabvalueEvaluator:
         return paramvals, sigtypes
 
     @staticmethod
-    def preprocess_params(
+    def _preprocess_params(
         map: dict[ObjectId[Parameter], ElaboratableValue],
         defaults: Iterable[Parameter],
     ) -> tuple[dict[str, str], dict[str, int]]:
@@ -492,12 +491,12 @@ class ElabvalueEvaluator:
         for param in defaults:
             if combined.get(param.name) is None:
                 if param.default_value is None:
-                    logger.warning(f"parameter '{param.name}' has no value")
+                    logger.warning(f"parameter '{param.name}' has no default or assigned value")
                     continue
                 combined[param.name] = param.default_value.value
 
         for param in combined:
-            combined[param] = ElabvalueEvaluator.sanitize(combined[param])
+            combined[param] = ElabvalueEvaluator._sanitize(combined[param])
 
         # resolve all parameters to their values and put them in env
         env = dict[str, int]()
@@ -508,10 +507,16 @@ class ElabvalueEvaluator:
                 combined[other] = re.sub(rf"\b{re.escape(param)}\b", f"({pval})", oth_val)
 
         for p, v in combined.items():
-            if ElabvalueEvaluator.expr_good(v):
-                env[p] = int(
-                    simpleeval.simple_eval(v, names=env, functions=ElabvalueEvaluator.funcs)
-                )
+            deps = list(ElabvalueEvaluator.get_elab_value_deps((ElaboratableValue(v)), defaults))
+            if len(deps) == 0:
+                try:
+                    env[p] = int(
+                        simpleeval.simple_eval(v, names=env, functions=ElabvalueEvaluator.funcs)
+                    )
+                except (simpleeval.InvalidExpression, SyntaxError) as e:
+                    logger.warning(
+                        f"cannot evaluate independent expression for parameter {p}: {v} due to {e}"
+                    )
 
         return combined, env
 
@@ -520,7 +525,7 @@ class ElabvalueEvaluator:
         return int(simpleeval.simple_eval(val.value, names=env, functions=ElabvalueEvaluator.funcs))
 
     @staticmethod
-    def resolve_params(combined: dict[str, str], env: dict[str, int]) -> dict[str, int]:
+    def _resolve_params(combined: dict[str, str], env: dict[str, int]) -> dict[str, int]:
         params = env.copy()
         for param, val in combined.items():
             try:
@@ -530,15 +535,12 @@ class ElabvalueEvaluator:
                 params[param] = res
             except (simpleeval.InvalidExpression, SyntaxError):
                 pass
-                # its not that bad if we cannot eval: some params are not used for width definitions
-                # and will never eval to any integer value. We can skip them, and try to evaluate
-                # our widths - it's likely that we dont need those parameters anyways
-                # main drawback is that it produces a long log
-                # logger.warning(f"cannot eval parameter {param}; it will be skipped")
+                # Some params are not used for width definitions and will never eval to any value
+                # They can be skipped, and evaluation may still succeed
         return params
 
     @staticmethod
-    def eval_type(type: Logic, env: dict[str, int]) -> Logic:
+    def _eval_type(type: Logic, env: dict[str, int]) -> Logic:
         if isinstance(type, Bit):
             return type
         elif isinstance(type, LogicArray):
@@ -546,23 +548,23 @@ class ElabvalueEvaluator:
             for i in range(len(result.dimensions)):
                 dims = result.dimensions[i]
 
-                res = ElabvalueEvaluator.eval_dims(dims, env)
+                res = ElabvalueEvaluator._eval_dims(dims, env)
                 result.dimensions[i] = res
 
             return result
 
-        # default, maybe we should throw an error? we might only support 2 dimensions really
+        # currently only Logic Array is supported
         return type
 
     @staticmethod
-    def eval_dims(dims: Dimensions, env: dict[str, int]) -> Dimensions:
-        upp = ElabvalueEvaluator.sanitize(dims.upper.value)
-        lwr = ElabvalueEvaluator.sanitize(dims.lower.value)
+    def _eval_dims(dims: Dimensions, env: dict[str, int]) -> Dimensions:
+        upp = ElabvalueEvaluator._sanitize(dims.upper.value)
+        lwr = ElabvalueEvaluator._sanitize(dims.lower.value)
 
         try:
             uval = int(simpleeval.simple_eval(upp, names=env, functions=ElabvalueEvaluator.funcs))
             lval = int(simpleeval.simple_eval(lwr, names=env, functions=ElabvalueEvaluator.funcs))
-        except Exception as e:
+        except (simpleeval.InvalidExpression, SyntaxError) as e:
             logger.warning(f"Cannot infer port widths; {e}")
             return dims
 
@@ -583,10 +585,14 @@ class ElabvalueEvaluator:
                 used_names.add(node.id)
             return 1
 
-        simpleeval.simple_eval(
-            ElabvalueEvaluator.sanitize(val.value),
-            names=handler,
-            functions=ElabvalueEvaluator.funcs,
-        )
+        try:
+            simpleeval.simple_eval(
+                ElabvalueEvaluator._sanitize(val.value),
+                names=handler,
+                functions=ElabvalueEvaluator.funcs,
+            )
+        except (simpleeval.InvalidExpression, SyntaxError) as e:
+            logger.warning(f"failure during elabvalue dependency check; {e}")
+            return
 
         yield from (p for p in params if p.name in used_names)
