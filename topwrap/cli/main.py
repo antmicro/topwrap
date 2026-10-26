@@ -642,8 +642,8 @@ def topwrap_gui(
             kwargs={
                 "server_ready_event": server_ready_event,
                 "show_kpm_logs": True,
-                "server_host": server_host,
-                "server_port": server_port,
+                "tcp_server_host": server_host,
+                "tcp_server_port": server_port,
                 "backend_host": backend_host,
                 "backend_port": backend_port,
                 "preserve_parent_state": preserve_parent_state,
