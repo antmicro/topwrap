@@ -1,6 +1,6 @@
 export PATH := x"$PATH:$HOME/.local/bin"
 
-tested_python_versions := "3.10 3.11 3.12 3.13"
+tested_python_versions := "3.11 3.12 3.13"
 
 default:
 	@just --list
@@ -84,7 +84,7 @@ print_coverage:
 	uv run scripts/coverage_check.py --print_coverage
 
 # Execute tests for a specific Python version.
-test version="3.10":
+test version="3.11":
 	#!/usr/bin/env bash
 	set -euo pipefail
 	uv sync --python python{{version}} --extra tests

@@ -14,7 +14,7 @@ just test
 To force a specific Python version and avoid running tests for all listed versions, pass the version to the `test` task:
 
 ```bash
-just test 3.10
+just test 3.11
 ```
 
 Tests can also be launched without `just` by executing:

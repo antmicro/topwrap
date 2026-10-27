@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "topwrap"
 dynamic = ["version"]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [{name = "Antmicro"}]
 description = "Package for generating HDL wrappers and top modules for your HDL sources"
 readme = "README.md"
@@ -23,7 +23,7 @@ dependencies = [
   "amaranth==0.4.0.*",
   "amaranth-soc @ git+https://github.com/antmicro/amaranth-soc@236384fcaee6e3d192aedcf6ff119d90c5f56046",
   "amaranth-yosys==0.40.0.0.post103",
-  "simpleeval==1.0.3",
+  "simpleeval==1.0.5",
   "typing_extensions",
   "marshmallow>=3.20,<4.0",
   "marshmallow-dataclass[enum]~=8.7.0",
@@ -45,11 +45,11 @@ lint = [
   "ruff==0.12.1"
 ]
 tests = [
-  "pytest==8.3.3",
+  "pytest==9.0.3",
   "pytest-cov==5.0.0",
   "pytest-lazy-fixtures==1.1.1",
   "pyfakefs==5.7.1",
-  "deepdiff==8.0.1",
+  "deepdiff==8.6.2",
   "pyright==1.1.385",
   "prettytable==3.11.0",
   "xmldiff==3.0",
