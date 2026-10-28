@@ -9,3 +9,4 @@ filesets:
   topwrap:
     files:
       - bus.yaml: {file_type: topwrapInterface}
+      - child.yaml: {file_type: topwrapModule}

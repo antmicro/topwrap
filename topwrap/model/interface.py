@@ -265,7 +265,7 @@ class Interface(ModelBase):
         # TODO: This resolves all generated ports to have constant widths, but
         # it would actually be possible to spill the necessary parameters
         # of the interface into parameters of the module.
-        _, types = ElabvalueEvaluator.resolve_intf_values(self, self.parameters)
+        _, types = ElabvalueEvaluator.resolve_intf_values(self, {})
 
         for sig in self.independent_signals:
             if self.mode not in sig.modes:

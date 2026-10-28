@@ -1,0 +1,19 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+id:
+  name: child
+
+parameters:
+  WIDTH: 32
+
+interfaces:
+  bus:
+    type:
+      name: test_bus
+    mode: subordinate
+    parameters:
+      WIDTH: WIDTH
+    signals:
+      in:
+        data: null

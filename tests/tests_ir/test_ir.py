@@ -9,6 +9,7 @@ import pytest
 
 from examples.ir_examples.modules import axis_streamer, intf_top
 from topwrap.frontend.yaml.frontend import YamlFrontend
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.hdl_types import Bit
 from topwrap.model.interface import (
@@ -113,6 +114,12 @@ class TestAddressMaps:
 
 
 class TestInterface:
+    def test_interface_parameters_during_flattening(self, interface_parameter_data: Path):
+        module = IPCoreDescriptionFrontend().parse_file(interface_parameter_data / "child.yaml")
+        module.interfaces[0].flatten()
+
+        assert module.ports.find_by_name_or_error("bus_data").type.size.elaborate() == 32
+
     def test_interface_flattening(self):
         intf = InterfaceDefinition(
             id=Identifier("definitely_an_interface"),
