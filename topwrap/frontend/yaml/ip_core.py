@@ -133,6 +133,12 @@ class IPCoreDescriptionFrontend:
         intf_mode: Optional[InterfaceMode] = None,
         intf_subs_types: dict[ObjectId[InterfaceSignal], Logic] | None = None,
     ) -> Union[Port, ReferencedPort]:
+        inferred_type = (
+            intf_subs_types.get(intf_sig._id, Bit())
+            if intf_sig is not None and intf_subs_types is not None
+            else Bit()
+        )
+
         def to_dims(lst: Sequence[Union[str, int]]):
             return Dimensions(
                 upper=ElaboratableValue(lst[0]),
@@ -145,10 +151,7 @@ class IPCoreDescriptionFrontend:
                 if signal.type is None:
                     bounds = signal.bound
                     if bounds is None:
-                        if intf_sig and intf_subs_types:
-                            type = intf_subs_types[intf_sig._id]
-                        else:
-                            type = Bit()
+                        type = inferred_type
                     else:
                         if not isinstance(bounds[0], tuple):
                             bounds = (cast(tuple[str | int, str | int], bounds),)
@@ -196,7 +199,7 @@ class IPCoreDescriptionFrontend:
         data = [signal] if isinstance(signal, str) else signal
         slice = to_dims(data[3:5]) if len(data) == 5 else None
         if len(data) == 1:
-            type = Bit()
+            type = inferred_type
         else:
             type = Bits(dimensions=[to_dims(data[1:3])])
 

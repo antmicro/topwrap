@@ -7,6 +7,7 @@ from typing import Callable, Optional, Union
 
 import marshmallow
 import pytest
+from simpleeval import simple_eval
 
 from examples.ir_examples.modules import ALL_MODULES, lfsr_gen
 from topwrap.backend.kpm.common import Positions
@@ -395,6 +396,22 @@ class TestDesignDescriptionFrontend:
 
 
 class TestIPCoreDescriptionFrontend:
+    @pytest.mark.parametrize("signal", ["data", "{name: data}"])
+    def test_interface_parameters_in_signal_mappings(self, interface_parameter_data: Path, signal):
+        module = IPCoreDescriptionFrontend().parse_str(f"""
+            id: {{name: child}}
+            interfaces:
+              bus:
+                type: {{name: test_bus}}
+                mode: subordinate
+                parameters: {{WIDTH: 32}}
+                signals:
+                  in:
+                    data: {signal}
+        """)
+
+        assert simple_eval(module.ports.find_by_name_or_error("data").type.size.value) == 32
+
     def test_multidimensional_signal(self):
         ip = """
         id:
