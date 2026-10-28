@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from simpleeval import simple_eval
 
 from tests.data.data_ir.inference.ahb_if import ahblite_intf
 from tests.data.data_ir.inference.axi_if import axi4_intf
@@ -20,6 +21,7 @@ from tests.data.data_ir.inference.wb_if import wb_intf
 from tests.tests_ir.backend.test_yaml import get_intf_def_by_id_or_error
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.library import resolve_interface_definition
 from topwrap.model.connections import Port, PortDirection, ReferencedPort
 from topwrap.model.design import Design
@@ -27,6 +29,7 @@ from topwrap.model.hdl_types import Bit, BitStruct, StructField
 from topwrap.model.inference.inference import infer_interfaces_from_module
 from topwrap.model.interface import (
     Interface,
+    InterfaceDefinition,
     InterfaceMode,
 )
 from topwrap.model.misc import Identifier
@@ -62,6 +65,19 @@ class TestInterfaceInference:
     Tests for the infer_interfaces_from_module function. Tests performing inference on various
     simple modules with a made-up interfaces.
     """
+
+    def test_interface_parameters_from_different_expressions(
+        self, interface_parameter_data: Path, parameterized_bus_definition: InterfaceDefinition
+    ):
+        module = IPCoreDescriptionFrontend().parse_file(
+            interface_parameter_data / "inference_child.yaml"
+        )
+        infer_interfaces_from_module(module, [parameterized_bus_definition])
+
+        [interface] = module.interfaces
+        width = interface.parameters.get(parameterized_bus_definition.parameters[0]._id)
+        if width is not None:
+            assert simple_eval(width.value, names={"MW": 16}) == 32
 
     def test_basic(self):
         bbox_exts = [

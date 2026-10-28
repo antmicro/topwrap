@@ -3,6 +3,7 @@
 
 import itertools
 import logging
+import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, Collection, Iterable, Iterator, Optional, cast
@@ -408,10 +409,11 @@ def _deduce_intf_parameters_from_ports(
 
             prefs = [*ElabvalueEvaluator.get_elab_value_deps(pelab, mod.parameters)]
             if len(prefs) == 1:
-                # the port type expression refers to one module parameter, e.g.
-                # a (Width-1, AxiAddrWidth-1) pair. Ideally the expressions would
-                # have to be checked for equivalence, but for now (Width = AxiAddrWidth)
-                # will be assumed
+                # The port type expression refers to one module parameter, e.g.
+                # a (Width-1, AxiAddrWidth-1) pair.
+                renamed = re.sub(rf"\b{re.escape(prefs[0].name)}\b", param.name, pelab.value)
+                if re.sub(r"\s+", "", renamed) != re.sub(r"\s+", "", selab.value):
+                    continue
                 cands[param._id].append((0.5, ElaboratableValue(prefs[0].name)))
             # TODO: this solver is very naive, think about better implementation
             elif len(prefs) == 0:

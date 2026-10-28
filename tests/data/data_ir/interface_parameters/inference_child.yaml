@@ -1,0 +1,12 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+id:
+  name: inference_child
+
+parameters:
+  MW: 16
+
+signals:
+  out:
+    - {name: o_bus_data, bound: ['2*MW-1', 0]}
