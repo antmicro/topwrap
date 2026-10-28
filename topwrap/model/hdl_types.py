@@ -416,16 +416,20 @@ class ElabvalueEvaluator:
             if isinstance(sig.type, Bit):
                 res[sig._id] = Bit()
             elif isinstance(sig.type, Bits):
-                upp = sig.type.dimensions[0].upper.value
-                low = sig.type.dimensions[0].lower.value
+                dimensions = []
+                for dim in sig.type.dimensions:
+                    upp = dim.upper.value
+                    low = dim.lower.value
 
-                for param, val in combined.items():
-                    upp = re.sub(rf"\b{re.escape(param.resolve().name)}\b", f"({val.value})", upp)
-                    low = re.sub(rf"\b{re.escape(param.resolve().name)}\b", f"({val.value})", low)
+                    for param, val in combined.items():
+                        pattern = rf"\b{re.escape(param.resolve().name)}\b"
+                        upp = re.sub(pattern, f"({val.value})", upp)
+                        low = re.sub(pattern, f"({val.value})", low)
 
-                upp = ElaboratableValue(upp)
-                low = ElaboratableValue(low)
-                res[sig._id] = Bits(dimensions=[Dimensions(upper=upp, lower=low)])
+                    dimensions.append(
+                        Dimensions(upper=ElaboratableValue(upp), lower=ElaboratableValue(low))
+                    )
+                res[sig._id] = Bits(dimensions=dimensions)
 
         return res
 

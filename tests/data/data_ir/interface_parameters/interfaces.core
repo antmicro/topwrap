@@ -9,5 +9,6 @@ filesets:
   topwrap:
     files:
       - bus.yaml: {file_type: topwrapInterface}
+      - matrix_bus.yaml: {file_type: topwrapInterface}
       - child.yaml: {file_type: topwrapModule}
       - inference_child.yaml: {file_type: topwrapModule}

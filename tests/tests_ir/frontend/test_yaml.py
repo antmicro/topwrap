@@ -405,6 +405,31 @@ class TestDesignDescriptionFrontend:
 
 
 class TestIPCoreDescriptionFrontend:
+    @pytest.mark.parametrize("signal", ["matrix", "{name: matrix}"])
+    def test_interface_parameters_in_multidimensional_signal(
+        self, interface_parameter_data: Path, signal
+    ):
+        module = IPCoreDescriptionFrontend().parse_str(f"""
+            id: {{name: child}}
+            parameters: {{DATA_WIDTH: 8, ROWS: 2}}
+            interfaces:
+              bus:
+                type: {{name: matrix_bus}}
+                mode: subordinate
+                parameters: {{WIDTH: DATA_WIDTH, LANES: ROWS}}
+                signals:
+                  in:
+                    matrix: {signal}
+        """)
+
+        port = module.ports.find_by_name_or_error("matrix")
+        names = {"DATA_WIDTH": 8, "ROWS": 2}
+        assert [
+            (simple_eval(d.upper.value, names=names), simple_eval(d.lower.value, names=names))
+            for d in port.type.dimensions
+        ] == [(1, 0), (7, 0)]
+        assert simple_eval(port.type.size.value, names={"DATA_WIDTH": 16, "ROWS": 3}) == 48
+
     @pytest.mark.parametrize("signal", ["data", "{name: data}"])
     def test_interface_parameters_in_signal_mappings(self, interface_parameter_data: Path, signal):
         module = IPCoreDescriptionFrontend().parse_str(f"""

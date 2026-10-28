@@ -1,0 +1,15 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+id:
+  name: matrix_bus
+
+parameters:
+  WIDTH: 8
+  LANES: 2
+
+signals:
+  matrix:
+    pattern: matrix
+    bound: [['LANES-1', 0], ['WIDTH-1', 0]]
+    modes: {manager: [out, required]}
