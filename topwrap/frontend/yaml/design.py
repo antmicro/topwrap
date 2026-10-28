@@ -40,7 +40,7 @@ from topwrap.model.connections import (
 from topwrap.model.design import ClockDomain, Design, ModuleInstance, ResetDomain
 from topwrap.model.hdl_types import Bit, Bits, Dimensions, ElabvalueEvaluator
 from topwrap.model.interconnect import Interconnect
-from topwrap.model.interface import Interface, InterfaceDefinition, InterfaceMode, InterfaceSignal
+from topwrap.model.interface import Interface, InterfaceMode
 from topwrap.model.memory_map import MemoryMap as IRMemoryMap
 from topwrap.model.memory_map import MemoryMapSubordinate
 from topwrap.model.misc import (
@@ -470,7 +470,7 @@ class DesignDescriptionFrontend:
 
     def _infer_interconnect_interface(
         self, intr: DesignSectionInterconnect, des: Design, iname: str
-    ) -> tuple[InterfaceDefinition, dict[ObjectId[InterfaceSignal], ReferencedPort | None], str]:
+    ) -> tuple[Interface, str]:
         def get_refio_from_connection(
             des: Design, name: str, ref: str
         ) -> Optional[ReferencedInterface]:
@@ -489,13 +489,13 @@ class DesignDescriptionFrontend:
                 refio = get_refio_from_connection(des, mname, man)
                 if not refio:
                     continue
-                return refio.io.definition, refio.io.signals, mname
+                return refio.io, mname
         for sname, subs in intr.subordinates.items():
             for sub, _ in subs.items():
                 refio = get_refio_from_connection(des, sname, sub)
                 if not refio:
                     continue
-                return refio.io.definition, refio.io.signals, sname
+                return refio.io, sname
 
         raise DesignDescriptionFrontendException(
             f"Interconnect '{iname}' has all its connections connecting to external ports;"
@@ -526,13 +526,19 @@ class DesignDescriptionFrontend:
 
                     # This interface doesn't exist, we only describe definitions and signals
                     # of what to infer from external interface connected to interconnect
-                    conn_to = Interface("dummy", mode, intf_def, intf_sigs)
-                    conn_to.parent = des.parent
+                    conn_to = Interface(
+                        "dummy",
+                        mode,
+                        source.definition,
+                        source.signals,
+                        parameters=source.parameters,
+                    )
+                    conn_to.parent = source.parent
 
                     self._parse_external(des, conn_to, name, decls[name][0], decls[name][1], comp)
                     del decls[name]
 
-        intf_def, intf_sigs, comp = self._infer_interconnect_interface(intr, des, iname)
+        source, comp = self._infer_interconnect_interface(intr, des, iname)
 
         for _, mans in intr.managers.items():
             for man in mans:

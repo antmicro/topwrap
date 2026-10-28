@@ -64,6 +64,15 @@ def _mkconn(
 
 
 class TestDesignDescriptionFrontend:
+    def test_interface_parameters_on_interconnect_external(self, interface_parameter_data: Path):
+        design, _ = DesignDescriptionFrontend().parse_file(
+            interface_parameter_data / "interconnect.yaml"
+        )
+        external = design.parent.interfaces.find_by_name_or_error("bus")
+        external.flatten()
+
+        assert design.parent.ports.find_by_name_or_error("bus_data").type.size.elaborate() == 32
+
     @pytest.mark.parametrize(
         ["design", "validator"],
         [
