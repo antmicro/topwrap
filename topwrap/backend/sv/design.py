@@ -164,7 +164,7 @@ class _SystemVerilogDesignData:
                 csn = conn.source.instance.name if conn.source.instance is not None else "EXT"
                 ctn = conn.target.instance.name if conn.target.instance is not None else "EXT"
                 intf = sv_varname(f"{csn}__{conn.source.io.name}__{ctn}__{conn.target.io.name}")
-                self.intf_decls[intf] = conn.source
+                self.intf_decls[intf] = conn.source if src_ind else conn.target
 
             # All internal independent interfaces must be connected to an interface instance
             if src_ind and conn.source.instance is not None:

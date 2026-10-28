@@ -4,6 +4,7 @@
 
 import copy
 import re
+from pathlib import Path
 
 import pytest
 from pyslang import Compilation, DiagnosticEngine, SourceManager, SyntaxTree
@@ -419,6 +420,20 @@ class TestSystemVerilogDesignBackend:
 
 
 class TestSystemVerilogBackend:
+    def test_interface_parameters_with_flattened_external(self, interface_parameter_data: Path):
+        design, _ = DesignDescriptionFrontend().parse_file(
+            interface_parameter_data / "external.yaml"
+        )
+        design.parent.interfaces[0].flatten()
+
+        backend = SystemVerilogBackend(mod_stubs=True)
+        [output] = backend.serialize(backend.represent(design.parent), combine=True)
+        compilation = Compilation()
+        compilation.addSyntaxTree(SyntaxTree.fromText(output.content))
+        assert not [
+            diagnostic for diagnostic in compilation.getAllDiagnostics() if diagnostic.isError()
+        ]
+
     def test_multidimensional_port_from_yaml(self):
         design_yaml = """
             name: top

@@ -1,0 +1,22 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: top
+
+config:
+  libraries:
+    interface_parameters: .
+
+ips:
+  child:
+    core: child
+
+external:
+  interfaces:
+    in:
+      - bus
+
+connections:
+  interfaces:
+    child:
+      bus: bus
