@@ -9,6 +9,7 @@ from topwrap.backend.yaml.common.interface_schema import (
     InterfaceDefinitionSignalDescription,
     InterfaceDefinitionSignalMode,
 )
+from topwrap.model.hdl_types import Bits
 from topwrap.model.interface import (
     InterfaceDefinition,
     InterfaceMode,
@@ -63,9 +64,16 @@ class InterfaceDefinitionDescriptionBackend:
                 pattern=sig.regexp,
                 modes=modes,
                 default=sig.default and sig.default.value,
+                bound=tuple((d.upper.value, d.lower.value) for d in sig.type.dimensions)
+                if isinstance(sig.type, Bits)
+                else None,
             )
 
         return InterfaceDefinitionDescription(
             id=definition.id,
             signals=signals,
+            parameters={
+                p.name: p.default_value.value if p.default_value is not None else None
+                for p in definition.parameters
+            },
         )

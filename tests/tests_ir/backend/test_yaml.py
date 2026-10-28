@@ -26,6 +26,7 @@ from topwrap.backend.yaml.backend import (
     DesignPositionsBackend,
     IpCoreDescriptionBackend,
 )
+from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.backend.yaml.interface import InterfaceDefinitionDescriptionBackend
 from topwrap.config import ConfigManager
 from topwrap.frontend.sv.frontend import SystemVerilogFrontend
@@ -35,6 +36,7 @@ from topwrap.frontend.yaml.design_schema import (
     DesignExternalPorts,
     DesignExternalSection,
 )
+from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.interconnects.wishbone_rr import (
     WishboneInterconnect,
@@ -912,6 +914,20 @@ class TestDesignPositionsBackend:
 
 
 class TestInterfaceDescriptionBackend:
+    def test_interface_parameters_roundtrip(
+        self, parameterized_bus_definition: InterfaceDefinition, tmp_path: Path
+    ):
+        path = tmp_path / "bus.yaml"
+        InterfaceDefinitionDescriptionBackend().represent(parameterized_bus_definition).save(path)
+        restored = InterfaceDefinitionDescriptionFrontend().parse(
+            InterfaceDefinitionDescription.load(path)
+        )
+
+        assert {p.name: p.default_value for p in restored.parameters} == {
+            "WIDTH": ElaboratableValue(8)
+        }
+        assert restored.signals[0].type == parameterized_bus_definition.signals[0].type
+
     def test_skip_redundant(self):
         intf = InterfaceDefinition(
             id=Identifier(name="basic"),
@@ -1081,18 +1097,21 @@ class TestInterfaceDescriptionBackend:
             "signals": {
                 "haddr": {
                     "pattern": "haddr",
+                    "bound": [("63", "0")],
                     "modes": {
                         "manager": ("out", "required"),
                     },
                 },
                 "hwdata": {
                     "pattern": "hwdata",
+                    "bound": [("31", "0")],
                     "modes": {
                         "manager": ("out", "required"),
                     },
                 },
                 "hrdata": {
                     "pattern": "hrdata",
+                    "bound": [("31", "0")],
                     "modes": {
                         "manager": ("in", "required"),
                     },
@@ -1118,6 +1137,7 @@ class TestInterfaceDescriptionBackend:
                 },
                 "hsize": {
                     "pattern": "hsize",
+                    "bound": [("2", "0")],
                     "modes": {
                         "manager": ("out", "required"),
                     },

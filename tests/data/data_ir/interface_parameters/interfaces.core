@@ -1,0 +1,11 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: test:regressions:interface_parameters:1.0
+
+filesets:
+  topwrap:
+    files:
+      - bus.yaml: {file_type: topwrapInterface}

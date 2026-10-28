@@ -1,5 +1,6 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+from dataclasses import dataclass
 from typing import Any, Dict, Literal, Optional, Tuple, Union
 
 import marshmallow
@@ -23,7 +24,8 @@ InterfaceDimension = Tuple[_StrOrInt, _StrOrInt]
 InterfaceBounds = Union[InterfaceDimension, Tuple[InterfaceDimension, ...]]
 
 
-@marshmallow_dataclass.dataclass(frozen=True)
+@marshmallow_dataclass.add_schema
+@dataclass(frozen=True)
 class InterfaceDefinitionSignalDescription(MarshmallowDataclassExtensions):
     pattern: RegexpT = ext_field()
     modes: dict[str, InterfaceDefinitionSignalMode] = ext_field()
@@ -60,7 +62,8 @@ class InterfaceComplexParameter(MarshmallowDataclassExtensions):
 InterfaceParameter = Optional[Union[InterfaceComplexParameter, int, str]]
 
 
-@marshmallow_dataclass.dataclass(frozen=True)
+@marshmallow_dataclass.add_schema
+@dataclass(frozen=True)
 class InterfaceDefinitionDescription(MarshmallowDataclassExtensions):
     """Interface described in YAML interface definition file"""
 
