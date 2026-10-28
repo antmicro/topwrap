@@ -386,12 +386,11 @@ class ElabvalueEvaluator:
         matches_oct = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'o[0-7]+\b", string)
         matches_hex = re.findall(r"(?<!\w)(?:[a-zA-Z_]\w*|[0-9]+)?\'h[0-9a-fA-F]+\b", string)
 
-        matches_0 = re.findall(r"(?<!\w)'0\b", string)
+        string = re.sub(r"(?<!\w)'0\b", "0", string)
         matches_1 = re.findall(r"(?<!\w)'1\b", string)
         if len(matches_1) > 1:
             logger.warning("'1 detected in parameter value; it cannot be handled!")
 
-        string = convert_constants(string, matches_0, 2)  # base does not matter for 0
         string = convert_constants(string, matches_bin, 2)
         string = convert_constants(string, matches_oct, 8)
         string = convert_constants(string, matches_dec, 10)

@@ -45,6 +45,9 @@ class TestLogicArraySize:
 
 
 class TestElabvalueEvaluator:
+    def test_unbased_zero(self):
+        assert ElabvalueEvaluator._sanitize("'0") == "0"
+
     def test_intf_params_resolving(self):
         intf = InterfaceDefinition(
             id=Identifier("nasty_interface"),
