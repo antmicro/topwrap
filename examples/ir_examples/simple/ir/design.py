@@ -1,3 +1,4 @@
+from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.model.connections import (
     Port,
     PortConnection,
@@ -19,7 +20,7 @@ gen1 = ModuleInstance(
     name="gen1",
     module=lfsr_gen,
     parameters={
-        lfsr_gen.parameters[0]._id: ElaboratableValue("128"),
+        lfsr_gen.parameters[0]._id: ElaboratableValue(ComplexParameter(value=128, width=32)),
         lfsr_gen.parameters[1]._id: ElaboratableValue("1337"),
     },
 )

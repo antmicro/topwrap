@@ -18,7 +18,7 @@
 			<ipxact:instanceName>gen1</ipxact:instanceName>
 			<ipxact:componentRef vendor="vendor" library="libdefault" name="lfsr_gen" version="1.2">
 				<ipxact:configurableElementValues>
-					<ipxact:configurableElementValue referenceId="uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e">128</ipxact:configurableElementValue>
+					<ipxact:configurableElementValue referenceId="uuid_c94aa249_4ef3_4cdb_aa5f_485b75e8734e">32'd128</ipxact:configurableElementValue>
 					<ipxact:configurableElementValue referenceId="uuid_38bdfd3a_4a10_498b_9bae_9ac89ab8c716">1337</ipxact:configurableElementValue>
 				</ipxact:configurableElementValues>
 			</ipxact:componentRef>

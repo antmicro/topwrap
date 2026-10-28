@@ -9,5 +9,5 @@ YamlBounds = YamlDimension | tuple[YamlDimension, ...]
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class ComplexParameter(MarshmallowDataclassExtensions):
-    value: int | str
+    value: StrOrInt
     width: int

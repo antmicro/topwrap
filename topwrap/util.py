@@ -15,11 +15,10 @@ from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, Optional, Ty
 
 import marshmallow
 
-from topwrap.model.misc import Identifier
-
 if TYPE_CHECKING:
     from topwrap.config import Config
     from topwrap.model.interface import InterfaceDefinition
+    from topwrap.model.misc import Identifier
     from topwrap.repo.user_repo import InterfaceDefinitionResource
 
 JsonType = Dict[str, Any]

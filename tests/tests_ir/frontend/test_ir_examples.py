@@ -24,6 +24,7 @@ from examples.ir_examples.modules import (
     sseq_mod,
     two_mux,
 )
+from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.interconnects.wishbone_rr import (
     WishboneInterconnect,
     WishboneRRFeature,
@@ -88,6 +89,9 @@ class TestIrExamples:
 
         param = next(v for p, v in gen1.parameters.items() if p.resolve().name == "SEED")
         assert param.value == "1337"
+
+        param2 = next(v for p, v in gen1.parameters.items() if p.resolve().name == "WIDTH")
+        assert param2 == ElaboratableValue(ComplexParameter(value=128, width=32))
 
         assert len(mod.design.connections) == 8
         assert (

@@ -10,6 +10,7 @@ import pytest
 
 from tests.tests_ir.frontend.test_ir_examples import TestIrExamples
 from topwrap.backend.yaml.backend import IpCoreDescriptionBackend
+from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.frontend.frontend import FrontendParseException
 from topwrap.frontend.ipxact.frontend import IpXactFrontend
 from topwrap.model.connections import PortDirection
@@ -135,7 +136,7 @@ class TestIpxactIrExamples:
         WIDTH = gen1.module.parameters.find_by_name("WIDTH")
         assert WIDTH is not None
         WIDTH_value = gen1.parameters[WIDTH._id]
-        assert WIDTH_value.elaborate() == 128
+        assert WIDTH_value == ElaboratableValue(ComplexParameter(width=32, value=128))
         gen_out_port = gen1.module.ports.find_by_name("gen_out")
         assert gen_out_port is not None
         assert gen_out_port.direction is PortDirection.OUT

@@ -8,7 +8,9 @@ ips:
   gen1:
     file: file:ips/lfsr_gen.yaml
     parameters:
-      WIDTH: 128
+      WIDTH:
+        width: 32
+        value: 128
       SEED: 1337
   gen2:
     file: file:ips/lfsr_gen.yaml

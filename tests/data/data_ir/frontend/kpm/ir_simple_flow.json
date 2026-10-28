@@ -170,7 +170,7 @@
             {
               "id": "700df42f-7d06-4e4d-818f-43ea87204ad2",
               "name": "WIDTH",
-              "value": "128"
+              "value": "{'width': 32, 'value': 128}"
             },
             {
               "id": "fd5562a7-ed98-450d-b684-a199ddd37cb4",

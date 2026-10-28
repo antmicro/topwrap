@@ -23,7 +23,6 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
-    Union,
 )
 
 import marshmallow
@@ -185,11 +184,25 @@ class ElaboratableValue:
     """
 
     value: str
-    raw: Union[int, str, ComplexParameter]
+    raw: int | str | ComplexParameter
 
-    def __init__(self, expr: Union[int, str, ComplexParameter]) -> None:
+    def __init__(self, expr: int | str | ComplexParameter) -> None:
         self.raw = expr
-        self.value = str(expr)
+        self.value = self._parse_expr_into_str(expr)
+
+    @staticmethod
+    def _parse_expr_into_str(expr: int | str | ComplexParameter) -> str:
+        # self.value should always be an "elaboratable" expression, meaning
+        # parsable by a potential SV expression evaluator
+        match expr:
+            case int(v) | str(v):
+                return str(v)
+            case ComplexParameter(val, wid):
+                match val:
+                    case int():
+                        return f"{wid}'d{val}"
+                    case str():
+                        return f"{wid}'({val})"
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, ElaboratableValue):

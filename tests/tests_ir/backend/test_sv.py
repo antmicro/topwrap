@@ -24,6 +24,7 @@ from topwrap.backend.generator import InterconnectGenerationError
 from topwrap.backend.sv.backend import GeneratorNotImplementedError, SystemVerilogBackend
 from topwrap.backend.sv.common import serialize_select, serialize_type, sv_varname
 from topwrap.backend.sv.design import Design, _SystemVerilogDesignData
+from topwrap.backend.yaml.common.ip_core_schema import ComplexParameter
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.interconnects.wishbone_rr import WishboneInterconnect, WishboneRRParams
 from topwrap.model.connections import (
@@ -842,3 +843,31 @@ endmodule
         assert [
             line.strip().split("(")[0] for line in connections.splitlines() if line.strip()
         ] == [f".{name}" for name in ["clk", "first_r_port_had_funny_name", *expected_ports[2:]]]
+
+    def test_ipcore_complex_parameter(self):
+        child_module = Module(
+            id=Identifier(name="simply_complex_module"),
+            parameters=[
+                Parameter(name="Param1"),
+                const_param := Parameter(name="ConstParameter"),
+                arb_param := Parameter(name="ArbParameter"),
+            ],
+        )
+
+        top = Module(id=Identifier(name="top"), design=Design())
+        assert top.design
+        top.design.add_component(
+            ModuleInstance(
+                name="simply_complex_instance",
+                module=child_module,
+                parameters={
+                    const_param._id: ElaboratableValue(ComplexParameter(value=34, width=230)),
+                    arb_param._id: ElaboratableValue(ComplexParameter(width=67, value="Param1")),
+                },
+            )
+        )
+
+        backend = SystemVerilogBackend(desc_comms=False)
+        [output] = backend.represent(top).modules
+        assert ".ConstParameter(230'd34)" in output.content
+        assert ".ArbParameter(67'(Param1))" in output.content
