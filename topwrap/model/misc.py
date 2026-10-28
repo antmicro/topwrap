@@ -29,9 +29,9 @@ from typing import (
 import marshmallow
 from typing_extensions import Self
 
+from topwrap.backend.yaml.common.types import ComplexParameter
+
 if TYPE_CHECKING:
-    from topwrap.backend.yaml.common.interface_schema import InterfaceComplexParameter
-    from topwrap.backend.yaml.common.ip_core_schema import IPCoreComplexParameter
     from topwrap.model.interface import InterfaceDefinition
     from topwrap.model.module import Module
 
@@ -185,11 +185,9 @@ class ElaboratableValue:
     """
 
     value: str
-    raw: Union[int, str, IPCoreComplexParameter, InterfaceComplexParameter]
+    raw: Union[int, str, ComplexParameter]
 
-    def __init__(
-        self, expr: Union[int, str, IPCoreComplexParameter, InterfaceComplexParameter]
-    ) -> None:
+    def __init__(self, expr: Union[int, str, ComplexParameter]) -> None:
         self.raw = expr
         self.value = str(expr)
 

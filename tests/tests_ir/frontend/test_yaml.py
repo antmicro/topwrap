@@ -13,10 +13,10 @@ from examples.ir_examples.modules import ALL_MODULES, lfsr_gen
 from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.interface_schema import InterfaceDefinitionDescription
 from topwrap.backend.yaml.common.ip_core_schema import (
-    IPCoreComplexParameter,
     IPCoreDescriptionFrontendException,
     param_to_ir_param,
 )
+from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend, DesignPositionsFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
@@ -528,8 +528,8 @@ class TestIPCoreDescriptionFrontend:
         assert exts[3].data == {"subkey1": 123}
 
     def test_complex_param(self):
-        param = IPCoreComplexParameter(32, 563)
-        assert param_to_ir_param(param) == ElaboratableValue(IPCoreComplexParameter(32, 563))
+        param = ComplexParameter(32, 563)
+        assert param_to_ir_param(param) == ElaboratableValue(ComplexParameter(32, 563))
 
     def test_complex_signal(self):
         ip = """

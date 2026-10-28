@@ -13,7 +13,6 @@ from topwrap.backend.backend import Backend, BackendOutputInfo, BackendParseExce
 from topwrap.backend.kpm.common import Positions
 from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreClock,
-    IPCoreComplexParameter,
     IPCoreComplexSignal,
     IPCoreDescription,
     IPCoreInterface,
@@ -26,6 +25,7 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     IPCoreType,
     Signal,
 )
+from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.frontend.yaml.design_schema import (
     ConnectionsSection,
     DesignDescription,
@@ -237,7 +237,7 @@ class IpCoreDescriptionBackend(Backend[IpCoreDescriptionOutput]):
         params = {}
         for p, v in intf.parameters.items():
             params[p.resolve().name] = v.value
-            if isinstance(v.raw, IPCoreComplexParameter):
+            if isinstance(v.raw, ComplexParameter):
                 params[p.resolve().name] = v.raw
 
         return IPCoreInterface(
@@ -451,7 +451,7 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
         params = {}
         for p, v in comp.parameters.items():
             params[p.resolve().name] = v.value
-            if isinstance(v.raw, IPCoreComplexParameter):
+            if isinstance(v.raw, ComplexParameter):
                 params[p.resolve().name] = v.raw
 
         return DesignIP(

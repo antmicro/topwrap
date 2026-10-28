@@ -13,7 +13,7 @@ from topwrap.backend.kpm.common import (
     IoMetanode,
     ResetDomainMetanode,
 )
-from topwrap.backend.yaml.common.ip_core_schema import IPCoreComplexParameter
+from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.frontend.frontend import FrontendParseException
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
@@ -66,7 +66,7 @@ def kpm_val_to_elab_val(kpm_val: str) -> ElaboratableValue:
     try:
         d = literal_eval(kpm_val)
         if isinstance(d, dict):
-            return ElaboratableValue(IPCoreComplexParameter(width=d["width"], value=d["value"]))
+            return ElaboratableValue(ComplexParameter(width=d["width"], value=d["value"]))
     except (ValueError, SyntaxError):
         pass
 

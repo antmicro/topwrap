@@ -1,11 +1,12 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
-from typing import Any, Dict, Literal, Optional, Tuple, Union
+from typing import Any, Dict, Literal, Optional, Union
 
 import marshmallow
 import marshmallow_dataclass
 
+from topwrap.backend.yaml.common.types import ComplexParameter, YamlBounds
 from topwrap.common_serdes import (
     MarshmallowDataclassExtensions,
     RegexpT,
@@ -19,10 +20,6 @@ InterfaceDefinitionSignalMode = tuple[
     InterfaceDefinitionSignalDirection, InterfaceDefinitionSignalRequired
 ]
 
-_StrOrInt = Union[str, int]
-InterfaceDimension = Tuple[_StrOrInt, _StrOrInt]
-InterfaceBounds = Union[InterfaceDimension, Tuple[InterfaceDimension, ...]]
-
 
 @marshmallow_dataclass.add_schema
 @dataclass(frozen=True)
@@ -30,7 +27,7 @@ class InterfaceDefinitionSignalDescription(MarshmallowDataclassExtensions):
     pattern: RegexpT = ext_field()
     modes: dict[str, InterfaceDefinitionSignalMode] = ext_field()
     default: Optional[str | int] = ext_field(None)
-    bound: Optional[InterfaceBounds] = ext_field(None)
+    bound: Optional[YamlBounds] = ext_field(None)
 
     @marshmallow.validates_schema
     def _validate(self, self_obj: Dict[str, Any], **kwargs: Any) -> bool:
@@ -53,13 +50,7 @@ class InterfaceDefinitionSignalsDescription(MarshmallowDataclassExtensions):
     optional: Inner = ext_field(Inner)
 
 
-@marshmallow_dataclass.dataclass(frozen=True)
-class InterfaceComplexParameter(MarshmallowDataclassExtensions):
-    value: Union[int, str]
-    width: int
-
-
-InterfaceParameter = Optional[Union[InterfaceComplexParameter, int, str]]
+InterfaceParameter = Optional[Union[ComplexParameter, int, str]]
 
 
 @marshmallow_dataclass.add_schema

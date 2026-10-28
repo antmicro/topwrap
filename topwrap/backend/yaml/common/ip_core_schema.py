@@ -21,6 +21,7 @@ from typing import (
 import marshmallow
 import marshmallow_dataclass
 
+from topwrap.backend.yaml.common.types import ComplexParameter, StrOrInt, YamlBounds, YamlDimension
 from topwrap.common_serdes import MarshmallowDataclassExtensions, ext_field
 from topwrap.hdl_parsers_utils import PortDefinition as LegacyPortDefinition
 from topwrap.hdl_parsers_utils import PortDirection as LegacyPortDirection
@@ -32,17 +33,13 @@ from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.repo.exceptions import ResourceNotFoundException
 from topwrap.util import get_config, get_interface_by_id
 
-_StrOrInt = Union[str, int]
-IPCoreDimension = Tuple[_StrOrInt, _StrOrInt]
-IPCoreBounds = Union[IPCoreDimension, Tuple[IPCoreDimension, ...]]
-
 
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCoreComplexSignal(MarshmallowDataclassExtensions):
     name: Optional[str] = ext_field(None)
-    bound: Optional[IPCoreBounds] = ext_field(None)
-    slice: Optional[tuple[_StrOrInt, _StrOrInt]] = ext_field(None)
-    default: Optional[_StrOrInt] = ext_field(None)
+    bound: Optional[YamlBounds] = ext_field(None)
+    slice: Optional[tuple[StrOrInt, StrOrInt]] = ext_field(None)
+    default: Optional[StrOrInt] = ext_field(None)
     path: Optional[PortSelectorT] = ext_field(None)
     type: Optional[str] = ext_field(None)
 
@@ -62,8 +59,8 @@ class IPCoreComplexSignal(MarshmallowDataclassExtensions):
 
 Signal = Union[
     str,
-    Tuple[str, _StrOrInt, _StrOrInt],
-    Tuple[str, _StrOrInt, _StrOrInt, _StrOrInt, _StrOrInt],
+    Tuple[str, StrOrInt, StrOrInt],
+    Tuple[str, StrOrInt, StrOrInt, StrOrInt, StrOrInt],
     IPCoreComplexSignal,
 ]
 
@@ -71,14 +68,14 @@ Signal = Union[
 @marshmallow_dataclass.dataclass(frozen=True)
 class IPCorePort:
     name: str
-    upper_bound: _StrOrInt
-    lower_bound: _StrOrInt
-    upper_slice: _StrOrInt
-    lower_slice: _StrOrInt
+    upper_bound: StrOrInt
+    lower_bound: StrOrInt
+    upper_slice: StrOrInt
+    lower_slice: StrOrInt
     direction: LegacyPortDirection = ext_field(by_value=True)
 
     @property
-    def bounds(self) -> Tuple[_StrOrInt, _StrOrInt, _StrOrInt, _StrOrInt]:
+    def bounds(self) -> Tuple[StrOrInt, StrOrInt, StrOrInt, StrOrInt]:
         return (self.upper_bound, self.lower_bound, self.upper_slice, self.lower_slice)
 
     @cached_property
@@ -100,9 +97,9 @@ class IPCorePort:
 
             bounds = sig.bound
             if bounds is not None and isinstance(bounds[0], tuple):
-                bounds = cast(IPCoreDimension, bounds[0])
+                bounds = cast(YamlDimension, bounds[0])
             elif bounds is not None:
-                bounds = cast(IPCoreDimension, bounds)
+                bounds = cast(YamlDimension, bounds)
 
             return IPCorePort(
                 name=name,
@@ -216,13 +213,7 @@ class IPCoreIntfPorts(MarshmallowDataclassExtensions):
         return IPCoreIntfPorts(input=inp, output=out, inout=ino)
 
 
-@marshmallow_dataclass.dataclass(frozen=True)
-class IPCoreComplexParameter(MarshmallowDataclassExtensions):
-    value: Union[int, str]
-    width: int
-
-
-IPCoreParameter = Optional[Union[IPCoreComplexParameter, int, str]]
+IPCoreParameter = Optional[Union[ComplexParameter, int, str]]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -274,8 +265,8 @@ class IPCoreParameterField(marshmallow.fields.Field):
     def _serialize(self, value: IPCoreParameter, attr: Optional[str], obj: Any, **kwargs: Any):
         if value is None:
             return value
-        if isinstance(value, IPCoreComplexParameter):
-            return IPCoreComplexParameter.Schema().dump(value)
+        if isinstance(value, ComplexParameter):
+            return ComplexParameter.Schema().dump(value)
         try:
             return int(value)
         except ValueError:
@@ -288,7 +279,7 @@ class IPCoreParameterField(marshmallow.fields.Field):
             return None
 
         if isinstance(value, dict):
-            return IPCoreComplexParameter.Schema().load(value)
+            return ComplexParameter.Schema().load(value)
 
         if isinstance(value, int):
             return value
@@ -311,7 +302,7 @@ class IPCoreReset(MarshmallowDataclassExtensions):
     synchronous_to: Optional[str] = ext_field(None)
 
 
-IPCoreType = Union[tuple[_StrOrInt, _StrOrInt], "IPCoreStruct"]
+IPCoreType = Union[tuple[StrOrInt, StrOrInt], "IPCoreStruct"]
 
 
 @marshmallow_dataclass.dataclass(frozen=True)

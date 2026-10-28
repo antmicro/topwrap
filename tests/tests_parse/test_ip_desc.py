@@ -12,12 +12,12 @@ from deepdiff import DeepDiff
 from marshmallow import ValidationError
 
 from topwrap.backend.yaml.common.ip_core_schema import (
-    IPCoreComplexParameter,
     IPCoreDescription,
     IPCoreInterface,
     IPCoreIntfPorts,
     IPCorePorts,
 )
+from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.model.interface import InterfaceMode
 from topwrap.model.misc import Identifier
 from topwrap.util import get_config
@@ -215,8 +215,8 @@ interfaces:
                         {
                             "width": ["Not a valid integer."],
                             "value": [
-                                {"_schema": ["Not a valid integer."]},
                                 {"_schema": ["Not a valid string."]},
+                                {"_schema": ["Not a valid integer."]},
                             ],
                         },
                         {"_schema": ["Not a valid integer."]},
@@ -295,8 +295,8 @@ interfaces:
             parameters={
                 "p1": 3,
                 "p2": "p1+4",
-                "p3": IPCoreComplexParameter(width=4, value=5),
-                "p4": IPCoreComplexParameter(width=4, value="p2"),
+                "p3": ComplexParameter(width=4, value=5),
+                "p4": ComplexParameter(width=4, value="p2"),
             },
             interfaces={
                 "intf1": IPCoreInterface(
