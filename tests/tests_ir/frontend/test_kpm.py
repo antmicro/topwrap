@@ -203,6 +203,15 @@ class TestKpmDomainAssignments:
         ):
             parse()
 
+    def test_disconnected_clock(self, domain_graph):
+        graph, parse = domain_graph
+        wire = next(c for c in graph._connections.values() if c.to_interface.name == "clk_port_0")
+        del graph._connections[wire.id]
+        with pytest.raises(
+            KpmFrontendParseException, match=r"reset_sink\.clk_port_0.*not connected"
+        ):
+            parse()
+
 
 class TestCombinedFrontend:
     @staticmethod

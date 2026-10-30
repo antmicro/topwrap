@@ -621,10 +621,14 @@ class KpmDataflowFrontend:
                 port_iface = k_intf
                 break
 
-        assert port_iface
-        assert len(data.intfconnmap[port_iface.interface.id]) == 1
-
-        driver = data.intfconnmap[port_iface.interface.id][0]
+        description = f"Port '{inst.name}.{port.name}'"
+        if port_iface is None:
+            raise KpmFrontendParseException(f"{description} is missing from the dataflow")
+        drivers = data.intfconnmap.get(port_iface.interface.id, [])
+        if len(drivers) != 1:
+            reason = "is not connected" if not drivers else "has multiple drivers"
+            raise KpmFrontendParseException(f"{description} {reason}")
+        driver = drivers[0]
 
         inverted = False
         while driver:
@@ -683,10 +687,7 @@ class KpmDataflowFrontend:
                     break
 
             if unconnected:
-                raise KpmFrontendParseException(
-                    f"domain port {port.name} of module instance {inst.name}"
-                    "is not connected to any domain"
-                )
+                raise KpmFrontendParseException(f"{description} is not connected to any domain")
 
     def _create_interconnect(
         self, graph: DataflowGraph, node: Node, data: _KpmDataflowInstanceData
