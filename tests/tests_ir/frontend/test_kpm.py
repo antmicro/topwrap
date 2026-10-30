@@ -188,6 +188,21 @@ class TestKpmDomainAssignments:
         with pytest.raises(KpmFrontendParseException, match=r"reset_sink\.rst_port_0.*polarity"):
             parse()
 
+    def test_ambiguous_domains(self, domain_graph):
+        graph, parse = domain_graph
+        domain = next(n for n in graph._nodes.values() if n.name == ResetDomainMetanode.name)
+        wire = next(
+            c for c in graph._connections.values() if c.to_interface == domain.interfaces[0]
+        )
+        alias = graph.create_node(name=ResetDomainMetanode.name)
+        alias.set_property("Domain", "alias")
+        alias.set_property("Synchronous to", "")
+        graph.create_connection(wire.from_interface, alias.interfaces[0])
+        with pytest.raises(
+            KpmFrontendParseException, match=r"reset_sink\.rst_port_0.*multiple domains"
+        ):
+            parse()
+
 
 class TestCombinedFrontend:
     @staticmethod

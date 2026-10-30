@@ -629,11 +629,19 @@ class KpmDataflowFrontend:
         inverted = False
         while driver:
             driver_other_cons = data.intfconnmap[driver.interface.id]
+            domain_intfs = (
+                data.clock_dom_intfs if isinstance(clk_or_rst, Clock) else data.reset_dom_intfs
+            )
+            domains = [domain_intfs[con] for con in driver_other_cons if con in domain_intfs]
+            if len(domains) > 1:
+                names = ", ".join(sorted(domain.get_property("Domain") for domain in domains))
+                raise KpmFrontendParseException(
+                    f"Port '{inst.name}.{port.name}' is connected to multiple domains: {names}"
+                )
             unconnected = True
 
             for con in driver_other_cons:
-                if con in data.clock_dom_intfs:
-                    assert isinstance(clk_or_rst, Clock)
+                if isinstance(clk_or_rst, Clock) and con in data.clock_dom_intfs:
                     if inverted:
                         raise KpmFrontendParseException(
                             f"Clock port '{inst.name}.{port.name}' is inverted, "
@@ -649,8 +657,7 @@ class KpmDataflowFrontend:
                     driver = None
                     unconnected = False
                     break
-                elif con in data.reset_dom_intfs:
-                    assert isinstance(clk_or_rst, Reset)
+                elif isinstance(clk_or_rst, Reset) and con in data.reset_dom_intfs:
                     domain = data.reset_dom_intfs[con]
                     polarity = ResetPolarity(domain.get_property("Polarity"))
                     if inverted != (polarity != clk_or_rst.polarity):
