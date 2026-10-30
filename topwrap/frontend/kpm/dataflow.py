@@ -634,6 +634,11 @@ class KpmDataflowFrontend:
             for con in driver_other_cons:
                 if con in data.clock_dom_intfs:
                     assert isinstance(clk_or_rst, Clock)
+                    if inverted:
+                        raise KpmFrontendParseException(
+                            f"Clock port '{inst.name}.{port.name}' is inverted, "
+                            "which cannot be represented by a clock domain"
+                        )
                     data.pending_clk_assignments[(inst._id, clk_or_rst._id)] = data.clock_dom_intfs[
                         con
                     ].get_property("Domain")
@@ -646,6 +651,13 @@ class KpmDataflowFrontend:
                     break
                 elif con in data.reset_dom_intfs:
                     assert isinstance(clk_or_rst, Reset)
+                    domain = data.reset_dom_intfs[con]
+                    polarity = ResetPolarity(domain.get_property("Polarity"))
+                    if inverted != (polarity != clk_or_rst.polarity):
+                        raise KpmFrontendParseException(
+                            f"Reset port '{inst.name}.{port.name}' has inversion inconsistent "
+                            f"with domain '{domain.get_property('Domain')}' polarity"
+                        )
                     data.pending_rst_assignments[(inst._id, clk_or_rst._id)] = data.reset_dom_intfs[
                         con
                     ].get_property("Domain")

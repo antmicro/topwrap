@@ -9,11 +9,15 @@ import pytest
 from pipeline_manager.dataflow_builder.data_structures import OutOfSpecificationNodeError
 
 from examples.ir_examples.modules import ALL_MODULES
-from topwrap.backend.kpm.common import LayerType, id_to_kpm_name
+from topwrap.backend.kpm.common import LayerType, ResetDomainMetanode, id_to_kpm_name
+from topwrap.backend.kpm.dataflow import KpmDataflowBackend
+from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.frontend.kpm.common import KpmFrontendParseException
 from topwrap.frontend.kpm.dataflow import KpmDataflowFrontend
 from topwrap.frontend.kpm.frontend import KpmFrontend
 from topwrap.frontend.kpm.specification import KpmSpecificationFrontend
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend
+from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.connections import PortDirection, ReferencedPort
 from topwrap.model.hdl_types import Bits, Dimensions
 from topwrap.model.interface import InterfaceDefinition
@@ -159,6 +163,30 @@ class TestKpmDataflowFrontend:
 
         [uart] = mod.interfaces
         assert uart.definition.id.name == "wishbone"
+
+
+class TestKpmDomainAssignments:
+    @pytest.fixture
+    def domain_graph(self):
+        directory = Path("examples/ir_examples/domains")
+        modules = [
+            IPCoreDescriptionFrontend().parse_file(directory / path)
+            for path in ["cores/sink/reset_sink.yaml", "cores/src/src.yaml"]
+        ]
+        design, _ = DesignDescriptionFrontend(modules).parse_file(directory / "top.yaml")
+        spec = KpmSpecificationBackend.default()
+        for module in modules:
+            spec.add_module(module)
+        backend = KpmDataflowBackend(spec.build())
+        graph = backend.represent_design(design)
+        return graph, lambda: KpmDataflowFrontend(modules).parse(backend.build())[0]
+
+    def test_reset_polarity_conflict(self, domain_graph):
+        graph, parse = domain_graph
+        domain = next(n for n in graph._nodes.values() if n.name == ResetDomainMetanode.name)
+        domain.set_property("Polarity", "active low")
+        with pytest.raises(KpmFrontendParseException, match=r"reset_sink\.rst_port_0.*polarity"):
+            parse()
 
 
 class TestCombinedFrontend:
