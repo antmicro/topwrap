@@ -503,10 +503,10 @@ async def _kpm_handle_node_rename(
     external_nodes = [
         node
         for node in graph["nodes"]
-        if node["id"] == name_diff["node_id"] and node["name"] == IoMetanode.name
+        if node["id"] == name_diff["node_id"] and is_external_metanode(node)
     ]
     if external_nodes:
-        await _expose_nodes(external_nodes, new_dataflow, graph_id, rpc_object)
+        await _expose_nodes(external_nodes, new_dataflow, graph_id, True, rpc_object)
 
 
 async def _kpm_handle_connections_change(
@@ -519,6 +519,13 @@ async def _kpm_handle_connections_change(
     """
     logging.info("Handling connection change event")
     logging.debug(f"Diff is: {conns_diff}")
+
+    # FIXME: remove once KPM no longer sends spurious warnings
+    # Ignore spurious event
+    connections = conns_diff["connections"]
+    if not connections["added"] and not connections["deleted"]:
+        return
+
     # Data for interfaces_change API call to KPM
     graph_id = conns_diff["graph_id"]
     graph = get_graph_with_id(new_dataflow, graph_id)
