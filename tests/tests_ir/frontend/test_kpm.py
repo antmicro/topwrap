@@ -9,7 +9,12 @@ import pytest
 from pipeline_manager.dataflow_builder.data_structures import OutOfSpecificationNodeError
 
 from examples.ir_examples.modules import ALL_MODULES
-from topwrap.backend.kpm.common import LayerType, ResetDomainMetanode, id_to_kpm_name
+from topwrap.backend.kpm.common import (
+    ClockDomainMetanode,
+    LayerType,
+    ResetDomainMetanode,
+    id_to_kpm_name,
+)
 from topwrap.backend.kpm.dataflow import KpmDataflowBackend
 from topwrap.backend.kpm.specification import KpmSpecificationBackend
 from topwrap.frontend.kpm.common import KpmFrontendParseException
@@ -180,6 +185,14 @@ class TestKpmDomainAssignments:
         backend = KpmDataflowBackend(spec.build())
         graph = backend.represent_design(design)
         return graph, lambda: KpmDataflowFrontend(modules).parse(backend.build())[0]
+
+    def test_duplicate_domain_names(self, domain_graph):
+        graph, parse = domain_graph
+        for node in graph._nodes.values():
+            if node.name == ClockDomainMetanode.name:
+                node.set_property("Domain", "same_name")
+        with pytest.raises(KpmFrontendParseException, match="Duplicate clock domain.*same_name"):
+            parse()
 
     def test_reset_polarity_conflict(self, domain_graph):
         graph, parse = domain_graph

@@ -270,9 +270,20 @@ class KpmDataflowFrontend:
             mid.resolve().id: pos for mid, pos in data._positions.items()
         }
 
+    def _validate_domain_names(self, graph: DataflowGraph) -> None:
+        domain_names = set[tuple[str, str]]()
+        for node in graph._nodes.values():
+            if node.name in (ClockDomainMetanode.name, ResetDomainMetanode.name):
+                name = node.get_property("Domain")
+                key = (node.name, name)
+                if key in domain_names:
+                    raise KpmFrontendParseException(f"Duplicate {node.name.lower()} name '{name}'")
+                domain_names.add(key)
+
     def _parse(
         self, source: Optional[Path], graph: DataflowGraph, data: _KpmDataflowInstanceData
     ) -> Module:
+        self._validate_domain_names(graph)
         mod = Module(
             id=Identifier(f"anon_{graph.id}"),
             refs=[FileReference(source)] if source else (),
