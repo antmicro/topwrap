@@ -34,7 +34,6 @@ from topwrap.util import JsonType
 
 from .kpm_common import (
     RPCparams,
-    check_for_iface_in_conn_graph,
     find_dataflow_node_by_id,
     get_graph_with_id,
     get_toplevel_graph,
@@ -444,7 +443,11 @@ async def _kpm_handle_graph_change(
 # Expose the unconnected interface of an "External I/O"
 # This function assumes it gets only external I/O metanodes
 async def _expose_nodes(
-    nodes: list[JsonType], new_dataflow: JsonType, graph_id: str, rpc_object: RPCMethods
+    nodes: list[JsonType],
+    new_dataflow: JsonType,
+    graph_id: str,
+    persist: bool,
+    rpc_object: RPCMethods,
 ) -> None:
     if rpc_object.client is None:
         logging.debug("No client to expose nodes")
@@ -452,23 +455,19 @@ async def _expose_nodes(
 
     for node in nodes:
         interfaces = []
-        internal, exposed = node["interfaces"]
-        if internal["name"].startswith("exposed"):
-            exposed, internal = internal, exposed
-        # If the internal interface is not connected, don't expose anything
-        elif not check_for_iface_in_conn_graph(new_dataflow, internal["id"], graph_id):
-            interfaces = [exposed["id"], internal["id"]]
-        # This is the case where exposed is unconnected and internal is connected; only
-        else:
-            external_name = node.get("instanceName", None)
-            if external_name is None or external_name == node["name"]:
+        internal, external = node["interfaces"]
+        if internal["name"].startswith("external"):
+            external, internal = internal, external
+        external_name = node.get("instanceName", None)
+        if external_name is None or external_name == node["name"]:
+            if persist:
                 await rpc_object.client.request(
                     "notification_send",
                     {
                         "type": "warning",
                         "title": f"{node['name']}: Exposed interface cannot be named",
                         "details": (
-                            f"interface {exposed['name']}(id {exposed['id']})"
+                            f"interface {external['name']}(id {external['id']})"
                             "cannot be named\n"
                             f"Please give {node['name']}(id {node['id']})"
                             "a unique name\n"
@@ -476,8 +475,10 @@ async def _expose_nodes(
                         ),
                     },
                 )
-                external_name = f"{internal['name']}_{exposed['id'][:6]}"
-            interfaces.append({"id": exposed["id"], "externalName": external_name})
+                external_name = f"{internal['name']}_{external['id'][:6]}"
+            else:
+                continue
+        interfaces.append({"id": external["id"], "externalName": external_name})
         if interfaces:
             await rpc_object.client.request(
                 "interfaces_change",
@@ -516,6 +517,8 @@ async def _kpm_handle_connections_change(
     When a connection node is added, expose the interface opposite
     a connected interface
     """
+    logging.info("Handling connection change event")
+    logging.debug(f"Diff is: {conns_diff}")
     # Data for interfaces_change API call to KPM
     graph_id = conns_diff["graph_id"]
     graph = get_graph_with_id(new_dataflow, graph_id)
@@ -524,7 +527,7 @@ async def _kpm_handle_connections_change(
 
     # Rerender exposed interfaces
     external_nodes = [node for node in graph["nodes"] if is_external_metanode(node)]
-    await _expose_nodes(external_nodes, new_dataflow, graph_id, rpc_object)
+    await _expose_nodes(external_nodes, new_dataflow, graph_id, True, rpc_object)
 
 
 async def _kpm_handle_nodes_change(
@@ -536,6 +539,7 @@ async def _kpm_handle_nodes_change(
     via `interface_change` requests.
     """
     logging.info("Handling node change event")
+    logging.debug(f"Diff is: {nodes_diff}")
     graph_id = nodes_diff["graph_id"]
 
     # When an `External I/O` node is added, expose its unconnected interfaces
@@ -543,7 +547,7 @@ async def _kpm_handle_nodes_change(
     # connection
     added_external = [node for node in nodes_diff["nodes"]["added"] if is_external_metanode(node)]
     if len(added_external) > 0:
-        await _expose_nodes(added_external, new_dataflow, graph_id, rpc_object)
+        await _expose_nodes(added_external, new_dataflow, graph_id, False, rpc_object)
 
     # There are two cases for what happens when a node is deleted:
     # 1. The node is deleted, its interfaces won't be shown
