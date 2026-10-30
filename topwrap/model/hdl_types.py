@@ -581,21 +581,12 @@ class ElabvalueEvaluator:
         For a given ElaboratableValue and a set of parameters find out which parameters it uses
         """
 
-        used_names = set[str]()
-
-        def handler(node: ast.Name):
-            if node.id not in ElabvalueEvaluator.funcs:
-                used_names.add(node.id)
-            return 1
-
         try:
-            simpleeval.simple_eval(
-                ElabvalueEvaluator._sanitize(val.value),
-                names=handler,
-                functions=ElabvalueEvaluator.funcs,
-            )
-        except (simpleeval.InvalidExpression, SyntaxError) as e:
+            tree = ast.parse(ElabvalueEvaluator._sanitize(val.value), mode="eval")
+        except SyntaxError as e:
             logger.warning(f"failure during elabvalue dependency check; {e}")
             return
 
+        used_names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+        used_names -= ElabvalueEvaluator.funcs.keys()
         yield from (p for p in params if p.name in used_names)
