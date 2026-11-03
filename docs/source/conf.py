@@ -140,6 +140,8 @@ html_last_updated_fmt = today_fmt
 
 html_show_sphinx = False
 
+html_static_path = ["_static"]
+
 html_title = project
 
 (html_logo, html_theme_options, html_context) = antmicro_html(
