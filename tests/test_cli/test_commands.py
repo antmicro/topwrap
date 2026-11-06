@@ -80,6 +80,7 @@ class TestCli:
     def test_generate_fusesoc_includes_library_dependencies_and_options(self, tmp_path: Path):
         example_dir = tmp_path / "library"
         shutil.copytree(Path(__file__).resolve().parents[2] / "examples" / "library", example_dir)
+        subprocess.run(["make", "clean"], cwd=example_dir, check=True)
         subprocess.run(["make", "cores"], cwd=example_dir, check=True)
 
         sources = tmp_path / "additional_sources"
@@ -103,6 +104,7 @@ class TestCli:
         assert "example.com:demo:consumer:0.1" in core
         assert "constraints.xdc" in core
         assert "part: xc7z020clg400-3" in core
+        subprocess.run(["make", "clean"], cwd=example_dir, check=True)
 
     def test_main_handle_validation_exception(self):
         with pytest.raises(SystemExit) as exc_info:
@@ -769,6 +771,7 @@ class TestExtractCli:
         assert Path(example_file).exists()
 
         if run_make:
+            subprocess.run(["make", "clean"], check=True)
             subprocess.run("make", check=True)
 
         # Reload config for the duration of this test
@@ -785,3 +788,6 @@ class TestExtractCli:
         assert new_mod is not None
 
         _compare_modules(orig_des.parent, new_mod, compare_designs=False)
+
+        if run_make:
+            subprocess.run(["make", "clean"], check=True)

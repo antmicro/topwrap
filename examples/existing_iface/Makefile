@@ -9,6 +9,9 @@ repo: $(REPO_NAME)
 build:
 	mkdir build
 
+clean:
+	rm -rf build
+
 $(REPO_NAME): $(IPCORE_SOURCES)
 	- rm -r $(REPO_NAME)
 	topwrap repo init $(REPO_NAME) $(REPO_NAME)
