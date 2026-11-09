@@ -3390,7 +3390,13 @@ class SystemVerilogSlangParser:
                         required=False, direction=_slang_dir_to_ir_dir(sig.direction)
                     )
 
-        return InterfaceDefinition(id=id, signals=signals.values())
+        return InterfaceDefinition(
+            id=id,
+            signals=signals.values(),
+            parameters=[
+                p for a in intf_ast.parameters if (p := self._parse_parameter_ast(a)) is not None
+            ],
+        )
 
     # `Symbol` is a base type for all AST objects
     def _parse_parameter_ast(self, param_ast: ps.Symbol) -> Optional[Parameter]:
@@ -3406,6 +3412,8 @@ class SystemVerilogSlangParser:
                 )
                 return
             if param_ast.syntax.initializer is not None:
+                # FIXME: parse sized parameters correctly and store them as
+                # ElaborableValue(ComplexParater)
                 def_val = str(param_ast.syntax.initializer.expr).strip()
         # `TypeParameterSymbol` corresponds to `parameter type pname = logic`
         # in SystemVerilog
