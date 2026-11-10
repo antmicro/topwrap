@@ -185,6 +185,35 @@ endinterface"""
         assert len(out.interfaces) == 1
         assert out.interfaces[0].id.name == "AXI4Lite"
 
+    def test_interface_parameter_parsing(self):
+        front = SystemVerilogFrontend()
+        intf_str = """interface my_if #(
+    parameter int DATA_WIDTH = 8,
+    parameter logic [7:0] PARAM = 8'b01101101
+);
+
+    logic valid;
+    logic ready;
+    logic [DATA_WIDTH-1:0] data;
+
+endinterface
+        """
+
+        out = front.parse_str([intf_str])
+        assert len(out.interfaces) == 1
+
+        parsed_iface = out.interfaces[0]
+        assert parsed_iface.id.name == "my_if"
+
+        assert len(parsed_iface.parameters) == 2
+
+        param_names_values = [
+            (param.name, param.default_value.value if param.default_value else None)
+            for param in parsed_iface.parameters
+        ]
+        param_names_values.sort()
+        assert param_names_values == [("DATA_WIDTH", "8"), ("PARAM", "8'b01101101")]
+
     def test_existing_name_conflict(self):
         existing_mod = Module(id=Identifier(name="name1"))
         front = SystemVerilogFrontend(modules=[existing_mod])
