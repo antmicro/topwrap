@@ -302,6 +302,13 @@ class KpmSpecificationBackend:
                     "procedureName": "custom_save_design_changes",
                     "requireResponse": True,
                 },
+                {
+                    "name": "Save design as...",
+                    "stopName": "Stop",
+                    "iconName": "Import",
+                    "procedureName": "custom_save_as_design_changes",
+                    "requireResponse": True,
+                },
             ],
             "styles": {
                 "inverter": {

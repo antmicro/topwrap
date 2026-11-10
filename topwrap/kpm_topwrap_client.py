@@ -373,6 +373,21 @@ class RPCMethods:
 
         return self._save_design_from_dataflow(dataflow)
 
+    async def custom_save_as_design_changes(self, dataflow: JsonType):
+        """
+        This procedure is run when the user wants to provide a save location for the design file
+        regardless of whether a file is already being worked on.
+        """
+        try:
+            await self._prompt_for_path()
+        except KpmDialogResponseException:
+            return {
+                "type": MessageType.ERROR.value,
+                "content": "No save location provided",
+            }
+
+        return self._save_design_from_dataflow(dataflow)
+
     async def nodes_on_change(self, graph_id: str, nodes: JsonType, **kwargs: Any):
         logging.debug("Reacting to node change event")
         diff = {"graph_id": graph_id, "nodes": nodes}
