@@ -1,5 +1,6 @@
 # Copyright (c) 2025-2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
+import re
 from ast import literal_eval
 from itertools import chain
 
@@ -61,6 +62,13 @@ def kpm_dir_to_ir_intf(dir: KpmDirection) -> InterfaceMode:
 
 
 def kpm_val_to_elab_val(kpm_val: str) -> ElaboratableValue:
+    if match := re.fullmatch(r"(?P<width>\d+)'[dD](?P<value>\d+)", kpm_val):
+        return ElaboratableValue(
+            ComplexParameter(width=int(match["width"]), value=int(match["value"]))
+        )
+    if match := re.fullmatch(r"(?P<width>\d+)'\((?P<value>.*)\)", kpm_val):
+        return ElaboratableValue(ComplexParameter(width=int(match["width"]), value=match["value"]))
+
     try:
         return ElaboratableValue(int(kpm_val))
     except ValueError:  # thrown when string cannot be converted to integer

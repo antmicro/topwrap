@@ -9,7 +9,6 @@ from typing import Any, Optional, TypedDict, Union
 
 from pipeline_manager.dataflow_builder.entities import Direction as KpmDirection
 
-from topwrap.backend.yaml.common.types import ComplexParameter
 from topwrap.interconnects.types import INTERCONNECT_TYPES
 from topwrap.model.connections import PortDirection
 from topwrap.model.interface import InterfaceMode
@@ -108,8 +107,6 @@ def id_to_kpm_name(id: Identifier) -> str:
 def elab_val_to_kpm_val(ev: Optional[ElaboratableValue]):
     if ev is None:
         return ""
-    if isinstance(ev.raw, ComplexParameter):
-        return str(ComplexParameter.Schema().dump(ev.raw))
     return ev.value
 
 
