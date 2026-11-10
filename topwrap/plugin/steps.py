@@ -443,8 +443,9 @@ class YamlDesignOutputStage(OutputStage):
 
     save_positions: bool
 
-    def __init__(self, *, save_positions: bool = False):
+    def __init__(self, *, save_positions: bool = False, positions_filename: Optional[str] = None):
         self.save_positions = save_positions
+        self.positions_filename = positions_filename
 
     @override
     def generate_output(self, ctx: BuildContext):
@@ -455,7 +456,8 @@ class YamlDesignOutputStage(OutputStage):
 
         if self.save_positions:
             pos_backend = DesignPositionsBackend()
-            repr_pos = pos_backend.represent(ctx.top_module.id.name, ctx.positions)
+            fname = self.positions_filename or ctx.top_module.id.name
+            repr_pos = pos_backend.represent(fname, ctx.positions)
             out_pos = next(pos_backend.serialize(repr_pos))
         else:
             out_pos = None

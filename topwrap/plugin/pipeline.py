@@ -336,7 +336,9 @@ class BuildPipeline:
         )
 
     @staticmethod
-    def kpm_yaml_pipeline(target_subgraph: Optional[str] = None):
+    def kpm_yaml_pipeline(
+        target_subgraph: Optional[str] = None, positions_filename: Optional[str] = None
+    ):
         return BuildPipeline(
             inputs=[
                 KpmInputStage(target_subgraph),
@@ -351,7 +353,7 @@ class BuildPipeline:
                 InterconnectHasClockReset(logging.WARNING),
             ],
             outputs=[
-                YamlDesignOutputStage(save_positions=True),
+                YamlDesignOutputStage(save_positions=True, positions_filename=positions_filename),
             ],
         )
 
