@@ -63,6 +63,7 @@
       }
     ],
     "layout": "CytoscapeEngine - grid",
+    "logLevel": "INFO",
     "movementStep": 15,
     "navbarItems": [
       {
@@ -91,6 +92,13 @@
         "iconName": "Save",
         "name": "Save changes to design file",
         "procedureName": "custom_save_design_changes",
+        "requireResponse": true,
+        "stopName": "Stop"
+      },
+      {
+        "iconName": "Import",
+        "name": "Save design as...",
+        "procedureName": "custom_save_as_design_changes",
         "requireResponse": true,
         "stopName": "Stop"
       }
