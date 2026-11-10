@@ -277,6 +277,7 @@ class KpmSpecificationBackend:
             "notifyWhenChanged": True,
             "welcome": False,
             "disableInterfaceExpose": True,
+            "logLevel": "INFO",
             "navbarItems": [
                 {
                     "name": "Validate",
