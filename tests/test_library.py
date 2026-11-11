@@ -65,6 +65,68 @@ filesets:
 """
 
 
+def test_library_reads_files_from_provider_cache_and_core_directory(tmp_path: Path):
+    core_dir = tmp_path / "core"
+    core_dir.mkdir()
+    (core_dir / "waivers.vlt").write_text("`verilator_config\n")
+    (core_dir / "local.sv").write_text("module local_module; endmodule\n")
+    (core_dir / "module.yaml").write_text(_minimal_module_yaml("provider_core"))
+    (core_dir / "provider.core").write_text(
+        """CAPI=2:
+name: example.com:demo:provider_core:0.1
+filesets:
+  rtl:
+    files:
+      - waivers.vlt: {file_type: vlt}
+      - local.sv
+    file_type: systemVerilogSource
+  topwrap:
+    files:
+      - module.yaml: {file_type: topwrapModule}
+provider:
+  name: github
+  user: example
+  repo: provider
+  version: v1
+"""
+    )
+
+    core = next(iter(library._core_manager("provider", str(tmp_path)).get_cores().values()))
+    cache_dir = tmp_path / "provider-cache"
+    cache_dir.mkdir()
+    core.files_root = str(cache_dir)
+    (cache_dir / "local.sv").write_text("module cached_module; endmodule\n")
+
+    files = list(library._iter_fileset_files(core))
+    assert {f.path for f in files} == {
+        core_dir / "waivers.vlt",
+        core_dir / "local.sv",
+        core_dir / "module.yaml",
+    }
+    (core_dir / "local.sv").unlink()
+    assert {f.path for f in library._iter_fileset_files(core)} == {
+        core_dir / "waivers.vlt",
+        cache_dir / "local.sv",
+        core_dir / "module.yaml",
+    }
+    (core_dir / "local.sv").write_text("module local_module; endmodule\n")
+    (cache_dir / "local.sv").unlink()
+    assert {f.path for f in library._iter_fileset_files(core)} == {
+        core_dir / "waivers.vlt",
+        core_dir / "local.sv",
+        core_dir / "module.yaml",
+    }
+    (core_dir / "waivers.vlt").unlink()
+    with pytest.raises(LibraryError) as error:
+        list(library._iter_fileset_files(core))
+    assert str(cache_dir / "waivers.vlt") in str(error.value)
+    assert str(core_dir / "waivers.vlt") in str(error.value)
+    (core_dir / "waivers.vlt").write_text("`verilator_config\n")
+    assert library_contents("provider", str(tmp_path))[0] == [
+        "example.com:demo:provider_core:0.1"
+    ]
+
+
 @pytest.fixture
 def isolated_libraries():
     """Keep registered libraries and the VLNV index out of other tests."""

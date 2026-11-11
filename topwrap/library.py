@@ -452,31 +452,25 @@ def _iter_fileset_files(core: CoreInterface) -> Iterator[_LibraryFile]:
                 for fname, attrs in entry.items():
                     file_type = getattr(attrs, "file_type", None) or default_type
 
-                    if not Path(root / fname).exists():
-                        if not Path(
-                            default_type, Path(core.core_root) / str(entry), core_vlnv
-                        ).exists():
+                    if not (Path(core.core_root) / fname).exists():
+                        if not Path(root / fname).exists():
                             raise LibraryError(
                                 f"neither {Path(root / fname)} nor  \
-                        {Path(default_type, Path(core.core_root) / str(entry), core_vlnv)} exist!"
+                        {Path(core.core_root) / fname} exist!"
                             )
-                        yield _LibraryFile(file_type, Path(core.core_root) / fname, core_vlnv)
-                    else:
                         yield _LibraryFile(file_type, root / fname, core_vlnv)
+                    else:
+                        yield _LibraryFile(file_type, Path(core.core_root) / fname, core_vlnv)
             else:
-                if not Path(root / str(entry)).exists():
-                    if not Path(
-                        default_type, Path(core.core_root) / str(entry), core_vlnv
-                    ).exists():
+                if not (Path(core.core_root) / str(entry)).exists():
+                    if not Path(root / str(entry)).exists():
                         raise LibraryError(
                             f"neither {Path(root / str(entry))} nor \
-                    {Path(default_type, Path(core.core_root) / str(entry), core_vlnv)} exist!"
+                    {Path(core.core_root) / str(entry)} exist!"
                         )
-                    yield _LibraryFile(default_type, Path(core.core_root) / str(entry), core_vlnv)
-                else:
                     yield _LibraryFile(default_type, root / str(entry), core_vlnv)
-
-
+                else:
+                    yield _LibraryFile(default_type, Path(core.core_root) / str(entry), core_vlnv)
 def _identify(path: Path) -> str:
     """A ``vendor:library:name:version`` id for a topwrap description file.
 
