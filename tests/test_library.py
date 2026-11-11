@@ -79,6 +79,7 @@ filesets:
     files:
       - waivers.vlt: {file_type: vlt}
       - local.sv
+      - missing.svh: {is_include_file: true}
     file_type: systemVerilogSource
   topwrap:
     files:
@@ -95,36 +96,19 @@ provider:
     cache_dir = tmp_path / "provider-cache"
     cache_dir.mkdir()
     core.files_root = str(cache_dir)
-    (cache_dir / "local.sv").write_text("module cached_module; endmodule\n")
-
     files = list(library._iter_fileset_files(core))
-    assert {f.path for f in files} == {
-        core_dir / "waivers.vlt",
-        core_dir / "local.sv",
-        core_dir / "module.yaml",
-    }
-    (core_dir / "local.sv").unlink()
-    assert {f.path for f in library._iter_fileset_files(core)} == {
-        core_dir / "waivers.vlt",
-        cache_dir / "local.sv",
-        core_dir / "module.yaml",
-    }
-    (core_dir / "local.sv").write_text("module local_module; endmodule\n")
-    (cache_dir / "local.sv").unlink()
-    assert {f.path for f in library._iter_fileset_files(core)} == {
-        core_dir / "waivers.vlt",
-        core_dir / "local.sv",
-        core_dir / "module.yaml",
-    }
-    (core_dir / "waivers.vlt").unlink()
+    assert {f.path for f in files} == {core_dir / "module.yaml"}
+    (cache_dir / "module.yaml").write_text(_minimal_module_yaml("cached_core"))
+    assert {f.path for f in library._iter_fileset_files(core)} == {core_dir / "module.yaml"}
+    (core_dir / "module.yaml").unlink()
+    assert {f.path for f in library._iter_fileset_files(core)} == {cache_dir / "module.yaml"}
+    (cache_dir / "module.yaml").unlink()
     with pytest.raises(LibraryError) as error:
         list(library._iter_fileset_files(core))
-    assert str(cache_dir / "waivers.vlt") in str(error.value)
-    assert str(core_dir / "waivers.vlt") in str(error.value)
-    (core_dir / "waivers.vlt").write_text("`verilator_config\n")
-    assert library_contents("provider", str(tmp_path))[0] == [
-        "example.com:demo:provider_core:0.1"
-    ]
+    assert str(cache_dir / "module.yaml") in str(error.value)
+    assert str(core_dir / "module.yaml") in str(error.value)
+    (core_dir / "module.yaml").write_text(_minimal_module_yaml("provider_core"))
+    assert library_contents("provider", str(tmp_path))[0] == ["example.com:demo:provider_core:0.1"]
 
 
 @pytest.fixture

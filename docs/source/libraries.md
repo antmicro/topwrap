@@ -61,6 +61,10 @@ A `.core` file marks each file it contributes with a `file_type`, which is what 
 - `topwrapModule` — an [IP description](description_files.md#ip-description-files)
 - `topwrapInterface` — an [interface definition](description_files.md#interface-definition-files)
 
+Topwrap indexes only these description files; other files listed in a core, such as RTL sources, do not need to be present when the library is indexed.
+As a current limitation, description files must already be available locally, either in the core directory or in the FuseSoC provider cache.
+Topwrap does not fetch provider sources when indexing a library, so do not rely on a provider to supply these files in a fresh environment; include them in the library checkout instead.
+
 ```yaml
 CAPI=2:
 

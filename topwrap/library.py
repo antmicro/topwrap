@@ -437,7 +437,7 @@ class _LibraryFile:
 
 
 def _iter_fileset_files(core: CoreInterface) -> Iterator[_LibraryFile]:
-    """Yield every fileset file and its owning CAPI2 core.
+    """Yield Topwrap description files and their owning CAPI2 core.
 
     ``file_type`` is resolved per file: an entry's own ``file_type`` wins over
     the fileset-level default, so a single fileset may mix ``topwrapModule``,
@@ -451,6 +451,8 @@ def _iter_fileset_files(core: CoreInterface) -> Iterator[_LibraryFile]:
             if isinstance(entry, dict):
                 for fname, attrs in entry.items():
                     file_type = getattr(attrs, "file_type", None) or default_type
+                    if file_type not in (TOPWRAP_MODULE_FILE_TYPE, TOPWRAP_INTERFACE_FILE_TYPE):
+                        continue
 
                     if not (Path(core.core_root) / fname).exists():
                         if not Path(root / fname).exists():
@@ -462,6 +464,8 @@ def _iter_fileset_files(core: CoreInterface) -> Iterator[_LibraryFile]:
                     else:
                         yield _LibraryFile(file_type, Path(core.core_root) / fname, core_vlnv)
             else:
+                if default_type not in (TOPWRAP_MODULE_FILE_TYPE, TOPWRAP_INTERFACE_FILE_TYPE):
+                    continue
                 if not (Path(core.core_root) / str(entry)).exists():
                     if not Path(root / str(entry)).exists():
                         raise LibraryError(
@@ -471,6 +475,8 @@ def _iter_fileset_files(core: CoreInterface) -> Iterator[_LibraryFile]:
                     yield _LibraryFile(default_type, root / str(entry), core_vlnv)
                 else:
                     yield _LibraryFile(default_type, Path(core.core_root) / str(entry), core_vlnv)
+
+
 def _identify(path: Path) -> str:
     """A ``vendor:library:name:version`` id for a topwrap description file.
 
@@ -496,7 +502,7 @@ def _identify(path: Path) -> str:
 
 
 def _library_files(name: str, uri: str) -> Iterator[_LibraryFile]:
-    """Yield every fileset file of every core in a library."""
+    """Yield Topwrap description files of every core in a library."""
     for core in _core_manager(name, uri).get_cores().values():
         yield from _iter_fileset_files(core)
 
