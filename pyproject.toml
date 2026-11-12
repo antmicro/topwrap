@@ -31,7 +31,7 @@ dependencies = [
   "pygtrie==2.5.0",
   "pyslang==10.0.0",
   "pipeline_manager_backend_communication @ git+https://github.com/antmicro/kenning-pipeline-manager-backend-communication@e26894d9bdd97da49ad4d04f1ffd00c8de9024ca",
-  "pipeline_manager @ https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.4/pipeline_manager-0.5.4-py3-none-any.whl",
+  "pipeline_manager @ https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.5/pipeline_manager-0.5.5-py3-none-any.whl",
   "axi_interconnect_generator_plugin @ git+https://github.com/antmicro/topwrap-utils@5145a5520149459e04f7ace7cefab0e79260af98#subdirectory=topwrap-axi-interconnect-generator-plugin",
   "cyclopts",
   "topwrap-ipxact-parser @ git+https://github.com/antmicro/topwrap-utils@5145a5520149459e04f7ace7cefab0e79260af98#subdirectory=topwrap-ipxact-parser",
