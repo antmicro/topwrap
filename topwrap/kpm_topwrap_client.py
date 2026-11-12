@@ -446,12 +446,18 @@ async def _expose_nodes(
     nodes: list[JsonType],
     new_dataflow: JsonType,
     graph_id: str,
-    persist: bool,
+    notify: bool,
     rpc_object: RPCMethods,
 ) -> None:
     if rpc_object.client is None:
         logging.debug("No client to expose nodes")
         return
+
+    iface_name = {
+        "External Input": "in",
+        "External Output": "out",
+        "External Inout": "inout",
+    }
 
     for node in nodes:
         interfaces = []
@@ -460,7 +466,8 @@ async def _expose_nodes(
             external, internal = internal, external
         external_name = node.get("instanceName", None)
         if external_name is None or external_name == node["name"]:
-            if persist:
+            external_name = f"{iface_name.get(node['name'], 'port')}_{external['id'][:6]}"
+            if notify:
                 await rpc_object.client.request(
                     "notification_send",
                     {
@@ -475,9 +482,6 @@ async def _expose_nodes(
                         ),
                     },
                 )
-                external_name = f"{internal['name']}_{external['id'][:6]}"
-            else:
-                continue
         interfaces.append({"id": external["id"], "externalName": external_name})
         if interfaces:
             await rpc_object.client.request(
