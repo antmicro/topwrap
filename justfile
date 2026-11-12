@@ -17,13 +17,17 @@ install-debian-deps docs="0":
         python3-pip \
         python3-venv \
         nodejs \
-        npm \
         g++ \
         make \
+        npm \
         yosys \
         verilator
 
-    if [[ {{docs}} == "1" ]];then apt-get install -y texlive-full imagemagick make chromium; fi
+    if [[ {{docs}} == "1" ]];then
+        apt-get install -y texlive-full imagemagick make chromium
+        npm i -g npm@10.8.2 n
+        n 23.0.0
+    fi
 
     curl -LsSf https://astral.sh/uv/install.sh | sh
 
