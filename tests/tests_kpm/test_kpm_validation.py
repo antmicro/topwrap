@@ -120,6 +120,12 @@ def dataflow_two_duplicate_ios():
 
 
 @pytest.fixture
+def dataflow_multiple_input_connections():
+    """Dataflow containing an IP core input driven by two outputs."""
+    return get_dataflow_test("dataflow_multiple_input_connections")
+
+
+@pytest.fixture
 def pwm_dataflow(all_dataflow_files: dict[str, JsonType]) -> JsonType:
     return all_dataflow_files["pwm"]
 
@@ -145,6 +151,7 @@ def hierarchy_dataflow(all_dataflow_files: dict[str, JsonType]) -> JsonType:
         (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_multiple_connections_into_one_port, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
     ],
 )
@@ -164,6 +171,7 @@ def test_hdmi_dataflow_validation(check_function, expected_result, hdmi_dataflow
         (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_multiple_connections_into_one_port, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
     ],
 )
@@ -183,6 +191,7 @@ def test_pwm_dataflow_validation(check_function, expected_result, pwm_dataflow):
         (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_multiple_connections_into_one_port, MessageType.OK),
         # Unused directions on External I/O nodes do not represent unconnected design ports.
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.OK),
     ],
@@ -202,6 +211,7 @@ def test_hierarchy_dataflow_validation(check_function, expected_result, hierarch
         (DataflowValidator.check_unnamed_external_metanodes_with_multiple_conn, MessageType.OK),
         (DataflowValidator.check_duplicate_metanode_names, MessageType.OK),
         (DataflowValidator.check_connection_to_subgraph_metanodes, MessageType.OK),
+        (DataflowValidator.check_multiple_connections_into_one_port, MessageType.OK),
         (DataflowValidator.check_unconnected_ports_interfaces, MessageType.WARNING),
     ],
 )
@@ -289,6 +299,12 @@ def test_invalid_dataflow_validation(dataflow, check_function, expected_result):
         (
             DataflowValidator.check_connection_to_subgraph_metanodes,
             lf("dataflow_conn_subgraph_metanode"),
+            MessageType.ERROR,
+            1,
+        ),
+        (
+            DataflowValidator.check_multiple_connections_into_one_port,
+            lf("dataflow_multiple_input_connections"),
             MessageType.ERROR,
             1,
         ),

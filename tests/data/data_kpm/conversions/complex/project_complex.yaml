@@ -55,7 +55,6 @@ hierarchies:
         connections:
           ports:
             s1_mod_3:
-              cs_s1_f_int_out_2: [s1_mod_3_2, cs_s1_mint_in_2]
               cs_s1_mint_in_2: [s1_mod_3_2, cs_s1_f_int_out_2]
             s1_mod_3_2:
               cs_s1_mint_in_2: cs_s1_mint_in_2

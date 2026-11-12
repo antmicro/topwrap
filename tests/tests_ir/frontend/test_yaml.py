@@ -177,10 +177,9 @@ class TestDesignDescriptionFrontend:
 
         conns = [
             _mkconn(sub2, "s1_mod_3_2", "cs_s1_mint_in_2", None, "cs_s1_mint_in_2"),
-            _mkconn(sub2, "s1_mod_3_2", "cs_s1_mint_in_2", "s1_mod_3", "cs_s1_f_int_out_2"),
         ]
 
-        assert [*sub2.connections_with(conns[0][0])] == [conns[1][1], conns[0][1]]
+        assert [*sub2.connections_with(conns[0][0])] == [conns[0][1]]
 
     def test_prefers_preloaded(self):
         des = Path("examples/ir_examples/simple/design.yaml")

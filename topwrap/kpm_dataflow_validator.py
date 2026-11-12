@@ -562,47 +562,41 @@ class DataflowValidator:
 
         return CheckResult(check_name, MessageType.OK)
 
-    def check_multiple_connections_into_one_port(self):
-        """
-        Check if there is multiple connections to port that has `in` direction.
-        """
+    def check_multiple_connections_into_one_port(self) -> CheckResult:
+        """Check for input ports and interfaces with more than one connection."""
 
-        check_name = "Multiple connections connected to one port that has `in` direction"
+        check_name = "Inputs with multiple connections"
 
-        # Collect ids of interfaces that has direction IN
-        in_direction_interfaces = dict[str, str]()
+        in_direction_interfaces = dict[str, Tuple[str, str]]()
         for graph in self.dataflow["graphs"]:
             for node in graph["nodes"]:
                 for interface in node["interfaces"]:
                     if interface["direction"] == "input":
-                        in_direction_interfaces[interface["id"]] = interface["name"]
+                        in_direction_interfaces[interface["id"]] = (
+                            node["instanceName"],
+                            interface["name"],
+                        )
 
-        # If interface is there it means that it is connected to something
-        # contains module name and interface name in one string
+        # Ids of input interfaces that already have a connection.
         interface_connected = set[str]()
-        # Names of interfaces that are connected two times
         invalid_interfaces = list[Tuple[str, str]]()
         for graph in self.dataflow["graphs"]:
             for connection in graph["connections"]:
-                # Not sure if `to` side is always pointing to `in` port.
-                # So to be sure checking `from` and `to`. In future could be removed.
-                for side in ("to", "from"):
-                    if connection[side] in in_direction_interfaces:
-                        mod_name = in_direction_interfaces[connection[side]]
-                        iface_name = connection[side]
-                        if iface_name in interface_connected:
-                            invalid_interfaces.append((mod_name, iface_name))
-
-                        interface_connected.add(f"{mod_name}:{connection[side]}")
-        if len(invalid_interfaces) != 0:
+                # KPM only allows connections to an input, never from one.
+                iface_id = connection["to"]
+                if iface_id in in_direction_interfaces:
+                    if iface_id in interface_connected:
+                        invalid_interfaces.append(in_direction_interfaces[iface_id])
+                    interface_connected.add(iface_id)
+        if invalid_interfaces:
             return CheckResult(
                 check_name,
                 MessageType.ERROR,
-                len(in_direction_interfaces),
-                f"Interfaces that has input direction are connected two times:"
-                f"{','.join(f'{module}:{iface}' for module, iface in invalid_interfaces)[:-1]}",
+                len(invalid_interfaces),
+                f"Inputs with multiple connections: "
+                f"{', '.join(f'{node}:{iface}' for node, iface in invalid_interfaces)}",
             )
-        return CheckResult(check_name, MessageType.OK, 0)
+        return CheckResult(check_name, MessageType.OK)
 
     def validate_kpm_design(self) -> Dict[str, List[str]]:
         """

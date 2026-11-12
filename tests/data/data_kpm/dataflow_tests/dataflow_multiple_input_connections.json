@@ -1,0 +1,50 @@
+{
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "a_out",
+          "id": "c1",
+          "to": "sink_in"
+        },
+        {
+          "from": "b_out",
+          "id": "c2",
+          "to": "sink_in"
+        }
+      ],
+      "nodes": [
+        {
+          "instanceName": "drv_a",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "a_out",
+              "name": "out"
+            }
+          ]
+        },
+        {
+          "instanceName": "drv_b",
+          "interfaces": [
+            {
+              "direction": "output",
+              "id": "b_out",
+              "name": "out"
+            }
+          ]
+        },
+        {
+          "instanceName": "sink",
+          "interfaces": [
+            {
+              "direction": "input",
+              "id": "sink_in",
+              "name": "in"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

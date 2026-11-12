@@ -629,11 +629,6 @@
     {
       "connections": [
         {
-          "from": "40b7e4db-5b27-4f24-80ac-1bb938e0a4d6",
-          "id": "c77e444b-cc41-4635-8116-87906407a089",
-          "to": "0693508c-b3ac-4b0a-afde-d677be93b6dd"
-        },
-        {
           "from": "108f1d4d-ce28-4af0-a48a-14b926d8b923",
           "id": "8120125b-0301-4b9a-be1b-8b85edf0a09d",
           "to": "7f1a018c-8c71-4792-b11f-3ff09ba8d91a"
