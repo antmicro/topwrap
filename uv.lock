@@ -1470,7 +1470,7 @@ provides-extras = ["test", "docs", "backend-communication", "mirror", "to-image"
 [[package]]
 name = "pipeline-manager-backend-communication"
 version = "0.0.1"
-source = { git = "https://github.com/antmicro/kenning-pipeline-manager-backend-communication?rev=b39681ee785d7c094b78226243c44fe956e12d76#b39681ee785d7c094b78226243c44fe956e12d76" }
+source = { git = "https://github.com/antmicro/kenning-pipeline-manager-backend-communication?rev=e26894d9bdd97da49ad4d04f1ffd00c8de9024ca#e26894d9bdd97da49ad4d04f1ffd00c8de9024ca" }
 dependencies = [
     { name = "json-rpc" },
     { name = "uvloop" },
@@ -2601,7 +2601,7 @@ requires-dist = [
     { name = "marshmallow-dataclass", extras = ["enum"], specifier = "~=8.7.0" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = "==4.0.0" },
     { name = "pipeline-manager", url = "https://github.com/antmicro/kenning-pipeline-manager/releases/download/v0.5.4/pipeline_manager-0.5.4-py3-none-any.whl" },
-    { name = "pipeline-manager-backend-communication", git = "https://github.com/antmicro/kenning-pipeline-manager-backend-communication?rev=b39681ee785d7c094b78226243c44fe956e12d76" },
+    { name = "pipeline-manager-backend-communication", git = "https://github.com/antmicro/kenning-pipeline-manager-backend-communication?rev=e26894d9bdd97da49ad4d04f1ffd00c8de9024ca" },
     { name = "pre-commit", marker = "extra == 'lint'", specifier = "==3.5.0" },
     { name = "prettytable", marker = "extra == 'tests'", specifier = "==3.11.0" },
     { name = "pyfakefs", marker = "extra == 'tests'", specifier = "==5.7.1" },
