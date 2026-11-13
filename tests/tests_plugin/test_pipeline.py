@@ -19,7 +19,13 @@ from topwrap.plugin.base import (
 )
 from topwrap.plugin.manager import PluginManager
 from topwrap.plugin.pipeline import BuildPipeline
-from topwrap.plugin.steps import InputStage, OutputStage, Transformation, Validation
+from topwrap.plugin.steps import (
+    FuseSocOutputStage,
+    InputStage,
+    OutputStage,
+    Transformation,
+    Validation,
+)
 
 
 class MockPluginManager(PluginManager):
@@ -206,3 +212,12 @@ class TestBuildPipeline:
             "mock.A.output",
             "mock.B.output",
         }
+
+
+def test_fusesoc_output_plugin_dependencies(tmp_path: Path):
+    ctx = BuildContext([], [], None, [], Module(id=Identifier("top")), [], set())
+    ctx.fusesoc_dependencies.append("vendor:lib:dep:1.0")
+
+    FuseSocOutputStage().write_output_to(tmp_path, ctx)
+
+    assert "vendor:lib:dep:1.0" in (tmp_path / "top.core").read_text()

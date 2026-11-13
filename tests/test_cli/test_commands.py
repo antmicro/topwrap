@@ -759,6 +759,7 @@ class TestExtractCli:
             (Path("examples/hierarchy"), "project.yaml", False),
             (Path("examples/inout"), "project.yaml", True),
             (Path("examples/ipxact"), "design.yaml", True),
+            (Path("examples/memory_map"), "project.yaml", False),
             (Path("examples/pwm"), "project.yaml", False),
             (Path("examples/user_repository"), "project.yaml", False),
         ],

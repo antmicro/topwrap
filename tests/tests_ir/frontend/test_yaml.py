@@ -17,7 +17,11 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     param_to_ir_param,
 )
 from topwrap.backend.yaml.common.types import ComplexParameter
-from topwrap.frontend.yaml.design import DesignDescriptionFrontend, DesignPositionsFrontend
+from topwrap.frontend.yaml.design import (
+    DesignDescriptionFrontend,
+    DesignDescriptionFrontendException,
+    DesignPositionsFrontend,
+)
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
@@ -188,6 +192,19 @@ class TestDesignDescriptionFrontend:
 
         assert preloaded.components.find_by_name("gen1").module is lfsr_gen
         assert fresh.components.find_by_name("gen1").module is not lfsr_gen
+
+    def test_generate(self):
+        design = "ips:\n  gen1:\n    generate:\n      provider: lfsr\n      options: {seed: 1}\n"
+        calls = []
+        gens = {"lfsr": lambda opts, base: calls.append((opts, base)) or lfsr_gen}
+
+        des, _ = DesignDescriptionFrontend(ip_generators=gens).parse_str(design)
+
+        assert des.components.find_by_name_or_error("gen1").module is lfsr_gen
+        assert calls == [({"seed": 1}, Path())]
+
+        with pytest.raises(DesignDescriptionFrontendException, match="generator 'lfsr'"):
+            DesignDescriptionFrontend().parse_str(design)
 
     def test_extensions(self):
         des = """
