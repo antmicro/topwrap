@@ -4,7 +4,7 @@
 import logging
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Union
+from typing import Dict, Iterable, Mapping, Optional, Union
 
 import yaml
 
@@ -51,7 +51,11 @@ from topwrap.model.misc import (
     ObjectId,
 )
 from topwrap.model.module import Module
-from topwrap.plugin.base import IPGeneratorException, IPGeneratorNotFoundException
+from topwrap.plugin.base import (
+    IPGenerator,
+    IPGeneratorException,
+    IPGeneratorNotFoundException,
+)
 from topwrap.resource_field import RepoReferenceHandler
 
 logger = logging.getLogger(__name__)
@@ -70,7 +74,7 @@ class DesignDescriptionFrontend:
     def __init__(
         self,
         modules: Iterable[Module] = (),
-        ip_generators: Mapping[str, Callable[[dict[str, Any], Path], Module]] = {},
+        ip_generators: Mapping[str, IPGenerator] = {},
     ) -> None:
         self._modules = {f":{str(m.id)}": m for m in modules}
         self._ip_generators = ip_generators
@@ -155,7 +159,9 @@ class DesignDescriptionFrontend:
             elif ip.generate.provider in self._ip_generators:
                 base = source.parent if source is not None else Path()
                 try:
-                    cmod = self._ip_generators[ip.generate.provider](ip.generate.options, base)
+                    cmod = self._ip_generators[ip.generate.provider](
+                        cname, ip.generate.options, base
+                    )
                 except IPGeneratorException as e:
                     raise type(e)(f"IP '{cname}' (provider '{ip.generate.provider}'): {e}") from e
             else:

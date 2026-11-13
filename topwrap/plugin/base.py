@@ -30,9 +30,9 @@ class StringSource:
 
 Source = Union[FileSource, StringSource]
 
-#: Builds the module of an ``ips`` entry using ``generate``. Called with the entry's
-#: ``options`` and the directory of the design description that contains it.
-IPGenerator = Callable[[dict[str, Any], Path], Module]
+#: Builds the module of an ``ips`` entry using ``generate``. Called with the instance name,
+#: the entry's ``options`` and the directory of the design description that contains it.
+IPGenerator = Callable[[str, dict[str, Any], Path], Module]
 
 
 @dataclass

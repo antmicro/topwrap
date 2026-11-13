@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Callable, Iterable, Mapping, Union
+from typing import Iterable, Mapping, Union
 
 import yaml
 
@@ -19,6 +19,7 @@ from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
 from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
+from topwrap.plugin.base import IPGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class YamlFrontend(Frontend):
         interfaces: Iterable[InterfaceDefinition] = (),
         approach: FrontendApproach = FrontendApproach.STRICT,
         *,
-        ip_generators: Mapping[str, Callable[[dict[str, Any], Path], Module]] = {},
+        ip_generators: Mapping[str, IPGenerator] = {},
     ) -> None:
         super().__init__(modules, interfaces, approach)
         self.ip_generators = ip_generators

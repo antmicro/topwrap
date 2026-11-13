@@ -193,17 +193,17 @@ class TestDesignDescriptionFrontend:
     def test_generate(self):
         design = "ips:\n  gen1:\n    generate:\n      provider: lfsr\n      options: {seed: 1}\n"
         calls = []
-        gens = {"lfsr": lambda opts, base: calls.append((opts, base)) or lfsr_gen}
+        gens = {"lfsr": lambda name, opts, base: calls.append((name, opts, base)) or lfsr_gen}
 
         des, _ = DesignDescriptionFrontend(ip_generators=gens).parse_str(design)
 
         assert des.components.find_by_name_or_error("gen1").module is lfsr_gen
-        assert calls == [({"seed": 1}, Path())]
+        assert calls == [("gen1", {"seed": 1}, Path())]
 
         with pytest.raises(IPGeneratorNotFoundException, match="generator 'lfsr'"):
             DesignDescriptionFrontend().parse_str(design)
 
-        def bad_options(opts, base):
+        def bad_options(name, opts, base):
             raise IPGeneratorOptionsException("bad seed")
 
         with pytest.raises(

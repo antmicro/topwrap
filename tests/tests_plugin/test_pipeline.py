@@ -227,7 +227,7 @@ def test_fusesoc_output_plugin_dependencies(tmp_path: Path):
 def test_ip_generator_conflict():
     class GenA(BasePlugin):
         def ip_generators(self):
-            return {"gen": lambda opts, base: Module(id=Identifier("a"))}
+            return {"gen": lambda name, opts, base: Module(id=Identifier("a"))}
 
     class GenB(GenA):
         pass
