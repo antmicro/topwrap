@@ -51,6 +51,7 @@ from topwrap.model.misc import (
     ObjectId,
 )
 from topwrap.model.module import Module
+from topwrap.plugin.base import IPGeneratorException, IPGeneratorNotFoundException
 from topwrap.resource_field import RepoReferenceHandler
 
 logger = logging.getLogger(__name__)
@@ -153,9 +154,12 @@ class DesignDescriptionFrontend:
                 cmod = self._get_module(ip)
             elif ip.generate.provider in self._ip_generators:
                 base = source.parent if source is not None else Path()
-                cmod = self._ip_generators[ip.generate.provider](ip.generate.options, base)
+                try:
+                    cmod = self._ip_generators[ip.generate.provider](ip.generate.options, base)
+                except IPGeneratorException as e:
+                    raise type(e)(f"IP '{cname}' (provider '{ip.generate.provider}'): {e}") from e
             else:
-                raise DesignDescriptionFrontendException(
+                raise IPGeneratorNotFoundException(
                     f"IP '{cname}' uses generator '{ip.generate.provider}', "
                     "which is not provided by any installed plugin"
                 )

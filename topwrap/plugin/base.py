@@ -83,12 +83,36 @@ class PluginException(Exception):
     pass
 
 
+class IPGeneratorException(BuildException):
+    """Base of the errors related to IP generators."""
+
+
+class IPGeneratorNotFoundException(IPGeneratorException):
+    """A design uses a provider that no loaded plugin offers."""
+
+
+class IPGeneratorConflictException(IPGeneratorException):
+    """More than one plugin offers the same provider."""
+
+
+class IPGeneratorOptionsException(IPGeneratorException):
+    """Raised by a generator when its ``options`` are invalid."""
+
+
+class IPGenerationException(IPGeneratorException):
+    """Raised by a generator when generating the IP fails."""
+
+
 class BasePlugin:
     #: Priority of the plugin. Hooks are invoked in order of decreasing priority.
     priority: int = 0
 
     def ip_generators(self) -> dict[str, IPGenerator]:
-        """IP generators for ``generate`` entries in design descriptions, keyed on provider name."""
+        """
+        IP generators for ``generate`` entries in design descriptions, keyed on provider name.
+        Generators report errors with :class:`IPGeneratorOptionsException` and
+        :class:`IPGenerationException`.
+        """
         return {}
 
     def pre_ir_generation(self, ctx: BuildContext):

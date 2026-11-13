@@ -12,6 +12,7 @@ from topwrap.plugin.base import (
     BuildContext,
     BuildException,
     FileSource,
+    IPGeneratorConflictException,
     OutputDir,
     Source,
     StringSource,
@@ -98,12 +99,17 @@ class BuildPipeline:
                 top_module=None,
                 loaded_modules=[],
                 existing_interfaces=existing_ifaces,
-                ip_generators={
-                    name: gen
-                    for _, _, plugin in self.plugin_manager.plugins
-                    for name, gen in plugin.ip_generators().items()
-                },
             )
+            providers = {}
+            for _, plugin_name, plugin in self.plugin_manager.plugins:
+                for name, gen in plugin.ip_generators().items():
+                    if name in providers:
+                        raise IPGeneratorConflictException(
+                            f"IP generator '{name}' is provided by both "
+                            f"'{providers[name]}' and '{plugin_name}' plugins"
+                        )
+                    providers[name] = plugin_name
+                    self._ctx.ip_generators[name] = gen
 
             self.plugin_manager.trigger(BasePlugin.pre_ir_generation, self.ctx)
             for i in self.inputs:

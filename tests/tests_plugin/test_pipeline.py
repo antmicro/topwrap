@@ -13,6 +13,7 @@ from topwrap.model.module import Module
 from topwrap.plugin.base import (
     BasePlugin,
     BuildContext,
+    IPGeneratorConflictException,
     OutputDir,
     Source,
     StringSource,
@@ -221,3 +222,16 @@ def test_fusesoc_output_plugin_dependencies(tmp_path: Path):
     FuseSocOutputStage().write_output_to(tmp_path, ctx)
 
     assert "vendor:lib:dep:1.0" in (tmp_path / "top.core").read_text()
+
+
+def test_ip_generator_conflict():
+    class GenA(BasePlugin):
+        def ip_generators(self):
+            return {"gen": lambda opts, base: Module(id=Identifier("a"))}
+
+    class GenB(GenA):
+        pass
+
+    pipeline = BuildPipeline([], [], [], [], plugin_manager=MockPluginManager([GenA(), GenB()]))
+    with pytest.raises(IPGeneratorConflictException, match="'gen' is provided by both"):
+        pipeline.prepare([], None)

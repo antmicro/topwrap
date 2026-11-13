@@ -17,11 +17,7 @@ from topwrap.backend.yaml.common.ip_core_schema import (
     param_to_ir_param,
 )
 from topwrap.backend.yaml.common.types import ComplexParameter
-from topwrap.frontend.yaml.design import (
-    DesignDescriptionFrontend,
-    DesignDescriptionFrontendException,
-    DesignPositionsFrontend,
-)
+from topwrap.frontend.yaml.design import DesignDescriptionFrontend, DesignPositionsFrontend
 from topwrap.frontend.yaml.frontend import YamlFrontend
 from topwrap.frontend.yaml.interface import InterfaceDefinitionDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
@@ -31,6 +27,7 @@ from topwrap.model.hdl_types import Bit, Bits, BitStruct, Dimensions, LogicArray
 from topwrap.model.interface import InterfaceMode, InterfaceSignalConfiguration
 from topwrap.model.misc import ElaboratableValue, Identifier
 from topwrap.model.module import Module
+from topwrap.plugin.base import IPGeneratorNotFoundException, IPGeneratorOptionsException
 from topwrap.repo.user_repo import InterfaceDefinitionResource
 from topwrap.resource_field import (
     FileReferenceHandler,
@@ -203,8 +200,16 @@ class TestDesignDescriptionFrontend:
         assert des.components.find_by_name_or_error("gen1").module is lfsr_gen
         assert calls == [({"seed": 1}, Path())]
 
-        with pytest.raises(DesignDescriptionFrontendException, match="generator 'lfsr'"):
+        with pytest.raises(IPGeneratorNotFoundException, match="generator 'lfsr'"):
             DesignDescriptionFrontend().parse_str(design)
+
+        def bad_options(opts, base):
+            raise IPGeneratorOptionsException("bad seed")
+
+        with pytest.raises(
+            IPGeneratorOptionsException, match="IP 'gen1' .provider 'lfsr'.: bad seed"
+        ):
+            DesignDescriptionFrontend(ip_generators={"lfsr": bad_options}).parse_str(design)
 
     def test_extensions(self):
         des = """
