@@ -9,6 +9,7 @@ import yaml
 
 from topwrap.frontend.frontend import (
     Frontend,
+    FrontendApproach,
     FrontendMetadata,
     FrontendParseException,
     FrontendParseOutput,
@@ -27,10 +28,11 @@ class YamlFrontend(Frontend):
         self,
         modules: Iterable[Module] = (),
         interfaces: Iterable[InterfaceDefinition] = (),
+        approach: FrontendApproach = FrontendApproach.STRICT,
         *,
         ip_generators: Mapping[str, Callable[[dict[str, Any], Path], Module]] = {},
     ) -> None:
-        super().__init__(modules, interfaces)
+        super().__init__(modules, interfaces, approach)
         self.ip_generators = ip_generators
 
     @property
