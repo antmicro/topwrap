@@ -4,7 +4,7 @@
 import logging
 from dataclasses import asdict
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Union
+from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Union
 
 import yaml
 
@@ -66,8 +66,13 @@ class DesignDescriptionFrontend:
     # or a repo reference (in the format "repo:name")
     _modules: dict[str, Module]
 
-    def __init__(self, modules: Iterable[Module] = ()) -> None:
+    def __init__(
+        self,
+        modules: Iterable[Module] = (),
+        ip_generators: Mapping[str, Callable[[dict[str, Any], Path], Module]] = {},
+    ) -> None:
         self._modules = {f":{str(m.id)}": m for m in modules}
+        self._ip_generators = ip_generators
 
     def parse_file(self, path: Path) -> tuple[Design, dict[Identifier, Positions]]:
         """
@@ -144,7 +149,16 @@ class DesignDescriptionFrontend:
     def _parse_components(self, desc: DesignDescription, design: Design, source: Optional[Path]):
         # Parse regular component instances
         for cname, ip in desc.ips.items():
-            cmod = self._get_module(ip)
+            if ip.generate is None:
+                cmod = self._get_module(ip)
+            elif ip.generate.provider in self._ip_generators:
+                base = source.parent if source is not None else Path()
+                cmod = self._ip_generators[ip.generate.provider](ip.generate.options, base)
+            else:
+                raise DesignDescriptionFrontendException(
+                    f"IP '{cname}' uses generator '{ip.generate.provider}', "
+                    "which is not provided by any installed plugin"
+                )
             design.add_component(ModuleInstance(name=cname, module=cmod))
 
         # Parse hierarchical design descriptions as more components
@@ -856,11 +870,9 @@ class DesignDescriptionFrontend:
         self._parse_clock_reset_domains(design, desc)
 
         for cname, ip in desc.ips.items():
-            cmod = self._get_module(ip)
-            clocks, resets = self._parse_clock_reset_assignments(design, cname, cmod, ip)
-
             inst = design.components.find_by_name(cname)
             assert inst is not None
+            clocks, resets = self._parse_clock_reset_assignments(design, cname, inst.module, ip)
 
             inst.clocks.update(clocks)
             inst.resets.update(resets)

@@ -98,6 +98,11 @@ class BuildPipeline:
                 top_module=None,
                 loaded_modules=[],
                 existing_interfaces=existing_ifaces,
+                ip_generators={
+                    name: gen
+                    for _, _, plugin in self.plugin_manager.plugins
+                    for name, gen in plugin.ip_generators().items()
+                },
             )
 
             self.plugin_manager.trigger(BasePlugin.pre_ir_generation, self.ctx)

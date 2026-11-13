@@ -317,7 +317,7 @@ ips:
 
 class TestCoreAndFileAreMutuallyExclusive:
     def test_neither_set_is_rejected(self):
-        with pytest.raises(Exception, match="exactly one of 'file' or 'core'"):
+        with pytest.raises(Exception, match="exactly one of 'file', 'core' or 'generate'"):
             DesignDescription.from_yaml(
                 r"""
 ips:
@@ -326,7 +326,7 @@ ips:
             )
 
     def test_both_set_is_rejected(self):
-        with pytest.raises(Exception, match="exactly one of 'file' or 'core'"):
+        with pytest.raises(Exception, match="exactly one of 'file', 'core' or 'generate'"):
             DesignDescription.from_yaml(
                 r"""
 ips:

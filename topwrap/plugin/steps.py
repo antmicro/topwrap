@@ -125,7 +125,9 @@ class YamlInputStage(InputStage):
     def process_input(
         self, design_source: Optional[Source], sources: list[Source], ctx: BuildContext
     ):
-        frontend = YamlFrontend(ctx.all_modules, ctx.repo_interfaces)
+        frontend = YamlFrontend(
+            ctx.all_modules, ctx.repo_interfaces, ip_generators=ctx.ip_generators
+        )
 
         if sources:
             for src in sources:
@@ -309,6 +311,8 @@ class FuseSocOutputStage(OutputStage):
             vlnv = fusesoc_core_of(module.refs[0].file)
             if vlnv is not None:
                 fuse_builder.add_dependency(vlnv)
+        for vlnv in ctx.fusesoc_dependencies:
+            fuse_builder.add_dependency(vlnv)
 
         fuse_builder.build(
             ctx.top_module.id.name,

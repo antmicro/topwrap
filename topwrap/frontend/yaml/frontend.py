@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import Iterable, Union
+from typing import Any, Callable, Iterable, Mapping, Union
 
 import yaml
 
@@ -16,12 +16,23 @@ from topwrap.frontend.frontend import (
 )
 from topwrap.frontend.yaml.design import DesignDescriptionFrontend
 from topwrap.frontend.yaml.ip_core import IPCoreDescriptionFrontend
+from topwrap.model.interface import InterfaceDefinition
 from topwrap.model.module import Module
 
 logger = logging.getLogger(__name__)
 
 
 class YamlFrontend(Frontend):
+    def __init__(
+        self,
+        modules: Iterable[Module] = (),
+        interfaces: Iterable[InterfaceDefinition] = (),
+        *,
+        ip_generators: Mapping[str, Callable[[dict[str, Any], Path], Module]] = {},
+    ) -> None:
+        super().__init__(modules, interfaces)
+        self.ip_generators = ip_generators
+
     @property
     def metadata(self):
         return FrontendMetadata(name="yaml", file_association=[".yaml", ".yml"])
@@ -38,7 +49,9 @@ class YamlFrontend(Frontend):
     def parse_design_file(self, source: Path) -> FrontendParseOutput:
         modules = list[Module]()
 
-        ir_des, pos = DesignDescriptionFrontend(self.modules + modules).parse_file(source)
+        ir_des, pos = DesignDescriptionFrontend(
+            self.modules + modules, self.ip_generators
+        ).parse_file(source)
         ir_des.update_interconnects_from_memory_maps()
         modules.append(ir_des.parent)
 
@@ -102,7 +115,9 @@ class YamlFrontend(Frontend):
 
         positions = {}
         for des in designs:
-            des, pos = DesignDescriptionFrontend(self.modules + modules).parse_str(des)
+            des, pos = DesignDescriptionFrontend(
+                self.modules + modules, self.ip_generators
+            ).parse_str(des)
             modules.append(des.parent)
             positions.update(pos)
 

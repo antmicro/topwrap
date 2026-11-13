@@ -4,7 +4,7 @@
 import itertools
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 from topwrap.backend.kpm.common import Positions
 from topwrap.model.interface import InterfaceDefinition
@@ -30,6 +30,10 @@ class StringSource:
 
 Source = Union[FileSource, StringSource]
 
+#: Builds the module of an ``ips`` entry using ``generate``. Called with the entry's
+#: ``options`` and the directory of the design description that contains it.
+IPGenerator = Callable[[dict[str, Any], Path], Module]
+
 
 @dataclass
 class BuildContext:
@@ -54,6 +58,12 @@ class BuildContext:
     #: List of identifiers of existing definitions in HDL code
     existing_interfaces: set[Identifier]
 
+    #: IP generators provided by plugins, keyed on the provider name.
+    ip_generators: dict[str, IPGenerator] = field(default_factory=dict)
+
+    #: Additional VLNVs of cores the generated FuseSoC core depends on.
+    fusesoc_dependencies: list[str] = field(default_factory=list)
+
     #: Map of generated outputs, keyed on the output stage name.
     outputs: dict[str, Any] = field(default_factory=dict)
 
@@ -76,6 +86,10 @@ class PluginException(Exception):
 class BasePlugin:
     #: Priority of the plugin. Hooks are invoked in order of decreasing priority.
     priority: int = 0
+
+    def ip_generators(self) -> dict[str, IPGenerator]:
+        """IP generators for ``generate`` entries in design descriptions, keyed on provider name."""
+        return {}
 
     def pre_ir_generation(self, ctx: BuildContext):
         """Hook invoked before parsing sources."""

@@ -21,9 +21,12 @@ ips:
   # specify relations between IPs instance names in the
   # design yaml and IP cores description YAMLs
   {ip1_instance_name}:
-    # exactly one of `file` or `core` identifies the IP core description
+    # exactly one of `file`, `core` or `generate` identifies the IP core description
     file: {resource_path} # see "Resource path syntax" section for more information
     core: {vlnv}          # a module from a registered library, see "Libraries"
+    generate:             # a module built by a plugin, see below
+      provider: {provider_name}
+      options: {provider_specific_options}
     parameters:  # specify IP parameter values to be overridden
       {parameters_name} : {parameters_value}
       ...
@@ -136,6 +139,10 @@ extensions: # plugin-specific settings
 `inout` ports are handled differently than the `in` and `out` ports. When an IP has an inout port or when a hierarchy has an inout port specified in its `external.ports.inout` section, it must be included in the `external.ports.inout` section of the parent design. It is required to specify the name of the IP/hierarchy and the port name that contains it. The name of the external port is identical to the one in the IP core. In case of duplicate names, a suffix `$n` is added (where `n` is a natural number) to the name of the second and subsequent duplicate names. `inout` ports cannot be connected to each other.
 
 The design description YAML format allows for creating hierarchical designs. In order to create a hierarchy, add its name as a key in the `hierarchies` section and describe the hierarchy design "recursively" by using the same keys and values (`ports`, `parameters` etc.) as in the top-level design (see above). Hierarchies can be nested recursively, which means that you can create a hierarchy inside another one.
+
+An IP can also be generated during the build by a [plugin](./developers_guide/plugins.md) providing an IP generator named `provider`, e.g. the Omnibus interconnect generator.
+The meaning of `options` is defined by the provider; paths in them are relative to the design file.
+Using a provider that no loaded plugin offers is an error.
 
 Note that IPs and hierarchies names cannot be duplicated on the same hierarchy level, as each entry in `hierarchies` is treated as equal with entries in `ips`.
 
