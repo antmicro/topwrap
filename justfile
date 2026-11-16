@@ -1,6 +1,6 @@
 export PATH := x"$PATH:$HOME/.local/bin"
 
-tested_python_versions := "3.11 3.12 3.13"
+tested_python_versions := "3.11 3.12 3.13 3.14"
 
 default:
 	@just --list
