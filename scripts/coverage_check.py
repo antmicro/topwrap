@@ -4,7 +4,6 @@
 
 import json
 import os
-import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -21,6 +20,8 @@ MAIN_BRANCH = "main"
 
 
 def get_coverage_per_file() -> Dict[str, int]:
+    env = os.environ.copy()
+    env["VIRTUAL_ENV"] = "./.venv"
     result = subprocess.run(
         [
             "uv",
@@ -35,6 +36,7 @@ def get_coverage_per_file() -> Dict[str, int]:
             "--cov-report=json:cover/coverage.json",
             "tests",
         ],
+        env=env,
         check=False,
     )
 
@@ -54,13 +56,20 @@ def get_coverage_on_main() -> Dict[str, int]:
     original_cwd = Path.cwd()
 
     with TemporaryDirectory() as tmpdir:
-        shutil.copytree(original_cwd, tmpdir, dirs_exist_ok=True)
+        subprocess.run(["git", "fetch", "origin", f"{MAIN_BRANCH}:{MAIN_BRANCH}"], check=True)
+        subprocess.run(["git", "worktree", "add", "--detach", tmpdir, MAIN_BRANCH], check=True)
         os.chdir(tmpdir)
         try:
-            subprocess.run(["git", "switch", MAIN_BRANCH, "--force"], check=True)
+            py_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
+            env = os.environ.copy()
+            env["VIRTUAL_ENV"] = "./.venv"
+            subprocess.run(
+                ["uv", "sync", "-p", py_version, "--extra", "tests"], env=env, check=True
+            )
             return get_coverage_per_file()
         finally:
             os.chdir(original_cwd)
+            subprocess.run(["git", "worktree", "remove", "--force", tmpdir], check=True)
 
 
 @cli.default
