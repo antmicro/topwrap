@@ -603,3 +603,29 @@ class InterconnectHasManagerSubordinateValidation(Validation):
 
         if msgs:
             raise ValidationException(msgs)
+
+
+class InterconnectHasClockReset(Validation):
+    name: str = "Check whether each interconnect has a clock and a reset"
+    priority: int = 10
+    design_only: bool = True
+    recursive = True
+
+    def __init__(self, log_level: int):
+        self.log_level = log_level
+        super().__init__()
+
+    def validate(self, mod: Module, ctx: BuildContext):
+        if mod.design is None:
+            raise BuildException("InterconnectHasClockReset: design is None")
+
+        msgs = []
+
+        for intr in mod.design.interconnects:
+            if intr.clock is None:
+                msgs.append(f"Interconnect {intr.name} in module {mod.id} has no clock")
+            if intr.reset is None:
+                msgs.append(f"Interconnect {intr.name} in module {mod.id} has no reset")
+
+        if msgs:
+            raise ValidationException(msgs)

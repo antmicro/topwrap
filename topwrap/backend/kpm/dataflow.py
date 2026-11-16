@@ -452,7 +452,8 @@ class KpmDataflowBackend:
             node.move(Vector2(node_pos[0], node_pos[1]))
 
         for i, pin in enumerate((intr.clock, intr.reset)):
-            self._connect(graph, node.interfaces[i], ref[(pin.instance, id(pin.io))])
+            if pin:
+                self._connect(graph, node.interfaces[i], ref[(pin.instance, id(pin.io))])
 
         for prop, cons in ((mprop, intr.managers), (sprop, intr.subordinates)):
             if len(cons) > 0:

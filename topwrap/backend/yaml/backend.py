@@ -582,8 +582,8 @@ class DesignDescriptionBackend(Backend[DesignDescriptionOutput]):
 
         return DesignSectionInterconnect(
             type=INTERCONNECT_NAMES[type(intr)],
-            clock=self._represent_ref_io(intr.clock),
-            reset=self._represent_ref_io(intr.reset),
+            clock=self._represent_ref_io(intr.clock) if intr.clock else None,
+            reset=self._represent_ref_io(intr.reset) if intr.reset else None,
             params=intr.params.to_dict(),
             managers=managers,
             subordinates=subordinates,

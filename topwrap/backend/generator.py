@@ -82,23 +82,19 @@ class Generator(ABC, Generic[_HDL, _INTERCONNECT]):
         interconnect: _INTERCONNECT,
     ):
         design = interconnect.parent
-        clk_port = Port(name=CLK_PORT_NAME, direction=PortDirection.IN, type=Bit())
-        module.add_port(clk_port)
-        design.add_connection(
-            PortConnection(
-                target=ReferencedPort(io=clk_port, instance=module_instance),
-                source=interconnect.clock,
-            )
-        )
-
-        rst_port = Port(name=RST_PORT_NAME, direction=PortDirection.IN, type=Bit())
-        module.add_port(rst_port)
-        design.add_connection(
-            PortConnection(
-                target=ReferencedPort(io=rst_port, instance=module_instance),
-                source=interconnect.reset,
-            )
-        )
+        for port_name, source in [
+            (CLK_PORT_NAME, interconnect.clock),
+            (RST_PORT_NAME, interconnect.reset),
+        ]:
+            if source:
+                port = Port(name=port_name, direction=PortDirection.IN, type=Bit())
+                module.add_port(port)
+                design.add_connection(
+                    PortConnection(
+                        target=ReferencedPort(io=port, instance=module_instance),
+                        source=source,
+                    )
+                )
 
     def _add_interface_to_design(
         self,

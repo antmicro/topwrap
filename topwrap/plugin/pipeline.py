@@ -25,6 +25,7 @@ from topwrap.plugin.steps import (
     DomainDrivenValidationStage,
     FuseSocOutputStage,
     InputStage,
+    InterconnectHasClockReset,
     InterconnectHasManagerSubordinateValidation,
     IPXACTOutputStage,
     KpmDataflowOutputStage,
@@ -277,6 +278,7 @@ class BuildPipeline:
                 DomainAssignedValidation(logging.ERROR),
                 DomainDrivenValidationStage(logging.ERROR),
                 InterconnectHasManagerSubordinateValidation(logging.ERROR),
+                InterconnectHasClockReset(logging.ERROR),
             ],
             outputs=outputs,
         )
@@ -294,6 +296,7 @@ class BuildPipeline:
                 DomainAssignedValidation(logging.ERROR),
                 DomainDrivenValidationStage(logging.ERROR),
                 InterconnectHasManagerSubordinateValidation(logging.ERROR),
+                InterconnectHasClockReset(logging.ERROR),
             ],
             outputs=[IPXACTOutputStage()],
         )
@@ -320,6 +323,7 @@ class BuildPipeline:
                 DomainAssignedValidation(logging.ERROR),
                 DomainDrivenValidationStage(logging.ERROR),
                 InterconnectHasManagerSubordinateValidation(logging.ERROR),
+                InterconnectHasClockReset(logging.ERROR),
             ],
             outputs=outputs,
         )
@@ -337,6 +341,7 @@ class BuildPipeline:
                 DomainAssignedValidation(logging.WARNING),
                 DomainDrivenValidationStage(logging.WARNING),
                 InterconnectHasManagerSubordinateValidation(logging.WARNING),
+                InterconnectHasClockReset(logging.WARNING),
             ],
             outputs=[
                 YamlDesignOutputStage(save_positions=True),

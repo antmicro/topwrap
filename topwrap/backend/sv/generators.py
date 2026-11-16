@@ -248,14 +248,15 @@ class AXIVerilogGenerator(SystemVerilogGenerator[AXIInterconnect]):
     ):
         design = interconnect.parent
         for port_name, source in [("clk_i", interconnect.clock), ("rst_ni", interconnect.reset)]:
-            port = Port(name=port_name, direction=PortDirection.IN, type=Bit())
-            module.add_port(port)
-            design.add_connection(
-                PortConnection(
-                    target=ReferencedPort(io=port, instance=module_instance),
-                    source=source,
+            if source:
+                port = Port(name=port_name, direction=PortDirection.IN, type=Bit())
+                module.add_port(port)
+                design.add_connection(
+                    PortConnection(
+                        target=ReferencedPort(io=port, instance=module_instance),
+                        source=source,
+                    )
                 )
-            )
 
     def add_module_instance_to_design(
         self,

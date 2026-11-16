@@ -455,19 +455,25 @@ class DesignDescriptionFrontend:
     ):
         itype = INTERCONNECT_TYPES[intr.type]
         params = itype.params.from_dict(intr.params)
+        clock = reset = None
         try:
-            clock, _ = self._resolve_ref(
-                des, *([None, intr.clock] if isinstance(intr.clock, str) else [*intr.clock])
-            )
-            reset, _ = self._resolve_ref(
-                des, *([None, intr.reset] if isinstance(intr.reset, str) else [*intr.reset])
-            )
-        except DesignDescriptionFrontendException as e:
-            raise DesignDescriptionFrontendException(
-                "Couldn't resolve a clock or a reset reference"
-            ) from e
+            if intr.clock:
+                clock, _ = self._resolve_ref(
+                    des, *([None, intr.clock] if isinstance(intr.clock, str) else [*intr.clock])
+                )
+            if intr.reset:
+                reset, _ = self._resolve_ref(
+                    des, *([None, intr.reset] if isinstance(intr.reset, str) else [*intr.reset])
+                )
+        except DesignDescriptionFrontendException:
+            logger.warning(f"Couldn't resolve clock or reset reference in interconnect {iname}")
 
-        if not isinstance(clock, ReferencedPort) or not isinstance(reset, ReferencedPort):
+        if (
+            clock
+            and not isinstance(clock, ReferencedPort)
+            or reset
+            and not isinstance(reset, ReferencedPort)
+        ):
             raise DesignDescriptionFrontendException("Clock or reset is not connected to a port")
 
         mem_map = None
