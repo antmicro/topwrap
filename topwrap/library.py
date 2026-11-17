@@ -321,7 +321,15 @@ def _fusesoc_library(name: str, uri: str):
 
     git_uri, ref = _split_git_ref(uri)
     checkout = _checkout_root() / name
-    library = Library(name, str(checkout), "git", git_uri, ref, True)
+    library = Library(
+        name,
+        str(checkout),
+        "git",
+        git_uri,
+        ref,
+        True,
+        sync_submodules=True,
+    )
     if checkout.exists():
         if checkout.is_symlink() or not (checkout / ".git").is_dir():
             raise LibraryError(f"existing checkout '{checkout}' is not a git repository")

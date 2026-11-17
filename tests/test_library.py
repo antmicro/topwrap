@@ -479,6 +479,38 @@ class TestGitLibrary:
         _make_demo_source_repo(src)
         return src
 
+    def test_cli_syncs_submodules_on_clone_and_update(
+        self,
+        tmp_path: Path,
+        git_source: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        from topwrap.cli import cli
+
+        submodule = tmp_path / "submodule"
+        submodule.mkdir()
+        _git("init", "-q", cwd=submodule)
+        _git("config", "user.email", "test@example.com", cwd=submodule)
+        _git("config", "user.name", "Test", cwd=submodule)
+        (submodule / "content").write_text("first")
+        _git("add", "content", cwd=submodule)
+        _git("commit", "-q", "-m", "first", cwd=submodule)
+        monkeypatch.setenv("GIT_ALLOW_PROTOCOL", "file")
+        _git("submodule", "add", "-q", str(submodule), "nested", cwd=git_source)
+        _git("commit", "-q", "-am", "add submodule", cwd=git_source)
+        monkeypatch.chdir(tmp_path)
+
+        cli.meta(["library", "add", "demo", f"file://{git_source}"], result_action="return_value")
+        checkout = tmp_path / ".fusesoc-cores" / "demo" / "nested" / "content"
+        assert checkout.is_file()
+
+        (submodule / "content").write_text("second")
+        _git("commit", "-q", "-am", "second", cwd=submodule)
+        _git("pull", "-q", cwd=git_source / "nested")
+        _git("commit", "-q", "-am", "update submodule", cwd=git_source)
+        cli.meta(["library", "update", "demo"], result_action="return_value")
+        assert checkout.read_text() == "second"
+
     def test_add_clones_and_checks_out_a_pinned_ref(
         self,
         tmp_path: Path,

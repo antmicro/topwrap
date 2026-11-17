@@ -26,6 +26,11 @@ topwrap library update            # all of them
 topwrap library update my_cores   # or just one
 ```
 
+### Git submodules
+
+Submodules are initialized recursively when a Git library is cloned and updated to the
+commits recorded by the library when it is updated. Local directory libraries are unaffected.
+
 ### Checking Git repository origins
 
 When reusing an existing Git library checkout, Topwrap checks that its `origin` URL matches the configured library URI. Git URL rewriting, such as an `url.<base>.insteadOf` rule used for CI authentication, can make Git report a different URL and cause this check to fail.
