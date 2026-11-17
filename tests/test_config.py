@@ -14,6 +14,19 @@ from topwrap.resource_field import FileReferenceHandler, UriReferenceHandler
 
 
 class TestConfigManager:
+    @pytest.mark.parametrize("field", ["skip_library_origin_check"])
+    def test_library_option_precedence(self, tmp_path, field):
+        high = tmp_path / "high.yaml"
+        low = tmp_path / "low.yaml"
+        low.write_text(f"{field}: true\n")
+        high.write_text("libraries: {}\n")
+        manager = ConfigManager([high, low])
+        assert getattr(manager.load(), field) is True
+        high.write_text(f"{field}: false\n")
+        assert getattr(manager.load(), field) is False
+        assert getattr(manager.load(overrides=Config(**{field: True})), field) is True
+        assert getattr(ConfigManager([]).load(), field) is None
+
     @pytest.fixture
     def config_dict(self):
         return Config(

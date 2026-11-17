@@ -330,12 +330,14 @@ def _fusesoc_library(name: str, uri: str):
             capture_output=True,
             text=True,
         )
-        origin = result.stdout.strip()
-        if result.returncode != 0 or origin != git_uri:
-            actual = origin or "no origin"
-            raise LibraryError(
-                f"existing checkout '{checkout}' belongs to '{actual}', not '{git_uri}'"
-            )
+        if not get_config().skip_library_origin_check:
+            origin = result.stdout.strip()
+            if result.returncode != 0 or origin != git_uri:
+                actual = origin or "no origin"
+                raise LibraryError(
+                    f"existing checkout '{checkout}' belongs to '{actual}', not '{git_uri}'. Hint:"
+                    "look into skip_library_origin_check flag"
+                )
     else:
         try:
             get_provider("git").init_library(library)

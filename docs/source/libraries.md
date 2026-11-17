@@ -26,6 +26,18 @@ topwrap library update            # all of them
 topwrap library update my_cores   # or just one
 ```
 
+### Checking Git repository origins
+
+When reusing an existing Git library checkout, Topwrap checks that its `origin` URL matches the configured library URI. Git URL rewriting, such as an `url.<base>.insteadOf` rule used for CI authentication, can make Git report a different URL and cause this check to fail.
+
+If the checkout is the intended repository, disable the check in `topwrap.yaml`:
+
+```yaml
+skip_library_origin_check: true
+```
+
+Origin checking is enabled by default. This option allows reusing a checkout with a different origin URL; it does not change the remote URL or bypass Git authentication.
+
 ## Inspecting libraries
 
 ```bash

@@ -26,6 +26,7 @@ class Config(MarshmallowDataclassExtensions):
     """Global topwrap configuration"""
 
     force_interface_compliance: Optional[bool] = ext_field(False)
+    skip_library_origin_check: Optional[bool] = ext_field(None)
     repositories: dict[str, ResourcePathT] = ext_field(dict)
     libraries: dict[str, str] = ext_field(dict)
 
@@ -45,6 +46,9 @@ class Config(MarshmallowDataclassExtensions):
         clear_index_cache()
 
     def update(self, config: "Config"):
+        if config.skip_library_origin_check is not None:
+            self.skip_library_origin_check = config.skip_library_origin_check
+
         if config.force_interface_compliance is not None:
             self.update_interface_compliance(config.force_interface_compliance)
 
