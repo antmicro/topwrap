@@ -221,6 +221,42 @@ def test_package_saves_only_new_interface_definitions(
         clear_index_cache()
 
 
+def test_package_rejects_multiple_modules_without_top(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
+    source = tmp_path / "multi.sv"
+    source.write_text("module alpha; endmodule\nmodule beta; endmodule\n")
+
+    with pytest.raises(SystemExit):
+        run_cli("package", str(source), "--output", str(tmp_path / "out"))
+
+    assert "Found 2 modules" in caplog.text
+    assert "use '--top' to select one" in caplog.text
+
+
+def test_package_top_selects_one_module(tmp_path: Path):
+    output = tmp_path / "out"
+    source = tmp_path / "multi.sv"
+    source.write_text("module alpha; endmodule\nmodule beta; endmodule\n")
+
+    run_cli("package", str(source), "--top", "beta", "--output", str(output))
+
+    assert (output / "beta.yaml").exists()
+    assert not (output / "alpha.yaml").exists()
+
+
+def test_package_top_with_no_match_returns_error_status(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
+    source = tmp_path / "widget.sv"
+    source.write_text("module widget; endmodule\n")
+
+    with pytest.raises(SystemExit):
+        run_cli("package", str(source), "--top", "nonexistent", "--output", str(tmp_path / "out"))
+
+    assert "No module matching '--top' (nonexistent) found" in caplog.text
+
+
 def test_filelist_accepts_multiple_tokens_and_inline_comments(tmp_path: Path):
     first = tmp_path / "first.sv"
     second = tmp_path / "second.sv"

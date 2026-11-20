@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added "Export IP" and "Hierarchy export" actions for exporting a selected subgraph, the ability to target arbitrary subgraphs, and a button to save the current design in-place
   - Added an option to disable specific KPM node layers when generating the dataflow
 - Support for specifying filelists and include directories for HDL sources in IP core YAML files
-- A `topwrap package` command for creating an IP description and optional library `.core` from HDL sources, filelists, include directories and preprocessor defines
+- A `topwrap package` command for creating an IP description and optional library `.core` from HDL sources, filelists, include directories and preprocessor defines, with a `--top`/`-m` option to select which module to package when the given sources define more than one
 - An `existing_iface_definitions` entry to `module.yaml`, letting an IP core declare interface definitions already present in the parsed HDL so they aren't regenerated
 - Support for multidimensional ports (via a new `bound` property) in design/IP core YAML and in the IP-XACT frontend
 - IP core YAML frontend/backend now records signal type information (e.g. struct types) and source `path` metadata, and reuses existing port definitions where possible when re-parsing

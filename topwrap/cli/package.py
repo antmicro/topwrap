@@ -21,6 +21,7 @@ from topwrap.frontend.sv.frontend import SystemVerilogFrontend
 from topwrap.library import write_module_core
 from topwrap.model.inference.inference import infer_interfaces_from_module, parse_grouping_hints
 from topwrap.model.misc import Identifier
+from topwrap.model.module import Module
 from topwrap.util import parse_params
 
 logger = logging.getLogger(__name__)
@@ -106,6 +107,27 @@ def _collect_sources(
     return files, incdirs, defines
 
 
+def _select_module(modules: List[Module], top: Optional[str]) -> Module:
+    """The one module to package, optionally narrowed down by ``--top``."""
+    if top is not None:
+        modules = [m for m in modules if top == m.id.name]
+
+    if len(modules) == 0:
+        if top is not None:
+            logger.error(f"No module matching '--top' ({top}) found in the given sources")
+        else:
+            logger.error("No module found in the given sources")
+        sys.exit(1)
+    if len(modules) > 1:
+        names = ", ".join(sorted({m.id.name for m in modules}))
+        logger.error(
+            f"Found {len(modules)} modules in the given sources ({names}); "
+            f"'topwrap package' packages exactly one - use '--top' to select one"
+        )
+        sys.exit(1)
+    return modules[0]
+
+
 @cli.command(name="package")
 def package_main(
     sources: Annotated[Tuple[str, ...], Parameter(alias="-s")] = (),
@@ -116,6 +138,7 @@ def package_main(
     inference: Annotated[bool, Parameter(alias="-i")] = False,
     inference_interface: Annotated[Tuple[str, ...], Parameter(alias="-I")] = (),
     grouping_hint: Annotated[Tuple[str, ...], Parameter(alias="-g")] = (),
+    top: Annotated[Optional[str], Parameter(short_alias=None)] = None,
     lib: bool = False,
     copy: bool = False,
     frontend_approach: FrontendApproach = FrontendApproach.STRICT,
@@ -157,6 +180,10 @@ def package_main(
     grouping_hint
         Hints for merging inferred candidate groups into one, as
         ``old1,old2,...,oldN=new`` (repeatable).
+    top
+        Restrict packaging to modules with this name. Required when the given
+        sources contain more than one module; all modules found are considered
+        when omitted.
     lib
         Also write a CAPI2 ``.core`` file next to the IP description YAML,
         so the two together can be registered with ``topwrap library add``.
@@ -187,18 +214,7 @@ def package_main(
         if iface.id not in known_interface_ids
     }
 
-    if len(frontend_output.modules) == 0:
-        logger.error("No module found in the given sources")
-        sys.exit(1)
-    if len(frontend_output.modules) > 1:
-        names = ", ".join(sorted({m.id.name for m in frontend_output.modules}))
-        logger.error(
-            f"Found {len(frontend_output.modules)} modules in the given sources ({names}); "
-            "'topwrap package' packages exactly one - narrow down the given sources"
-        )
-        sys.exit(1)
-
-    module = frontend_output.modules[0]
+    module = _select_module(list(frontend_output.modules), top)
 
     if inference:
         candidates = known_interfaces
