@@ -1,0 +1,72 @@
+{
+  "version": "20250623.14",
+  "metadata": {
+    "randomizedOffset": true
+  },
+  "graphs": [
+    {
+      "connections": [
+        {
+          "from": "1af020b3-626b-4fe6-a3da-fad06f3f612c",
+          "id": "7b60e567-1fd0-4698-a7c9-841e8fe855da",
+          "to": "403ab4e6-e1e2-4843-9980-5f4b3ac4de7c"
+        }
+      ],
+      "id": "169383254977833",
+      "nodes": [
+        {
+          "enabledInterfaceGroups": [],
+          "id": "6c96482c-fc3e-43bb-a6d7-23e232dc804f",
+          "instanceName": "",
+          "interfaces": [
+            {
+              "direction": "inout",
+              "externalName": "",
+              "id": "1eed5434-bf1f-4907-b533-ba25575f119c",
+              "name": "external"
+            },
+            {
+              "direction": "inout",
+              "id": "403ab4e6-e1e2-4843-9980-5f4b3ac4de7c",
+              "name": "internal"
+            }
+          ],
+          "name": "External Inout",
+          "position": {
+            "x": -855,
+            "y": 300
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        },
+        {
+          "enabledInterfaceGroups": [],
+          "id": "35ef04e1-eddd-4ff7-90d4-644d003d37d6",
+          "instanceName": "",
+          "interfaces": [
+            {
+              "direction": "input",
+              "externalName": "",
+              "id": "e8d83c17-a797-41be-90ca-f2ded4f3e1e8",
+              "name": "in"
+            },
+            {
+              "direction": "output",
+              "id": "1af020b3-626b-4fe6-a3da-fad06f3f612c",
+              "name": "internal"
+            }
+          ],
+          "name": "External Input",
+          "position": {
+            "x": -1320,
+            "y": 300
+          },
+          "properties": [],
+          "twoColumn": true,
+          "width": 200
+        }
+      ]
+    }
+  ]
+}
