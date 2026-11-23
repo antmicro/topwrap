@@ -603,12 +603,6 @@ async def _kpm_handle_connections_change(
     logging.debug("Handling connection change event")
     logging.debug(f"Diff is: {conns_diff}")
 
-    # FIXME: remove once KPM no longer sends spurious warnings
-    # Ignore spurious event
-    connections = conns_diff["connections"]
-    if not connections["added"] and not connections["deleted"]:
-        return
-
     # Data for interfaces_change API call to KPM
     graph_id = conns_diff["graph_id"]
     graph = get_graph_with_id(new_dataflow, graph_id)
