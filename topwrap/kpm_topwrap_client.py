@@ -84,12 +84,12 @@ class RPCMethods:
         return []
 
     def specification_get(self) -> RPCEndpointReturnType:
-        logging.info(f"Specification get request from {self.host}:{self.port}")
+        logging.debug(f"Specification get request from {self.host}:{self.port}")
 
         return {"type": MessageType.OK.value, "content": self.specification}
 
     def dataflow_validate(self, dataflow: JsonType) -> RPCEndpointReturnType:
-        logging.info(f"Dataflow validation request received from {self.host}:{self.port}")
+        logging.debug(f"Dataflow validation request received from {self.host}:{self.port}")
         messages = DataflowValidator(dataflow).validate_kpm_design()
         if messages["errors"]:
             # note: only the first error is sent to the KPM frontend
@@ -103,7 +103,7 @@ class RPCMethods:
             return {"type": MessageType.OK.value, "content": "Design is valid"}
 
     def dataflow_run(self, dataflow: JsonType) -> RPCEndpointReturnType:
-        logging.info(f"Dataflow run request received from {self.host}:{self.port}")
+        logging.debug(f"Dataflow run request received from {self.host}:{self.port}")
         errors = _kpm_dataflow_run_handler(dataflow, self.specification, self.build_dir)
         if errors:
             # note: only the first error is sent to the KPM frontend
@@ -112,11 +112,11 @@ class RPCMethods:
             return {"type": MessageType.OK.value, "content": "Build succeeded"}
 
     def dataflow_stop(self, method: str) -> RPCEndpointReturnType:
-        logging.info(f"Dataflow stop request from {self.host}:{self.port}")
+        logging.debug(f"Dataflow stop request from {self.host}:{self.port}")
         return {"type": MessageType.OK.value}
 
     async def dataflow_export(self, dataflow: JsonType) -> RPCExportEndpointReturnType:
-        logging.info(f"Dataflow export request received from {self.host}:{self.port}")
+        logging.debug(f"Dataflow export request received from {self.host}:{self.port}")
 
         pipeline = BuildPipeline.kpm_yaml_pipeline()
         pipeline.prepare_str([json.dumps(self.specification)], json.dumps(dataflow))
@@ -170,7 +170,7 @@ class RPCMethods:
     async def dataflow_import(
         self, external_application_dataflow: str, mime: str, base64: bool
     ) -> RPCEndpointReturnType:
-        logging.info(f"Dataflow import request received from {self.host}:{self.port}")
+        logging.debug(f"Dataflow import request received from {self.host}:{self.port}")
         yaml_str = convert_message_to_string(external_application_dataflow, base64, mime)
 
         try:
@@ -244,7 +244,7 @@ class RPCMethods:
                 )
 
     def dialog_boxes_get(self) -> JsonType:
-        logging.info("dialog_boxes_get request")
+        logging.debug("dialog_boxes_get request")
         return {
             "DesignSaveDialog": {
                 "title": "Choose save location",
@@ -432,7 +432,7 @@ class RPCMethods:
         pass
 
     def custom_download_ip(self, node_id: str) -> RPCExportEndpointReturnType:
-        logging.info(f"IP export request received from {self.host}:{self.port}")
+        logging.debug(f"IP export request received from {self.host}:{self.port}")
 
         latest_dataflow = read_json_file(self.default_save_file)
 
@@ -468,8 +468,7 @@ class RPCMethods:
         return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": out.filename}
 
     def custom_download_hierarchy(self, node_id: str) -> RPCExportEndpointReturnType:
-        logging.info(f"Hierarchy export request received from {self.host}:{self.port}")
-        logging.debug(f"Hierarchy node id: {node_id}")
+        logging.debug(f"Hierarchy export request received from {self.host}:{self.port}")
 
         latest_dataflow = read_json_file(self.default_save_file)
         clicked_node = find_dataflow_node_by_id(latest_dataflow, node_id)
@@ -489,7 +488,6 @@ class RPCMethods:
             tuple[BackendOutputInfo, Optional[BackendOutputInfo]],
             ctx.outputs[YamlDesignOutputStage.name],
         )
-        logging.debug(f"Out type is: {type(out)}")
 
         flow_b64encoded = b64encode(out.content.encode("utf-8")).decode("utf-8")
         return {"type": MessageType.OK.value, "content": flow_b64encoded, "filename": out.filename}
@@ -602,7 +600,7 @@ async def _kpm_handle_connections_change(
     When a connection node is added, expose the interface opposite
     a connected interface
     """
-    logging.info("Handling connection change event")
+    logging.debug("Handling connection change event")
     logging.debug(f"Diff is: {conns_diff}")
 
     # FIXME: remove once KPM no longer sends spurious warnings
@@ -630,8 +628,7 @@ async def _kpm_handle_nodes_change(
     When an `External I/O` node is added, expose its unconnected interfaces
     via `interface_change` requests.
     """
-    logging.info("Handling node change event")
-    logging.debug(f"Diff is: {nodes_diff}")
+    logging.debug("Handling node change event")
     graph_id = nodes_diff["graph_id"]
 
     # When an `External I/O` node is added, expose its unconnected interfaces
