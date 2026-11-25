@@ -110,7 +110,7 @@ def _collect_sources(
 def _select_module(modules: List[Module], top: Optional[str]) -> Module:
     """The one module to package, optionally narrowed down by ``--top``."""
     if top is not None:
-        modules = [m for m in modules if top == m.id.name]
+        modules = [m for m in modules if top in (m.id.name, m.id.combined())]
 
     if len(modules) == 0:
         if top is not None:
@@ -138,7 +138,7 @@ def package_main(
     inference: Annotated[bool, Parameter(alias="-i")] = False,
     inference_interface: Annotated[Tuple[str, ...], Parameter(alias="-I")] = (),
     grouping_hint: Annotated[Tuple[str, ...], Parameter(alias="-g")] = (),
-    top: Annotated[Optional[str], Parameter(short_alias=None)] = None,
+    top: Annotated[Optional[str], Parameter(short_alias=False)] = None,
     lib: bool = False,
     copy: bool = False,
     frontend_approach: FrontendApproach = FrontendApproach.STRICT,
@@ -181,9 +181,9 @@ def package_main(
         Hints for merging inferred candidate groups into one, as
         ``old1,old2,...,oldN=new`` (repeatable).
     top
-        Restrict packaging to modules with this name. Required when the given
-        sources contain more than one module; all modules found are considered
-        when omitted.
+        Module to package, by name or its combined
+        ``vendor_library_name_version`` identifier. Required when the given
+        sources define more than one module.
     lib
         Also write a CAPI2 ``.core`` file next to the IP description YAML,
         so the two together can be registered with ``topwrap library add``.
@@ -215,6 +215,8 @@ def package_main(
     }
 
     module = _select_module(list(frontend_output.modules), top)
+    used_interfaces = {intf.definition.id for intf in module.interfaces}
+    new_interfaces = {k: v for k, v in new_interfaces.items() if k in used_interfaces}
 
     if inference:
         candidates = known_interfaces

@@ -227,9 +227,10 @@ def test_package_rejects_multiple_modules_without_top(
     source = tmp_path / "multi.sv"
     source.write_text("module alpha; endmodule\nmodule beta; endmodule\n")
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc_info:
         run_cli("package", str(source), "--output", str(tmp_path / "out"))
 
+    assert exc_info.value.code == 1
     assert "Found 2 modules" in caplog.text
     assert "use '--top' to select one" in caplog.text
 
@@ -245,15 +246,40 @@ def test_package_top_selects_one_module(tmp_path: Path):
     assert not (output / "alpha.yaml").exists()
 
 
+def test_package_top_accepts_combined_identifier(tmp_path: Path):
+    output = tmp_path / "out"
+    source = tmp_path / "multi.sv"
+    source.write_text("module alpha; endmodule\nmodule beta; endmodule\n")
+
+    run_cli("package", str(source), "--top", "vendor_libdefault_beta_0.1", "--output", str(output))
+
+    assert sorted(p.name for p in output.iterdir()) == ["beta.yaml"]
+
+
+def test_package_top_skips_interfaces_of_other_modules(tmp_path: Path):
+    output = tmp_path / "out"
+    source = tmp_path / "multi.sv"
+    source.write_text(
+        "interface bus_if; logic valid; modport manager(output valid); endinterface\n"
+        "module alpha; endmodule\n"
+        "module beta(bus_if.manager bus); endmodule\n"
+    )
+
+    run_cli("package", str(source), "--top", "alpha", "--output", str(output))
+
+    assert sorted(p.name for p in output.iterdir()) == ["alpha.yaml"]
+
+
 def test_package_top_with_no_match_returns_error_status(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ):
     source = tmp_path / "widget.sv"
     source.write_text("module widget; endmodule\n")
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc_info:
         run_cli("package", str(source), "--top", "nonexistent", "--output", str(tmp_path / "out"))
 
+    assert exc_info.value.code == 1
     assert "No module matching '--top' (nonexistent) found" in caplog.text
 
 
