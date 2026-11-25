@@ -91,7 +91,7 @@ print_coverage:
 test version="3.11":
 	#!/usr/bin/env bash
 	set -euo pipefail
-	uv sync --python python{{version}} --extra tests
+	uv sync --managed-python --python python{{version}} --extra tests
 	uv run pytest \
 		-rs \
 		--cov-report html:cov_html \
